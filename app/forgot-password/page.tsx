@@ -25,7 +25,7 @@ export default function ForgotPasswordPage() {
       const redirectTo = origin ? `${origin}/reset-password` : undefined;
 
       const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-        redirectTo: "http://localhost:3000/reset-password",
+        redirectTo: "https://smartscalestrategy.netlify.app/reset-password",
     })
 
       if (error) {
