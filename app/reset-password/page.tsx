@@ -77,7 +77,7 @@ export default function ResetPasswordPage() {
       }
 
       try {
-        // 0) Recovery link flow: ?token_hash=...&type=recovery (most common for reset password emails)
+        // 0) Recovery link flow: ?token_hash=...&type=recovery
         if (tokenHash && type === "recovery") {
           const { data, error } = await supabase.auth.verifyOtp({
             token_hash: tokenHash,
@@ -85,7 +85,6 @@ export default function ResetPasswordPage() {
           });
           if (error) throw error;
 
-          // Explicitly persist session when provided (prevents getSession() = null race).
           if (data?.session?.access_token && data?.session?.refresh_token) {
             await supabase.auth.setSession({
               access_token: data.session.access_token,
@@ -98,7 +97,6 @@ export default function ResetPasswordPage() {
           setLinkValidated(true);
           setHasSession(Boolean(data?.session));
 
-          // Clean URL so the token can't be reused.
           url.searchParams.delete("token_hash");
           url.searchParams.delete("type");
           window.history.replaceState({}, document.title, url.toString());
@@ -112,7 +110,6 @@ export default function ResetPasswordPage() {
           const { data, error } = await supabase.auth.exchangeCodeForSession(code);
           if (error) throw error;
 
-          // Explicitly persist session when provided.
           if (data?.session?.access_token && data?.session?.refresh_token) {
             await supabase.auth.setSession({
               access_token: data.session.access_token,
@@ -125,7 +122,6 @@ export default function ResetPasswordPage() {
           setLinkValidated(true);
           setHasSession(Boolean(data?.session));
 
-          // Remove the code from the URL so it can't be reused.
           url.searchParams.delete("code");
           url.searchParams.delete("type");
           window.history.replaceState({}, document.title, url.toString());
@@ -136,7 +132,6 @@ export default function ResetPasswordPage() {
 
         // 2) Hash flow: access_token in hash.
         if (!code && hashHasAccessToken) {
-          // If present, explicitly set session from hash tokens.
           const access_token = hashParams["access_token"];
           const refresh_token = hashParams["refresh_token"];
           if (access_token && refresh_token) {
@@ -147,14 +142,12 @@ export default function ResetPasswordPage() {
           if (!mounted) return;
           setLinkValidated(true);
 
-          // Clear hash ASAP.
           window.history.replaceState(
             {},
             document.title,
             window.location.pathname + window.location.search
           );
 
-          // Best-effort: read session once.
           const { data } = await supabase.auth.getSession();
           setHasSession(Boolean(data.session));
 
@@ -171,7 +164,7 @@ export default function ResetPasswordPage() {
         });
         unsubscribe = () => sub.data.subscription.unsubscribe();
 
-        // 4) Small delay + retry session read (session can take a moment to persist after exchange).
+        // 4) Small delay + retry session read.
         await new Promise((r) => setTimeout(r, 250));
 
         let ok = false;
@@ -186,7 +179,6 @@ export default function ResetPasswordPage() {
         if (!mounted) return;
         setHasSession(ok);
 
-        // If the link was validated but the session still isn't available, show a clearer message.
         if (!ok && validatedByLinkRef.current) {
           setErr(
             "Validé el link pero no pude obtener una sesión. Esto suele pasar si abriste el link en una pestaña distinta, " +
@@ -195,7 +187,6 @@ export default function ResetPasswordPage() {
           );
         }
 
-        // Only show "no session" if we did NOT validate a link.
         if (!ok && !validatedByLinkRef.current) {
           setErr(
             "El link de recuperación no contiene una sesión válida (no encontré ?code= o #access_token). " +
@@ -225,7 +216,7 @@ export default function ResetPasswordPage() {
     setErr(null);
     setInfo(null);
 
-    // If the link was validated, give Supabase one last chance to surface the session.
+    // Last chance to surface session
     if (!hasSession && linkValidated) {
       const { data } = await supabase.auth.getSession();
       if (data.session) setHasSession(true);
@@ -263,64 +254,123 @@ export default function ResetPasswordPage() {
   }
 
   if (!ready) {
-    return <div className="min-h-screen bg-black text-white p-6">Cargando…</div>;
+    return (
+      <div className="relative min-h-screen bg-black text-white">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(700px_circle_at_20%_15%,rgba(255,255,255,0.10),transparent_55%),radial-gradient(700px_circle_at_80%_20%,rgba(255,255,255,0.08),transparent_55%),radial-gradient(900px_circle_at_50%_90%,rgba(255,255,255,0.06),transparent_55%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/70 to-black" />
+        </div>
+        <div className="relative flex min-h-screen items-center justify-center px-6 py-12">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-white/70 backdrop-blur-xl">
+            Cargando…
+          </div>
+        </div>
+      </div>
+    );
   }
 
+  const inputsEnabled = hasSession || linkValidated;
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
-      <form
-        onSubmit={onSubmit}
-        className="w-full max-w-sm space-y-4 p-6 border border-white/10 rounded-xl"
-      >
-        <h1 className="text-white text-xl font-semibold">Reseteá tu contraseña</h1>
+    <div className="relative min-h-screen bg-black text-white">
+      {/* Background */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(700px_circle_at_20%_15%,rgba(255,255,255,0.10),transparent_55%),radial-gradient(700px_circle_at_80%_20%,rgba(255,255,255,0.08),transparent_55%),radial-gradient(900px_circle_at_50%_90%,rgba(255,255,255,0.06),transparent_55%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/70 to-black" />
+      </div>
 
-        {err ? <p className="text-sm text-red-400 whitespace-pre-wrap">{err}</p> : null}
-        {info ? <p className="text-sm text-green-400 whitespace-pre-wrap">{info}</p> : null}
+      <div className="relative flex min-h-screen items-center justify-center px-6 py-12">
+        <div className="w-full max-w-md">
+          {/* Brand */}
+          <div className="mb-6 text-center">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 backdrop-blur">
+              <span className="text-sm font-semibold tracking-widest text-white/90">SS</span>
+            </div>
+            <div className="text-xs font-semibold tracking-[0.35em] text-white/70">
+              SMART SCALE
+            </div>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight">Reseteá tu contraseña</h1>
+            <p className="mt-1 text-sm text-white/60">
+              Validá el link y elegí una nueva contraseña.
+            </p>
+          </div>
 
-        <div className="space-y-2">
-          <input
-            className="w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-white outline-none disabled:opacity-60"
-            placeholder="Nueva contraseña (mín. 6)"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={!hasSession && !linkValidated}
-          />
-          <input
-            className="w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-white outline-none disabled:opacity-60"
-            placeholder="Repetir contraseña"
-            type="password"
-            value={password2}
-            onChange={(e) => setPassword2(e.target.value)}
-            required
-            disabled={!hasSession && !linkValidated}
-          />
+          {/* Card */}
+          <form
+            onSubmit={onSubmit}
+            className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl"
+          >
+            <div className="space-y-4">
+              {err ? (
+                <div className="rounded-xl border border-white/10 bg-black/40 p-3 text-sm text-white/80 whitespace-pre-wrap">
+                  {err}
+                </div>
+              ) : null}
+
+              {info ? (
+                <div className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm text-white/75 whitespace-pre-wrap">
+                  {info}
+                </div>
+              ) : null}
+
+              <div className="space-y-2">
+                <label className="block text-sm text-white/70">Nueva contraseña</label>
+                <input
+                  className="h-11 w-full rounded-xl border border-white/10 bg-black/30 px-3 text-white outline-none placeholder:text-white/30 focus:border-white/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
+                  placeholder="Mínimo 6 caracteres"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={!inputsEnabled}
+                  autoComplete="new-password"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm text-white/70">Repetir contraseña</label>
+                <input
+                  className="h-11 w-full rounded-xl border border-white/10 bg-black/30 px-3 text-white outline-none placeholder:text-white/30 focus:border-white/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
+                  placeholder="Repetí la contraseña"
+                  type="password"
+                  value={password2}
+                  onChange={(e) => setPassword2(e.target.value)}
+                  required
+                  disabled={!inputsEnabled}
+                  autoComplete="new-password"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading || !hasSession}
+                className="h-11 w-full rounded-xl bg-white text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-60"
+              >
+                {loading ? "Actualizando…" : "Actualizar contraseña"}
+              </button>
+
+              <div className="flex items-center justify-between pt-1">
+                <Link
+                  href="/login"
+                  className="text-sm text-white/65 underline-offset-4 hover:text-white hover:underline"
+                >
+                  Volver al login
+                </Link>
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-white/65 underline-offset-4 hover:text-white hover:underline"
+                >
+                  Pedir nuevo link
+                </Link>
+              </div>
+            </div>
+          </form>
+
+          <p className="mt-6 text-center text-xs text-white/35">
+            © {new Date().getFullYear()} SMART SCALE
+          </p>
         </div>
-
-        <button
-          type="submit"
-          disabled={loading || !hasSession}
-          className="w-full rounded-md border border-white/10 py-2 text-white hover:bg-white/5 disabled:opacity-60"
-        >
-          {loading ? "Actualizando..." : "Actualizar contraseña"}
-        </button>
-
-        <div className="flex items-center justify-between">
-          <Link href="/login" className="text-sm text-white/60 hover:text-white">
-            Volver al login
-          </Link>
-          <Link href="/forgot-password" className="text-sm text-white/60 hover:text-white">
-            Pedir nuevo link
-          </Link>
-        </div>
-
-        <p className="text-xs text-white/50">
-          Tip: usá siempre el mismo host (ej: <b>localhost</b>) y no mezcles con <b>127.0.0.1</b>. Asegurate de
-          que <code className="text-white/70"> /reset-password</code> esté whitelisteado en Supabase → Auth → URL
-          Configuration.
-        </p>
-      </form>
+      </div>
     </div>
   );
 }
