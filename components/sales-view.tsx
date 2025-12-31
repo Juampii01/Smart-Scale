@@ -16,7 +16,9 @@ export function SalesView() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const monthValue = useMemo(() => {
     if (/^\d{4}-\d{2}$/.test(selectedMonth)) return `${selectedMonth}-01`
@@ -24,11 +26,11 @@ export function SalesView() {
   }, [selectedMonth])
 
   useEffect(() => {
-    let mounted = true
+    let isMounted = true
 
     async function load() {
       try {
-        if (mounted) {
+        if (isMounted) {
           setLoading(true)
           setError(null)
         }
@@ -48,21 +50,19 @@ export function SalesView() {
 
         const { data: report, error: rErr } = await supabase
           .from("monthly_reports")
-          .select(
-            "scheduled_calls,attended_calls,offers_presented,new_clients"
-          )
+          .select("scheduled_calls,attended_calls,offers_presented,new_clients")
           .eq("client_id", clientId)
           .eq("month", monthValue)
           .maybeSingle()
 
         if (rErr) throw rErr
 
-        if (mounted) {
+        if (isMounted) {
           setData(report ?? null)
           setLoading(false)
         }
       } catch (e: any) {
-        if (mounted) {
+        if (isMounted) {
           setData(null)
           setLoading(false)
           setError(e?.message ?? "Error cargando funnel")
@@ -72,7 +72,7 @@ export function SalesView() {
 
     load()
     return () => {
-      mounted = false
+      isMounted = false
     }
   }, [monthValue, activeClientId])
 
@@ -104,9 +104,15 @@ export function SalesView() {
       const conversionFromPrevPct = idx === 0 ? 100 : prev > 0 ? (s.count / prev) * 100 : 0
       const conversionFromTopPct = idx === 0 ? 100 : top > 0 ? (s.count / top) * 100 : 0
 
-      // Visual width relative to the top of the funnel (scheduled)
-      // Keep it readable even with very small numbers.
-      const width = idx === 0 ? 100 : top > 0 ? Math.max(Math.round((s.count / top) * 100), 25) : 25
+      // ✅ FIX: clamp width to avoid >100% breaking the layout (when a step > top)
+      // Also keep a minimum width for readability.
+      const rawWidth = top > 0 ? (s.count / top) * 100 : 0
+      const width =
+        idx === 0
+          ? 100
+          : top > 0
+          ? Math.min(100, Math.max(26, Math.round(rawWidth)))
+          : Math.max(26, 42 - idx * 6)
 
       return {
         label: s.label,
@@ -124,7 +130,9 @@ export function SalesView() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-foreground">Ventas y conversión</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Visualización del embudo de conversión mensual</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Visualización del embudo de conversión mensual
+        </p>
         <p className="mt-1 text-xs text-white/50">Mes seleccionado: {selectedMonth}</p>
       </div>
 
@@ -149,11 +157,19 @@ export function SalesView() {
                   <div className="text-sm text-white/70">{step.label}</div>
                   <div className="mt-1 text-3xl font-bold text-white">{step.value}</div>
                 </div>
-                <div className="text-sm font-medium text-zinc-300">
-                  {step.conversionFromTopLabel}
+
+                {/* Conversión vs TOP (agendadas) */}
+                <div className="text-right">
+                  <div className="text-sm font-medium text-zinc-200">
+                    {step.conversionFromTopLabel}
+                  </div>
+                  <div className="mt-1 text-[11px] text-zinc-400">
+                    vs agendadas: {step.conversionFromTopLabel}
+                  </div>
                 </div>
               </CardContent>
             </Card>
+
             {index < funnelSteps.length - 1 && (
               <div className="flex justify-center">
                 <ChevronDown className="h-5 w-5 text-muted-foreground/50" />
