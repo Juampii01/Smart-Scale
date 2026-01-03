@@ -78,7 +78,7 @@ export function ToolsSection({
                   className="rounded-full ring-1 ring-white/20"
                 />
                 <div className="text-xs">
-                  <div className="text-white/80">Creado por Juampi</div>
+                  <div className="text-white/80">Creado por Ann</div>
                   <div className="text-white/40">Custom GPT</div>
                 </div>
               </div>
@@ -107,11 +107,32 @@ export function ToolsView() {
       subtitle="Herramientas internas para ejecutar, operar y escalar"
       tools={[
         {
-          name: "AI de Contenidos — Juampi",
+          name: "Coach de Autoridad de Contenido",
           description:
-            "Generador estratégico de ideas, guiones, hooks y contenido con el método NOVA.",
+            "GPT para auditar el contenido y reforzar autoridad, claridad y posicionamiento.",
           href:
-            "https://chatgpt.com/g/g-68e8a4d61eec8191a23c00e6d7fd5b4b-content-juampi",
+            "https://chatgpt.com/g/g-6954b071cfe88191ad231a5959498ae7-coach-de-autoridad-de-contenido",
+        },
+        {
+          name: "Smart Scale Email Engine",
+          description:
+            "GPT para convertir videos de YouTube y scripts en emails listos para enviar.",
+          href:
+            "https://chatgpt.com/g/g-6954a6883b6c8191abb16fee1fe44200-smart-scale-email-engine",
+        },
+        {
+          name: "Simple Offer Builder",
+          description:
+            "GPT para crear la oferta simple: estructura, promesa, entregables y posicionamiento.",
+          href:
+            "https://chatgpt.com/g/g-695470be71ec8191b89266dbd1948663-simple-offer-builder",
+        },
+        {
+          name: "DM Close Coach — Setting Flow",
+          description:
+            "GPT para armar el setting flow de DMs y mejorar el cierre por conversación.",
+          href:
+            "https://chatgpt.com/g/g-69541576dd98819189c7b14b046cc897-dm-close-coach-by-smart-scale",
         },
       ]}
     />
