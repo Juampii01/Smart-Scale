@@ -2,7 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Sparkles } from "lucide-react"
+import { ExternalLink, FileText, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export type ToolItem = {
@@ -17,12 +17,14 @@ export function ToolsSection({
   tools = [],
   showPlaceholder,
   className,
+  variant = "gpt",
 }: {
   title: string
   subtitle?: string
   tools?: ToolItem[]
   showPlaceholder?: boolean
   className?: string
+  variant?: "gpt" | "form"
 }) {
   return (
     <section className={cn("space-y-6", className)}>
@@ -48,7 +50,11 @@ export function ToolsSection({
             <CardHeader className="relative pb-4">
               <CardTitle className="flex items-center gap-4">
                 <div className="relative h-12 w-12 rounded-xl bg-black/60 ring-1 ring-white/10 flex items-center justify-center">
-                  <Sparkles className="h-6 w-6 text-cyan-400" />
+                  {variant === "gpt" ? (
+                    <Sparkles className="h-6 w-6 text-cyan-400" />
+                  ) : (
+                    <FileText className="h-6 w-6 text-cyan-400" />
+                  )}
                 </div>
 
                 <div className="flex-1">
@@ -56,7 +62,7 @@ export function ToolsSection({
                     {t.name}
                   </div>
                   <div className="mt-0.5 text-xs uppercase tracking-wider text-cyan-400/80">
-                    AI TOOL
+                    {variant === "gpt" ? "AI TOOL" : "FORM"}
                   </div>
                 </div>
 
@@ -69,19 +75,21 @@ export function ToolsSection({
                 {t.description}
               </p>
 
-              <div className="flex items-center gap-3">
-                <Image
-                  src="/avatar-Ann.png"
-                  alt="Ann"
-                  width={36}
-                  height={36}
-                  className="rounded-full ring-1 ring-white/20"
-                />
-                <div className="text-xs">
-                  <div className="text-white/80">Creado por Ann</div>
-                  <div className="text-white/40">Custom GPT</div>
+              {variant === "gpt" ? (
+                <div className="flex items-center gap-3">
+                  <Image
+                    src="/avatar-Ann.png"
+                    alt="Ann"
+                    width={36}
+                    height={36}
+                    className="rounded-full ring-1 ring-white/20"
+                  />
+                  <div className="text-xs">
+                    <div className="text-white/80">Creado por Ann</div>
+                    <div className="text-white/40">Custom GPT</div>
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
               <Button
                 asChild
@@ -89,7 +97,7 @@ export function ToolsSection({
                 className="w-full bg-cyan-400 text-black hover:bg-cyan-300"
               >
                 <Link href={t.href} target="_blank" rel="noreferrer">
-                  Abrir en ChatGPT
+                  {variant === "gpt" ? "Abrir en ChatGPT" : "Abrir formulario"}
                 </Link>
               </Button>
             </CardContent>
@@ -102,39 +110,61 @@ export function ToolsSection({
 
 export function ToolsView() {
   return (
-    <ToolsSection
-      title="Smart Scale Tools"
-      subtitle="Herramientas internas para ejecutar, operar y escalar"
-      tools={[
-        {
-          name: "Coach de Autoridad de Contenido",
-          description:
-            "GPT para auditar el contenido y reforzar autoridad, claridad y posicionamiento.",
-          href:
-            "https://chatgpt.com/g/g-6954b071cfe88191ad231a5959498ae7-coach-de-autoridad-de-contenido",
-        },
-        {
-          name: "Smart Scale Email Engine",
-          description:
-            "GPT para convertir videos de YouTube y scripts en emails listos para enviar.",
-          href:
-            "https://chatgpt.com/g/g-6954a6883b6c8191abb16fee1fe44200-smart-scale-email-engine",
-        },
-        {
-          name: "Simple Offer Builder",
-          description:
-            "GPT para crear la oferta simple: estructura, promesa, entregables y posicionamiento.",
-          href:
-            "https://chatgpt.com/g/g-695470be71ec8191b89266dbd1948663-simple-offer-builder",
-        },
-        {
-          name: "DM Close Coach — Setting Flow",
-          description:
-            "GPT para armar el setting flow de DMs y mejorar el cierre por conversación.",
-          href:
-            "https://chatgpt.com/g/g-69541576dd98819189c7b14b046cc897-dm-close-coach-by-smart-scale",
-        },
-      ]}
-    />
+    <>
+      <ToolsSection
+        title="Smart Scale Tools"
+        subtitle="Herramientas internas para ejecutar, operar y escalar"
+        variant="gpt"
+        tools={[
+          {
+            name: "Coach de Autoridad de Contenido",
+            description:
+              "GPT para auditar el contenido y reforzar autoridad, claridad y posicionamiento.",
+            href:
+              "https://chatgpt.com/g/g-6954b071cfe88191ad231a5959498ae7-coach-de-autoridad-de-contenido",
+          },
+          {
+            name: "Smart Scale Email Engine",
+            description:
+              "GPT para convertir videos de YouTube y scripts en emails listos para enviar.",
+            href:
+              "https://chatgpt.com/g/g-6954a6883b6c8191abb16fee1fe44200-smart-scale-email-engine",
+          },
+          {
+            name: "Simple Offer Builder",
+            description:
+              "GPT para crear la oferta simple: estructura, promesa, entregables y posicionamiento.",
+            href:
+              "https://chatgpt.com/g/g-695470be71ec8191b89266dbd1948663-simple-offer-builder",
+          },
+          {
+            name: "DM Close Coach — Setting Flow",
+            description:
+              "GPT para armar el setting flow de DMs y mejorar el cierre por conversación.",
+            href:
+              "https://chatgpt.com/g/g-69541576dd98819189c7b14b046cc897-dm-close-coach-by-smart-scale",
+          },
+        ]}
+      />
+      <ToolsSection
+        title="Formularios"
+        subtitle="Formularios internos para seguimiento y reporting"
+        variant="form"
+        tools={[
+          {
+            name: "Monday Wins",
+            description:
+              "Formulario semanal para completar todos los lunes con wins, avances y foco de la semana.",
+            href: "https://airtable.com/appRJNO1KYgg2A5NZ/pagj4KV5jDXvwA0jx/form",
+          },
+          {
+            name: "Monthly Report",
+            description:
+              "Formulario mensual para completar una vez al mes con el reporte del mes anterior.",
+            href: "https://airtable.com/appRJNO1KYgg2A5NZ/pagcUJ9vMsfMNBZBh/form",
+          },
+        ]}
+      />
+    </>
   )
 }
