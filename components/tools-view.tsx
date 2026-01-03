@@ -71,7 +71,7 @@ export function ToolsSection({
 
               <div className="flex items-center gap-3">
                 <Image
-                  src="./public/avatar-Ann.png"
+                  src="/avatar-Ann.png"
                   alt="Ann"
                   width={36}
                   height={36}
