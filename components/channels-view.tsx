@@ -67,9 +67,11 @@ function computeTrend(current: number | null | undefined, prev: number | null | 
 function ChannelCard({
   title,
   data,
+  hideContent,
 }: {
   title: string
   data: { audience: string; reach: string; content: string; trend: "up" | "down"; trendValue: string }
+  hideContent?: boolean
 }) {
   const TrendIcon = data.trend === "up" ? TrendingUp : TrendingDown
   const trendColor = data.trend === "up" ? "text-emerald-400" : "text-red-400"
@@ -100,13 +102,15 @@ function ChannelCard({
           </div>
           <div className="text-lg font-semibold text-white">{data.reach}</div>
         </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-zinc-400">
-            <FileText className="h-4 w-4" />
-            Contenido publicado
+        {!hideContent && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-zinc-400">
+              <FileText className="h-4 w-4" />
+              Contenido publicado
+            </div>
+            <div className="text-lg font-semibold text-white">{data.content}</div>
           </div>
-          <div className="text-lg font-semibold text-white">{data.content}</div>
-        </div>
+        )}
       </CardContent>
     </Card>
   )
@@ -254,7 +258,7 @@ export function ChannelsView() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <ChannelCard title="Contenido de formato corto" data={shortFormData} />
             <ChannelCard title="Formato largo (YouTube)" data={longFormData} />
-            <ChannelCard title="Marketing por email" data={emailData} />
+            <ChannelCard title="Marketing por email" data={emailData} hideContent />
           </div>
         </TabsContent>
 
@@ -267,7 +271,7 @@ export function ChannelsView() {
         </TabsContent>
 
         <TabsContent value="email" className="mt-6">
-          <ChannelCard title="Marketing por email" data={emailData} />
+          <ChannelCard title="Marketing por email" data={emailData} hideContent />
         </TabsContent>
       </Tabs>
     </div>
