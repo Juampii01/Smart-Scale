@@ -93,8 +93,8 @@ export function ToolsSection({
               {/* Creator */}
               <div className="flex items-center gap-3">
                 <Image
-                  src="/avatar-juampi.png"
-                  alt="Juampi"
+                  src="./public/avatar-Ann.png"
+                  alt="Ann"
                   width={36}
                   height={36}
                   className="rounded-full ring-1 ring-white/20"
