@@ -117,6 +117,13 @@ export function ToolsView() {
         variant="gpt"
         tools={[
           {
+            name: "Ann IA 1.0",
+            description:
+              "IA estratégica para ganar claridad y foco al implementar el Ecosistema Circular y escalar tu negocio de forma simple y alineada.",
+            href:
+              "https://chatgpt.com/g/g-695abe5acb4c8191a4092a38da71c883",
+          },
+          {
             name: "Coach de Autoridad de Contenido",
             description:
               "GPT para auditar el contenido y reforzar autoridad, claridad y posicionamiento.",
