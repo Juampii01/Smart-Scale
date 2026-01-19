@@ -129,52 +129,34 @@ export function ReflectionView() {
   }, [monthValue, activeClientId])
 
   const reflections = useMemo(
-    () => [
-      {
-        icon: Trophy,
-        title: "Mayor logro del mes",
-        content: pickString(data, [
-          "reflection_win",
-          "biggest_win",
-          "win",
-          "monthly_win",
-          "win_of_the_month",
-        ]),
-        color: "text-emerald-500",
-      },
-      {
-        icon: Target,
-        title: "Enfoque principal del próximo mes",
-        content: pickString(data, ["next_focus"]),
-        color: "text-chart-1",
-      },
-      {
-        icon: Wrench,
-        title: "Soporte y sistemas necesarios",
-        content: pickString(data, [
-          "reflection_support",
-          "support_needed",
-          "systems_needed",
-          "support_systems",
-          "monthly_support",
-        ]),
-        color: "text-chart-2",
-      },
-      {
-        icon: Wrench,
-        title: "Mejoras y feedback",
-        content: pickString(data, [
-          "reflection_improvements",
-          "improvements",
-          "feedback",
-          "reflection_feedback",
-          "monthly_feedback",
-        ]),
-        color: "text-chart-2",
-      },
-    ],
-    [data]
-  )
+  () => [
+    {
+      icon: Trophy,
+      title: "Mayor logro del mes",
+      content: pickString(data, ["biggest_win"]),
+      color: "text-emerald-500",
+    },
+    {
+      icon: Target,
+      title: "Enfoque principal del próximo mes",
+      content: pickString(data, ["next_focus"]),
+      color: "text-chart-1",
+    },
+    {
+      icon: Wrench,
+      title: "Soporte y sistemas necesarios",
+      content: pickString(data, ["support_needed"]),
+      color: "text-chart-2",
+    },
+    {
+      icon: Wrench,
+      title: "Mejoras y feedback",
+      content: pickString(data, ["improvements"]),
+      color: "text-chart-2",
+    },
+  ],
+  [data]
+)
 
   return (
     <div className="space-y-6">
