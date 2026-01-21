@@ -37,9 +37,13 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         )}
       >
         <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-6">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="h-6 w-6 text-sidebar-primary" />
-            <span className="text-lg font-semibold text-sidebar-foreground">Smart Scale</span>
+          <div className="flex items-center gap-2 font-semibold tracking-tight">
+            <span className="text-sidebar-foreground text-sm tracking-widest">
+              SMART
+            </span>
+            <span className="rounded-md bg-white px-2.5 py-1 text-xs font-bold tracking-wide text-black shadow-sm">
+              SCALE
+            </span>
           </div>
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={onClose}>
             <X className="h-5 w-5" />
@@ -61,7 +65,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                       : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
                   )}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-4 w-4 text-orange-400" />
                   {item.name}
                 </Button>
               </Link>

@@ -250,6 +250,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  const activeClientName = useMemo(() => {
+    if (!activeClientId) return null
+    const match = profilesList.find(p => p.client_id === activeClientId)
+    return match?.client_name ?? null
+  }, [activeClientId, profilesList])
+
   return (
     <div className="flex min-h-screen bg-background dark">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -276,16 +282,24 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <div className="relative" ref={profileMenuRef}>
                 <Button
                   variant="outline"
-                  className="gap-2 text-white hover:text-white border-white/20 hover:bg-white/10"
+                  className="gap-2 text-orange-400 hover:text-orange-300 border-orange-400/30 hover:bg-orange-400/10"
                   onClick={() => setProfileMenuOpen((v) => !v)}
                   aria-haspopup="menu"
                   aria-expanded={profileMenuOpen}
-                  title={userEmail ? `Cuenta: ${userEmail}` : "Perfil"}
+                  title={
+                    activeClientName
+                      ? `Cliente: ${activeClientName}`
+                      : userEmail
+                        ? `Cuenta: ${userEmail}`
+                        : "Perfil"
+                  }
                 >
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/5">
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-orange-400/40 bg-orange-400/10">
                     <User className="h-4 w-4" />
                   </span>
-                  <span className="hidden sm:inline">Perfil</span>
+                  <span className="hidden sm:inline">
+                    {activeClientName ?? userEmail ?? "—"}
+                  </span>
                   <ChevronDown className="h-4 w-4 opacity-80" />
                 </Button>
 
@@ -316,7 +330,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                   key={p.id}
                                   type="button"
                                   role="menuitem"
-                                  className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-white hover:bg-white/10 ${isActive ? "bg-white/10" : ""} ${!isSelectable ? "opacity-50 cursor-not-allowed hover:bg-transparent" : ""}`}
+                                  className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-white hover:bg-orange-400/10 ${isActive ? "bg-orange-400/15" : ""} ${!isSelectable ? "opacity-50 cursor-not-allowed hover:bg-transparent" : ""}`}
                                   disabled={!isSelectable}
                                   onClick={() => {
                                     if (!p.client_id) return
@@ -327,7 +341,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                   title={p.client_id}
                                 >
                                   <span className="truncate text-white">{p.client_name}</span>
-                                  {isActive ? <span className="text-xs text-white/60">Activo</span> : null}
+                                  {isActive ? <span className="text-xs text-orange-300/80">Activo</span> : null}
                                 </button>
                               )
                             })
@@ -344,7 +358,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     <button
                       type="button"
                       role="menuitem"
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-500 hover:bg-white/10"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-500 hover:bg-orange-400/10"
                       onClick={async () => {
                         // const supabase = createClient()
                         await supabase.auth.signOut()

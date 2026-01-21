@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { TrendingDown, TrendingUp } from "lucide-react"
+import { TrendingDown, TrendingUp, DollarSign, Wallet, Repeat, Megaphone, Users, UserPlus } from "lucide-react"
 import { createClient } from "@/lib/supabaseClient"
 import { useSelectedMonth, useActiveClient } from "@/components/dashboard-layout"
 
@@ -156,12 +156,12 @@ export function BusinessKPIs({ selectedMonth }: { selectedMonth?: string }) {
 
   const kpis = useMemo(
     () => [
-      { key: "total_revenue", label: "Total Revenue", value: report ? formatMoney(report.total_revenue) : "—", money: true },
-      { key: "cash_collected", label: "Cash Collected", value: report ? formatMoney(report.cash_collected) : "—", money: true },
-      { key: "mrr", label: "MRR", value: report ? formatMoney(report.mrr) : "—", money: true },
-      { key: "ad_spend", label: "Gasto Publicitario", value: report ? formatMoney(report.ad_spend) : "—", money: true },
-      { key: "short_followers", label: "Seguidores de Instagram", value: report ? formatNumber(report.short_followers) : "—", money: false },
-      { key: "new_clients", label: "Nuevos Clientes", value: report ? formatNumber(report.new_clients) : "—", money: false },
+      { key: "total_revenue", label: "Total Revenue", value: report ? formatMoney(report.total_revenue) : "—", money: true, icon: DollarSign },
+      { key: "cash_collected", label: "Cash Collected", value: report ? formatMoney(report.cash_collected) : "—", money: true, icon: Wallet },
+      { key: "mrr", label: "MRR", value: report ? formatMoney(report.mrr) : "—", money: true, icon: Repeat },
+      { key: "ad_spend", label: "Gasto Publicitario", value: report ? formatMoney(report.ad_spend) : "—", money: true, icon: Megaphone },
+      { key: "short_followers", label: "Seguidores de Instagram", value: report ? formatNumber(report.short_followers) : "—", money: false, icon: Users },
+      { key: "new_clients", label: "Nuevos Clientes", value: report ? formatNumber(report.new_clients) : "—", money: false, icon: UserPlus },
     ],
     [report, prevReport]
   )
@@ -193,33 +193,38 @@ export function BusinessKPIs({ selectedMonth }: { selectedMonth?: string }) {
                   <div className="text-3xl font-bold text-white">{kpi.value}</div>
                   <div className="mt-1 text-sm text-zinc-400">{kpi.label}</div>
                 </div>
-                {!loading && report && (
-                  (() => {
-                    const d = calcDelta(kpi.key)
-                    const down = (d.diff ?? 0) < 0
-                    const up = (d.diff ?? 0) > 0
-                    const tone = down
-                      ? "text-red-300"
-                      : up
-                        ? "text-emerald-300"
-                        : "text-white/50"
+                <div className="flex flex-col items-center gap-2">
+                  {!loading && report && (
+                    (() => {
+                      const d = calcDelta(kpi.key)
+                      const down = (d.diff ?? 0) < 0
+                      const up = (d.diff ?? 0) > 0
+                      const tone = down
+                        ? "text-red-300"
+                        : up
+                          ? "text-emerald-300"
+                          : "text-white/50"
 
-                    const diffText = d.diff == null
-                      ? ""
-                      : `${d.diff > 0 ? "+" : ""}${d.diff.toLocaleString()}`
+                      const diffText = d.diff == null
+                        ? ""
+                        : `${d.diff > 0 ? "+" : ""}${d.diff.toLocaleString()}`
 
-                    const pctText = d.pct == null
-                      ? ""
-                      : ` (${d.pct > 0 ? "+" : ""}${Math.round(d.pct)}%)`
+                      const pctText = d.pct == null
+                        ? ""
+                        : ` (${d.pct > 0 ? "+" : ""}${Math.round(d.pct)}%)`
 
-                    return (
-                      <div className={`flex items-center gap-1 text-xs font-medium ${tone}`}>
-                        {down ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
-                        <span>{d.diff == null ? "" : `${diffText}${pctText}`}</span>
-                      </div>
-                    )
-                  })()
-                )}
+                      return (
+                        <div className={`flex items-center gap-1 text-xs font-medium ${tone}`}>
+                          {down ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
+                          <span>{d.diff == null ? "" : `${diffText}${pctText}`}</span>
+                        </div>
+                      )
+                    })()
+                  )}
+                  <div className="flex items-center justify-center rounded-lg bg-orange-500/10 p-2">
+                    <kpi.icon className="h-5 w-5 text-orange-400" />
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
