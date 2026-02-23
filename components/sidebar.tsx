@@ -1,6 +1,7 @@
 "use client"
 
 import { X, BarChart3, Radio, DollarSign, MessageSquare, Wrench, CalendarDays } from "lucide-react"
+import { Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -57,14 +58,19 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             const Icon = item.icon
             if (item.disabled) {
               return (
-                <div key={item.name} title="Próximamente" className="opacity-60 cursor-not-allowed select-none">
+                <div
+                  key={item.name}
+                  title="Muy pronto: Inteligencia de Mercado IA para análisis competitivo"
+                  className="select-none"
+                >
                   <Button
                     variant="ghost"
-                    className="w-full justify-start gap-3"
+                    className="w-full justify-start gap-3 opacity-50 cursor-not-allowed hover:bg-transparent text-white"
                     disabled
                   >
-                    <Icon className="h-4 w-4 text-orange-400" />
-                    {item.name} <span className="ml-2 text-xs text-gray-400">(Próximamente)</span>
+                    <item.icon className="h-4 w-4 text-orange-400" />
+                    <span className="text-white">{item.name}</span>
+                    <Lock className="h-4 w-4 ml-auto text-gray-400" />
                   </Button>
                 </div>
               )
