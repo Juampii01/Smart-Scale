@@ -19,7 +19,7 @@ const navigation = [
   { name: "All Metrics", href: "/metrics", icon: BarChart3 },
   { name: "Tools", href: "/tools", icon: Wrench },
   { name: "Agenda", href: "/calendar", icon: CalendarDays },
-  { name: "Market Intelligence", href: "/market-intelligence", icon: BarChart3 },
+  { name: "Market Intelligence", href: "/market-intelligence", icon: BarChart3, disabled: true },
 ]
 
 export function Sidebar({ open, onClose }: SidebarProps) {
@@ -55,6 +55,20 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           {navigation.map((item) => {
             const isActive = pathname === item.href
             const Icon = item.icon
+            if (item.disabled) {
+              return (
+                <div key={item.name} title="Próximamente" className="opacity-60 cursor-not-allowed select-none">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-3"
+                    disabled
+                  >
+                    <Icon className="h-4 w-4 text-orange-400" />
+                    {item.name} <span className="ml-2 text-xs text-gray-400">(Próximamente)</span>
+                  </Button>
+                </div>
+              )
+            }
             return (
               <Link key={item.name} href={item.href} onClick={onClose}>
                 <Button
