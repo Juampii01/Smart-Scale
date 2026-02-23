@@ -36,7 +36,13 @@ export default function LoginPage() {
       return;
     }
 
-    router.replace("/reflection");
+    // Refrescar sesión y redirigir
+    const { data } = await supabase.auth.getSession();
+    if (data.session) {
+      router.replace("/reflection");
+    } else {
+      setErrorMsg("No se pudo obtener la sesión. Intenta nuevamente.");
+    }
   }
 
   return (

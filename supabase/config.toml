@@ -1,0 +1,2 @@
+[functions.research-worker]
+verify_jwt = false

@@ -19,6 +19,7 @@ const navigation = [
   { name: "All Metrics", href: "/metrics", icon: BarChart3 },
   { name: "Tools", href: "/tools", icon: Wrench },
   { name: "Agenda", href: "/calendar", icon: CalendarDays },
+  { name: "Market Intelligence", href: "/market-intelligence", icon: BarChart3 },
 ]
 
 export function Sidebar({ open, onClose }: SidebarProps) {
