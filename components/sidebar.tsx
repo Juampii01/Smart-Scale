@@ -2,10 +2,13 @@
 
 import { X, BarChart3, Radio, DollarSign, MessageSquare, Wrench, CalendarDays } from "lucide-react"
 import { Lock } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useContext } from "react"
+import { DashboardLayout } from "./dashboard-layout"
 
 interface SidebarProps {
   open: boolean
@@ -25,6 +28,15 @@ const navigation = [
 
 export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname()
+  // Obtener el rol del usuario desde el contexto de DashboardLayout
+  // (Si no existe contexto, fallback a null)
+  let userRole: string | null = null
+  try {
+    // DashboardLayout pone userRole en el estado global, lo buscamos si existe
+    // @ts-ignore
+    userRole = window.__DASHBOARD_USER_ROLE__ || null
+  } catch {}
+  const isAdmin = (userRole ?? "").toLowerCase() === "admin"
 
   return (
     <>
@@ -56,6 +68,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           {navigation.map((item) => {
             const isActive = pathname === item.href
             const Icon = item.icon
+              // Siempre deshabilitado para todos (como antes)
             if (item.disabled) {
               return (
                 <div

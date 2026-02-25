@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Test Market Intelligence Page",
+			"type": "shell",
+			"command": "pnpm exec next test app/market-intelligence/page.tsx || pnpm exec jest app/market-intelligence/page.tsx || echo 'No test runner or tests found.'",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		}
+	]
+}

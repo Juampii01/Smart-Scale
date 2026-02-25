@@ -1,19 +1,18 @@
-// Supabase Edge Function: research-worker
+// Supabase Edge Function: research-worker (Version 2.0 - Dual Phase Architecture)
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 export const config = {
   verify_jwt: false,
 }
-// NOTE: If you still see 401 before this code runs, disable "Verify JWT" for this function in Supabase Dashboard (Function Details).
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+const YOUTUBE_API_KEY = Deno.env.get("YOUTUBE_API_KEY") || ""
 
 async function supabaseFetch(path: string, options: RequestInit = {}) {
   const headers = new Headers(options.headers ?? {})
   if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json")
 
-  // Always use service role for DB writes/reads inside the worker
   headers.set("apikey", SUPABASE_SERVICE_ROLE_KEY)
   headers.set("Authorization", `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`)
 
@@ -35,35 +34,431 @@ async function supabaseRpc(fn: string, body: any = {}) {
   })
 }
 
-serve(async (req: Request) => {
-  console.log("WORKER EJECUTADO");
-  let requestId: string | undefined = undefined
+function extractYouTubeVideoId(url: string): string {
+  if (!url) return ""
   try {
-    // Obtener requests pendientes
-    const rpcRes = await supabaseRpc("get_next_pending_request");
-    if (!rpcRes.ok) {
-      throw new Error("RPC error: " + await rpcRes.text());
-    }
-    const data = await rpcRes.json();
-    console.log("RPC RESULT:", data);
+    const u = new URL(url)
+    // Standard watch URL
+    const v = u.searchParams.get("v")
+    if (v) return v
 
+    // youtu.be/<id>
+    if (u.hostname.includes("youtu.be")) {
+      const id = u.pathname.replace(/^\//, "").trim()
+      return id || ""
+    }
+
+    // /shorts/<id>
+    const parts = u.pathname.split("/").filter(Boolean)
+    const shortsIdx = parts.indexOf("shorts")
+    if (shortsIdx !== -1 && parts[shortsIdx + 1]) return parts[shortsIdx + 1]
+
+    return ""
+  } catch {
+    return ""
+  }
+}
+
+function fallbackThumbnailUrl(videoId: string): string {
+  if (!videoId) return ""
+  return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
+}
+
+async function fetchYouTubeVideoDetails(videoIds: string[]): Promise<Record<string, { title: string; views: number; duration: string; thumbnail_url: string }>> {
+  const ids = Array.from(new Set(videoIds.filter(Boolean)))
+  if (ids.length === 0) return {}
+  if (!YOUTUBE_API_KEY) {
+    // No API key available; return empty map and let callers fallback.
+    return {}
+  }
+
+  const url = new URL("https://www.googleapis.com/youtube/v3/videos")
+  url.searchParams.set("part", "snippet,contentDetails,statistics")
+  url.searchParams.set("id", ids.join(","))
+  url.searchParams.set("key", YOUTUBE_API_KEY)
+
+  const res = await fetch(url.toString())
+  if (!res.ok) {
+    // Don't hard-fail the whole worker just because YouTube API failed.
+    console.error("YouTube API error:", await res.text())
+    return {}
+  }
+
+  const data = await res.json()
+  const items = Array.isArray(data?.items) ? data.items : []
+
+  const map: Record<string, { title: string; views: number; duration: string; thumbnail_url: string }> = {}
+  for (const item of items) {
+    const id = String(item?.id ?? "")
+    const title = String(item?.snippet?.title ?? "")
+    const duration = String(item?.contentDetails?.duration ?? "")
+    const viewsRaw = item?.statistics?.viewCount
+    const views = typeof viewsRaw === "string" ? Number(viewsRaw) : Number(viewsRaw ?? 0)
+
+    const thumb =
+      item?.snippet?.thumbnails?.maxres?.url ||
+      item?.snippet?.thumbnails?.high?.url ||
+      item?.snippet?.thumbnails?.medium?.url ||
+      item?.snippet?.thumbnails?.default?.url ||
+      ""
+
+    map[id] = {
+      title,
+      views: Number.isFinite(views) ? views : 0,
+      duration,
+      thumbnail_url: String(thumb || ""),
+    }
+  }
+
+  return map
+}
+
+// Fetches the YouTube transcript for a given videoId (if available). Returns plain text.
+async function fetchYouTubeTranscript(videoId: string): Promise<string> {
+  if (!videoId) return ""
+
+  try {
+    const url = `https://video.google.com/timedtext?lang=en&v=${videoId}`
+    const res = await fetch(url)
+
+    if (!res.ok) return ""
+
+    const xml = await res.text()
+    if (!xml || !xml.includes("<text")) return ""
+
+    // Very simple XML to text extraction (no heavy parser to keep Edge lightweight)
+    const matches = Array.from(xml.matchAll(/<text[^>]*>(.*?)<\/text>/g))
+    const transcript = matches
+      .map((m) =>
+        m[1]
+          .replace(/&amp;/g, "&")
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/<[^>]+>/g, "")
+      )
+      .join(" ")
+
+    return transcript.slice(0, 8000) // safety limit
+  } catch {
+    return ""
+  }
+}
+
+async function enrichTopVideos(videos: any[]): Promise<any[]> {
+  const base = Array.isArray(videos) ? videos : []
+  const withIds = base.map((v) => {
+    const video_url = String(v?.url ?? v?.video_url ?? v?.link ?? "")
+    const id = extractYouTubeVideoId(video_url)
+    return {
+      ...v,
+      video_url,
+      video_id: id,
+    }
+  })
+
+  const ids = withIds.map((v) => String(v?.video_id ?? "")).filter(Boolean)
+  const detailsMap = await fetchYouTubeVideoDetails(ids)
+
+  // Map videos sequentially, fetching transcript for each
+  const results = []
+  for (const v of withIds) {
+    const id = String(v?.video_id ?? "")
+    const details = detailsMap[id]
+
+    const video_title = String(details?.title ?? v?.title ?? "")
+    const views = Number(details?.views ?? v?.views ?? 0)
+    const video_duration = String(details?.duration ?? v?.duration ?? "")
+    const thumbnail_url = String(details?.thumbnail_url ?? v?.thumbnail_url ?? fallbackThumbnailUrl(id))
+
+    const transcript = id ? await fetchYouTubeTranscript(id) : ""
+
+    results.push({
+      ...v,
+      creator: String(v?.creator ?? v?.channel ?? v?.channel_title ?? ""),
+      video_url: String(v?.video_url ?? ""),
+      video_title,
+      views: Number.isFinite(views) ? views : 0,
+      video_duration,
+      thumbnail_url,
+      video_transcript: transcript,
+    })
+  }
+  return results
+}
+
+function buildGeneralPrompt(request: any) {
+  const { competitors } = request
+
+  if (!competitors || !Array.isArray(competitors) || competitors.length === 0) {
+    throw new Error("No competitors data received in request")
+  }
+
+  const lightCompetitors = competitors.map((c: any) => ({
+    name: c.name ?? "",
+    bio: c.bio ?? "",
+    avg_views: c.avg_views ?? 0,
+    total_videos: c.videos?.length ?? 0,
+    top_titles: (c.videos ?? []).slice(0, 5).map((v: any) => v.title ?? ""),
+  }))
+
+  return `
+Eres un analista senior de estrategia digital.
+
+IMPORTANTE:
+- Si los datos son insuficientes, explica exactamente qué falta.
+- No respondas "indeterminado" sin justificar técnicamente.
+- No inventes datos.
+- Analiza exclusivamente la información provista.
+
+Devuelve **EXCLUSIVAMENTE** un JSON válido (sin texto extra, sin markdown, sin comentarios).
+Reglas estrictas:
+- Usa SOLO comillas dobles.
+- No uses trailing commas.
+- Todas las listas deben ser arrays.
+- Si falta información, igual completa el campo con un valor vacío razonable: "" o []
+
+Estructura EXACTA:
+{
+  "hook_frameworks": [
+    { "pattern": "", "description": "" }
+  ],
+  "positioning_analysis": "",
+  "market_sophistication_level": "",
+  "recommended_content_angles": [
+    { "angle": "", "description": "" }
+  ],
+  "storytelling_structures": [
+    { "structure": "", "description": "" }
+  ]
+}
+
+Datos:
+${JSON.stringify(lightCompetitors, null, 2)}
+`
+}
+
+function buildVideoPrompt(topVideos: any[]) {
+  if (!topVideos || topVideos.length === 0) {
+    return null
+  }
+
+  return `
+You are an expert analyst in video performance, content architecture, and monetization strategy.
+
+OBJECTIVE:
+- Analyze EACH video.
+- Evaluate narrative structure, performance potential, strategic role, and monetization logic.
+- Return a valid and complete JSON.
+
+CRITICAL RULES (to avoid truncation):
+- Return ONLY valid JSON (no extra text, no markdown).
+- Use ONLY double quotes.
+- No trailing commas.
+- Return an ARRAY.
+- If information is missing for a field, use "".
+- If a number (views) is missing, use 0.
+- LENGTH LIMIT: each text field must be max 600 characters.
+- The field replicable_elements must be a short list in a single string, separated by '1) ... 2) ... 3) ...' (max 6 items).
+- The field structural_breakdown must be a brief breakdown (max 6 steps) in a single string.
+- The field funnel_role must explain the video's role in the funnel (awareness, consideration, conversion, authority, retention, etc).
+- The field distribution_analysis must evaluate algorithmic dependency, organic potential, and audience type.
+
+IMPORTANT: The field video_analysis MUST be a concise bullet-point list in SPANISH, with each bullet starting with '- ', summarizing the key insights, ideas, and takeaways of the video. Use a clear, didactic, and actionable tone, similar to the following example (but translated to Spanish):
+
+"video_analysis": "\n- El ponente comparte un truco de mentalidad enfocado en reprogramar el cerebro para facilitar la toma de acciones incómodas orientadas al crecimiento.\n- La analogía de abordar a mujeres y controlar los inputs resalta la importancia de celebrar el esfuerzo más que el resultado.\n- El video enfatiza la relevancia de enfocarse en los inputs controlables tanto en las citas como en los negocios para lograr el éxito a largo plazo.\n- Se discute la diferencia entre indicadores leading (controlables) y lagging (incontrolables) para mantener la motivación y la resiliencia.\n- El creador aboga por recompensarse por el esfuerzo constante y la paciencia, en lugar de castigarse por resultados o logros demorados.\n- El tema principal del video es cómo cambiar el foco de los resultados a los inputs controlables puede simplificar el éxito y fomentar una mentalidad positiva.\n- El creador aporta una perspectiva única sobre cómo entender los efectos diferidos de las acciones y celebrar los esfuerzos conduce a un crecimiento y felicidad sostenibles."
+
+EXACT STRUCTURE (ARRAY):
+[
+  {
+    "creator": "",
+    "video_url": "",
+    "thumbnail_url": "",
+    "video_title": "",
+    "views": 0,
+    "video_duration": "",
+    "video_transcript": "",
+    "hook_type": "",
+    "structural_breakdown": "",
+    "why_it_performed": "",
+    "replicable_elements": "",
+    "video_analysis": "",
+    "funnel_role": "",
+    "distribution_analysis": ""
+  }
+]
+
+VIDEOS (available data; do not invent):
+${JSON.stringify(topVideos, null, 2)}
+`
+}
+
+function safeParseJSON(text: string) {
+  if (!text) throw new Error("Respuesta vacía del modelo")
+
+  // Remove code fences and trim
+  let cleaned = String(text)
+    .replace(/```json\s*/gi, "")
+    .replace(/```\s*/g, "")
+    .trim()
+
+  // Remove non-printable control characters that often break JSON parsing
+  cleaned = cleaned.replace(/[\u0000-\u001F\u007F]/g, (ch) => {
+    // keep common whitespace
+    if (ch === "\n" || ch === "\r" || ch === "\t") return ch
+    return ""
+  })
+
+  // 1) Try direct parse
+  try {
+    return JSON.parse(cleaned)
+  } catch {
+    // continue
+  }
+
+  // 2) Extract first balanced JSON (object or array)
+  const startIdx = cleaned.search(/[\[{]/)
+  if (startIdx === -1) {
+    throw new Error("No se encontró inicio de JSON en la respuesta del modelo")
+  }
+
+  const open = cleaned[startIdx]
+  const close = open === "{" ? "}" : "]"
+
+  let depth = 0
+  let inString = false
+  let escaped = false
+  let endIdx = -1
+
+  for (let i = startIdx; i < cleaned.length; i++) {
+    const ch = cleaned[i]
+
+    if (inString) {
+      if (escaped) {
+        escaped = false
+        continue
+      }
+      if (ch === "\\") {
+        escaped = true
+        continue
+      }
+      if (ch === '"') {
+        inString = false
+      }
+      continue
+    }
+
+    if (ch === '"') {
+      inString = true
+      continue
+    }
+
+    if (ch === open) depth++
+    if (ch === close) {
+      depth--
+      if (depth === 0) {
+        endIdx = i
+        break
+      }
+    }
+  }
+
+  if (endIdx === -1) {
+    throw new Error("Se encontró inicio de JSON pero no se pudo encontrar el cierre (JSON incompleto)")
+  }
+
+  let jsonString = cleaned.slice(startIdx, endIdx + 1)
+
+  // 3) Safe repairs
+  // Remove trailing commas before } or ]
+  jsonString = jsonString
+    .replace(/,\s*}/g, "}")
+    .replace(/,\s*]/g, "]")
+
+  // Replace smart quotes with normal quotes (common copy/paste issue)
+  jsonString = jsonString
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+
+  try {
+    return JSON.parse(jsonString)
+  } catch (err) {
+    console.error("JSON inválido recibido del modelo (truncado):")
+    console.error(jsonString.slice(0, 4000))
+    throw new Error("El modelo devolvió JSON malformado")
+  }
+}
+
+async function callAnthropic(prompt: string, maxTokens: number) {
+  const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY")
+  if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY no configurada")
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: maxTokens,
+      temperature: 0.2,
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    }),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`Error en Anthropic: ${errorText}`)
+  }
+
+  const data = await response.json()
+  if (!data?.content?.[0]?.text) {
+    throw new Error("Respuesta inválida de Anthropic")
+  }
+
+  return data.content[0].text
+}
+
+async function callAnthropicParsed(prompt: string, maxTokens: number) {
+  // First attempt
+  const raw1 = await callAnthropic(prompt, maxTokens)
+  try {
+    return safeParseJSON(raw1)
+  } catch (e: any) {
+    const msg = String(e?.message ?? "")
+    // If JSON was incomplete/truncated, retry with a stricter instruction and more tokens.
+    if (msg.includes("JSON incompleto") || msg.includes("cierre") || msg.includes("malformado")) {
+      const retryPrompt = `${prompt}\n\nIMPORTANTE EXTRA: La respuesta anterior quedó truncada o incompleta. Ahora devolvé el JSON completo y válido respetando los límites de longitud. NO agregues texto fuera del JSON.`
+      const raw2 = await callAnthropic(retryPrompt, Math.max(maxTokens, 4200))
+      return safeParseJSON(raw2)
+    }
+    throw e
+  }
+}
+
+serve(async () => {
+  let requestId: string | undefined = undefined
+
+  try {
+    const rpcRes = await supabaseRpc("get_next_pending_request")
+    if (!rpcRes.ok) throw new Error(await rpcRes.text())
+
+    const data = await rpcRes.json()
     if (!data || (Array.isArray(data) && data.length === 0)) {
-      return new Response("No pending requests", { status: 200 });
+      return new Response("No pending requests", { status: 200 })
     }
 
-    const pendingRequest = Array.isArray(data) ? data[0] : data;
+    const pendingRequest = Array.isArray(data) ? data[0] : data
+    requestId = pendingRequest.id
 
-    if (!pendingRequest || !pendingRequest.id) {
-      throw new Error("Invalid pending request structure");
-    }
-
-    requestId = pendingRequest.id;
-    // Claim the job (prevents re-processing the same request on subsequent invocations)
-    const claimRes = await supabaseFetch(`research_requests?id=eq.${requestId}&status=eq.pending`, {
+    await supabaseFetch(`research_requests?id=eq.${requestId}&status=eq.pending`, {
       method: "PATCH",
-      headers: {
-        Prefer: "return=representation",
-      },
       body: JSON.stringify({
         status: "processing",
         started_at: new Date().toISOString(),
@@ -71,291 +466,47 @@ serve(async (req: Request) => {
       }),
     })
 
-    if (!claimRes.ok) {
-      throw new Error("Claim research_requests failed: " + await claimRes.text())
-    }
+    const generalPrompt = buildGeneralPrompt(pendingRequest)
+    const generalParsed = await callAnthropicParsed(generalPrompt, 2200)
 
-    const claimed = await claimRes.json()
-    if (!Array.isArray(claimed) || claimed.length === 0) {
-      // Someone else claimed it or it is no longer pending
-      return new Response("Nothing to claim", { status: 200 })
-    }
+    const rawVideos = pendingRequest.competitors
+      ?.flatMap((c: any) => c.videos || [])
+      ?.sort((a: any, b: any) => (Number(b?.views ?? 0) - Number(a?.views ?? 0)))
+      ?.slice(0, 3) || []
 
-    // Integración Anthropic
-    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) {
-      console.error("Missing ANTHROPIC_API_KEY at runtime");
-      return new Response("Missing ANTHROPIC_API_KEY", { status: 500 });
-    }
+    const allVideos = await enrichTopVideos(rawVideos)
 
-    function buildPrompt(request) {
-      const { platform, competitors, transcripts, ...rest } = request;
-      let prompt = "";
-      // Hard limits to avoid WORKER_LIMIT (compute exhaustion)
-      const MAX_COMPETITORS_CHARS = 8000;
-      const MAX_TRANSCRIPTS_CHARS = 12000;
-      if (platform === "youtube") {
-        prompt += `Eres un analista de inteligencia competitiva especializado en YouTube. Analiza los siguientes datos:\n`;
-      } else if (platform === "instagram") {
-        prompt += `Eres un analista de inteligencia competitiva especializado en Instagram. Analiza los siguientes datos:\n`;
-      } else {
-        prompt += `Eres un analista de inteligencia competitiva. Analiza los siguientes datos:\n`;
-      }
-      const competitorsString = JSON.stringify(competitors, null, 2);
-      prompt += `Competidores:\n${
-        competitorsString.length > MAX_COMPETITORS_CHARS
-          ? competitorsString.slice(0, MAX_COMPETITORS_CHARS) + "\n[TRUNCATED]"
-          : competitorsString
-      }\n`;
-      if (transcripts) {
-        const transcriptsString = JSON.stringify(transcripts, null, 2);
-        prompt += `Transcripciones:\n${
-          transcriptsString.length > MAX_TRANSCRIPTS_CHARS
-            ? transcriptsString.slice(0, MAX_TRANSCRIPTS_CHARS) + "\n[TRUNCATED]"
-            : transcriptsString
-        }\n`;
-      }
-      Object.entries(rest).forEach(([key, value]) => {
-        if (value !== undefined) {
-          prompt += `${key}:\n${JSON.stringify(value, null, 2)}\n`;
-        }
-      });
-      prompt += `
-Eres un analista senior de inteligencia competitiva y estrategia digital. Tu nivel es experto. No generas análisis genéricos. No produces consejos superficiales. Detectas patrones reales a partir de los datos proporcionados.
+    let videoParsed: any[] = []
 
-Tu tarea es construir un informe estratégico profundo, específico y accionable basado EXCLUSIVAMENTE en los datos entregados arriba.
+    const videoPrompt = buildVideoPrompt(allVideos)
 
-IMPORTANTE:
-- No escribas frases aplicables a cualquier cuenta.
-- Basa cada insight en patrones observables del contenido analizado.
-- Si no puedes inferir algo desde los datos, deja el array vacío [].
-- No inventes información.
-- No repitas estructuras estándar del nicho sin justificación.
-- El análisis debe parecer realizado por un consultor estratégico premium.
-
-El nivel de profundidad debe ser avanzado:
-- Detecta posicionamiento implícito.
-- Identifica contradicciones estratégicas.
-- Señala oportunidades diferenciales reales.
-- Evalúa el nivel de sofisticación del mensaje.
-- Analiza comportamiento probable del algoritmo según la plataforma.
-
-Devuelve EXCLUSIVAMENTE un JSON válido, sin markdown, sin comentarios y sin texto fuera del JSON.
-
-La estructura debe ser EXACTAMENTE:
-
-{
-  "executive_summary": string,
-  "dominant_patterns": [
-    { "pattern": string, "description": string }
-  ],
-  "hook_frameworks": [
-    { "framework": string, "description": string }
-  ],
-  "positioning_analysis": string,
-  "market_sophistication_level": string,
-  "saturation_level": string,
-  "market_gaps": [
-    { "gap": string, "description": string }
-  ],
-  "strategic_opportunities": [
-    { "opportunity": string, "description": string }
-  ],
-  "recommended_content_angles": [
-    { "angle": string, "description": string }
-  ],
-  "storytelling_structures": [
-    { "structure": string, "description": string }
-  ]
-}
-
-Reglas obligatorias:
-- Todas las claves deben existir.
-- Si no hay evidencia suficiente, devuelve arrays vacíos [].
-- No incluyas texto fuera del JSON.
-- No uses markdown.
-- No agregues claves adicionales.
-- Máximo 5 elementos por array.
-- Cada descripción debe ser concreta, estratégica y no genérica.
-- Todo el contenido textual debe estar 100% en español.
-- Las claves del JSON deben permanecer en inglés exactamente como están.
-- Si produces contenido genérico, reformúlalo con mayor especificidad antes de finalizar.
-
-El resultado debe sentirse como un informe de inteligencia estratégica premium, no como un resumen educativo.
-`;
-      return prompt;
-    }
-
-    function safeParseJSON(text: string) {
-      try {
-        const cleaned = text
-          .replace(/```json/g, "")
-          .replace(/```/g, "")
-          .trim();
-
-        const start = cleaned.indexOf("{");
-        const end = cleaned.lastIndexOf("}");
-
-        if (start === -1 || end === -1) {
-          throw new Error("No se encontró un objeto JSON válido en la respuesta");
-        }
-
-        // Si parece truncado, intentamos parsear igualmente en vez de fallar
-        if (!cleaned.trim().endsWith("}")) {
-          console.warn("Posible JSON truncado por límite de tokens, intentando parsear igualmente...");
-        }
-
-        let jsonString = cleaned.substring(start, end + 1);
-
-        try {
-          return JSON.parse(jsonString);
-        } catch (firstErr) {
-          // Attempt repair: remove trailing commas
-          jsonString = jsonString
-            .replace(/,\s*}/g, "}")
-            .replace(/,\s*]/g, "]");
-
-          return JSON.parse(jsonString);
-        }
-
-      } catch (err: any) {
-        console.error("RAW ANTHROPIC RESPONSE:", text);
-        throw new Error("Error al parsear JSON: " + err.message);
+    if (videoPrompt) {
+      videoParsed = await callAnthropicParsed(videoPrompt, 5200)
+      if (!Array.isArray(videoParsed)) {
+        throw new Error("El modelo devolvió un JSON válido pero no devolvió un ARRAY para analisis_de_videos")
       }
     }
 
-    function validateStructure(result: any) {
-      const requiredKeys = [
-        "executive_summary",
-        "dominant_patterns",
-        "hook_frameworks",
-        "positioning_analysis",
-        "market_sophistication_level",
-        "saturation_level",
-        "market_gaps",
-        "strategic_opportunities",
-        "recommended_content_angles",
-        "storytelling_structures",
-      ];
-
-      for (const key of requiredKeys) {
-        if (!(key in result)) {
-          throw new Error(`Falta la clave obligatoria: ${key}`);
-        }
-      }
-
-      // Ensure arrays are arrays (prevent DB crashes)
-      const arrayKeys = [
-        "dominant_patterns",
-        "hook_frameworks",
-        "market_gaps",
-        "strategic_opportunities",
-        "recommended_content_angles",
-        "storytelling_structures",
-      ];
-
-      for (const key of arrayKeys) {
-        if (!Array.isArray(result[key])) {
-          result[key] = [];
-        }
-      }
-    }
-
-    async function callAnthropic(prompt: string) {
-      const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-      if (!ANTHROPIC_API_KEY) {
-        throw new Error("ANTHROPIC_API_KEY no configurada");
-      }
-
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "x-api-key": ANTHROPIC_API_KEY,
-          "anthropic-version": "2023-06-01",
-          "content-type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-6",
-          max_tokens: 4096,
-          temperature: 0.2,
-          messages: [
-            {
-              role: "user",
-              content: prompt
-            }
-          ]
-        })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Error en Anthropic: ${errorText}`);
-      }
-
-      const data = await response.json();
-      // If truncated by max_tokens, we still attempt to parse.
-      // Do NOT throw here because often the JSON is complete enough.
-      if (data?.stop_reason === "max_tokens") {
-        console.warn("Anthropic response reached max_tokens limit, attempting to parse anyway...");
-      }
-
-      if (!data?.content?.[0]?.text) {
-        throw new Error("Respuesta de Anthropic inválida");
-      }
-
-      return data.content[0].text;
-    }
-
-    // Construir prompt dinámico
-    const prompt = buildPrompt(pendingRequest);
-    // Llamar a Anthropic con reintentos y parseo seguro
-    let anthropicResponse: string | null = null;
-    let parsedResult: any = null;
-
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        anthropicResponse = await callAnthropic(prompt);
-        parsedResult = safeParseJSON(anthropicResponse);
-        break; // éxito
-      } catch (e) {
-        if (attempt === 2) {
-          throw e;
-        }
-        console.warn("Retrying Anthropic call due to parse error...");
-      }
-    }
-    // Validar estructura
-    validateStructure(parsedResult);
-    // Eliminar resultado previo si existe
     await supabaseFetch(`research_results?request_id=eq.${requestId}`, {
       method: "DELETE",
-    });
+    })
 
-    // Insertar nuevo resultado
     const insertRes = await supabaseFetch("research_results", {
       method: "POST",
       body: JSON.stringify({
         request_id: requestId,
-
-        // Español (estructura real de tu tabla)
-        resumen_ejecutivo: parsedResult.executive_summary,
-        patrones_dominantes: parsedResult.dominant_patterns,
-        frameworks_de_ganchos: parsedResult.hook_frameworks,
-        analisis_de_posicionamiento: parsedResult.positioning_analysis,
-        nivel_de_sofisticacion_del_mercado: parsedResult.market_sophistication_level,
-        nivel_de_saturacion: parsedResult.saturation_level,
-        brechas_de_mercado: parsedResult.market_gaps,
-        oportunidades_estrategicas: parsedResult.strategic_opportunities,
-        angulos_de_contenido_recomendados: parsedResult.recommended_content_angles,
-        estructuras_de_storytelling: parsedResult.storytelling_structures ?? null,
+        patrones_dominantes: generalParsed.hook_frameworks,
+        analisis_de_posicionamiento: generalParsed.positioning_analysis,
+        nivel_de_sofisticacion_del_mercado: generalParsed.market_sophistication_level,
+        angulos_de_contenido_recomendados: generalParsed.recommended_content_angles,
+        estructuras_de_storytelling: generalParsed.storytelling_structures,
+        analisis_de_videos: videoParsed,
       }),
-    });
+    })
 
-    if (!insertRes.ok) {
-      throw new Error("Insert research_results failed: " + await insertRes.text());
-    }
-    // Marcar request como completed
-    const completeRes = await supabaseFetch(`research_requests?id=eq.${requestId}`, {
+    if (!insertRes.ok) throw new Error(await insertRes.text())
+
+    await supabaseFetch(`research_requests?id=eq.${requestId}`, {
       method: "PATCH",
       body: JSON.stringify({
         status: "completed",
@@ -364,26 +515,18 @@ El resultado debe sentirse como un informe de inteligencia estratégica premium,
       }),
     })
 
-    if (!completeRes.ok) {
-      throw new Error("Complete research_requests failed: " + await completeRes.text())
-    }
-    return new Response("OK", { status: 200 });
-  } catch (err) {
-    console.error("Worker error:", err);
-
+    return new Response("OK", { status: 200 })
+  } catch (err: any) {
     if (requestId) {
       await supabaseFetch(`research_requests?id=eq.${requestId}`, {
         method: "PATCH",
         body: JSON.stringify({
           status: "failed",
-          error_message: err instanceof Error ? err.message : String(err)
-        })
-      });
+          error_message: err.message,
+        }),
+      })
     }
 
-    return new Response(
-      err instanceof Error ? err.message : String(err),
-      { status: 500 }
-    );
+    return new Response(err.message, { status: 500 })
   }
 })

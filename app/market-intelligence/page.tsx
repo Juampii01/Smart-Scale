@@ -234,12 +234,14 @@ export default function MarketIntelligencePage() {
                       {selectedRequest?.id === req.id ? (
                         <ul className="flex flex-wrap gap-3">
                           {Array.isArray(req.competitors)
-                            ? req.competitors.map((c: string, idx: number) => (
+                            ? req.competitors.map((c: any, idx: number) => (
                                 <li
                                   key={idx}
                                   className="inline-block px-4 py-2 rounded bg-gray-900 text-xs text-gray-100 border border-gray-800 font-sans"
                                 >
-                                  {c}
+                                  {typeof c === "string"
+                                    ? c
+                                    : c?.name || "Competidor"}
                                 </li>
                               ))
                             : null}
@@ -366,14 +368,14 @@ export default function MarketIntelligencePage() {
                     {Array.isArray(result.patterns)
                       ? result.patterns.map((item: any, idx: number) => (
                           <li key={idx}>
-                            {typeof item === "object" ? (
-                              <>
-                                {item.pattern && <div className="font-semibold">{item.pattern}</div>}
-                                {item.description && <div className="text-gray-400">{item.description}</div>}
-                              </>
-                            ) : (
-                              item
-                            )}
+                            {typeof item === "object"
+                              ? (item.pattern || item.description
+                                  ? <>
+                                      {item.pattern && <div className="font-semibold">{item.pattern}</div>}
+                                      {item.description && <div className="text-gray-400">{item.description}</div>}
+                                    </>
+                                  : <pre className="text-xs text-gray-400 bg-gray-900 rounded p-2">{JSON.stringify(item, null, 2)}</pre>)
+                              : item}
                           </li>
                         ))
                       : typeof result.patterns === "string"
@@ -391,14 +393,14 @@ export default function MarketIntelligencePage() {
                     {Array.isArray(result.top_hooks)
                       ? result.top_hooks.map((item: any, idx: number) => (
                           <li key={idx}>
-                            {typeof item === "object" ? (
-                              <>
-                                {item.framework && <div className="font-semibold">{item.framework}</div>}
-                                {item.description && <div className="text-gray-400">{item.description}</div>}
-                              </>
-                            ) : (
-                              item
-                            )}
+                            {typeof item === "object"
+                              ? (item.framework || item.description
+                                  ? <>
+                                      {item.framework && <div className="font-semibold">{item.framework}</div>}
+                                      {item.description && <div className="text-gray-400">{item.description}</div>}
+                                    </>
+                                  : <pre className="text-xs text-gray-400 bg-gray-900 rounded p-2">{JSON.stringify(item, null, 2)}</pre>)
+                              : item}
                           </li>
                         ))
                       : typeof result.top_hooks === "string"
@@ -416,18 +418,14 @@ export default function MarketIntelligencePage() {
                     {Array.isArray(result.opportunities)
                       ? result.opportunities.map((item: any, idx: number) => (
                           <li key={idx}>
-                            {typeof item === "object" ? (
-                              <>
-                                {item.opportunity && (
-                                  <div className="font-semibold">{item.opportunity}</div>
-                                )}
-                                {item.description && (
-                                  <div className="text-gray-400">{item.description}</div>
-                                )}
-                              </>
-                            ) : (
-                              item
-                            )}
+                            {typeof item === "object"
+                              ? (item.opportunity || item.description
+                                  ? <>
+                                      {item.opportunity && <div className="font-semibold">{item.opportunity}</div>}
+                                      {item.description && <div className="text-gray-400">{item.description}</div>}
+                                    </>
+                                  : <pre className="text-xs text-gray-400 bg-gray-900 rounded p-2">{JSON.stringify(item, null, 2)}</pre>)
+                              : item}
                           </li>
                         ))
                       : typeof result.opportunities === "string"
@@ -447,18 +445,14 @@ export default function MarketIntelligencePage() {
                     {Array.isArray(result.recommended_ideas)
                       ? result.recommended_ideas.map((item: any, idx: number) => (
                           <li key={idx}>
-                            {typeof item === "object" ? (
-                              <>
-                                {item.idea && (
-                                  <div className="font-semibold">{item.idea}</div>
-                                )}
-                                {item.description && (
-                                  <div className="text-gray-400">{item.description}</div>
-                                )}
-                              </>
-                            ) : (
-                              item
-                            )}
+                            {typeof item === "object"
+                              ? (item.idea || item.description
+                                  ? <>
+                                      {item.idea && <div className="font-semibold">{item.idea}</div>}
+                                      {item.description && <div className="text-gray-400">{item.description}</div>}
+                                    </>
+                                  : <pre className="text-xs text-gray-400 bg-gray-900 rounded p-2">{JSON.stringify(item, null, 2)}</pre>)
+                              : item}
                           </li>
                         ))
                       : typeof result.recommended_ideas === "string"
@@ -488,14 +482,14 @@ export default function MarketIntelligencePage() {
                     {Array.isArray(result.patrones_dominantes)
                       ? result.patrones_dominantes.map((item: any, idx: number) => (
                           <li key={idx}>
-                            {typeof item === "object" ? (
-                              <>
-                                {item.pattern && <div className="font-semibold">{item.pattern}</div>}
-                                {item.description && <div className="text-gray-400">{item.description}</div>}
-                              </>
-                            ) : (
-                              item
-                            )}
+                            {typeof item === "object"
+                              ? (item.pattern || item.description
+                                  ? <>
+                                      {item.pattern && <div className="font-semibold">{item.pattern}</div>}
+                                      {item.description && <div className="text-gray-400">{item.description}</div>}
+                                    </>
+                                  : <pre className="text-xs text-gray-400 bg-gray-900 rounded p-2">{JSON.stringify(item, null, 2)}</pre>)
+                              : item}
                           </li>
                         ))
                       : typeof result.patrones_dominantes === "string"
@@ -513,14 +507,14 @@ export default function MarketIntelligencePage() {
                     {Array.isArray(result.frameworks_de_ganchos)
                       ? result.frameworks_de_ganchos.map((item: any, idx: number) => (
                           <li key={idx}>
-                            {typeof item === "object" ? (
-                              <>
-                                {item.framework && <div className="font-semibold">{item.framework}</div>}
-                                {item.description && <div className="text-gray-400">{item.description}</div>}
-                              </>
-                            ) : (
-                              item
-                            )}
+                            {typeof item === "object"
+                              ? (item.framework || item.description
+                                  ? <>
+                                      {item.framework && <div className="font-semibold">{item.framework}</div>}
+                                      {item.description && <div className="text-gray-400">{item.description}</div>}
+                                    </>
+                                  : <pre className="text-xs text-gray-400 bg-gray-900 rounded p-2">{JSON.stringify(item, null, 2)}</pre>)
+                              : item}
                           </li>
                         ))
                       : typeof result.frameworks_de_ganchos === "string"
@@ -562,14 +556,14 @@ export default function MarketIntelligencePage() {
                     {Array.isArray(result.brechas_de_mercado)
                       ? result.brechas_de_mercado.map((item: any, idx: number) => (
                           <li key={idx}>
-                            {typeof item === "object" ? (
-                              <>
-                                {item.gap && <div className="font-semibold">{item.gap}</div>}
-                                {item.description && <div className="text-gray-400">{item.description}</div>}
-                              </>
-                            ) : (
-                              item
-                            )}
+                            {typeof item === "object"
+                              ? (item.gap || item.description
+                                  ? <>
+                                      {item.gap && <div className="font-semibold">{item.gap}</div>}
+                                      {item.description && <div className="text-gray-400">{item.description}</div>}
+                                    </>
+                                  : <pre className="text-xs text-gray-400 bg-gray-900 rounded p-2">{JSON.stringify(item, null, 2)}</pre>)
+                              : item}
                           </li>
                         ))
                       : typeof result.brechas_de_mercado === "string"
@@ -589,14 +583,14 @@ export default function MarketIntelligencePage() {
                     {Array.isArray(result.oportunidades_estrategicas)
                       ? result.oportunidades_estrategicas.map((item: any, idx: number) => (
                           <li key={idx}>
-                            {typeof item === "object" ? (
-                              <>
-                                {item.opportunity && <div className="font-semibold">{item.opportunity}</div>}
-                                {item.description && <div className="text-gray-400">{item.description}</div>}
-                              </>
-                            ) : (
-                              item
-                            )}
+                            {typeof item === "object"
+                              ? (item.opportunity || item.description
+                                  ? <>
+                                      {item.opportunity && <div className="font-semibold">{item.opportunity}</div>}
+                                      {item.description && <div className="text-gray-400">{item.description}</div>}
+                                    </>
+                                  : <pre className="text-xs text-gray-400 bg-gray-900 rounded p-2">{JSON.stringify(item, null, 2)}</pre>)
+                              : item}
                           </li>
                         ))
                       : typeof result.oportunidades_estrategicas === "string"
@@ -616,14 +610,14 @@ export default function MarketIntelligencePage() {
                     {Array.isArray(result.angulos_de_contenido_recomendados)
                       ? result.angulos_de_contenido_recomendados.map((item: any, idx: number) => (
                           <li key={idx}>
-                            {typeof item === "object" ? (
-                              <>
-                                {item.angle && <div className="font-semibold">{item.angle}</div>}
-                                {item.description && <div className="text-gray-400">{item.description}</div>}
-                              </>
-                            ) : (
-                              item
-                            )}
+                            {typeof item === "object"
+                              ? (item.angle || item.description
+                                  ? <>
+                                      {item.angle && <div className="font-semibold">{item.angle}</div>}
+                                      {item.description && <div className="text-gray-400">{item.description}</div>}
+                                    </>
+                                  : <pre className="text-xs text-gray-400 bg-gray-900 rounded p-2">{JSON.stringify(item, null, 2)}</pre>)
+                              : item}
                           </li>
                         ))
                       : typeof result.angulos_de_contenido_recomendados === "string"
@@ -641,14 +635,14 @@ export default function MarketIntelligencePage() {
                     {Array.isArray(result.estructuras_de_storytelling)
                       ? result.estructuras_de_storytelling.map((item: any, idx: number) => (
                           <li key={idx}>
-                            {typeof item === "object" ? (
-                              <>
-                                {item.structure && <div className="font-semibold">{item.structure}</div>}
-                                {item.description && <div className="text-gray-400">{item.description}</div>}
-                              </>
-                            ) : (
-                              item
-                            )}
+                            {typeof item === "object"
+                              ? (item.structure || item.description
+                                  ? <>
+                                      {item.structure && <div className="font-semibold">{item.structure}</div>}
+                                      {item.description && <div className="text-gray-400">{item.description}</div>}
+                                    </>
+                                  : <pre className="text-xs text-gray-400 bg-gray-900 rounded p-2">{JSON.stringify(item, null, 2)}</pre>)
+                              : item}
                           </li>
                         ))
                       : typeof result.estructuras_de_storytelling === "string"
@@ -673,6 +667,143 @@ export default function MarketIntelligencePage() {
                   <pre className="text-gray-200 text-base font-sans whitespace-pre-wrap">{JSON.stringify(result.analisis_completo, null, 2)}</pre>
                 </div>
               )}
+              {result.analisis_de_videos && Array.isArray(result.analisis_de_videos) && (
+                <div className="col-span-1 md:col-span-2 bg-gradient-to-br from-gray-900 via-black to-gray-950 rounded-2xl p-10 border border-gray-800 shadow-xl flex flex-col gap-12">
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="font-extrabold text-2xl text-white tracking-tight">
+                      Análisis Individual de Videos
+                    </span>
+                  </div>
+                  <div className="space-y-12">
+                    {result.analisis_de_videos.map((video: any, idx: number) => (
+                      <div
+                        key={idx}
+                        className="border border-gray-800 rounded-2xl p-8 bg-black/80 flex flex-col gap-8 shadow-lg transition-all hover:shadow-2xl"
+                      >
+                        {/* Header */}
+                        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
+                          <div className="flex gap-7">
+                            {video.thumbnail_url ? (
+                              <div className="shrink-0 flex flex-col items-center gap-2">
+                                <a
+                                  href={video.video_url || "#"}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <img
+                                    src={video.thumbnail_url}
+                                    alt={video.video_title || "Thumbnail"}
+                                    className="w-48 h-auto rounded-xl border border-gray-800 object-cover hover:scale-105 transition-transform"
+                                    loading="lazy"
+                                  />
+                                </a>
+                                {video.hook_type && (
+                                  <HookBadge hook={video.hook_type} />
+                                )}
+                              </div>
+                            ) : null}
+                            <div className="space-y-3">
+                              {video.creator ? (
+                                <div className="flex items-center gap-2 text-sm text-gray-400">
+                                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                  <span className="text-gray-200 font-semibold">{video.creator}</span>
+                                </div>
+                              ) : null}
+                              {video.video_title ? (
+                                <div className="text-xl font-bold text-gray-100 leading-snug">
+                                  {video.video_title}
+                                </div>
+                              ) : null}
+                              {video.video_url ? (
+                                <a
+                                  href={video.video_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-400 underline text-sm break-all hover:text-blue-300 transition-colors"
+                                >
+                                  <svg className="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 3v2a1 1 0 0 1-1 1H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3a1 1 0 0 1-1-1V3"/></svg>
+                                  {video.video_url}
+                                </a>
+                              ) : null}
+                              <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 mt-2">
+                                {typeof video.views === "number" ? (
+                                  <span className="px-3 py-1 rounded bg-gray-900 border border-gray-800 flex items-center gap-1">
+                                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    Vistas: <span className="text-gray-200 font-semibold">{video.views.toLocaleString()}</span>
+                                  </span>
+                                ) : null}
+                                {video.video_duration ? (
+                                  <span className="px-3 py-1 rounded bg-gray-900 border border-gray-800 flex items-center gap-1">
+                                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+                                    Duración: <span className="text-gray-200 font-semibold">{video.video_duration}</span>
+                                  </span>
+                                ) : null}
+                              </div>
+                            </div>
+                          </div>
+                          {/* El badge ahora está sobre la miniatura, no aquí */}
+                        </div>
+                        <hr className="my-6 border-gray-800" />
+                        {/* Video analysis */}
+                        {video.video_analysis ? (
+                          <div className="bg-gray-900/60 rounded-xl p-6">
+                            <div className="font-bold text-lg text-green-200 mb-2">
+                              Análisis del Video
+                            </div>
+                            <div className="text-gray-300 text-base whitespace-pre-line">
+                              {video.video_analysis}
+                            </div>
+                          </div>
+                        ) : null}
+                        {/* Transcript (collapsible) */}
+                        {video.video_transcript ? (
+                          <details className="rounded-xl border border-gray-800 bg-black/30 p-4 mt-4">
+                            <summary className="cursor-pointer font-semibold text-gray-100">
+                              Ver transcripción
+                            </summary>
+                            <div className="mt-3 text-gray-300 text-base whitespace-pre-line">
+                              {video.video_transcript}
+                            </div>
+                          </details>
+                        ) : null}
+                        {/* Breakdown */}
+                        {video.structural_breakdown && (
+                          <div className="bg-gray-900/60 rounded-xl p-6 mt-6">
+                            <div className="font-bold text-lg text-blue-200 mb-2">
+                              Desglose Estructural
+                            </div>
+                            <div className="text-gray-300 text-base whitespace-pre-line">
+                              {video.structural_breakdown}
+                            </div>
+                          </div>
+                        )}
+                        {/* Why it performed */}
+                        {video.why_it_performed && (
+                          <div className="bg-gray-900/60 rounded-xl p-6 mt-6">
+                            <div className="font-bold text-lg text-yellow-200 mb-2">
+                              ¿Por qué funcionó?
+                            </div>
+                            <div className="text-gray-300 text-base whitespace-pre-line">
+                              {video.why_it_performed}
+                            </div>
+                          </div>
+                        )}
+                        {/* Replicable elements */}
+                        {video.replicable_elements && (
+                          <div className="bg-gray-900/60 rounded-xl p-6 mt-6">
+                            <div className="font-bold text-lg text-pink-200 mb-2">
+                              Elementos Replicables
+                            </div>
+                            <div className="text-gray-300 text-base whitespace-pre-line">
+                              {video.replicable_elements}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-gray-400 font-bold text-lg">No hay hallazgos estratégicos disponibles.</div>
@@ -680,5 +811,25 @@ export default function MarketIntelligencePage() {
         </Card>
       </div>
     </DashboardLayout>
+  );
+}
+
+function HookBadge({ hook }: { hook: string }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className="mt-2 w-44 max-w-xs select-none">
+      <div
+        className={
+          "bg-gradient-to-r from-green-700 via-green-500 to-green-300 bg-opacity-80 text-white text-xs font-bold rounded-xl px-3 py-2 border border-green-700 shadow-md backdrop-blur-sm cursor-pointer text-sm p-2 z-20 transition-all " +
+          (expanded ? "whitespace-normal overflow-visible" : "truncate whitespace-nowrap overflow-hidden")
+        }
+        title={expanded ? undefined : hook}
+        onClick={() => setExpanded((v) => !v)}
+      >
+        <svg className="inline w-4 h-4 mr-2 align-middle" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 17c0 1.1.9 2 2 2s2-.9 2-2c0-2-4-2-4-6 0-2.21 1.79-4 4-4s4 1.79 4 4c0 4-4 4-4 6z"/></svg>
+        <span className="align-middle font-bold">Hook:</span> <span className="align-middle">{hook}</span>
+        <span className="ml-2 text-green-100/70 text-xs font-normal">{expanded ? "(ver menos)" : "(ver más)"}</span>
+      </div>
+    </div>
   );
 }
