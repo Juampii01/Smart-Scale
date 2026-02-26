@@ -20,6 +20,7 @@ function isSkippableKey(key: string) {
   return (
     key === "id" ||
     key === "client_id" ||
+    key === "client_id_text" ||
     key === "created_at" ||
     key === "updated_at" ||
     key === "month"
@@ -52,6 +53,53 @@ function guessCategory(key: string): string {
   if (k.includes("revenue") || k.includes("cash") || k.includes("mrr") || k.includes("expense") || k.includes("ad_spend") || k.includes("ads")) return "Business"
   if (k.includes("reflection") || k.includes("win") || k.includes("focus") || k.includes("support")) return "Reflection"
   return "Other"
+}
+
+const FIELD_LABELS: Record<string, string> = {
+  total_revenue: "Ingresos Totales",
+  mrr: "MRR",
+  cash_collected: "Efectivo Cobrado",
+  software_costs: "Costos de Software",
+  variable_costs: "Costos Variables",
+  ad_spend: "Inversión en Ads",
+
+  scheduled_calls: "Llamadas Agendadas",
+  attended_calls: "Llamadas Asistidas",
+  qualified_calls: "Llamadas Calificadas",
+
+  inbound_messages: "Mensajes Entrantes",
+  offers_presented: "Ofertas Presentadas",
+
+  new_clients: "Nuevos Clientes en Llamada",
+  active_clients: "Clientes Activos",
+
+  offer_docs_sent: "OfferDocs Enviados",
+  offer_docs_responded: "OfferDocs Respondidos",
+  cierres_por_offerdoc: "Cierres por OfferDoc",
+
+  short_followers: "Seguidores Short-form",
+  short_reach: "Alcance Short-form",
+  short_posts: "Posts Short-form",
+
+  yt_subscribers: "Suscriptores YouTube",
+  yt_monthly_audience: "Audiencia Mensual YouTube",
+  yt_views: "Vistas YouTube",
+  yt_watch_time: "Tiempo de Visualización YouTube",
+  yt_new_subscribers: "Nuevos Suscriptores YouTube",
+  yt_videos: "Videos YouTube",
+
+  email_subscribers: "Suscriptores Email",
+  email_new_subscribers: "Nuevos Suscriptores Email",
+
+  biggest_win: "Mayor Logro del Mes",
+  next_focus: "Próximo Enfoque",
+  support_needed: "Soporte Necesario",
+  improvements: "Mejoras",
+  report_date: "Fecha de Reporte",
+}
+
+function getFieldLabel(key: string) {
+  return FIELD_LABELS[key] ?? key
 }
 
 export function MetricsSection({
@@ -184,7 +232,9 @@ export function MetricsSection({
                         {items.map((item) => (
                           <tr key={item.key} className="border-b border-border/60 last:border-b-0">
                             <td className="px-4 py-3">
-                              <div className="text-sm font-medium text-foreground">{item.key}</div>
+                              <div className="text-sm font-medium text-foreground">
+                                {getFieldLabel(item.key)}
+                              </div>
                             </td>
                             <td className="px-4 py-3 text-right">
                               <div className="font-mono text-sm text-white/90">{item.valueText}</div>

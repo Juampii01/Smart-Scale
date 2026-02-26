@@ -305,8 +305,6 @@ export default function MarketIntelligencePage() {
         {/* Sección 3 – Estado del Análisis */}
         <Card className="mb-8 p-6">
           <h2 className="text-xl font-semibold mb-4">Estado del Análisis</h2>
-          <h2 className="text-2xl font-sans mb-8 text-gray-100 tracking-tight">Estado de Investigación</h2>
-          <h2 className="text-2xl font-bold font-sans mb-8 text-gray-100 tracking-tight">Estado de Investigación</h2>
           {selectedRequest ? (
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8 py-8">
               <div className="flex items-center gap-4">
@@ -346,9 +344,8 @@ export default function MarketIntelligencePage() {
         {/* Sección 4 – Resultados */}
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4">Resultados</h2>
-          <h2 className="text-2xl font-sans mb-8 text-gray-100 tracking-tight">Hallazgos Estratégicos</h2>
-          <h2 className="text-2xl font-bold font-sans mb-8 text-gray-100 tracking-tight">Hallazgos Estratégicos</h2>
           {result ? (
+            selectedRequest?.platform === "youtube" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               {/* LEGACY FIELDS */}
               {result.summary && (
@@ -756,13 +753,13 @@ export default function MarketIntelligencePage() {
                           </div>
                         ) : null}
                         {/* Transcript (collapsible) */}
-                        {video.video_transcript ? (
+                        {video.video_transcript && typeof video.video_transcript === "string" && video.video_transcript.trim().length > 0 ? (
                           <details className="rounded-xl border border-gray-800 bg-black/30 p-4 mt-4">
                             <summary className="cursor-pointer font-semibold text-gray-100">
                               Ver transcripción
                             </summary>
                             <div className="mt-3 text-gray-300 text-base whitespace-pre-line">
-                              {video.video_transcript}
+                              {video.video_transcript.trim()}
                             </div>
                           </details>
                         ) : null}
@@ -805,8 +802,63 @@ export default function MarketIntelligencePage() {
                 </div>
               )}
             </div>
+            ) : selectedRequest?.platform === "instagram" ? (
+              <div className="grid grid-cols-1 gap-8">
+                <div className="bg-black rounded-xl p-8 border border-gray-800">
+                  <span className="font-bold text-lg text-gray-100">
+                    Devolución Instagram
+                  </span>
+                </div>
+
+                {result.patrones_dominantes && (
+                  <div className="bg-black rounded-xl p-8 border border-gray-800">
+                    <span className="font-bold text-lg text-gray-100">
+                      Patrones Dominantes
+                    </span>
+                    <pre className="text-gray-300 whitespace-pre-wrap mt-4">
+                      {JSON.stringify(result.patrones_dominantes, null, 2)}
+                    </pre>
+                  </div>
+                )}
+
+                {result.analisis_de_posicionamiento && (
+                  <div className="bg-black rounded-xl p-8 border border-gray-800">
+                    <span className="font-bold text-lg text-gray-100">
+                      Análisis de Posicionamiento
+                    </span>
+                    <div className="text-gray-300 whitespace-pre-line mt-4">
+                      {result.analisis_de_posicionamiento}
+                    </div>
+                  </div>
+                )}
+
+                {result.nivel_de_sofisticacion_del_mercado && (
+                  <div className="bg-black rounded-xl p-8 border border-gray-800">
+                    <span className="font-bold text-lg text-gray-100">
+                      Nivel de Sofisticación del Mercado
+                    </span>
+                    <div className="text-gray-300 whitespace-pre-line mt-4">
+                      {result.nivel_de_sofisticacion_del_mercado}Eve
+                    </div>
+                  </div>
+                )}
+
+                {result.angulos_de_contenido_recomendados && (
+                  <div className="bg-black rounded-xl p-8 border border-gray-800">
+                    <span className="font-bold text-lg text-gray-100">
+                      Ángulos de Contenido Recomendados
+                    </span>
+                    <pre className="text-gray-300 whitespace-pre-wrap mt-4">
+                      {JSON.stringify(result.angulos_de_contenido_recomendados, null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            ) : null
           ) : (
-            <div className="text-gray-400 font-bold text-lg">No hay hallazgos estratégicos disponibles.</div>
+            <div className="text-gray-400 font-bold text-lg">
+              No hay hallazgos estratégicos disponibles.
+            </div>
           )}
         </Card>
       </div>

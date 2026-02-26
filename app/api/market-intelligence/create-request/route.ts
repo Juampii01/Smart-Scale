@@ -4,6 +4,20 @@ import { createClient } from "@supabase/supabase-js"
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
+async function enrichInstagramProfile(url: string) {
+  const usernameMatch = url.match(/instagram\.com\/([^\/\?]+)/)
+  const username = usernameMatch?.[1] || null
+
+  return {
+    profile_url: url,
+    username,
+    name: username || "",
+    bio: "",
+    avg_views: 0,
+    videos: [],
+  }
+}
+
 async function enrichYouTubeChannel(url: string) {
   const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY
   if (!YOUTUBE_API_KEY) throw new Error("Missing YOUTUBE_API_KEY")
@@ -132,11 +146,6 @@ export async function POST(req: NextRequest) {
 
     const user_id = payload.sub
 
-    if (platform !== "youtube")
-      return NextResponse.json(
-        { error: "Only YouTube supported for now" },
-        { status: 400 }
-      )
 
     if (![30, 60, 90].includes(timeframe_days))
       return NextResponse.json(
@@ -150,9 +159,22 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       )
 
-    const enrichedCompetitors = await Promise.all(
-      competitors.map((url: string) => enrichYouTubeChannel(url))
-    )
+    let enrichedCompetitors
+
+    if (platform === "youtube") {
+      enrichedCompetitors = await Promise.all(
+        competitors.map((url: string) => enrichYouTubeChannel(url))
+      )
+    } else if (platform === "instagram") {
+      enrichedCompetitors = await Promise.all(
+        competitors.map((url: string) => enrichInstagramProfile(url))
+      )
+    } else {
+      return NextResponse.json(
+        { error: "Unsupported platform" },
+        { status: 400 }
+      )
+    }
 
     const { data, error } = await supabase
       .from("research_requests")

@@ -50,7 +50,7 @@ export function SalesView() {
 
         const { data: report, error: rErr } = await supabase
           .from("monthly_reports")
-          .select("scheduled_calls,attended_calls,offers_presented,new_clients")
+          .select("scheduled_calls,attended_calls,offers_presented,new_clients,offer_docs_sent,offer_docs_responded,cierres_por_offerdoc")
           .eq("client_id", clientId)
           .eq("month", monthValue)
           .maybeSingle()
@@ -81,6 +81,19 @@ export function SalesView() {
   const offers = data?.offers_presented ?? 0
   const closed = data?.new_clients ?? 0
 
+  const newClientsPerCall = Number(closed) || 0
+
+  const offerDocsSent = data?.offer_docs_sent ?? 0
+  const offerDocsResponded = data?.offer_docs_responded ?? 0
+  const offerDocsRate =
+    offerDocsSent > 0 ? (Number(offerDocsResponded) / Number(offerDocsSent)) * 100 : 0
+
+  const closesPerOfferDoc = data?.cierres_por_offerdoc ?? 0
+  const closesPerOfferDocRate =
+    offerDocsResponded > 0
+      ? (Number(closesPerOfferDoc) / Number(offerDocsResponded)) * 100
+      : 0
+
   const funnelSteps = useMemo(() => {
     const top = Number(scheduled) || 0
 
@@ -88,7 +101,7 @@ export function SalesView() {
       { label: "Llamadas agendadas", count: Number(scheduled) || 0 },
       { label: "Llamadas atendidas", count: Number(attended) || 0 },
       { label: "Ofertas presentadas", count: Number(offers) || 0 },
-      { label: "Nuevos clientes cerrados", count: Number(closed) || 0 },
+      { label: "Nuevos clientes por llamada", count: newClientsPerCall },
     ]
 
     const formatPct = (pct: number) => {
@@ -104,15 +117,7 @@ export function SalesView() {
       const conversionFromPrevPct = idx === 0 ? 100 : prev > 0 ? (s.count / prev) * 100 : 0
       const conversionFromTopPct = idx === 0 ? 100 : top > 0 ? (s.count / top) * 100 : 0
 
-      // ✅ FIX: clamp width to avoid >100% breaking the layout (when a step > top)
-      // Also keep a minimum width for readability.
-      const rawWidth = top > 0 ? (s.count / top) * 100 : 0
-      const width =
-        idx === 0
-          ? 100
-          : top > 0
-          ? Math.min(100, Math.max(26, Math.round(rawWidth)))
-          : Math.max(26, 42 - idx * 6)
+      const width = 100
 
       return {
         label: s.label,
@@ -124,7 +129,7 @@ export function SalesView() {
         width,
       }
     })
-  }, [scheduled, attended, offers, closed])
+  }, [scheduled, attended, offers, closed, newClientsPerCall])
 
   return (
     <div className="space-y-6">
@@ -142,41 +147,91 @@ export function SalesView() {
         <p className="text-white/60">No hay reporte cargado para este mes.</p>
       )}
 
-      <div className="mx-auto max-w-2xl space-y-4">
-        {funnelSteps.map((step, index) => (
-          <div key={step.label} className="space-y-2">
-            <Card
-              className="group border-border bg-card transition-all duration-200 hover:border-muted-foreground/50 hover:shadow-lg hover:shadow-primary/5"
-              style={{
-                width: `${step.width}%`,
-                marginLeft: `${(100 - step.width) / 2}%`,
-              }}
-            >
-              <CardContent className="flex items-center justify-between p-6">
-                <div>
-                  <div className="text-sm text-white/70">{step.label}</div>
-                  <div className="mt-1 text-3xl font-bold text-white">{step.value}</div>
-                </div>
-
-                {/* Conversión vs TOP (agendadas) */}
-                <div className="text-right">
-                  <div className="text-sm font-medium text-zinc-200">
-                    {step.conversionFromTopLabel}
+      <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-2">
+        <div className="space-y-4">
+          {funnelSteps.map((step, index) => (
+            <div key={step.label} className="space-y-2">
+              <Card
+                className="group border-border bg-card transition-all duration-200 hover:border-muted-foreground/50 hover:shadow-lg hover:shadow-primary/5"
+                style={{
+                  width: "100%",
+                }}
+              >
+                <CardContent className="flex items-center justify-between p-6">
+                  <div>
+                    <div className="text-sm text-white/70">{step.label}</div>
+                    <div className="mt-1 text-3xl font-bold text-white">
+                      {step.value}
+                    </div>
                   </div>
-                  <div className="mt-1 text-[11px] text-zinc-400">
-                    vs agendadas: {step.conversionFromTopLabel}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
-            {index < funnelSteps.length - 1 && (
-              <div className="flex justify-center">
-                <ChevronDown className="h-5 w-5 text-muted-foreground/50" />
+                  {/* Conversión vs TOP (agendadas) */}
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-zinc-200">
+                      {step.conversionFromTopLabel}
+                    </div>
+                    <div className="mt-1 text-[11px] text-zinc-400">
+                      vs agendadas: {step.conversionFromTopLabel}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {index < funnelSteps.length - 1 && (
+                <div className="flex justify-center">
+                  <ChevronDown className="h-5 w-5 text-muted-foreground/50" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-4">
+          <Card className="border-border bg-card">
+            <CardContent className="p-6">
+              <div className="text-sm text-white/70">Offer Docs enviados</div>
+              <div className="mt-1 text-3xl font-bold text-white">
+                {offerDocsSent > 0 ? offerDocsSent : "—"}
               </div>
-            )}
-          </div>
-        ))}
+            </CardContent>
+          </Card>
+
+          <Card className="border-border bg-card">
+            <CardContent className="p-6">
+              <div className="text-sm text-white/70">Offer Docs respondidos</div>
+              <div className="mt-1 text-3xl font-bold text-white">
+                {offerDocsResponded > 0 ? offerDocsResponded : "—"}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border bg-card">
+            <CardContent className="p-6">
+              <div className="text-sm text-white/70">Response Rate Offer Docs</div>
+              <div className="mt-1 text-3xl font-bold text-white">
+                {offerDocsSent > 0 ? `${offerDocsRate.toFixed(1)}%` : "—"}
+              </div>
+              <div className="mt-2 text-xs text-white/50">
+                Cierres derivados: {closed > 0 ? closed : "—"}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border bg-card">
+            <CardContent className="p-6">
+              <div className="text-sm text-white/70">Cierres por Offer Doc</div>
+              <div className="mt-1 text-3xl font-bold text-white">
+                {closesPerOfferDoc > 0 ? closesPerOfferDoc : "—"}
+              </div>
+              <div className="mt-2 text-xs text-white/50">
+                Tasa sobre respondidos:{" "}
+                {offerDocsResponded > 0
+                  ? `${closesPerOfferDocRate.toFixed(1)}%`
+                  : "—"}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

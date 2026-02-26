@@ -186,6 +186,94 @@ async function enrichTopVideos(videos: any[]): Promise<any[]> {
   return results
 }
 
+async function fetchInstagramProfile(username: string) {
+  if (!username) return null
+
+  try {
+    const res = await fetch(`https://www.instagram.com/${username}/`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+      },
+    })
+
+    if (!res.ok) {
+      return {
+        username,
+        bio: "",
+        followers: 0,
+        avg_views: 0,
+        avg_likes: 0,
+        avg_comments: 0,
+        engagement_rate: 0,
+        posting_frequency: 0,
+        videos: [],
+      }
+    }
+
+    const html = await res.text()
+
+    // --- Lightweight Surface Extraction ---
+
+    // Bio extraction from og:description
+    const bioMatch = html.match(/property="og:description" content="([^"]+)"/)
+    const bioRaw = bioMatch?.[1] || ""
+
+    // Followers extraction (usually inside og:description)
+    let followers = 0
+    const followerMatch = bioRaw.match(/([\d,.]+)\s+Followers/i)
+    if (followerMatch) {
+      followers = Number(followerMatch[1].replace(/[,\.]/g, "")) || 0
+    }
+
+    // Extract post links (surface only)
+    const postMatches = Array.from(
+      html.matchAll(/href="\/p\/([^\/"]+)\/"/g)
+    )
+
+    const uniqueShortcodes = Array.from(
+      new Set(postMatches.map(m => m[1]))
+    ).slice(0, 9)
+
+    const posts = uniqueShortcodes.map((code) => ({
+      creator: username,
+      video_url: `https://www.instagram.com/p/${code}/`,
+      thumbnail_url: "",
+      video_title: "",
+      views: 0,
+      likes: 0,
+      comments: 0,
+      is_video: true,
+      created_at: 0,
+      video_duration: "",
+      video_transcript: "",
+    }))
+
+    return {
+      username,
+      bio: bioRaw,
+      followers,
+      avg_views: 0,
+      avg_likes: 0,
+      avg_comments: 0,
+      engagement_rate: 0,
+      posting_frequency: 0,
+      videos: posts,
+    }
+  } catch {
+    return {
+      username,
+      bio: "",
+      followers: 0,
+      avg_views: 0,
+      avg_likes: 0,
+      avg_comments: 0,
+      engagement_rate: 0,
+      posting_frequency: 0,
+      videos: [],
+    }
+  }
+}
+
 function buildGeneralPrompt(request: any) {
   const { competitors } = request
 
@@ -196,9 +284,14 @@ function buildGeneralPrompt(request: any) {
   const lightCompetitors = competitors.map((c: any) => ({
     name: c.name ?? "",
     bio: c.bio ?? "",
+    followers: c.followers ?? 0,
     avg_views: c.avg_views ?? 0,
+    avg_likes: c.avg_likes ?? 0,
+    avg_comments: c.avg_comments ?? 0,
+    engagement_rate: c.engagement_rate ?? 0,
+    posting_frequency: c.posting_frequency ?? 0,
     total_videos: c.videos?.length ?? 0,
-    top_titles: (c.videos ?? []).slice(0, 5).map((v: any) => v.title ?? ""),
+    top_titles: (c.videos ?? []).slice(0, 5).map((v: any) => v.video_title ?? ""),
   }))
 
   return `
@@ -466,15 +559,94 @@ serve(async () => {
       }),
     })
 
+    const platform = String(pendingRequest.platform ?? "youtube").toLowerCase()
+
     const generalPrompt = buildGeneralPrompt(pendingRequest)
     const generalParsed = await callAnthropicParsed(generalPrompt, 2200)
 
-    const rawVideos = pendingRequest.competitors
-      ?.flatMap((c: any) => c.videos || [])
-      ?.sort((a: any, b: any) => (Number(b?.views ?? 0) - Number(a?.views ?? 0)))
-      ?.slice(0, 3) || []
+    let allVideos: any[] = []
 
-    const allVideos = await enrichTopVideos(rawVideos)
+    if (platform === "youtube") {
+      const rawVideos = pendingRequest.competitors
+        ?.flatMap((c: any) => c.videos || [])
+        ?.sort((a: any, b: any) => (Number(b?.views ?? 0) - Number(a?.views ?? 0)))
+        ?.slice(0, 3) || []
+
+      allVideos = await enrichTopVideos(rawVideos)
+    }
+
+    if (platform === "instagram") {
+      const enrichedProfiles = []
+
+      for (const c of pendingRequest.competitors ?? []) {
+        const usernameMatch = String(c?.profile_url ?? "").match(/instagram\.com\/([^\/\?]+)/)
+        const username = usernameMatch?.[1]
+
+        const profile = await fetchInstagramProfile(username ?? "")
+        if (profile) enrichedProfiles.push(profile)
+      }
+
+      // Save structured Instagram metrics snapshot
+      for (const profile of enrichedProfiles) {
+        await supabaseFetch("competitor_snapshots", {
+          method: "POST",
+          body: JSON.stringify({
+            request_id: requestId,
+            platform: "instagram",
+            username: profile.username,
+            followers: profile.followers ?? 0,
+            avg_views: profile.avg_views ?? 0,
+            avg_likes: profile.avg_likes ?? 0,
+            avg_comments: profile.avg_comments ?? 0,
+            engagement_rate: profile.engagement_rate ?? 0,
+            posting_frequency: profile.posting_frequency ?? 0,
+          }),
+        })
+      }
+
+      // CONTINGENCY: if no usable data was retrieved
+      const hasRealData = enrichedProfiles.some(
+        (p: any) =>
+          (p.followers ?? 0) > 0 ||
+          (p.avg_views ?? 0) > 0 ||
+          (p.videos?.length ?? 0) > 0
+      )
+
+      if (!hasRealData) {
+        // Fallback minimal structured dataset so AI still generates output
+        allVideos = [
+          {
+            creator: enrichedProfiles[0]?.username ?? "Instagram Profile",
+            video_url: "",
+            thumbnail_url: "",
+            video_title: "",
+            views: 0,
+            video_duration: "",
+            video_transcript: "",
+            hook_type: "",
+            structural_breakdown:
+              "No existe API pública disponible en este momento para obtener métricas profundas de Instagram. El análisis estructural de videos individuales no puede realizarse automáticamente.",
+            why_it_performed:
+              "No se pudieron obtener métricas cuantitativas. Es posible que el perfil sea privado, que Instagram haya bloqueado el scraping o que la estructura haya cambiado.",
+            replicable_elements:
+              "1) Revisar manualmente los posts con mayor interacción visible 2) Analizar comentarios destacados 3) Identificar formatos repetidos 4) Evaluar consistencia visual del feed",
+            video_analysis:
+              "- No se pudo acceder a métricas detalladas del perfil.\n- Instagram no ofrece API pública abierta para scraping profundo.\n- Se recomienda realizar análisis manual de los posts con mayor visibilidad.\n- El sistema mantiene la estructura para evitar fallos en el flujo.",
+            funnel_role:
+              "No determinable automáticamente por falta de datos.",
+            distribution_analysis:
+              "Instagram limita el acceso automatizado a métricas. Dependencia alta de revisión manual.",
+          },
+        ]
+      } else {
+        const rawVideos = enrichedProfiles
+          .flatMap((p: any) => (p.videos || []).filter((v: any) => v.is_video))
+          .sort((a: any, b: any) => Number(b?.views ?? 0) - Number(a?.views ?? 0))
+          .slice(0, 3)
+
+        allVideos = rawVideos
+      }
+    }
 
     let videoParsed: any[] = []
 
@@ -530,3 +702,8 @@ serve(async () => {
     return new Response(err.message, { status: 500 })
   }
 })
+
+// Backward compatibility wrapper (in case older logic calls enrichInstagramProfile)
+async function enrichInstagramProfile(username: string) {
+  return fetchInstagramProfile(username)
+}
