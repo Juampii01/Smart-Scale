@@ -50,7 +50,7 @@ export function SalesView() {
 
         const { data: report, error: rErr } = await supabase
           .from("monthly_reports")
-          .select("scheduled_calls,attended_calls,offers_presented,new_clients,offer_docs_sent,offer_docs_responded,cierres_por_offerdoc")
+          .select("scheduled_calls,attended_calls,aplications,new_clients,offer_docs_sent,offer_docs_responded,cierres_por_offerdoc")
           .eq("client_id", clientId)
           .eq("month", monthValue)
           .maybeSingle()
@@ -78,7 +78,7 @@ export function SalesView() {
 
   const scheduled = data?.scheduled_calls ?? 0
   const attended = data?.attended_calls ?? 0
-  const offers = data?.offers_presented ?? 0
+  const aplications = data?.aplications ?? 0
   const closed = data?.new_clients ?? 0
 
   const newClientsPerCall = Number(closed) || 0
@@ -94,13 +94,15 @@ export function SalesView() {
       ? (Number(closesPerOfferDoc) / Number(offerDocsResponded)) * 100
       : 0
 
+  const callCloseRatePct = attended > 0 ? (Number(closed) / Number(attended)) * 100 : 0
+  const callCloseRateLabel = attended > 0 ? `${callCloseRatePct.toFixed(1)}%` : "—"
+
   const funnelSteps = useMemo(() => {
     const top = Number(scheduled) || 0
 
     const steps = [
       { label: "Llamadas agendadas", count: Number(scheduled) || 0 },
       { label: "Llamadas atendidas", count: Number(attended) || 0 },
-      { label: "Ofertas presentadas", count: Number(offers) || 0 },
       { label: "Nuevos clientes por llamada", count: newClientsPerCall },
     ]
 
@@ -129,7 +131,7 @@ export function SalesView() {
         width,
       }
     })
-  }, [scheduled, attended, offers, closed, newClientsPerCall])
+  }, [scheduled, attended, closed, newClientsPerCall])
 
   return (
     <div className="space-y-6">
@@ -184,6 +186,22 @@ export function SalesView() {
               )}
             </div>
           ))}
+          <Card
+            className="group border-border bg-card transition-all duration-200 hover:border-muted-foreground/50 hover:shadow-lg hover:shadow-primary/5"
+          >
+            <CardContent className="flex items-center justify-between p-6">
+              <div>
+                <div className="text-sm text-white/70">Tasa de cierre vs atendidas</div>
+                <div className="mt-1 text-3xl font-bold text-white">
+                  {callCloseRateLabel}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-medium text-zinc-200">{callCloseRateLabel}</div>
+                <div className="mt-1 text-[11px] text-zinc-400">clientes / atendidas</div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="space-y-4">
@@ -233,6 +251,14 @@ export function SalesView() {
           </Card>
         </div>
       </div>
+      <Card className="border-border bg-card max-w-5xl mx-auto">
+        <CardContent className="p-6">
+          <div className="text-sm text-white/70">Aplicaciones</div>
+          <div className="mt-1 text-3xl font-bold text-white">
+            {aplications > 0 ? aplications : "—"}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

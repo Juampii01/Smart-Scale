@@ -55,7 +55,7 @@ export function SalesMetrics() {
         const { data: report, error: rErr } = await supabase
           .from("monthly_reports")
           .select(
-            "calls_scheduled,calls_attended,offers_presented,deals_closed,offer_docs_sent,offer_docs_responded,cierres_por_offerdoc"
+            "calls_scheduled,calls_attended,aplications,deals_closed,offer_docs_sent,offer_docs_responded,cierres_por_offerdoc"
           )
           .eq("client_id", profile.client_id)
           .eq("month", monthValue)
@@ -84,7 +84,7 @@ export function SalesMetrics() {
 
   const scheduled = data?.calls_scheduled ?? 0
   const attended = data?.calls_attended ?? 0
-  const offers = data?.offers_presented ?? 0
+  const offers = data?.aplications ?? 0
   const closed = data?.deals_closed ?? 0
   const offerDocsSent = data?.offer_docs_sent ?? 0
   const offerDocsResponded = data?.offer_docs_responded ?? 0
@@ -93,7 +93,7 @@ export function SalesMetrics() {
   const metrics = [
     { label: "Scheduled Calls", value: scheduled || "—" },
     { label: "Attended Calls", value: attended || "—" },
-    { label: "Offers Presented", value: offers || "—" },
+    { label: "Applications", value: offers || "—" },
     { label: "Offer Docs Sent", value: offerDocsSent || "—" },
     { label: "Offer Docs Responded", value: offerDocsResponded || "—" },
     { label: "Offer Docs Response Rate", value: pct(offerDocsResponded, offerDocsSent) },

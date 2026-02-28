@@ -26,7 +26,7 @@ type CalendarItem = {
 const ITEMS: CalendarItem[] = [
   {
     day: "Lunes",
-    time: "2:00 PM",
+    time: "3:00 PM",
     tzLabel: "Miami",
     title: "Q&A: Ads · Content · Mindset",
     description: "Con Ann Sahakyan",
@@ -48,9 +48,9 @@ const ITEMS: CalendarItem[] = [
   },
   {
     day: "Miércoles",
-    time: "2:00 PM",
+    time: "3:00 PM",
     tzLabel: "Miami",
-    title: "Appointment Setting: Prospección y agendas",
+    title: "Lab/Q&A",
     description: "Con Ann Sahakyan",
     zoomUrl:
       "https://us06web.zoom.us/j/84528843654?pwd=knND3qWgX5OxRRffoHiZSmnaPuPaza.1",
