@@ -213,24 +213,8 @@ export function MetricsSection({
             >
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center justify-between text-base font-medium">
-                  <span className={
-                    category === "Business" ? "text-pink-300" :
-                    category === "Sales" ? "text-yellow-300" :
-                    category === "Short-form" ? "text-emerald-300" :
-                    category === "YouTube" ? "text-sky-300" :
-                    category === "Email" ? "text-purple-300" :
-                    category === "Reflection" ? "text-orange-300" :
-                    "text-gray-300"
-                  }>{category}</span>
-                  <span className={
-                    category === "Business" ? "text-pink-200" :
-                    category === "Sales" ? "text-yellow-200" :
-                    category === "Short-form" ? "text-emerald-200" :
-                    category === "YouTube" ? "text-sky-200" :
-                    category === "Email" ? "text-purple-200" :
-                    category === "Reflection" ? "text-orange-200" :
-                    "text-gray-200"
-                  }>{items.length} fields</span>
+                  <span className="text-white/80">{category}</span>
+                  <span className="text-white/50">{items.length} fields</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
@@ -258,17 +242,7 @@ export function MetricsSection({
                               </div>
                             </td>
                             <td className="px-4 py-3 text-right">
-                              <div className={
-                                `font-mono text-sm ${
-                                  item.category === "Business" ? "text-pink-200" :
-                                  item.category === "Sales" ? "text-yellow-200" :
-                                  item.category === "Short-form" ? "text-emerald-200" :
-                                  item.category === "YouTube" ? "text-sky-200" :
-                                  item.category === "Email" ? "text-purple-200" :
-                                  item.category === "Reflection" ? "text-orange-200" :
-                                  "text-gray-200"
-                                }`
-                              }>{item.annualValueText}</div>
+                              <div className="font-mono text-sm text-white/70">{item.annualValueText}</div>
                             </td>
                           </tr>
                         ))}
