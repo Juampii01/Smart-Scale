@@ -56,9 +56,9 @@ function guessCategory(key: string): string {
 }
 
 const FIELD_LABELS: Record<string, string> = {
-  total_revenue: "Ingresos Totales",
+  total_revenue: "Revenue",
   mrr: "MRR",
-  cash_collected: "Efectivo Cobrado",
+  cash_collected: "Cash Collected",
   software_costs: "Costos de Software",
   variable_costs: "Costos Variables",
   ad_spend: "Inversión en Ads",
@@ -225,7 +225,7 @@ export function MetricsSection({
                         <tr className="border-b border-border">
                           <th className="px-4 py-3 text-left text-xs font-medium text-white/60">Field</th>
                           <th className="px-4 py-3 text-right text-xs font-medium text-white/60">Mensual</th>
-                          <th className="px-4 py-3 text-right text-xs font-medium text-white/60">Anual</th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-white/60">Total</th>
                         </tr>
                       </thead>
                       <tbody>
