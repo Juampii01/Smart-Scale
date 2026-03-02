@@ -123,17 +123,21 @@ export function CalendarView() {
     <section className="space-y-6">
       <div className="space-y-2">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold text-foreground">Agenda — Enero</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Agenda Marzo</h1>
           <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-medium text-white/70">
             Llamadas semanales
           </span>
         </div>
-
+        <div className="mt-4 flex justify-center">
+          <div className="flex items-center gap-3 px-5 py-3 rounded-xl border-2 border-[#ffde21] bg-[#ffde21]/10 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#ffde21]" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" d="M12 8v4l2 2"/><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/></svg>
+            <span className="font-bold text-[#ffde21] text-lg">Aviso importante:</span>
+            <span className="text-white font-medium">La clase <span className="font-bold">Lab/Q&A</span> de Ann originalmente el día <span className="font-bold">4</span> se realizará el día <span className="font-bold">5</span>.</span>
+          </div>
+        </div>
         <p className="text-sm text-muted-foreground max-w-2xl">
-          Estas son las <span className="text-white/90 font-medium">llamadas activas de este mes</span>. 
           Espacios de trabajo diseñados para resolver bloqueos reales en adquisición, contenido, ventas y mentalidad.
         </p>
-
         <p className="text-xs text-white/50">
           Todas las sesiones se realizan en horario Miami y quedan grabadas.
         </p>
@@ -145,18 +149,18 @@ export function CalendarView() {
           return (
             <Card
               key={`${item.day}-${item.time}-${item.title}`}
-              className={
-                "relative overflow-hidden border-border bg-card transition-all duration-200 hover:border-muted-foreground/50 hover:shadow-lg hover:shadow-primary/5"
-              }
+              className="relative overflow-hidden border-[#ffde21]/30 bg-gradient-to-br from-neutral-900 via-neutral-950 to-black transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,222,33,0.15)] hover:border-[#ffde21]/50 shadow-[0_0_0_1px_rgba(255,222,33,0.10),0_25px_60px_-30px_rgba(0,0,0,0.8)]"
             >
-              {/* subtle top accent */}
+              {/* top accent amarillo */}
               <div
                 className={
                   cancelled
                     ? "absolute inset-x-0 top-0 h-1 bg-red-500/70"
-                    : "absolute inset-x-0 top-0 h-1 bg-white/10"
+                    : "absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#ffde21]/10 via-[#ffde21]/30 to-[#ffde21]/10"
                 }
               />
+              {/* glow amarillo */}
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,222,33,0.12),transparent_55%)]" />
 
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-start justify-between gap-3 text-base font-medium">
@@ -275,7 +279,7 @@ export function CalendarView() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-white/60 max-w-xl">
-            La agenda de febrero todavía no está publicada. 
+            La agenda de mayo todavía no está publicada. 
             Definimos nuevas sesiones estratégicas según las necesidades del grupo y el momento del negocio.
           </p>
         </CardContent>

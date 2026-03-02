@@ -51,7 +51,7 @@ export function BusinessKPIs({ selectedMonth }: { selectedMonth?: string }) {
             setReport(null)
             setPrevReport(null)
             setLoading(false)
-            setError("No hay cliente activo seleccionado.")
+            return
           }
           return
         }
@@ -190,8 +190,10 @@ export function BusinessKPIs({ selectedMonth }: { selectedMonth?: string }) {
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <div className="text-3xl font-bold text-white">{kpi.value}</div>
-                  <div className="mt-1 text-sm text-zinc-400">{kpi.label}</div>
+                  <div className={'text-4xl font-extrabold text-white'}>
+                    {kpi.value}
+                  </div>
+                  <div className="mt-1 text-base text-white">{kpi.label}</div>
                 </div>
                 <div className="flex flex-col items-center gap-2">
                   {!loading && report && (
@@ -221,8 +223,8 @@ export function BusinessKPIs({ selectedMonth }: { selectedMonth?: string }) {
                       )
                     })()
                   )}
-                  <div className="flex items-center justify-center rounded-lg bg-orange-500/10 p-2">
-                    <kpi.icon className="h-5 w-5 text-orange-400" />
+                  <div className="flex items-center justify-center rounded-lg bg-[#ffde21]/10 p-2">
+                    <kpi.icon className="h-5 w-5 text-[#ffde21]" />
                   </div>
                 </div>
               </div>

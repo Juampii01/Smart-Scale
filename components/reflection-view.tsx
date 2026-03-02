@@ -80,35 +80,33 @@ export function ReflectionView() {
 
   useEffect(() => {
     let mounted = true
-
+    if (!activeClientId) {
+      setLoading(true)
+      setData(null)
+      return () => { mounted = false }
+    }
     async function load() {
       try {
         if (mounted) {
           setLoading(true)
           setError(null)
         }
-
         const supabase = createClient()
-
         const {
           data: { user },
           error: userErr,
         } = await supabase.auth.getUser()
-
         if (userErr) throw userErr
         if (!user) throw new Error("No session")
         const clientId = activeClientId
-        if (!clientId) throw new Error("No hay cliente activo seleccionado")
-
+        if (!clientId) return
         const { data: report, error: rErr } = await supabase
           .from("monthly_reports")
           .select("*")
           .eq("client_id", clientId)
           .eq("month", monthValue)
           .maybeSingle()
-
         if (rErr) throw rErr
-
         if (mounted) {
           setData((report ?? null) as ReflectionReport | null)
           setLoading(false)
@@ -121,7 +119,6 @@ export function ReflectionView() {
         }
       }
     }
-
     load()
     return () => {
       mounted = false
@@ -166,8 +163,7 @@ export function ReflectionView() {
         <p className="mt-1 text-xs text-white/50">Mes seleccionado: {selectedMonth}</p>
       </div>
 
-      {loading && <p className="text-white/60">Cargando reflexión del mes…</p>}
-      {error && <p className="text-red-400">{error}</p>}
+      {loading && <p className="text-white/60">Cargando reflexión…</p>}
       {!loading && !error && !data && (
         <p className="text-white/60">No hay reflexión cargada para este mes.</p>
       )}

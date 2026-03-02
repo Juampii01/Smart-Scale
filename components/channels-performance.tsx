@@ -155,21 +155,21 @@ export function ChannelsPerformance() {
           <CardContent>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <div className="text-2xl font-bold text-foreground">
+                <div className="text-4xl font-extrabold text-[#ffde21]">
                   {fmtShortK(report?.short_followers)}
                 </div>
                 <div className="text-sm text-muted-foreground">Seguidores</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{fmtShortK(report?.short_reach)}</div>
+                <div className="text-4xl font-extrabold text-emerald-400">{fmtShortK(report?.short_reach)}</div>
                 <div className="text-sm text-muted-foreground">Alcance</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{fmtNumber(report?.short_posts)}</div>
+                <div className="text-4xl font-extrabold text-emerald-400">{fmtNumber(report?.short_posts)}</div>
                 <div className="text-sm text-muted-foreground">Publicaciones</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{fmtScore(report?.confidence_short)}</div>
+                <div className="text-4xl font-extrabold text-[#ffde21]">{fmtScore(report?.confidence_short)}</div>
                 <div className="text-sm text-muted-foreground">Puntaje de confianza</div>
               </div>
             </div>
@@ -184,31 +184,31 @@ export function ChannelsPerformance() {
           <CardContent>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <div className="text-2xl font-bold text-foreground">{fmtShortK(report?.yt_subscribers)}</div>
+                <div className="text-4xl font-extrabold text-sky-300">{fmtShortK(report?.yt_subscribers)}</div>
                 <div className="text-sm text-muted-foreground">Suscriptores</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{fmtShortK(report?.yt_monthly_audience)}</div>
+                <div className="text-4xl font-extrabold text-pink-300">{fmtShortK(report?.yt_monthly_audience)}</div>
                 <div className="text-sm text-muted-foreground">Audiencia mensual</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{fmtShortK(report?.yt_views)}</div>
+                <div className="text-4xl font-extrabold text-lime-300">{fmtShortK(report?.yt_views)}</div>
                 <div className="text-sm text-muted-foreground">Vistas</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{fmtWatchTimeHours(report?.yt_watch_time)}</div>
+                <div className="text-4xl font-extrabold text-purple-300">{fmtWatchTimeHours(report?.yt_watch_time)}</div>
                 <div className="text-sm text-muted-foreground">Tiempo de visualización</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{fmtNumber(report?.yt_new_subscribers)}</div>
+                <div className="text-4xl font-extrabold text-orange-200">{fmtNumber(report?.yt_new_subscribers)}</div>
                 <div className="text-sm text-muted-foreground">Nuevos suscriptores</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{fmtNumber(report?.yt_videos)}</div>
+                <div className="text-4xl font-extrabold text-yellow-200">{fmtNumber(report?.yt_videos)}</div>
                 <div className="text-sm text-muted-foreground">Videos publicados</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{fmtScore(report?.confidence_long)}</div>
+                <div className="text-4xl font-extrabold text-[#ffde21]">{fmtScore(report?.confidence_long)}</div>
                 <div className="text-sm text-muted-foreground">Puntaje de confianza</div>
               </div>
             </div>
@@ -223,15 +223,15 @@ export function ChannelsPerformance() {
           <CardContent>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <div className="text-2xl font-bold text-foreground">{fmtNumber(report?.email_subscribers)}</div>
+                <div className="text-4xl font-extrabold text-pink-300">{fmtNumber(report?.email_subscribers)}</div>
                 <div className="text-sm text-muted-foreground">Suscriptores totales</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{fmtNumber(report?.email_new_subscribers)}</div>
+                <div className="text-4xl font-extrabold text-sky-300">{fmtNumber(report?.email_new_subscribers)}</div>
                 <div className="text-sm text-muted-foreground">Nuevos suscriptores</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground">{fmtScore(report?.confidence_email)}</div>
+                <div className="text-4xl font-extrabold text-[#ffde21]">{fmtScore(report?.confidence_email)}</div>
                 <div className="text-sm text-muted-foreground">Puntaje de confianza</div>
               </div>
             </div>

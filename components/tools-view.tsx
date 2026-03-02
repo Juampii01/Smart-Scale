@@ -43,17 +43,17 @@ export function ToolsSection({
         {tools.map((t) => (
           <Card
             key={t.href}
-            className="relative overflow-hidden border-border bg-gradient-to-br from-neutral-900 via-neutral-950 to-black transition-all duration-300 hover:shadow-[0_0_40px_rgba(0,255,255,0.15)] hover:border-cyan-400/30"
+            className="relative overflow-hidden border-border bg-gradient-to-br from-neutral-900 via-neutral-950 to-black transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,222,33,0.15)] hover:border-[#ffde21]/30"
           >
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,255,255,0.12),transparent_55%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,222,33,0.12),transparent_55%)]" />
 
             <CardHeader className="relative pb-4">
               <CardTitle className="flex items-center gap-4">
                 <div className="relative h-12 w-12 rounded-xl bg-black/60 ring-1 ring-white/10 flex items-center justify-center">
                   {variant === "gpt" ? (
-                    <Sparkles className="h-6 w-6 text-cyan-400" />
+                    <Sparkles className="h-6 w-6 text-[#ffde21]" />
                   ) : (
-                    <FileText className="h-6 w-6 text-cyan-400" />
+                    <FileText className="h-6 w-6 text-[#ffde21]" />
                   )}
                 </div>
 
@@ -61,7 +61,7 @@ export function ToolsSection({
                   <div className="text-lg font-semibold text-foreground tracking-tight">
                     {t.name}
                   </div>
-                  <div className="mt-0.5 text-xs uppercase tracking-wider text-cyan-400/80">
+                  <div className="mt-0.5 text-xs uppercase tracking-wider text-[#ffde21]">
                     {variant === "gpt" ? "AI TOOL" : "FORM"}
                   </div>
                 </div>
@@ -94,7 +94,7 @@ export function ToolsSection({
               <Button
                 asChild
                 size="sm"
-                className="w-full bg-cyan-400 text-black hover:bg-cyan-300"
+                className="w-full bg-[#ffde21] text-black hover:bg-[#ffe46b]"
               >
                 <Link href={t.href} target="_blank" rel="noreferrer">
                   {variant === "gpt" ? "Abrir en ChatGPT" : "Abrir formulario"}

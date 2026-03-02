@@ -282,7 +282,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <div className="relative" ref={profileMenuRef}>
                 <Button
                   variant="outline"
-                  className="gap-2 text-orange-400 hover:text-orange-300 border-orange-400/30 hover:bg-orange-400/10"
+                  className="gap-2 text-emerald-400 hover:text-emerald-300 border-emerald-400/30 hover:bg-emerald-400/10"
                   onClick={() => setProfileMenuOpen((v) => !v)}
                   aria-haspopup="menu"
                   aria-expanded={profileMenuOpen}
@@ -294,13 +294,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         : "Perfil"
                   }
                 >
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-orange-400/40 bg-orange-400/10">
-                    <User className="h-4 w-4" />
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10">
+                    <User className="h-4 w-4 text-[#ffde21]" />
                   </span>
-                  <span className="hidden sm:inline">
+                  <span className="hidden sm:inline text-white font-semibold">
                     {activeClientName ?? userEmail ?? "—"}
                   </span>
-                  <ChevronDown className="h-4 w-4 opacity-80" />
+                  <ChevronDown className="h-4 w-4 opacity-80 text-[#ffde21]" />
                 </Button>
 
                 {profileMenuOpen ? (
@@ -330,7 +330,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                   key={p.id}
                                   type="button"
                                   role="menuitem"
-                                  className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-white hover:bg-orange-400/10 ${isActive ? "bg-orange-400/15" : ""} ${!isSelectable ? "opacity-50 cursor-not-allowed hover:bg-transparent" : ""}`}
+                                  className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-white hover:bg-[#ffde21]/10 ${isActive ? "bg-[#ffde21]/15" : ""} ${!isSelectable ? "opacity-50 cursor-not-allowed hover:bg-transparent" : ""}`}
                                   disabled={!isSelectable}
                                   onClick={() => {
                                     if (!p.client_id) return
@@ -341,7 +341,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                   title={p.client_id}
                                 >
                                   <span className="truncate text-white">{p.client_name}</span>
-                                  {isActive ? <span className="text-xs text-orange-300/80">Activo</span> : null}
+                                  {isActive ? <span className="text-xs text-emerald-300/80">Activo</span> : null}
                                 </button>
                               )
                             })
@@ -358,7 +358,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     <button
                       type="button"
                       role="menuitem"
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-500 hover:bg-orange-400/10"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-500 hover:bg-emerald-400/10"
                       onClick={async () => {
                         // const supabase = createClient()
                         await supabase.auth.signOut()
@@ -366,7 +366,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         router.replace("/login")
                       }}
                     >
-                      <LogOut className="h-4 w-4" />
+                      <LogOut className="h-4 w-4 text-[#ffde21]" />
                       Cerrar sesión
                     </button>
                   </div>

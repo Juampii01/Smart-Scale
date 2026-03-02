@@ -168,7 +168,6 @@ export default function MarketIntelligencePage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="youtube">YouTube</SelectItem>
-                    <SelectItem value="instagram">Instagram</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -210,6 +209,7 @@ export default function MarketIntelligencePage() {
                 )}
             </div>
           </form>
+          <div className="mt-8 text-center text-yellow-400 text-lg font-semibold">Instagram en proceso</div>
         </Card>
 
         {/* Sección 2 – Historial de Investigaciones */}

@@ -90,17 +90,17 @@ function ChannelCard({
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-zinc-400">
-            <Users className="h-4 w-4" />
-            Audiencia total
-          </div>
-          <div className="text-lg font-semibold text-white">{data.audience}</div>
+              <Users className="h-4 w-4" />
+              Audiencia total
+            </div>
+            <div className="text-lg font-semibold text-white">{data.audience}</div>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-zinc-400">
-            <Eye className="h-4 w-4" />
-            Alcance / Vistas
-          </div>
-          <div className="text-lg font-semibold text-white">{data.reach}</div>
+              <Eye className="h-4 w-4" />
+              Alcance / Vistas
+            </div>
+            <div className="text-lg font-semibold text-white">{data.reach}</div>
         </div>
         {!hideContent && (
           <div className="flex items-center justify-between">
@@ -135,51 +135,45 @@ export function ChannelsView() {
 
   useEffect(() => {
     let mounted = true
-
+    if (!activeClientId) {
+      setLoading(true)
+      setCurrent(null)
+      setPrev(null)
+      return () => { mounted = false }
+    }
     async function load() {
       try {
         if (mounted) {
           setLoading(true)
           setError(null)
         }
-
         const supabase = createClient()
-
         const {
           data: { user },
           error: userErr,
         } = await supabase.auth.getUser()
-
         if (userErr) throw userErr
         if (!user) throw new Error("No session")
-
         const clientId = activeClientId
-        if (!clientId) throw new Error("No hay cliente activo seleccionado")
-
+        if (!clientId) return
         const monthValue = toMonthDate(monthYYYYMM)
         const prevMonthValue = toMonthDate(prevMonthYYYYMM(monthYYYYMM))
-
         const selectFields =
           "month,short_followers,short_reach,short_posts,yt_subscribers,yt_views,yt_monthly_audience,yt_videos,email_subscribers,email_new_subscribers"
-
         const { data: curRow, error: cErr } = await supabase
           .from("monthly_reports")
           .select(selectFields)
           .eq("client_id", clientId)
           .eq("month", monthValue)
           .maybeSingle()
-
         if (cErr) throw cErr
-
         const { data: prevRow, error: prErr } = await supabase
           .from("monthly_reports")
           .select(selectFields)
           .eq("client_id", clientId)
           .eq("month", prevMonthValue)
           .maybeSingle()
-
         if (prErr) throw prErr
-
         if (mounted) {
           setCurrent((curRow ?? null) as ReportRow | null)
           setPrev((prevRow ?? null) as ReportRow | null)
@@ -194,7 +188,6 @@ export function ChannelsView() {
         }
       }
     }
-
     load()
     return () => {
       mounted = false
@@ -234,6 +227,7 @@ export function ChannelsView() {
 
   return (
     <div className="space-y-6">
+      {loading && <p className="text-white/60">Cargando datos…</p>}
       <div>
         <h1 className="text-2xl font-semibold text-foreground">Rendimiento por canal</h1>
         <p className="mt-1 text-sm text-muted-foreground">Señales rápidas de cómo cada canal apoya el negocio</p>

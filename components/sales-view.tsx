@@ -46,7 +46,7 @@ export function SalesView() {
         if (!user) throw new Error("No session")
 
         const clientId = activeClientId
-        if (!clientId) throw new Error("No hay cliente activo seleccionado")
+        if (!clientId) return
 
         const { data: report, error: rErr } = await supabase
           .from("monthly_reports")

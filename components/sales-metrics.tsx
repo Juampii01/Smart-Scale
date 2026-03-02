@@ -118,8 +118,8 @@ export function SalesMetrics() {
         {metrics.map((metric) => (
           <Card key={metric.label} className="border-border bg-card transition-colors hover:border-muted-foreground/50">
             <CardContent className="p-6">
-              <div className="text-3xl font-bold text-foreground">{metric.value}</div>
-              <div className="mt-1 text-sm text-muted-foreground">{metric.label}</div>
+              <div className="text-4xl font-extrabold text-white">{metric.value}</div>
+              <div className="mt-1 text-base text-white">{metric.label}</div>
             </CardContent>
           </Card>
         ))}

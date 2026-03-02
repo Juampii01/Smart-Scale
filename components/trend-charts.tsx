@@ -23,7 +23,11 @@ export function TrendCharts() {
 
   useEffect(() => {
     let mounted = true
-
+    if (!activeClientId) {
+      setLoading(true)
+      setData([])
+      return () => { mounted = false }
+    }
     async function load() {
       try {
         if (mounted) {
@@ -31,36 +35,28 @@ export function TrendCharts() {
           setError(null)
           setData([]) // ✅ reset SIEMPRE
         }
-
         const supabase = createClient()
-
         // 1) current user
         const { data: u, error: uErr } = await supabase.auth.getUser()
         if (uErr) throw uErr
         if (!u?.user) throw new Error("No session")
-
         // 2) profile client_id (fallback)
         const { data: profile, error: pErr } = await supabase
           .from("profiles")
           .select("client_id")
           .eq("id", u.user.id)
           .single()
-
         if (pErr) throw pErr
-
         // ✅ prioridad: activeClientId (seleccionado) -> fallback al profile.client_id
         const clientIdToUse = activeClientId || profile?.client_id
-        if (!clientIdToUse) throw new Error("No hay cliente activo")
-
+        if (!clientIdToUse) return
         // 3) all monthly reports for charts
         const { data: reports, error: rErr } = await supabase
           .from("monthly_reports")
           .select("month, cash_collected, total_revenue, new_clients, yt_subscribers, short_followers")
           .eq("client_id", clientIdToUse)
           .order("month", { ascending: true })
-
         if (rErr) throw rErr
-
         // ✅ si no hay data, dejamos [] (no heredamos nada)
         if (mounted) setData(Array.isArray(reports) ? reports : [])
       } catch (e: any) {
@@ -69,10 +65,9 @@ export function TrendCharts() {
         if (mounted) setLoading(false)
       }
     }
-
     load()
     return () => { mounted = false }
-  }, [activeClientId]) // ✅ recargar si cambio el cliente
+  }, [activeClientId])
 
   // ✅ forzar 0 en null/undefined, y label bonito
   const cashCollectedData = data.map(r => ({ month: fmtMonthLabel(r.month), value: Number(r.cash_collected) || 0 }))
@@ -84,7 +79,6 @@ export function TrendCharts() {
   return (
     <section className="space-y-6">
       {loading && <p className="text-white/60">Cargando métricas…</p>}
-      {error && <p className="text-red-400">{error}</p>}
 
       <h2 className="text-lg font-semibold text-foreground">Trend Analysis</h2>
 
@@ -119,7 +113,7 @@ export function TrendCharts() {
                 itemStyle={{ color: "#111827" }}
                 formatter={(value: number) => [`$${Number(value).toLocaleString()}`, "Cash Collected"]}
               />
-              <Bar dataKey="value" fill="#ffffff" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="value" fill="#ffde21" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -152,7 +146,7 @@ export function TrendCharts() {
                 itemStyle={{ color: "#111827" }}
                 formatter={(value: number) => [`$${Number(value).toLocaleString()}`, "Total Revenue"]}
               />
-              <Bar dataKey="value" fill="#ffffff" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="value" fill="#ffde21" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -180,7 +174,7 @@ export function TrendCharts() {
                 itemStyle={{ color: "#111827" }}
                 formatter={(value: number) => [Number(value) || 0, "New Clients"]}
               />
-              <Line type="monotone" dataKey="value" stroke="#ffffff" strokeWidth={3} dot={{ fill: "#ffffff", r: 5 }} activeDot={{ r: 7 }} />
+              <Line type="monotone" dataKey="value" stroke="#ffde21" strokeWidth={3} dot={{ fill: "#ffde21", r: 5 }} activeDot={{ r: 7 }} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -208,7 +202,7 @@ export function TrendCharts() {
                 itemStyle={{ color: "#111827" }}
                 formatter={(value: number) => [Number(value).toLocaleString(), "YouTube Subscribers"]}
               />
-              <Line type="monotone" dataKey="value" stroke="#ffffff" strokeWidth={3} dot={{ fill: "#ffffff", r: 5 }} activeDot={{ r: 7 }} />
+              <Line type="monotone" dataKey="value" stroke="#ffde21" strokeWidth={3} dot={{ fill: "#ffde21", r: 5 }} activeDot={{ r: 7 }} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -236,7 +230,7 @@ export function TrendCharts() {
                 itemStyle={{ color: "#111827" }}
                 formatter={(value: number) => [Number(value).toLocaleString(), "Short-form Followers"]}
               />
-              <Line type="monotone" dataKey="value" stroke="#ffffff" strokeWidth={3} dot={{ fill: "#ffffff", r: 5 }} activeDot={{ r: 7 }} />
+              <Line type="monotone" dataKey="value" stroke="#ffde21" strokeWidth={3} dot={{ fill: "#ffde21", r: 5 }} activeDot={{ r: 7 }} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>

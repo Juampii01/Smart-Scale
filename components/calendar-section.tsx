@@ -25,30 +25,30 @@ export function CalendarSection({
     <Card
       className={cn(
         "group relative overflow-hidden",
-        "border border-[#29c6d6]/35",
+        "border border-[#ffde21]/35",
         "bg-gradient-to-br from-card via-card/70 to-card/30",
-        "shadow-[0_0_0_1px_rgba(41,198,214,0.10),0_25px_60px_-30px_rgba(0,0,0,0.8)]",
+        "shadow-[0_0_0_1px_rgba(255,222,33,0.10),0_25px_60px_-30px_rgba(0,0,0,0.8)]",
         "transition-all duration-200",
-        "hover:border-[#29c6d6]/55 hover:shadow-[0_0_0_1px_rgba(41,198,214,0.16),0_30px_70px_-30px_rgba(0,0,0,0.85)]",
+        "hover:border-[#ffde21]/55 hover:shadow-[0_0_0_1px_rgba(255,222,33,0.16),0_30px_70px_-30px_rgba(0,0,0,0.85)]",
         className
       )}
     >
       {/* Top accent */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#29c6d6]/10 via-[#29c6d6]/30 to-[#29c6d6]/10" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#ffde21]/10 via-[#ffde21]/30 to-[#ffde21]/10" />
       {/* glow */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(41,198,214,0.22),transparent_55%)]" />
-      <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#29c6d6]/10 blur-3xl" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,222,33,0.22),transparent_55%)]" />
+      <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#ffde21]/10 blur-3xl" />
 
       <CardHeader className="relative pb-0">
         <div className="flex items-start justify-between gap-4">
           <div>
             <CardTitle className="flex items-center gap-4 text-xl font-semibold tracking-[-0.02em]">
               <div className="grid h-14 w-14 place-items-center rounded-2xl bg-black/30 ring-1 ring-white/10">
-                <CalendarDays className="h-6 w-6 text-[#29c6d6]" />
+                <CalendarDays className="h-6 w-6 text-[#ffde21]" />
               </div>
               <div className="space-y-1">
                 <div className="text-foreground">{title}</div>
-                {subtitle ? <div className="text-sm font-medium text-[#29c6d6]">{subtitle}</div> : null}
+                {subtitle ? <div className="text-sm font-medium text-[#ffde21]">{subtitle}</div> : null}
               </div>
             </CardTitle>
           </div>
@@ -83,19 +83,19 @@ export function WeeklyCallCard({ call, className }: { call: any; className?: str
     <Card
       className={cn(
         "group relative overflow-hidden",
-        "border border-[#29c6d6]/35",
+        "border border-[#ffde21]/35",
         "bg-gradient-to-br from-card via-card/70 to-card/30",
-        "shadow-[0_0_0_1px_rgba(41,198,214,0.10),0_25px_60px_-30px_rgba(0,0,0,0.8)]",
+        "shadow-[0_0_0_1px_rgba(255,222,33,0.10),0_25px_60px_-30px_rgba(0,0,0,0.8)]",
         "transition-all duration-200",
-        "hover:border-[#29c6d6]/55 hover:shadow-[0_0_0_1px_rgba(41,198,214,0.16),0_30px_70px_-30px_rgba(0,0,0,0.85)]",
+        "hover:border-[#ffde21]/55 hover:shadow-[0_0_0_1px_rgba(255,222,33,0.16),0_30px_70px_-30px_rgba(0,0,0,0.85)]",
         className
       )}
     >
       {/* Top accent */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#29c6d6]/10 via-[#29c6d6]/30 to-[#29c6d6]/10" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#ffde21]/10 via-[#ffde21]/30 to-[#ffde21]/10" />
       {/* glow */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(41,198,214,0.22),transparent_55%)]" />
-      <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#29c6d6]/10 blur-3xl" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,222,33,0.22),transparent_55%)]" />
+      <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[#ffde21]/10 blur-3xl" />
 
       <CardContent className="relative p-6">
         <div className="flex items-start justify-between gap-4">
@@ -109,7 +109,7 @@ export function WeeklyCallCard({ call, className }: { call: any; className?: str
               "rounded-full px-3 py-1 text-xs font-semibold",
               status === "Cancelado"
                 ? "border border-white/10 bg-white/5 text-white/60 line-through"
-                : "border border-emerald-500/25 bg-emerald-500/10 text-emerald-300"
+                : "border border-[#ffde21]/25 bg-[#ffde21]/10 text-[#ffde21]"
             )}
           >
             {status}
