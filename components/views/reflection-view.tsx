@@ -1,11 +1,10 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { cn } from "@/lib/utils"
-import { createClient } from "@/lib/supabaseClient"
-import { useSelectedMonth, useActiveClient } from "@/components/dashboard-layout"
+import { createClient } from "@/lib/supabase"
+import { useSelectedMonth, useActiveClient } from "@/components/layout/dashboard-layout"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Trophy, Target, Wrench } from "lucide-react"
 
 type ReflectionReport = Record<string, any>
@@ -131,25 +130,21 @@ export function ReflectionView() {
       icon: Trophy,
       title: "Mayor logro del mes",
       content: pickString(data, ["biggest_win"]),
-      color: "text-emerald-500",
     },
     {
       icon: Target,
       title: "Enfoque principal del próximo mes",
       content: pickString(data, ["next_focus"]),
-      color: "text-chart-1",
     },
     {
       icon: Wrench,
       title: "Soporte y sistemas necesarios",
       content: pickString(data, ["support_needed"]),
-      color: "text-chart-2",
     },
     {
       icon: Wrench,
       title: "Mejoras y feedback",
       content: pickString(data, ["improvements"]),
-      color: "text-chart-2",
     },
   ],
   [data]
@@ -176,18 +171,18 @@ export function ReflectionView() {
               key={item.title}
               className="border-border bg-card transition-all duration-200 hover:border-muted-foreground/50 hover:shadow-lg hover:shadow-primary/5"
             >
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-base font-medium">
-                  <div className={cn("rounded-lg bg-muted p-2", item.color)}>
-                    <Icon className="h-5 w-5" />
+              <CardContent className="p-5">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 rounded-lg bg-[#ffde21]/10 p-2 shrink-0">
+                    <Icon className="h-4 w-4 text-[#ffde21]" />
                   </div>
-                  {item.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="leading-relaxed text-muted-foreground">
-                  {item.content || "—"}
-                </p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1">{item.title}</p>
+                    <p className="leading-relaxed text-muted-foreground text-sm">
+                      {item.content || "—"}
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabaseClient";
+import { createClient } from "@/lib/supabase";
 
 export default function ForgotPasswordPage() {
   const supabase = useMemo(() => createClient(), []);

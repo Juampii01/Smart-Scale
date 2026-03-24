@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabaseClient'
+import { createClient } from '@/lib/supabase'
 
 export async function getLatestResearchRequest({ userId }: { userId: string }) {
   const supabase = createClient()

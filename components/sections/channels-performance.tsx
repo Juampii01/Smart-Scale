@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { createClient } from "@/lib/supabaseClient"
-import { useSelectedMonth } from "@/components/dashboard-layout"
+import { createClient } from "@/lib/supabase"
+import { useSelectedMonth } from "@/components/layout/dashboard-layout"
 
 type MonthlyReportChannels = {
   short_followers: number | null

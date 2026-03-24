@@ -82,41 +82,46 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             activePath={pathname}
             onClose={onClose}
           />
+          {/* Separator */}
+          <div className="my-3 mx-2 h-px bg-sidebar-border/50" />
+
           {/* Otros ítems independientes */}
           {navigation.slice(1).map((item) => {
             const isActive = pathname === item.href;
-            if (item.disabled) {
-              return (
-                <div key={item.name} className="group relative select-none">
-                  <Button
-                    variant="ghost"
-                    className="w-full flex justify-start items-center gap-3 opacity-50 cursor-not-allowed hover:bg-transparent text-white rounded-lg overflow-hidden"
-                    disabled
-                  >
-                    <item.icon className="h-4 w-4 text-[#ffde21] flex-shrink-0" />
-                    <span className="flex-1 text-white text-left flex items-center">{item.name}</span>
-                    <span className="flex items-center flex-shrink-0"><Lock className="h-4 w-4 text-gray-400" /></span>
-                  </Button>
-                </div>
-              );
-            }
+            // Siempre renderizamos un <Link> (o <a>), pero deshabilitamos navegación y click si está disabled
             return (
-              <Link key={item.name} href={item.href} onClick={onClose}>
+              <Link
+                key={item.name}
+                href={item.disabled ? '#' : item.href}
+                onClick={item.disabled ? (e) => e.preventDefault() : onClose}
+                tabIndex={item.disabled ? -1 : 0}
+                aria-disabled={item.disabled ? 'true' : 'false'}
+                className={cn(
+                  'group relative block',
+                  item.disabled ? 'pointer-events-none select-none' : ''
+                )}
+              >
                 <div className={cn("group relative")}> 
-                  {isActive && (
-                    <span className="absolute left-0 top-2 h-8 w-1 bg-[#ffde21] rounded-full transition-all duration-200" />
-                  )}
+                  {isActive && !item.disabled ? (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 bg-[#ffde21] rounded-full transition-all duration-200" />
+                  ) : null}
                   <Button
-                    variant={isActive ? "secondary" : "ghost"}
+                    variant={isActive && !item.disabled ? "secondary" : "ghost"}
                     className={cn(
                       "w-full justify-start gap-3 transition-all duration-200 rounded-lg",
-                      isActive
+                      item.disabled
+                        ? "opacity-50 cursor-not-allowed hover:bg-transparent text-white overflow-hidden"
+                        : isActive
                         ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
                         : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
                     )}
+                    disabled={!!item.disabled}
                   >
-                    <item.icon className="h-4 w-4 text-[#ffde21]" />
-                    {item.name}
+                    <item.icon className="h-4 w-4 text-[#ffde21] flex-shrink-0" />
+                    <span className="flex-1 text-white text-left flex items-center">{item.name}</span>
+                    {item.disabled ? (
+                      <span className="flex items-center flex-shrink-0"><Lock className="h-4 w-4 text-gray-400" /></span>
+                    ) : null}
                   </Button>
                 </div>
               </Link>
@@ -124,9 +129,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           })}
         </nav>
 
-        <div className="absolute bottom-4 left-4 right-4 flex items-center gap-2 text-xs text-[#ffde21]">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="#ffde21" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /></svg>
-          Client Analytics Portal
+        <div className="absolute bottom-4 left-4 right-4">
+          <div className="flex items-center gap-2 rounded-lg border border-[#ffde21]/20 bg-[#ffde21]/5 px-3 py-2">
+            <span className="flex h-2 w-2 rounded-full bg-[#ffde21]" />
+            <span className="text-xs font-medium text-[#ffde21]/80 tracking-wide">Client Analytics Portal</span>
+          </div>
         </div>
       </aside>
     </>

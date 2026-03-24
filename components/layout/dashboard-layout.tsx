@@ -3,12 +3,27 @@
 import type React from "react"
 
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabaseClient"
+import { useRouter, usePathname } from "next/navigation"
+import { createClient } from "@/lib/supabase"
 import { ChevronDown, LogOut, Menu, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { MonthSelector } from "@/components/month-selector"
-import { Sidebar } from "@/components/sidebar"
+import { MonthSelector } from "@/components/layout/month-selector"
+import { Sidebar } from "@/components/layout/sidebar"
+import { AnnualMetricsProvider } from "@/contexts/annual-metrics-context"
+
+const PAGE_TITLES: Record<string, string> = {
+  "/dashboard": "Performance Center",
+  "/channels": "Channels",
+  "/sales": "Sales",
+  "/reflection": "Reflection",
+  "/metrics": "All Metrics",
+  "/audit": "Audit",
+  "/program-checklist": "Program Journey Checklist",
+  "/market-intelligence": "Market Intelligence",
+  "/tools": "Tools",
+  "/calendar": "Agenda",
+  "/mi-dashboard": "MI Dashboard",
+}
 
 const SelectedMonthContext = createContext<string | null>(null)
 
@@ -39,6 +54,8 @@ function getRoleFromAccessToken(token: string | null | undefined): string | null
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [selectedMonth, setSelectedMonth] = useState<string>("2025-12")
+  const pathname = usePathname()
+  const pageTitle = PAGE_TITLES[pathname] ?? "Smart Scale"
 
   // Hydration-safe: load persisted selectedMonth after mount
   useEffect(() => {
@@ -199,19 +216,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         if (error) throw error
 
         const list = (data ?? []) as any[]
-        if (alive)
-          setProfilesList(
-            list.map((p: any) => ({
-              id: String(p.id),
-              client_id: p?.client_id ? String(p.client_id) : "",
-              role: p.role ?? null,
-              client_name: p?.name
-                ? String(p.name)
-                : p?.client_id
-                  ? "Cliente " + String(p.client_id).slice(0, 8)
-                  : "Perfil sin cliente"
-            }))
-          )
+        if (alive) {
+          const nextProfiles = list.map((p: any) => ({
+            id: String(p.id),
+            client_id: p?.client_id ? String(p.client_id) : "",
+            role: p.role ?? null,
+            client_name: p?.name
+              ? String(p.name)
+              : p?.client_id
+                ? "Cliente " + String(p.client_id).slice(0, 8)
+                : "Perfil sin cliente"
+          }))
+
+          setProfilesList(nextProfiles)
+          ensureAdminActiveClient(nextProfiles)
+        }
       } catch (e) {
         const err: any = e
         console.error("Failed to load profiles list", {
@@ -225,11 +244,24 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       }
     }
 
+    function ensureAdminActiveClient(nextProfiles: Array<{ id: string; client_id: string; role: string | null; client_name: string }>) {
+      if (!isAdmin) return
+      if (activeClientId) return
+
+      const firstValid = nextProfiles.find((p) => Boolean(p.client_id))
+      if (!firstValid?.client_id) return
+
+      setActiveClientId(firstValid.client_id)
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("activeClientId", firstValid.client_id)
+      }
+    }
+
     loadProfilesForAdmin()
     return () => {
       alive = false
     }
-  }, [isAdmin])
+  }, [isAdmin, activeClientId])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -256,21 +288,64 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     return match?.client_name ?? null
   }, [activeClientId, profilesList])
 
+  // Debug visual para el contexto de cliente
+  // Puedes eliminar esto luego
+  if (typeof window !== "undefined") {
+    window.__DEBUG_DASHBOARD_CTX = {
+      activeClientId,
+      ownClientId,
+      userRole,
+      userEmail,
+    }
+  }
+
   return (
     <div className="flex min-h-screen bg-background dark">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col lg:ml-64">
-        {/* Top Bar */}
         <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex h-16 items-center justify-between px-4 lg:px-8">
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
                 <Menu className="h-5 w-5" />
               </Button>
-              <h1 className="text-xl font-semibold text-foreground">Monthly Performance</h1>
+              <h1 className="text-xl font-semibold text-foreground">{pageTitle}</h1>
             </div>
+
             <div className="flex items-center gap-3">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="hidden sm:inline-flex border-[#ffde21]/40 text-[#ffde21] hover:bg-[#ffde21]/10 hover:text-[#ffde21] hover:border-[#ffde21]/60"
+                title="Enviar Monday Win"
+              >
+                <a
+                  href="https://airtable.com/appRJNO1KYgg2A5NZ/pagj4KV5jDXvwA0jx/form"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Monday Win
+                </a>
+              </Button>
+
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="hidden sm:inline-flex border-[#ffde21]/40 text-[#ffde21] hover:bg-[#ffde21]/10 hover:text-[#ffde21] hover:border-[#ffde21]/60"
+                title="Enviar Monthly Report"
+              >
+                <a
+                  href="https://airtable.com/appRJNO1KYgg2A5NZ/pagcUJ9vMsfMNBZBh/form"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Monthly Report
+                </a>
+              </Button>
+
               <MonthSelector
                 value={selectedMonth}
                 onChange={(m) => {
@@ -279,6 +354,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 }}
                 enabledMonths={enabledMonths}
               />
+
               <div className="relative" ref={profileMenuRef}>
                 <Button
                   variant="outline"
@@ -303,7 +379,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   <ChevronDown className="h-4 w-4 opacity-80 text-[#ffde21]" />
                 </Button>
 
-                {profileMenuOpen ? (
+                {profileMenuOpen && (
                   <div
                     role="menu"
                     aria-label="Perfil"
@@ -346,9 +422,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                               )
                             })
                           ) : (
-                            <div className="px-3 py-2 text-sm text-white/60">
-                              No hay perfiles para mostrar.
-                            </div>
+                            <div className="px-3 py-2 text-sm text-white/60">No hay perfiles para mostrar.</div>
                           )}
                         </div>
                         <div className="h-px bg-white/10" />
@@ -360,7 +434,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       role="menuitem"
                       className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-500 hover:bg-emerald-400/10"
                       onClick={async () => {
-                        // const supabase = createClient()
                         await supabase.auth.signOut()
                         setProfileMenuOpen(false)
                         router.replace("/login")
@@ -370,17 +443,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       Cerrar sesión
                     </button>
                   </div>
-                ) : null}
+                )}
               </div>
             </div>
           </div>
         </header>
 
-        {/* Main Content */}
         <ActiveClientContext.Provider value={activeClientId}>
-          <SelectedMonthContext.Provider value={selectedMonth}>
-            <main className="flex-1 p-4 lg:p-8">{children}</main>
-          </SelectedMonthContext.Provider>
+          <AnnualMetricsProvider>
+            <SelectedMonthContext.Provider value={selectedMonth}>
+              <main className="flex-1 p-4 lg:p-8">{children}</main>
+            </SelectedMonthContext.Provider>
+          </AnnualMetricsProvider>
         </ActiveClientContext.Provider>
       </div>
     </div>

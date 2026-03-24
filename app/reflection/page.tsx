@@ -1,5 +1,5 @@
-import { DashboardLayout } from "@/components/dashboard-layout"
-import { ReflectionView } from "@/components/reflection-view"
+import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { ReflectionView } from "@/components/views/reflection-view"
 
 export default function ReflectionPage() {
   return (

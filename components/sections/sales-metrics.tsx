@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { createClient } from "@/lib/supabaseClient"
-import { useSelectedMonth } from "@/components/dashboard-layout"
+import { createClient } from "@/lib/supabase"
+import { useSelectedMonth } from "@/components/layout/dashboard-layout"
 
 function pct(num: number, den: number) {
   if (!den) return "—"

@@ -1,9 +1,9 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { createClient } from "@/lib/supabaseClient"
-import { MetricsSection } from "@/components/metrics-section"
-import { useSelectedMonth, useActiveClient } from "@/components/dashboard-layout"
+import { createClient } from "@/lib/supabase"
+import { MetricsSection } from "@/components/sections/metrics-section"
+import { useSelectedMonth, useActiveClient } from "@/components/layout/dashboard-layout"
 
 type MonthlyReportRow = Record<string, any>
 
@@ -198,7 +198,7 @@ export function MetricsView() {
   return (
     <section className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">Metrics</h1>
+        <h1 className="text-2xl font-semibold text-foreground">All Metrics</h1>
         <p className="mt-1 text-sm text-muted-foreground">Full monthly report snapshot</p>
         <p suppressHydrationWarning className="mt-1 text-xs text-white/50">
           Mes seleccionado: {selectedMonth}
@@ -207,8 +207,6 @@ export function MetricsView() {
       </div>
 
       <MetricsSection
-        title="All Metrics"
-        subtitle="Full monthly report snapshot"
         metrics={metrics}
         annualMetrics={annualMetrics}
         loading={loading}

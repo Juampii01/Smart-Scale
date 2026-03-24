@@ -1,5 +1,5 @@
-import { DashboardLayout } from "@/components/dashboard-layout"
-import { ToolsView} from "@/components/tools-view"
+import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { ToolsView} from "@/components/views/tools-view"
 
 export default function ToolsPage() {
   return (

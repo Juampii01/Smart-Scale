@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
-import { createClient } from "@/lib/supabaseClient"
-import { useSelectedMonth, useActiveClient } from "@/components/dashboard-layout"
+import { createClient } from "@/lib/supabase"
+import { useSelectedMonth, useActiveClient } from "@/components/layout/dashboard-layout"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TrendingUp, TrendingDown, Users, Eye, FileText } from "lucide-react"

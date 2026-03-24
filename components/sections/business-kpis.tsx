@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { TrendingDown, TrendingUp, DollarSign, Wallet, Repeat, Megaphone, Users, UserPlus } from "lucide-react"
-import { createClient } from "@/lib/supabaseClient"
-import { useSelectedMonth, useActiveClient } from "@/components/dashboard-layout"
+import { createClient } from "@/lib/supabase"
+import { useSelectedMonth, useActiveClient } from "@/components/layout/dashboard-layout"
 
 export function BusinessKPIs({ selectedMonth }: { selectedMonth?: string }) {
   const [report, setReport] = useState<any | null>(null)
@@ -190,10 +190,10 @@ export function BusinessKPIs({ selectedMonth }: { selectedMonth?: string }) {
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <div className={'text-4xl font-extrabold text-white'}>
+                  <div className="mt-1 text-xs font-medium text-white/50 uppercase tracking-wider">{kpi.label}</div>
+                  <div className="mt-1 text-3xl font-bold text-white">
                     {kpi.value}
                   </div>
-                  <div className="mt-1 text-base text-white">{kpi.label}</div>
                 </div>
                 <div className="flex flex-col items-center gap-2">
                   {!loading && report && (

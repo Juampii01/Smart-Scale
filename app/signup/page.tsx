@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabaseClient";
+import { createClient } from "@/lib/supabase";
 
 function isAlreadyRegisteredError(error: any) {
   const msg = String(error?.message ?? "");

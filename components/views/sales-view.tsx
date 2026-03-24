@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { ChevronDown } from "lucide-react"
-import { createClient } from "@/lib/supabaseClient"
-import { useSelectedMonth, useActiveClient } from "@/components/dashboard-layout"
+import { createClient } from "@/lib/supabase"
+import { useSelectedMonth, useActiveClient } from "@/components/layout/dashboard-layout"
 
 export function SalesView() {
   const ctxMonth = useSelectedMonth()

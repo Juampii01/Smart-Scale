@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabaseClient"
+import { createClient } from "@/lib/supabase"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Bar, Line, BarChart, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts"
-import { useActiveClient } from "@/components/dashboard-layout"
+import { useActiveClient } from "@/components/layout/dashboard-layout"
 
 // helper: normaliza mes (YYYY-MM-01) y deja label corto
 function fmtMonthLabel(month: string) {

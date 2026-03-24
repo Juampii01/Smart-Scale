@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "smart-scale-dashboard",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev"],
+      "port": 3001,
+      "cwd": "/Users/juanpabloacostacaminos/Downloads/v0-saa-s-dashboard-ui-main"
+    }
+  ]
+}

@@ -1,14 +1,14 @@
 "use client"
-import { DashboardLayout } from "../../components/dashboard-layout";
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getLatestResearchRequest, getResearchResult, getResearchHistory } from "../../lib/marketIntelligence";
-import { createClient } from "../../lib/supabaseClient";
-import { Card } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "../../components/ui/select";
-import { Label } from "../../components/ui/label";
+import { getLatestResearchRequest, getResearchResult, getResearchHistory } from "@/lib/marketIntelligence";
+import { createClient } from "@/lib/supabase";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 export default function MarketIntelligencePage() {
   const router = useRouter();
