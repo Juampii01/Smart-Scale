@@ -26,8 +26,8 @@ const dashboardGlobalItems = [
 
 const navigation = [
   { section: "dashboardGlobal", items: dashboardGlobalItems },
-  { name: "Audit", href: "/audit", icon: Lock, disabled: true },
-  { name: "Program Journey Checklist", href: "/program-checklist", icon: Wrench, disabled: true },
+  { name: "Audit", href: "/audit", icon: Lock },
+  { name: "Program Journey Checklist", href: "/program-checklist", icon: Wrench },
   { name: "Market Intelligence", href: "/market-intelligence", icon: BarChart3 },
   { name: "Tools", href: "/tools", icon: Wrench },
   { name: "Agenda", href: "/calendar", icon: CalendarDays },
