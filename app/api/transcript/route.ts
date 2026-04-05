@@ -237,7 +237,7 @@ async function getYouTubeMetadata(videoId: string) {
 // ─── YouTube transcript ───────────────────────────────────────────────────────
 
 async function getYouTubeTranscript(videoId: string): Promise<string | null> {
-  // Try 1: youtube-transcript library (multiple languages)
+  // Try 1: youtube-transcript library (works locally, sometimes in prod)
   try {
     const { YoutubeTranscript } = await import("youtube-transcript")
     const langs = ["es", "en", ""]
@@ -252,40 +252,35 @@ async function getYouTubeTranscript(videoId: string): Promise<string | null> {
     }
   } catch {}
 
-  // Try 2: YouTube timedtext API directly
-  try {
-    const infoRes = await fetch(
-      `https://www.youtube.com/watch?v=${videoId}`,
-      {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          "Accept-Language": "es,en;q=0.9",
-        },
-        signal: AbortSignal.timeout(10_000),
-      }
-    )
-    if (infoRes.ok) {
-      const html = await infoRes.text()
-      const captionMatch = html.match(/"captionTracks":\s*(\[.*?\])/)
-      if (captionMatch) {
-        const tracks = JSON.parse(captionMatch[1])
-        const track = tracks.find((t: any) => t.languageCode === "es")
-          ?? tracks.find((t: any) => t.languageCode === "en")
-          ?? tracks[0]
-        if (track?.baseUrl) {
-          const capRes = await fetch(track.baseUrl, { signal: AbortSignal.timeout(10_000) })
-          if (capRes.ok) {
-            const xml = await capRes.text()
-            const text = xml
-              .replace(/<[^>]+>/g, " ")
-              .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;/g, "'").replace(/&quot;/g, '"')
-              .replace(/\s+/g, " ").trim()
-            if (text) return text
+  // Try 2: AssemblyAI — accepts YouTube URLs directly, bypasses IP blocks
+  const assemblyKey = process.env.ASSEMBLYAI_API_KEY
+  if (assemblyKey) {
+    try {
+      const submitRes = await fetch("https://api.assemblyai.com/v2/transcript", {
+        method: "POST",
+        headers: { "Authorization": assemblyKey, "Content-Type": "application/json" },
+        body: JSON.stringify({ audio_url: `https://www.youtube.com/watch?v=${videoId}` }),
+        signal: AbortSignal.timeout(15_000),
+      })
+      if (submitRes.ok) {
+        const { id } = await submitRes.json()
+        if (id) {
+          const deadline = Date.now() + 240_000
+          while (Date.now() < deadline) {
+            await new Promise(r => setTimeout(r, 4000))
+            const pollRes = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
+              headers: { "Authorization": assemblyKey },
+              signal: AbortSignal.timeout(10_000),
+            })
+            if (!pollRes.ok) break
+            const result = await pollRes.json()
+            if (result.status === "completed" && result.text) return result.text
+            if (result.status === "error") break
           }
         }
       }
-    }
-  } catch {}
+    } catch {}
+  }
 
   return null
 }

@@ -226,6 +226,36 @@ async function getYouTubeTranscript(videoId: string): Promise<string | null> {
     if (text) return text
   } catch {}
 
+  // Try 3: AssemblyAI with YouTube URL directly
+  const assemblyKey = process.env.ASSEMBLYAI_API_KEY
+  if (assemblyKey) {
+    try {
+      const submitRes = await fetch("https://api.assemblyai.com/v2/transcript", {
+        method: "POST",
+        headers: { "Authorization": assemblyKey, "Content-Type": "application/json" },
+        body: JSON.stringify({ audio_url: `https://www.youtube.com/watch?v=${videoId}` }),
+        signal: AbortSignal.timeout(15_000),
+      })
+      if (submitRes.ok) {
+        const { id } = await submitRes.json()
+        if (id) {
+          const deadline = Date.now() + 60_000
+          while (Date.now() < deadline) {
+            await new Promise(r => setTimeout(r, 4000))
+            const pollRes = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
+              headers: { "Authorization": assemblyKey },
+              signal: AbortSignal.timeout(10_000),
+            })
+            if (!pollRes.ok) break
+            const result = await pollRes.json()
+            if (result.status === "completed" && result.text) return result.text
+            if (result.status === "error") break
+          }
+        }
+      }
+    } catch {}
+  }
+
   return null
 }
 
