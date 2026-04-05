@@ -242,7 +242,7 @@ async function getYouTubeTranscript(videoId: string): Promise<string | null> {
   // Try 1: youtube-transcript via Apify residential proxy (bypasses IP blocks)
   if (apifyToken) {
     try {
-      const { ProxyAgent, fetch: proxyFetch } = await import("undici" as any)
+      const { ProxyAgent, fetch: proxyFetch } = await import("undici")
       const proxyUrl = `http://auto:${apifyToken}@proxy.apify.com:8000`
       const dispatcher = new ProxyAgent(proxyUrl)
 
