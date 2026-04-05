@@ -96,7 +96,9 @@ function PostCard({ post, avg, platform }: { post: Post; avg: number; platform: 
       <a href={post.post_url} target="_blank" rel="noopener noreferrer"
         className="block relative overflow-hidden bg-white/[0.04]" style={{ aspectRatio }}>
         {post.thumbnail && !thumbError
-          ? <img src={post.thumbnail} alt={post.title}
+          ? <img
+              src={platform === "instagram" ? `/api/proxy-image?url=${encodeURIComponent(post.thumbnail)}` : post.thumbnail}
+              alt={post.title}
               onError={() => setThumbError(true)}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
           : <div className="flex h-full items-center justify-center">
