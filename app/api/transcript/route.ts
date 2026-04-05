@@ -237,41 +237,54 @@ async function getYouTubeMetadata(videoId: string) {
 // ─── YouTube transcript ───────────────────────────────────────────────────────
 
 async function getYouTubeTranscript(videoId: string): Promise<string | null> {
-  // Try: youtube-transcript library
+  // Try 1: youtube-transcript library (multiple languages)
   try {
     const { YoutubeTranscript } = await import("youtube-transcript")
-    const langs = ["es", "en"]
+    const langs = ["es", "en", ""]
     for (const lang of langs) {
       try {
-        const segments = await YoutubeTranscript.fetchTranscript(videoId, { lang })
+        const segments = lang
+          ? await YoutubeTranscript.fetchTranscript(videoId, { lang })
+          : await YoutubeTranscript.fetchTranscript(videoId)
         const text = segments.map((t: any) => t.text).join(" ").trim()
         if (text) return text
       } catch {}
     }
-    try {
-      const segments = await YoutubeTranscript.fetchTranscript(videoId)
-      const text = segments.map((t: any) => t.text).join(" ").trim()
-      if (text) return text
-    } catch {}
   } catch {}
 
-  // Try 2: youtube-transcript library
+  // Try 2: YouTube timedtext API directly
   try {
-    const { YoutubeTranscript } = await import("youtube-transcript")
-    const langs = ["es", "en"]
-    for (const lang of langs) {
-      try {
-        const segments = await YoutubeTranscript.fetchTranscript(videoId, { lang })
-        const text = segments.map((t: any) => t.text).join(" ").trim()
-        if (text) return text
-      } catch {}
+    const infoRes = await fetch(
+      `https://www.youtube.com/watch?v=${videoId}`,
+      {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "Accept-Language": "es,en;q=0.9",
+        },
+        signal: AbortSignal.timeout(10_000),
+      }
+    )
+    if (infoRes.ok) {
+      const html = await infoRes.text()
+      const captionMatch = html.match(/"captionTracks":\s*(\[.*?\])/)
+      if (captionMatch) {
+        const tracks = JSON.parse(captionMatch[1])
+        const track = tracks.find((t: any) => t.languageCode === "es")
+          ?? tracks.find((t: any) => t.languageCode === "en")
+          ?? tracks[0]
+        if (track?.baseUrl) {
+          const capRes = await fetch(track.baseUrl, { signal: AbortSignal.timeout(10_000) })
+          if (capRes.ok) {
+            const xml = await capRes.text()
+            const text = xml
+              .replace(/<[^>]+>/g, " ")
+              .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;/g, "'").replace(/&quot;/g, '"')
+              .replace(/\s+/g, " ").trim()
+            if (text) return text
+          }
+        }
+      }
     }
-    // Try without lang
-    try {
-      const segments = await YoutubeTranscript.fetchTranscript(videoId)
-      const text = segments.map((t: any) => t.text).join(" ").trim()
-      if (text) return text
-    } catch {}
   } catch {}
 
   return null

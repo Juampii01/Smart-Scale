@@ -302,9 +302,14 @@ async function getTopInstagramPosts(username: string, timeframeDays: number) {
     .sort((a: any, b: any) => b.views - a.views)
     .slice(0, 5)
 
-  const posts = filtered.map((p: any) => {
+  // Transcribe each post in parallel using the Instagram transcript actor
+  const transcripts = await Promise.all(
+    filtered.map((p: any) => apifyInstagramTranscript(p.post_url))
+  )
+
+  const posts = filtered.map((p: any, i: number) => {
     const { post_url, ...rest } = p
-    return { ...rest, transcript: null }
+    return { ...rest, transcript: transcripts[i] ?? null }
   })
 
   return { posts, profileName: username, profileAvatar: null, profileUrl: `https://www.instagram.com/${username}/` }
