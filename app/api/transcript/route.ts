@@ -239,37 +239,42 @@ async function getYouTubeMetadata(videoId: string) {
 async function getYouTubeTranscript(videoId: string): Promise<string | null> {
   const apifyToken = process.env.APIFY_API_TOKEN
 
-  // Try 1: Apify karamelo/youtube-videos-subtitles
+  // Try 1: Apify official youtube-scraper (most reliable)
   if (apifyToken) {
     try {
       const res = await fetch(
-        `https://api.apify.com/v2/acts/karamelo~youtube-videos-subtitles/run-sync-get-dataset-items?token=${apifyToken}&timeout=90`,
+        `https://api.apify.com/v2/acts/apify~youtube-scraper/run-sync-get-dataset-items?token=${apifyToken}&timeout=90`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: `https://www.youtube.com/watch?v=${videoId}`, language: "es" }),
+          body: JSON.stringify({
+            startUrls: [{ url: `https://www.youtube.com/watch?v=${videoId}` }],
+            maxResults: 1,
+            downloadSubtitles: true,
+            subtitlesLanguage: "any",
+          }),
           signal: AbortSignal.timeout(105_000),
         }
       )
       if (res.ok) {
         const data = await res.json()
         const item = Array.isArray(data) ? data[0] : null
-        console.log("[transcript] karamelo keys:", item ? Object.keys(item).join(",") : "empty")
-        const text = item?.subtitles
-          ?? item?.transcript
-          ?? item?.text
-          ?? (Array.isArray(item?.captions) ? item.captions.map((c: any) => c.text ?? c.content ?? c).join(" ") : null)
-          ?? null
-        if (typeof text === "string" && text.trim()) return text.trim()
+        console.log("[transcript] apify-youtube-scraper keys:", item ? Object.keys(item).join(",") : "empty")
+        // Subtitles come as array of {text, start, dur} or plain string
+        const subs = item?.subtitles ?? item?.captions ?? item?.transcript ?? null
+        if (Array.isArray(subs) && subs.length) {
+          return subs.map((s: any) => s.text ?? s.content ?? s).filter(Boolean).join(" ").trim()
+        }
+        if (typeof subs === "string" && subs.trim()) return subs.trim()
       } else {
-        console.log("[transcript] karamelo error:", res.status)
+        console.log("[transcript] apify-youtube-scraper error:", res.status, await res.text().catch(() => ""))
       }
     } catch (e: any) {
-      console.log("[transcript] karamelo exception:", e?.message)
+      console.log("[transcript] apify-youtube-scraper exception:", e?.message)
     }
   }
 
-  // Try 2: Apify codepoetry/youtube-transcript-ai-scraper
+  // Try 2: Direct YouTube timedtext (works on some videos)
   if (apifyToken) {
     try {
       const res = await fetch(
@@ -277,22 +282,18 @@ async function getYouTubeTranscript(videoId: string): Promise<string | null> {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ videoUrl: `https://www.youtube.com/watch?v=${videoId}` }),
+          body: JSON.stringify({ startUrls: [{ url: `https://www.youtube.com/watch?v=${videoId}` }] }),
           signal: AbortSignal.timeout(105_000),
         }
       )
       if (res.ok) {
         const data = await res.json()
         const item = Array.isArray(data) ? data[0] : null
-        console.log("[transcript] codepoetry keys:", item ? Object.keys(item).join(",") : JSON.stringify(data).slice(0, 100))
+        console.log("[transcript] codepoetry keys:", item ? Object.keys(item).join(",") : "empty")
         const text = item?.transcript_text ?? item?.captions_text ?? item?.transcript ?? item?.text ?? null
         if (typeof text === "string" && text.trim()) return text.trim()
-      } else {
-        console.log("[transcript] codepoetry error:", res.status)
       }
-    } catch (e: any) {
-      console.log("[transcript] codepoetry exception:", e?.message)
-    }
+    } catch {}
   }
 
   // Try 2: youtube-transcript library
