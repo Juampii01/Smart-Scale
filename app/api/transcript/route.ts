@@ -237,56 +237,53 @@ async function getYouTubeMetadata(videoId: string) {
 // ─── YouTube transcript ───────────────────────────────────────────────────────
 
 async function getYouTubeTranscript(videoId: string): Promise<string | null> {
-  // Try 1: yt.lemnoslife.com — public proxy API (no IP blocks)
-  try {
-    const res = await fetch(
-      `https://yt.lemnoslife.com/noKey/videos?part=transcript&id=${videoId}`,
-      { signal: AbortSignal.timeout(15_000) }
-    )
-    if (res.ok) {
-      const data = await res.json()
-      const segments = data?.items?.[0]?.transcript?.segments ?? data?.items?.[0]?.transcript
-      if (Array.isArray(segments) && segments.length) {
-        const text = segments.map((s: any) => s.text ?? s.snippet ?? s).filter(Boolean).join(" ").trim()
-        if (text) return text
-      }
-      console.log("[transcript] lemnoslife response:", JSON.stringify(data)?.slice(0, 300))
-    } else {
-      console.log("[transcript] lemnoslife error:", res.status)
-    }
-  } catch (e: any) {
-    console.log("[transcript] lemnoslife exception:", e?.message)
-  }
+  const apifyToken = process.env.APIFY_API_TOKEN
 
-  // Try 2: YouTube timedtext API direct (works for auto-generated captions)
-  for (const lang of ["es", "en", ""]) {
+  // Try 1: youtube-transcript via Apify residential proxy (bypasses IP blocks)
+  if (apifyToken) {
     try {
-      const langParam = lang ? `&lang=${lang}` : ""
-      const res = await fetch(
-        `https://www.youtube.com/api/timedtext?v=${videoId}${langParam}&fmt=json3`,
-        {
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept-Language": "es,en;q=0.9",
-            "Referer": "https://www.youtube.com/",
-          },
-          signal: AbortSignal.timeout(8_000),
+      const { ProxyAgent, fetch: proxyFetch } = await import("undici" as any)
+      const proxyUrl = `http://auto:${apifyToken}@proxy.apify.com:8000`
+      const dispatcher = new ProxyAgent(proxyUrl)
+
+      // Fetch YouTube watch page through proxy
+      const pageRes = await proxyFetch(`https://www.youtube.com/watch?v=${videoId}`, {
+        dispatcher,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "Accept-Language": "es,en;q=0.9",
+        },
+      }) as any
+
+      if (pageRes.ok) {
+        const html = await pageRes.text()
+        const captionMatch = html.match(/"captionTracks":\s*(\[.*?\])/)
+        if (captionMatch) {
+          const tracks = JSON.parse(captionMatch[1])
+          const track = tracks.find((t: any) => t.languageCode === "es")
+            ?? tracks.find((t: any) => t.languageCode === "en")
+            ?? tracks.find((t: any) => t.kind === "asr")
+            ?? tracks[0]
+          if (track?.baseUrl) {
+            const capRes = await proxyFetch(track.baseUrl + "&fmt=json3", { dispatcher }) as any
+            if (capRes.ok) {
+              const data = await capRes.json()
+              const text = (data?.events ?? [])
+                .filter((e: any) => e.segs)
+                .flatMap((e: any) => e.segs.map((s: any) => s.utf8 ?? ""))
+                .join(" ").replace(/\s+/g, " ").trim()
+              if (text) { console.log("[transcript] proxy ok, chars:", text.length); return text }
+            }
+          }
         }
-      )
-      if (res.ok) {
-        const data = await res.json()
-        const events = data?.events ?? []
-        const text = events
-          .filter((e: any) => e.segs)
-          .flatMap((e: any) => e.segs.map((s: any) => s.utf8 ?? ""))
-          .join(" ")
-          .replace(/\s+/g, " ")
-          .trim()
-        if (text) { console.log("[transcript] timedtext ok lang:", lang || "auto"); return text }
+        console.log("[transcript] proxy page ok but no captions found")
+      } else {
+        console.log("[transcript] proxy page error:", pageRes.status)
       }
-    } catch {}
+    } catch (e: any) {
+      console.log("[transcript] proxy exception:", e?.message)
+    }
   }
-  console.log("[transcript] timedtext failed")
 
   // Try 2: youtube-transcript library
   try {
