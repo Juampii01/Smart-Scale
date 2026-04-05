@@ -1,2 +1,5 @@
+[functions.ai-diagnosis-worker]
+verify_jwt = false
+
 [functions.research-worker]
 verify_jwt = false

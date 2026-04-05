@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { MonthSelector } from "@/components/layout/month-selector"
 import { Sidebar } from "@/components/layout/sidebar"
 import { AnnualMetricsProvider } from "@/contexts/annual-metrics-context"
+import { NavigationProgress } from "@/components/ui/navigation-progress"
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Performance Center",
@@ -19,10 +20,19 @@ const PAGE_TITLES: Record<string, string> = {
   "/metrics": "All Metrics",
   "/audit": "Audit",
   "/program-checklist": "Program Journey Checklist",
-  "/market-intelligence": "Market Intelligence",
+  "/market-intelligence": "Competitor Research",
+  "/content-research": "Competitor Research",
+  "/competitor-research": "Competitor Research",
+  "/video-feed": "Video Feed",
   "/tools": "Tools",
   "/calendar": "Agenda",
   "/mi-dashboard": "MI Dashboard",
+  "/monday-win": "Monday Win",
+  "/report-input": "Reporte Mensual",
+  "/report-history": "Historial de Reportes",
+  "/chi-chang": "Cha-Ching 💰",
+  "/competitor-research": "Competitor Research",
+  "/transcript": "Transcript de Videos",
 }
 
 const SelectedMonthContext = createContext<string | null>(null)
@@ -66,6 +76,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
   const [ownClientId, setOwnClientId] = useState<string | null>(null)
+  const [clientDisplayName, setClientDisplayName] = useState<string | null>(null)
   const [activeClientId, setActiveClientId] = useState<string | null>(null)
   const [profilesList, setProfilesList] = useState<
     Array<{ id: string; client_id: string; role: string | null; client_name: string }>
@@ -172,15 +183,32 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       // Load profile role + client_id
       const { data: prof, error: profErr } = await supabase
         .from("profiles")
-        .select("client_id, role")
+        .select("client_id, role, name")
         .eq("id", userId)
         .maybeSingle()
 
       if (!profErr && prof) {
         const cid = (prof as any)?.client_id as string | undefined
         const role = (prof as any)?.role as string | undefined
+        const profName = (prof as any)?.name as string | undefined
         setOwnClientId(cid ?? null)
         setUserRole(role ?? jwtRole ?? null)
+
+        // For non-admin users, load their display name from clients.nombre
+        const isClientRole = String(role ?? "").toLowerCase() !== "admin"
+        if (isClientRole && cid) {
+          // Try profile name first, then fall back to clients.nombre
+          if (profName) {
+            setClientDisplayName(profName)
+          } else {
+            const { data: clientRow } = await supabase
+              .from("clients")
+              .select("nombre")
+              .eq("id", cid)
+              .maybeSingle()
+            if (clientRow?.nombre) setClientDisplayName(clientRow.nombre)
+          }
+        }
 
         // Initialize active client (admin can override via localStorage)
         const stored = typeof window !== "undefined" ? window.localStorage.getItem("activeClientId") : null
@@ -301,16 +329,20 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-background dark">
+      <NavigationProgress />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col lg:ml-64">
-        <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header className="sticky top-0 z-10 border-b border-white/[0.06] bg-[#0c0c0d]/90 backdrop-blur-md">
           <div className="flex h-16 items-center justify-between px-4 lg:px-8">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" className="lg:hidden text-white/60 hover:text-white" onClick={() => setSidebarOpen(true)}>
                 <Menu className="h-5 w-5" />
               </Button>
-              <h1 className="text-xl font-semibold text-foreground">{pageTitle}</h1>
+              <div>
+                <h1 className="text-base font-semibold text-white leading-tight">{pageTitle}</h1>
+                <p className="text-[10px] text-white/30 leading-none mt-0.5 tracking-wide">Smart Scale Portal 2.0</p>
+              </div>
             </div>
 
             <div className="flex items-center gap-3">
@@ -319,15 +351,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 variant="outline"
                 size="sm"
                 className="hidden sm:inline-flex border-[#ffde21]/40 text-[#ffde21] hover:bg-[#ffde21]/10 hover:text-[#ffde21] hover:border-[#ffde21]/60"
-                title="Enviar Monday Win"
+                title="Monday Win"
               >
-                <a
-                  href="https://airtable.com/appRJNO1KYgg2A5NZ/pagj4KV5jDXvwA0jx/form"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Monday Win
-                </a>
+                <a href="/monday-win">Monday Win</a>
               </Button>
 
               <Button
@@ -335,15 +361,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 variant="outline"
                 size="sm"
                 className="hidden sm:inline-flex border-[#ffde21]/40 text-[#ffde21] hover:bg-[#ffde21]/10 hover:text-[#ffde21] hover:border-[#ffde21]/60"
-                title="Enviar Monthly Report"
+                title="Reporte Mensual"
               >
-                <a
-                  href="https://airtable.com/appRJNO1KYgg2A5NZ/pagcUJ9vMsfMNBZBh/form"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Monthly Report
-                </a>
+                <a href="/report-input">Reporte Mensual</a>
+              </Button>
+
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="hidden sm:inline-flex border-[#ffde21]/40 text-[#ffde21] hover:bg-[#ffde21]/10 hover:text-[#ffde21] hover:border-[#ffde21]/60"
+                title="Cha-Ching 💰"
+              >
+                <a href="/chi-chang">Cha-Ching 💰</a>
               </Button>
 
               <MonthSelector
@@ -365,16 +395,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   title={
                     activeClientName
                       ? `Cliente: ${activeClientName}`
-                      : userEmail
-                        ? `Cuenta: ${userEmail}`
-                        : "Perfil"
+                      : clientDisplayName
+                        ? `Hola, ${clientDisplayName}`
+                        : userEmail
+                          ? `Cuenta: ${userEmail}`
+                          : "Perfil"
                   }
                 >
                   <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10">
                     <User className="h-4 w-4 text-[#ffde21]" />
                   </span>
                   <span className="hidden sm:inline text-white font-semibold">
-                    {activeClientName ?? userEmail ?? "—"}
+                    {activeClientName ?? clientDisplayName ?? userEmail ?? "—"}
                   </span>
                   <ChevronDown className="h-4 w-4 opacity-80 text-[#ffde21]" />
                 </Button>
@@ -386,8 +418,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     className="absolute right-0 mt-2 w-64 overflow-hidden rounded-xl border border-white/10 bg-black/80 text-white shadow-lg backdrop-blur"
                   >
                     <div className="px-3 py-2">
-                      <p className="text-xs text-white/60">Cuenta</p>
-                      <p className="truncate text-sm font-medium text-white">{userEmail ?? "—"}</p>
+                      {clientDisplayName && !isAdmin && (
+                        <p className="truncate text-sm font-semibold text-white">{clientDisplayName}</p>
+                      )}
+                      <p className="text-xs text-white/40 truncate">{userEmail ?? "—"}</p>
                     </div>
                     <div className="h-px bg-white/10" />
 

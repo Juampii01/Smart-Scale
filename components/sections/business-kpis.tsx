@@ -5,12 +5,17 @@ import { Card, CardContent } from "@/components/ui/card"
 import { TrendingDown, TrendingUp, DollarSign, Wallet, Repeat, Megaphone, Users, UserPlus } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { useSelectedMonth, useActiveClient } from "@/components/layout/dashboard-layout"
+import { useMarkPageReady } from "@/hooks/use-mark-page-ready"
+import { useMinLoading } from "@/hooks/use-min-loading"
+import { KpiCardSkeleton, SectionHeaderSkeleton } from "@/components/ui/skeleton"
 
 export function BusinessKPIs({ selectedMonth }: { selectedMonth?: string }) {
   const [report, setReport] = useState<any | null>(null)
   const [prevReport, setPrevReport] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const showSkeleton = useMinLoading(loading)
+  useMarkPageReady(!showSkeleton)
 
   const ctxMonth = useSelectedMonth()
   const activeClientId = useActiveClient()
@@ -28,7 +33,6 @@ export function BusinessKPIs({ selectedMonth }: { selectedMonth?: string }) {
 
         const supabase = createClient()
 
-        // 1) current user
         const {
           data: { user },
           error: userErr,
@@ -51,19 +55,16 @@ export function BusinessKPIs({ selectedMonth }: { selectedMonth?: string }) {
             setReport(null)
             setPrevReport(null)
             setLoading(false)
-            return
           }
           return
         }
 
         let monthValue: string | null = null
 
-        // Accept YYYY-MM => YYYY-MM-01
         if (/^\d{4}-\d{2}$/.test(effectiveMonth)) {
           monthValue = `${effectiveMonth}-01`
         }
 
-        // Accept YYYY-MM-DD as-is
         if (!monthValue && /^\d{4}-\d{2}-\d{2}$/.test(effectiveMonth)) {
           monthValue = effectiveMonth
         }
@@ -78,7 +79,6 @@ export function BusinessKPIs({ selectedMonth }: { selectedMonth?: string }) {
           return
         }
 
-        // 4) fetch the current month AND previous month (latest 2 rows <= selected month)
         const { data: rows, error: rErr } = await supabase
           .from("monthly_reports")
           .select(
@@ -94,7 +94,6 @@ export function BusinessKPIs({ selectedMonth }: { selectedMonth?: string }) {
         const current = rows?.[0] ?? null
         const previous = rows?.[1] ?? null
 
-        // If the newest row we found isn't exactly the selected month, treat as missing for this month
         const currentMonthStr = current?.month ? String(current.month).slice(0, 10) : null
         if (current && currentMonthStr !== monthValue) {
           if (mounted) {
@@ -166,71 +165,124 @@ export function BusinessKPIs({ selectedMonth }: { selectedMonth?: string }) {
     [report, prevReport]
   )
 
+  // Performance summary counts
+  const { upCount, downCount } = useMemo(() => {
+    if (!report) return { upCount: 0, downCount: 0 }
+    let up = 0, down = 0
+    kpis.forEach(k => {
+      const d = calcDelta(k.key)
+      if (d.diff != null && d.diff > 0) up++
+      else if (d.diff != null && d.diff < 0) down++
+    })
+    return { upCount: up, downCount: down }
+  }, [report, prevReport])
+
+  if (showSkeleton) {
+    return (
+      <section>
+        <SectionHeaderSkeleton />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => <KpiCardSkeleton key={i} />)}
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section>
-      {loading && <p className="text-white/60">Cargando métricas del mes…</p>}
-      {error && <p className="text-red-400">{error}</p>}
-      {!loading && !error && !report && (
-        <p className="text-white/60">No hay reporte cargado para este mes.</p>
+      {error && <p className="text-red-400 mb-4">{error}</p>}
+      {!error && !report && (
+        <p className="text-white/40 mb-4 text-sm">No hay reporte cargado para este mes.</p>
       )}
-      <h2 className="mb-6 text-lg font-semibold text-foreground">Key Performance Indicators</h2>
+
+      {/* Section header */}
+      <div className="mb-5 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-white/70">Key Performance Indicators</h2>
+        </div>
+        {report && prevReport && (
+          <div className="flex items-center gap-2.5 rounded-xl border border-white/8 bg-white/[0.03] px-3.5 py-1.5">
+            <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+              <TrendingUp className="h-3.5 w-3.5" />
+              {upCount} alza
+            </span>
+            <span className="h-3 w-px bg-white/15" />
+            <span className="flex items-center gap-1.5 text-xs font-semibold text-red-400">
+              <TrendingDown className="h-3.5 w-3.5" />
+              {downCount} baja
+            </span>
+          </div>
+        )}
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {kpis.map((kpi) => (
-          <Card
-            key={kpi.label}
-            className={`group border-border bg-card transition-all duration-200 hover:border-muted-foreground/50 hover:shadow-lg hover:shadow-primary/5 border-l-4 ${
-              (() => {
-                const d = report ? calcDelta(kpi.key) : { diff: null as number | null }
-                if (d.diff != null && d.diff < 0) return "border-l-red-500"
-                if (d.diff != null && d.diff > 0) return "border-l-emerald-500"
-                return "border-l-white/10"
-              })()
-            }`}
-          >
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="mt-1 text-xs font-medium text-white/50 uppercase tracking-wider">{kpi.label}</div>
-                  <div className="mt-1 text-3xl font-bold text-white">
-                    {kpi.value}
+        {kpis.map((kpi) => {
+          const delta = report ? calcDelta(kpi.key) : { diff: null as number | null, pct: null as number | null }
+          const isUp = delta.diff != null && delta.diff > 0
+          const isDown = delta.diff != null && delta.diff < 0
+
+          return (
+            <div
+              key={kpi.key}
+              className="group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] transition-all duration-200 hover:border-white/15 hover:bg-[#141416]"
+            >
+              {/* Top accent bar */}
+              <div className={`h-[2px] w-full ${isDown ? "bg-red-500/60" : isUp ? "bg-emerald-500/60" : "bg-white/10"}`} />
+
+              {/* Subtle radial glow */}
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_60%)]" />
+
+              <div className="relative p-5">
+                {/* Top row */}
+                <div className="mb-4 flex items-start justify-between">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ffde21]/10 ring-1 ring-[#ffde21]/15">
+                    <kpi.icon className="h-4 w-4 text-[#ffde21]" />
                   </div>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  {!loading && report && (
-                    (() => {
-                      const d = calcDelta(kpi.key)
-                      const down = (d.diff ?? 0) < 0
-                      const up = (d.diff ?? 0) > 0
-                      const tone = down
-                        ? "text-red-300"
-                        : up
-                          ? "text-emerald-300"
-                          : "text-white/50"
 
-                      const diffText = d.diff == null
-                        ? ""
-                        : `${d.diff > 0 ? "+" : ""}${d.diff.toLocaleString()}`
-
-                      const pctText = d.pct == null
-                        ? ""
-                        : ` (${d.pct > 0 ? "+" : ""}${Math.round(d.pct)}%)`
-
-                      return (
-                        <div className={`flex items-center gap-1 text-xs font-medium ${tone}`}>
-                          {down ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
-                          <span>{d.diff == null ? "" : `${diffText}${pctText}`}</span>
-                        </div>
-                      )
-                    })()
+                  {!loading && report && delta.diff != null && (
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
+                        isUp
+                          ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20"
+                          : isDown
+                          ? "bg-red-500/10 text-red-400 ring-1 ring-red-500/20"
+                          : "bg-white/5 text-white/40 ring-1 ring-white/10"
+                      }`}
+                    >
+                      {isUp ? <TrendingUp className="h-3 w-3" /> : isDown ? <TrendingDown className="h-3 w-3" /> : null}
+                      {delta.pct != null
+                        ? `${delta.pct > 0 ? "+" : ""}${Math.round(delta.pct)}%`
+                        : `${delta.diff > 0 ? "+" : ""}${delta.diff.toLocaleString()}`}
+                    </span>
                   )}
-                  <div className="flex items-center justify-center rounded-lg bg-[#ffde21]/10 p-2">
-                    <kpi.icon className="h-5 w-5 text-[#ffde21]" />
-                  </div>
                 </div>
+
+                {/* Label */}
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35">
+                  {kpi.label}
+                </p>
+
+                {/* Value */}
+                <p className="mt-1.5 text-3xl font-bold tracking-tight text-white">
+                  {kpi.value}
+                </p>
+
+                {/* Previous month */}
+                {!loading && prevReport && (() => {
+                  const prev = prevReport[kpi.key]
+                  if (prev == null) return null
+                  const formatted = kpi.money ? formatMoney(prev) : formatNumber(prev)
+                  return (
+                    <p className="mt-2 text-xs text-white/25">
+                      vs {formatted} mes anterior
+                    </p>
+                  )
+                })()}
               </div>
-            </CardContent>
-          </Card>
-        ))}
+            </div>
+          )
+        })}
       </div>
     </section>
   )

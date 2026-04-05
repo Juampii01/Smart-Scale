@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "smart-scale-dashboard",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["dev"],
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": ["-c", "PATH=/usr/local/bin:$PATH pnpm dev"],
       "port": 3001,
       "cwd": "/Users/juanpabloacostacaminos/Downloads/v0-saa-s-dashboard-ui-main"
     }

@@ -1,7 +1,6 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
@@ -168,94 +167,80 @@ export function MetricsSection({
 
   return (
     <section className="space-y-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-foreground">{title}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {subtitle} <span className="text-white/40">•</span> Month: {monthLabel}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center rounded-md bg-white/10 px-2 py-1 text-xs font-medium text-white/80">
-            {totalCount} fields
-          </span>
-          <Input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search metrics…"
-            className={cn(
-              "w-full sm:w-[280px]",
-              "bg-white/5 text-foreground placeholder:text-white/40",
-              "border-border focus-visible:ring-2 focus-visible:ring-white/20"
-            )}
-          />
-        </div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <span className="inline-flex items-center rounded-full border border-white/8 bg-white/[0.03] px-3 py-1 text-xs font-medium text-white/40">
+          {totalCount} campos · {monthLabel}
+        </span>
+        <Input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Buscar métricas…"
+          className={cn(
+            "w-full sm:w-[260px] h-8 rounded-xl text-xs",
+            "bg-white/[0.04] text-white placeholder:text-white/25 border-white/8",
+            "focus-visible:ring-1 focus-visible:ring-[#ffde21]/30 focus-visible:border-[#ffde21]/30"
+          )}
+        />
       </div>
 
-      {loading && <p className="text-white/60">Cargando métricas…</p>}
-      {error && <p className="text-red-400">{error}</p>}
+      {loading && <p className="text-white/40 text-sm">Cargando métricas…</p>}
+      {error && <p className="text-red-400 text-sm">{error}</p>}
 
       {!loading && !error && !metrics && (
-        <Card className="border-border bg-card">
-          <CardContent className="p-6">
-            <p className="text-white/60">No hay métricas cargadas para este mes.</p>
-          </CardContent>
-        </Card>
+        <p className="text-white/40 text-sm">No hay métricas cargadas para este mes.</p>
       )}
 
       {!loading && !error && metrics && (
         <div className="grid gap-4">
           {Object.entries(grouped).map(([category, items]) => (
-            <Card
+            <div
               key={category}
-              className="border-border bg-card transition-all duration-200 hover:border-muted-foreground/50 hover:shadow-lg hover:shadow-primary/5"
+              className="overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]"
             >
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center justify-between text-base font-medium">
-                  <span className="text-white/80">{category}</span>
-                  <span className="text-white/50">{items.length} fields</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="overflow-hidden rounded-lg border border-border">
-                  <div className="max-h-[340px] overflow-auto">
-                    <table className="w-full">
-                      <thead className="sticky top-0 bg-background/70 backdrop-blur">
-                        <tr className="border-b border-border">
-                          <th className="px-4 py-3 text-left text-xs font-medium text-white/60">Field</th>
-                          <th className="px-4 py-3 text-right text-xs font-medium text-white/60">Mensual</th>
-                          <th className="px-4 py-3 text-right text-xs font-medium text-white/60">Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {items.map((item) => (
-                          <tr key={item.key} className="border-b border-border/60 last:border-b-0">
-                            <td className="px-4 py-3">
-                              <div className="text-sm font-medium text-foreground">
-                                {getFieldLabel(item.key)}
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 text-right">
-                              <div className="font-mono text-base font-semibold text-white/90">
-                                {item.valueText}
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 text-right">
-                              <div className="font-mono text-sm text-white/70">{item.annualValueText}</div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+              {/* Category header */}
+              <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-[2px] rounded-full bg-[#ffde21]/60" />
+                  <span className="text-xs font-semibold uppercase tracking-widest text-white/50">{category}</span>
                 </div>
+                <span className="text-[10px] text-white/25 tabular-nums">{items.length} campos</span>
+              </div>
 
-                <p className="mt-3 text-xs text-white/40">
-                  Tip: podés buscar por nombre de campo (ej: <span className="font-mono">ad_spend</span>) o por valor.
-                </p>
-              </CardContent>
-            </Card>
+              {/* Table */}
+              <div className="max-h-[320px] overflow-auto">
+                <table className="w-full">
+                  <thead className="sticky top-0 bg-[#111113]/95 backdrop-blur-sm">
+                    <tr className="border-b border-white/[0.05]">
+                      <th className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-white/25">Campo</th>
+                      <th className="px-5 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider text-white/25">Mensual</th>
+                      <th className="px-5 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider text-white/25">Últ. 12 meses</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((item, i) => (
+                      <tr
+                        key={item.key}
+                        className={`border-b border-white/[0.04] last:border-b-0 transition-colors hover:bg-white/[0.02] ${i % 2 === 0 ? "" : "bg-white/[0.01]"}`}
+                      >
+                        <td className="px-5 py-2.5">
+                          <span className="text-xs font-medium text-white/55">
+                            {getFieldLabel(item.key)}
+                          </span>
+                        </td>
+                        <td className="px-5 py-2.5 text-right">
+                          <span className="font-mono text-sm font-semibold text-white/85">
+                            {item.valueText}
+                          </span>
+                        </td>
+                        <td className="px-5 py-2.5 text-right">
+                          <span className="font-mono text-xs text-white/35">{item.annualValueText}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           ))}
         </div>
       )}

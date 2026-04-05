@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card } from "@/components/ui/card"
 import { ChevronDown, ExternalLink, Check } from "lucide-react"
 
 // ─── Checklist data ───────────────────────────────────────────────────────────
@@ -19,7 +18,7 @@ const programData = [
           { label: "Separa 10 min cada lunes en tu calendario y lanza tus monday wins", link: "https://skool.com" },
           { label: "Separa 15 min en tu calendario cada mes para tus monthly report", link: "https://skool.com" },
           { label: "Pedir el libro Dollars Flow to me Easily (no hay en español pero si puedes leer en inglés es importante que lo leas) Nivel 0 Onboarding", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=0479e58fae32495ca6922040269a4faf" },
-          { label: "Revisa Ann AI y guárdalo en tus GPT’s -Nivel 0 Onboarding", link: "https://chat.openai.com/g/g-695303d24ad08191955f15ba514cb456-descubre-tu-sistema-operativo-central" },
+          { label: "Revisa Ann AI y guárdalo en tus GPT's -Nivel 0 Onboarding", link: "https://chat.openai.com/g/g-695303d24ad08191955f15ba514cb456-descubre-tu-sistema-operativo-central" },
           { label: "Accede a tu plataforma de performance y familiarízate -Nivel 0 Onboarding", link: "https://skool.com" },
           { label: "Tu Actual Sistema Operativo revisa el GPT", link: "https://chatgpt.com/g/g-695303d24ad08191955f15ba514cb456-descubre-tu-sistema-operativo-central" },
           { label: "La Trampa del apalancamiento", link: "https://www.skool.com/strategy-consulting/classroom/fa0f6055?md=6a92a4c76ae54f3b8ea194c6b629d509" },
@@ -177,33 +176,19 @@ export function ProgramChecklistView() {
   const [completed, setCompleted] = useState<Record<string, boolean>>({})
   const [justCompleted, setJustCompleted] = useState<string | null>(null)
 
-  // Cargar progreso guardado
   useEffect(() => {
     const savedCompleted = localStorage.getItem("program-checklist-completed")
     const savedOpenWeeks = localStorage.getItem("program-checklist-openWeeks")
-
-    if (savedCompleted) {
-      setCompleted(JSON.parse(savedCompleted))
-    }
-
-    if (savedOpenWeeks) {
-      setOpenWeeks(JSON.parse(savedOpenWeeks))
-    }
+    if (savedCompleted) setCompleted(JSON.parse(savedCompleted))
+    if (savedOpenWeeks) setOpenWeeks(JSON.parse(savedOpenWeeks))
   }, [])
 
-  // Guardar progreso automáticamente
   useEffect(() => {
-    localStorage.setItem(
-      "program-checklist-completed",
-      JSON.stringify(completed)
-    )
+    localStorage.setItem("program-checklist-completed", JSON.stringify(completed))
   }, [completed])
 
   useEffect(() => {
-    localStorage.setItem(
-      "program-checklist-openWeeks",
-      JSON.stringify(openWeeks)
-    )
+    localStorage.setItem("program-checklist-openWeeks", JSON.stringify(openWeeks))
   }, [openWeeks])
 
   const toggleWeek = (key: string) => {
@@ -213,117 +198,136 @@ export function ProgramChecklistView() {
   const toggleTask = (key: string) => {
     setCompleted((prev) => {
       const newState = { ...prev, [key]: !prev[key] }
-
       if (!prev[key]) {
         setJustCompleted(key)
         setTimeout(() => setJustCompleted(null), 400)
       }
-
       return newState
     })
   }
 
-  const totalTasks = programData.flatMap((m) =>
-    m.weeks.flatMap((w) => w.tasks)
-  ).length
-
+  const totalTasks = programData.flatMap((m) => m.weeks.flatMap((w) => w.tasks)).length
   const completedCount = Object.values(completed).filter(Boolean).length
-
-  const progress = totalTasks
-    ? Math.round((completedCount / totalTasks) * 100)
-    : 0
+  const progress = totalTasks ? Math.round((completedCount / totalTasks) * 100) : 0
 
   return (
-    <div className="p-10 space-y-10 max-w-5xl mx-auto">
-      <div className="space-y-6">
-        <h1 className="text-4xl font-bold tracking-tight text-white">
-          Checklist para completar tu ecosistema circular mínimo viable
-        </h1>
-
-        <div className="w-full bg-zinc-800 rounded-full h-4 overflow-hidden shadow-inner">
-          <div
-            className="h-4 bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-700"
-            style={{ width: `${progress}%` }}
-          />
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <div className="flex items-center gap-2.5 mb-1">
+          <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+          <h1 className="text-sm font-semibold uppercase tracking-widest text-white/70">Program Journey Checklist</h1>
         </div>
-
-        <p className="text-sm text-zinc-400">
-          {completedCount}/{totalTasks} tareas completadas — {progress}% progreso
-        </p>
+        <p className="text-xs text-white/30 ml-[18px]">Ecosistema circular mínimo viable · {completedCount}/{totalTasks} tareas</p>
       </div>
 
-      {programData.map((month) => (
-        <div key={month.month} className="space-y-8">
-          <Card className="p-8 bg-gradient-to-r from-zinc-900 to-zinc-800 border-zinc-700 shadow-xl">
-            <h2 className="text-2xl font-semibold text-white">
-              {month.month}
-            </h2>
-          </Card>
+      {/* Progress */}
+      <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-5">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
+        <div className="relative space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35">Progreso total</p>
+            <p className="text-sm font-bold text-white">{progress}%</p>
+          </div>
+          <div className="w-full bg-white/[0.06] rounded-full h-2 overflow-hidden">
+            <div
+              className="h-2 bg-[#ffde21] rounded-full transition-all duration-700"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p className="text-xs text-white/25">{completedCount} de {totalTasks} tareas completadas</p>
+        </div>
+      </div>
 
+      {/* Months */}
+      {programData.map((month, monthIndex) => (
+        <div key={month.month} className="space-y-3">
+          {/* Month header */}
+          <div className="flex items-center gap-2.5">
+            <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-[#ffde21]/10 border border-[#ffde21]/20 text-[10px] font-bold text-[#ffde21]/70">
+              {monthIndex + 1}
+            </span>
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-white/50">{month.month}</h2>
+          </div>
+
+          {/* Weeks */}
           {month.weeks.map((week) => {
             const weekKey = week.title
+            const isOpen = openWeeks[weekKey]
+            const weekCompleted = week.tasks.filter((t) => completed[week.title + t.label]).length
+
             return (
-              <div key={week.title} className="space-y-4">
+              <div key={week.title} className="space-y-2">
+                {/* Week accordion header */}
                 <div
                   onClick={() => toggleWeek(weekKey)}
-                  className="flex items-center justify-between cursor-pointer px-6 py-4 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition border border-zinc-700"
+                  className="flex items-center justify-between cursor-pointer rounded-xl border border-white/[0.07] bg-[#111113] px-4 py-3 transition-all duration-150 hover:border-white/15 hover:bg-white/[0.03]"
                 >
-                  <span className="font-medium text-white">
-                    {week.title}
-                  </span>
-                  <ChevronDown
-                    className={`transition-transform text-white ${
-                      openWeeks[weekKey] ? "rotate-180" : ""
-                    }`}
-                  />
+                  <div className="flex items-center gap-3">
+                    <span className="h-2 w-2 rounded-full bg-[#ffde21]/40 flex-shrink-0" />
+                    <span className="text-sm font-medium text-white/70">{week.title}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-semibold text-white/25">
+                      {weekCompleted}/{week.tasks.length}
+                    </span>
+                    <ChevronDown
+                      className={`h-4 w-4 text-white/30 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                    />
+                  </div>
                 </div>
 
-                {openWeeks[weekKey] && (
-                  <div className="space-y-4 pl-6">
+                {/* Tasks */}
+                {isOpen && (
+                  <div className="space-y-2 pl-4">
                     {week.tasks.map((task) => {
                       const taskKey = week.title + task.label
                       const isDone = completed[taskKey]
+                      const isJust = justCompleted === taskKey
 
                       return (
-                        <Card
+                        <div
                           key={task.label}
-                          className={`p-5 rounded-xl transition-all duration-300 border transform ${
-                            isDone
-                              ? "bg-emerald-900/30 border-emerald-600"
-                              : "bg-zinc-900 border-zinc-700 hover:border-emerald-500"
-                          } ${justCompleted === taskKey ? "scale-105" : "scale-100"}`}
                           onClick={() => toggleTask(taskKey)}
+                          className={`relative overflow-hidden rounded-xl border cursor-pointer transition-all duration-200 ${
+                            isDone
+                              ? "border-[#ffde21]/20 bg-[#ffde21]/[0.04]"
+                              : "border-white/[0.07] bg-[#111113] hover:border-white/15"
+                          } ${isJust ? "scale-[1.01]" : "scale-100"}`}
                         >
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="flex flex-col gap-2">
-                              <span
-                                className={`text-white ${
-                                  isDone ? "line-through opacity-60" : ""
-                                }`}
-                              >
+                          {isDone && (
+                            <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/20 via-[#ffde21]/40 to-[#ffde21]/20" />
+                          )}
+                          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.02),transparent_60%)]" />
+                          <div className="relative flex items-center justify-between gap-4 p-4">
+                            <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                              <span className={`text-sm leading-snug ${isDone ? "line-through text-white/30" : "text-white/70"}`}>
                                 {task.label}
                               </span>
-                              <a
-                                href={task.link}
-                                target="_blank"
-                                className="text-xs text-emerald-400 flex items-center gap-1 hover:underline"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                Ir al recurso <ExternalLink size={12} />
-                              </a>
+                              {task.link && (
+                                <a
+                                  href={task.link}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[#ffde21]/50 hover:text-[#ffde21]/80 transition-colors"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  Ir al recurso <ExternalLink className="h-3 w-3" />
+                                </a>
+                              )}
                             </div>
 
                             <div
-                              className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${
+                              className={`h-6 w-6 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
                                 isDone
-                                  ? "bg-emerald-500 shadow-lg animate-pulse"
-                                  : "bg-zinc-700"
+                                  ? "bg-[#ffde21]"
+                                  : "bg-white/[0.06] border border-white/[0.08]"
                               }`}
                             >
-                              {isDone && <Check size={14} className="text-black" />}
+                              {isDone && <Check className="h-3.5 w-3.5 text-black" strokeWidth={3} />}
                             </div>
                           </div>
-                        </Card>
+                        </div>
                       )
                     })}
                   </div>

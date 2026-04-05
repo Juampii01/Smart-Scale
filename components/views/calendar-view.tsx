@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Calendar, Clock, ExternalLink, MapPin } from "lucide-react"
 
@@ -57,28 +56,6 @@ const ITEMS: CalendarItem[] = [
     passcode: "585449",
     status: "active",
   },
-  {
-    day: "Jueves",
-    time: "1:00 PM",
-    tzLabel: "Miami",
-    title: "Cierre de Venta",
-    description: "Con Dani",
-    zoomUrl:
-      "https://us06web.zoom.us/j/82230842614?pwd=AMtguLNezLsFZ7bJbaZ06nrJxX08ZR.1",
-    passcode: "865483",
-    status: "active",
-  },
-  {
-    day: "Viernes",
-    time: "1:00 PM",
-    tzLabel: "Miami",
-    title: "Neurociencia y Mentalidad",
-    description: "con Santiago Sáez",
-    zoomUrl:
-      "https://us06web.zoom.us/j/89666744189?pwd=2GAzmVs8kIUvaXqyHAdoG5K85MmRvl.1",
-    passcode: "894865",
-    status: "active",
-  },
 ]
 
 const DAY_ORDER: Record<CalendarItem["day"], number> = {
@@ -121,25 +98,13 @@ export function CalendarView() {
 
   return (
     <section className="space-y-6">
-      <div className="space-y-2">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold text-foreground">Agenda Marzo</h1>
-          <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-medium text-white/70">
-            Llamadas semanales
-          </span>
+      <div>
+        <div className="flex items-center gap-2.5 mb-1">
+          <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+          <h1 className="text-sm font-semibold uppercase tracking-widest text-white/70">Agenda Semanal</h1>
         </div>
-        <div className="mt-4 flex justify-center">
-          <div className="flex items-center gap-3 px-5 py-3 rounded-xl border-2 border-[#ffde21] bg-[#ffde21]/10 shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#ffde21]" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" d="M12 8v4l2 2"/><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/></svg>
-            <span className="font-bold text-[#ffde21] text-lg">Aviso importante:</span>
-            <span className="text-white font-medium">La clase <span className="font-bold">Lab/Q&A</span> de Ann originalmente el día <span className="font-bold">4</span> se realizará el día <span className="font-bold">5</span>.</span>
-          </div>
-        </div>
-        <p className="text-sm text-muted-foreground max-w-2xl">
-          Espacios de trabajo diseñados para resolver bloqueos reales en adquisición, contenido, ventas y mentalidad.
-        </p>
-        <p className="text-xs text-white/50">
-          Todas las sesiones se realizan en horario Miami y quedan grabadas.
+        <p className="text-xs text-white/30 ml-[18px]">
+          Llamadas semanales · horario Miami · todas quedan grabadas
         </p>
       </div>
 
@@ -147,143 +112,108 @@ export function CalendarView() {
         {sorted.map((item) => {
           const cancelled = item.status === "cancelled"
           return (
-            <Card
+            <div
               key={`${item.day}-${item.time}-${item.title}`}
-              className="relative overflow-hidden border-[#ffde21]/30 bg-gradient-to-br from-neutral-900 via-neutral-950 to-black transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,222,33,0.15)] hover:border-[#ffde21]/50 shadow-[0_0_0_1px_rgba(255,222,33,0.10),0_25px_60px_-30px_rgba(0,0,0,0.8)]"
+              className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] transition-all duration-200 hover:border-[#ffde21]/25 hover:shadow-[0_0_30px_rgba(255,222,33,0.06)]"
             >
-              {/* top accent amarillo */}
-              <div
-                className={
-                  cancelled
-                    ? "absolute inset-x-0 top-0 h-1 bg-red-500/70"
-                    : "absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#ffde21]/10 via-[#ffde21]/30 to-[#ffde21]/10"
-                }
-              />
-              {/* glow amarillo */}
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,222,33,0.12),transparent_55%)]" />
+              <div className={`h-[2px] w-full ${cancelled ? "bg-red-500/50" : "bg-gradient-to-r from-[#ffde21]/20 via-[#ffde21]/40 to-[#ffde21]/20"}`} />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
 
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-start justify-between gap-3 text-base font-medium">
-                  <div className={cancelled ? "line-through text-white/60" : "text-foreground"}>
-                    {item.title}
-                    {item.description ? (
-                      <div className={cancelled ? "mt-1 text-xs text-white/40" : "mt-1 text-xs text-white/50"}>
-                        {item.description}
-                      </div>
-                    ) : null}
+              <div className="relative p-5 space-y-4">
+                {/* Title + status */}
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className={`text-sm font-semibold leading-tight ${cancelled ? "line-through text-white/40" : "text-white"}`}>
+                      {item.title}
+                    </p>
+                    {item.description && (
+                      <p className="mt-0.5 text-xs text-white/35">{item.description}</p>
+                    )}
                   </div>
-
                   {statusPill(item.status)}
-                </CardTitle>
-              </CardHeader>
+                </div>
 
-              <CardContent className="space-y-4">
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2 text-white/70">
-                    <Calendar className="h-4 w-4 text-white/40" />
+                {/* Time info */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs text-white/40">
+                    <Calendar className="h-3.5 w-3.5" />
                     <span className={cancelled ? "line-through" : ""}>{item.day}</span>
                   </div>
+                  <div className="flex items-center gap-2 text-xs text-white/40">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span className={cancelled ? "line-through" : ""}>{item.time}</span>
+                    <span className="text-white/20">·</span>
+                    <span>{item.tzLabel ?? "Miami"}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-white/40">
+                    <MapPin className="h-3.5 w-3.5" />
+                    <span>Zoom</span>
+                  </div>
+                </div>
 
-                  <div className="flex items-center gap-2 text-white/70">
-                    <Clock className="h-4 w-4 text-white/40" />
-                    <span className={cancelled ? "line-through" : ""}>
-                      {item.time}
+                {/* Passcode */}
+                {item.passcode && (
+                  <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2">
+                    <p className="text-[10px] text-white/30 uppercase tracking-wider">Código</p>
+                    <p className="mt-0.5 font-mono text-sm font-semibold text-white/80">{item.passcode}</p>
+                  </div>
+                )}
+
+                {/* CTA */}
+                <Button
+                  asChild
+                  size="sm"
+                  className={`w-full h-8 rounded-xl text-xs font-bold ${
+                    cancelled
+                      ? "bg-white/5 text-white/30 pointer-events-none"
+                      : "bg-[#ffde21] text-black hover:bg-[#ffe46b]"
+                  }`}
+                  disabled={!item.zoomUrl || cancelled}
+                >
+                  <Link href={item.zoomUrl ?? "#"} target="_blank" rel="noreferrer">
+                    <span className="inline-flex items-center gap-1.5">
+                      Unirse a la sesión
+                      <ExternalLink className="h-3.5 w-3.5" />
                     </span>
-                    <span className="text-white/40">•</span>
-                    <span className="text-white/50">{item.tzLabel ?? "Miami"}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-white/70">
-                    <MapPin className="h-4 w-4 text-white/40" />
-                    <span className="text-white/50">Zoom</span>
-                  </div>
-
-                  {item.passcode ? (
-                    <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-                      <div className="text-xs text-white/50">Código de inicio</div>
-                      <div className="mt-0.5 font-mono text-sm text-white/90">
-                        {item.passcode}
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-
-                <div className="flex items-center justify-between gap-3">
-                  <div className="truncate text-xs text-white/40">
-                    {item.zoomUrl ?? ""}
-                  </div>
-
-                  <Button
-                    asChild
-                    size="sm"
-                    className={
-                      cancelled
-                        ? "bg-white/10 text-white/60 hover:bg-white/15"
-                        : "bg-white text-black hover:bg-white/90"
-                    }
-                    disabled={!item.zoomUrl}
-                  >
-                    <Link href={item.zoomUrl ?? "#"} target="_blank" rel="noreferrer">
-                      <span className="inline-flex items-center gap-2">
-                        Abrir
-                        <ExternalLink className="h-4 w-4" />
-                      </span>
-                    </Link>
-                  </Button>
-                </div>
-
-                {cancelled ? (
-                  <p className="text-xs text-red-300/80">
-                    Esta sesión figura como cancelada.
-                  </p>
-                ) : null}
-              </CardContent>
-            </Card>
+                  </Link>
+                </Button>
+              </div>
+            </div>
           )
         })}
       </div>
 
-      <Card className="border-border bg-card">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-medium text-white/80">Agenda tu llamada mensual con Ann</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-white/70 space-y-3">
-          <p>
-            Agendá tu llamada desde este link:
+      {/* Monthly call card */}
+      <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-5">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,222,33,0.03),transparent_60%)]" />
+        <div className="relative">
+          <p className="text-xs font-semibold uppercase tracking-widest text-white/35 mb-3">Llamada mensual con Ann</p>
+          <p className="text-sm text-white/55 mb-3">
+            Agendá tu llamada:{" "}
             <a
               href="https://calendly.com/strategystudio-mkt/onboarding-call"
               target="_blank"
               rel="noreferrer"
-              className="ml-1 underline text-white"
+              className="text-[#ffde21]/70 hover:text-[#ffde21] underline underline-offset-2 transition-colors"
             >
-              https://calendly.com/strategystudio-mkt/onboarding-call
+              calendly.com/strategystudio-mkt
             </a>
           </p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Las llamadas son mensuales y no acumulables.</li>
-            <li>Cada mes tenés disponible una (1) llamada.</li>
-            <li>La llamada debe realizarse dentro del mes correspondiente.</li>
-            <li>Si no se agenda en ese período, no se traslada al mes siguiente.</li>
+          <ul className="space-y-1 text-xs text-white/35 list-none">
+            {[
+              "Las llamadas son mensuales y no acumulables.",
+              "Cada mes tenés disponible una (1) llamada.",
+              "La llamada debe realizarse dentro del mes correspondiente.",
+              "Si no se agenda en ese período, no se traslada al mes siguiente.",
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-2">
+                <span className="mt-1 h-1 w-1 rounded-full bg-[#ffde21]/40 flex-shrink-0" />
+                {item}
+              </li>
+            ))}
           </ul>
-          <p className="text-xs text-white/50">
-            Recomendamos agendar con anticipación para asegurar disponibilidad.
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-gradient-to-br from-card via-card/60 to-card/30">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-medium text-white/80">
-            Próximamente
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-white/60 max-w-xl">
-            La agenda de mayo todavía no está publicada. 
-            Definimos nuevas sesiones estratégicas según las necesidades del grupo y el momento del negocio.
-          </p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </section>
   )
 }

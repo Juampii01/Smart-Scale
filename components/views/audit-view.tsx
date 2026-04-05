@@ -3,14 +3,14 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react"
 import { createClient } from "@/lib/supabase"
 import { useActiveClient, useSelectedMonth } from "@/components/layout/dashboard-layout"
-import { Card } from "@/components/ui/card"
 import { useAnnualMetrics } from "@/contexts/annual-metrics-context"
+import { AiLoading } from "@/components/ui/ai-loading"
 
 // ─── Audit data ──────────────────────────────────────────────────────────────
 
 const sections = [
   {
-    title: "Audit del Ecosistema Circular (menos de $20k/mes) 🟠",
+    title: "Ecosistema Circular — menos de $20k/mes",
     items: [
       { id: "F1", label: "Atraigo nuevos seguidores de forma consistente con mi contenido todos los días" },
       { id: "F2", label: "Me siento seguro/a sabiendo qué publicar cada semana para crecer y convertir" },
@@ -28,7 +28,7 @@ const sections = [
     ],
   },
   {
-    title: "Audit del Ecosistema Circular (más de $20k/mes) 🟢",
+    title: "Ecosistema Circular — más de $20k/mes",
     items: [
       { id: "F4", label: "Mis publicaciones de contenido corto generan consultas de leads entrantes todos los días" },
       { id: "F5", label: "Mi contenido genera guardados, compartidos y DMs de forma constante sin publicidad" },
@@ -87,7 +87,7 @@ function renderDiagnosisContent(content: string) {
     if (line.startsWith("## ")) {
       return (
         <div key={`h2-wrap-${index}`} className="pt-3">
-          <h3 className="text-lg font-semibold uppercase tracking-[0.14em] text-zinc-200">
+          <h3 className="text-lg font-semibold uppercase tracking-[0.14em] text-white/80">
             {line.replace(/^##\s+/, "")}
           </h3>
           <div className="mt-2 h-px w-full bg-white/10" />
@@ -107,7 +107,7 @@ function renderDiagnosisContent(content: string) {
       return (
         <div
           key={`quote-${index}`}
-          className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-zinc-200"
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/70"
         >
           {line.replace(/^>\s+/, "")}
         </div>
@@ -116,8 +116,8 @@ function renderDiagnosisContent(content: string) {
 
     if (line.startsWith("- ")) {
       return (
-        <div key={`bullet-${index}`} className="flex items-start gap-3 text-sm leading-7 text-zinc-300">
-          <span className="mt-2 h-1.5 w-1.5 rounded-full bg-white/70" />
+        <div key={`bullet-${index}`} className="flex items-start gap-3 text-sm leading-7 text-white/60">
+          <span className="mt-2.5 h-1 w-1 rounded-full bg-[#ffde21]/60 flex-shrink-0" />
           <span>{line.replace(/^-\s+/, "")}</span>
         </div>
       )
@@ -134,7 +134,7 @@ function renderDiagnosisContent(content: string) {
     const parts = line.split(/(\*\*.*?\*\*)/g)
 
     return (
-      <p key={`p-${index}`} className="text-sm leading-7 text-zinc-300 md:text-[15px]">
+      <p key={`p-${index}`} className="text-sm leading-7 text-white/60 md:text-[15px]">
         {parts.map((part, partIndex) => {
           if (/^\*\*.*\*\*$/.test(part)) {
             return (
@@ -316,13 +316,6 @@ export function AuditView() {
     })
   }
 
-  const getColor = (value: string) => {
-    if (value === "red") return "bg-red-500"
-    if (value === "yellow") return "bg-yellow-400"
-    if (value === "green") return "bg-green-500"
-    return "bg-zinc-700"
-  }
-
   const buildPrompt = () => {
     const activeItems = activeSection?.items ?? []
 
@@ -437,285 +430,330 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
   }
 
   return (
-    <div className="p-6 space-y-8">
-        <h1 className="text-3xl font-bold text-white">Auditoría Estratégica</h1>
-        <Card className="border-border bg-card/70 backdrop-blur-sm">
-          <div className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-1">
-              <p className="text-xs uppercase tracking-[0.2em] text-zinc-400">
-                Revenue total rolling 12 meses
-              </p>
-              <div className="text-3xl font-bold text-white md:text-4xl">
-                {annualMetrics && typeof annualMetrics.total_revenue === 'number'
-                  ? annualMetrics.total_revenue.toLocaleString('en-US', {
-                      style: 'currency',
-                      currency: 'USD',
-                      maximumFractionDigits: 0,
-                    })
-                  : '—'}
-              </div>
-            </div>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <div className="flex items-center gap-2.5 mb-1">
+          <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+          <h1 className="text-sm font-semibold uppercase tracking-widest text-white/70">Auditoría Estratégica</h1>
+        </div>
+        <p className="text-xs text-white/30 ml-[18px]">Evaluación del Ecosistema Circular · {selectedMonth}</p>
+      </div>
 
-            <div className="flex flex-col items-start gap-2 md:items-end">
-              <span className="text-xs uppercase tracking-[0.2em] text-zinc-400">
-                Audit activo
-              </span>
-              <span
-                className={`inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold ${
-                  annualRevenue >= 20000
-                    ? 'bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/30'
-                    : 'bg-amber-500/15 text-amber-300 ring-1 ring-amber-400/30'
-                }`}
-              >
-                {annualRevenue >= 20000 ? 'Más de $20k' : 'Menos de $20k'}
-              </span>
+      {/* Revenue card */}
+      <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
+        <div className={`h-[2px] w-full ${annualRevenue >= 20000 ? "bg-emerald-500/60" : "bg-amber-500/60"}`} />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
+        <div className="relative flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-1">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35">
+              Revenue total rolling 12 meses
+            </p>
+            <div className="text-3xl font-bold tracking-tight text-white">
+              {annualMetrics && typeof annualMetrics.total_revenue === 'number'
+                ? annualMetrics.total_revenue.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    maximumFractionDigits: 0,
+                  })
+                : '—'}
             </div>
           </div>
-        </Card>
-        {loadingAudit ? (
-          <p className="text-white/60">Cargando tipo de auditoría…</p>
-        ) : (
-          <>
-            {sections
-              .filter((section, idx) =>
-                (auditType === 'menos20k' && idx === 0) || (auditType === 'mas20k' && idx === 1)
-              )
-              .map((section) => (
-                <div key={section.title} className="space-y-4">
-                  <h2 className="text-xl font-semibold text-zinc-300 tracking-wide">
+
+          <div className="flex flex-col items-start gap-2 md:items-end">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-white/35">
+              Audit activo
+            </span>
+            <span
+              className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-semibold ${
+                annualRevenue >= 20000
+                  ? 'bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-400/20'
+                  : 'bg-amber-500/10 text-amber-300 ring-1 ring-amber-400/20'
+              }`}
+            >
+              {annualRevenue >= 20000 ? 'Más de $20k' : 'Menos de $20k'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {loadingAudit ? (
+        <p className="text-white/40 text-sm">Cargando tipo de auditoría…</p>
+      ) : (
+        <>
+          {sections
+            .filter((section, idx) =>
+              (auditType === 'menos20k' && idx === 0) || (auditType === 'mas20k' && idx === 1)
+            )
+            .map((section) => (
+              <div key={section.title} className="space-y-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="h-3 w-[2px] rounded-full bg-[#ffde21]/60" />
+                  <h2 className="text-xs font-semibold uppercase tracking-widest text-white/45">
                     {section.title}
                   </h2>
-                  {section.items.map((item) => (
-                    <Card
-                      key={item.id}
-                      className="p-6 bg-card/70 backdrop-blur-sm border-border transition-all duration-300 hover:scale-[1.01] hover:shadow-lg"
-                    >
-                      <div className="flex items-center justify-between gap-6">
-                        <div>
-                          <div className="text-sm text-zinc-400">{item.id}</div>
-                          <div className="font-medium">{item.label}</div>
+                </div>
+
+                {section.items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] transition-all duration-200 hover:border-white/15"
+                  >
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.02),transparent_60%)]" />
+                    <div className="relative flex items-center justify-between gap-6 p-5">
+                      <div>
+                        <div className="text-[10px] font-semibold uppercase tracking-widest text-white/30 mb-1">{item.id}</div>
+                        <div className="text-sm text-white/70">{item.label}</div>
+                      </div>
+                      <div className="flex gap-5 flex-shrink-0">
+                        <div className="flex flex-col items-center gap-1.5">
+                          <span className="text-[10px] text-white/30 uppercase tracking-wider">No está</span>
+                          <button
+                            onClick={() => setStatus(item.id, "red")}
+                            className={`w-7 h-7 rounded-full transition-all duration-200 ${
+                              scores[item.id] === "red"
+                                ? "bg-red-500 scale-110 ring-2 ring-red-400/50"
+                                : "bg-white/[0.06] hover:bg-red-500/60"
+                            }`}
+                          />
                         </div>
-                        <div className="flex gap-6">
-                          <div className="flex flex-col items-center gap-1">
-                            <span className="text-xs text-zinc-400">No está</span>
-                            <button
-                              onClick={() => setStatus(item.id, "red")}
-                              className={`
-                                w-7 h-7 rounded-full transition-all duration-200
-                                ${scores[item.id] === "red" ? "bg-red-500 scale-110 ring-2 ring-red-400" : "bg-zinc-700 hover:bg-red-400"}
-                              `}
-                            />
-                          </div>
-                          <div className="flex flex-col items-center gap-1">
-                            <span className="text-xs text-zinc-400">Parcial</span>
-                            <button
-                              onClick={() => setStatus(item.id, "yellow")}
-                              className={`
-                                w-7 h-7 rounded-full transition-all duration-200
-                                ${scores[item.id] === "yellow" ? "bg-yellow-400 scale-110 ring-2 ring-yellow-300" : "bg-zinc-700 hover:bg-yellow-400"}
-                              `}
-                            />
-                          </div>
-                          <div className="flex flex-col items-center gap-1">
-                            <span className="text-xs text-zinc-400">Sí está</span>
-                            <button
-                              onClick={() => setStatus(item.id, "green")}
-                              className={`
-                                w-7 h-7 rounded-full transition-all duration-200
-                                ${scores[item.id] === "green" ? "bg-green-500 scale-110 ring-2 ring-green-400" : "bg-zinc-700 hover:bg-green-400"}
-                              `}
-                            />
-                          </div>
+                        <div className="flex flex-col items-center gap-1.5">
+                          <span className="text-[10px] text-white/30 uppercase tracking-wider">Parcial</span>
+                          <button
+                            onClick={() => setStatus(item.id, "yellow")}
+                            className={`w-7 h-7 rounded-full transition-all duration-200 ${
+                              scores[item.id] === "yellow"
+                                ? "bg-[#ffde21] scale-110 ring-2 ring-[#ffde21]/50"
+                                : "bg-white/[0.06] hover:bg-[#ffde21]/60"
+                            }`}
+                          />
+                        </div>
+                        <div className="flex flex-col items-center gap-1.5">
+                          <span className="text-[10px] text-white/30 uppercase tracking-wider">Sí está</span>
+                          <button
+                            onClick={() => setStatus(item.id, "green")}
+                            className={`w-7 h-7 rounded-full transition-all duration-200 ${
+                              scores[item.id] === "green"
+                                ? "bg-emerald-500 scale-110 ring-2 ring-emerald-400/50"
+                                : "bg-white/[0.06] hover:bg-emerald-500/60"
+                            }`}
+                          />
                         </div>
                       </div>
-                    </Card>
-                  ))}
-                </div>
-              ))}
-          </>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+        </>
+      )}
+
+      {/* Controls */}
+      <div className="space-y-4">
+        <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
+          <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/20 via-[#ffde21]/40 to-[#ffde21]/20" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
+
+          <div className="relative border-b border-white/[0.05] px-6 py-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35 mb-1">
+                  Audit Controls
+                </p>
+                <h3 className="text-base font-semibold text-white">
+                  Generar diagnóstico estratégico
+                </h3>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white/40">
+                  {selectedAnswersCount} respuestas
+                </span>
+                <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white/40">
+                  {annualRevenue >= 20000 ? "Audit +20k" : "Audit -20k"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative flex flex-col gap-3 px-6 py-5 md:flex-row md:items-center">
+            <button
+              onClick={autoSelectRandom}
+              className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-white/70 transition hover:bg-white/[0.08] hover:text-white"
+            >
+              Seleccionar respuestas al azar
+            </button>
+            <button
+              onClick={generateAIResponse}
+              disabled={loading}
+              className="rounded-xl bg-[#ffde21] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] disabled:opacity-50"
+            >
+              {loading ? "Generando…" : "Generar Diagnóstico Estratégico"}
+            </button>
+          </div>
+        </div>
+
+        {/* AI Loading */}
+        {loading && !aiResponse && (
+          <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
+            <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/20 via-[#ffde21]/40 to-[#ffde21]/20" />
+            <AiLoading
+              title="Generando diagnóstico estratégico"
+              steps={[
+                "Analizando respuestas del cuestionario…",
+                "Identificando cuellos de botella…",
+                "Evaluando el ecosistema circular…",
+                "Generando recomendaciones con IA…",
+                "Casi listo…",
+              ]}
+            />
+          </div>
         )}
 
-        <div className="pt-10 space-y-6">
-          <Card className="overflow-hidden border-border bg-card/70 backdrop-blur-sm">
-            <div className="border-b border-white/10 bg-gradient-to-r from-white/10 via-white/5 to-transparent px-6 py-5">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        {/* AI Response */}
+        {aiResponse && (
+          <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
+            <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/20 via-[#ffde21]/40 to-[#ffde21]/20" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
+
+            <div className="relative border-b border-white/[0.05] px-6 py-5">
+              <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.22em] text-zinc-400">
-                    Audit Controls
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35 mb-1">
+                    Strategic Output
                   </p>
-                  <h3 className="mt-1 text-xl font-semibold text-white">
-                    Generar diagnóstico estratégico
+                  <h3 className="text-base font-semibold text-white">
+                    Diagnóstico Estratégico
                   </h3>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-zinc-300">
-                    {selectedAnswersCount} respuestas seleccionadas
-                  </div>
-                  <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-zinc-300">
-                    {annualRevenue >= 20000 ? "Audit +20k" : "Audit -20k"}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-3 px-6 py-6 md:flex-row md:items-center">
-              <button
-                onClick={autoSelectRandom}
-                className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-medium text-white transition hover:bg-white/[0.08]"
-              >
-                Seleccionar respuestas al azar
-              </button>
-              <button
-                onClick={generateAIResponse}
-                className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-60"
-              >
-                {loading ? "Generando..." : "Generar Diagnóstico Estratégico"}
-              </button>
-            </div>
-          </Card>
-
-          {aiResponse && (
-            <Card className="overflow-hidden border-border bg-card/70 shadow-[0_20px_80px_rgba(0,0,0,0.22)] backdrop-blur-sm">
-              <div className="border-b border-white/10 bg-gradient-to-r from-white/10 via-white/5 to-transparent px-6 py-5">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.22em] text-zinc-400">
-                      Strategic Output
-                    </p>
-                    <h3 className="mt-1 text-xl font-semibold text-white">
-                      Diagnóstico Estratégico
-                    </h3>
-                    <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
-                      Una lectura ejecutiva del cuello de botella, las debilidades y la prioridad estratégica del negocio.
-                    </p>
-                  </div>
-                  <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-zinc-300">
-                    {loading ? "Procesando" : "Listo"}
-                  </div>
-                </div>
-              </div>
-
-              <div className="px-6 py-6 md:px-8 md:py-8">
-                {aiResponse.startsWith("Diagnóstico en proceso") || aiResponse.startsWith("El diagnóstico está tardando") ? (
-                  <div className="rounded-2xl border border-amber-400/20 bg-amber-500/10 px-4 py-4 text-sm leading-7 text-amber-100">
-                    {aiResponse}
-                  </div>
-                ) : aiResponse.startsWith("No se pudo") || aiResponse.startsWith("Error") ? (
-                  <div className="rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm leading-7 text-red-100">
-                    {aiResponse}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {diagnosisContent}
-                  </div>
-                )}
-              </div>
-            </Card>
-          )}
-
-          <Card className="overflow-hidden border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06)_0%,rgba(255,255,255,0.03)_100%)] shadow-[0_24px_90px_rgba(0,0,0,0.24)] backdrop-blur-sm">
-            <div className="border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_38%),linear-gradient(90deg,rgba(255,255,255,0.10),rgba(255,255,255,0.03),transparent)] px-6 py-6">
-              <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.24em] text-zinc-400">
-                    Audit Archive
-                  </p>
-                  <h3 className="mt-2 text-2xl font-semibold tracking-tight text-white">
-                    Historial de diagnósticos
-                  </h3>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
-                    Revisá auditorías anteriores, compará estados y abrí cualquier diagnóstico guardado en un clic.
+                  <p className="mt-1.5 text-xs text-white/35 max-w-lg">
+                    Una lectura ejecutiva del cuello de botella, las debilidades y la prioridad estratégica del negocio.
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-right">
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
-                      Registros
-                    </p>
-                    <p className="mt-1 text-lg font-semibold text-white">
-                      {loadingHistory ? "..." : diagnosisHistory.length}
-                    </p>
-                  </div>
-                </div>
+                <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white/40">
+                  {loading ? "Procesando" : "Listo"}
+                </span>
               </div>
             </div>
 
-            <div className="px-6 py-6 md:px-7 md:py-7">
-              {loadingHistory ? (
-                <div className="rounded-3xl border border-white/10 bg-white/[0.03] px-5 py-5 text-sm leading-7 text-zinc-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                  Cargando diagnósticos guardados...
+            <div className="relative px-6 py-6">
+              {aiResponse.startsWith("Diagnóstico en proceso") || aiResponse.startsWith("El diagnóstico está tardando") ? (
+                <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 px-4 py-4 text-sm leading-7 text-amber-200">
+                  {aiResponse}
                 </div>
-              ) : diagnosisHistory.length === 0 ? (
-                <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.03] px-5 py-5 text-sm leading-7 text-zinc-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                  Todavía no hay diagnósticos guardados para este cliente.
+              ) : aiResponse.startsWith("No se pudo") || aiResponse.startsWith("Error") ? (
+                <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm leading-7 text-red-200">
+                  {aiResponse}
                 </div>
               ) : (
-                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                  {diagnosisHistory.map((item, index) => {
-                    const statusMeta = getStatusMeta(item.status)
-                    const statusCopy = getStatusCopy(item.status)
-                    const isActiveDiagnosis = !!item.result && aiResponse === item.result
-                    return (
-                      <div
-                        key={item.request_id}
-                        className={`group flex flex-col h-full justify-between rounded-3xl border-2 p-6 shadow-lg transition-all duration-300 ${
-                          isActiveDiagnosis
-                            ? "border-emerald-400/40 bg-gradient-to-br from-emerald-900/30 to-black/60 shadow-emerald-900/30"
-                            : "border-white/10 bg-gradient-to-br from-zinc-900/40 to-black/60 hover:border-emerald-400/30 hover:shadow-emerald-900/10"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 mb-4">
-                          <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-zinc-400">
-                            #{String(diagnosisHistory.length - index).padStart(2, "0")}
-                          </span>
-                          <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${statusMeta.className}`}>
-                            <span className={`h-1.5 w-1.5 rounded-full ${statusMeta.dotClassName}`} />
-                            {statusMeta.label}
-                          </span>
-                          <span className="ml-auto text-xs text-zinc-500 font-mono">
-                            {formatDiagnosisDate(item.created_at)}
-                          </span>
-                        </div>
-                        <div className="mb-3 min-h-[48px] text-xs text-zinc-400 flex items-center gap-2">
-                          <span className="font-semibold text-zinc-300">Request ID:</span>
-                          <span className="break-all font-mono">{item.request_id}</span>
-                        </div>
-                        <div className="flex-1 flex flex-col justify-between">
-                          <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-4 shadow-inner min-h-[120px] mb-4">
-                            <div className="text-sm leading-7 text-zinc-200 whitespace-pre-line max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-700/40 scrollbar-track-transparent">
-                              {item.result
-                                ? item.result
-                                : item.status === "pending"
-                                ? "Diagnóstico en proceso. Todavía no hay contenido final disponible."
-                                : "No hay resultado almacenado para este diagnóstico."}
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (item.result) {
-                                setAiResponse(item.result)
-                              }
-                            }}
-                            disabled={!item.result}
-                            className={`mt-2 rounded-xl border-2 px-4 py-2.5 text-sm font-semibold transition-all duration-200 tracking-wide shadow ${
-                              isActiveDiagnosis
-                                ? "border-emerald-400 bg-emerald-400/90 text-black hover:bg-emerald-400"
-                                : "border-white/10 bg-white/[0.04] text-white hover:border-emerald-400/40 hover:bg-emerald-400/10"
-                            } disabled:cursor-not-allowed disabled:opacity-40`}
-                          >
-                            {isActiveDiagnosis ? "Diagnóstico abierto" : "Ver diagnóstico completo"}
-                          </button>
-                        </div>
-                      </div>
-                    )
-                  })}
+                <div className="space-y-3">
+                  {diagnosisContent}
                 </div>
               )}
             </div>
-          </Card>
+          </div>
+        )}
+
+        {/* History */}
+        <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,222,33,0.03),transparent_55%)]" />
+
+          <div className="relative border-b border-white/[0.05] px-6 py-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35 mb-1">
+                  Audit Archive
+                </p>
+                <h3 className="text-base font-semibold text-white">
+                  Historial de diagnósticos
+                </h3>
+                <p className="mt-1 text-xs text-white/35 max-w-lg">
+                  Revisá auditorías anteriores, compará estados y abrí cualquier diagnóstico guardado en un clic.
+                </p>
+              </div>
+              <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-4 py-3 text-right">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30">Registros</p>
+                <p className="mt-0.5 text-lg font-bold text-white">
+                  {loadingHistory ? "…" : diagnosisHistory.length}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative px-6 py-6">
+            {loadingHistory ? (
+              <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-5 py-5 text-sm text-white/40">
+                Cargando diagnósticos guardados…
+              </div>
+            ) : diagnosisHistory.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-white/[0.08] bg-white/[0.02] px-5 py-5 text-sm text-white/35">
+                Todavía no hay diagnósticos guardados para este cliente.
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {diagnosisHistory.map((item, index) => {
+                  const statusMeta = getStatusMeta(item.status)
+                  const isActiveDiagnosis = !!item.result && aiResponse === item.result
+                  return (
+                    <div
+                      key={item.request_id}
+                      className={`flex flex-col h-full justify-between rounded-2xl border p-5 transition-all duration-200 ${
+                        isActiveDiagnosis
+                          ? "border-[#ffde21]/30 bg-[#ffde21]/[0.04]"
+                          : "border-white/[0.07] bg-white/[0.02] hover:border-white/15"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-4 flex-wrap">
+                        <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-white/35">
+                          #{String(diagnosisHistory.length - index).padStart(2, "0")}
+                        </span>
+                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${statusMeta.className}`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${statusMeta.dotClassName}`} />
+                          {statusMeta.label}
+                        </span>
+                        <span className="ml-auto text-[10px] text-white/25 font-mono">
+                          {formatDiagnosisDate(item.created_at)}
+                        </span>
+                      </div>
+
+                      <div className="mb-3 text-[10px] text-white/25 font-mono break-all">
+                        {item.request_id}
+                      </div>
+
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 min-h-[100px] mb-4">
+                          <div className="text-xs leading-6 text-white/50 whitespace-pre-line max-h-40 overflow-y-auto">
+                            {item.result
+                              ? item.result
+                              : item.status === "pending"
+                              ? "Diagnóstico en proceso. Todavía no hay contenido final disponible."
+                              : "No hay resultado almacenado para este diagnóstico."}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (item.result) {
+                              setAiResponse(item.result)
+                            }
+                          }}
+                          disabled={!item.result}
+                          className={`rounded-xl px-4 py-2 text-xs font-bold transition-all duration-150 ${
+                            isActiveDiagnosis
+                              ? "bg-[#ffde21] text-black"
+                              : "border border-white/[0.08] bg-white/[0.04] text-white/70 hover:bg-white/[0.08] hover:text-white"
+                          } disabled:cursor-not-allowed disabled:opacity-40`}
+                        >
+                          {isActiveDiagnosis ? "Diagnóstico abierto" : "Ver diagnóstico completo"}
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
         </div>
+      </div>
     </div>
   )
 }

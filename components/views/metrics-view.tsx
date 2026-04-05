@@ -4,6 +4,9 @@ import { useEffect, useMemo, useState } from "react"
 import { createClient } from "@/lib/supabase"
 import { MetricsSection } from "@/components/sections/metrics-section"
 import { useSelectedMonth, useActiveClient } from "@/components/layout/dashboard-layout"
+import { useMarkPageReady } from "@/hooks/use-mark-page-ready"
+import { useMinLoading } from "@/hooks/use-min-loading"
+import { StatCardSkeleton, SectionHeaderSkeleton } from "@/components/ui/skeleton"
 
 type MonthlyReportRow = Record<string, any>
 
@@ -31,6 +34,8 @@ export function MetricsView() {
   const [annualRange, setAnnualRange] = useState<{ start: string; end: string; label: string } | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+  const showSkeleton = useMinLoading(loading)
+  useMarkPageReady(!showSkeleton)
 
   const [hydrated, setHydrated] = useState(false)
 
@@ -127,6 +132,7 @@ export function MetricsView() {
           .eq("client_id", clientId)
           .gte("month", rollingStart)
           .lt("month", rollingEnd)
+          .order("month", { ascending: true })
 
         if (annualErr) throw annualErr
 
@@ -145,18 +151,35 @@ export function MetricsView() {
           )
         }
 
+        // Snapshot fields: these are cumulative totals (not monthly deltas).
+        // For these we take the LAST (most recent) value, never sum them.
+        const snapshotKeys = new Set([
+          "short_followers",
+          "yt_subscribers",
+          "yt_monthly_audience",
+          "email_subscribers",
+          "active_clients",
+          "mrr",
+        ])
+
+        // annualRows is ordered ascending by month — last item = most recent
         for (const row of (annualRows ?? []) as any[]) {
           for (const [k, v] of Object.entries(row ?? {})) {
             if (isAnnualSkippable(k)) continue
-            if (typeof v === "number" && Number.isFinite(v)) {
-              annual[k] = (Number.isFinite(annual[k]) ? annual[k] : 0) + v
-              continue
-            }
-            if (typeof v === "string" && v.trim().length) {
-              const n = Number(v)
-              if (Number.isFinite(n)) {
-                annual[k] = (Number.isFinite(annual[k]) ? annual[k] : 0) + n
-              }
+
+            const numVal = typeof v === "number" && Number.isFinite(v)
+              ? v
+              : typeof v === "string" && v.trim().length && Number.isFinite(Number(v))
+                ? Number(v)
+                : null
+
+            if (numVal === null) continue
+
+            if (snapshotKeys.has(k)) {
+              // Always overwrite — last row wins (most recent snapshot)
+              annual[k] = numVal
+            } else {
+              annual[k] = (Number.isFinite(annual[k]) ? annual[k] : 0) + numVal
             }
           }
         }
@@ -195,15 +218,31 @@ export function MetricsView() {
     }
   }, [activeClientId, monthValue, monthRange.start, monthRange.end, selectedMonth])
 
+  if (showSkeleton) {
+    return (
+      <section className="space-y-6">
+        <SectionHeaderSkeleton />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 9 }).map((_, i) => <StatCardSkeleton key={i} />)}
+        </div>
+        <SectionHeaderSkeleton />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => <StatCardSkeleton key={i} />)}
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">All Metrics</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Full monthly report snapshot</p>
-        <p suppressHydrationWarning className="mt-1 text-xs text-white/50">
-          Mes seleccionado: {selectedMonth}
+        <div className="flex items-center gap-2.5 mb-1">
+          <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+          <h1 className="text-sm font-semibold uppercase tracking-widest text-white/70">All Metrics</h1>
+        </div>
+        <p suppressHydrationWarning className="text-xs text-white/30 ml-[18px]">
+          Mes: {selectedMonth} · {annualRange?.label ?? "Últimos 12 meses: —"}
         </p>
-        <p className="mt-1 text-xs text-white/50">{annualRange?.label ?? "Últimos 12 meses: —"}</p>
       </div>
 
       <MetricsSection

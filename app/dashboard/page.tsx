@@ -5,8 +5,7 @@ import { TrendCharts } from "@/components/sections/trend-charts";
 export default function PerformanceCenterPage() {
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        <h1 className="text-3xl font-bold mb-6">Performance Center</h1>
+      <div className="space-y-10">
         <BusinessKPIs />
         <TrendCharts />
       </div>

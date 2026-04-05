@@ -1,12 +1,12 @@
 "use client"
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { ComingSoonView } from "@/components/views/coming-soon-view"
+import { AuditView } from "@/components/views/audit-view"
 
 export default function AuditPage() {
   return (
     <DashboardLayout>
-      <ComingSoonView name="Audit" />
+      <AuditView />
     </DashboardLayout>
   )
 }

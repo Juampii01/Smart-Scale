@@ -1,10 +1,6 @@
 // Supabase Edge Function: ai-diagnosis-worker
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
-export const config = {
-  verify_jwt: false,
-}
-
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY")!
@@ -129,6 +125,34 @@ Reglas obligatorias:
   const userMessage = `AUDITORÍA RESPONDIDA POR EL USUARIO:
 ${request.prompt}
 
+---
+
+MÓDULOS DEL PROGRAMA SMART SCALE (usá estos links exactos según el área):
+
+F — FLUJO Y CONTENIDO (seguidores, DMs, contenido corto):
+- Contenido corto, banco de ideas, calendario, historias de conversión, optimización de perfil → "Módulo Fascinación y Conexión" → https://www.skool.com/strategy-consulting/classroom/6de08095
+- Quick Cash DM, Cash Sprint, Cash Menu → "Módulo Quick Cash" → https://www.skool.com/strategy-consulting/classroom/c886e8bf
+- Hot List, prospectos 5 estrellas, No Negociables diarios → "Módulo Operación Diaria" → https://www.skool.com/strategy-consulting/classroom/552a38a7
+
+E — EMAIL, VENTAS Y ENGAGEMENT (email, DM Close, formato largo):
+- Email marketing, conectar dominio, lista → "Módulo Email y Comunidad" (Mes 1, Semana 4 del Checklist)
+- DM Close, pitch de ventas, flow de conversación → "Módulo DM Closing" → https://www.skool.com/strategy-consulting/classroom/cd022ec1
+- YouTube, formato largo, Marca Auténtica → "Módulo YouTube Mastery" → https://www.skool.com/strategy-consulting/classroom/3b5a1f75
+- Sistema de seguimiento de leads, Hot List → "Módulo Operación Diaria" → https://www.skool.com/strategy-consulting/classroom/552a38a7
+
+I — IMPLEMENTACIÓN Y CLIENTES (onboarding, entrega, capacidad):
+- Onboarding de clientes, primera victoria en 30 días → "Nivel 0 Onboarding" → https://www.skool.com/strategy-consulting/classroom/552a38a7
+- Sistemas para no ser el cuello de botella, escalar sin quemarse → "Módulo Operación Diaria" → https://www.skool.com/strategy-consulting/classroom/552a38a7
+- Checklist de implementación paso a paso → "Program Checklist en el Portal" → https://smartscale.app/program-checklist
+
+T — TRANSFORMACIÓN Y OFERTA (oferta, avatar, casos de éxito):
+- Oferta simple, avatar, investigación de mercado, roadmap → "Módulo Simple Offer" → https://www.skool.com/strategy-consulting/classroom/fb42ffd4
+- Offer Doc, VSL, propuesta de valor → "Módulo Offer Doc y VSL" → https://www.skool.com/strategy-consulting/classroom/cd022ec1
+- Casos de éxito, testimonios, historias de transformación → "Módulo Fascinación y Conexión" → https://www.skool.com/strategy-consulting/classroom/6de08095
+- Sistema operativo central, zona de genialidad → "Ann AI GPT" → https://chat.openai.com/g/g-695303d24ad08191955f15ba514cb456-descubre-tu-sistema-operativo-central
+
+---
+
 QUIERO QUE RESPONDAS SOLO CON ESTA ESTRUCTURA Y NADA MÁS:
 
 # Mapa de Ruta Smart Scale
@@ -143,7 +167,7 @@ Aquí debes poner únicamente los puntos críticos que requieren atención inmed
 
 ### [NOMBRE EXACTO DEL PUNTO]
 - Enfocate en: [frase corta indicando qué área debe trabajar]
-- Mirá esto: [nombre del checklist, roadmap o recurso] → [LINK]
+- Mirá esto: [nombre del módulo correspondiente de la lista de arriba] → [link exacto del módulo]
 
 ## En segundo lugar
 Aquí debes poner únicamente los puntos importantes, pero no urgentes.
@@ -155,7 +179,7 @@ Aquí debes poner únicamente los puntos importantes, pero no urgentes.
 
 ### [NOMBRE EXACTO DEL PUNTO]
 - Enfocate en: [frase corta indicando qué área debe fortalecer]
-- Mirá esto: [nombre del checklist, roadmap o recurso] → [LINK]
+- Mirá esto: [nombre del módulo correspondiente de la lista de arriba] → [link exacto del módulo]
 
 ## Felicitaciones
 Aquí debes poner únicamente los puntos que ya están bien.
@@ -167,7 +191,7 @@ Aquí debes poner únicamente los puntos que ya están bien.
 
 ### [NOMBRE EXACTO DEL PUNTO]
 - Esto ya está bien: [frase corta y directa]
-- Seguí apoyándote en: [nombre del checklist, roadmap o recurso] → [LINK]
+- Seguí apoyándote en: [nombre del módulo correspondiente] → [link exacto del módulo]
 
 REGLAS FINALES:
 - No agregues introducción.
@@ -176,7 +200,8 @@ REGLAS FINALES:
 - No agregues cuello de botella.
 - No agregues prioridad estratégica.
 - No des instrucciones tácticas específicas dentro del texto.
-- Solo marca el foco correcto y deriva al roadmap, checklist o recurso indicado.`
+- Usá SIEMPRE links reales de la lista de módulos de arriba. Nunca uses [LINK] ni inventes URLs.
+- Solo marcá el foco correcto y derivá al módulo exacto.`
 
   let responseText = ""
   let rawResponse: any = null

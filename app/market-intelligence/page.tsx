@@ -1,6 +1,6 @@
 "use client"
-import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { useEffect, useMemo, useState } from "react";
+import { DashboardLayout, useActiveClient } from "@/components/layout/dashboard-layout";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getLatestResearchRequest, getResearchResult, getResearchHistory } from "@/lib/marketIntelligence";
 import { createClient } from "@/lib/supabase";
@@ -9,8 +9,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { AiLoading } from "@/components/ui/ai-loading";
+import { Trash2, ChevronDown, ChevronUp, ExternalLink, Clock, Youtube } from "lucide-react";
 
 export default function MarketIntelligencePage() {
+  return (
+    <DashboardLayout>
+      <MarketIntelligenceContent />
+    </DashboardLayout>
+  )
+}
+
+function MarketIntelligenceContent() {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
@@ -27,7 +37,11 @@ export default function MarketIntelligencePage() {
   const [userRole, setUserRole] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [hasSession, setHasSession] = useState<boolean>(true);
-  // Eliminado: const activeClientId = useActiveClient();
+  const [targetUserId, setTargetUserId] = useState<string>("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const activeClientId = useActiveClient();
 
   // Protección de sesión y carga de perfil
   useEffect(() => {
@@ -57,21 +71,40 @@ export default function MarketIntelligencePage() {
     loadUser();
   }, [router, supabase]);
 
-  // Cargar requests según usuario activo (admin puede cambiar de cliente)
-  // Eliminado: lógica de cambio de cliente para admin
-  const targetUserId = userId;
-
+  // Resolver el user_id del cliente activo seleccionado en el header
   useEffect(() => {
     if (!userId) return;
 
+    const resolveTarget = async () => {
+      if (!activeClientId) {
+        setTargetUserId(userId);
+        return;
+      }
+      // Buscar el user_id del perfil que corresponde al client_id seleccionado
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("client_id", activeClientId)
+        .maybeSingle();
+
+      setTargetUserId(profile?.id ?? userId);
+    };
+
+    resolveTarget();
+  }, [userId, activeClientId, supabase]);
+
+  // Cargar historial según el cliente activo
+  useEffect(() => {
+    if (!targetUserId) return;
+
     const fetchRequests = async () => {
-      const data = await getResearchHistory({ userId });
+      const data = await getResearchHistory({ userId: targetUserId });
       setRequests(data || []);
       setSelectedRequest(data && data.length ? data[0] : null);
     };
 
     fetchRequests();
-  }, [userId]);
+  }, [targetUserId]);
 
   // Cargar resultado del request seleccionado
   useEffect(() => {
@@ -142,28 +175,57 @@ export default function MarketIntelligencePage() {
     }
   };
 
+  const handleDelete = async (requestId: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    setDeletingId(requestId);
+    try {
+      await fetch("/api/market-intelligence/delete-request", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ request_id: requestId }),
+      });
+      setRequests((prev) => prev.filter((r) => r.id !== requestId));
+      if (selectedRequest?.id === requestId) {
+        setSelectedRequest(null);
+        setResult(null);
+      }
+      if (expandedId === requestId) setExpandedId(null);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
-    <DashboardLayout key={userId}>
-      <div className="px-4 py-12 max-w-4xl mx-auto space-y-12">
+    <div className="px-4 py-12 max-w-4xl mx-auto space-y-12">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-white mb-2">Smart Scale Market Intelligence IA 1.0</h1>
-          <h2 className="text-xl font-semibold text-gray-300 mb-4">Investigación Competitiva Automatizada con Inteligencia Artificial</h2>
-          <p className="text-muted-foreground text-lg">Esta plataforma utiliza IA avanzada para analizar y comparar competidores, detectar oportunidades y ayudarte a escalar tu negocio con insights accionables.</p>
+          <div className="flex items-center gap-2.5 mb-2">
+            <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-white/35">Smart Scale · IA 1.0</span>
+          </div>
+          <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Market Intelligence</h1>
+          <p className="text-sm text-white/40">Investigación competitiva automatizada con inteligencia artificial.</p>
         </div>
 
         {/* Sección 1 – Laboratorio de Inteligencia */}
-        <Card className="mb-8 p-6">
-          <h2 className="text-3xl font-bold mb-8 text-gray-100 tracking-tight">Laboratorio de Inteligencia de Mercado</h2>
+        <div className="mb-8 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-6">
+          <div className="flex items-center gap-2.5 mb-6">
+            <span className="h-3 w-[2px] rounded-full bg-[#ffde21]/60" />
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-white/50">Laboratorio de Inteligencia de Mercado</h2>
+          </div>
           {!hasSession ? (
             <div className="text-red-500 font-sans text-lg mb-4">No hay sesión activa. Por favor, inicia sesión para continuar.</div>
           ) : null}
           <form onSubmit={handleSubmit} className="space-y-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10" aria-disabled={!hasSession}>
               <div>
-                  <Label className="mb-2 block text-gray-400 font-sans text-lg">Entorno de Análisis</Label>
+                  <Label className="mb-2 block text-white/40 text-xs font-semibold uppercase tracking-wider">Entorno de Análisis</Label>
                 <Select value={platform} onValueChange={setPlatform}>
-                  <SelectTrigger className="w-full bg-black border border-gray-800 rounded-xl text-gray-200 text-lg font-sans">
+                  <SelectTrigger className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl text-white/80 text-sm">
                     <SelectValue placeholder="Selecciona entorno competitivo" />
                   </SelectTrigger>
                   <SelectContent>
@@ -172,9 +234,9 @@ export default function MarketIntelligencePage() {
                 </Select>
               </div>
               <div>
-                  <Label className="mb-2 block text-gray-400 font-sans text-lg">Horizonte Temporal</Label>
+                  <Label className="mb-2 block text-white/40 text-xs font-semibold uppercase tracking-wider">Horizonte Temporal</Label>
                 <Select value={timeframe} onValueChange={setTimeframe}>
-                  <SelectTrigger className="w-full bg-black border border-gray-800 rounded-xl text-gray-200 text-lg font-sans">
+                  <SelectTrigger className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl text-white/80 text-sm">
                     <SelectValue placeholder="Selecciona horizonte de análisis" />
                   </SelectTrigger>
                   <SelectContent>
@@ -188,158 +250,214 @@ export default function MarketIntelligencePage() {
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
               {[1,2,3,4,5].map(i => (
                 <div key={i}>
-                    <Label htmlFor={`competitor-url-${i}`} className="mb-2 block text-gray-400 font-sans text-lg">Referencia Estratégica {i}</Label>
+                    <Label htmlFor={`competitor-url-${i}`} className="mb-2 block text-white/40 text-[10px] font-semibold uppercase tracking-wider">Referencia {i}</Label>
                   <Input
                     id={`competitor-url-${i}`}
-                    placeholder="URL de referencia competitiva"
+                    placeholder="URL competidor"
                     value={competitors[i-1]}
                     onChange={e => handleCompetitorChange(i-1, e.target.value)}
-                    className="w-full bg-black border border-gray-800 rounded-xl text-gray-200 text-lg font-sans placeholder:text-gray-500"
+                    className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl text-white/80 text-sm placeholder:text-white/20"
                   />
                 </div>
               ))}
             </div>
             {error && <div className="text-red-500 mt-2 font-sans text-lg">{error}</div>}
             <div className="pt-6">
-                <Button type="submit" disabled={loading} className="w-full md:w-auto px-10 py-4 rounded-xl font-sans text-lg bg-gray-800 hover:bg-gray-700 text-gray-100 border border-gray-800 tracking-tight">
-                  {loading ? "Procesando..." : "Iniciar Investigación Ejecutiva"}
+                <Button type="submit" disabled={loading} className="w-full md:w-auto px-8 py-2.5 rounded-xl text-sm font-bold bg-[#ffde21] text-black hover:bg-[#ffe46b] disabled:opacity-50">
+                  {loading ? "Enviando…" : "Iniciar Investigación"}
                 </Button>
                 {!hasSession && (
                   <div className="text-red-500 mt-2 font-sans text-lg">Debes iniciar sesión para enviar una investigación.</div>
                 )}
             </div>
           </form>
-          <div className="mt-8 text-center text-yellow-400 text-lg font-semibold">Instagram en proceso</div>
-        </Card>
-
-        {/* Sección 2 – Historial de Investigaciones */}
-        <Card className="mb-8 p-6">
-          <h2 className="text-2xl font-bold font-sans mb-8 text-gray-100 tracking-tight">
-            Archivo de Investigaciones Estratégicas
-          </h2>
-
-          {requests && requests.length > 0 ? (
-            <div className="space-y-6">
-              {requests.map((req: any) => (
-                <div
-                  key={req.id}
-                  className="border border-gray-800 rounded-xl p-6 bg-black flex flex-col md:flex-row md:items-center md:justify-between gap-6"
-                >
-                  <div className="space-y-3">
-                    <div className="text-sm text-gray-400">
-                      {new Date(req.created_at).toLocaleString()}
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      {selectedRequest?.id === req.id ? (
-                        <ul className="flex flex-wrap gap-3">
-                          {Array.isArray(req.competitors)
-                            ? req.competitors.map((c: any, idx: number) => (
-                                <li
-                                  key={idx}
-                                  className="inline-block px-4 py-2 rounded bg-gray-900 text-xs text-gray-100 border border-gray-800 font-sans"
-                                >
-                                  {typeof c === "string"
-                                    ? c
-                                    : c?.name || "Competidor"}
-                                </li>
-                              ))
-                            : null}
-                        </ul>
-                      ) : (
-                        <span className="inline-block px-4 py-2 rounded bg-gray-900 text-xs text-gray-300 border border-gray-800 font-sans">
-                          {Array.isArray(req.competitors)
-                            ? `${req.competitors.length} referencias`
-                            : "Referencias"}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col md:flex-row md:items-center gap-3">
-                    {req.status === "completed" ? (
-                      <span className="inline-block px-4 py-2 rounded bg-gray-800 text-green-200 text-xs font-semibold border border-gray-800 tracking-tight">
-                        Completado
-                      </span>
-                    ) : req.status === "processing" ? (
-                      <span className="inline-block px-4 py-2 rounded bg-gray-800 text-gray-200 text-xs font-semibold border border-gray-800 tracking-tight">
-                        Procesando
-                      </span>
-                    ) : req.status === "failed" ? (
-                      <span className="inline-block px-4 py-2 rounded bg-gray-800 text-red-200 text-xs font-semibold border border-gray-800 tracking-tight">
-                        Fallido
-                      </span>
-                    ) : (
-                      <span className="inline-block px-4 py-2 rounded bg-gray-800 text-gray-300 text-xs font-semibold border border-gray-800 tracking-tight">
-                        Pendiente
-                      </span>
-                    )}
-
-                    <Button
-                      size="sm"
-                      variant={selectedRequest?.id === req.id ? "default" : "outline"}
-                      className="font-sans bg-black border border-gray-800 text-gray-200 hover:bg-gray-900 hover:border-green-700 px-6 py-2 rounded-xl text-base"
-                      onClick={() => {
-                        if (selectedRequest?.id === req.id) {
-                          setSelectedRequest(null);
-                        } else {
-                          setSelectedRequest(req);
-                        }
-                      }}
-                    >
-                      {selectedRequest?.id === req.id
-                        ? "Ocultar Detalle"
-                        : "Ver Detalle"}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-gray-400 font-sans text-lg">
-              No hay investigaciones estratégicas registradas.
+          {loading && (
+            <div className="mt-4 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+              <AiLoading
+                title="Iniciando investigación"
+                steps={[
+                  "Validando competidores…",
+                  "Conectando con la plataforma…",
+                  "Procesando solicitud…",
+                  "Esto puede tardar unos minutos…",
+                ]}
+              />
             </div>
           )}
-        </Card>
+        </div>
+
+        {/* Sección 2 – Historial de Investigaciones */}
+        <div className="mb-8 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
+          <div className="flex items-center justify-between border-b border-white/[0.06] px-6 py-4">
+            <div className="flex items-center gap-2.5">
+              <span className="h-3 w-[2px] rounded-full bg-[#ffde21]/60" />
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-white/50">Investigaciones anteriores</h2>
+            </div>
+            {requests.length > 0 && (
+              <span className="text-[10px] text-white/25 tabular-nums">{requests.length} registros</span>
+            )}
+          </div>
+
+          {requests && requests.length > 0 ? (
+            <div className="divide-y divide-white/[0.04]">
+              {requests.map((req: any) => {
+                const isExpanded = expandedId === req.id;
+                const isSelected = selectedRequest?.id === req.id;
+                const competitorCount = Array.isArray(req.competitors) ? req.competitors.length : 0;
+                const competitorNames = Array.isArray(req.competitors)
+                  ? req.competitors.map((c: any) => typeof c === "string" ? c : (c?.name || c?.channel_url || "Canal")).slice(0, 3)
+                  : [];
+
+                return (
+                  <div key={req.id} className="group transition-colors hover:bg-white/[0.015]">
+                    {/* Row */}
+                    <div className="flex items-center gap-3 px-6 py-4">
+                      {/* Platform icon */}
+                      <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.07]">
+                        <Youtube className="w-3.5 h-3.5 text-white/40" />
+                      </div>
+
+                      {/* Main info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                          <span className="text-sm font-medium text-white/80 truncate">
+                            {competitorCount} {competitorCount === 1 ? "competidor" : "competidores"} · {req.timeframe_days ?? "—"} días
+                          </span>
+                          {/* Status badge */}
+                          {req.status === "completed" ? (
+                            <span className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">Completado</span>
+                          ) : req.status === "processing" ? (
+                            <span className="inline-flex items-center rounded-full border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold text-blue-400">Procesando</span>
+                          ) : req.status === "failed" ? (
+                            <span className="inline-flex items-center rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-400">Fallido</span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-[10px] font-semibold text-white/40">Pendiente</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 text-[11px] text-white/30">
+                          <Clock className="w-3 h-3 flex-shrink-0" />
+                          <span className="tabular-nums">{new Date(req.created_at).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        {req.status === "completed" && (
+                          <button
+                            onClick={() => {
+                              if (isSelected) {
+                                setSelectedRequest(null);
+                              } else {
+                                setSelectedRequest(req);
+                                setTimeout(() => {
+                                  resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                                }, 80);
+                              }
+                            }}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-white/60 transition-colors hover:border-[#ffde21]/30 hover:bg-[#ffde21]/[0.06] hover:text-[#ffde21]"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            {isSelected ? "Ocultar" : "Ver análisis"}
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setExpandedId(isExpanded ? null : req.id)}
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg border border-white/[0.07] bg-white/[0.03] text-white/35 transition-colors hover:border-white/[0.12] hover:bg-white/[0.06] hover:text-white/60"
+                        >
+                          {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                        </button>
+                        <button
+                          onClick={() => handleDelete(req.id)}
+                          disabled={deletingId === req.id}
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg border border-white/[0.07] bg-white/[0.03] text-white/25 transition-colors hover:border-red-500/30 hover:bg-red-500/[0.08] hover:text-red-400 disabled:opacity-50"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Expanded competitors */}
+                    {isExpanded && (
+                      <div className="px-6 pb-4 pt-0">
+                        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                          <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30 mb-3">Referencias analizadas</p>
+                          <div className="flex flex-wrap gap-2">
+                            {Array.isArray(req.competitors)
+                              ? req.competitors.map((c: any, idx: number) => {
+                                  const name = typeof c === "string" ? c : (c?.name || c?.channel_url || `Competidor ${idx + 1}`);
+                                  const url = typeof c === "string" ? c : (c?.channel_url || null);
+                                  return (
+                                    <div key={idx} className="flex items-center gap-1.5 rounded-lg border border-white/[0.07] bg-white/[0.03] px-3 py-1.5">
+                                      <span className="text-xs text-white/60 truncate max-w-[200px]">{name}</span>
+                                      {url && (
+                                        <a href={url} target="_blank" rel="noopener noreferrer" className="text-white/25 hover:text-[#ffde21] transition-colors">
+                                          <ExternalLink className="w-3 h-3" />
+                                        </a>
+                                      )}
+                                    </div>
+                                  );
+                                })
+                              : <span className="text-xs text-white/30">Sin referencias</span>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl border border-white/[0.07] bg-white/[0.03] mb-3">
+                <Youtube className="w-5 h-5 text-white/20" />
+              </div>
+              <p className="text-sm text-white/35">No hay investigaciones registradas.</p>
+              <p className="text-xs text-white/20 mt-1">Iniciá una nueva investigación arriba.</p>
+            </div>
+          )}
+        </div>
 
         {/* Sección 3 – Estado del Análisis */}
-        <Card className="mb-8 p-6">
-          <h2 className="text-xl font-semibold mb-4">Estado del Análisis</h2>
+        <div ref={resultsRef} className="mb-8 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-6">
+          <div className="flex items-center gap-2.5 mb-5">
+            <span className="h-3 w-[2px] rounded-full bg-[#ffde21]/60" />
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-white/50">Estado del Análisis</h2>
+          </div>
           {selectedRequest ? (
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8 py-8">
-              <div className="flex items-center gap-4">
-                <span className="font-bold text-lg text-gray-300">Estado:</span>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-white/35 uppercase tracking-wider">Estado</span>
                 {selectedRequest.status === "completed" ? (
-                  <span className="inline-block px-4 py-2 rounded bg-gray-900 text-green-200 text-xs font-semibold border border-gray-800 tracking-tight">Completado</span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">Completado</span>
                 ) : selectedRequest.status === "processing" ? (
-                  <span className="inline-block px-4 py-2 rounded bg-gray-900 text-blue-200 text-xs font-semibold border border-gray-800 tracking-tight">Procesando</span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-400">Procesando</span>
                 ) : selectedRequest.status === "failed" ? (
-                  <span className="inline-block px-4 py-2 rounded bg-gray-900 text-red-200 text-xs font-semibold border border-gray-800 tracking-tight">Fallido</span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-400">Fallido</span>
                 ) : (
-                  <span className="inline-block px-4 py-2 rounded bg-gray-900 text-gray-300 text-xs font-semibold border border-gray-800 tracking-tight">Pendiente</span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/40">Pendiente</span>
                 )}
               </div>
-              <div className="flex items-center gap-4">
-                <span className="font-bold text-lg text-gray-300">Fecha de inicio:</span>
-                <span className="text-gray-100 font-bold text-lg">{new Date(selectedRequest.created_at).toLocaleString()}</span>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-white/35">Inicio:</span>
+                <span className="text-white/60 tabular-nums">{new Date(selectedRequest.created_at).toLocaleString()}</span>
               </div>
               <div className="w-full md:w-1/3">
-                {/* Barra de progreso mock */}
-                <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <div className={`h-2 ${selectedRequest.status === "completed" ? "bg-green-700 w-full" : selectedRequest.status === "processing" ? "bg-gray-600 w-2/4" : "bg-gray-700 w-1/4"}`} />
+                <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden mb-1.5">
+                  <div className={`h-1.5 rounded-full transition-all ${selectedRequest.status === "completed" ? "bg-emerald-500 w-full" : selectedRequest.status === "processing" ? "bg-blue-500 w-1/2" : "bg-white/20 w-1/4"}`} />
                 </div>
-                <span className="text-xs text-gray-400 font-bold">
+                <span className="text-[10px] text-white/30">
                   {selectedRequest.status === "completed" ? "100% completado" : selectedRequest.status === "processing" ? "50% completado" : "25% completado"}
                 </span>
                 {selectedRequest.status === "failed" && selectedRequest.error_message && (
-                  <div className="text-xs text-red-400 mt-2 font-bold">{selectedRequest.error_message}</div>
+                  <div className="text-xs text-red-400 mt-1">{selectedRequest.error_message}</div>
                 )}
               </div>
             </div>
           ) : (
-            <div className="text-gray-400 font-bold text-lg">No hay investigación seleccionada.</div>
+            <p className="text-white/35 text-sm">No hay investigación seleccionada.</p>
           )}
-        </Card>
+        </div>
 
         {/* Sección 4 – Resultados */}
         <Card className="p-6">
@@ -862,7 +980,6 @@ export default function MarketIntelligencePage() {
           )}
         </Card>
       </div>
-    </DashboardLayout>
   );
 }
 

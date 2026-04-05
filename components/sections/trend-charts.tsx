@@ -1,17 +1,48 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { createClient } from "@/lib/supabase"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
-  Bar, Line, BarChart, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ReferenceLine,
 } from "recharts"
 import { useActiveClient } from "@/components/layout/dashboard-layout"
 
-// helper: normaliza mes (YYYY-MM-01) y deja label corto
 function fmtMonthLabel(month: string) {
-  // month puede venir como "2025-12-01" (date) o "2025-12"
-  return String(month).slice(0, 7)
+  const s = String(month).slice(0, 7) // "2025-01"
+  const [year, mon] = s.split("-")
+  const names = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"]
+  const idx = parseInt(mon, 10) - 1
+  return `${names[idx] ?? mon} '${year.slice(2)}`
+}
+
+const TABS = [
+  { key: "cash_collected",  label: "Cash Collected",  type: "bar",  format: "money"  },
+  { key: "total_revenue",   label: "Total Revenue",   type: "bar",  format: "money"  },
+  { key: "new_clients",     label: "Nuevos Clientes", type: "area", format: "number" },
+  { key: "yt_subscribers",  label: "YouTube",         type: "area", format: "number" },
+  { key: "short_followers", label: "Instagram",       type: "area", format: "number" },
+] as const
+
+type TabKey = typeof TABS[number]["key"]
+
+const tooltipStyle = {
+  contentStyle: {
+    backgroundColor: "#111113",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: "12px",
+    boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
+  },
+  labelStyle: { color: "#ffffff", fontWeight: 700, marginBottom: 6, fontSize: 12 },
+  itemStyle: { color: "#ffde21", fontWeight: 600 },
 }
 
 export function TrendCharts() {
@@ -20,6 +51,7 @@ export function TrendCharts() {
   const [data, setData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<TabKey>("cash_collected")
 
   useEffect(() => {
     let mounted = true
@@ -33,31 +65,26 @@ export function TrendCharts() {
         if (mounted) {
           setLoading(true)
           setError(null)
-          setData([]) // ✅ reset SIEMPRE
+          setData([])
         }
         const supabase = createClient()
-        // 1) current user
         const { data: u, error: uErr } = await supabase.auth.getUser()
         if (uErr) throw uErr
         if (!u?.user) throw new Error("No session")
-        // 2) profile client_id (fallback)
         const { data: profile, error: pErr } = await supabase
           .from("profiles")
           .select("client_id")
           .eq("id", u.user.id)
           .single()
         if (pErr) throw pErr
-        // ✅ prioridad: activeClientId (seleccionado) -> fallback al profile.client_id
         const clientIdToUse = activeClientId || profile?.client_id
         if (!clientIdToUse) return
-        // 3) all monthly reports for charts
         const { data: reports, error: rErr } = await supabase
           .from("monthly_reports")
           .select("month, cash_collected, total_revenue, new_clients, yt_subscribers, short_followers")
           .eq("client_id", clientIdToUse)
           .order("month", { ascending: true })
         if (rErr) throw rErr
-        // ✅ si no hay data, dejamos [] (no heredamos nada)
         if (mounted) setData(Array.isArray(reports) ? reports : [])
       } catch (e: any) {
         if (mounted) setError(e?.message ?? "Error cargando métricas")
@@ -69,172 +96,154 @@ export function TrendCharts() {
     return () => { mounted = false }
   }, [activeClientId])
 
-  // ✅ forzar 0 en null/undefined, y label bonito
-  const cashCollectedData = data.map(r => ({ month: fmtMonthLabel(r.month), value: Number(r.cash_collected) || 0 }))
-  const totalRevenueData = data.map(r => ({ month: fmtMonthLabel(r.month), value: Number(r.total_revenue) || 0 }))
-  const newClientsData = data.map(r => ({ month: fmtMonthLabel(r.month), value: Number(r.new_clients) || 0 }))
-  const youtubeSubscribersData = data.map(r => ({ month: fmtMonthLabel(r.month), value: Number(r.yt_subscribers) || 0 }))
-  const shortformFollowersData = data.map(r => ({ month: fmtMonthLabel(r.month), value: Number(r.short_followers) || 0 }))
+  const activeConfig = TABS.find(t => t.key === activeTab) ?? TABS[0]
+
+  const chartData = useMemo(
+    () => data.map(r => ({ month: fmtMonthLabel(r.month), value: Number(r[activeConfig.key]) || 0 })),
+    [data, activeConfig.key]
+  )
+
+  const avg = useMemo(
+    () => chartData.length ? chartData.reduce((s, d) => s + d.value, 0) / chartData.length : 0,
+    [chartData]
+  )
+
+  const formatTick = (v: number) =>
+    activeConfig.format === "money"
+      ? `$${(v / 1000).toFixed(0)}k`
+      : v >= 1000
+      ? `${(v / 1000).toFixed(0)}k`
+      : String(v)
+
+  const formatTooltipVal = (v: number) =>
+    activeConfig.format === "money"
+      ? [`$${Number(v).toLocaleString()}`, activeConfig.label]
+      : [Number(v).toLocaleString(), activeConfig.label]
 
   return (
-    <section className="space-y-6">
-      {loading && <p className="text-white/60">Cargando métricas…</p>}
+    <section className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-white/70">Trend Analysis</h2>
+        </div>
+        {!loading && data.length > 0 && (
+          <span className="text-xs text-white/30 tabular-nums">{data.length} meses</span>
+        )}
+      </div>
 
-      <h2 className="text-lg font-semibold text-foreground">Trend Analysis</h2>
+      {/* Connected pill tab selector */}
+      <div className="inline-flex rounded-xl border border-white/[0.07] bg-white/[0.03] p-1 gap-0.5 flex-wrap">
+        {TABS.map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all duration-150 ${
+              activeTab === tab.key
+                ? "bg-[#ffde21] text-black shadow-sm"
+                : "text-white/45 hover:text-white/70"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-      {!loading && !error && data.length === 0 ? (
-        <p className="text-white/60">Este cliente todavía no tiene reportes cargados.</p>
-      ) : null}
+      {loading && <p className="text-white/40 text-sm">Cargando métricas…</p>}
+      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {!loading && !error && data.length === 0 && (
+        <p className="text-white/40 text-sm">Este cliente todavía no tiene reportes cargados.</p>
+      )}
 
-      <Card className="border-border bg-card transition-all duration-200 hover:border-muted-foreground/50 hover:shadow-lg hover:shadow-primary/5">
-        <CardHeader>
-          <CardTitle className="text-base font-medium text-white">Cash Collected</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={cashCollectedData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" opacity={0.2} />
-              <XAxis dataKey="month" stroke="#ffffff" fontSize={12} tickLine={false} />
-              <YAxis
-                stroke="#ffffff"
-                fontSize={12}
-                tickLine={false}
-                tickFormatter={(value) => `$${(Number(value) / 1000).toFixed(0)}k`}
-              />
-              <Tooltip
-                cursor={{ fill: "transparent" }}
-                contentStyle={{
-                  backgroundColor: "#ffffff",
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  borderRadius: "10px",
-                  boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-                }}
-                labelStyle={{ color: "#111827", fontWeight: 700, marginBottom: 8 }}
-                itemStyle={{ color: "#111827" }}
-                formatter={(value: number) => [`$${Number(value).toLocaleString()}`, "Cash Collected"]}
-              />
-              <Bar dataKey="value" fill="#ffde21" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-card transition-all duration-200 hover:border-muted-foreground/50 hover:shadow-lg hover:shadow-primary/5">
-        <CardHeader>
-          <CardTitle className="text-base font-medium text-white">Total Revenue</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={totalRevenueData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" opacity={0.2} />
-              <XAxis dataKey="month" stroke="#ffffff" fontSize={12} tickLine={false} />
-              <YAxis
-                stroke="#ffffff"
-                fontSize={12}
-                tickLine={false}
-                tickFormatter={(value) => `$${(Number(value) / 1000).toFixed(0)}k`}
-              />
-              <Tooltip
-                cursor={{ fill: "transparent" }}
-                contentStyle={{
-                  backgroundColor: "#ffffff",
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  borderRadius: "10px",
-                  boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-                }}
-                labelStyle={{ color: "#111827", fontWeight: 700, marginBottom: 8 }}
-                itemStyle={{ color: "#111827" }}
-                formatter={(value: number) => [`$${Number(value).toLocaleString()}`, "Total Revenue"]}
-              />
-              <Bar dataKey="value" fill="#ffde21" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-card transition-all duration-200 hover:border-muted-foreground/50 hover:shadow-lg hover:shadow-primary/5">
-        <CardHeader>
-          <CardTitle className="text-base font-medium text-white">Nuevos Clientes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={newClientsData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" opacity={0.2} />
-              <XAxis dataKey="month" stroke="#ffffff" fontSize={12} tickLine={false} />
-              <YAxis stroke="#ffffff" fontSize={12} tickLine={false} />
-              <Tooltip
-                cursor={{ fill: "transparent" }}
-                contentStyle={{
-                  backgroundColor: "#ffffff",
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  borderRadius: "10px",
-                  boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-                }}
-                labelStyle={{ color: "#111827", fontWeight: 700, marginBottom: 8 }}
-                itemStyle={{ color: "#111827" }}
-                formatter={(value: number) => [Number(value) || 0, "New Clients"]}
-              />
-              <Line type="monotone" dataKey="value" stroke="#ffde21" strokeWidth={3} dot={{ fill: "#ffde21", r: 5 }} activeDot={{ r: 7 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-card transition-all duration-200 hover:border-muted-foreground/50 hover:shadow-lg hover:shadow-primary/5">
-        <CardHeader>
-          <CardTitle className="text-base font-medium text-white">Suscriptores de Youtube</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={youtubeSubscribersData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" opacity={0.2} />
-              <XAxis dataKey="month" stroke="#ffffff" fontSize={12} tickLine={false} />
-              <YAxis stroke="#ffffff" fontSize={12} tickLine={false} tickFormatter={(v) => `${(Number(v) / 1000).toFixed(0)}k`} />
-              <Tooltip
-                cursor={{ fill: "transparent" }}
-                contentStyle={{
-                  backgroundColor: "#ffffff",
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  borderRadius: "10px",
-                  boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-                }}
-                labelStyle={{ color: "#111827", fontWeight: 700, marginBottom: 8 }}
-                itemStyle={{ color: "#111827" }}
-                formatter={(value: number) => [Number(value).toLocaleString(), "YouTube Subscribers"]}
-              />
-              <Line type="monotone" dataKey="value" stroke="#ffde21" strokeWidth={3} dot={{ fill: "#ffde21", r: 5 }} activeDot={{ r: 7 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border bg-card transition-all duration-200 hover:border-muted-foreground/50 hover:shadow-lg hover:shadow-primary/5">
-        <CardHeader>
-          <CardTitle className="text-base font-medium text-white">Seguidores de Instagram</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={shortformFollowersData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" opacity={0.2} />
-              <XAxis dataKey="month" stroke="#ffffff" fontSize={12} tickLine={false} />
-              <YAxis stroke="#ffffff" fontSize={12} tickLine={false} tickFormatter={(v) => `${(Number(v) / 1000).toFixed(0)}k`} />
-              <Tooltip
-                cursor={{ fill: "transparent" }}
-                contentStyle={{
-                  backgroundColor: "#ffffff",
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  borderRadius: "10px",
-                  boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-                }}
-                labelStyle={{ color: "#111827", fontWeight: 700, marginBottom: 8 }}
-                itemStyle={{ color: "#111827" }}
-                formatter={(value: number) => [Number(value).toLocaleString(), "Short-form Followers"]}
-              />
-              <Line type="monotone" dataKey="value" stroke="#ffde21" strokeWidth={3} dot={{ fill: "#ffde21", r: 5 }} activeDot={{ r: 7 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      {!loading && data.length > 0 && (
+        <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,222,33,0.04),transparent_60%)]" />
+          <div className="relative border-b border-white/[0.06] px-5 py-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-white">{activeConfig.label}</p>
+              {avg > 0 && (
+                <span className="text-xs text-white/35 tabular-nums">
+                  Promedio:{" "}
+                  {activeConfig.format === "money"
+                    ? `$${Math.round(avg).toLocaleString()}`
+                    : Math.round(avg).toLocaleString()}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="p-5">
+            <ResponsiveContainer width="100%" height={320}>
+              {activeConfig.type === "bar" ? (
+                <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#ffde21" stopOpacity={1} />
+                      <stop offset="100%" stopColor="#f5c800" stopOpacity={0.85} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" opacity={0.08} />
+                  <XAxis dataKey="month" stroke="#ffffff60" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#ffffff60" fontSize={11} tickLine={false} axisLine={false} tickFormatter={formatTick} />
+                  <Tooltip
+                    cursor={{ fill: "rgba(255,222,33,0.05)" }}
+                    contentStyle={tooltipStyle.contentStyle}
+                    labelStyle={tooltipStyle.labelStyle}
+                    itemStyle={tooltipStyle.itemStyle}
+                    formatter={formatTooltipVal}
+                  />
+                  {avg > 0 && (
+                    <ReferenceLine
+                      y={avg}
+                      stroke="#ffde21"
+                      strokeDasharray="5 4"
+                      strokeOpacity={0.35}
+                      label={{ value: "avg", position: "insideTopRight", fill: "#ffde2166", fontSize: 10 }}
+                    />
+                  )}
+                  <Bar dataKey="value" fill="url(#barGrad)" radius={[5, 5, 0, 0]} maxBarSize={48} />
+                </BarChart>
+              ) : (
+                <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="#ffde21" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#ffde21" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" opacity={0.08} />
+                  <XAxis dataKey="month" stroke="#ffffff60" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#ffffff60" fontSize={11} tickLine={false} axisLine={false} tickFormatter={formatTick} />
+                  <Tooltip
+                    cursor={{ stroke: "#ffde2140", strokeWidth: 1 }}
+                    contentStyle={tooltipStyle.contentStyle}
+                    labelStyle={tooltipStyle.labelStyle}
+                    itemStyle={tooltipStyle.itemStyle}
+                    formatter={formatTooltipVal}
+                  />
+                  {avg > 0 && (
+                    <ReferenceLine
+                      y={avg}
+                      stroke="#ffde21"
+                      strokeDasharray="5 4"
+                      strokeOpacity={0.35}
+                      label={{ value: "avg", position: "insideTopRight", fill: "#ffde2166", fontSize: 10 }}
+                    />
+                  )}
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#ffde21"
+                    strokeWidth={2.5}
+                    fill="url(#areaGrad)"
+                    dot={{ fill: "#ffde21", r: 4, strokeWidth: 0 }}
+                    activeDot={{ r: 6, fill: "#ffde21", strokeWidth: 2, stroke: "#000" }}
+                  />
+                </AreaChart>
+              )}
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

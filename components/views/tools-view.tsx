@@ -1,6 +1,5 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ExternalLink, FileText, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -27,11 +26,14 @@ export function ToolsSection({
   variant?: "gpt" | "form"
 }) {
   return (
-    <section className={cn("space-y-6", className)}>
+    <section className={cn("space-y-5", className)}>
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
+        <div className="flex items-center gap-2.5 mb-1">
+          <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-white/70">{title}</h2>
+        </div>
         {subtitle && (
-          <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+          <p className="text-xs text-white/30 ml-[18px]">{subtitle}</p>
         )}
       </div>
 
@@ -41,67 +43,64 @@ export function ToolsSection({
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {tools.map((t) => (
-          <Card
+          <div
             key={t.href}
-            className="relative overflow-hidden border-border bg-gradient-to-br from-neutral-900 via-neutral-950 to-black transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,222,33,0.15)] hover:border-[#ffde21]/30"
+            className="group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] transition-all duration-200 hover:border-[#ffde21]/25 hover:shadow-[0_0_40px_rgba(255,222,33,0.07)]"
           >
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,222,33,0.12),transparent_55%)]" />
+            <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/40 via-[#ffde21]/20 to-transparent" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.05),transparent_55%)]" />
 
-            <CardHeader className="relative pb-4">
-              <CardTitle className="flex items-center gap-4">
-                <div className="relative h-12 w-12 rounded-xl bg-black/60 ring-1 ring-white/10 flex items-center justify-center">
+            <div className="relative p-5 space-y-4">
+              {/* Header row */}
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#ffde21]/10 ring-1 ring-[#ffde21]/15">
                   {variant === "gpt" ? (
-                    <Sparkles className="h-6 w-6 text-[#ffde21]" />
+                    <Sparkles className="h-5 w-5 text-[#ffde21]" />
                   ) : (
-                    <FileText className="h-6 w-6 text-[#ffde21]" />
+                    <FileText className="h-5 w-5 text-[#ffde21]" />
                   )}
                 </div>
-
-                <div className="flex-1">
-                  <div className="text-lg font-semibold text-foreground tracking-tight">
-                    {t.name}
-                  </div>
-                  <div className="mt-0.5 text-xs uppercase tracking-wider text-[#ffde21]">
-                    {variant === "gpt" ? "AI TOOL" : "FORM"}
-                  </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-white tracking-tight leading-tight">{t.name}</p>
+                  <p className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-[#ffde21]/60">
+                    {variant === "gpt" ? "AI Tool" : "Form"}
+                  </p>
                 </div>
+                <ExternalLink className="h-3.5 w-3.5 text-white/20 flex-shrink-0 mt-0.5" />
+              </div>
 
-                <ExternalLink className="h-4 w-4 text-white/30" />
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent className="relative space-y-5">
-              <p className="text-sm leading-relaxed text-white/70 max-w-prose">
+              {/* Description */}
+              <p className="text-xs leading-relaxed text-white/50">
                 {t.description}
               </p>
 
-              {variant === "gpt" ? (
-                <div className="flex items-center gap-3">
-                  <Image
-                    src="/avatar-Ann.png"
-                    alt="Ann"
-                    width={36}
-                    height={36}
-                    className="rounded-full ring-1 ring-white/20"
-                  />
-                  <div className="text-xs">
-                    <div className="text-white/80">Creado por Ann</div>
-                    <div className="text-white/40">Custom GPT</div>
+              {/* Footer */}
+              <div className="flex items-center justify-between pt-1">
+                {variant === "gpt" ? (
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src="/avatar-Ann.png"
+                      alt="Ann"
+                      width={24}
+                      height={24}
+                      className="rounded-full ring-1 ring-white/15"
+                    />
+                    <span className="text-xs text-white/35">por Ann</span>
                   </div>
-                </div>
-              ) : null}
+                ) : <div />}
 
-              <Button
-                asChild
-                size="sm"
-                className="w-full bg-[#ffde21] text-black hover:bg-[#ffe46b]"
-              >
-                <Link href={t.href} target="_blank" rel="noreferrer">
-                  {variant === "gpt" ? "Abrir en ChatGPT" : "Abrir formulario"}
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+                <Button
+                  asChild
+                  size="sm"
+                  className="h-7 rounded-lg bg-[#ffde21] px-3 text-xs font-bold text-black hover:bg-[#ffe46b]"
+                >
+                  <Link href={t.href} target="_blank" rel="noreferrer">
+                    {variant === "gpt" ? "Abrir →" : "Abrir →"}
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </section>
@@ -150,6 +149,13 @@ export function ToolsView() {
               "GPT para armar el setting flow de DMs y mejorar el cierre por conversación.",
             href:
               "https://chatgpt.com/g/g-69541576dd98819189c7b14b046cc897-dm-close-coach-by-smart-scale",
+          },
+          {
+            name: "Offer Doc Builder",
+            description:
+              "GPT para crear y estructurar tu Offer Doc de ventas de forma rápida y profesional.",
+            href:
+              "https://chatgpt.com/g/g-69aef7270b348191b697c282ca70772b-offer-doc-builder",
           },
         ]}
       />
