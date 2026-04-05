@@ -237,53 +237,23 @@ async function getYouTubeMetadata(videoId: string) {
 // ─── YouTube transcript ───────────────────────────────────────────────────────
 
 async function getYouTubeTranscript(videoId: string): Promise<string | null> {
-  const apifyToken = process.env.APIFY_API_TOKEN
-
-  // Try 1: youtube-transcript via Apify residential proxy (bypasses IP blocks)
-  if (apifyToken) {
-    try {
-      const { ProxyAgent, fetch: proxyFetch } = await import("undici")
-      const proxyUrl = `http://auto:${apifyToken}@proxy.apify.com:8000`
-      const dispatcher = new ProxyAgent(proxyUrl)
-
-      // Fetch YouTube watch page through proxy
-      const pageRes = await proxyFetch(`https://www.youtube.com/watch?v=${videoId}`, {
-        dispatcher,
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          "Accept-Language": "es,en;q=0.9",
-        },
-      }) as any
-
-      if (pageRes.ok) {
-        const html = await pageRes.text()
-        const captionMatch = html.match(/"captionTracks":\s*(\[.*?\])/)
-        if (captionMatch) {
-          const tracks = JSON.parse(captionMatch[1])
-          const track = tracks.find((t: any) => t.languageCode === "es")
-            ?? tracks.find((t: any) => t.languageCode === "en")
-            ?? tracks.find((t: any) => t.kind === "asr")
-            ?? tracks[0]
-          if (track?.baseUrl) {
-            const capRes = await proxyFetch(track.baseUrl + "&fmt=json3", { dispatcher }) as any
-            if (capRes.ok) {
-              const data = await capRes.json()
-              const text = (data?.events ?? [])
-                .filter((e: any) => e.segs)
-                .flatMap((e: any) => e.segs.map((s: any) => s.utf8 ?? ""))
-                .join(" ").replace(/\s+/g, " ").trim()
-              if (text) { console.log("[transcript] proxy ok, chars:", text.length); return text }
-            }
-          }
-        }
-        console.log("[transcript] proxy page ok but no captions found")
-      } else {
-        console.log("[transcript] proxy page error:", pageRes.status)
-      }
-    } catch (e: any) {
-      console.log("[transcript] proxy exception:", e?.message)
+  // Try: youtube-transcript library
+  try {
+    const { YoutubeTranscript } = await import("youtube-transcript")
+    const langs = ["es", "en"]
+    for (const lang of langs) {
+      try {
+        const segments = await YoutubeTranscript.fetchTranscript(videoId, { lang })
+        const text = segments.map((t: any) => t.text).join(" ").trim()
+        if (text) return text
+      } catch {}
     }
-  }
+    try {
+      const segments = await YoutubeTranscript.fetchTranscript(videoId)
+      const text = segments.map((t: any) => t.text).join(" ").trim()
+      if (text) return text
+    } catch {}
+  } catch {}
 
   // Try 2: youtube-transcript library
   try {

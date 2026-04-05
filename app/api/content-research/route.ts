@@ -230,7 +230,7 @@ async function apifyInstagramTranscript(postUrl: string): Promise<string | null>
   if (!token) return null
   try {
     const res = await fetch(
-      `https://api.apify.com/v2/acts/apify~instagram-reel-scraper/run-sync-get-dataset-items?token=${token}&timeout=60`,
+      `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${token}&timeout=60`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -262,7 +262,7 @@ async function apifyInstagramTranscript(postUrl: string): Promise<string | null>
 async function getTopInstagramPosts(username: string, timeframeDays: number) {
   const since = new Date(Date.now() - timeframeDays * 86_400_000).toISOString().split("T")[0]
 
-  const items = await apifyRunSync("apify~instagram-reel-scraper", {
+  const items = await apifyRunSync("apify~instagram-scraper", {
     directUrls: [`https://www.instagram.com/${username}/`],
     resultsType: "posts",
     resultsLimit: 50,

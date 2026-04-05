@@ -61,7 +61,7 @@ async function apifyRunSync(actorId: string, input: object, timeoutSecs = 120): 
 // ─── Instagram via Apify ──────────────────────────────────────────────────────
 
 async function researchInstagramApify(url: string) {
-  const items = await apifyRunSync("apify~instagram-reel-scraper", {
+  const items = await apifyRunSync("apify~instagram-scraper", {
     directUrls: [url],
     resultsType: "posts",
     resultsLimit: 1,

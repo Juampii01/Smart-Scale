@@ -89,7 +89,7 @@ async function getInstagramPosts(url: string, limit = 50) {
   const username = url.match(/instagram\.com\/([^\/\?&]+)/)?.[1] ?? url.replace(/.*instagram\.com\/?/, "").replace(/\/$/, "")
 
   const res = await fetch(
-    `https://api.apify.com/v2/acts/apify~instagram-reel-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
+    `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
