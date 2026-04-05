@@ -88,18 +88,46 @@ async function getInstagramPosts(url: string, limit = 50) {
   const token = process.env.APIFY_API_TOKEN!
   const username = url.match(/instagram\.com\/([^\/\?&]+)/)?.[1] ?? url.replace(/.*instagram\.com\/?/, "").replace(/\/$/, "")
 
-  // Try apify~instagram-profile-scraper first (free), fallback to instagram-scraper
-  let res = await fetch(
-    `https://api.apify.com/v2/acts/apify~instagram-profile-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ usernames: [username], resultsLimit: limit }),
-      signal: AbortSignal.timeout(135_000),
+  // Try Instagram unofficial API first (no Apify needed)
+  let items: any[] = []
+  try {
+    const igRes = await fetch(
+      `https://www.instagram.com/api/v1/users/web_profile_info/?username=${username}`,
+      {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "X-IG-App-ID": "936619743392459",
+          "X-Requested-With": "XMLHttpRequest",
+          "Referer": `https://www.instagram.com/${username}/`,
+        },
+        signal: AbortSignal.timeout(15_000),
+      }
+    )
+    if (igRes.ok) {
+      const data = await igRes.json()
+      const edges = data?.data?.user?.edge_owner_to_timeline_media?.edges ?? []
+      items = edges.map((e: any) => {
+        const n = e.node
+        return {
+          id: n.id, shortCode: n.shortcode,
+          caption: n.edge_media_to_caption?.edges?.[0]?.node?.text ?? "",
+          timestamp: n.taken_at_timestamp ? new Date(n.taken_at_timestamp * 1000).toISOString() : null,
+          likesCount: n.edge_media_preview_like?.count ?? 0,
+          commentsCount: n.edge_media_to_comment?.count ?? 0,
+          videoPlayCount: n.video_view_count ?? null,
+          videoDuration: n.video_duration ?? null,
+          displayUrl: n.display_url ?? null,
+          url: `https://www.instagram.com/p/${n.shortcode}/`,
+          ownerUsername: username,
+          type: n.is_video ? "Video" : "Image",
+        }
+      })
     }
-  )
-  if (!res.ok) {
-    res = await fetch(
+  } catch {}
+
+  // Fallback to Apify if needed
+  if (!items.length) {
+    const res = await fetch(
       `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
       {
         method: "POST",
@@ -108,9 +136,8 @@ async function getInstagramPosts(url: string, limit = 50) {
         signal: AbortSignal.timeout(135_000),
       }
     )
+    if (res.ok) items = await res.json()
   }
-  if (!res.ok) throw new Error(`Instagram scraper error ${res.status}`)
-  const items = await res.json()
   if (!Array.isArray(items) || !items.length) throw new Error("No se encontraron posts en este perfil.")
 
   const profile = items[0]

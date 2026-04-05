@@ -259,24 +259,63 @@ async function apifyInstagramTranscript(postUrl: string): Promise<string | null>
   }
 }
 
+async function scrapeInstagramProfile(username: string): Promise<any[]> {
+  // Try Instagram's unofficial web API (no auth required)
+  const headers = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept": "*/*",
+    "Accept-Language": "es,en;q=0.9",
+    "X-IG-App-ID": "936619743392459",
+    "X-Requested-With": "XMLHttpRequest",
+    "Referer": `https://www.instagram.com/${username}/`,
+  }
+
+  try {
+    const res = await fetch(
+      `https://www.instagram.com/api/v1/users/web_profile_info/?username=${username}`,
+      { headers, signal: AbortSignal.timeout(15_000) }
+    )
+    if (res.ok) {
+      const data = await res.json()
+      const edges = data?.data?.user?.edge_owner_to_timeline_media?.edges ?? []
+      return edges.map((e: any) => {
+        const n = e.node
+        return {
+          id:             n.id,
+          shortCode:      n.shortcode,
+          caption:        n.edge_media_to_caption?.edges?.[0]?.node?.text ?? "",
+          timestamp:      n.taken_at_timestamp ? new Date(n.taken_at_timestamp * 1000).toISOString() : null,
+          likesCount:     n.edge_media_preview_like?.count ?? 0,
+          commentsCount:  n.edge_media_to_comment?.count ?? 0,
+          videoPlayCount: n.video_view_count ?? null,
+          videoDuration:  n.video_duration ?? null,
+          displayUrl:     n.display_url ?? null,
+          url:            `https://www.instagram.com/p/${n.shortcode}/`,
+          ownerUsername:  username,
+        }
+      })
+    }
+  } catch {}
+
+  // Fallback: Apify if available
+  const token = process.env.APIFY_API_TOKEN
+  if (token) {
+    try {
+      return await apifyRunSync("apify~instagram-scraper", {
+        directUrls: [`https://www.instagram.com/${username}/`],
+        resultsType: "posts",
+        resultsLimit: 50,
+        addParentData: false,
+      }, 120)
+    } catch {}
+  }
+
+  return []
+}
+
 async function getTopInstagramPosts(username: string, timeframeDays: number) {
   const since = new Date(Date.now() - timeframeDays * 86_400_000).toISOString().split("T")[0]
-
-  let items: any[] = []
-  try {
-    items = await apifyRunSync("apify~instagram-profile-scraper", {
-      usernames: [username],
-      resultsLimit: 50,
-    }, 120)
-  } catch {}
-  if (!items.length) {
-    items = await apifyRunSync("apify~instagram-scraper", {
-      directUrls: [`https://www.instagram.com/${username}/`],
-      resultsType: "posts",
-      resultsLimit: 50,
-      addParentData: false,
-    }, 120)
-  }
+  const items = await scrapeInstagramProfile(username)
 
   const filtered = items
     .filter((item: any) => {
