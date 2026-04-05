@@ -242,20 +242,32 @@ async function getYouTubeTranscript(videoId: string): Promise<string | null> {
   if (apifyToken) {
     try {
       const res = await fetch(
-        `https://api.apify.com/v2/acts/codepoetry~youtube-transcript-ai-scraper/run-sync-get-dataset-items?token=${apifyToken}&timeout=60`,
+        `https://api.apify.com/v2/acts/codepoetry~youtube-transcript-ai-scraper/run-sync-get-dataset-items?token=${apifyToken}&timeout=90`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ startUrls: [{ url: `https://www.youtube.com/watch?v=${videoId}` }] }),
-          signal: AbortSignal.timeout(75_000),
+          signal: AbortSignal.timeout(105_000),
         }
       )
       if (res.ok) {
         const data = await res.json()
-        const text = Array.isArray(data) ? (data[0]?.transcript_text ?? data[0]?.captions_text ?? null) : null
+        console.log("[transcript] apify response keys:", Array.isArray(data) && data[0] ? Object.keys(data[0]).join(",") : JSON.stringify(data).slice(0, 200))
+        const item = Array.isArray(data) ? data[0] : null
+        const text = item?.transcript_text
+          ?? item?.captions_text
+          ?? item?.transcript
+          ?? item?.text
+          ?? item?.subtitles
+          ?? (Array.isArray(item?.captions) ? item.captions.map((c: any) => c.text ?? c).join(" ") : null)
+          ?? null
         if (typeof text === "string" && text.trim()) return text.trim()
+      } else {
+        console.log("[transcript] apify error:", res.status, await res.text().catch(() => ""))
       }
-    } catch {}
+    } catch (e: any) {
+      console.log("[transcript] apify exception:", e?.message)
+    }
   }
 
   // Try 2: youtube-transcript library
