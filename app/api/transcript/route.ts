@@ -237,65 +237,56 @@ async function getYouTubeMetadata(videoId: string) {
 // ─── YouTube transcript ───────────────────────────────────────────────────────
 
 async function getYouTubeTranscript(videoId: string): Promise<string | null> {
-  const apifyToken = process.env.APIFY_API_TOKEN
+  // Try 1: yt.lemnoslife.com — public proxy API (no IP blocks)
+  try {
+    const res = await fetch(
+      `https://yt.lemnoslife.com/noKey/videos?part=transcript&id=${videoId}`,
+      { signal: AbortSignal.timeout(15_000) }
+    )
+    if (res.ok) {
+      const data = await res.json()
+      const segments = data?.items?.[0]?.transcript?.segments ?? data?.items?.[0]?.transcript
+      if (Array.isArray(segments) && segments.length) {
+        const text = segments.map((s: any) => s.text ?? s.snippet ?? s).filter(Boolean).join(" ").trim()
+        if (text) return text
+      }
+      console.log("[transcript] lemnoslife response:", JSON.stringify(data)?.slice(0, 300))
+    } else {
+      console.log("[transcript] lemnoslife error:", res.status)
+    }
+  } catch (e: any) {
+    console.log("[transcript] lemnoslife exception:", e?.message)
+  }
 
-  // Try 1: codepoetry~youtube-transcript-ai-scraper
-  if (apifyToken) {
+  // Try 2: YouTube timedtext API direct (works for auto-generated captions)
+  for (const lang of ["es", "en", ""]) {
     try {
+      const langParam = lang ? `&lang=${lang}` : ""
       const res = await fetch(
-        `https://api.apify.com/v2/acts/codepoetry~youtube-transcript-ai-scraper/run-sync-get-dataset-items?token=${apifyToken}&timeout=90`,
+        `https://www.youtube.com/api/timedtext?v=${videoId}${langParam}&fmt=json3`,
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            startUrls: [{ url: `https://www.youtube.com/watch?v=${videoId}` }],
-            language: "auto",
-          }),
-          signal: AbortSignal.timeout(105_000),
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept-Language": "es,en;q=0.9",
+            "Referer": "https://www.youtube.com/",
+          },
+          signal: AbortSignal.timeout(8_000),
         }
       )
       if (res.ok) {
         const data = await res.json()
-        const item = Array.isArray(data) ? data[0] : null
-        console.log("[transcript] codepoetry item:", JSON.stringify(item)?.slice(0, 300))
-        const text = item?.transcript_text ?? item?.captions_text ?? item?.transcript ?? item?.text ?? null
-        if (typeof text === "string" && text.trim()) return text.trim()
-        if (item?.error) console.log("[transcript] codepoetry actor error:", item.error, item.error_code)
-      } else {
-        console.log("[transcript] codepoetry http error:", res.status)
+        const events = data?.events ?? []
+        const text = events
+          .filter((e: any) => e.segs)
+          .flatMap((e: any) => e.segs.map((s: any) => s.utf8 ?? ""))
+          .join(" ")
+          .replace(/\s+/g, " ")
+          .trim()
+        if (text) { console.log("[transcript] timedtext ok lang:", lang || "auto"); return text }
       }
-    } catch (e: any) {
-      console.log("[transcript] codepoetry exception:", e?.message)
-    }
+    } catch {}
   }
-
-  // Try 2: karamelo~youtube-videos-subtitles
-  if (apifyToken) {
-    try {
-      const res = await fetch(
-        `https://api.apify.com/v2/acts/karamelo~youtube-videos-subtitles/run-sync-get-dataset-items?token=${apifyToken}&timeout=60`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: `https://www.youtube.com/watch?v=${videoId}` }),
-          signal: AbortSignal.timeout(75_000),
-        }
-      )
-      if (res.ok) {
-        const data = await res.json()
-        const item = Array.isArray(data) ? data[0] : null
-        console.log("[transcript] karamelo item:", JSON.stringify(item)?.slice(0, 300))
-        const subs = item?.subtitles ?? item?.transcript ?? item?.text ?? null
-        if (Array.isArray(subs)) return subs.map((s: any) => s.text ?? s).join(" ").trim()
-        if (typeof subs === "string" && subs.trim()) return subs.trim()
-      } else {
-        const errText = await res.text().catch(() => "")
-        console.log("[transcript] karamelo http error:", res.status, errText.slice(0, 200))
-      }
-    } catch (e: any) {
-      console.log("[transcript] karamelo exception:", e?.message)
-    }
-  }
+  console.log("[transcript] timedtext failed")
 
   // Try 2: youtube-transcript library
   try {
