@@ -98,12 +98,7 @@ async function getTopVideos(channelId: string, timeframeDays: number) {
     .sort((a: any, b: any) => b.views - a.views)
     .slice(0, 5)
 
-  // Transcribe all 5 videos in parallel
-  const transcripts = await Promise.all(
-    top5.map((v: any) => getYouTubeTranscript(v.video_id))
-  )
-
-  return top5.map((v: any, i: number) => ({ ...v, transcript: transcripts[i] ?? null }))
+  return top5.map((v: any) => ({ ...v, transcript: null }))
 }
 
 function parseDuration(iso: string): string {

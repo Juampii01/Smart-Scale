@@ -198,9 +198,12 @@ async function researchYouTube(videoId: string) {
 async function getYouTubeTranscript(videoId: string): Promise<string | null> {
   try {
     const { YoutubeTranscript } = await import("youtube-transcript")
-    const segments = await YoutubeTranscript.fetchTranscript(videoId, { lang: "es" })
-      .catch(() => YoutubeTranscript.fetchTranscript(videoId))
-    return segments.map((t: any) => t.text).join(" ")
+    const segments = await Promise.race([
+      YoutubeTranscript.fetchTranscript(videoId, { lang: "es" })
+        .catch(() => YoutubeTranscript.fetchTranscript(videoId)),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 8000)),
+    ])
+    return (segments as any[]).map((t: any) => t.text).join(" ")
   } catch {
     return null
   }
