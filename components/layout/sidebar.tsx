@@ -29,7 +29,7 @@ const NAV_GROUPS = [
     label: "Programa",
     items: [
       { name: "Audit",                    href: "/audit",               icon: ClipboardList },
-      { name: "Program Checklist",        href: "/program-checklist",   icon: Zap },
+      { name: "Implementacion",            href: "/program-checklist",   icon: Zap },
       { name: "Tools",                    href: "/tools",               icon: Wrench },
       { name: "Agenda",                   href: "/calendar",            icon: CalendarDays },
     ],

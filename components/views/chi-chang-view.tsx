@@ -7,13 +7,11 @@ import { CheckCircle, AlertCircle, Loader2, Trophy } from "lucide-react"
 
 const NIVEL_OPTIONS = [
   "Seleccioná un nivel",
-  "$3K — Primer cliente",
-  "$5K — Tracción inicial",
-  "$10K — Mes consistente",
-  "$20K — Escala real",
-  "$30K — Operación sólida",
-  "$50K — Top performer",
-  "Otro",
+  "$10K",
+  "$20K",
+  "$40K",
+  "$50K",
+  "$100K",
 ]
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
@@ -37,7 +35,6 @@ export function ChiChangView() {
   const [valorTrato, setValorTrato] = useState("")
   const [cashCollected, setCashCollected] = useState("")
   const [proximoNivel, setProximoNivel] = useState("")
-  const [notas, setNotas] = useState("")
 
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [message, setMessage] = useState("")
@@ -75,7 +72,6 @@ export function ChiChangView() {
           valor_trato:    valorTrato,
           cash_collected: cashCollected,
           proximo_nivel:  proximoNivel || null,
-          notas:          notas || null,
         }),
       })
 
@@ -86,7 +82,6 @@ export function ChiChangView() {
       setValorTrato("")
       setCashCollected("")
       setProximoNivel("")
-      setNotas("")
       setFecha(new Date().toISOString().slice(0, 10))
 
       setStatus("success")
@@ -175,15 +170,6 @@ export function ChiChangView() {
             </select>
           </Field>
 
-          <Field label="Notas">
-            <textarea
-              rows={3}
-              placeholder="Cualquier detalle adicional sobre este trato…"
-              value={notas}
-              onChange={(e) => setNotas(e.target.value)}
-              className={inputCls + " resize-none"}
-            />
-          </Field>
         </div>
       </div>
 

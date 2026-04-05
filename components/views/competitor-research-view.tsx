@@ -419,110 +419,80 @@ function PostRow({ post, isAdmin, onDelete }: RowProps) {
           onCancel={() => setConfirmDelete(false)}
         />
       )}
-      {/* Main compact row */}
-      <tr
-        className={`border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors cursor-pointer ${expanded ? "bg-white/[0.02]" : ""}`}
-        onClick={() => setExpanded(v => !v)}
-      >
-        {/* Creator */}
-        <td className="px-4 py-3 whitespace-nowrap">
-          <span className="text-sm font-medium text-white/80">{post.creator}</span>
-        </td>
 
-        {/* Post URL */}
-        <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
-          {post.post_url ? (
-            <a href={post.post_url} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-[#ffde21] hover:text-[#ffe84d] transition-colors">
-              View <ExternalLink className="h-3 w-3" />
-            </a>
-          ) : <span className="text-white/20 text-xs">—</span>}
-        </td>
+      <div className={`rounded-2xl border transition-all duration-200 bg-[#111113] ${expanded ? "border-[#ffde21]/20" : "border-white/[0.07]"}`}>
+        {/* Card header — always visible */}
+        <div
+          className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-white/[0.02] transition-colors rounded-2xl"
+          onClick={() => setExpanded(v => !v)}
+        >
+          <div className="flex items-center gap-4 min-w-0">
+            {/* Creator */}
+            <p className="text-base font-semibold text-white whitespace-nowrap">{post.creator}</p>
 
-        {/* Description — always truncated in compact row */}
-        <td className="px-4 py-3 max-w-[200px]">
-          <span className="text-xs text-white/50 leading-relaxed">
-            {post.description ? truncate(post.description, 60) : <span className="text-white/20">—</span>}
-          </span>
-        </td>
+            {/* Metrics */}
+            <div className="hidden sm:flex items-center gap-4">
+              <span className="flex items-center gap-1.5 text-sm text-white/60">
+                <TrendingUp className="h-3.5 w-3.5 text-[#ffde21]/50" />
+                <span className="font-semibold text-white">{fmt(post.views)}</span>
+                <span className="text-white/30">views</span>
+              </span>
+              {post.likes != null && (
+                <span className="text-sm text-white/40">{fmt(post.likes)} likes</span>
+              )}
+              {post.comments != null && (
+                <span className="text-sm text-white/40">{fmt(post.comments)} comentarios</span>
+              )}
+              {post.duration && (
+                <span className="rounded-lg bg-white/[0.06] px-2 py-0.5 text-xs text-white/40 tabular-nums">{post.duration}</span>
+              )}
+            </div>
+          </div>
 
-        {/* Views */}
-        <td className="px-4 py-3 whitespace-nowrap text-right">
-          <span className="text-sm font-semibold text-white tabular-nums">{fmt(post.views)}</span>
-        </td>
-
-        {/* Duration */}
-        <td className="px-4 py-3 whitespace-nowrap text-center">
-          <span className="text-xs text-white/40">{post.duration ?? "—"}</span>
-        </td>
-
-        {/* Likes */}
-        <td className="px-4 py-3 whitespace-nowrap text-right">
-          <span className="text-sm text-white/70 tabular-nums">{fmt(post.likes)}</span>
-        </td>
-
-        {/* Comments */}
-        <td className="px-4 py-3 whitespace-nowrap text-right">
-          <span className="text-sm text-white/70 tabular-nums">{fmt(post.comments)}</span>
-        </td>
-
-        {/* Transcript — always truncated */}
-        <td className="px-4 py-3 max-w-[200px]" onClick={e => e.stopPropagation()}>
-          <CopyBtn text={post.transcript} />
-        </td>
-
-        {/* Analysis — always truncated */}
-        <td className="px-4 py-3 max-w-[200px]" onClick={e => e.stopPropagation()}>
-          <CopyBtn text={post.analysis} />
-        </td>
-
-        {/* Actions */}
-        <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
-          <div className="flex items-center gap-2 justify-end">
-            <button
-              onClick={() => setExpanded(v => !v)}
-              className="rounded-lg p-1.5 text-white/30 hover:bg-white/[0.06] hover:text-white/60 transition-all"
-              title={expanded ? "Contraer" : "Expandir"}
-            >
-              {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-            </button>
+          {/* Actions */}
+          <div className="flex items-center gap-2 flex-shrink-0 ml-4" onClick={e => e.stopPropagation()}>
+            {post.post_url && (
+              <a href={post.post_url} target="_blank" rel="noopener noreferrer"
+                className="rounded-lg p-1.5 text-white/30 hover:text-[#ffde21] hover:bg-[#ffde21]/10 transition-all">
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            )}
             {isAdmin && (
-              <button
-                onClick={() => setConfirmDelete(true)}
-                className="rounded-lg p-1.5 text-white/20 hover:bg-red-500/10 hover:text-red-400 transition-all"
-                title="Eliminar"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
+              <button onClick={() => setConfirmDelete(true)}
+                className="rounded-lg p-1.5 text-white/20 hover:bg-red-500/10 hover:text-red-400 transition-all">
+                <Trash2 className="h-4 w-4" />
               </button>
             )}
+            <button onClick={() => setExpanded(v => !v)}
+              className="rounded-lg p-1.5 text-white/30 hover:bg-white/[0.06] hover:text-white/60 transition-all">
+              {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </button>
           </div>
-        </td>
-      </tr>
+        </div>
 
-      {/* Expanded panel — full-width row below */}
-      {expanded && (
-        <tr className="border-b border-white/[0.06] bg-[#0c0c0d]/60">
-          <td colSpan={10} className="px-5 py-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Expanded content */}
+        {expanded && (
+          <div className="border-t border-white/[0.06] px-5 py-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
               {/* Left: Description + Transcript */}
               <div className="space-y-4">
                 {post.description && (
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30 mb-2">Descripción</p>
-                    <p className="text-xs text-white/55 leading-relaxed">{post.description}</p>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-white/30 mb-2">Descripción</p>
+                    <p className="text-sm text-white/60 leading-relaxed">{post.description}</p>
                   </div>
                 )}
                 {post.transcript && (
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/50">Transcript</p>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-[#ffde21]/50">Transcript</p>
                       <button onClick={() => navigator.clipboard.writeText(post.transcript!)}
-                        className="inline-flex items-center gap-1 text-[10px] text-white/25 hover:text-white/50 transition-colors">
-                        <Copy className="h-3 w-3" /> Copiar
+                        className="inline-flex items-center gap-1 text-xs text-white/30 hover:text-white/60 transition-colors">
+                        <Copy className="h-3.5 w-3.5" /> Copiar
                       </button>
                     </div>
-                    <p className="text-xs text-white/50 leading-relaxed">{post.transcript}</p>
+                    <p className="text-sm text-white/50 leading-relaxed">{post.transcript}</p>
                   </div>
                 )}
               </div>
@@ -532,21 +502,21 @@ function PostRow({ post, isAdmin, onDelete }: RowProps) {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-1.5">
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/50">Análisis IA</p>
-                      <Sparkles className="h-3 w-3 text-[#ffde21]/30" />
+                      <p className="text-xs font-semibold uppercase tracking-widest text-[#ffde21]/50">Análisis IA</p>
+                      <Sparkles className="h-3.5 w-3.5 text-[#ffde21]/30" />
                     </div>
                     <button onClick={() => navigator.clipboard.writeText(post.analysis!)}
-                      className="inline-flex items-center gap-1 text-[10px] text-white/25 hover:text-white/50 transition-colors">
-                      <Copy className="h-3 w-3" /> Copiar
+                      className="inline-flex items-center gap-1 text-xs text-white/30 hover:text-white/60 transition-colors">
+                      <Copy className="h-3.5 w-3.5" /> Copiar
                     </button>
                   </div>
                   <AnalysisBlock text={post.analysis} />
                 </div>
               )}
             </div>
-          </td>
-        </tr>
-      )}
+          </div>
+        )}
+      </div>
     </>
   )
 }
@@ -763,71 +733,41 @@ export function CompetitorResearchView() {
         </div>
       )}
 
-      {/* Table */}
-      <div className="rounded-2xl border border-white/[0.07] bg-[#111113] overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px]">
-            <thead>
-              <tr className="border-b border-white/[0.07]">
-                <th className={`${COL_HDR} cursor-pointer hover:text-white/60 text-left`} onClick={() => toggleSort("creator")}>
-                  Creator <SortIcon k="creator" />
-                </th>
-                <th className={`${COL_HDR} text-left`}>Post URL</th>
-                <th className={`${COL_HDR} text-left`}>Description</th>
-                <th className={`${COL_HDR} cursor-pointer hover:text-white/60 text-right`} onClick={() => toggleSort("views")}>
-                  Views <SortIcon k="views" />
-                </th>
-                <th className={`${COL_HDR} text-center`}>Duration</th>
-                <th className={`${COL_HDR} cursor-pointer hover:text-white/60 text-right`} onClick={() => toggleSort("likes")}>
-                  Likes <SortIcon k="likes" />
-                </th>
-                <th className={`${COL_HDR} cursor-pointer hover:text-white/60 text-right`} onClick={() => toggleSort("comments")}>
-                  Comments <SortIcon k="comments" />
-                </th>
-                <th className={`${COL_HDR} text-left`}>Transcript</th>
-                <th className={`${COL_HDR} text-left`}>Analysis</th>
-                <th className={`${COL_HDR} text-right`} />
-              </tr>
-            </thead>
-            <tbody>
-              {loading
-                ? Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
-                : filtered.length === 0
-                  ? (
-                    <tr>
-                      <td colSpan={10} className="px-4 py-16 text-center">
-                        <div className="flex flex-col items-center gap-3">
-                          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.04] border border-white/[0.06]">
-                            <Search className="h-5 w-5 text-white/20" />
-                          </span>
-                          <p className="text-sm text-white/30">
-                            {search ? "No hay resultados para tu búsqueda" : "No hay posts todavía. ¡Agrega el primero!"}
-                          </p>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                  : filtered.map(post => (
-                    <PostRow
-                      key={post.id}
-                      post={post}
-                      isAdmin={isAdmin}
-                      onDelete={handleDelete}
-                    />
-                  ))
-              }
-            </tbody>
-          </table>
-        </div>
-
-        {/* Footer count */}
+      {/* Cards */}
+      <div className="space-y-3">
+        {loading
+          ? Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="rounded-2xl border border-white/[0.07] bg-[#111113] p-5 space-y-3">
+                {[80, 60, 40].map((w, j) => (
+                  <div key={j} className="skeleton h-3 rounded-md" style={{ width: `${w}%` }} />
+                ))}
+              </div>
+            ))
+          : filtered.length === 0
+            ? (
+              <div className="flex flex-col items-center gap-3 py-16">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.04] border border-white/[0.06]">
+                  <Search className="h-5 w-5 text-white/20" />
+                </span>
+                <p className="text-sm text-white/30">
+                  {search ? "No hay resultados para tu búsqueda" : "No hay posts todavía. ¡Agrega el primero!"}
+                </p>
+              </div>
+            )
+            : filtered.map(post => (
+              <PostRow
+                key={post.id}
+                post={post}
+                isAdmin={isAdmin}
+                onDelete={handleDelete}
+              />
+            ))
+        }
         {!loading && filtered.length > 0 && (
-          <div className="border-t border-white/[0.05] px-4 py-2.5">
-            <p className="text-[11px] text-white/25">
-              {filtered.length} de {posts.length} post{posts.length !== 1 ? "s" : ""}
-              {search ? ` · filtrando por "${search}"` : ""}
-            </p>
-          </div>
+          <p className="text-[11px] text-white/25 px-1">
+            {filtered.length} de {posts.length} post{posts.length !== 1 ? "s" : ""}
+            {search ? ` · filtrando por "${search}"` : ""}
+          </p>
         )}
       </div>
     </div>
