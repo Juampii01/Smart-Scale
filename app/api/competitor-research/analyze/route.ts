@@ -196,17 +196,37 @@ async function researchYouTube(videoId: string) {
 }
 
 async function getYouTubeTranscript(videoId: string): Promise<string | null> {
+  // Try 1: Apify YouTube transcript actor (bypasses IP blocks)
+  const apifyToken = process.env.APIFY_API_TOKEN
+  if (apifyToken) {
+    try {
+      const res = await fetch(
+        `https://api.apify.com/v2/acts/codepoetry~youtube-transcript-ai-scraper/run-sync-get-dataset-items?token=${apifyToken}&timeout=60`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ startUrls: [{ url: `https://www.youtube.com/watch?v=${videoId}` }] }),
+          signal: AbortSignal.timeout(75_000),
+        }
+      )
+      if (res.ok) {
+        const data = await res.json()
+        const text = Array.isArray(data) ? (data[0]?.transcript_text ?? data[0]?.captions_text ?? null) : null
+        if (typeof text === "string" && text.trim()) return text.trim()
+      }
+    } catch {}
+  }
+
+  // Try 2: youtube-transcript library
   try {
     const { YoutubeTranscript } = await import("youtube-transcript")
-    const segments = await Promise.race([
-      YoutubeTranscript.fetchTranscript(videoId, { lang: "es" })
-        .catch(() => YoutubeTranscript.fetchTranscript(videoId)),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 8000)),
-    ])
-    return (segments as any[]).map((t: any) => t.text).join(" ")
-  } catch {
-    return null
-  }
+    const segments = await YoutubeTranscript.fetchTranscript(videoId, { lang: "es" })
+      .catch(() => YoutubeTranscript.fetchTranscript(videoId))
+    const text = segments.map((t: any) => t.text).join(" ").trim()
+    if (text) return text
+  } catch {}
+
+  return null
 }
 
 // ─── Claude Analysis ──────────────────────────────────────────────────────────
