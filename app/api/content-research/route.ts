@@ -262,12 +262,21 @@ async function apifyInstagramTranscript(postUrl: string): Promise<string | null>
 async function getTopInstagramPosts(username: string, timeframeDays: number) {
   const since = new Date(Date.now() - timeframeDays * 86_400_000).toISOString().split("T")[0]
 
-  const items = await apifyRunSync("apify~instagram-scraper", {
-    directUrls: [`https://www.instagram.com/${username}/`],
-    resultsType: "posts",
-    resultsLimit: 50,
-    addParentData: false,
-  }, 120)
+  let items: any[] = []
+  try {
+    items = await apifyRunSync("apify~instagram-profile-scraper", {
+      usernames: [username],
+      resultsLimit: 50,
+    }, 120)
+  } catch {}
+  if (!items.length) {
+    items = await apifyRunSync("apify~instagram-scraper", {
+      directUrls: [`https://www.instagram.com/${username}/`],
+      resultsType: "posts",
+      resultsLimit: 50,
+      addParentData: false,
+    }, 120)
+  }
 
   const filtered = items
     .filter((item: any) => {
