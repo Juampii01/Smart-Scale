@@ -162,21 +162,28 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
   const token = process.env.APIFY_API_TOKEN
   if (!token) throw new Error("Missing APIFY_API_TOKEN")
 
-  // Step 1: get post metadata + CDN video URL via Apify instagram-scraper
-  const scraperRes = await fetch(
-    `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${token}&timeout=60`,
+  // Step 1: get post metadata + CDN video URL via Apify
+  // Try fast post scraper first, then fallback to profile scraper
+  let scraperRes = await fetch(
+    `https://api.apify.com/v2/acts/apify~instagram-post-scraper/run-sync-get-dataset-items?token=${token}&timeout=60`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        directUrls: [postUrl],
-        resultsType: "posts",
-        resultsLimit: 1,
-        addParentData: false,
-      }),
+      body: JSON.stringify({ directUrls: [postUrl], resultsLimit: 1 }),
       signal: AbortSignal.timeout(75_000),
     }
   )
+  if (!scraperRes.ok) {
+    scraperRes = await fetch(
+      `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${token}&timeout=60`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ directUrls: [postUrl], resultsType: "posts", resultsLimit: 1, addParentData: false }),
+        signal: AbortSignal.timeout(75_000),
+      }
+    )
+  }
   if (!scraperRes.ok) throw new Error(`Instagram scraper error ${scraperRes.status}`)
   const items = await scraperRes.json()
   const item = Array.isArray(items) ? items[0] : null

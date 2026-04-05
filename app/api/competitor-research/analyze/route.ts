@@ -61,12 +61,13 @@ async function apifyRunSync(actorId: string, input: object, timeoutSecs = 120): 
 // ─── Instagram via Apify ──────────────────────────────────────────────────────
 
 async function researchInstagramApify(url: string) {
-  const items = await apifyRunSync("apify~instagram-scraper", {
-    directUrls: [url],
-    resultsType: "posts",
-    resultsLimit: 1,
-    addParentData: false,
-  }, 120)
+  let items: any[] = []
+  try {
+    items = await apifyRunSync("apify~instagram-post-scraper", { directUrls: [url], resultsLimit: 1 }, 120)
+  } catch {}
+  if (!items.length) {
+    items = await apifyRunSync("apify~instagram-scraper", { directUrls: [url], resultsType: "posts", resultsLimit: 1, addParentData: false }, 120)
+  }
 
   const item = items[0]
   if (!item) throw new Error("Apify no encontró datos para este post. Verificá que el link sea público.")
