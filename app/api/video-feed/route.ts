@@ -222,8 +222,7 @@ export async function POST(req: NextRequest) {
 
     if (!posts.length) return NextResponse.json({ error: "No se encontraron posts." }, { status: 404 })
 
-    const analyses = await generateBatchAnalyses(channelName, posts)
-    const postsWithAnalysis = posts.map((p, i) => ({ ...p, analysis: analyses[i] ?? null }))
+    const postsWithAnalysis = posts
 
     // Upsert — one record per user
     const { error: upsertErr } = await supabase
