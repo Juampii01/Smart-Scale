@@ -67,7 +67,9 @@ function avgViews(posts: Post[]) {
 function PostCard({ post, avg, platform }: { post: Post; avg: number; platform: string }) {
   const [expanded, setExpanded] = useState(false)
   const [copied, setCopied] = useState(false)
-  const mult = avg > 0 ? post.views / avg : 0
+  const [thumbError, setThumbError] = useState(false)
+  const views = Math.max(0, post.views)
+  const mult = avg > 0 ? views / avg : 0
   const isTop = mult >= 1.5
   const isVideo = post.type === "Video" || post.type === "Reel" || post.type === "video"
   // Instagram reels/posts are portrait (9:16), YouTube is landscape (16:9)
@@ -93,8 +95,9 @@ function PostCard({ post, avg, platform }: { post: Post; avg: number; platform: 
       {/* Thumbnail */}
       <a href={post.post_url} target="_blank" rel="noopener noreferrer"
         className="block relative overflow-hidden bg-white/[0.04]" style={{ aspectRatio }}>
-        {post.thumbnail
+        {post.thumbnail && !thumbError
           ? <img src={post.thumbnail} alt={post.title}
+              onError={() => setThumbError(true)}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
           : <div className="flex h-full items-center justify-center">
               <Film className="h-8 w-8 text-white/10" />
@@ -105,7 +108,7 @@ function PostCard({ post, avg, platform }: { post: Post; avg: number; platform: 
         {/* Bottom overlay: views + duration */}
         <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between px-2.5 pb-2">
           <span className="flex items-center gap-1 text-[11px] font-semibold text-white">
-            <Eye className="h-3 w-3 opacity-70" />{fmt(post.views)}
+            <Eye className="h-3 w-3 opacity-70" />{views > 0 ? fmt(views) : "—"}
           </span>
           {post.duration && (
             <span className="rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-white tabular-nums">

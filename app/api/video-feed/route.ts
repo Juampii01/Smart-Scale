@@ -116,7 +116,7 @@ async function getInstagramPosts(url: string, limit = 50) {
     caption:      (item.caption ?? "").slice(0, 300),
     thumbnail:    item.displayUrl ?? item.thumbnailUrl ?? null,
     post_url:     item.url ?? (item.shortCode ? `https://www.instagram.com/p/${item.shortCode}/` : `https://www.instagram.com/${username}/`),
-    views:        item.videoPlayCount ?? item.videoViewCount ?? item.likesCount ?? 0,
+    views:        Math.max(0, item.videoPlayCount ?? item.videoViewCount ?? item.likesCount ?? 0),
     likes:        item.likesCount ?? 0,
     comments:     item.commentsCount ?? 0,
     duration:     item.videoDuration
