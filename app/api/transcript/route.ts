@@ -14,6 +14,221 @@ function createServiceClient() {
   )
 }
 
+// ─── URL detection ────────────────────────────────────────────────────────────
+
+function extractYouTubeId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /youtube\.com\/shorts\/([^&\n?#]+)/,
+  ]
+  for (const p of patterns) {
+    const m = url.match(p)
+    if (m) return m[1]
+  }
+  return null
+}
+
+function isInstagramUrl(url: string): boolean {
+  return /instagram\.com\/(p|reel|reels|tv)\//.test(url)
+}
+
+// ─── AssemblyAI (generic: accepts any URL or uploaded binary) ─────────────────
+
+async function assemblyAITranscribe(audioUrl: string): Promise<string | null> {
+  const apiKey = process.env.ASSEMBLYAI_API_KEY
+  if (!apiKey) return null
+
+  const submitRes = await fetch("https://api.assemblyai.com/v2/transcript", {
+    method: "POST",
+    headers: { "Authorization": apiKey, "Content-Type": "application/json" },
+    body: JSON.stringify({ audio_url: audioUrl }),
+    signal: AbortSignal.timeout(15_000),
+  })
+  if (!submitRes.ok) return null
+  const { id } = await submitRes.json()
+  if (!id) return null
+
+  // Poll until done (max 4 min)
+  const deadline = Date.now() + 240_000
+  while (Date.now() < deadline) {
+    await new Promise(r => setTimeout(r, 4000))
+    const poll = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
+      headers: { "Authorization": apiKey },
+      signal: AbortSignal.timeout(10_000),
+    })
+    if (!poll.ok) return null
+    const result = await poll.json()
+    if (result.status === "completed" && result.text) return result.text
+    if (result.status === "error") return null
+  }
+  return null
+}
+
+// ─── YouTube transcript ───────────────────────────────────────────────────────
+
+async function getYouTubeTranscript(videoId: string): Promise<string | null> {
+  // Try 1: youtube-transcript library (fast, free, works locally and sometimes on servers)
+  try {
+    const { YoutubeTranscript } = await import("youtube-transcript")
+    for (const lang of ["es", "en", ""]) {
+      try {
+        const segments = lang
+          ? await YoutubeTranscript.fetchTranscript(videoId, { lang })
+          : await YoutubeTranscript.fetchTranscript(videoId)
+        const text = segments.map((t: any) => t.text).join(" ").trim()
+        if (text) return text
+      } catch {}
+    }
+  } catch {}
+
+  // Try 2: AssemblyAI — accepts YouTube URLs directly
+  return assemblyAITranscribe(`https://www.youtube.com/watch?v=${videoId}`)
+}
+
+// ─── YouTube metadata ─────────────────────────────────────────────────────────
+
+async function getYouTubeMetadata(videoId: string) {
+  const apiKey = process.env.YOUTUBE_API_KEY
+  const res    = await fetch(
+    `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet,contentDetails&key=${apiKey}`,
+    { signal: AbortSignal.timeout(10000) }
+  )
+  const data = await res.json()
+  const item = data.items?.[0]
+  if (!item) throw new Error("Video no encontrado en YouTube.")
+
+  const durRaw   = item.contentDetails?.duration ?? ""
+  const durMatch = durRaw.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/)
+  let duration = ""
+  if (durMatch) {
+    const h = durMatch[1] ? `${durMatch[1]}:` : ""
+    const m = (durMatch[2] ?? "0").padStart(2, "0")
+    const s = (durMatch[3] ?? "0").padStart(2, "0")
+    duration = `${h}${m}:${s}`
+  }
+
+  return {
+    title:     item.snippet?.title ?? null,
+    creator:   item.snippet?.channelTitle ?? null,
+    thumbnail: item.snippet?.thumbnails?.high?.url ?? item.snippet?.thumbnails?.medium?.url ?? item.snippet?.thumbnails?.default?.url ?? null,
+    duration,
+  }
+}
+
+// ─── Instagram: get video CDN URL via Apify, then transcribe with AssemblyAI ──
+
+async function getInstagramTranscript(postUrl: string): Promise<{
+  transcript: string | null
+  caption:    string | null
+  duration:   string | null
+  username:   string | null
+}> {
+  const token = process.env.APIFY_API_TOKEN
+  if (!token) throw new Error("Missing APIFY_API_TOKEN")
+
+  // Step 1: scrape post metadata to get video CDN URL
+  let items: any[] = []
+  const scrapers = [
+    { actor: "apify~instagram-post-scraper", body: { directUrls: [postUrl], resultsLimit: 1 } },
+    { actor: "apify~instagram-scraper",      body: { directUrls: [postUrl], resultsType: "posts", resultsLimit: 1, addParentData: false } },
+  ]
+  for (const { actor, body } of scrapers) {
+    try {
+      const res = await fetch(
+        `https://api.apify.com/v2/acts/${actor}/run-sync-get-dataset-items?token=${token}&timeout=60`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          signal: AbortSignal.timeout(75_000),
+        }
+      )
+      if (res.ok) {
+        const data = await res.json()
+        if (Array.isArray(data) && data.length > 0) { items = data; break }
+      }
+    } catch {}
+  }
+
+  const item = items[0]
+  if (!item) throw new Error("No se pudo obtener información del post. Verificá que sea público.")
+
+  const videoUrl = item.videoUrl
+    ?? item.videoSrc
+    ?? (Array.isArray(item.videos) ? (item.videos[0]?.src ?? item.videos[0]?.url) : null)
+    ?? null
+  const caption  = item.caption ?? null
+  const rawDur   = item.videoDuration
+  const duration = rawDur
+    ? `${Math.floor(rawDur / 60)}:${String(Math.round(rawDur % 60)).padStart(2, "0")}`
+    : null
+  const username = item.ownerUsername ?? item.ownerFullName ?? null
+
+  if (!videoUrl) {
+    // Image post — no audio
+    return { transcript: null, caption, duration, username }
+  }
+
+  // Step 2: download the CDN video, upload to AssemblyAI storage, then transcribe
+  let audioUrl = videoUrl
+  const assemblyKey = process.env.ASSEMBLYAI_API_KEY
+  if (assemblyKey) {
+    try {
+      const dlRes = await fetch(videoUrl, {
+        headers: { "User-Agent": "Mozilla/5.0", "Accept": "*/*" },
+        signal: AbortSignal.timeout(60_000),
+      })
+      if (dlRes.ok) {
+        const buffer = await dlRes.arrayBuffer()
+        const upRes  = await fetch("https://api.assemblyai.com/v2/upload", {
+          method: "POST",
+          headers: { "Authorization": assemblyKey, "Content-Type": "application/octet-stream" },
+          body: buffer,
+          signal: AbortSignal.timeout(60_000),
+        })
+        if (upRes.ok) {
+          const { upload_url } = await upRes.json()
+          if (upload_url) audioUrl = upload_url
+        }
+      }
+    } catch {}
+  }
+
+  const transcript = await assemblyAITranscribe(audioUrl)
+  return { transcript, caption, duration, username }
+}
+
+// ─── Claude summary ───────────────────────────────────────────────────────────
+
+async function generateSummary(transcript: string, creator: string | null): Promise<string> {
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const msg = await anthropic.messages.create({
+    model: "claude-opus-4-6",
+    max_tokens: 800,
+    messages: [{
+      role: "user",
+      content: `Generá un resumen ejecutivo de este video${creator ? ` del canal "${creator}"` : ""}.
+
+TRANSCRIPT:
+${transcript.slice(0, 5000)}
+
+Usá EXACTAMENTE este formato, sin markdown, sin asteriscos, sin #:
+
+RESUMEN
+[2-3 oraciones de qué trata el video]
+
+PUNTOS CLAVE
+[3-5 puntos principales separados por salto de línea, sin guiones ni viñetas]
+
+CONCLUSIÓN
+[1 oración con el mensaje final]
+
+Sé directo y concreto. Sin emojis en los títulos.`,
+    }],
+  })
+  return (msg.content[0] as any).text ?? ""
+}
+
 // ─── GET: history ─────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
@@ -71,259 +286,7 @@ export async function DELETE(req: NextRequest) {
   }
 }
 
-// ─── URL detection ────────────────────────────────────────────────────────────
-
-function extractYouTubeId(url: string): string | null {
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-    /youtube\.com\/shorts\/([^&\n?#]+)/,
-  ]
-  for (const p of patterns) {
-    const m = url.match(p)
-    if (m) return m[1]
-  }
-  return null
-}
-
-function isInstagramUrl(url: string): boolean {
-  return /instagram\.com\/(p|reel|reels|tv)\//.test(url)
-}
-
-// ─── Transcription via AssemblyAI (download → upload → transcribe) ───────────
-
-async function assemblyAITranscript(cdnUrl: string, timeoutMs = 200_000): Promise<string | null> {
-  const apiKey = process.env.ASSEMBLYAI_API_KEY
-  if (!apiKey) return null
-
-  // 1. Download video on our server (Instagram CDN requires our headers)
-  let audioUrl = cdnUrl
-  try {
-    const dlRes = await fetch(cdnUrl, {
-      headers: { "User-Agent": "Mozilla/5.0", "Accept": "*/*" },
-      signal: AbortSignal.timeout(60_000),
-    })
-    if (dlRes.ok) {
-      const buffer = await dlRes.arrayBuffer()
-      // 2. Upload binary to AssemblyAI storage
-      const upRes = await fetch("https://api.assemblyai.com/v2/upload", {
-        method: "POST",
-        headers: { "Authorization": apiKey, "Content-Type": "application/octet-stream" },
-        body: buffer,
-        signal: AbortSignal.timeout(60_000),
-      })
-      if (upRes.ok) {
-        const { upload_url } = await upRes.json()
-        if (upload_url) audioUrl = upload_url
-      }
-    }
-  } catch {}
-
-  // 3. Try multiple body formats until one is accepted (API format varies by account tier)
-  const submitBodies = [
-    { audio_url: audioUrl, speech_model: "nano" },
-    { audio_url: audioUrl, speech_model: "universal-2" },
-    { audio_url: audioUrl, speech_models: ["universal-2"] },
-    { audio_url: audioUrl },
-  ]
-
-  let transcriptId: string | null = null
-  for (const body of submitBodies) {
-    const res = await fetch("https://api.assemblyai.com/v2/transcript", {
-      method: "POST",
-      headers: { "Authorization": apiKey, "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
-    const json = await res.json()
-    console.log("[assemblyai] submit body keys:", Object.keys(body).join(","), "→ status:", res.status, json.error ?? json.id ?? "")
-    if (res.ok && json.id) { transcriptId = json.id; break }
-  }
-
-  if (!transcriptId) return null
-
-  // 4. Poll for result
-  const deadline = Date.now() + timeoutMs
-  while (Date.now() < deadline) {
-    await new Promise(r => setTimeout(r, 3000))
-    const pollRes = await fetch(`https://api.assemblyai.com/v2/transcript/${transcriptId}`, {
-      headers: { "Authorization": apiKey },
-    })
-    if (!pollRes.ok) return null
-    const result = await pollRes.json()
-    console.log("[assemblyai] poll:", result.status, result.error ?? "")
-    if (result.status === "completed") return result.text ?? null
-    if (result.status === "error") return null
-  }
-  return null
-}
-
-// ─── Instagram transcript via Apify scraper + AssemblyAI ─────────────────────
-
-async function getInstagramTranscript(postUrl: string): Promise<{ transcript: string | null; caption: string | null; duration: string | null; username: string | null }> {
-  const token = process.env.APIFY_API_TOKEN
-  if (!token) throw new Error("Missing APIFY_API_TOKEN")
-
-  // Step 1: get post metadata + CDN video URL via Apify
-  // Try fast post scraper first, then fallback to profile scraper
-  let scraperRes = await fetch(
-    `https://api.apify.com/v2/acts/apify~instagram-post-scraper/run-sync-get-dataset-items?token=${token}&timeout=60`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ directUrls: [postUrl], resultsLimit: 1 }),
-      signal: AbortSignal.timeout(75_000),
-    }
-  )
-  if (!scraperRes.ok) {
-    scraperRes = await fetch(
-      `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${token}&timeout=60`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ directUrls: [postUrl], resultsType: "posts", resultsLimit: 1, addParentData: false }),
-        signal: AbortSignal.timeout(75_000),
-      }
-    )
-  }
-  if (!scraperRes.ok) throw new Error(`Instagram scraper error ${scraperRes.status}`)
-  const items = await scraperRes.json()
-  const item = Array.isArray(items) ? items[0] : null
-  if (!item) throw new Error("No se pudo obtener información del post de Instagram.")
-
-  const videoUrl = item.videoUrl
-    ?? item.videoSrc
-    ?? (Array.isArray(item.videos) && item.videos[0]?.src ? item.videos[0].src : null)
-    ?? (Array.isArray(item.videos) && item.videos[0]?.url ? item.videos[0].url : null)
-    ?? null
-  const caption  = item.caption ?? null
-  const rawDur   = item.videoDuration
-  const duration = rawDur
-    ? `${Math.floor(rawDur / 60)}:${String(Math.round(rawDur % 60)).padStart(2, "0")}`
-    : null
-  const username = item.ownerUsername ?? item.ownerFullName ?? null
-
-  if (!videoUrl) {
-    // Image post — no audio to transcribe
-    return { transcript: null, caption, duration, username }
-  }
-
-  // Step 2: transcribe the CDN mp4 with AssemblyAI
-  const transcript = await assemblyAITranscript(videoUrl, 100_000)
-  return { transcript, caption, duration, username }
-}
-
-// ─── YouTube metadata ─────────────────────────────────────────────────────────
-
-async function getYouTubeMetadata(videoId: string) {
-  const apiKey = process.env.YOUTUBE_API_KEY
-  const res = await fetch(
-    `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet,contentDetails&key=${apiKey}`,
-    { signal: AbortSignal.timeout(10000) }
-  )
-  const data = await res.json()
-  const item = data.items?.[0]
-  if (!item) throw new Error("Video no encontrado en YouTube.")
-
-  const durRaw: string = item.contentDetails?.duration ?? ""
-  const durMatch = durRaw.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/)
-  let duration = ""
-  if (durMatch) {
-    const h = durMatch[1] ? `${durMatch[1]}:` : ""
-    const m = (durMatch[2] ?? "0").padStart(2, "0")
-    const s = (durMatch[3] ?? "0").padStart(2, "0")
-    duration = `${h}${m}:${s}`
-  }
-
-  return {
-    title:     item.snippet?.title ?? null,
-    creator:   item.snippet?.channelTitle ?? null,
-    thumbnail: item.snippet?.thumbnails?.high?.url ?? item.snippet?.thumbnails?.medium?.url ?? item.snippet?.thumbnails?.default?.url ?? null,
-    duration,
-  }
-}
-
-// ─── YouTube transcript ───────────────────────────────────────────────────────
-
-async function getYouTubeTranscript(videoId: string): Promise<string | null> {
-  // Try 1: youtube-transcript library (works locally, sometimes in prod)
-  try {
-    const { YoutubeTranscript } = await import("youtube-transcript")
-    const langs = ["es", "en", ""]
-    for (const lang of langs) {
-      try {
-        const segments = lang
-          ? await YoutubeTranscript.fetchTranscript(videoId, { lang })
-          : await YoutubeTranscript.fetchTranscript(videoId)
-        const text = segments.map((t: any) => t.text).join(" ").trim()
-        if (text) return text
-      } catch {}
-    }
-  } catch {}
-
-  // Try 2: AssemblyAI — accepts YouTube URLs directly, bypasses IP blocks
-  const assemblyKey = process.env.ASSEMBLYAI_API_KEY
-  if (assemblyKey) {
-    try {
-      const submitRes = await fetch("https://api.assemblyai.com/v2/transcript", {
-        method: "POST",
-        headers: { "Authorization": assemblyKey, "Content-Type": "application/json" },
-        body: JSON.stringify({ audio_url: `https://www.youtube.com/watch?v=${videoId}` }),
-        signal: AbortSignal.timeout(15_000),
-      })
-      if (submitRes.ok) {
-        const { id } = await submitRes.json()
-        if (id) {
-          const deadline = Date.now() + 240_000
-          while (Date.now() < deadline) {
-            await new Promise(r => setTimeout(r, 4000))
-            const pollRes = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
-              headers: { "Authorization": assemblyKey },
-              signal: AbortSignal.timeout(10_000),
-            })
-            if (!pollRes.ok) break
-            const result = await pollRes.json()
-            if (result.status === "completed" && result.text) return result.text
-            if (result.status === "error") break
-          }
-        }
-      }
-    } catch {}
-  }
-
-  return null
-}
-
-// ─── Claude summary ───────────────────────────────────────────────────────────
-
-async function generateSummary(transcript: string, creator: string | null): Promise<string> {
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  const msg = await anthropic.messages.create({
-    model: "claude-opus-4-6",
-    max_tokens: 800,
-    messages: [{
-      role: "user",
-      content: `Generá un resumen ejecutivo de este video de YouTube${creator ? ` del canal "${creator}"` : ""}.
-
-TRANSCRIPT:
-${transcript.slice(0, 5000)}
-
-Usá EXACTAMENTE este formato, sin markdown, sin asteriscos, sin #:
-
-RESUMEN
-[2-3 oraciones de qué trata el video]
-
-PUNTOS CLAVE
-[3-5 puntos principales separados por salto de línea, sin guiones ni viñetas]
-
-CONCLUSIÓN
-[1 oración con el mensaje final]
-
-Sé directo y concreto. Sin emojis en los títulos.`,
-    }],
-  })
-  return (msg.content[0] as any).text ?? ""
-}
-
-// ─── Handler ──────────────────────────────────────────────────────────────────
+// ─── POST: transcribe ─────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   try {
@@ -341,37 +304,30 @@ export async function POST(req: NextRequest) {
     const url = body.url?.trim()
     if (!url) return NextResponse.json({ error: "url is required" }, { status: 400 })
 
-    let title: string | null = null
-    let creator: string | null = null
-    let thumbnail: string | null = null
-    let duration: string | null = null
+    let title:      string | null = null
+    let creator:    string | null = null
+    let thumbnail:  string | null = null
+    let duration:   string | null = null
     let transcript: string | null = null
-    let summary: string = ""
+    let summary = ""
 
     if (isInstagramUrl(url)) {
-      // ── Instagram path ──────────────────────────────────────────────────────
       const ig = await getInstagramTranscript(url)
       transcript = ig.transcript
       creator    = ig.username
       duration   = ig.duration
       title      = ig.caption ? ig.caption.slice(0, 100) : "Reel de Instagram"
-      thumbnail  = null
 
       if (!transcript) {
-        const hasAssemblyAI = !!process.env.ASSEMBLYAI_API_KEY
         return NextResponse.json({
-          error: hasAssemblyAI
-            ? "No se pudo transcribir este reel. Asegurate de que el video tenga audio y sea público."
-            : "Transcripción de Instagram no disponible. Configurá ASSEMBLYAI_API_KEY en las variables de entorno.",
+          error: "No se pudo transcribir este reel. Asegurate de que el video tenga audio y sea público.",
         }, { status: 422 })
       }
       summary = await generateSummary(transcript, creator)
     } else {
-      // ── YouTube path ────────────────────────────────────────────────────────
       const videoId = extractYouTubeId(url)
-      if (!videoId) {
-        return NextResponse.json({ error: "URL no reconocida. Pegá un link de YouTube o Instagram." }, { status: 400 })
-      }
+      if (!videoId) return NextResponse.json({ error: "URL no reconocida. Pegá un link de YouTube o Instagram." }, { status: 400 })
+
       const metadata = await getYouTubeMetadata(videoId)
       title     = metadata.title
       creator   = metadata.creator
@@ -387,27 +343,13 @@ export async function POST(req: NextRequest) {
       summary = await generateSummary(transcript, creator)
     }
 
-    // Save to history
     await supabase.from("transcript_history").insert({
-      user_id:   user.id,
-      url,
-      title,
-      creator,
-      duration,
-      transcript,
-      summary,
+      user_id: user.id, url, title, creator, duration, transcript, summary,
     }).then(({ error }) => {
-      if (error) console.warn("[transcript] failed to save history:", error.message)
+      if (error) console.warn("[transcript] save error:", error.message)
     })
 
-    return NextResponse.json({
-      creator,
-      title,
-      thumbnail,
-      duration,
-      transcript,
-      summary,
-    })
+    return NextResponse.json({ creator, title, thumbnail, duration, transcript, summary })
   } catch (err: any) {
     console.error("[transcript] error:", err)
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
