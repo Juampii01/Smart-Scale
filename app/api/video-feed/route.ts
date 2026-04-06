@@ -87,31 +87,28 @@ async function getYouTubePosts(channelId: string, limit = 50) {
 async function getInstagramPosts(url: string, limit = 50) {
   const token = process.env.APIFY_API_TOKEN!
   const username = url.match(/instagram\.com\/([^\/\?&]+)/)?.[1] ?? url.replace(/.*instagram\.com\/?/, "").replace(/\/$/, "")
+  const profileUrl = `https://www.instagram.com/${username}/`
 
-  // Try apify~instagram-profile-scraper first (free), fallback to instagram-scraper
-  let res = await fetch(
-    `https://api.apify.com/v2/acts/apify~instagram-profile-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ usernames: [username], resultsLimit: limit }),
-      signal: AbortSignal.timeout(135_000),
-    }
-  )
-  if (!res.ok) {
-    res = await fetch(
-      `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ directUrls: [`https://www.instagram.com/${username}/`], resultsType: "posts", resultsLimit: limit }),
-        signal: AbortSignal.timeout(135_000),
-      }
-    )
+  // Helper: run one Apify actor
+  async function tryActor(actorId: string, body: object): Promise<any[]> {
+    try {
+      const res = await fetch(
+        `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=120`,
+        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(135_000) }
+      )
+      if (!res.ok) return []
+      const data = await res.json()
+      return Array.isArray(data) ? data : []
+    } catch { return [] }
   }
-  if (!res.ok) throw new Error(`Instagram scraper error ${res.status}`)
-  const items = await res.json()
-  if (!Array.isArray(items) || !items.length) throw new Error("No se encontraron posts en este perfil.")
+
+  // Try actors in order: post-scraper (free tier) → profile-scraper → scraper (paid)
+  let items: any[] =
+    await tryActor("apify~instagram-post-scraper",    { directUrls: [profileUrl], resultsLimit: limit }) ||
+    await tryActor("apify~instagram-profile-scraper", { usernames: [username], resultsLimit: limit }) ||
+    await tryActor("apify~instagram-scraper",         { directUrls: [profileUrl], resultsType: "posts", resultsLimit: limit, addParentData: false })
+
+  if (!items.length) throw new Error("No se encontraron posts en este perfil.")
 
   const profile = items[0]
   const profileName   = profile.ownerUsername ?? username
