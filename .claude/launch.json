@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "smart-scale-dashboard",
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": ["-c", "export PATH=/usr/local/bin:$PATH && pnpm install --frozen-lockfile && pnpm dev"],
+      "port": 3001,
+      "cwd": "./"
+    }
+  ]
+}
