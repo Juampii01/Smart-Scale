@@ -102,6 +102,15 @@ async function getYouTubePosts(channelId: string, limit = 50) {
 
 // ─── Instagram ────────────────────────────────────────────────────────────────
 
+const RAPIDAPI_IG_HOST = "instagram-scraper-20251.p.rapidapi.com"
+
+function rapidApiIgHeaders() {
+  return {
+    "X-RapidAPI-Key":  process.env.RAPIDAPI_KEY ?? "",
+    "X-RapidAPI-Host": RAPIDAPI_IG_HOST,
+  }
+}
+
 const IG_HEADERS: Record<string, string> = {
   "User-Agent":       "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
   "Accept":           "application/json, text/plain, */*",
@@ -132,8 +141,44 @@ function mapIGEdges(edges: any[], username: string) {
   })
 }
 
+function mapRapidApiItems(items: any[], username: string) {
+  return items.map((item: any) => {
+    const shortCode = item.code ?? item.shortcode ?? null
+    const isVideo   = item.media_type === 2 || !!item.video_url
+    return {
+      id:             item.pk ?? item.id ?? String(Math.random()),
+      shortCode,
+      caption:        item.caption?.text ?? item.caption ?? "",
+      timestamp:      item.taken_at ? new Date(item.taken_at * 1000).toISOString() : null,
+      likesCount:     item.like_count ?? 0,
+      commentsCount:  item.comment_count ?? 0,
+      videoPlayCount: item.play_count ?? item.view_count ?? null,
+      videoDuration:  item.video_duration ?? null,
+      displayUrl:     item.image_versions2?.candidates?.[0]?.url ?? item.thumbnail_url ?? null,
+      url:            shortCode ? `https://www.instagram.com/p/${shortCode}/` : `https://www.instagram.com/${username}/`,
+      ownerUsername:  username,
+      type:           isVideo ? "Video" : "Image",
+    }
+  })
+}
+
+async function rapidApiInstagramFetch(username: string, endpoint: "posts" | "reels", count: number): Promise<any[]> {
+  if (!process.env.RAPIDAPI_KEY) return []
+  try {
+    const res = await fetch(
+      `https://${RAPIDAPI_IG_HOST}/user/${endpoint}?username=${encodeURIComponent(username)}&count=${count}`,
+      { headers: rapidApiIgHeaders(), signal: AbortSignal.timeout(30_000) }
+    )
+    if (!res.ok) return []
+    const data  = await res.json()
+    const items = data?.data?.items ?? data?.items ?? []
+    return Array.isArray(items) ? items : []
+  } catch {
+    return []
+  }
+}
+
 async function getInstagramPosts(url: string, limit = 50) {
-  const token    = process.env.APIFY_API_TOKEN
   const username = url.match(/instagram\.com\/([^/?&]+)/)?.[1]
     ?? url.replace(/.*instagram\.com\/?/, "").replace(/\/$/, "")
   const igUrl    = `https://i.instagram.com/api/v1/users/web_profile_info/?username=${username}`
@@ -150,47 +195,16 @@ async function getInstagramPosts(url: string, limit = 50) {
     }
   } catch {}
 
-  // 2. Apify actor — funciona en Vercel (los servidores de Apify no están bloqueados por Instagram)
-  if (!rawItems.length && token) {
-    try {
-      const res = await fetch(
-        `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            directUrls: [`https://www.instagram.com/${username}/`],
-            resultsType: "posts",
-            resultsLimit: limit,
-            addParentData: false,
-          }),
-          signal: AbortSignal.timeout(135_000),
-        }
-      )
-      if (res.ok) {
-        const data = await res.json()
-        if (Array.isArray(data) && data.length) rawItems = data
-      }
-    } catch {}
+  // 2. RapidAPI User Posts — funciona en Vercel
+  if (!rawItems.length) {
+    const items = await rapidApiInstagramFetch(username, "posts", limit)
+    if (items.length) rawItems = mapRapidApiItems(items, username)
   }
 
-  // 3. Apify profile scraper como fallback adicional
-  if (!rawItems.length && token) {
-    try {
-      const res = await fetch(
-        `https://api.apify.com/v2/acts/apify~instagram-profile-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ usernames: [username], resultsLimit: limit }),
-          signal: AbortSignal.timeout(135_000),
-        }
-      )
-      if (res.ok) {
-        const data = await res.json()
-        if (Array.isArray(data) && data.length) rawItems = data
-      }
-    } catch {}
+  // 3. RapidAPI User Reels — fallback para cuentas de reels
+  if (!rawItems.length) {
+    const items = await rapidApiInstagramFetch(username, "reels", limit)
+    if (items.length) rawItems = mapRapidApiItems(items, username)
   }
 
   if (!rawItems.length) throw new Error("No se encontraron posts en este perfil.")

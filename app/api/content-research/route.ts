@@ -25,29 +25,60 @@ function parseDuration(iso: string): string {
   return `${h}${min}:${sec}`
 }
 
-// ─── Apify ────────────────────────────────────────────────────────────────────
+// ─── RapidAPI Instagram ───────────────────────────────────────────────────────
 
-async function apifyRunSync(actorId: string, input: object, timeoutSecs = 120): Promise<any[]> {
-  const token = process.env.APIFY_API_TOKEN
-  if (!token) throw new Error("Missing APIFY_API_TOKEN")
+const RAPIDAPI_IG_HOST = "instagram-scraper-20251.p.rapidapi.com"
 
-  const res = await fetch(
-    `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=${timeoutSecs}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
-      signal: AbortSignal.timeout((timeoutSecs + 15) * 1000),
-    }
-  )
-
-  if (!res.ok) {
-    const errorText = await res.text().catch(() => "")
-    throw new Error(`Apify [${actorId}] error ${res.status}${errorText ? `: ${errorText.slice(0, 500)}` : ""}`)
+function rapidApiIgHeaders() {
+  return {
+    "X-RapidAPI-Key":  process.env.RAPIDAPI_KEY ?? "",
+    "X-RapidAPI-Host": RAPIDAPI_IG_HOST,
   }
+}
 
-  const data = await res.json().catch(() => [])
-  return Array.isArray(data) ? data : []
+async function rapidApiInstagramFetch(username: string, endpoint: "posts" | "reels", count = 50): Promise<any[]> {
+  if (!process.env.RAPIDAPI_KEY) return []
+  try {
+    const res = await fetch(
+      `https://${RAPIDAPI_IG_HOST}/user/${endpoint}?username=${encodeURIComponent(username)}&count=${count}`,
+      { headers: rapidApiIgHeaders(), signal: AbortSignal.timeout(30_000) }
+    )
+    if (!res.ok) return []
+    const data  = await res.json()
+    const items = data?.data?.items ?? data?.items ?? []
+    return Array.isArray(items) ? items : []
+  } catch {
+    return []
+  }
+}
+
+async function transcribeWithAssemblyAI(videoUrl: string): Promise<string | null> {
+  const apiKey = process.env.ASSEMBLYAI_API_KEY
+  if (!apiKey) return null
+  try {
+    const submitRes = await fetch("https://api.assemblyai.com/v2/transcript", {
+      method: "POST",
+      headers: { "Authorization": apiKey, "Content-Type": "application/json" },
+      body: JSON.stringify({ audio_url: videoUrl }),
+      signal: AbortSignal.timeout(15_000),
+    })
+    if (!submitRes.ok) return null
+    const { id } = await submitRes.json()
+    if (!id) return null
+    const deadline = Date.now() + 180_000
+    while (Date.now() < deadline) {
+      await new Promise(r => setTimeout(r, 4000))
+      const pollRes = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
+        headers: { "Authorization": apiKey },
+        signal: AbortSignal.timeout(10_000),
+      })
+      if (!pollRes.ok) return null
+      const result = await pollRes.json()
+      if (result.status === "completed") return result.text ?? null
+      if (result.status === "error") return null
+    }
+  } catch {}
+  return null
 }
 
 // ─── YouTube ──────────────────────────────────────────────────────────────────
@@ -207,25 +238,45 @@ async function scrapeInstagramProfile(username: string): Promise<any[]> {
     }
   } catch {}
 
-  // 2. Apify actor — funciona en Vercel (corre en servidores de Apify, no en los de Vercel)
-  try {
-    const items = await apifyRunSync(
-      "apify~instagram-scraper",
-      { directUrls: [`https://www.instagram.com/${username}/`], resultsType: "posts", resultsLimit: 50, addParentData: false },
-      120
-    )
-    if (items.length) return items
-  } catch {}
+  // 2. RapidAPI User Posts — funciona en Vercel
+  const rapidItems = await rapidApiInstagramFetch(username, "posts", 50)
+  if (rapidItems.length) return rapidItems.map((item: any) => {
+    const shortCode = item.code ?? item.shortcode ?? null
+    return {
+      id:             item.pk ?? item.id ?? String(Math.random()),
+      shortCode,
+      caption:        item.caption?.text ?? item.caption ?? "",
+      timestamp:      item.taken_at ? new Date(item.taken_at * 1000).toISOString() : null,
+      likesCount:     item.like_count ?? 0,
+      commentsCount:  item.comment_count ?? 0,
+      videoPlayCount: item.play_count ?? item.view_count ?? null,
+      videoDuration:  item.video_duration ?? null,
+      displayUrl:     item.image_versions2?.candidates?.[0]?.url ?? null,
+      videoUrl:       item.video_url ?? null,
+      url:            shortCode ? `https://www.instagram.com/p/${shortCode}/` : `https://www.instagram.com/${username}/`,
+      ownerUsername:  username,
+    }
+  })
 
-  // 3. Apify profile scraper como fallback adicional
-  try {
-    const items = await apifyRunSync(
-      "apify~instagram-profile-scraper",
-      { usernames: [username], resultsLimit: 50 },
-      120
-    )
-    if (items.length) return items
-  } catch {}
+  // 3. RapidAPI User Reels — fallback para cuentas de reels
+  const rapidReels = await rapidApiInstagramFetch(username, "reels", 50)
+  if (rapidReels.length) return rapidReels.map((item: any) => {
+    const shortCode = item.code ?? item.shortcode ?? null
+    return {
+      id:             item.pk ?? item.id ?? String(Math.random()),
+      shortCode,
+      caption:        item.caption?.text ?? item.caption ?? "",
+      timestamp:      item.taken_at ? new Date(item.taken_at * 1000).toISOString() : null,
+      likesCount:     item.like_count ?? 0,
+      commentsCount:  item.comment_count ?? 0,
+      videoPlayCount: item.play_count ?? item.view_count ?? null,
+      videoDuration:  item.video_duration ?? null,
+      displayUrl:     item.image_versions2?.candidates?.[0]?.url ?? null,
+      videoUrl:       item.video_url ?? null,
+      url:            shortCode ? `https://www.instagram.com/p/${shortCode}/` : `https://www.instagram.com/${username}/`,
+      ownerUsername:  username,
+    }
+  })
 
   return []
 }
@@ -271,12 +322,13 @@ async function getTopInstagramPosts(username: string, timeframeDays: number) {
         : "—"
 
       return {
-        video_id:     item.id ?? shortCode ?? String(Math.random()),
-        title:        (item.caption ?? "").slice(0, 120) || "Sin descripción",
-        description:  (item.caption ?? "").slice(0, 300),
-        thumbnail:    null as string | null,
-        video_url:    postUrl,
-        post_url:     postUrl,
+        video_id:      item.id ?? shortCode ?? String(Math.random()),
+        title:         (item.caption ?? "").slice(0, 120) || "Sin descripción",
+        description:   (item.caption ?? "").slice(0, 300),
+        thumbnail:     item.displayUrl ?? null,
+        video_url:     postUrl,
+        post_url:      postUrl,
+        cdn_video_url: item.videoUrl ?? null,
         views,
         likes:        item.likesCount    ?? 0,
         comments:     item.commentsCount ?? 0,
@@ -288,11 +340,11 @@ async function getTopInstagramPosts(username: string, timeframeDays: number) {
     .sort((a: any, b: any) => b.views - a.views)
     .slice(0, 5)
 
-  // Transcripciones en paralelo
-  const transcripts = await Promise.all(mapped.map((p: any) => getInstagramTranscript(p.post_url)))
+  // Transcripciones usando CDN URL obtenida de RapidAPI
+  const transcripts = await Promise.all(mapped.map((p: any) => getInstagramTranscript(p.post_url, p.cdn_video_url)))
 
   const posts = mapped.map((p: any, i: number) => {
-    const { post_url, ...rest } = p
+    const { post_url, cdn_video_url, ...rest } = p
     return { ...rest, transcript: transcripts[i] ?? null }
   })
 
@@ -304,51 +356,11 @@ async function getTopInstagramPosts(username: string, timeframeDays: number) {
   }
 }
 
-async function getInstagramTranscript(postUrl: string): Promise<string | null> {
-  const token = process.env.APIFY_API_TOKEN
-  if (!token) return null
-  try {
-    // Obtener videoUrl via Apify
-    const items = await apifyRunSync(
-      "apify~instagram-post-scraper",
-      { directUrls: [postUrl], resultsLimit: 1 },
-      60
-    ).catch(() =>
-      apifyRunSync(
-        "apify~instagram-scraper",
-        { directUrls: [postUrl], resultsType: "posts", resultsLimit: 1, addParentData: false },
-        60
-      )
-    )
-    const item     = items[0]
-    if (!item) return null
-    const firstVideo = Array.isArray(item.videos) ? item.videos[0] : null
-    const videoUrl = item.videoUrl
-      ?? item.videoSrc
-      ?? firstVideo?.src
-      ?? firstVideo?.url
-      ?? null
-    if (!videoUrl) return null
-
-    // Transcribir con Whisper via Apify
-    return transcribeWithWhisper(videoUrl)
-  } catch {
-    return null
-  }
-}
-
-async function transcribeWithWhisper(videoUrl: string): Promise<string | null> {
-  try {
-    const items = await apifyRunSync(
-      "apify~whisper-speech-to-text",
-      { audioUrl: videoUrl, language: "auto", translate: false },
-      180
-    )
-    const item = items[0]
-    return item?.text ?? item?.transcription ?? null
-  } catch {
-    return null
-  }
+async function getInstagramTranscript(postUrl: string, cdnVideoUrl?: string | null): Promise<string | null> {
+  // Si ya tenemos la URL del CDN del video (obtenida durante el scraping), transcribir directo
+  if (cdnVideoUrl) return transcribeWithAssemblyAI(cdnVideoUrl)
+  // Sin URL de CDN no podemos transcribir sin Apify
+  return null
 }
 
 // ─── Claude análisis ──────────────────────────────────────────────────────────
