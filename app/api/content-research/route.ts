@@ -14,8 +14,6 @@ function createServiceClient() {
   )
 }
 
-// ─── Duration helper ──────────────────────────────────────────────────────────
-
 function parseDuration(iso: string): string {
   const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/)
   if (!m) return "—"
@@ -46,13 +44,11 @@ async function resolveChannelId(url: string) {
     const data  = await res.json()
     channelId   = data.items?.[0]?.snippet?.channelId ?? data.items?.[0]?.id?.channelId ?? ""
   }
-
-  if (!channelId) throw new Error("No se pudo resolver el canal de YouTube. Verificá la URL.")
+  if (!channelId) throw new Error("No se pudo resolver el canal de YouTube.")
 
   const chRes  = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${key}`)
   const chData = await chRes.json()
   const ch     = chData.items?.[0]
-
   return {
     channelId,
     channelName:   ch?.snippet?.title ?? "Canal",
@@ -61,10 +57,11 @@ async function resolveChannelId(url: string) {
   }
 }
 
-async function fetchYouTubeVideos(channelId: string, extra = ""): Promise<any[]> {
+async function fetchYouTubeVideos(channelId: string, publishedAfter?: string) {
   const key       = process.env.YOUTUBE_API_KEY!
+  const dateParam = publishedAfter ? `&publishedAfter=${encodeURIComponent(publishedAfter)}` : ""
   const searchRes = await fetch(
-    `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&order=date&maxResults=50${extra}&key=${key}`
+    `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&order=date&maxResults=50${dateParam}&key=${key}`
   )
   const searchData = await searchRes.json()
   const videoIds: string[] = (searchData.items ?? []).map((v: any) => v.id?.videoId).filter(Boolean)
@@ -74,7 +71,6 @@ async function fetchYouTubeVideos(channelId: string, extra = ""): Promise<any[]>
     `https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails,snippet&id=${videoIds.join(",")}&key=${key}`
   )
   const statsData = await statsRes.json()
-
   return (statsData.items ?? [])
     .map((v: any) => ({
       video_id:     v.id,
@@ -95,63 +91,94 @@ async function fetchYouTubeVideos(channelId: string, extra = ""): Promise<any[]>
 
 async function getTopVideos(channelId: string, timeframeDays: number) {
   const publishedAfter = new Date(Date.now() - timeframeDays * 86_400_000).toISOString()
-  // Try with date filter first; fall back to most recent videos if none found
-  const videos = await fetchYouTubeVideos(channelId, `&publishedAfter=${encodeURIComponent(publishedAfter)}`)
+  const videos = await fetchYouTubeVideos(channelId, publishedAfter)
   if (videos.length) return videos
+  // Fallback: return most recent regardless of date
   return fetchYouTubeVideos(channelId)
 }
 
 // ─── Instagram ────────────────────────────────────────────────────────────────
 
-function extractInstagramUsername(url: string): string | null {
+function extractInstagramUsername(url: string): string {
   const m = url.match(/instagram\.com\/([^\/\?&]+)/)
-  const user = m?.[1]
-  if (!user || ["p", "reel", "tv", "reels", "stories"].includes(user)) return null
-  return user
+  const user = m?.[1] ?? ""
+  if (["p", "reel", "tv", "reels", "stories"].includes(user)) return ""
+  return user || url.replace(/.*instagram\.com\/?/, "").replace(/\/$/, "").split("?")[0]
+}
+
+// Instagram browser-like headers (try different combos to avoid blocks)
+const IG_HEADERS_A = {
+  "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+  "Accept": "application/json, text/plain, */*",
+  "Accept-Language": "es-US,es;q=0.9,en;q=0.8",
+  "X-IG-App-ID": "936619743392459",
+  "X-Requested-With": "XMLHttpRequest",
+}
+
+const IG_HEADERS_B = {
+  "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+  "Accept": "*/*",
+  "Accept-Language": "es,en;q=0.9",
+  "X-IG-App-ID": "936619743392459",
+  "X-Requested-With": "XMLHttpRequest",
+  "Sec-Fetch-Site": "same-origin",
+  "Sec-Fetch-Mode": "cors",
+  "Sec-Fetch-Dest": "empty",
 }
 
 async function scrapeInstagramProfile(username: string): Promise<any[]> {
-  // Primary: Instagram unofficial web API (no auth, works from most servers)
+  // Attempt 1: mobile Instagram API (different IP path)
+  try {
+    const res = await fetch(
+      `https://i.instagram.com/api/v1/users/web_profile_info/?username=${username}`,
+      { headers: IG_HEADERS_A, signal: AbortSignal.timeout(12_000) }
+    )
+    if (res.ok) {
+      const data  = await res.json()
+      const edges = data?.data?.user?.edge_owner_to_timeline_media?.edges ?? []
+      if (edges.length > 0) return mapIGEdges(edges, username)
+    }
+  } catch {}
+
+  // Attempt 2: desktop Instagram API
   try {
     const res = await fetch(
       `https://www.instagram.com/api/v1/users/web_profile_info/?username=${username}`,
       {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          "Accept": "*/*",
-          "Accept-Language": "es,en;q=0.9",
-          "X-IG-App-ID": "936619743392459",
-          "X-Requested-With": "XMLHttpRequest",
-          "Referer": `https://www.instagram.com/${username}/`,
-        },
-        signal: AbortSignal.timeout(15_000),
+        headers: { ...IG_HEADERS_B, "Referer": `https://www.instagram.com/${username}/` },
+        signal: AbortSignal.timeout(12_000),
       }
     )
     if (res.ok) {
       const data  = await res.json()
       const edges = data?.data?.user?.edge_owner_to_timeline_media?.edges ?? []
-      if (edges.length > 0) {
-        return edges.map((e: any) => {
-          const n = e.node
-          return {
-            id:             n.id,
-            shortCode:      n.shortcode,
-            caption:        n.edge_media_to_caption?.edges?.[0]?.node?.text ?? "",
-            timestamp:      n.taken_at_timestamp ? new Date(n.taken_at_timestamp * 1000).toISOString() : null,
-            likesCount:     n.edge_media_preview_like?.count ?? 0,
-            commentsCount:  n.edge_media_to_comment?.count ?? 0,
-            videoPlayCount: n.video_view_count ?? null,
-            videoDuration:  n.video_duration ?? null,
-            displayUrl:     n.display_url ?? null,
-            url:            `https://www.instagram.com/p/${n.shortcode}/`,
-            ownerUsername:  username,
-          }
-        })
-      }
+      if (edges.length > 0) return mapIGEdges(edges, username)
     }
   } catch {}
 
-  // Fallback: Apify if available
+  // Attempt 3: old ?__a=1 JSON endpoint
+  try {
+    const res = await fetch(
+      `https://www.instagram.com/${username}/?__a=1&__d=dis`,
+      {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+          "Accept": "application/json",
+          "X-IG-App-ID": "936619743392459",
+        },
+        signal: AbortSignal.timeout(12_000),
+      }
+    )
+    if (res.ok) {
+      const data  = await res.json()
+      const edges = data?.graphql?.user?.edge_owner_to_timeline_media?.edges
+        ?? data?.data?.user?.edge_owner_to_timeline_media?.edges
+        ?? []
+      if (edges.length > 0) return mapIGEdges(edges, username)
+    }
+  } catch {}
+
+  // Attempt 4: Apify instagram-scraper
   const token = process.env.APIFY_API_TOKEN
   if (token) {
     try {
@@ -160,7 +187,11 @@ async function scrapeInstagramProfile(username: string): Promise<any[]> {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ directUrls: [`https://www.instagram.com/${username}/`], resultsType: "posts", resultsLimit: 50 }),
+          body: JSON.stringify({
+            directUrls: [`https://www.instagram.com/${username}/`],
+            resultsType: "posts",
+            resultsLimit: 30,
+          }),
           signal: AbortSignal.timeout(135_000),
         }
       )
@@ -169,43 +200,89 @@ async function scrapeInstagramProfile(username: string): Promise<any[]> {
         if (Array.isArray(data) && data.length > 0) return data
       }
     } catch {}
+
+    // Attempt 5: Apify shu8hvrr5dv2154m9/instagram-profile-scraper (free tier actor)
+    try {
+      const res = await fetch(
+        `https://api.apify.com/v2/acts/shu8hvrr5dv2154m9~instagram-profile-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            usernames: [username],
+          }),
+          signal: AbortSignal.timeout(135_000),
+        }
+      )
+      if (res.ok) {
+        const data = await res.json()
+        if (Array.isArray(data) && data.length > 0) {
+          // This actor returns profile data with posts array
+          const profile = data[0]
+          const posts = profile?.latestPosts ?? profile?.posts ?? []
+          if (posts.length > 0) return posts
+        }
+      }
+    } catch {}
   }
 
   return []
+}
+
+function mapIGEdges(edges: any[], username: string) {
+  return edges.map((e: any) => {
+    const n = e.node
+    return {
+      id:             n.id,
+      shortCode:      n.shortcode,
+      caption:        n.edge_media_to_caption?.edges?.[0]?.node?.text ?? "",
+      timestamp:      n.taken_at_timestamp ? new Date(n.taken_at_timestamp * 1000).toISOString() : null,
+      likesCount:     n.edge_media_preview_like?.count ?? 0,
+      commentsCount:  n.edge_media_to_comment?.count ?? 0,
+      videoPlayCount: n.video_view_count ?? null,
+      videoDuration:  n.video_duration ?? null,
+      displayUrl:     n.display_url ?? null,
+      url:            `https://www.instagram.com/p/${n.shortcode}/`,
+      ownerUsername:  username,
+    }
+  })
 }
 
 async function getTopInstagramPosts(username: string, timeframeDays: number) {
   const since = new Date(Date.now() - timeframeDays * 86_400_000)
   const items = await scrapeInstagramProfile(username)
 
-  if (!items.length) throw new Error("No se pudo obtener el perfil de Instagram. Verificá que el usuario exista y sea público.")
+  if (!items.length) {
+    throw new Error("No se pudo acceder al perfil de Instagram. El perfil puede ser privado o estar temporalmente bloqueado.")
+  }
 
-  // Filter by timeframe; if nothing passes the filter, use all available posts
   const inRange = items.filter((item: any) => {
-    if (!item.timestamp) return true
-    return new Date(item.timestamp) >= since
+    const ts = item.timestamp ?? item.takenAt ?? item.taken_at_timestamp
+    if (!ts) return true
+    return new Date(ts) >= since
   })
   const source = inRange.length > 0 ? inRange : items
 
   const posts = source
     .map((item: any) => {
-      const views     = item.videoPlayCount ?? item.videoViewCount ?? item.likesCount ?? 0
+      const views    = item.videoPlayCount ?? item.videoViewCount ?? item.videoViewsCount ?? item.likesCount ?? 0
       const shortCode = item.shortCode ?? item.shortcode ?? null
       const duration  = item.videoDuration
         ? `${Math.floor(item.videoDuration / 60)}:${String(Math.round(item.videoDuration % 60)).padStart(2, "0")}`
         : "—"
-      const postUrl   = item.url ?? (shortCode ? `https://www.instagram.com/p/${shortCode}/` : `https://www.instagram.com/${username}/`)
+      const postUrl   = item.url ?? item.postUrl
+        ?? (shortCode ? `https://www.instagram.com/p/${shortCode}/` : `https://www.instagram.com/${username}/`)
       return {
         video_id:     item.id ?? shortCode ?? String(Math.random()),
         title:        (item.caption ?? "").slice(0, 120) || "Sin descripción",
         description:  (item.caption ?? "").slice(0, 300),
-        thumbnail:    item.displayUrl ?? null,
+        thumbnail:    item.displayUrl ?? item.thumbnailUrl ?? item.displayImage ?? null,
         video_url:    postUrl,
         views,
-        likes:        item.likesCount ?? 0,
-        comments:     item.commentsCount ?? 0,
+        likes:        item.likesCount ?? item.likes ?? 0,
+        comments:     item.commentsCount ?? item.comments ?? 0,
         duration,
-        published_at: item.timestamp ?? null,
+        published_at: item.timestamp ?? item.takenAt ?? null,
         platform:     "instagram" as const,
         transcript:   null,
       }
@@ -230,7 +307,7 @@ async function generateAnalyses(channelName: string, videos: any[]): Promise<str
       max_tokens: 1200,
       messages: [{
         role: "user",
-        content: `Analizá estos ${videos.length} videos del canal "${channelName}". Para cada video escribí un análisis breve (2-3 oraciones) sobre: qué tema trata, por qué funcionó con esa audiencia y qué lección de contenido se puede extraer. En español, tono profesional.\n\nVideos:\n${list}\n\nRespondé SOLO con un JSON array de exactamente ${videos.length} strings. Sin markdown, sin texto adicional.\nEjemplo: ["análisis 1", "análisis 2"]`,
+        content: `Analizá estos ${videos.length} videos del canal "${channelName}". Para cada video escribí un análisis breve (2-3 oraciones): qué tema trata, por qué funcionó y qué lección de contenido se puede extraer. En español.\n\nVideos:\n${list}\n\nRespondé SOLO con un JSON array de exactamente ${videos.length} strings. Sin markdown.\nEjemplo: ["análisis 1", "análisis 2"]`,
       }],
     })
 
@@ -296,14 +373,14 @@ export async function POST(req: NextRequest) {
 
     const isInstagram = platform === "instagram" || /instagram\.com/.test(channel_url)
 
-    let channelName = ""
+    let channelName   = ""
     let channelAvatar: string | null = null
-    let channelUrl = channel_url.trim()
+    let channelUrl    = channel_url.trim()
     let videos: any[] = []
 
     if (isInstagram) {
       const username = extractInstagramUsername(channel_url.trim())
-        ?? channel_url.trim().replace(/.*instagram\.com\/?/, "").replace(/\/$/, "")
+      if (!username) return NextResponse.json({ error: "URL de Instagram inválida." }, { status: 400 })
       const ig  = await getTopInstagramPosts(username, Number(timeframe_days))
       channelName   = ig.profileName
       channelAvatar = ig.profileAvatar
@@ -315,13 +392,13 @@ export async function POST(req: NextRequest) {
       channelAvatar = yt.channelAvatar
       channelUrl    = yt.channelUrl
       videos        = await getTopVideos(yt.channelId, Number(timeframe_days))
-      if (!videos.length) return NextResponse.json({ error: `No se encontraron videos en los últimos ${timeframe_days} días.` }, { status: 404 })
+      if (!videos.length) return NextResponse.json({ error: "No se encontraron videos para este canal." }, { status: 404 })
     }
 
-    const analyses          = await generateAnalyses(channelName, videos)
+    const analyses           = await generateAnalyses(channelName, videos)
     const videosWithAnalysis = videos.map((v, i) => ({ ...v, analysis: analyses[i] ?? "—" }))
 
-    const insertPayload: Record<string, any> = {
+    const payload: Record<string, any> = {
       user_id:        user.id,
       channel_url:    channel_url.trim(),
       channel_name:   channelName,
@@ -330,9 +407,9 @@ export async function POST(req: NextRequest) {
       platform:       isInstagram ? "instagram" : "youtube",
       videos:         videosWithAnalysis,
     }
-    const insertResult = await supabase.from("content_research_history").insert(insertPayload)
-    if (insertResult.error) {
-      console.warn("[content-research] insert error:", insertResult.error.message)
+    const { error: insertErr } = await supabase.from("content_research_history").insert(payload)
+    if (insertErr) {
+      console.warn("[content-research] insert error:", insertErr.message)
       await supabase.from("content_research_history").insert({
         user_id: user.id, channel_url: channel_url.trim(), channel_name: channelName,
         timeframe_days: Number(timeframe_days), videos: videosWithAnalysis,
@@ -341,6 +418,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ channelName, channelAvatar, channelUrl, timeframe_days, platform: isInstagram ? "instagram" : "youtube", videos: videosWithAnalysis })
   } catch (err: any) {
+    console.error("[content-research] error:", err)
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
   }
 }
