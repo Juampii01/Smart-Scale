@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 import Anthropic from "@anthropic-ai/sdk"
+import * as http from "http"
+import * as tls from "tls"
+import * as zlib from "zlib"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -112,10 +115,6 @@ function parseDuration(iso: string): string {
 
 // ─── Apify proxy fetch (Node.js built-ins only, no new packages) ─────────────
 // Routes HTTP requests through Apify residential proxy to bypass Vercel IP blocks
-
-import * as http from "http"
-import * as tls from "tls"
-import * as zlib from "zlib"
 
 let _apifyProxyPassword: string | null | undefined = undefined
 

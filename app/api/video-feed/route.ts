@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 import Anthropic from "@anthropic-ai/sdk"
+import * as http from "http"
+import * as tls from "tls"
+import * as zlib from "zlib"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -83,10 +86,6 @@ async function getYouTubePosts(channelId: string, limit = 50) {
 }
 
 // ─── Instagram ────────────────────────────────────────────────────────────────
-
-import * as http from "http"
-import * as tls from "tls"
-import * as zlib from "zlib"
 
 let _vfProxyPass: string | null | undefined = undefined
 
