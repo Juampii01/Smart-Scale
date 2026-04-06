@@ -156,57 +156,74 @@ async function assemblyAITranscript(cdnUrl: string, timeoutMs = 200_000): Promis
   return null
 }
 
-// ─── Instagram transcript via Apify scraper + AssemblyAI ─────────────────────
+// ─── Instagram transcript via RapidAPI + AssemblyAI ──────────────────────────
+
+const RAPIDAPI_IG_HOST = "instagram-scraper-20251.p.rapidapi.com"
+
+async function rapidApiGetPostByShortcode(shortCode: string, username: string): Promise<any | null> {
+  if (!process.env.RAPIDAPI_KEY) return null
+  const headers = {
+    "X-RapidAPI-Key":  process.env.RAPIDAPI_KEY,
+    "X-RapidAPI-Host": RAPIDAPI_IG_HOST,
+  }
+  for (const endpoint of ["reels", "posts"] as const) {
+    try {
+      const res = await fetch(
+        `https://${RAPIDAPI_IG_HOST}/user/${endpoint}?username=${encodeURIComponent(username)}&count=50`,
+        { headers, signal: AbortSignal.timeout(30_000) }
+      )
+      if (!res.ok) continue
+      const data  = await res.json()
+      const items: any[] = data?.data?.items ?? data?.items ?? []
+      const match = items.find((it: any) => (it.code ?? it.shortcode) === shortCode)
+      if (match) return match
+    } catch {}
+  }
+  return null
+}
 
 async function getInstagramTranscript(postUrl: string): Promise<{ transcript: string | null; caption: string | null; duration: string | null; username: string | null }> {
-  const token = process.env.APIFY_API_TOKEN
-  if (!token) throw new Error("Missing APIFY_API_TOKEN")
+  // Step 1: extract shortcode from URL
+  const shortCode = postUrl.match(/\/(p|reel|reels|tv)\/([^/?#]+)/)?.[2] ?? null
 
-  // Step 1: get post metadata + CDN video URL via Apify
-  // Try fast post scraper first, then fallback to profile scraper
-  let scraperRes = await fetch(
-    `https://api.apify.com/v2/acts/apify~instagram-post-scraper/run-sync-get-dataset-items?token=${token}&timeout=60`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ directUrls: [postUrl], resultsLimit: 1 }),
-      signal: AbortSignal.timeout(75_000),
-    }
-  )
-  if (!scraperRes.ok) {
-    scraperRes = await fetch(
-      `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${token}&timeout=60`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ directUrls: [postUrl], resultsType: "posts", resultsLimit: 1, addParentData: false }),
-        signal: AbortSignal.timeout(75_000),
-      }
+  let username: string | null = null
+  let caption:  string | null = null
+  let duration: string | null = null
+  let videoUrl: string | null = null
+
+  // Step 2: get username via Instagram oEmbed (public, no auth needed)
+  try {
+    const oEmbedRes = await fetch(
+      `https://api.instagram.com/oembed/?url=${encodeURIComponent(postUrl)}`,
+      { signal: AbortSignal.timeout(8_000) }
     )
-  }
-  if (!scraperRes.ok) throw new Error(`Instagram scraper error ${scraperRes.status}`)
-  const items = await scraperRes.json()
-  const item = Array.isArray(items) ? items[0] : null
-  if (!item) throw new Error("No se pudo obtener información del post de Instagram.")
+    if (oEmbedRes.ok) {
+      const oEmbed = await oEmbedRes.json()
+      username = oEmbed.author_name ?? null
+    }
+  } catch {}
 
-  const videoUrl = item.videoUrl
-    ?? item.videoSrc
-    ?? (Array.isArray(item.videos) && item.videos[0]?.src ? item.videos[0].src : null)
-    ?? (Array.isArray(item.videos) && item.videos[0]?.url ? item.videos[0].url : null)
-    ?? null
-  const caption  = item.caption ?? null
-  const rawDur   = item.videoDuration
-  const duration = rawDur
-    ? `${Math.floor(rawDur / 60)}:${String(Math.round(rawDur % 60)).padStart(2, "0")}`
-    : null
-  const username = item.ownerUsername ?? item.ownerFullName ?? null
+  // Step 3: fetch post details from RapidAPI using username + shortcode
+  if (username && shortCode) {
+    try {
+      const item = await rapidApiGetPostByShortcode(shortCode, username)
+      if (item) {
+        videoUrl = item.video_url ?? null
+        caption  = item.caption?.text ?? item.caption ?? null
+        const rawDur = item.video_duration
+        duration = rawDur
+          ? `${Math.floor(rawDur / 60)}:${String(Math.round(rawDur % 60)).padStart(2, "0")}`
+          : null
+      }
+    } catch {}
+  }
 
   if (!videoUrl) {
-    // Image post — no audio to transcribe
+    // Image post or couldn't get video URL
     return { transcript: null, caption, duration, username }
   }
 
-  // Step 2: transcribe the CDN mp4 with AssemblyAI
+  // Step 4: transcribe the CDN mp4 with AssemblyAI
   const transcript = await assemblyAITranscript(videoUrl, 100_000)
   return { transcript, caption, duration, username }
 }
