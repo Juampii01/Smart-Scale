@@ -158,56 +158,159 @@ async function assemblyAITranscript(cdnUrl: string, timeoutMs = 200_000): Promis
 
 // ─── Instagram transcript via RapidAPI + AssemblyAI ──────────────────────────
 
-const RAPIDAPI_IG_HOST = "instagram-scraper-20251.p.rapidapi.com"
+// instagram-scraper-20253: endpoint /user-posts-reels?username_or_id_or_url=
+const IG_HOST = "instagram-scraper-20253.p.rapidapi.com"
 
-async function rapidApiGetPostByShortcode(shortCode: string, username: string): Promise<any | null> {
-  if (!process.env.RAPIDAPI_KEY) return null
-  const headers = {
-    "X-RapidAPI-Key":  process.env.RAPIDAPI_KEY,
-    "X-RapidAPI-Host": RAPIDAPI_IG_HOST,
+function igHeaders() {
+  return {
+    "X-RapidAPI-Key":  process.env.RAPIDAPI_KEY ?? "",
+    "X-RapidAPI-Host": IG_HOST,
   }
-  for (const endpoint of ["reels", "posts"] as const) {
+}
+
+// Extract username by scraping Instagram page HTML — tries embed URLs + bot UAs
+async function extractUsernameFromPage(postUrl: string, shortCode: string): Promise<string | null> {
+  const tryUrls = [
+    `https://www.instagram.com/p/${shortCode}/embed/captioned/`,
+    `https://www.instagram.com/reel/${shortCode}/embed/captioned/`,
+    `https://www.instagram.com/p/${shortCode}/embed/`,
+    `https://www.instagram.com/reel/${shortCode}/embed/`,
+    postUrl,
+  ]
+  const uas = [
+    "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+    "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
+    "Twitterbot/1.0",
+    "LinkedInBot/1.0 (compatible; Mozilla/5.0; Apache-HttpClient +http://www.linkedin.com)",
+  ]
+
+  for (const url of tryUrls) {
+    for (const ua of uas) {
+      try {
+        const res = await fetch(url, {
+          headers: {
+            "User-Agent": ua,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+          },
+          signal: AbortSignal.timeout(8_000),
+        })
+        if (!res.ok) {
+          console.log("[transcript] page scrape:", url.split("/").slice(-3).join("/"), ua.slice(0, 20), "status:", res.status)
+          continue
+        }
+        const html = await res.text()
+
+        // Log raw title for debugging
+        const rawTitle =
+          html.match(/property="og:title"[^>]*content="([^"]+)"/i)?.[1] ??
+          html.match(/content="([^"]+)"[^>]*property="og:title"/i)?.[1] ??
+          html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1] ?? ""
+        console.log("[transcript] page title:", rawTitle.slice(0, 120), "| ua:", ua.slice(0, 20), "url:", url.split("/").slice(-3).join("/"))
+
+        if (rawTitle && rawTitle.toLowerCase() !== "instagram") {
+          // "username on Instagram: ..." / "username (@handle) on Instagram" / "username • Instagram"
+          const m = rawTitle.match(/^@?([A-Za-z0-9._]{1,30})(?:\s+\([^)]+\))?\s+(?:[•·]\s*)?(?:on\s+)?Instagram/i)
+          if (m?.[1] && m[1].toLowerCase() !== "instagram") {
+            console.log("[transcript] username from title:", m[1])
+            return m[1]
+          }
+        }
+
+        // JSON patterns embedded in the page
+        const jsonPatterns = [
+          /"owner"\s*:\s*\{[^}]*?"username"\s*:\s*"([A-Za-z0-9._]{1,30})"/,
+          /"user"\s*:\s*\{[^}]*?"username"\s*:\s*"([A-Za-z0-9._]{1,30})"/,
+          /"username"\s*:\s*"([A-Za-z0-9._]{1,30})"/,
+          /instagram\.com\/([A-Za-z0-9._]{1,30})\/(?:p|reel|reels|tv)\//,
+        ]
+        const blocked = new Set(["p", "reel", "reels", "tv", "stories", "explore", "accounts", "instagram"])
+        for (const pat of jsonPatterns) {
+          const m = html.match(pat)
+          if (m?.[1] && !blocked.has(m[1].toLowerCase())) {
+            console.log("[transcript] username from JSON/link:", m[1])
+            return m[1]
+          }
+        }
+      } catch (e) {
+        console.log("[transcript] page scrape error:", e instanceof Error ? e.message : String(e))
+      }
+    }
+  }
+  return null
+}
+
+// Try direct RapidAPI endpoints that may accept a shortcode (no username needed)
+async function rapidApiGetPostDirectly(shortCode: string): Promise<any | null> {
+  if (!process.env.RAPIDAPI_KEY) return null
+  const endpoints = [
+    `https://${IG_HOST}/post-details?shortcode=${shortCode}`,
+    `https://${IG_HOST}/media?shortcode=${shortCode}`,
+    `https://${IG_HOST}/reel?shortcode=${shortCode}`,
+    `https://${IG_HOST}/media-by-shortcode?shortcode=${shortCode}`,
+  ]
+  for (const url of endpoints) {
     try {
-      const res = await fetch(
-        `https://${RAPIDAPI_IG_HOST}/user/${endpoint}?username=${encodeURIComponent(username)}&count=50`,
-        { headers, signal: AbortSignal.timeout(30_000) }
-      )
+      const res = await fetch(url, { headers: igHeaders(), signal: AbortSignal.timeout(12_000) })
+      console.log("[transcript] direct endpoint:", url.split("?")[0].split("/").pop(), "→", res.status)
       if (!res.ok) continue
-      const data  = await res.json()
-      const items: any[] = data?.data?.items ?? data?.items ?? []
-      const match = items.find((it: any) => (it.code ?? it.shortcode) === shortCode)
-      if (match) return match
+      const data = await res.json()
+      const item = data?.data ?? data?.item ?? data
+      if (item?.video_url || item?.video_versions) {
+        console.log("[transcript] direct endpoint hit! videoUrl:", !!item.video_url)
+        return item
+      }
     } catch {}
   }
   return null
 }
 
-async function extractUsernameFromPostPage(postUrl: string): Promise<string | null> {
-  try {
-    const res = await fetch(postUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
-        "Accept-Language": "en-US,en;q=0.9",
-      },
-      signal: AbortSignal.timeout(10_000),
-    })
-    if (!res.ok) return null
-    const html = await res.text()
-    // Try og:title which often contains "@username"
-    const ogTitle = html.match(/<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i)?.[1] ?? null
-    if (ogTitle) {
-      const m = ogTitle.match(/@([\w.]+)/)
-      if (m) return m[1]
+async function rapidApiGetPostByShortcode(shortCode: string, username: string): Promise<any | null> {
+  if (!process.env.RAPIDAPI_KEY) return null
+
+  let paginationToken: string | null = null
+  const maxPages = 5
+
+  for (let page = 0; page < maxPages; page++) {
+    try {
+      const base = `https://${IG_HOST}/user-posts-reels?username_or_id_or_url=${encodeURIComponent(username)}&url_embed_safe=false`
+      const url  = paginationToken ? `${base}&pagination_token=${encodeURIComponent(paginationToken)}` : base
+
+      const res = await fetch(url, { headers: igHeaders(), signal: AbortSignal.timeout(30_000) })
+      console.log("[transcript] rapidapi username page", page + 1, "status:", res.status)
+      if (!res.ok) return null
+
+      const data  = await res.json()
+      const items: any[] = data?.data?.items ?? data?.items ?? []
+      console.log("[transcript] page", page + 1, "items:", items.length, "codes:", items.slice(0, 5).map((i: any) => i.code ?? i.shortcode).join(","))
+
+      const match = items.find((it: any) => (it.code ?? it.shortcode) === shortCode)
+      if (match) return match
+
+      paginationToken = data?.pagination_token ?? data?.data?.pagination_token ?? null
+      if (!paginationToken || !items.length) break
+    } catch {
+      break
     }
-    // Try JSON-LD or window._sharedData
-    const jsonLd = html.match(/"owner":\s*\{"id":"[^"]+","username":"([^"]+)"/)
-    if (jsonLd) return jsonLd[1]
-  } catch {}
+  }
+  return null
+}
+
+function extractVideoUrl(item: any): string | null {
+  if (!item) return null
+  if (item.video_url) return item.video_url
+  if (Array.isArray(item.video_versions) && item.video_versions[0]?.url) return item.video_versions[0].url
+  // carousel_media — look for video inside it
+  if (Array.isArray(item.carousel_media)) {
+    for (const m of item.carousel_media) {
+      const v = m.video_url ?? m.video_versions?.[0]?.url
+      if (v) return v
+    }
+  }
   return null
 }
 
 async function getInstagramTranscript(postUrl: string): Promise<{ transcript: string | null; caption: string | null; duration: string | null; username: string | null }> {
-  // Step 1: extract shortcode from URL
   const shortCode = postUrl.match(/\/(p|reel|reels|tv)\/([^/?#]+)/)?.[2] ?? null
 
   let username: string | null = null
@@ -215,40 +318,55 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
   let duration: string | null = null
   let videoUrl: string | null = null
 
-  // Step 2a: try Instagram oEmbed (works when Instagram allows it)
-  try {
-    const oEmbedRes = await fetch(
-      `https://api.instagram.com/oembed/?url=${encodeURIComponent(postUrl)}`,
-      { signal: AbortSignal.timeout(8_000) }
-    )
-    if (oEmbedRes.ok) {
-      const oEmbed = await oEmbedRes.json()
-      username = oEmbed.author_name ?? null
-    }
-  } catch {}
-
-  // Step 2b: fallback — scrape the post page for username
-  if (!username) {
-    username = await extractUsernameFromPostPage(postUrl)
+  // Paso 1: username desde la URL (formato: instagram.com/username/reel/shortcode/)
+  const urlMatch = postUrl.match(/instagram\.com\/([^/?#]+)\/(p|reel|reels|tv)\//)
+  if (urlMatch?.[1] && !["p", "reel", "reels", "tv", "stories"].includes(urlMatch[1])) {
+    username = urlMatch[1]
   }
 
-  console.log("[transcript] shortCode:", shortCode, "username:", username)
-
-  // Step 3: fetch post details from RapidAPI using username + shortcode
-  if (username && shortCode) {
+  // Paso 2: oEmbed
+  if (!username) {
     try {
-      const item = await rapidApiGetPostByShortcode(shortCode, username)
-      console.log("[transcript] rapidapi item found:", !!item, "videoUrl:", item?.video_url ?? null)
-      if (item) {
-        videoUrl = item.video_url ?? null
-        caption  = item.caption?.text ?? item.caption ?? null
-        const rawDur = item.video_duration
-        duration = rawDur
-          ? `${Math.floor(rawDur / 60)}:${String(Math.round(rawDur % 60)).padStart(2, "0")}`
-          : null
+      const res = await fetch(
+        `https://api.instagram.com/oembed/?url=${encodeURIComponent(postUrl)}`,
+        { signal: AbortSignal.timeout(8_000) }
+      )
+      if (res.ok) {
+        const data = await res.json()
+        username = data.author_name ?? null
       }
-    } catch (e) {
-      console.error("[transcript] rapidapi error:", e)
+    } catch {}
+  }
+
+  // Paso 3: HTML scraping — embed pages with bot UAs (less blocked than regular pages)
+  if (!username && shortCode) {
+    username = await extractUsernameFromPage(postUrl, shortCode)
+  }
+
+  console.log("[transcript] shortCode:", shortCode, "username after extraction:", username)
+
+  // Paso 4a: username + shortcode → buscar post en sus reels
+  if (!videoUrl && username && shortCode) {
+    const item = await rapidApiGetPostByShortcode(shortCode, username)
+    console.log("[transcript] by username+shortcode:", !!item, "videoUrl:", extractVideoUrl(item) ?? null)
+    if (item) {
+      videoUrl = extractVideoUrl(item)
+      caption  = item.caption?.text ?? item.caption ?? null
+      const rawDur = item.video_duration
+      duration = rawDur ? `${Math.floor(rawDur / 60)}:${String(Math.round(rawDur % 60)).padStart(2, "0")}` : null
+    }
+  }
+
+  // Paso 4b: intento directo por shortcode (endpoints alternativos en RapidAPI)
+  if (!videoUrl && shortCode) {
+    const item = await rapidApiGetPostDirectly(shortCode)
+    console.log("[transcript] by direct shortcode:", !!item, "videoUrl:", extractVideoUrl(item) ?? null)
+    if (item) {
+      videoUrl = extractVideoUrl(item)
+      caption  = item.caption?.text ?? item.caption ?? null
+      username = item.user?.username ?? item.owner?.username ?? username
+      const rawDur = item.video_duration
+      duration = rawDur ? `${Math.floor(rawDur / 60)}:${String(Math.round(rawDur % 60)).padStart(2, "0")}` : null
     }
   }
 
@@ -257,7 +375,7 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
     return { transcript: null, caption, duration, username }
   }
 
-  // Step 4: transcribe the CDN mp4 with AssemblyAI
+  // Paso 5: transcribir con AssemblyAI
   const transcript = await assemblyAITranscript(videoUrl, 100_000)
   return { transcript, caption, duration, username }
 }
