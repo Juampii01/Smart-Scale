@@ -85,73 +85,39 @@ async function getYouTubePosts(channelId: string, limit = 50) {
 // ─── Instagram ────────────────────────────────────────────────────────────────
 
 async function getInstagramPosts(url: string, limit = 50) {
+  const token = process.env.APIFY_API_TOKEN!
   const username = url.match(/instagram\.com\/([^\/\?&]+)/)?.[1] ?? url.replace(/.*instagram\.com\/?/, "").replace(/\/$/, "")
-  let rawItems: any[] = []
 
-  // Attempt 1: RapidAPI Instagram Scraper (works from Vercel via proxy)
-  const rapidKey = process.env.RAPIDAPI_KEY
-  if (rapidKey) {
-    try {
-      const res = await fetch(
-        `https://instagram-scraper-api2.p.rapidapi.com/v1/posts?username_or_id_or_url=${username}`,
-        {
-          headers: {
-            "X-RapidAPI-Key": rapidKey,
-            "X-RapidAPI-Host": "instagram-scraper-api2.p.rapidapi.com",
-          },
-          signal: AbortSignal.timeout(20_000),
-        }
-      )
-      if (res.ok) {
-        const data = await res.json()
-        const fetched = data?.data?.items ?? data?.items ?? []
-        if (fetched.length > 0) {
-          rawItems = fetched.map((item: any) => ({
-            id:             item.id,
-            shortCode:      item.code,
-            caption:        item.caption?.text ?? "",
-            timestamp:      item.taken_at ? new Date(item.taken_at * 1000).toISOString() : null,
-            likesCount:     item.like_count ?? 0,
-            commentsCount:  item.comment_count ?? 0,
-            videoPlayCount: item.view_count ?? item.play_count ?? null,
-            videoDuration:  item.video_duration ?? null,
-            displayUrl:     item.image_versions2?.candidates?.[0]?.url ?? item.thumbnail_url ?? null,
-            url:            `https://www.instagram.com/p/${item.code}/`,
-            ownerUsername:  username,
-            type:           item.media_type === 2 ? "Video" : "Image",
-          }))
-        }
+  // Try apify~instagram-profile-scraper first (free), fallback to instagram-scraper
+  let res = await fetch(
+    `https://api.apify.com/v2/acts/apify~instagram-profile-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ usernames: [username], resultsLimit: limit }),
+      signal: AbortSignal.timeout(135_000),
+    }
+  )
+  if (!res.ok) {
+    res = await fetch(
+      `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ directUrls: [`https://www.instagram.com/${username}/`], resultsType: "posts", resultsLimit: limit }),
+        signal: AbortSignal.timeout(135_000),
       }
-    } catch {}
+    )
   }
+  if (!res.ok) throw new Error(`Instagram scraper error ${res.status}`)
+  const items = await res.json()
+  if (!Array.isArray(items) || !items.length) throw new Error("No se encontraron posts en este perfil.")
 
-  // Attempt 2: Apify instagram-scraper
-  const token = process.env.APIFY_API_TOKEN
-  if (!rawItems.length && token) {
-    try {
-      const res = await fetch(
-        `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ directUrls: [`https://www.instagram.com/${username}/`], resultsType: "posts", resultsLimit: limit }),
-          signal: AbortSignal.timeout(135_000),
-        }
-      )
-      if (res.ok) {
-        const data = await res.json()
-        if (Array.isArray(data) && data.length) rawItems = data
-      }
-    } catch {}
-  }
-
-  if (!rawItems.length) throw new Error("No se encontraron posts en este perfil.")
-
-  const profile = rawItems[0]
+  const profile = items[0]
   const profileName   = profile.ownerUsername ?? username
   const profileAvatar = null
 
-  const posts = rawItems.map((item: any) => ({
+  const posts = items.map((item: any) => ({
     post_id:      item.id ?? item.shortCode ?? String(Math.random()),
     type:         item.type ?? "Image",
     title:        (item.caption ?? "").slice(0, 120) || "Sin descripción",
