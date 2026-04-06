@@ -36,25 +36,25 @@ function rapidApiIgHeaders() {
   }
 }
 
-async function rapidApiInstagramFetch(username: string): Promise<any[]> {
-  if (!process.env.RAPIDAPI_KEY) { console.warn("[rapidapi] RAPIDAPI_KEY not set"); return [] }
+async function rapidApiInstagramFetch(username: string, count = 50): Promise<any[]> {
+  if (!process.env.RAPIDAPI_KEY) return []
   try {
-    const res = await fetch(
-      `https://${RAPIDAPI_IG_HOST}/user-posts-reels?username_or_id_or_url=${encodeURIComponent(username)}&url_embed_safe=false`,
-      { headers: rapidApiIgHeaders(), signal: AbortSignal.timeout(30_000) }
-    )
-    console.log(`[rapidapi] /user-posts-reels status:`, res.status, "username:", username)
+    const url = `https://${RAPIDAPI_IG_HOST}/user-posts-reels?username_or_id_or_url=${encodeURIComponent(username)}&url_embed_safe=false`
+    console.log("[rapidapi] fetching:", url)
+    const res = await fetch(url, { headers: rapidApiIgHeaders(), signal: AbortSignal.timeout(30_000) })
+    console.log("[rapidapi] status:", res.status)
     if (!res.ok) {
-      const errText = await res.text().catch(() => "")
-      console.warn(`[rapidapi] error body:`, errText.slice(0, 200))
+      const txt = await res.text().catch(() => "")
+      console.log("[rapidapi] error body:", txt.slice(0, 300))
       return []
     }
     const data  = await res.json()
+    console.log("[rapidapi] data keys:", Object.keys(data ?? {}))
     const items = data?.data?.items ?? data?.items ?? []
-    console.log(`[rapidapi] items count:`, Array.isArray(items) ? items.length : "not array, keys:", Object.keys(data ?? {}))
+    console.log("[rapidapi] items count:", Array.isArray(items) ? items.length : typeof items)
     return Array.isArray(items) ? items : []
   } catch (e) {
-    console.error(`[rapidapi] exception:`, e)
+    console.log("[rapidapi] exception:", String(e))
     return []
   }
 }
@@ -241,12 +241,13 @@ async function scrapeInstagramProfile(username: string): Promise<any[]> {
     if (res.ok) {
       const data  = await res.json()
       const edges: any[] = data?.data?.user?.edge_owner_to_timeline_media?.edges ?? []
+      console.log("[content-research] direct fetch edges:", edges.length)
       if (edges.length > 0) return mapIGEdges(edges, username)
     }
-  } catch {}
+  } catch (e) { console.log("[content-research] direct fetch error:", String(e)) }
 
-  // 2. RapidAPI — instagram-scraper-20253 devuelve posts y reels juntos
-  const rapidItems = await rapidApiInstagramFetch(username)
+  // 2. RapidAPI User Posts & Reels — funciona en Vercel
+  const rapidItems = await rapidApiInstagramFetch(username, 50)
   if (rapidItems.length) return rapidItems.map((item: any) => {
     const shortCode = item.code ?? item.shortcode ?? null
     return {
@@ -258,7 +259,7 @@ async function scrapeInstagramProfile(username: string): Promise<any[]> {
       commentsCount:  item.comment_count ?? 0,
       videoPlayCount: item.play_count ?? item.view_count ?? null,
       videoDuration:  item.video_duration ?? null,
-      displayUrl:     item.image_versions2?.candidates?.[0]?.url ?? item.thumbnail_url ?? null,
+      displayUrl:     item.image_versions2?.candidates?.[0]?.url ?? null,
       videoUrl:       item.video_url ?? null,
       url:            shortCode ? `https://www.instagram.com/p/${shortCode}/` : `https://www.instagram.com/${username}/`,
       ownerUsername:  username,
@@ -291,20 +292,13 @@ function mapIGEdges(edges: any[], username: string): any[] {
 
 async function getTopInstagramPosts(username: string, timeframeDays: number) {
   const items = await scrapeInstagramProfile(username)
+  console.log("[content-research] scrapeInstagramProfile returned", items.length, "items")
 
-  if (!items.length) {
-    return { posts: [], profileName: username, profileAvatar: null as string | null, profileUrl: `https://www.instagram.com/${username}/` }
-  }
-
-  const since = new Date(Date.now() - timeframeDays * 86_400_000)
-  const withinRange = items.filter((item: any) => {
-    if (!item.timestamp) return true
-    return new Date(item.timestamp) >= since
-  })
-  // Si el filtro elimina todo, usamos todos los posts (sin restricción de fecha)
-  const base = withinRange.length > 0 ? withinRange : items
-
-  const mapped = base
+  const mapped = items
+    .filter((item: any) => {
+      if (!item.timestamp) return true
+      return new Date(item.timestamp) >= new Date(new Date(Date.now() - timeframeDays * 86_400_000).toISOString().split("T")[0])
+    })
     .map((item: any) => {
       const views     = item.videoPlayCount ?? item.videoViewCount ?? item.likesCount ?? 0
       const shortCode = item.shortCode ?? item.shortcode ?? null
@@ -334,6 +328,8 @@ async function getTopInstagramPosts(username: string, timeframeDays: number) {
     })
     .sort((a: any, b: any) => b.views - a.views)
     .slice(0, 5)
+
+  console.log("[content-research] mapped posts after filter+sort:", mapped.length)
 
   // Transcripciones usando CDN URL obtenida de RapidAPI
   const transcripts = await Promise.all(mapped.map((p: any) => getInstagramTranscript(p.post_url, p.cdn_video_url)))
