@@ -230,8 +230,11 @@ function AnalysisCard({ item, onDelete, deletingId }: {
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${isInstagram ? "bg-pink-500/10 text-pink-400 border border-pink-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
+              {isInstagram ? "Instagram" : "YouTube"}
+            </span>
             <span className="text-sm font-semibold text-white truncate">
-              {item.channel_name || (isInstagram ? "Instagram" : "YouTube")}
+              {item.channel_name || ""}
             </span>
             <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 inline-block" />

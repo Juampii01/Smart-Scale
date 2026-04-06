@@ -370,10 +370,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 asChild
                 variant="outline"
                 size="sm"
-                className="hidden sm:inline-flex border-[#ffde21]/40 text-[#ffde21] hover:bg-[#ffde21]/10 hover:text-[#ffde21] hover:border-[#ffde21]/60"
-                title="Cha-Ching 💰"
+                className="hidden sm:inline-flex border-[#ffde21]/40 text-[#ffde21] hover:bg-[#ffde21]/10 hover:text-[#ffde21] hover:border-[#ffde21]/60 gap-1.5"
+                title="Cha-Ching"
               >
-                <a href="/chi-chang">Cha-Ching 💰</a>
+                <a href="/chi-chang">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#ffde21]/20 text-[11px]">💰</span>
+                  Cha-Ching
+                </a>
               </Button>
 
               <MonthSelector

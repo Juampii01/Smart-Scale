@@ -102,7 +102,7 @@ async function getYouTubePosts(channelId: string, limit = 50) {
 
 // ─── Instagram ────────────────────────────────────────────────────────────────
 
-const RAPIDAPI_IG_HOST = "instagram-scraper-20251.p.rapidapi.com"
+const RAPIDAPI_IG_HOST = "instagram-scraper-20253.p.rapidapi.com"
 
 function rapidApiIgHeaders() {
   return {
@@ -162,11 +162,11 @@ function mapRapidApiItems(items: any[], username: string) {
   })
 }
 
-async function rapidApiInstagramFetch(username: string, endpoint: "posts" | "reels", count: number): Promise<any[]> {
+async function rapidApiInstagramFetch(username: string, count: number): Promise<any[]> {
   if (!process.env.RAPIDAPI_KEY) return []
   try {
     const res = await fetch(
-      `https://${RAPIDAPI_IG_HOST}/user/${endpoint}?username=${encodeURIComponent(username)}&count=${count}`,
+      `https://${RAPIDAPI_IG_HOST}/user-posts-reels?username_or_id_or_url=${encodeURIComponent(username)}&url_embed_safe=false`,
       { headers: rapidApiIgHeaders(), signal: AbortSignal.timeout(30_000) }
     )
     if (!res.ok) return []
@@ -195,15 +195,9 @@ async function getInstagramPosts(url: string, limit = 50) {
     }
   } catch {}
 
-  // 2. RapidAPI User Posts — funciona en Vercel
+  // 2. RapidAPI User Posts & Reels — funciona en Vercel
   if (!rawItems.length) {
-    const items = await rapidApiInstagramFetch(username, "posts", limit)
-    if (items.length) rawItems = mapRapidApiItems(items, username)
-  }
-
-  // 3. RapidAPI User Reels — fallback para cuentas de reels
-  if (!rawItems.length) {
-    const items = await rapidApiInstagramFetch(username, "reels", limit)
+    const items = await rapidApiInstagramFetch(username, limit)
     if (items.length) rawItems = mapRapidApiItems(items, username)
   }
 
