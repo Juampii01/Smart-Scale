@@ -249,9 +249,9 @@ async function rapidApiGetPostDirectly(shortCode: string): Promise<any | null> {
     `https://${IG_HOST}/reel?shortcode=${shortCode}`,
     `https://${IG_HOST}/media-by-shortcode?shortcode=${shortCode}`,
   ]
-  for (const url of endpoints) {
+  for (const url of endpoints as string[]) {
     try {
-      const res = await fetch(url, { headers: igHeaders(), signal: AbortSignal.timeout(12_000) })
+      const res: Response = await fetch(url, { headers: igHeaders(), signal: AbortSignal.timeout(12_000) })
       console.log("[transcript] direct endpoint:", url.split("?")[0].split("/").pop(), "→", res.status)
       if (!res.ok) continue
       const data = await res.json()
@@ -274,9 +274,9 @@ async function rapidApiGetPostByShortcode(shortCode: string, username: string): 
   for (let page = 0; page < maxPages; page++) {
     try {
       const base = `https://${IG_HOST}/user-posts-reels?username_or_id_or_url=${encodeURIComponent(username)}&url_embed_safe=false`
-      const url  = paginationToken ? `${base}&pagination_token=${encodeURIComponent(paginationToken)}` : base
+      const url: string  = paginationToken ? `${base}&pagination_token=${encodeURIComponent(paginationToken)}` : base
 
-      const res = await fetch(url, { headers: igHeaders(), signal: AbortSignal.timeout(30_000) })
+      const res: Response = await fetch(url, { headers: igHeaders(), signal: AbortSignal.timeout(30_000) })
       console.log("[transcript] rapidapi username page", page + 1, "status:", res.status)
       if (!res.ok) return null
 
