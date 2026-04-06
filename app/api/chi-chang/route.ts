@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json()
     const { client_id, fecha, valor_trato, cash_collected, proximo_nivel, notas } = body
+    const proximoObjetivo = body.proximo_objetivo ?? body.proximoNivel ?? proximo_nivel ?? null
 
     if (!client_id || !fecha || !valor_trato || !cash_collected) {
       return NextResponse.json({ error: "Faltan campos obligatorios." }, { status: 400 })
@@ -47,12 +48,13 @@ export async function POST(req: NextRequest) {
       fecha,
       valor_trato:    Number(valor_trato),
       cash_collected: Number(cash_collected),
-      proximo_nivel:  proximo_nivel || null,
+      proximo_nivel:  proximoObjetivo,
+      proximo_objetivo: proximoObjetivo,
       notas:          notas || null,
       timestamp:      new Date().toISOString(),
     }
 
-    const webhookUrl = process.env.NEXT_PUBLIC_ZAPIER_WEBHOOK_CHI_CHANG
+    const webhookUrl = process.env.ZAPIER_WEBHOOK_CHI_CHANG
     if (!webhookUrl) {
       console.warn("[chi-chang] No webhook URL configured")
       return NextResponse.json({ ok: true, warning: "Webhook no configurado" })

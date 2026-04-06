@@ -7,12 +7,12 @@ import { CheckCircle, AlertCircle, Loader2, Trophy } from "lucide-react"
 
 const NIVEL_OPTIONS = [
   "Seleccioná un nivel",
-  "$10K",
-  "$20K",
-  "$40K",
-  "$50K",
-  "$100K",
-]
+  "🔴 $5K",
+  "🔵 $10K",
+  "🟣 $20K",
+  "🟡 $50K",
+  "🟢 $100K",
+];
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
