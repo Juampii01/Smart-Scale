@@ -10,14 +10,12 @@ export function createClient() {
     );
   }
 
-  const storage = typeof window !== "undefined" ? window.sessionStorage : undefined;
-
   return createSupabaseClient(url, anonKey, {
     auth: {
-      storage,
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+      storageKey: "sb-session",
     },
   });
 }
