@@ -86,90 +86,48 @@ async function getYouTubePosts(channelId: string, limit = 50) {
 
 async function getInstagramPosts(url: string, limit = 50) {
   const username = url.match(/instagram\.com\/([^\/\?&]+)/)?.[1] ?? url.replace(/.*instagram\.com\/?/, "").replace(/\/$/, "")
-  let items: any[] = []
+  let rawItems: any[] = []
 
-  // Attempt 1: mobile Instagram API
-  try {
-    const res = await fetch(
-      `https://i.instagram.com/api/v1/users/web_profile_info/?username=${username}`,
-      {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
-          "Accept": "application/json",
-          "X-IG-App-ID": "936619743392459",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-        signal: AbortSignal.timeout(12_000),
-      }
-    )
-    if (res.ok) {
-      const data  = await res.json()
-      const edges = data?.data?.user?.edge_owner_to_timeline_media?.edges ?? []
-      if (edges.length > 0) {
-        items = edges.map((e: any) => {
-          const n = e.node
-          return {
-            id: n.id, shortCode: n.shortcode,
-            caption: n.edge_media_to_caption?.edges?.[0]?.node?.text ?? "",
-            timestamp: n.taken_at_timestamp ? new Date(n.taken_at_timestamp * 1000).toISOString() : null,
-            likesCount: n.edge_media_preview_like?.count ?? 0,
-            commentsCount: n.edge_media_to_comment?.count ?? 0,
-            videoPlayCount: n.video_view_count ?? null,
-            videoDuration: n.video_duration ?? null,
-            displayUrl: n.display_url ?? null,
-            url: `https://www.instagram.com/p/${n.shortcode}/`,
-            ownerUsername: username,
-            type: n.is_video ? "Video" : "Image",
-          }
-        })
-      }
-    }
-  } catch {}
-
-  // Attempt 2: desktop Instagram API
-  if (!items.length) {
+  // Attempt 1: RapidAPI Instagram Scraper (works from Vercel via proxy)
+  const rapidKey = process.env.RAPIDAPI_KEY
+  if (rapidKey) {
     try {
       const res = await fetch(
-        `https://www.instagram.com/api/v1/users/web_profile_info/?username=${username}`,
+        `https://instagram-scraper-api2.p.rapidapi.com/v1/posts?username_or_id_or_url=${username}`,
         {
           headers: {
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-            "Accept": "*/*",
-            "X-IG-App-ID": "936619743392459",
-            "X-Requested-With": "XMLHttpRequest",
-            "Referer": `https://www.instagram.com/${username}/`,
+            "X-RapidAPI-Key": rapidKey,
+            "X-RapidAPI-Host": "instagram-scraper-api2.p.rapidapi.com",
           },
-          signal: AbortSignal.timeout(12_000),
+          signal: AbortSignal.timeout(20_000),
         }
       )
       if (res.ok) {
-        const data  = await res.json()
-        const edges = data?.data?.user?.edge_owner_to_timeline_media?.edges ?? []
-        if (edges.length > 0) {
-          items = edges.map((e: any) => {
-            const n = e.node
-            return {
-              id: n.id, shortCode: n.shortcode,
-              caption: n.edge_media_to_caption?.edges?.[0]?.node?.text ?? "",
-              timestamp: n.taken_at_timestamp ? new Date(n.taken_at_timestamp * 1000).toISOString() : null,
-              likesCount: n.edge_media_preview_like?.count ?? 0,
-              commentsCount: n.edge_media_to_comment?.count ?? 0,
-              videoPlayCount: n.video_view_count ?? null,
-              videoDuration: n.video_duration ?? null,
-              displayUrl: n.display_url ?? null,
-              url: `https://www.instagram.com/p/${n.shortcode}/`,
-              ownerUsername: username,
-              type: n.is_video ? "Video" : "Image",
-            }
-          })
+        const data = await res.json()
+        const fetched = data?.data?.items ?? data?.items ?? []
+        if (fetched.length > 0) {
+          rawItems = fetched.map((item: any) => ({
+            id:             item.id,
+            shortCode:      item.code,
+            caption:        item.caption?.text ?? "",
+            timestamp:      item.taken_at ? new Date(item.taken_at * 1000).toISOString() : null,
+            likesCount:     item.like_count ?? 0,
+            commentsCount:  item.comment_count ?? 0,
+            videoPlayCount: item.view_count ?? item.play_count ?? null,
+            videoDuration:  item.video_duration ?? null,
+            displayUrl:     item.image_versions2?.candidates?.[0]?.url ?? item.thumbnail_url ?? null,
+            url:            `https://www.instagram.com/p/${item.code}/`,
+            ownerUsername:  username,
+            type:           item.media_type === 2 ? "Video" : "Image",
+          }))
         }
       }
     } catch {}
   }
 
-  // Attempt 3: Apify instagram-scraper
+  // Attempt 2: Apify instagram-scraper
   const token = process.env.APIFY_API_TOKEN
-  if (!items.length && token) {
+  if (!rawItems.length && token) {
     try {
       const res = await fetch(
         `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
@@ -182,40 +140,18 @@ async function getInstagramPosts(url: string, limit = 50) {
       )
       if (res.ok) {
         const data = await res.json()
-        if (Array.isArray(data) && data.length) items = data
+        if (Array.isArray(data) && data.length) rawItems = data
       }
     } catch {}
   }
 
-  // Attempt 4: Apify profile scraper (free tier actor)
-  if (!items.length && token) {
-    try {
-      const res = await fetch(
-        `https://api.apify.com/v2/acts/shu8hvrr5dv2154m9~instagram-profile-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ usernames: [username] }),
-          signal: AbortSignal.timeout(135_000),
-        }
-      )
-      if (res.ok) {
-        const data = await res.json()
-        if (Array.isArray(data) && data.length) {
-          const posts = data[0]?.latestPosts ?? data[0]?.posts ?? []
-          if (posts.length) items = posts
-        }
-      }
-    } catch {}
-  }
+  if (!rawItems.length) throw new Error("No se encontraron posts en este perfil.")
 
-  if (!Array.isArray(items) || !items.length) throw new Error("No se encontraron posts en este perfil.")
-
-  const profile = items[0]
+  const profile = rawItems[0]
   const profileName   = profile.ownerUsername ?? username
   const profileAvatar = null
 
-  const posts = items.map((item: any) => ({
+  const posts = rawItems.map((item: any) => ({
     post_id:      item.id ?? item.shortCode ?? String(Math.random()),
     type:         item.type ?? "Image",
     title:        (item.caption ?? "").slice(0, 120) || "Sin descripción",
