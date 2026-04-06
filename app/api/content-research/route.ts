@@ -404,3 +404,121 @@ Ejemplo: ["análisis 1", "análisis 2"]`,
 }
 
 // ─── GET: historial ───────────────────────────────────────────────────────────
+
+export async function GET(req: NextRequest) {
+  try {
+    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+    if (!jwt) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    const supabase = createServiceClient()
+    const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt)
+    if (authErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    const { data, error } = await supabase
+      .from("content_research_history")
+      .select("id, channel_url, channel_name, channel_avatar, timeframe_days, platform, videos, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(20)
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ items: data ?? [] })
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
+  }
+}
+
+// ─── POST: nueva investigación ────────────────────────────────────────────────
+
+export async function POST(req: NextRequest) {
+  try {
+    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+    if (!jwt) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    const supabase = createServiceClient()
+    const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt)
+    if (authErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    const { channel_url, timeframe_days = 60, platform } = await req.json()
+    if (!channel_url?.trim()) return NextResponse.json({ error: "channel_url requerido" }, { status: 400 })
+
+    const isInstagram = platform === "instagram" || /instagram\.com/.test(channel_url)
+
+    let channelName   = ""
+    let channelAvatar: string | null = null
+    let channelUrl    = channel_url.trim()
+    let videos: any[] = []
+
+    if (isInstagram) {
+      const username = extractInstagramUsername(channel_url.trim())
+      if (!username) return NextResponse.json({ error: "URL de Instagram no válida." }, { status: 400 })
+
+      const ig    = await getTopInstagramPosts(username, timeframe_days)
+      channelName   = ig.profileName
+      channelAvatar = ig.profileAvatar
+      channelUrl    = ig.profileUrl
+      videos        = ig.posts
+    } else {
+      const ch    = await resolveChannelId(channel_url.trim())
+      channelName   = ch.channelName
+      channelAvatar = ch.channelAvatar
+      channelUrl    = ch.channelUrl
+      videos        = await getTopVideos(ch.channelId, timeframe_days)
+    }
+
+    if (!videos.length) return NextResponse.json({ error: "No se encontraron videos en este perfil." }, { status: 404 })
+
+    const analyses = await generateAnalyses(channelName, videos)
+    const videosWithAnalysis = videos.map((v: any, i: number) => ({ ...v, analysis: analyses[i] ?? "Análisis no disponible." }))
+
+    const { data: inserted, error: insertErr } = await supabase
+      .from("content_research_history")
+      .insert({
+        user_id:        user.id,
+        platform:       isInstagram ? "instagram" : "youtube",
+        channel_url:    channelUrl,
+        channel_name:   channelName,
+        channel_avatar: channelAvatar,
+        timeframe_days,
+        videos:         videosWithAnalysis,
+      })
+      .select("id")
+      .single()
+
+    if (insertErr) console.warn("[content-research] insert error:", insertErr.message)
+
+    return NextResponse.json({
+      id:           inserted?.id ?? null,
+      channelName,
+      channelAvatar,
+      channelUrl,
+      platform:     isInstagram ? "instagram" : "youtube",
+      timeframe_days,
+      videos:       videosWithAnalysis,
+    })
+  } catch (err: any) {
+    console.error("[content-research] error:", err)
+    return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
+  }
+}
+
+// ─── DELETE: eliminar análisis ────────────────────────────────────────────────
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+    if (!jwt) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    const supabase = createServiceClient()
+    const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt)
+    if (authErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    const { id } = await req.json()
+    if (!id) return NextResponse.json({ error: "id requerido" }, { status: 400 })
+
+    await supabase.from("content_research_history").delete().eq("id", id).eq("user_id", user.id)
+    return NextResponse.json({ success: true })
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
+  }
+}

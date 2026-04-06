@@ -182,6 +182,30 @@ async function rapidApiGetPostByShortcode(shortCode: string, username: string): 
   return null
 }
 
+async function extractUsernameFromPostPage(postUrl: string): Promise<string | null> {
+  try {
+    const res = await fetch(postUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+      signal: AbortSignal.timeout(10_000),
+    })
+    if (!res.ok) return null
+    const html = await res.text()
+    // Try og:title which often contains "@username"
+    const ogTitle = html.match(/<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i)?.[1] ?? null
+    if (ogTitle) {
+      const m = ogTitle.match(/@([\w.]+)/)
+      if (m) return m[1]
+    }
+    // Try JSON-LD or window._sharedData
+    const jsonLd = html.match(/"owner":\s*\{"id":"[^"]+","username":"([^"]+)"/)
+    if (jsonLd) return jsonLd[1]
+  } catch {}
+  return null
+}
+
 async function getInstagramTranscript(postUrl: string): Promise<{ transcript: string | null; caption: string | null; duration: string | null; username: string | null }> {
   // Step 1: extract shortcode from URL
   const shortCode = postUrl.match(/\/(p|reel|reels|tv)\/([^/?#]+)/)?.[2] ?? null
@@ -191,7 +215,7 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
   let duration: string | null = null
   let videoUrl: string | null = null
 
-  // Step 2: get username via Instagram oEmbed (public, no auth needed)
+  // Step 2a: try Instagram oEmbed (works when Instagram allows it)
   try {
     const oEmbedRes = await fetch(
       `https://api.instagram.com/oembed/?url=${encodeURIComponent(postUrl)}`,
@@ -203,10 +227,18 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
     }
   } catch {}
 
+  // Step 2b: fallback — scrape the post page for username
+  if (!username) {
+    username = await extractUsernameFromPostPage(postUrl)
+  }
+
+  console.log("[transcript] shortCode:", shortCode, "username:", username)
+
   // Step 3: fetch post details from RapidAPI using username + shortcode
   if (username && shortCode) {
     try {
       const item = await rapidApiGetPostByShortcode(shortCode, username)
+      console.log("[transcript] rapidapi item found:", !!item, "videoUrl:", item?.video_url ?? null)
       if (item) {
         videoUrl = item.video_url ?? null
         caption  = item.caption?.text ?? item.caption ?? null
@@ -215,11 +247,13 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
           ? `${Math.floor(rawDur / 60)}:${String(Math.round(rawDur % 60)).padStart(2, "0")}`
           : null
       }
-    } catch {}
+    } catch (e) {
+      console.error("[transcript] rapidapi error:", e)
+    }
   }
 
   if (!videoUrl) {
-    // Image post or couldn't get video URL
+    console.log("[transcript] no videoUrl found, returning null transcript")
     return { transcript: null, caption, duration, username }
   }
 
