@@ -110,7 +110,111 @@ function parseDuration(iso: string): string {
   return `${h}${min}:${sec}`
 }
 
-// ─── Instagram helpers (Apify) ────────────────────────────────────────────────
+// ─── Apify proxy fetch (Node.js built-ins only, no new packages) ─────────────
+// Routes HTTP requests through Apify residential proxy to bypass Vercel IP blocks
+
+import * as http from "http"
+import * as tls from "tls"
+import * as zlib from "zlib"
+
+let _apifyProxyPassword: string | null | undefined = undefined
+
+async function getApifyProxyPassword(): Promise<string | null> {
+  if (_apifyProxyPassword !== undefined) return _apifyProxyPassword
+  const token = process.env.APIFY_API_TOKEN
+  if (!token) { _apifyProxyPassword = null; return null }
+  try {
+    const res = await fetch(`https://api.apify.com/v2/users/me?token=${token}`, {
+      signal: AbortSignal.timeout(8_000),
+    })
+    const data = await res.json()
+    _apifyProxyPassword = data?.proxy?.password ?? null
+  } catch {
+    _apifyProxyPassword = null
+  }
+  return _apifyProxyPassword
+}
+
+function unchunkBuffer(buf: Buffer): Buffer {
+  const out: Buffer[] = []
+  let offset = 0
+  while (offset < buf.length) {
+    const eol = buf.indexOf("\r\n", offset)
+    if (eol === -1) break
+    const size = parseInt(buf.slice(offset, eol).toString("ascii").trim(), 16)
+    if (!size) break
+    const start = eol + 2
+    out.push(buf.slice(start, start + size))
+    offset = start + size + 2
+  }
+  return Buffer.concat(out)
+}
+
+async function fetchViaApifyProxy(
+  targetUrl: string,
+  reqHeaders: Record<string, string>,
+  timeoutMs = 20_000,
+): Promise<any | null> {
+  const proxyPass = await getApifyProxyPassword()
+  if (!proxyPass) return null
+
+  return new Promise((resolve) => {
+    const target = new URL(targetUrl)
+    const proxyAuth = Buffer.from(`groups-RESIDENTIAL:${proxyPass}`).toString("base64")
+    const timer = setTimeout(() => { connectReq.destroy(); resolve(null) }, timeoutMs)
+
+    const connectReq = http.request({
+      host: "proxy.apify.com",
+      port: 8000,
+      method: "CONNECT",
+      path: `${target.hostname}:443`,
+      headers: {
+        "Host": `${target.hostname}:443`,
+        "Proxy-Authorization": `Basic ${proxyAuth}`,
+      },
+    })
+
+    connectReq.once("connect", (_res: http.IncomingMessage, socket: any) => {
+      const tlsSocket = tls.connect({ socket, servername: target.hostname, rejectUnauthorized: true })
+
+      tlsSocket.once("secureConnect", () => {
+        const path = `${target.pathname}${target.search}`
+        const hLines = Object.entries({ ...reqHeaders, "Host": target.hostname, "Accept-Encoding": "gzip", "Connection": "close" })
+          .map(([k, v]) => `${k}: ${v}`).join("\r\n")
+        tlsSocket.write(`GET ${path} HTTP/1.1\r\n${hLines}\r\n\r\n`)
+
+        const bufs: Buffer[] = []
+        tlsSocket.on("data", (c: Buffer) => bufs.push(c))
+        tlsSocket.once("end", () => {
+          clearTimeout(timer)
+          tlsSocket.destroy()
+          const raw = Buffer.concat(bufs)
+          const sep = raw.indexOf("\r\n\r\n")
+          if (sep === -1) { resolve(null); return }
+          const headers = raw.slice(0, sep).toString("utf8")
+          let body = raw.slice(sep + 4)
+          const status = parseInt((headers.match(/^HTTP\/\d\.\d (\d{3})/) ?? [])[1] ?? "0")
+          if (status < 200 || status >= 300) { resolve(null); return }
+          if (/Transfer-Encoding:\s*chunked/i.test(headers)) body = unchunkBuffer(body)
+          const finish = (buf: Buffer) => {
+            try { resolve(JSON.parse(buf.toString("utf8"))) } catch { resolve(null) }
+          }
+          if (/Content-Encoding:\s*gzip/i.test(headers)) {
+            zlib.gunzip(body, (err, r) => { if (err) resolve(null); else finish(r) })
+          } else {
+            finish(body)
+          }
+        })
+        tlsSocket.on("error", () => { clearTimeout(timer); resolve(null) })
+      })
+      tlsSocket.on("error", () => { clearTimeout(timer); resolve(null) })
+    })
+    connectReq.on("error", () => { clearTimeout(timer); resolve(null) })
+    connectReq.end()
+  })
+}
+
+// ─── Instagram helpers ────────────────────────────────────────────────────────
 
 function extractInstagramUsername(url: string): string | null {
   const m = url.match(/instagram\.com\/([^\/\?&]+)/)
@@ -259,39 +363,69 @@ async function apifyInstagramTranscript(postUrl: string): Promise<string | null>
   }
 }
 
-async function getTopInstagramPosts(username: string, timeframeDays: number) {
-  const since = new Date(Date.now() - timeframeDays * 86_400_000).toISOString().split("T")[0]
-  const profileUrl = `https://www.instagram.com/${username}/`
+const IG_PROFILE_HEADERS = {
+  "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+  "Accept": "application/json, text/plain, */*",
+  "Accept-Language": "es,en;q=0.9",
+  "X-IG-App-ID": "936619743392459",
+  "X-Requested-With": "XMLHttpRequest",
+}
 
-  let items: any[] = []
+function mapIGEdges(edges: any[], username: string): any[] {
+  return edges.map((e: any) => {
+    const n = e.node
+    return {
+      id:             n.id,
+      shortCode:      n.shortcode,
+      caption:        n.edge_media_to_caption?.edges?.[0]?.node?.text ?? "",
+      timestamp:      n.taken_at_timestamp ? new Date(n.taken_at_timestamp * 1000).toISOString() : null,
+      likesCount:     n.edge_media_preview_like?.count ?? 0,
+      commentsCount:  n.edge_media_to_comment?.count ?? 0,
+      videoPlayCount: n.video_view_count ?? null,
+      videoDuration:  n.video_duration ?? null,
+      displayUrl:     n.display_url ?? null,
+      url:            `https://www.instagram.com/p/${n.shortcode}/`,
+      ownerUsername:  username,
+    }
+  })
+}
 
-  // Try 1: instagram-post-scraper (free tier, accepts profile URLs)
+async function scrapeInstagramProfile(username: string): Promise<any[]> {
+  const igUrl = `https://i.instagram.com/api/v1/users/web_profile_info/?username=${username}`
+
+  // 1. Direct fetch — works locally (IPs not blocked)
   try {
-    items = await apifyRunSync("apify~instagram-post-scraper", {
-      directUrls: [profileUrl],
-      resultsLimit: 50,
-    }, 120)
+    const res = await fetch(igUrl, { headers: IG_PROFILE_HEADERS, signal: AbortSignal.timeout(12_000) })
+    if (res.ok) {
+      const data  = await res.json()
+      const edges = data?.data?.user?.edge_owner_to_timeline_media?.edges ?? []
+      if (edges.length > 0) return mapIGEdges(edges, username)
+    }
   } catch {}
 
-  // Try 2: instagram-profile-scraper
-  if (!items.length) {
-    try {
-      items = await apifyRunSync("apify~instagram-profile-scraper", {
-        usernames: [username],
-        resultsLimit: 50,
-      }, 120)
-    } catch {}
+  // 2. Via Apify residential proxy — works on Vercel (bypasses IP block)
+  const proxyData = await fetchViaApifyProxy(igUrl, { ...IG_PROFILE_HEADERS, "Referer": `https://www.instagram.com/${username}/` })
+  if (proxyData) {
+    const edges = proxyData?.data?.user?.edge_owner_to_timeline_media?.edges ?? []
+    if (edges.length > 0) return mapIGEdges(edges, username)
   }
 
-  // Try 3: instagram-scraper (paid, last resort)
-  if (!items.length) {
-    items = await apifyRunSync("apify~instagram-scraper", {
-      directUrls: [profileUrl],
-      resultsType: "posts",
-      resultsLimit: 50,
-      addParentData: false,
+  // 3. Apify actors fallback
+  const profileUrl = `https://www.instagram.com/${username}/`
+  try {
+    const items = await apifyRunSync("apify~instagram-scraper", {
+      directUrls: [profileUrl], resultsType: "posts", resultsLimit: 50, addParentData: false,
     }, 120)
-  }
+    if (items.length) return items
+  } catch {}
+
+  return []
+}
+
+async function getTopInstagramPosts(username: string, timeframeDays: number) {
+  const since = new Date(Date.now() - timeframeDays * 86_400_000).toISOString().split("T")[0]
+
+  const items = await scrapeInstagramProfile(username)
 
   const filtered = items
     .filter((item: any) => {

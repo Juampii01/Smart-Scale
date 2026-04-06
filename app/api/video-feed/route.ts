@@ -84,37 +84,152 @@ async function getYouTubePosts(channelId: string, limit = 50) {
 
 // ─── Instagram ────────────────────────────────────────────────────────────────
 
+import * as http from "http"
+import * as tls from "tls"
+import * as zlib from "zlib"
+
+let _vfProxyPass: string | null | undefined = undefined
+
+async function getVFProxyPassword(): Promise<string | null> {
+  if (_vfProxyPass !== undefined) return _vfProxyPass
+  const token = process.env.APIFY_API_TOKEN
+  if (!token) { _vfProxyPass = null; return null }
+  try {
+    const res = await fetch(`https://api.apify.com/v2/users/me?token=${token}`, { signal: AbortSignal.timeout(8_000) })
+    const data = await res.json()
+    _vfProxyPass = data?.proxy?.password ?? null
+  } catch { _vfProxyPass = null }
+  return _vfProxyPass
+}
+
+function unchunkVF(buf: Buffer): Buffer {
+  const out: Buffer[] = []
+  let offset = 0
+  while (offset < buf.length) {
+    const eol = buf.indexOf("\r\n", offset)
+    if (eol === -1) break
+    const size = parseInt(buf.slice(offset, eol).toString("ascii").trim(), 16)
+    if (!size) break
+    const start = eol + 2
+    out.push(buf.slice(start, start + size))
+    offset = start + size + 2
+  }
+  return Buffer.concat(out)
+}
+
+async function vfProxyFetch(targetUrl: string, headers: Record<string, string>): Promise<any | null> {
+  const proxyPass = await getVFProxyPassword()
+  if (!proxyPass) return null
+  return new Promise((resolve) => {
+    const target = new URL(targetUrl)
+    const proxyAuth = Buffer.from(`groups-RESIDENTIAL:${proxyPass}`).toString("base64")
+    const timer = setTimeout(() => { connectReq.destroy(); resolve(null) }, 20_000)
+    const connectReq = http.request({
+      host: "proxy.apify.com", port: 8000, method: "CONNECT",
+      path: `${target.hostname}:443`,
+      headers: { "Host": `${target.hostname}:443`, "Proxy-Authorization": `Basic ${proxyAuth}` },
+    })
+    connectReq.once("connect", (_r: http.IncomingMessage, socket: any) => {
+      const ts = tls.connect({ socket, servername: target.hostname, rejectUnauthorized: true })
+      ts.once("secureConnect", () => {
+        const hLines = Object.entries({ ...headers, "Host": target.hostname, "Accept-Encoding": "gzip", "Connection": "close" })
+          .map(([k, v]) => `${k}: ${v}`).join("\r\n")
+        ts.write(`GET ${target.pathname}${target.search} HTTP/1.1\r\n${hLines}\r\n\r\n`)
+        const bufs: Buffer[] = []
+        ts.on("data", (c: Buffer) => bufs.push(c))
+        ts.once("end", () => {
+          clearTimeout(timer); ts.destroy()
+          const raw = Buffer.concat(bufs)
+          const sep = raw.indexOf("\r\n\r\n")
+          if (sep === -1) { resolve(null); return }
+          const hdrs = raw.slice(0, sep).toString("utf8")
+          let body = raw.slice(sep + 4)
+          const status = parseInt((hdrs.match(/^HTTP\/\d\.\d (\d{3})/) ?? [])[1] ?? "0")
+          if (status < 200 || status >= 300) { resolve(null); return }
+          if (/Transfer-Encoding:\s*chunked/i.test(hdrs)) body = unchunkVF(body)
+          const finish = (buf: Buffer) => { try { resolve(JSON.parse(buf.toString("utf8"))) } catch { resolve(null) } }
+          if (/Content-Encoding:\s*gzip/i.test(hdrs)) zlib.gunzip(body, (e, r) => { if (e) resolve(null); else finish(r) })
+          else finish(body)
+        })
+        ts.on("error", () => { clearTimeout(timer); resolve(null) })
+      })
+      ts.on("error", () => { clearTimeout(timer); resolve(null) })
+    })
+    connectReq.on("error", () => { clearTimeout(timer); resolve(null) })
+    connectReq.end()
+  })
+}
+
+const VF_IG_HEADERS = {
+  "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+  "Accept": "application/json, text/plain, */*",
+  "Accept-Language": "es,en;q=0.9",
+  "X-IG-App-ID": "936619743392459",
+  "X-Requested-With": "XMLHttpRequest",
+}
+
+function mapVFEdges(edges: any[], username: string) {
+  return edges.map((e: any) => {
+    const n = e.node
+    return {
+      id: n.id, shortCode: n.shortcode,
+      caption: n.edge_media_to_caption?.edges?.[0]?.node?.text ?? "",
+      timestamp: n.taken_at_timestamp ? new Date(n.taken_at_timestamp * 1000).toISOString() : null,
+      likesCount: n.edge_media_preview_like?.count ?? 0,
+      commentsCount: n.edge_media_to_comment?.count ?? 0,
+      videoPlayCount: n.video_view_count ?? null,
+      videoDuration: n.video_duration ?? null,
+      displayUrl: n.display_url ?? null,
+      url: `https://www.instagram.com/p/${n.shortcode}/`,
+      ownerUsername: username,
+      type: n.is_video ? "Video" : "Image",
+    }
+  })
+}
+
 async function getInstagramPosts(url: string, limit = 50) {
   const token = process.env.APIFY_API_TOKEN!
   const username = url.match(/instagram\.com\/([^\/\?&]+)/)?.[1] ?? url.replace(/.*instagram\.com\/?/, "").replace(/\/$/, "")
-  const profileUrl = `https://www.instagram.com/${username}/`
+  const igUrl = `https://i.instagram.com/api/v1/users/web_profile_info/?username=${username}`
+  let rawItems: any[] = []
 
-  // Helper: run one Apify actor
-  async function tryActor(actorId: string, body: object): Promise<any[]> {
-    try {
-      const res = await fetch(
-        `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=120`,
-        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(135_000) }
-      )
-      if (!res.ok) return []
+  // 1. Direct fetch (works locally)
+  try {
+    const res = await fetch(igUrl, { headers: VF_IG_HEADERS, signal: AbortSignal.timeout(12_000) })
+    if (res.ok) {
       const data = await res.json()
-      return Array.isArray(data) ? data : []
-    } catch { return [] }
+      const edges = data?.data?.user?.edge_owner_to_timeline_media?.edges ?? []
+      if (edges.length > 0) rawItems = mapVFEdges(edges, username)
+    }
+  } catch {}
+
+  // 2. Via Apify residential proxy (works on Vercel)
+  if (!rawItems.length) {
+    const proxyData = await vfProxyFetch(igUrl, { ...VF_IG_HEADERS, "Referer": `https://www.instagram.com/${username}/` })
+    if (proxyData) {
+      const edges = proxyData?.data?.user?.edge_owner_to_timeline_media?.edges ?? []
+      if (edges.length > 0) rawItems = mapVFEdges(edges, username)
+    }
   }
 
-  // Try actors in order: post-scraper (free tier) → profile-scraper → scraper (paid)
-  let items: any[] =
-    await tryActor("apify~instagram-post-scraper",    { directUrls: [profileUrl], resultsLimit: limit }) ||
-    await tryActor("apify~instagram-profile-scraper", { usernames: [username], resultsLimit: limit }) ||
-    await tryActor("apify~instagram-scraper",         { directUrls: [profileUrl], resultsType: "posts", resultsLimit: limit, addParentData: false })
+  // 3. Apify actor fallback
+  if (!rawItems.length) {
+    try {
+      const res = await fetch(
+        `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`,
+        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ directUrls: [`https://www.instagram.com/${username}/`], resultsType: "posts", resultsLimit: limit }), signal: AbortSignal.timeout(135_000) }
+      )
+      if (res.ok) { const data = await res.json(); if (Array.isArray(data) && data.length) rawItems = data }
+    } catch {}
+  }
 
-  if (!items.length) throw new Error("No se encontraron posts en este perfil.")
+  if (!rawItems.length) throw new Error("No se encontraron posts en este perfil.")
 
-  const profile = items[0]
+  const profile = rawItems[0]
   const profileName   = profile.ownerUsername ?? username
   const profileAvatar = null
 
-  const posts = items.map((item: any) => ({
+  const posts = rawItems.map((item: any) => ({
     post_id:      item.id ?? item.shortCode ?? String(Math.random()),
     type:         item.type ?? "Image",
     title:        (item.caption ?? "").slice(0, 120) || "Sin descripción",
