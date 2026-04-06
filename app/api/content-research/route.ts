@@ -61,12 +61,10 @@ async function resolveChannelId(url: string) {
   }
 }
 
-async function getTopVideos(channelId: string, timeframeDays: number) {
-  const key            = process.env.YOUTUBE_API_KEY!
-  const publishedAfter = new Date(Date.now() - timeframeDays * 86_400_000).toISOString()
-
-  const searchRes  = await fetch(
-    `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&order=date&maxResults=50&publishedAfter=${encodeURIComponent(publishedAfter)}&key=${key}`
+async function fetchYouTubeVideos(channelId: string, extra = ""): Promise<any[]> {
+  const key       = process.env.YOUTUBE_API_KEY!
+  const searchRes = await fetch(
+    `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&order=date&maxResults=50${extra}&key=${key}`
   )
   const searchData = await searchRes.json()
   const videoIds: string[] = (searchData.items ?? []).map((v: any) => v.id?.videoId).filter(Boolean)
@@ -93,6 +91,14 @@ async function getTopVideos(channelId: string, timeframeDays: number) {
     }))
     .sort((a: any, b: any) => b.views - a.views)
     .slice(0, 5)
+}
+
+async function getTopVideos(channelId: string, timeframeDays: number) {
+  const publishedAfter = new Date(Date.now() - timeframeDays * 86_400_000).toISOString()
+  // Try with date filter first; fall back to most recent videos if none found
+  const videos = await fetchYouTubeVideos(channelId, `&publishedAfter=${encodeURIComponent(publishedAfter)}`)
+  if (videos.length) return videos
+  return fetchYouTubeVideos(channelId)
 }
 
 // ─── Instagram ────────────────────────────────────────────────────────────────
@@ -172,11 +178,16 @@ async function getTopInstagramPosts(username: string, timeframeDays: number) {
   const since = new Date(Date.now() - timeframeDays * 86_400_000)
   const items = await scrapeInstagramProfile(username)
 
-  const posts = items
-    .filter((item: any) => {
-      if (!item.timestamp) return true
-      return new Date(item.timestamp) >= since
-    })
+  if (!items.length) throw new Error("No se pudo obtener el perfil de Instagram. Verificá que el usuario exista y sea público.")
+
+  // Filter by timeframe; if nothing passes the filter, use all available posts
+  const inRange = items.filter((item: any) => {
+    if (!item.timestamp) return true
+    return new Date(item.timestamp) >= since
+  })
+  const source = inRange.length > 0 ? inRange : items
+
+  const posts = source
     .map((item: any) => {
       const views     = item.videoPlayCount ?? item.videoViewCount ?? item.likesCount ?? 0
       const shortCode = item.shortCode ?? item.shortcode ?? null
@@ -298,7 +309,6 @@ export async function POST(req: NextRequest) {
       channelAvatar = ig.profileAvatar
       channelUrl    = ig.profileUrl
       videos        = ig.posts
-      if (!videos.length) return NextResponse.json({ error: `No se encontraron posts en los últimos ${timeframe_days} días.` }, { status: 404 })
     } else {
       const yt = await resolveChannelId(channel_url.trim())
       channelName   = yt.channelName
