@@ -6,13 +6,12 @@ import { useActiveClient } from "@/components/layout/dashboard-layout"
 import { CheckCircle, AlertCircle, Loader2, Trophy } from "lucide-react"
 
 const NIVEL_OPTIONS = [
-  "Seleccioná un nivel",
-  "🔴 $5K",
-  "🔵 $10K",
-  "🟣 $20K",
-  "🟡 $50K",
-  "🟢 $100K",
-];
+  { value: "$5K", label: "$5K", color: "#ef4444", dot: "bg-red-500" },
+  { value: "$10K", label: "$10K", color: "#3b82f6", dot: "bg-blue-500" },
+  { value: "$20K", label: "$20K", color: "#8b5cf6", dot: "bg-violet-500" },
+  { value: "$50K", label: "$50K", color: "#ffde21", dot: "bg-yellow-400" },
+  { value: "$100K", label: "$100K", color: "#22c55e", dot: "bg-green-500" },
+]
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
@@ -157,17 +156,32 @@ export function ChiChangView() {
           </div>
 
           <Field label="¿Cuál es el próximo nivel que vas a conquistar?">
-            <select
-              value={proximoNivel}
-              onChange={(e) => setProximoNivel(e.target.value)}
-              className={inputCls + " [color-scheme:dark]"}
-            >
-              {NIVEL_OPTIONS.map((opt) => (
-                <option key={opt} value={opt === "Seleccioná un nivel" ? "" : opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
+            <div className="grid grid-cols-5 gap-2">
+              {NIVEL_OPTIONS.map((opt) => {
+                const isActive = proximoNivel === opt.value
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setProximoNivel(isActive ? "" : opt.value)}
+                    className={`relative flex flex-col items-center gap-1.5 rounded-xl border py-3 px-2 transition-all duration-150 ${
+                      isActive
+                        ? "border-white/20 bg-white/[0.08]"
+                        : "border-white/[0.07] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/[0.12]"
+                    }`}
+                    style={isActive ? { boxShadow: `0 0 0 1px ${opt.color}40, 0 0 12px ${opt.color}18` } : {}}
+                  >
+                    <span
+                      className="h-3 w-3 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: opt.color, boxShadow: `0 0 6px ${opt.color}80` }}
+                    />
+                    <span className={`text-xs font-bold tabular-nums ${isActive ? "text-white" : "text-white/55"}`}>
+                      {opt.label}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
           </Field>
 
         </div>

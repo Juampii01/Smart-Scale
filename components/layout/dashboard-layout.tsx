@@ -328,29 +328,28 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-background dark">
+    <div className="flex min-h-screen bg-[#0a0a0b] dark">
       <NavigationProgress />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col lg:ml-64">
-        <header className="sticky top-0 z-10 border-b border-white/[0.06] bg-[#0c0c0d]/90 backdrop-blur-md">
+        <header className="sticky top-0 z-10 border-b border-white/[0.08] bg-[#0a0a0b]/95 backdrop-blur-md">
           <div className="flex h-16 items-center justify-between px-4 lg:px-8">
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" className="lg:hidden text-white/60 hover:text-white" onClick={() => setSidebarOpen(true)}>
                 <Menu className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-base font-semibold text-white leading-tight">{pageTitle}</h1>
-                <p className="text-[10px] text-white/30 leading-none mt-0.5 tracking-wide">Smart Scale Portal 2.0</p>
+                <h1 className="text-lg font-bold text-white leading-tight tracking-tight">{pageTitle}</h1>
+                <p className="text-[10px] text-white/35 leading-none mt-0.5 tracking-wide">Smart Scale Portal 2.0</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Button
                 asChild
-                variant="outline"
                 size="sm"
-                className="hidden sm:inline-flex border-[#ffde21]/40 text-[#ffde21] hover:bg-[#ffde21]/10 hover:text-[#ffde21] hover:border-[#ffde21]/60"
+                className="hidden sm:inline-flex bg-[#ffde21] text-black font-semibold hover:bg-[#ffe84d] border-0 text-xs px-3 h-8"
                 title="Monday Win"
               >
                 <a href="/monday-win">Monday Win</a>
@@ -358,9 +357,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
               <Button
                 asChild
-                variant="outline"
                 size="sm"
-                className="hidden sm:inline-flex border-[#ffde21]/40 text-[#ffde21] hover:bg-[#ffde21]/10 hover:text-[#ffde21] hover:border-[#ffde21]/60"
+                className="hidden sm:inline-flex bg-[#ffde21] text-black font-semibold hover:bg-[#ffe84d] border-0 text-xs px-3 h-8"
                 title="Reporte Mensual"
               >
                 <a href="/report-input">Reporte Mensual</a>
@@ -368,13 +366,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
               <Button
                 asChild
-                variant="outline"
                 size="sm"
-                className="hidden sm:inline-flex border-[#ffde21]/40 text-[#ffde21] hover:bg-[#ffde21]/10 hover:text-[#ffde21] hover:border-[#ffde21]/60 gap-1.5"
+                className="hidden sm:inline-flex bg-[#ffde21] text-black font-semibold hover:bg-[#ffe84d] border-0 text-xs px-3 h-8 gap-1.5"
                 title="Cha-Ching"
               >
                 <a href="/chi-chang">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#ffde21]/20 text-[11px]">💰</span>
+                  <span className="text-[13px]">💰</span>
                   Cha-Ching
                 </a>
               </Button>
