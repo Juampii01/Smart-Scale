@@ -55,13 +55,13 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-64 border-r border-white/[0.06] transition-transform duration-300 ease-in-out lg:translate-x-0",
-          "bg-[#0c0c0d] flex flex-col",
+          "fixed left-0 top-0 z-50 h-full w-64 border-r border-white/[0.08] transition-transform duration-300 ease-in-out lg:translate-x-0",
+          "bg-[#0a0a0b] flex flex-col",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
         {/* Logo */}
-        <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-white/[0.06] px-5">
+        <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-white/[0.08] px-5">
           <a href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
             <span className="text-white text-sm font-bold tracking-[0.22em]">SMART</span>
             <span className="rounded-md bg-white px-2.5 py-1 text-xs font-bold tracking-wide text-black shadow-sm">
@@ -69,11 +69,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             </span>
           </a>
           <div className="flex items-center gap-2">
-            <span className="rounded-full border border-[#ffde21]/25 bg-[#ffde21]/8 px-2 py-0.5 text-[9px] font-bold text-[#ffde21]/80 tracking-widest uppercase">
+            <span className="rounded-full border border-[#ffde21]/30 bg-[#ffde21]/10 px-2 py-0.5 text-[9px] font-bold text-[#ffde21] tracking-widest uppercase">
               v2.0
             </span>
             <button
-              className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-white/40 hover:text-white hover:bg-white/8 transition-all"
+              className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-white/50 hover:text-white hover:bg-white/10 transition-all"
               onClick={onClose}
             >
               <X className="h-4 w-4" />
@@ -82,10 +82,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+        <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-6">
           {NAV_GROUPS.map((group) => (
             <div key={group.label}>
-              <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-white/25">
+              <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">
                 {group.label}
               </p>
               <div className="space-y-0.5">
@@ -96,7 +96,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                     return (
                       <div
                         key={item.name}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 opacity-35 cursor-not-allowed select-none"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 opacity-30 cursor-not-allowed select-none"
                       >
                         <item.icon className="h-4 w-4 text-white/40 flex-shrink-0" />
                         <span className="flex-1 text-sm text-white/40">{item.name}</span>
@@ -109,22 +109,22 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                     <Link key={item.name} href={item.href} onClick={onClose}>
                       <div
                         className={cn(
-                          "relative flex items-center gap-3 rounded-lg px-3 py-2 transition-all duration-150",
+                          "relative flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-150",
                           isActive
-                            ? "bg-[#ffde21]/10 text-white"
-                            : "text-white/45 hover:bg-white/[0.04] hover:text-white/80"
+                            ? "bg-[#ffde21]/12 text-white"
+                            : "text-white/55 hover:bg-white/[0.06] hover:text-white/90"
                         )}
                       >
                         {isActive && (
-                          <span className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] bg-[#ffde21] rounded-full" />
+                          <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-[#ffde21] rounded-full" />
                         )}
                         <item.icon
                           className={cn(
-                            "h-4 w-4 flex-shrink-0 transition-colors",
-                            isActive ? "text-[#ffde21]" : "text-white/35"
+                            "h-[15px] w-[15px] flex-shrink-0 transition-colors",
+                            isActive ? "text-[#ffde21]" : "text-white/45"
                           )}
                         />
-                        <span className="text-sm font-medium">{item.name}</span>
+                        <span className="text-[13px] font-medium leading-none">{item.name}</span>
                       </div>
                     </Link>
                   )
@@ -135,12 +135,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </nav>
 
         {/* Footer */}
-        <div className="flex-shrink-0 border-t border-white/[0.06] p-4">
-          <div className="flex items-center gap-2.5 rounded-xl border border-[#ffde21]/15 bg-[#ffde21]/[0.04] px-3 py-2.5">
+        <div className="flex-shrink-0 border-t border-white/[0.08] p-4">
+          <div className="flex items-center gap-2.5 rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.06] px-3 py-2.5">
             <span className="flex h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse" />
             <div>
-              <p className="text-[10px] font-semibold text-[#ffde21]/70 tracking-widest uppercase">Client Analytics</p>
-              <p className="text-[10px] text-white/25 mt-0.5">Portal 2.0</p>
+              <p className="text-[10px] font-bold text-[#ffde21]/80 tracking-widest uppercase">Client Analytics</p>
+              <p className="text-[10px] text-white/35 mt-0.5">Portal 2.0</p>
             </div>
           </div>
         </div>

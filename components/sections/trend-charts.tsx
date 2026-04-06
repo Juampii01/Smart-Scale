@@ -3,89 +3,262 @@
 import { useEffect, useState, useMemo } from "react"
 import { createClient } from "@/lib/supabase"
 import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ReferenceLine,
+  Area, AreaChart, Bar, BarChart,
+  ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts"
 import { useActiveClient } from "@/components/layout/dashboard-layout"
+import { TrendingUp, TrendingDown } from "lucide-react"
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtMonthLabel(month: string) {
-  const s = String(month).slice(0, 7) // "2025-01"
+  const s = String(month).slice(0, 7)
   const [year, mon] = s.split("-")
   const names = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"]
   const idx = parseInt(mon, 10) - 1
   return `${names[idx] ?? mon} '${year.slice(2)}`
 }
 
-const TABS = [
-  { key: "cash_collected",  label: "Cash Collected",  type: "bar",  format: "money"  },
-  { key: "total_revenue",   label: "Total Revenue",   type: "bar",  format: "money"  },
-  { key: "new_clients",     label: "Nuevos Clientes", type: "area", format: "number" },
-  { key: "yt_subscribers",  label: "YouTube",         type: "area", format: "number" },
-  { key: "short_followers", label: "Instagram",       type: "area", format: "number" },
-] as const
-
-type TabKey = typeof TABS[number]["key"]
-
-const tooltipStyle = {
-  contentStyle: {
-    backgroundColor: "#111113",
-    border: "1px solid rgba(255,255,255,0.08)",
-    borderRadius: "12px",
-    boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
-  },
-  labelStyle: { color: "#ffffff", fontWeight: 700, marginBottom: 6, fontSize: 12 },
-  itemStyle: { color: "#ffde21", fontWeight: 600 },
+function fmtMoney(v: number) {
+  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`
+  if (v >= 1_000) return `$${(v / 1_000).toFixed(0)}K`
+  return `$${v}`
 }
+
+function fmtNum(v: number) {
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`
+  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}K`
+  return String(v)
+}
+
+// ─── Chart configs ────────────────────────────────────────────────────────────
+
+const CHARTS = [
+  {
+    key:      "cash_collected",
+    label:    "Cash Collected",
+    subtitle: "Total cash collected over time",
+    type:     "bar"  as const,
+    format:   "money" as const,
+    color:    "#ef6b6b",
+    gradId:   "grad_cash",
+  },
+  {
+    key:      "mrr",
+    label:    "MRR Growth",
+    subtitle: "Monthly recurring revenue",
+    type:     "area" as const,
+    format:   "money" as const,
+    color:    "#ffde21",
+    gradId:   "grad_mrr",
+  },
+  {
+    key:      "new_clients",
+    label:    "New Clients Signed",
+    subtitle: "Clients signed per month",
+    type:     "bar"  as const,
+    format:   "number" as const,
+    color:    "#4ade80",
+    gradId:   "grad_clients",
+  },
+  {
+    key:      "short_followers",
+    label:    "Instagram Followers",
+    subtitle: "Follower count over time",
+    type:     "area" as const,
+    format:   "number" as const,
+    color:    "#818cf8",
+    gradId:   "grad_ig",
+  },
+]
+
+// ─── Single Chart Card ────────────────────────────────────────────────────────
+
+function ChartCard({
+  cfg,
+  data,
+}: {
+  cfg: typeof CHARTS[number]
+  data: Array<{ month: string; value: number }>
+}) {
+  const latest  = data[data.length - 1]?.value ?? 0
+  const prev    = data[data.length - 2]?.value ?? null
+  const diff    = prev !== null ? latest - prev : null
+  const pct     = diff !== null && prev && prev !== 0 ? (diff / prev) * 100 : null
+  const isUp    = diff !== null && diff > 0
+  const isDown  = diff !== null && diff < 0
+
+  const fmtVal  = (v: number) => cfg.format === "money" ? fmtMoney(v) : fmtNum(v)
+  const tickFmt = (v: number) => cfg.format === "money" ? fmtMoney(v) : fmtNum(v)
+
+  const tooltipStyle = {
+    contentStyle: {
+      backgroundColor: "#0f0f10",
+      border: "1px solid rgba(255,255,255,0.08)",
+      borderRadius: "12px",
+      boxShadow: "0 20px 40px rgba(0,0,0,0.6)",
+      padding: "10px 14px",
+    },
+    labelStyle:  { color: "#ffffff", fontWeight: 700, marginBottom: 4, fontSize: 12 },
+    itemStyle:   { color: cfg.color, fontWeight: 600, fontSize: 13 },
+  }
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] hover:border-white/[0.12] transition-colors duration-200">
+      {/* Subtle top accent */}
+      <div className="h-[2px] w-full" style={{ backgroundColor: cfg.color, opacity: 0.6 }} />
+
+      <div className="p-6">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-1">
+          <div>
+            <h3 className="text-[19px] font-bold text-white leading-tight tracking-tight">{cfg.label}</h3>
+            <p className="text-[13px] text-white/45 mt-0.5">{cfg.subtitle}</p>
+          </div>
+          {diff !== null && (
+            <span
+              className={`mt-0.5 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold shrink-0 ml-3 ${
+                isUp   ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20"
+                : isDown ? "bg-red-500/10 text-red-400 ring-1 ring-red-500/20"
+                :          "bg-white/5 text-white/40 ring-1 ring-white/10"
+              }`}
+            >
+              {isUp && <TrendingUp className="h-3 w-3" />}
+              {isDown && <TrendingDown className="h-3 w-3" />}
+              {pct !== null
+                ? `${pct > 0 ? "+" : ""}${Math.round(pct)}%`
+                : `${diff > 0 ? "+" : ""}${fmtVal(Math.abs(diff))}`}
+            </span>
+          )}
+        </div>
+
+        {/* Latest value as big number */}
+        {data.length > 0 && (
+          <p className="mt-3 mb-5 text-3xl font-bold tracking-tight" style={{ color: cfg.color }}>
+            {fmtVal(latest)}
+          </p>
+        )}
+
+        {/* Chart */}
+        {data.length > 0 ? (
+          <ResponsiveContainer width="100%" height={220}>
+            {cfg.type === "bar" ? (
+              <BarChart data={data} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
+                <defs>
+                  <linearGradient id={cfg.gradId} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"   stopColor={cfg.color} stopOpacity={1}    />
+                    <stop offset="100%" stopColor={cfg.color} stopOpacity={0.65} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <XAxis
+                  dataKey="month"
+                  stroke="transparent"
+                  tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  stroke="transparent"
+                  tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={tickFmt}
+                  width={52}
+                />
+                <Tooltip
+                  cursor={{ fill: "rgba(255,255,255,0.04)" }}
+                  contentStyle={tooltipStyle.contentStyle}
+                  labelStyle={tooltipStyle.labelStyle}
+                  itemStyle={tooltipStyle.itemStyle}
+                  formatter={(v: number) => [fmtVal(v), cfg.label]}
+                />
+                <Bar dataKey="value" fill={`url(#${cfg.gradId})`} radius={[4, 4, 0, 0]} maxBarSize={40} />
+              </BarChart>
+            ) : (
+              <AreaChart data={data} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
+                <defs>
+                  <linearGradient id={cfg.gradId} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor={cfg.color} stopOpacity={0.3}  />
+                    <stop offset="95%" stopColor={cfg.color} stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <XAxis
+                  dataKey="month"
+                  stroke="transparent"
+                  tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  stroke="transparent"
+                  tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={tickFmt}
+                  width={52}
+                />
+                <Tooltip
+                  cursor={{ stroke: `${cfg.color}40`, strokeWidth: 1 }}
+                  contentStyle={tooltipStyle.contentStyle}
+                  labelStyle={tooltipStyle.labelStyle}
+                  itemStyle={tooltipStyle.itemStyle}
+                  formatter={(v: number) => [fmtVal(v), cfg.label]}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke={cfg.color}
+                  strokeWidth={2.5}
+                  fill={`url(#${cfg.gradId})`}
+                  dot={false}
+                  activeDot={{ r: 5, fill: cfg.color, strokeWidth: 2, stroke: "#0a0a0b" }}
+                />
+              </AreaChart>
+            )}
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-[220px] flex items-center justify-center">
+            <p className="text-sm text-white/25">Sin datos</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 export function TrendCharts() {
   const activeClientId = useActiveClient()
-
-  const [data, setData] = useState<any[]>([])
+  const [rows, setRows]     = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<TabKey>("cash_collected")
+  const [error, setError]   = useState<string | null>(null)
 
   useEffect(() => {
     let mounted = true
-    if (!activeClientId) {
-      setLoading(true)
-      setData([])
-      return () => { mounted = false }
-    }
+    if (!activeClientId) { setLoading(true); setRows([]); return () => { mounted = false } }
+
     async function load() {
       try {
-        if (mounted) {
-          setLoading(true)
-          setError(null)
-          setData([])
-        }
+        if (mounted) { setLoading(true); setError(null); setRows([]) }
         const supabase = createClient()
         const { data: u, error: uErr } = await supabase.auth.getUser()
         if (uErr) throw uErr
         if (!u?.user) throw new Error("No session")
         const { data: profile, error: pErr } = await supabase
-          .from("profiles")
-          .select("client_id")
-          .eq("id", u.user.id)
-          .single()
+          .from("profiles").select("client_id").eq("id", u.user.id).single()
         if (pErr) throw pErr
-        const clientIdToUse = activeClientId || profile?.client_id
-        if (!clientIdToUse) return
+        const cid = activeClientId || profile?.client_id
+        if (!cid) return
         const { data: reports, error: rErr } = await supabase
           .from("monthly_reports")
-          .select("month, cash_collected, total_revenue, new_clients, yt_subscribers, short_followers")
-          .eq("client_id", clientIdToUse)
+          .select("month, cash_collected, total_revenue, mrr, new_clients, short_followers, yt_subscribers, ad_spend")
+          .eq("client_id", cid)
           .order("month", { ascending: true })
         if (rErr) throw rErr
-        if (mounted) setData(Array.isArray(reports) ? reports : [])
+        if (mounted) setRows(Array.isArray(reports) ? reports : [])
       } catch (e: any) {
         if (mounted) setError(e?.message ?? "Error cargando métricas")
       } finally {
@@ -96,154 +269,54 @@ export function TrendCharts() {
     return () => { mounted = false }
   }, [activeClientId])
 
-  const activeConfig = TABS.find(t => t.key === activeTab) ?? TABS[0]
+  const chartDataMap = useMemo(() => {
+    const map: Record<string, Array<{ month: string; value: number }>> = {}
+    CHARTS.forEach(cfg => {
+      map[cfg.key] = rows.map(r => ({
+        month: fmtMonthLabel(r.month),
+        value: Number(r[cfg.key]) || 0,
+      }))
+    })
+    return map
+  }, [rows])
 
-  const chartData = useMemo(
-    () => data.map(r => ({ month: fmtMonthLabel(r.month), value: Number(r[activeConfig.key]) || 0 })),
-    [data, activeConfig.key]
-  )
+  if (loading) {
+    return (
+      <section>
+        <div className="grid gap-5 md:grid-cols-2">
+          {CHARTS.map(cfg => (
+            <div key={cfg.key} className="rounded-2xl border border-white/[0.07] bg-[#111113] h-[380px] animate-pulse" />
+          ))}
+        </div>
+      </section>
+    )
+  }
 
-  const avg = useMemo(
-    () => chartData.length ? chartData.reduce((s, d) => s + d.value, 0) / chartData.length : 0,
-    [chartData]
-  )
+  if (error) {
+    return <p className="text-red-400 text-sm">{error}</p>
+  }
 
-  const formatTick = (v: number) =>
-    activeConfig.format === "money"
-      ? `$${(v / 1000).toFixed(0)}k`
-      : v >= 1000
-      ? `${(v / 1000).toFixed(0)}k`
-      : String(v)
-
-  const formatTooltipVal = (v: number) =>
-    activeConfig.format === "money"
-      ? [`$${Number(v).toLocaleString()}`, activeConfig.label]
-      : [Number(v).toLocaleString(), activeConfig.label]
+  if (!rows.length) {
+    return (
+      <section>
+        <p className="text-white/40 text-sm">Este cliente todavía no tiene reportes cargados.</p>
+      </section>
+    )
+  }
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-white/70">Trend Analysis</h2>
-        </div>
-        {!loading && data.length > 0 && (
-          <span className="text-xs text-white/30 tabular-nums">{data.length} meses</span>
-        )}
+    <section className="space-y-5">
+      <div className="flex items-center gap-2.5">
+        <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+        <h2 className="text-sm font-bold uppercase tracking-widest text-white/80">Analytics</h2>
+        <span className="ml-auto text-xs text-white/30 tabular-nums">{rows.length} meses</span>
       </div>
 
-      {/* Connected pill tab selector */}
-      <div className="inline-flex rounded-xl border border-white/[0.07] bg-white/[0.03] p-1 gap-0.5 flex-wrap">
-        {TABS.map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all duration-150 ${
-              activeTab === tab.key
-                ? "bg-[#ffde21] text-black shadow-sm"
-                : "text-white/45 hover:text-white/70"
-            }`}
-          >
-            {tab.label}
-          </button>
+      <div className="grid gap-5 md:grid-cols-2">
+        {CHARTS.map(cfg => (
+          <ChartCard key={cfg.key} cfg={cfg} data={chartDataMap[cfg.key]} />
         ))}
       </div>
-
-      {loading && <p className="text-white/40 text-sm">Cargando métricas…</p>}
-      {error && <p className="text-red-400 text-sm">{error}</p>}
-      {!loading && !error && data.length === 0 && (
-        <p className="text-white/40 text-sm">Este cliente todavía no tiene reportes cargados.</p>
-      )}
-
-      {!loading && data.length > 0 && (
-        <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,222,33,0.04),transparent_60%)]" />
-          <div className="relative border-b border-white/[0.06] px-5 py-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-white">{activeConfig.label}</p>
-              {avg > 0 && (
-                <span className="text-xs text-white/35 tabular-nums">
-                  Promedio:{" "}
-                  {activeConfig.format === "money"
-                    ? `$${Math.round(avg).toLocaleString()}`
-                    : Math.round(avg).toLocaleString()}
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="p-5">
-            <ResponsiveContainer width="100%" height={320}>
-              {activeConfig.type === "bar" ? (
-                <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#ffde21" stopOpacity={1} />
-                      <stop offset="100%" stopColor="#f5c800" stopOpacity={0.85} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" opacity={0.08} />
-                  <XAxis dataKey="month" stroke="#ffffff60" fontSize={11} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#ffffff60" fontSize={11} tickLine={false} axisLine={false} tickFormatter={formatTick} />
-                  <Tooltip
-                    cursor={{ fill: "rgba(255,222,33,0.05)" }}
-                    contentStyle={tooltipStyle.contentStyle}
-                    labelStyle={tooltipStyle.labelStyle}
-                    itemStyle={tooltipStyle.itemStyle}
-                    formatter={formatTooltipVal}
-                  />
-                  {avg > 0 && (
-                    <ReferenceLine
-                      y={avg}
-                      stroke="#ffde21"
-                      strokeDasharray="5 4"
-                      strokeOpacity={0.35}
-                      label={{ value: "avg", position: "insideTopRight", fill: "#ffde2166", fontSize: 10 }}
-                    />
-                  )}
-                  <Bar dataKey="value" fill="url(#barGrad)" radius={[5, 5, 0, 0]} maxBarSize={48} />
-                </BarChart>
-              ) : (
-                <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#ffde21" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#ffde21" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" opacity={0.08} />
-                  <XAxis dataKey="month" stroke="#ffffff60" fontSize={11} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#ffffff60" fontSize={11} tickLine={false} axisLine={false} tickFormatter={formatTick} />
-                  <Tooltip
-                    cursor={{ stroke: "#ffde2140", strokeWidth: 1 }}
-                    contentStyle={tooltipStyle.contentStyle}
-                    labelStyle={tooltipStyle.labelStyle}
-                    itemStyle={tooltipStyle.itemStyle}
-                    formatter={formatTooltipVal}
-                  />
-                  {avg > 0 && (
-                    <ReferenceLine
-                      y={avg}
-                      stroke="#ffde21"
-                      strokeDasharray="5 4"
-                      strokeOpacity={0.35}
-                      label={{ value: "avg", position: "insideTopRight", fill: "#ffde2166", fontSize: 10 }}
-                    />
-                  )}
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#ffde21"
-                    strokeWidth={2.5}
-                    fill="url(#areaGrad)"
-                    dot={{ fill: "#ffde21", r: 4, strokeWidth: 0 }}
-                    activeDot={{ r: 6, fill: "#ffde21", strokeWidth: 2, stroke: "#000" }}
-                  />
-                </AreaChart>
-              )}
-            </ResponsiveContainer>
-          </div>
-        </div>
-      )}
     </section>
   )
 }

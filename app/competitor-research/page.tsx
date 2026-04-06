@@ -355,14 +355,14 @@ function CompetitorResearchContent() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
             <Search className="h-4 w-4 text-white/50" />
           </div>
-          <h2 className="text-sm font-semibold text-white">New Analysis</h2>
+          <h2 className="text-base font-bold text-white">New Analysis</h2>
         </div>
 
         <div className="p-6 space-y-5">
           {/* Platform + Timeframe dropdowns */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-white/40 uppercase tracking-widest mb-2">Platform</label>
+              <label className="block text-xs font-bold text-white/55 uppercase tracking-widest mb-2">Platform</label>
               <div className="relative">
                 <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2">
                   {platform === "youtube" ? <Youtube className="h-4 w-4 text-red-400" /> : <Instagram className="h-4 w-4 text-pink-400" />}
@@ -377,7 +377,7 @@ function CompetitorResearchContent() {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-white/40 uppercase tracking-widest mb-2">Timeframe</label>
+              <label className="block text-xs font-bold text-white/55 uppercase tracking-widest mb-2">Timeframe</label>
               <div className="relative">
                 <select value={timeframe} onChange={e => setTimeframe(Number(e.target.value) as any)}
                   disabled={loading}
@@ -393,7 +393,7 @@ function CompetitorResearchContent() {
 
           {/* Competitor URL */}
           <div>
-            <label className="block text-xs font-semibold text-white/40 uppercase tracking-widest mb-2">Competitor URL</label>
+            <label className="block text-xs font-bold text-white/55 uppercase tracking-widest mb-2">Competitor URL</label>
             <form onSubmit={handleSubmit} className="space-y-3">
               <input
                 type="url"
@@ -426,7 +426,7 @@ function CompetitorResearchContent() {
 
       {/* ── Your Analyses ── */}
       <div className="space-y-3">
-        <h2 className="text-sm font-semibold text-white px-1">Your Analyses</h2>
+        <h2 className="text-base font-bold text-white px-1">Your Analyses</h2>
 
         {historyLoading ? (
           <div className="flex items-center justify-center py-12">
