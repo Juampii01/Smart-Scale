@@ -283,15 +283,7 @@ export function TranscriptView() {
                 {loading ? "Procesando…" : "Transcribir"}
               </button>
             </form>
-            {isIGNonReel && (
-              <div className="mt-2 flex items-start gap-2 rounded-xl border border-orange-500/20 bg-orange-500/[0.06] px-3 py-2.5">
-                <Instagram className="h-3.5 w-3.5 text-orange-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-semibold text-orange-300">Instagram solo funciona con reels</p>
-                  <p className="text-[11px] text-orange-300/60 mt-0.5">Los posts fijos no tienen audio transcribible. Usá el link de un reel: instagram.com/reel/CODIGO/</p>
-                </div>
-              </div>
-            )}
+
             {isIGReel && (
               <p className="mt-2 text-xs text-white/25">Solo reels públicos con audio. El proceso puede tardar hasta 2 minutos.</p>
             )}
