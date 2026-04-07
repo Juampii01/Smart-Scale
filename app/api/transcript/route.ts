@@ -160,31 +160,204 @@ async function assemblyAITranscript(cdnUrl: string, timeoutMs = 200_000): Promis
 
 const RAPIDAPI_IG_HOST = "instagram-scraper-20253.p.rapidapi.com"
 
-async function rapidApiGetVideoUrl(username: string, shortCode: string): Promise<{ videoUrl: string | null; caption: string | null; duration: string | null }> {
-  if (!process.env.RAPIDAPI_KEY) return { videoUrl: null, caption: null, duration: null }
+async function rapidApiGetVideoUrl(
+  lookupKey: string,
+  shortCode: string,
+  postUrl?: string
+): Promise<{ videoUrl: string | null; caption: string | null; duration: string | null }> {
+  const empty = { videoUrl: null, caption: null, duration: null }
+  if (!process.env.RAPIDAPI_KEY) return empty
+
   const headers = {
-    "X-RapidAPI-Key":  process.env.RAPIDAPI_KEY,
+    "X-RapidAPI-Key": process.env.RAPIDAPI_KEY,
     "X-RapidAPI-Host": RAPIDAPI_IG_HOST,
   }
+
   try {
+    console.log("[transcript] rapidapi lookupKey:", lookupKey)
+
     const res = await fetch(
-      `https://${RAPIDAPI_IG_HOST}/user-posts-reels?username_or_id_or_url=${encodeURIComponent(username)}&url_embed_safe=false`,
+      `https://${RAPIDAPI_IG_HOST}/user-posts-reels?username_or_id_or_url=${encodeURIComponent(lookupKey)}&url_embed_safe=false`,
       { headers, signal: AbortSignal.timeout(30_000) }
     )
-    if (!res.ok) return { videoUrl: null, caption: null, duration: null }
-    const data  = await res.json()
-    const items: any[] = data?.data?.items ?? data?.items ?? []
-    const match = items.find((it: any) => (it.code ?? it.shortcode) === shortCode)
-    if (match) {
-      const rawDur = match.video_duration
-      return {
-        videoUrl: match.video_url ?? null,
-        caption:  match.caption?.text ?? match.caption ?? null,
-        duration: rawDur ? `${Math.floor(rawDur / 60)}:${String(Math.round(rawDur % 60)).padStart(2, "0")}` : null,
+
+    if (res.ok) {
+      const data = await res.json()
+      const items: any[] = data?.data?.items ?? data?.items ?? []
+      const match = items.find((it: any) => (it.code ?? it.shortcode) === shortCode) ?? items[0]
+
+      if (match?.video_url) {
+        const rawDur = match.video_duration
+        return {
+          videoUrl: match.video_url ?? null,
+          caption: match.caption?.text ?? match.caption ?? null,
+          duration: rawDur
+            ? `${Math.floor(rawDur / 60)}:${String(Math.round(rawDur % 60)).padStart(2, "0")}`
+            : null,
+        }
       }
+
+      console.log("[transcript] rapidapi items:", items.length, "matched shortcode:", !!match)
+    } else {
+      console.log("[transcript] rapidapi status:", res.status)
     }
-  } catch {}
-  return { videoUrl: null, caption: null, duration: null }
+  } catch (err) {
+    console.log("[transcript] rapidapi error:", err)
+  }
+
+  // Fallbacks: try Instagram embed pages and the public page HTML.
+  // Embed pages are usually more stable than the normal page for extracting `video_url` / `og:video`.
+  const extractVideoFromHtml = (html: string) => {
+    const decodeValue = (value: string) => {
+      let decoded = value
+        .replace(/&amp;/g, "&")
+        .replace(/&quot;/g, '"')
+        .replace(/&#x27;/g, "'")
+        .replace(/&#39;/g, "'")
+        .replace(/\\\//g, "/")
+
+      decoded = decoded.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) =>
+        String.fromCharCode(parseInt(hex, 16))
+      )
+
+      return decoded
+    }
+
+    const patterns = [
+      /<meta[^>]+property=["']og:video(?::secure_url)?["'][^>]+content=["']([^"']+)["']/i,
+      /"video_url":"([^"]+)"/i,
+      /"video_versions":\s*\[.*?"url":"([^"]+)"/i,
+      /"contentUrl":"([^"]+)"/i,
+      /"video_dash_manifest":"([^"]+)"/i,
+    ]
+
+    const rawVideo = patterns
+      .map((pattern) => html.match(pattern)?.[1] ?? null)
+      .find(Boolean)
+
+    const ogDescriptionMatch = html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i)
+    const ogTitleMatch = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i)
+
+    if (!rawVideo) return null
+
+    const videoUrl = decodeValue(rawVideo)
+    if (!/^https?:\/\//i.test(videoUrl)) return null
+
+    return {
+      videoUrl,
+      caption: ogTitleMatch?.[1]
+        ? decodeValue(ogTitleMatch[1])
+        : ogDescriptionMatch?.[1]
+          ? decodeValue(ogDescriptionMatch[1])
+          : null,
+      duration: null,
+    }
+  }
+
+  const htmlHeaders = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+  }
+
+  const candidateUrls = [
+    `https://www.instagram.com/reel/${shortCode}/embed/captioned/`,
+    `https://www.instagram.com/p/${shortCode}/embed/captioned/`,
+    postUrl,
+  ].filter(Boolean) as string[]
+
+  const apiCandidateUrls = [
+    `https://www.instagram.com/api/v1/oembed/?url=${encodeURIComponent(postUrl ?? `https://www.instagram.com/p/${shortCode}/`)}`,
+    `https://www.instagram.com/p/${shortCode}/?__a=1&__d=dis`,
+    `https://www.instagram.com/reel/${shortCode}/?__a=1&__d=dis`,
+  ]
+
+  for (const apiUrl of apiCandidateUrls) {
+    try {
+      console.log("[transcript] api fallback url:", apiUrl)
+      const apiRes = await fetch(apiUrl, {
+        headers: htmlHeaders,
+        redirect: "follow",
+        signal: AbortSignal.timeout(20_000),
+      })
+
+      if (!apiRes.ok) {
+        console.log("[transcript] api fallback status:", apiUrl, apiRes.status)
+        continue
+      }
+
+      const contentType = apiRes.headers.get("content-type") ?? ""
+      const raw = await apiRes.text()
+      console.log("[transcript] api fallback content-type:", apiUrl, contentType)
+
+      if (contentType.includes("application/json") || raw.trim().startsWith("{")) {
+        try {
+          const json = JSON.parse(raw)
+          const jsonVideoUrl =
+            json?.video_url ??
+            json?.graphql?.shortcode_media?.video_url ??
+            json?.items?.[0]?.video_versions?.[0]?.url ??
+            json?.items?.[0]?.video_url ??
+            null
+
+          if (jsonVideoUrl) {
+            return {
+              videoUrl: jsonVideoUrl,
+              caption:
+                json?.title ??
+                json?.author_name ??
+                json?.graphql?.shortcode_media?.edge_media_to_caption?.edges?.[0]?.node?.text ??
+                json?.items?.[0]?.caption?.text ??
+                null,
+              duration: null,
+            }
+          }
+        } catch (err) {
+          console.log("[transcript] api fallback json parse error:", apiUrl, err)
+        }
+      }
+
+      const extracted = extractVideoFromHtml(raw)
+      if (extracted?.videoUrl) {
+        return extracted
+      }
+    } catch (err) {
+      console.log("[transcript] api fallback error:", apiUrl, err)
+    }
+  }
+
+  for (const candidateUrl of candidateUrls) {
+    try {
+      console.log("[transcript] html fallback url:", candidateUrl)
+      const pageRes = await fetch(candidateUrl, {
+        headers: htmlHeaders,
+        redirect: "follow",
+        signal: AbortSignal.timeout(20_000),
+      })
+
+      if (!pageRes.ok) {
+        console.log("[transcript] html fallback status:", candidateUrl, pageRes.status)
+        continue
+      }
+
+      const html = await pageRes.text()
+      console.log("[transcript] html fallback markers:", candidateUrl, {
+        hasOgVideo: /og:video/i.test(html),
+        hasVideoUrl: /"video_url"/i.test(html),
+        hasVideoVersions: /"video_versions"/i.test(html),
+        hasContentUrl: /"contentUrl"/i.test(html),
+        htmlLength: html.length,
+      })
+      const extracted = extractVideoFromHtml(html)
+      if (extracted?.videoUrl) {
+        return extracted
+      }
+    } catch (err) {
+      console.log("[transcript] html fallback error:", candidateUrl, err)
+    }
+  }
+
+  return empty
 }
 
 async function getInstagramTranscript(postUrl: string): Promise<{ transcript: string | null; caption: string | null; duration: string | null; username: string | null }> {
@@ -215,13 +388,15 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
 
   console.log("[transcript] shortCode:", shortCode, "username:", username)
 
-  if (!username || !shortCode) {
-    // Can't proceed without username — return null so caller shows proper error
+  if (!shortCode) {
     return { transcript: null, caption: null, duration: null, username }
   }
 
-  // Fetch video URL via RapidAPI
-  const { videoUrl, caption, duration } = await rapidApiGetVideoUrl(username, shortCode)
+  // Fetch video URL via RapidAPI first, then fall back to scraping the public post HTML.
+  // When username is unavailable, use the full post URL as the lookup key.
+  const lookupKey = username ?? postUrl
+  console.log("[transcript] lookupKey:", lookupKey)
+  const { videoUrl, caption, duration } = await rapidApiGetVideoUrl(lookupKey, shortCode, postUrl)
   console.log("[transcript] videoUrl found:", !!videoUrl)
 
   if (!videoUrl) {
@@ -376,17 +551,14 @@ export async function POST(req: NextRequest) {
       transcript = ig.transcript
       creator    = ig.username
       duration   = ig.duration
-      title      = ig.caption ? ig.caption.slice(0, 100) : "Reel de Instagram"
+      title      = ig.caption ? ig.caption.slice(0, 100) : `Reel de Instagram${ig.username ? ` · ${ig.username}` : ""}`
       thumbnail  = null
 
       if (!transcript) {
-        if (!ig.username) {
-          return NextResponse.json({
-            error: "No se pudo identificar el usuario. Usá el link completo con usuario: instagram.com/usuario/reel/CODIGO/",
-          }, { status: 422 })
-        }
         return NextResponse.json({
-          error: "No se pudo transcribir este reel. Asegurate de que el video sea público y tenga audio.",
+          error: ig.username
+            ? "No se pudo transcribir este reel. Asegurate de que el video sea público, tenga audio y permita extraer el video."
+            : "No se pudo transcribir este reel. No se pudo resolver el video desde Instagram. Probá con un reel público o una URL con username visible.",
         }, { status: 422 })
       }
       summary = await generateSummary(transcript, creator)

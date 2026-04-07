@@ -5,12 +5,13 @@ import { createPortal } from "react-dom"
 import {
   Plus, ExternalLink, Copy, Check, Trash2, ChevronDown, ChevronUp,
   Search, TrendingUp, X, AlertTriangle, Users, Sparkles, Loader2,
-  Instagram, Youtube, Link2
+  Instagram, Youtube, Link2, FileText, Mic
 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { useActiveClient } from "@/components/layout/dashboard-layout"
 import { useRouter } from "next/navigation"
 import { AiLoading } from "@/components/ui/ai-loading"
+import { TranscriptModal } from "@/components/ui/transcript-modal"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -353,6 +354,7 @@ interface RowProps {
   post: Post
   isAdmin: boolean
   onDelete: (id: string) => void
+  onTranscriptSaved?: (id: string, transcript: string) => void
 }
 
 const SECTION_ICONS: Record<string, string> = {
@@ -398,7 +400,7 @@ function AnalysisBlock({ text }: { text: string }) {
               </div>
             )}
             <div className="px-3 py-2.5 bg-white/[0.01]">
-              <p className="text-xs text-white/65 leading-relaxed">{s.body}</p>
+              <p className="text-xs text-[#ffde21]/75 leading-relaxed">{s.body}</p>
             </div>
           </div>
         )
@@ -407,9 +409,77 @@ function AnalysisBlock({ text }: { text: string }) {
   )
 }
 
-function PostRow({ post, isAdmin, onDelete }: RowProps) {
+function PostRow({ post, isAdmin, onDelete, onTranscriptSaved }: RowProps) {
   const [expanded, setExpanded] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [showTranscriptModal, setShowTranscriptModal] = useState(false)
+  const [transcribing, setTranscribing] = useState(false)
+  const [transcriptErr, setTranscriptErr] = useState<string | null>(null)
+  const [localTranscript, setLocalTranscript] = useState<string | null>(post.transcript)
+
+  const isIG = (post.post_url ?? "").includes("instagram.com")
+  const isYT = (post.post_url ?? "").includes("youtube.com") || (post.post_url ?? "").includes("youtu.be")
+
+  async function handleTranscribe() {
+    if (!post.post_url) return
+    setTranscribing(true); setTranscriptErr(null)
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
+      // Build a proper Instagram URL with username, which the transcript API requires.
+      // post.creator = "username", post.post_url may lack the username segment.
+      let transcriptUrl = post.post_url
+      if (isIG) {
+        const shortcode = post.post_url.match(/\/(p|reel|reels|tv)\/([^/?#]+)/)?.[2]
+        // Try to extract username from the URL itself first
+        const usernameFromUrl = post.post_url.match(/instagram\.com\/([^/?#]+)\/(p|reel|reels|tv)\//)?.[1]
+        const username = usernameFromUrl || post.creator
+        if (!username) {
+          throw new Error("No se puede transcribir: falta el nombre de usuario en la URL. Agrega el post con la URL completa: instagram.com/usuario/reel/CODIGO/")
+        }
+        if (shortcode) {
+          transcriptUrl = `https://www.instagram.com/${username}/reel/${shortcode}/`
+        }
+      }
+
+      const res = await fetch("/api/transcript", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ url: transcriptUrl }),
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error ?? "Error al transcribir")
+      const transcript: string = json.transcript ?? ""
+      if (!transcript) throw new Error("No se pudo obtener el transcript")
+
+      // Save transcript to the competitor post
+      const patchRes = await fetch("/api/competitor-research", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ id: post.id, transcript }),
+      })
+      if (!patchRes.ok) throw new Error("Error guardando transcript")
+
+      setLocalTranscript(transcript)
+      onTranscriptSaved?.(post.id, transcript)
+      setShowTranscriptModal(true)
+    } catch (e: any) {
+      setTranscriptErr(e?.message ?? "Error")
+    } finally {
+      setTranscribing(false)
+    }
+  }
+
+  const transcript = localTranscript
+  const words = transcript ? transcript.split(/\s+/).filter(Boolean).length : 0
 
   return (
     <>
@@ -417,6 +487,14 @@ function PostRow({ post, isAdmin, onDelete }: RowProps) {
         <ConfirmDeleteDialog
           onConfirm={() => { onDelete(post.id); setConfirmDelete(false) }}
           onCancel={() => setConfirmDelete(false)}
+        />
+      )}
+      {showTranscriptModal && transcript && (
+        <TranscriptModal
+          transcript={transcript}
+          creator={post.creator}
+          platform={isIG ? "instagram" : isYT ? "youtube" : null}
+          onClose={() => setShowTranscriptModal(false)}
         />
       )}
 
@@ -432,25 +510,61 @@ function PostRow({ post, isAdmin, onDelete }: RowProps) {
 
             {/* Metrics */}
             <div className="hidden sm:flex items-center gap-4">
-              <span className="flex items-center gap-1.5 text-sm text-white/60">
-                <TrendingUp className="h-3.5 w-3.5 text-[#ffde21]/50" />
-                <span className="font-semibold text-white">{fmt(post.views)}</span>
-                <span className="text-white/30">views</span>
+              <span className="flex items-center gap-1.5 text-sm">
+                <TrendingUp className="h-3.5 w-3.5 text-[#ffde21]/60" />
+                <span className="font-bold text-[#ffde21] tabular-nums">{fmt(post.views)}</span>
+                <span className="text-white/30 text-xs">views</span>
               </span>
               {post.likes != null && (
-                <span className="text-sm text-white/40">{fmt(post.likes)} likes</span>
+                <span className="text-sm">
+                  <span className="font-semibold text-white/70 tabular-nums">{fmt(post.likes)}</span>
+                  <span className="text-white/30 text-xs ml-1">likes</span>
+                </span>
               )}
               {post.comments != null && (
-                <span className="text-sm text-white/40">{fmt(post.comments)} comentarios</span>
+                <span className="text-sm">
+                  <span className="font-semibold text-white/70 tabular-nums">{fmt(post.comments)}</span>
+                  <span className="text-white/30 text-xs ml-1">comentarios</span>
+                </span>
               )}
               {post.duration && (
                 <span className="rounded-lg bg-white/[0.06] px-2 py-0.5 text-xs text-white/40 tabular-nums">{post.duration}</span>
+              )}
+              {/* Transcript badge */}
+              {transcript && (
+                <span className="flex items-center gap-1 rounded-lg bg-[#ffde21]/10 border border-[#ffde21]/20 px-2 py-0.5 text-[10px] font-semibold text-[#ffde21]/80">
+                  <FileText className="h-2.5 w-2.5" /> Transcript
+                </span>
               )}
             </div>
           </div>
 
           {/* Actions */}
           <div className="flex items-center gap-2 flex-shrink-0 ml-4" onClick={e => e.stopPropagation()}>
+            {/* View transcript button */}
+            {transcript && (
+              <button
+                onClick={() => setShowTranscriptModal(true)}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#ffde21]/20 bg-[#ffde21]/[0.07] px-2.5 py-1.5 text-[11px] font-semibold text-[#ffde21]/80 hover:bg-[#ffde21]/15 hover:text-[#ffde21] transition-all"
+                title="Ver transcripción completa"
+              >
+                <FileText className="h-3 w-3" /> Ver
+              </button>
+            )}
+            {/* Transcribe button (only if no transcript and valid URL) */}
+            {!transcript && (isIG || isYT) && post.post_url && (
+              <button
+                onClick={handleTranscribe}
+                disabled={transcribing}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-[11px] font-medium text-white/40 hover:border-[#ffde21]/30 hover:bg-[#ffde21]/[0.06] hover:text-[#ffde21]/70 transition-all disabled:opacity-40"
+                title="Generar transcripción"
+              >
+                {transcribing
+                  ? <Loader2 className="h-3 w-3 animate-spin" />
+                  : <Mic className="h-3 w-3" />}
+                {transcribing ? "…" : "Transcribir"}
+              </button>
+            )}
             {post.post_url && (
               <a href={post.post_url} target="_blank" rel="noopener noreferrer"
                 className="rounded-lg p-1.5 text-white/30 hover:text-[#ffde21] hover:bg-[#ffde21]/10 transition-all">
@@ -472,37 +586,71 @@ function PostRow({ post, isAdmin, onDelete }: RowProps) {
 
         {/* Expanded content */}
         {expanded && (
-          <div className="border-t border-white/[0.06] px-5 py-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="border-t border-white/[0.06] px-5 py-5 space-y-4">
 
-              {/* Left: Description + Transcript */}
+            {/* Transcript error */}
+            {transcriptErr && (
+              <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2">
+                <AlertTriangle className="h-3.5 w-3.5 text-red-400 flex-shrink-0" />
+                <p className="text-xs text-red-400">{transcriptErr}</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left: Description + Transcript preview */}
               <div className="space-y-4">
                 {post.description && (
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-white/30 mb-2">Descripción</p>
-                    <p className="text-sm text-white/60 leading-relaxed">{post.description}</p>
+                  <div className="rounded-xl border border-[#ffde21]/10 bg-[#ffde21]/[0.04] px-4 py-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/50 mb-2">Hook / Descripción</p>
+                    <p className="text-sm text-[#ffde21] leading-relaxed font-medium">{post.description}</p>
                   </div>
                 )}
-                {post.transcript && (
-                  <div>
+                {transcript && (
+                  <div className="rounded-xl border border-[#ffde21]/10 bg-[#ffde21]/[0.03] px-4 py-3">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-xs font-semibold uppercase tracking-widest text-[#ffde21]/50">Transcript</p>
-                      <button onClick={() => navigator.clipboard.writeText(post.transcript!)}
-                        className="inline-flex items-center gap-1 text-xs text-white/30 hover:text-white/60 transition-colors">
-                        <Copy className="h-3.5 w-3.5" /> Copiar
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/50">Transcript</p>
+                        <span className="text-[10px] text-white/25">{words.toLocaleString()} palabras</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setShowTranscriptModal(true)}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#ffde21]/60 hover:text-[#ffde21] transition-colors"
+                        >
+                          <FileText className="h-3 w-3" /> Ver completo →
+                        </button>
+                        <button onClick={() => navigator.clipboard.writeText(transcript)}
+                          className="text-white/25 hover:text-white/50 transition-colors">
+                          <Copy className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </div>
-                    <p className="text-sm text-white/50 leading-relaxed">{post.transcript}</p>
+                    <p className="text-sm text-[#ffde21]/70 leading-relaxed line-clamp-4 font-light">{transcript}</p>
+                  </div>
+                )}
+                {!transcript && (isIG || isYT) && post.post_url && (
+                  <div className="rounded-xl border border-dashed border-white/[0.08] px-4 py-3 flex items-center gap-3">
+                    <Mic className="h-4 w-4 text-white/20 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-white/35">Sin transcript — usá el mismo método que Transcript de Videos</p>
+                    </div>
+                    <button
+                      onClick={handleTranscribe}
+                      disabled={transcribing}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#ffde21]/10 border border-[#ffde21]/20 px-3 py-1.5 text-xs font-semibold text-[#ffde21]/80 hover:bg-[#ffde21]/20 transition-all disabled:opacity-40 flex-shrink-0"
+                    >
+                      {transcribing ? <><Loader2 className="h-3 w-3 animate-spin" /> Transcribiendo…</> : <><Mic className="h-3 w-3" /> Transcribir</>}
+                    </button>
                   </div>
                 )}
               </div>
 
               {/* Right: Analysis */}
               {post.analysis && (
-                <div>
+                <div className="rounded-xl border border-[#ffde21]/10 bg-[#ffde21]/[0.03] px-4 py-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-1.5">
-                      <p className="text-xs font-semibold uppercase tracking-widest text-[#ffde21]/50">Análisis IA</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/50">Análisis IA</p>
                       <Sparkles className="h-3.5 w-3.5 text-[#ffde21]/30" />
                     </div>
                     <button onClick={() => navigator.clipboard.writeText(post.analysis!)}
@@ -760,6 +908,9 @@ export function CompetitorResearchView() {
                 post={post}
                 isAdmin={isAdmin}
                 onDelete={handleDelete}
+                onTranscriptSaved={(id, transcript) => {
+                  setPosts(prev => prev.map(p => p.id === id ? { ...p, transcript } : p))
+                }}
               />
             ))
         }

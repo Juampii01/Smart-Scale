@@ -3,11 +3,13 @@
 import {
   X, BarChart3, Radio, DollarSign, MessageSquare, Wrench,
   CalendarDays, Lock, LayoutGrid, LineChart, ClipboardList,
-  Zap, Globe, Upload, History, Telescope, FileVideo, Clapperboard
+  Zap, Globe, Upload, History, Telescope, FileVideo, Clapperboard,
+  ChevronDown
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useState } from "react"
 
 interface SidebarProps {
   open: boolean
@@ -28,24 +30,29 @@ const NAV_GROUPS = [
   {
     label: "Programa",
     items: [
-      { name: "Audit",                    href: "/audit",               icon: ClipboardList },
-      { name: "Implementacion",            href: "/program-checklist",   icon: Zap },
-      { name: "Tools",                    href: "/tools",               icon: Wrench },
-      { name: "Agenda",                   href: "/calendar",            icon: CalendarDays },
+      { name: "Audit",           href: "/audit",             icon: ClipboardList },
+      { name: "Implementacion",  href: "/program-checklist", icon: Zap },
+      { name: "Tools",           href: "/tools",             icon: Wrench },
+      { name: "Agenda",          href: "/calendar",          icon: CalendarDays },
     ],
   },
   {
     label: "Contenido",
     items: [
-      { name: "Video Feed",            href: "/video-feed",          icon: Clapperboard },
-      { name: "Competitor Research",   href: "/competitor-research", icon: Globe },
-      { name: "Transcript de Videos",  href: "/transcript",          icon: FileVideo },
+      { name: "Video Feed",           href: "/video-feed",          icon: Clapperboard },
+      { name: "Competitor Research",  href: "/competitor-research", icon: Globe },
+      { name: "Transcript de Videos", href: "/transcript",          icon: FileVideo },
     ],
   },
 ]
 
 export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname()
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
+
+  const toggleGroup = (label: string) => {
+    setCollapsed(prev => ({ ...prev, [label]: !prev[label] }))
+  }
 
   return (
     <>
@@ -55,13 +62,13 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-64 border-r border-white/[0.08] transition-transform duration-300 ease-in-out lg:translate-x-0",
-          "bg-[#0a0a0b] flex flex-col",
+          "fixed left-0 top-0 z-50 h-full w-[220px] border-r border-white/[0.07] transition-transform duration-300 ease-in-out lg:translate-x-0",
+          "bg-[#111113] flex flex-col",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
         {/* Logo */}
-        <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-white/[0.08] px-5">
+        <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-white/[0.07] px-5">
           <a href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
             <span className="text-white text-sm font-bold tracking-[0.22em]">SMART</span>
             <span className="rounded-md bg-white px-2.5 py-1 text-xs font-bold tracking-wide text-black shadow-sm">
@@ -69,7 +76,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             </span>
           </a>
           <div className="flex items-center gap-2">
-            <span className="rounded-full border border-[#ffde21]/30 bg-[#ffde21]/10 px-2 py-0.5 text-[9px] font-bold text-[#ffde21] tracking-widest uppercase">
+            <span className="text-[9px] font-semibold text-white/25 tracking-widest uppercase">
               v2.0
             </span>
             <button
@@ -82,65 +89,103 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-6">
-          {NAV_GROUPS.map((group) => (
-            <div key={group.label}>
-              <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">
-                {group.label}
-              </p>
-              <div className="space-y-0.5">
-                {group.items.map((item) => {
-                  const isActive = pathname === item.href
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+          {NAV_GROUPS.map((group) => {
+            const isCollapsed = collapsed[group.label]
+            const hasActive = group.items.some(i => pathname === i.href)
 
-                  if ((item as any).disabled) {
-                    return (
-                      <div
-                        key={item.name}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 opacity-30 cursor-not-allowed select-none"
-                      >
-                        <item.icon className="h-4 w-4 text-white/40 flex-shrink-0" />
-                        <span className="flex-1 text-sm text-white/40">{item.name}</span>
-                        <Lock className="h-3 w-3 text-white/25 flex-shrink-0" />
-                      </div>
-                    )
-                  }
+            return (
+              <div key={group.label} className="mb-1">
+                {/* Group header — clickable to collapse */}
+                <button
+                  onClick={() => toggleGroup(group.label)}
+                  className={cn(
+                    "w-full flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition-all duration-150",
+                    "hover:bg-white/[0.05]",
+                    hasActive && isCollapsed ? "text-[#ffde21]" : "text-white/80"
+                  )}
+                >
+                  <span className="text-[13px] font-semibold tracking-wide">{group.label}</span>
+                  <ChevronDown
+                    className={cn(
+                      "h-3.5 w-3.5 text-white/30 transition-transform duration-200 flex-shrink-0",
+                      isCollapsed && "-rotate-90"
+                    )}
+                  />
+                </button>
 
-                  return (
-                    <Link key={item.name} href={item.href} onClick={onClose}>
-                      <div
-                        className={cn(
-                          "relative flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-150",
-                          isActive
-                            ? "bg-[#ffde21]/12 text-white"
-                            : "text-white/55 hover:bg-white/[0.06] hover:text-white/90"
-                        )}
-                      >
-                        {isActive && (
-                          <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-[#ffde21] rounded-full" />
-                        )}
-                        <item.icon
-                          className={cn(
-                            "h-[15px] w-[15px] flex-shrink-0 transition-colors",
-                            isActive ? "text-[#ffde21]" : "text-white/45"
-                          )}
-                        />
-                        <span className="text-[13px] font-medium leading-none">{item.name}</span>
-                      </div>
-                    </Link>
-                  )
-                })}
+                {/* Items */}
+                {!isCollapsed && (
+                  <div className="mt-0.5 space-y-0.5 pl-1">
+                    {group.items.map((item) => {
+                      const isActive = pathname === item.href
+
+                      if ((item as any).disabled) {
+                        return (
+                          <div
+                            key={item.name}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 opacity-25 cursor-not-allowed select-none"
+                          >
+                            <item.icon className="h-[14px] w-[14px] text-white/40 flex-shrink-0" />
+                            <span className="text-[13px] text-white/40">{item.name}</span>
+                            <Lock className="ml-auto h-3 w-3 text-white/25 flex-shrink-0" />
+                          </div>
+                        )
+                      }
+
+                      return (
+                        <Link key={item.name} href={item.href} onClick={onClose}>
+                          <div
+                            className={cn(
+                              "flex items-center gap-2.5 rounded-lg px-3 py-[7px] transition-all duration-150",
+                              isActive
+                                ? "bg-white/[0.07] text-[#ffde21]"
+                                : "text-white/55 hover:bg-white/[0.05] hover:text-white/85"
+                            )}
+                          >
+                            <item.icon
+                              className={cn(
+                                "h-[14px] w-[14px] flex-shrink-0 transition-colors",
+                                isActive ? "text-[#ffde21]" : "text-white/40"
+                              )}
+                            />
+                            <span className={cn(
+                              "text-[13px] leading-none",
+                              isActive ? "font-semibold" : "font-medium"
+                            )}>
+                              {item.name}
+                            </span>
+                          </div>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            )
+          })}
         </nav>
 
+        {/* Actualizaciones */}
+        <div className="flex-shrink-0 border-t border-white/[0.07] px-3 py-3">
+          <p className="text-[9px] font-semibold uppercase tracking-widest text-white/25 px-2 mb-2">Actualizaciones</p>
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="flex h-1.5 w-1.5 rounded-full bg-[#ffde21] flex-shrink-0" />
+              <p className="text-[11px] font-medium text-white/60">Transcript de Instagram</p>
+              <span className="ml-auto text-[9px] font-semibold text-[#ffde21]/50 uppercase tracking-wide bg-[#ffde21]/[0.08] rounded-md px-1.5 py-0.5">Nuevo</span>
+            </div>
+            <p className="text-[10px] text-white/30 pl-3.5 leading-snug">Ahora disponible en Competitor Research</p>
+          </div>
+        </div>
+
         {/* Footer */}
-        <div className="flex-shrink-0 border-t border-white/[0.08] p-4">
-          <div className="flex items-center gap-2.5 rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.06] px-3 py-2.5">
-            <span className="flex h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse" />
+        <div className="flex-shrink-0 border-t border-white/[0.07] p-4">
+          <div className="flex items-center gap-2.5 rounded-xl bg-[#ffde21]/[0.07] px-3 py-2.5 border border-[#ffde21]/15">
+            <span className="flex h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse flex-shrink-0" />
             <div>
               <p className="text-[10px] font-bold text-[#ffde21]/80 tracking-widest uppercase">Client Analytics</p>
-              <p className="text-[10px] text-white/35 mt-0.5">Portal 2.0</p>
+              <p className="text-[10px] text-white/30 mt-0.5">Portal 2.0</p>
             </div>
           </div>
         </div>
