@@ -166,19 +166,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           })}
         </nav>
 
-        {/* Actualizaciones */}
-        <div className="flex-shrink-0 border-t border-white/[0.07] px-3 py-3">
-          <p className="text-[9px] font-semibold uppercase tracking-widest text-white/25 px-2 mb-2">Actualizaciones</p>
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 space-y-1.5">
-            <div className="flex items-center gap-2">
-              <span className="flex h-1.5 w-1.5 rounded-full bg-[#ffde21] flex-shrink-0" />
-              <p className="text-[11px] font-medium text-white/60">Transcript de Instagram</p>
-              <span className="ml-auto text-[9px] font-semibold text-[#ffde21]/50 uppercase tracking-wide bg-[#ffde21]/[0.08] rounded-md px-1.5 py-0.5">Nuevo</span>
-            </div>
-            <p className="text-[10px] text-white/30 pl-3.5 leading-snug">Ahora disponible en Competitor Research</p>
-          </div>
-        </div>
-
         {/* Footer */}
         <div className="flex-shrink-0 border-t border-white/[0.07] p-4">
           <div className="flex items-center gap-2.5 rounded-xl bg-[#ffde21]/[0.07] px-3 py-2.5 border border-[#ffde21]/15">
