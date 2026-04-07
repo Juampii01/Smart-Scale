@@ -158,7 +158,7 @@ async function assemblyAITranscript(cdnUrl: string, timeoutMs = 200_000): Promis
 
 // ─── Instagram transcript via RapidAPI + AssemblyAI ──────────────────────────
 
-const RAPIDAPI_IG_HOST = "instagram-scraper-20251.p.rapidapi.com"
+const RAPIDAPI_IG_HOST = "instagram-scraper-20253.p.rapidapi.com"
 
 async function rapidApiGetVideoUrl(
   lookupKey: string,
@@ -169,37 +169,66 @@ async function rapidApiGetVideoUrl(
   if (!process.env.RAPIDAPI_KEY) return empty
 
   const headers = {
+    "Content-Type": "application/json",
     "X-RapidAPI-Key": process.env.RAPIDAPI_KEY,
     "X-RapidAPI-Host": RAPIDAPI_IG_HOST,
   }
 
   try {
-    console.log("[transcript] rapidapi lookupKey:", lookupKey)
+    console.log("[transcript] rapidapi userreels lookup:", lookupKey, "shortCode:", shortCode)
 
     const res = await fetch(
-      `https://${RAPIDAPI_IG_HOST}/user-reels?username_or_id_or_url=${encodeURIComponent(lookupKey)}&url_embed_safe=false`,
+      `https://${RAPIDAPI_IG_HOST}/userreels?username_or_id_or_url=${encodeURIComponent(lookupKey)}`,
       { headers, signal: AbortSignal.timeout(30_000) }
     )
 
     if (res.ok) {
       const data = await res.json()
       const items: any[] = data?.data?.items ?? data?.items ?? []
-      const match = items.find((it: any) => (it.code ?? it.shortcode) === shortCode) ?? items[0]
+      const match =
+        items.find((it: any) => (it.code ?? it.shortcode ?? it.pk) === shortCode) ??
+        items.find((it: any) => `${it.code ?? it.shortcode ?? ""}`.toLowerCase() === shortCode.toLowerCase()) ??
+        items[0]
 
-      if (match?.video_url) {
-        const rawDur = match.video_duration
+      const rawDur =
+        match?.video_duration ??
+        match?.duration ??
+        match?.video_versions?.[0]?.duration ??
+        null
+
+      const videoUrl =
+        match?.video_url ??
+        match?.video_versions?.[0]?.url ??
+        match?.carousel_media?.find?.((item: any) => item?.video_url)?.video_url ??
+        match?.carousel_media?.find?.((item: any) => item?.video_versions?.[0]?.url)?.video_versions?.[0]?.url ??
+        null
+
+      const caption =
+        match?.caption?.text ??
+        match?.caption ??
+        match?.title ??
+        null
+
+      if (videoUrl) {
         return {
-          videoUrl: match.video_url ?? null,
-          caption: match.caption?.text ?? match.caption ?? null,
-          duration: rawDur
-            ? `${Math.floor(rawDur / 60)}:${String(Math.round(rawDur % 60)).padStart(2, "0")}`
+          videoUrl,
+          caption,
+          duration: rawDur && Number.isFinite(Number(rawDur))
+            ? `${Math.floor(Number(rawDur) / 60)}:${String(Math.round(Number(rawDur) % 60)).padStart(2, "0")}`
             : null,
         }
       }
 
-      console.log("[transcript] rapidapi items:", items.length, "matched shortcode:", !!match)
+      console.log("[transcript] rapidapi userreels missing video fields:", {
+        itemsCount: items.length,
+        matchedShortCode: !!match,
+        hasVideoUrl: !!match?.video_url,
+        hasVideoVersions: !!match?.video_versions,
+        hasCarouselMedia: !!match?.carousel_media,
+      })
     } else {
-      console.log("[transcript] rapidapi status:", res.status)
+      const errorText = await res.text().catch(() => "")
+      console.log("[transcript] rapidapi status:", res.status, errorText)
     }
   } catch (err) {
     console.log("[transcript] rapidapi error:", err)
@@ -395,7 +424,7 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
   // Fetch video URL via RapidAPI first, then fall back to scraping the public post HTML.
   // When username is unavailable, use the full post URL as the lookup key.
   const lookupKey = username ?? postUrl
-  console.log("[transcript] lookupKey:", lookupKey)
+  console.log("[transcript] lookupKey:", lookupKey, "shortCode:", shortCode)
   const { videoUrl, caption, duration } = await rapidApiGetVideoUrl(lookupKey, shortCode, postUrl)
   console.log("[transcript] videoUrl found:", !!videoUrl)
 

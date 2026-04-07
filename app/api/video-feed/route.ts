@@ -102,7 +102,7 @@ async function getYouTubePosts(channelId: string, limit = 50) {
 
 // ─── Instagram ────────────────────────────────────────────────────────────────
 
-const RAPIDAPI_IG_HOST = "instagram-scraper-20251.p.rapidapi.com"
+const RAPIDAPI_IG_HOST = "instagram-scraper-20253.p.rapidapi.com"
 
 function rapidApiIgHeaders() {
   return {
