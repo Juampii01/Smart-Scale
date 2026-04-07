@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       timestamp:               new Date().toISOString(),
     }
 
-    const webhookUrl = process.env.ZAPIER_WEBHOOK_CHI_CHANG
+    const webhookUrl = process.env.ZAPIER_WEBHOOK_CHI_CHANG ?? process.env.NEXT_PUBLIC_ZAPIER_WEBHOOK_CHI_CHANG
     if (!webhookUrl) {
       console.warn("[chi-chang] No webhook URL configured")
       return NextResponse.json({ ok: true, warning: "Webhook no configurado" })
