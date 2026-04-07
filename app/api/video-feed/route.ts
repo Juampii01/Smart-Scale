@@ -166,7 +166,7 @@ async function rapidApiInstagramFetch(username: string, count: number): Promise<
   if (!process.env.RAPIDAPI_KEY) return []
   try {
     const res = await fetch(
-      `https://${RAPIDAPI_IG_HOST}/user-posts-reels?username_or_id_or_url=${encodeURIComponent(username)}&url_embed_safe=false`,
+      `https://${RAPIDAPI_IG_HOST}/user-reels?username_or_id_or_url=${encodeURIComponent(username)}&url_embed_safe=false`,
       { headers: rapidApiIgHeaders(), signal: AbortSignal.timeout(30_000) }
     )
     if (!res.ok) return []

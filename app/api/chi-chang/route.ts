@@ -40,18 +40,32 @@ export async function POST(req: NextRequest) {
 
     if (clientRow?.nombre) clientName = clientRow.nombre
 
+    const nivelEmojiMap: Record<string, string> = {
+      "$5K":   "🔴",
+      "$10K":  "🔵",
+      "$20K":  "🟣",
+      "$50K":  "🟡",
+      "$100K": "🟢",
+    }
+    const nivelEmoji = proximo_nivel ? (nivelEmojiMap[proximo_nivel] ?? "") : null
+    const proximoNivelConEmoji = proximo_nivel
+      ? `${nivelEmoji} ${proximo_nivel}`
+      : null
+
     const payload = {
-      event_type:     "chi_chang.new_deal",
+      event_type:              "chi_chang.new_deal",
       client_id,
-      client_name:    clientName,
-      submitted_by:   user.email,
+      client_name:             clientName,
+      submitted_by:            user.email,
       fecha,
-      valor_trato:    Number(valor_trato),
-      cash_collected: Number(cash_collected),
-      proximo_nivel:  proximoObjetivo,
-      proximo_objetivo: proximoObjetivo,
-      notas:          notas || null,
-      timestamp:      new Date().toISOString(),
+      valor_trato:             Number(valor_trato),
+      cash_collected:          Number(cash_collected),
+      proximo_nivel:           proximoObjetivo,
+      proximo_objetivo:        proximoObjetivo,
+      proximo_nivel_con_emoji: proximoNivelConEmoji,
+      proximo_nivel_emoji:     nivelEmoji,
+      notas:                   notas || null,
+      timestamp:               new Date().toISOString(),
     }
 
     const webhookUrl = process.env.ZAPIER_WEBHOOK_CHI_CHANG

@@ -332,7 +332,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       <NavigationProgress />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex-1 flex flex-col lg:ml-64">
+      <div className="flex-1 flex flex-col lg:ml-[220px]">
         <header className="sticky top-0 z-10 border-b border-white/[0.08] bg-[#0a0a0b]/95 backdrop-blur-md">
           <div className="flex h-16 items-center justify-between px-4 lg:px-8">
             <div className="flex items-center gap-3">

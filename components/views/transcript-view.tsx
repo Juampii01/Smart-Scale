@@ -34,6 +34,7 @@ interface HistoryItem {
 
 function isYouTubeUrl(url: string) { return /youtube\.com|youtu\.be/.test(url) }
 function isInstagramUrl(url: string) { return /instagram\.com/.test(url) }
+function isInstagramReel(url: string) { return /instagram\.com\/(reel|reels)\//.test(url) }
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("es-AR", {
@@ -146,6 +147,8 @@ export function TranscriptView() {
 
   const isYT = isYouTubeUrl(url)
   const isIG = isInstagramUrl(url)
+  const isIGReel = isInstagramReel(url)
+  const isIGNonReel = isIG && !isIGReel
   const detectedPlatform = isYT ? "youtube" : isIG ? "instagram" : null
 
   const fetchHistory = useCallback(async () => {
@@ -213,7 +216,7 @@ export function TranscriptView() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
             <FileVideo className="h-4 w-4 text-white/50" />
           </div>
-          <h2 className="text-sm font-semibold text-white">New Transcription</h2>
+          <h2 className="text-sm font-semibold text-white">Nueva Transcripción</h2>
         </div>
 
         <div className="p-6 space-y-5">
@@ -221,7 +224,7 @@ export function TranscriptView() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Platform (auto-detected) */}
             <div>
-              <label className="block text-xs font-semibold text-white/40 uppercase tracking-widest mb-2">Platform</label>
+              <label className="block text-xs font-semibold text-white/40 uppercase tracking-widest mb-2">Plataforma</label>
               <div className={`flex h-11 items-center gap-2.5 rounded-xl border px-4 text-sm
                 ${detectedPlatform === "youtube" ? "border-red-500/30 bg-red-500/[0.06] text-red-300"
                 : detectedPlatform === "instagram" ? "border-pink-500/30 bg-pink-500/[0.06] text-pink-300"
@@ -234,22 +237,22 @@ export function TranscriptView() {
                 <span className="font-medium">
                   {detectedPlatform === "youtube" ? "YouTube"
                     : detectedPlatform === "instagram" ? "Instagram"
-                    : "Detectando…"}
+                    : "Pegá un link…"}
                 </span>
               </div>
             </div>
 
             {/* Output type */}
             <div>
-              <label className="block text-xs font-semibold text-white/40 uppercase tracking-widest mb-2">Output Type</label>
+              <label className="block text-xs font-semibold text-white/40 uppercase tracking-widest mb-2">Tipo de Salida</label>
               <select
                 value={outputType}
                 onChange={e => setOutputType(e.target.value as any)}
                 className="h-11 w-full rounded-xl border border-white/[0.08] bg-[#0c0c0d] px-4 text-sm text-white/70 focus:border-[#ffde21]/40 focus:outline-none appearance-none cursor-pointer"
               >
-                <option value="both">Transcript + AI Summary</option>
-                <option value="transcript">Just the transcript</option>
-                <option value="summary">Just the AI summary</option>
+                <option value="both">Transcript + Resumen IA</option>
+                <option value="transcript">Solo transcript</option>
+                <option value="summary">Solo resumen IA</option>
               </select>
             </div>
           </div>
@@ -257,7 +260,7 @@ export function TranscriptView() {
           {/* URL input */}
           <div>
             <label className="block text-xs font-semibold text-white/40 uppercase tracking-widest mb-2">
-              Video / Reel URL
+              URL del Video / Reel
             </label>
             <form onSubmit={handleSubmit} className="flex gap-3">
               <input
@@ -265,19 +268,24 @@ export function TranscriptView() {
                 value={url}
                 onChange={e => { setUrl(e.target.value); setError(null); setResult(null) }}
                 placeholder="https://youtube.com/watch?v=... o https://instagram.com/reel/..."
-                className="h-11 flex-1 rounded-xl border border-white/[0.08] bg-[#0c0c0d] px-4 text-sm text-white placeholder:text-white/20 focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/15 transition-all"
+                className={`h-11 flex-1 rounded-xl border px-4 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 transition-all bg-[#0c0c0d] ${
+                  isIGNonReel
+                    ? "border-orange-500/40 focus:border-orange-500/60 focus:ring-orange-500/15"
+                    : "border-white/[0.08] focus:border-[#ffde21]/40 focus:ring-[#ffde21]/15"
+                }`}
                 disabled={loading}
               />
               <button
                 type="submit"
                 disabled={!url.trim() || loading || (!isYT && !isIG)}
-                className="h-11 rounded-xl bg-[#ffde21] px-6 text-sm font-bold text-black hover:bg-[#ffe46b] disabled:opacity-40 transition shrink-0"
+                className="h-11 rounded-xl px-6 text-sm font-bold transition shrink-0 bg-[#ffde21] text-black hover:bg-[#ffe46b] disabled:bg-white/[0.07] disabled:text-white/25 disabled:cursor-not-allowed"
               >
-                {loading ? "Submitting…" : "Transcribir"}
+                {loading ? "Procesando…" : "Transcribir"}
               </button>
             </form>
-            {isIG && (
-              <p className="mt-2 text-xs text-white/30">Note: Instagram only works with reels, not fixed posts.</p>
+
+            {isIGReel && (
+              <p className="mt-2 text-xs text-white/25">Solo reels públicos con audio. El proceso puede tardar hasta 2 minutos.</p>
             )}
             {url.trim() && !isYT && !isIG && (
               <p className="mt-2 text-xs text-red-400/70">Solo se aceptan links de YouTube o Instagram.</p>
@@ -292,8 +300,8 @@ export function TranscriptView() {
         {loading && (
           <div className="border-t border-white/[0.05]">
             <AiLoading
-              title="Transcribiendo video"
-              steps={["Conectando con la plataforma…", "Obteniendo subtítulos…", "Procesando texto…", "Generando resumen con IA…", "Casi listo…"]}
+              title="Transcribiendo video…"
+              steps={["Conectando con la plataforma…", "Obteniendo subtítulos…", "Procesando audio…", "Generando resumen con IA…", "Casi listo…"]}
             />
           </div>
         )}

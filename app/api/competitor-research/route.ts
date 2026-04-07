@@ -106,3 +106,38 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err?.message ?? "Internal server error" }, { status: 500 })
   }
 }
+
+// PATCH /api/competitor-research  { id, transcript }
+export async function PATCH(req: NextRequest) {
+  try {
+    const { user, error: authErr } = await verifyUser(req)
+    if (authErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    let body: Record<string, unknown>
+    try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
+
+    const id = typeof body.id === "string" ? body.id : null
+    if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
+
+    const updates: Record<string, unknown> = {}
+    if (typeof body.transcript === "string") updates.transcript = body.transcript.trim()
+    if (typeof body.analysis   === "string") updates.analysis   = body.analysis.trim()
+
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({ error: "Nada que actualizar" }, { status: 400 })
+    }
+
+    const supabase = createServiceClient()
+    const { data: updated, error: updateErr } = await supabase
+      .from("competitor_posts")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single()
+
+    if (updateErr) return NextResponse.json({ error: updateErr.message }, { status: 500 })
+    return NextResponse.json({ post: updated })
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message ?? "Internal server error" }, { status: 500 })
+  }
+}

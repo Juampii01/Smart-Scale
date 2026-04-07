@@ -51,9 +51,9 @@ function CopyBtn({ text }: { text: string | null }) {
   return (
     <button
       onClick={e => { e.stopPropagation(); navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500) }}
-      className="inline-flex items-start gap-1.5 text-left text-xs text-white/50 hover:text-white/80 transition-colors group"
+      className="inline-flex items-start gap-1.5 text-left text-xs text-[#ffde21]/70 hover:text-[#ffde21] transition-colors group"
     >
-      <span className="max-w-[150px] leading-relaxed line-clamp-3 group-hover:text-white/70">
+      <span className="max-w-[150px] leading-relaxed line-clamp-3">
         {text.slice(0, 100)}{text.length > 100 ? "…" : ""}
       </span>
       {copied
@@ -86,10 +86,10 @@ function VideoRow({ video }: { video: VideoResult }) {
           <span className="text-xs text-white/55 line-clamp-2">{video.title}</span>
         </td>
         <td className="px-4 py-3.5 max-w-[140px]">
-          <span className="text-xs text-white/30 line-clamp-2">{video.description || "—"}</span>
+          <span className="text-xs text-[#ffde21]/70 line-clamp-2 font-medium">{video.description || "—"}</span>
         </td>
         <td className="px-4 py-3.5 text-right whitespace-nowrap">
-          <span className="text-sm font-semibold text-white tabular-nums">{fmt(video.views)}</span>
+          <span className="text-sm font-bold text-[#ffde21] tabular-nums">{fmt(video.views)}</span>
         </td>
         <td className="px-4 py-3.5 text-center whitespace-nowrap">
           <span className="text-xs text-white/40 tabular-nums">{video.duration || "—"}</span>
@@ -149,9 +149,9 @@ function VideoRow({ video }: { video: VideoResult }) {
                       </button>
                     )}
                   </div>
-                  <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] px-4 py-3 max-h-48 overflow-y-auto">
+                  <div className="rounded-xl border border-[#ffde21]/10 bg-[#ffde21]/[0.03] px-4 py-3 max-h-48 overflow-y-auto">
                     {video.transcript
-                      ? <p className="text-xs text-white/55 leading-relaxed whitespace-pre-wrap">{video.transcript}</p>
+                      ? <p className="text-xs text-[#ffde21]/75 leading-relaxed whitespace-pre-wrap">{video.transcript}</p>
                       : <p className="text-xs text-white/25 italic">Transcript no disponible.</p>}
                   </div>
                 </div>
@@ -166,7 +166,7 @@ function VideoRow({ video }: { video: VideoResult }) {
                       </button>
                     </div>
                     <div className="rounded-xl border border-[#ffde21]/10 bg-[#ffde21]/[0.03] px-4 py-3 max-h-48 overflow-y-auto">
-                      <p className="text-xs text-white/60 leading-relaxed whitespace-pre-wrap">{video.analysis}</p>
+                      <p className="text-xs text-[#ffde21]/75 leading-relaxed whitespace-pre-wrap">{video.analysis}</p>
                     </div>
                   </div>
                 )}
