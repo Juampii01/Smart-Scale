@@ -178,7 +178,7 @@ async function rapidApiGetVideoUrl(
     console.log("[transcript] rapidapi userreels lookup:", lookupKey, "shortCode:", shortCode)
 
     const res = await fetch(
-      `https://${RAPIDAPI_IG_HOST}/userreels?username_or_id_or_url=${encodeURIComponent(lookupKey)}`,
+      `https://${RAPIDAPI_IG_HOST}/user-reels?username_or_id_or_url=${encodeURIComponent(lookupKey)}`,
       { headers, signal: AbortSignal.timeout(30_000) }
     )
 
