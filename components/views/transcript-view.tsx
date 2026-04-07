@@ -278,7 +278,7 @@ export function TranscriptView() {
               <button
                 type="submit"
                 disabled={!url.trim() || loading || (!isYT && !isIG) || isIGNonReel}
-                className="h-11 rounded-xl bg-[#ffde21] px-6 text-sm font-bold text-black hover:bg-[#ffe46b] disabled:opacity-40 transition shrink-0"
+                className="h-11 rounded-xl px-6 text-sm font-bold transition shrink-0 bg-[#ffde21] text-black hover:bg-[#ffe46b] disabled:bg-white/[0.07] disabled:text-white/25 disabled:cursor-not-allowed"
               >
                 {loading ? "Procesando…" : "Transcribir"}
               </button>
