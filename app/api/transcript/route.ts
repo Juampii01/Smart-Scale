@@ -362,6 +362,42 @@ async function rapidApiGetVideoUrl(
               duration: null,
             }
           }
+
+          // oEmbed returns author_name even when no video_url — use it to retry RapidAPI
+          const authorName = json?.author_name ?? null
+          console.log("[transcript] api fallback json author_name:", authorName)
+          if (authorName && process.env.RAPIDAPI_KEY) {
+            console.log("[transcript] retrying RapidAPI with author_name:", authorName)
+            const rapidHeaders = {
+              "Content-Type": "application/json",
+              "X-RapidAPI-Key": process.env.RAPIDAPI_KEY,
+              "X-RapidAPI-Host": RAPIDAPI_IG_HOST,
+            }
+            const rapidRes = await fetch(
+              `https://${RAPIDAPI_IG_HOST}/user-reels?username_or_id_or_url=${encodeURIComponent(authorName)}`,
+              { headers: rapidHeaders, signal: AbortSignal.timeout(30_000) }
+            )
+            if (rapidRes.ok) {
+              const data = await rapidRes.json()
+              const items: any[] = data?.data?.items ?? data?.items ?? []
+              const match =
+                items.find((it: any) => (it.code ?? it.shortcode) === shortCode) ??
+                items.find((it: any) => `${it.code ?? it.shortcode ?? ""}`.toLowerCase() === shortCode.toLowerCase())
+              const videoUrl = match?.video_url ?? match?.video_versions?.[0]?.url ?? null
+              console.log("[transcript] RapidAPI via oEmbed author — items:", items.length, "videoUrl:", !!videoUrl)
+              if (videoUrl) {
+                const rawDur = match?.video_duration ?? match?.duration ?? null
+                return {
+                  videoUrl,
+                  caption: match?.caption?.text ?? match?.caption ?? json?.title ?? null,
+                  duration: rawDur && Number.isFinite(Number(rawDur))
+                    ? `${Math.floor(Number(rawDur) / 60)}:${String(Math.round(Number(rawDur) % 60)).padStart(2, "0")}`
+                    : null,
+                  username: authorName,
+                }
+              }
+            }
+          }
         } catch (err) {
           console.log("[transcript] api fallback json parse error:", apiUrl, err)
         }
