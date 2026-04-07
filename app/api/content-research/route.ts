@@ -27,7 +27,7 @@ function parseDuration(iso: string): string {
 
 // ─── RapidAPI Instagram ───────────────────────────────────────────────────────
 
-const RAPIDAPI_IG_HOST = "instagram-scraper-20253.p.rapidapi.com"
+const RAPIDAPI_IG_HOST = "instagram-scraper-20251.p.rapidapi.com"
 
 function rapidApiIgHeaders() {
   return {
@@ -39,7 +39,7 @@ function rapidApiIgHeaders() {
 async function rapidApiInstagramFetch(username: string, count = 50): Promise<any[]> {
   if (!process.env.RAPIDAPI_KEY) return []
   try {
-    const url = `https://${RAPIDAPI_IG_HOST}/user-posts-reels?username_or_id_or_url=${encodeURIComponent(username)}&url_embed_safe=false`
+    const url = `https://${RAPIDAPI_IG_HOST}/user-reels?username_or_id_or_url=${encodeURIComponent(username)}&url_embed_safe=false`
     console.log("[rapidapi] fetching:", url)
     const res = await fetch(url, { headers: rapidApiIgHeaders(), signal: AbortSignal.timeout(30_000) })
     console.log("[rapidapi] status:", res.status)

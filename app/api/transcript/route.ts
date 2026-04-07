@@ -158,7 +158,7 @@ async function assemblyAITranscript(cdnUrl: string, timeoutMs = 200_000): Promis
 
 // ─── Instagram transcript via RapidAPI + AssemblyAI ──────────────────────────
 
-const RAPIDAPI_IG_HOST = "instagram-scraper-20253.p.rapidapi.com"
+const RAPIDAPI_IG_HOST = "instagram-scraper-20251.p.rapidapi.com"
 
 async function rapidApiGetVideoUrl(
   lookupKey: string,
@@ -177,7 +177,7 @@ async function rapidApiGetVideoUrl(
     console.log("[transcript] rapidapi lookupKey:", lookupKey)
 
     const res = await fetch(
-      `https://${RAPIDAPI_IG_HOST}/user-posts-reels?username_or_id_or_url=${encodeURIComponent(lookupKey)}&url_embed_safe=false`,
+      `https://${RAPIDAPI_IG_HOST}/user-reels?username_or_id_or_url=${encodeURIComponent(lookupKey)}&url_embed_safe=false`,
       { headers, signal: AbortSignal.timeout(30_000) }
     )
 
