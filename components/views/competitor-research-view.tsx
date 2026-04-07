@@ -192,17 +192,17 @@ function AddPostModal({ clientId, onClose, onSaved }: AddModalProps) {
               </span>
               <input
                 className={inputCls + " pl-10"}
-                placeholder="https://www.instagram.com/reel/..."
+                placeholder="https://www.youtube.com/watch?v=... o https://www.instagram.com/reel/..."
                 value={urlInput}
                 onChange={e => { setUrlInput(e.target.value); setResult(null); setResearchErr(null) }}
-                onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleResearch() } }}
+                onKeyDown={e => { if (e.key === "Enter" && !isInstagram) { e.preventDefault(); handleResearch() } }}
                 disabled={researching}
               />
             </div>
             <button
               type="button"
               onClick={handleResearch}
-              disabled={!urlInput.trim() || researching}
+              disabled={!urlInput.trim() || researching || isInstagram}
               className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2.5 text-sm font-semibold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
             >
               {researching
@@ -210,6 +210,17 @@ function AddPostModal({ clientId, onClose, onSaved }: AddModalProps) {
                 : <><Sparkles className="h-4 w-4" /> Investigar</>}
             </button>
           </div>
+
+          {/* Instagram bloqueado */}
+          {isInstagram && (
+            <div className="flex items-start gap-3 rounded-xl border border-pink-500/20 bg-pink-500/[0.06] px-4 py-3.5">
+              <Instagram className="h-4 w-4 text-pink-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-pink-300">Las investigaciones de Instagram están actualizándose</p>
+                <p className="text-xs text-pink-300/50 mt-1">Por el momento solo podés investigar videos de YouTube. La integración con Instagram estará disponible pronto.</p>
+              </div>
+            </div>
+          )}
 
           {/* Loading */}
           {researching && (
