@@ -168,13 +168,16 @@ async function rapidApiGetVideoUrl(
   const empty = { videoUrl: null, caption: null, duration: null }
   if (!process.env.RAPIDAPI_KEY) return empty
 
+  // user-reels endpoint is user-centric — skip if lookupKey is a URL (needs username, not shortcode URL)
+  const isUsernameKey = !lookupKey.startsWith("http")
+
   const headers = {
     "Content-Type": "application/json",
     "X-RapidAPI-Key": process.env.RAPIDAPI_KEY,
     "X-RapidAPI-Host": RAPIDAPI_IG_HOST,
   }
 
-  try {
+  if (isUsernameKey) try {
     console.log("[transcript] rapidapi userreels lookup:", lookupKey, "shortCode:", shortCode)
 
     const res = await fetch(
@@ -401,18 +404,27 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
     username = urlUsernameMatch[1]
   }
 
-  // Fallback: oEmbed to get username
+  // Fallback: oEmbed to get username — try both endpoints (v1 is more reliable for public posts)
   if (!username) {
-    try {
-      const oEmbedRes = await fetch(
-        `https://api.instagram.com/oembed/?url=${encodeURIComponent(postUrl)}`,
-        { signal: AbortSignal.timeout(8_000) }
-      )
-      if (oEmbedRes.ok) {
-        const oEmbed = await oEmbedRes.json()
-        username = oEmbed.author_name ?? null
+    const oEmbedUrls = [
+      `https://www.instagram.com/api/v1/oembed/?url=${encodeURIComponent(postUrl)}`,
+      `https://api.instagram.com/oembed/?url=${encodeURIComponent(postUrl)}`,
+    ]
+    for (const oEmbedUrl of oEmbedUrls) {
+      try {
+        console.log("[transcript] oEmbed attempt:", oEmbedUrl)
+        const oEmbedRes = await fetch(oEmbedUrl, { signal: AbortSignal.timeout(8_000) })
+        console.log("[transcript] oEmbed status:", oEmbedRes.status)
+        if (oEmbedRes.ok) {
+          const oEmbed = await oEmbedRes.json()
+          username = oEmbed.author_name ?? null
+          console.log("[transcript] oEmbed author_name:", username)
+          if (username) break
+        }
+      } catch (err) {
+        console.log("[transcript] oEmbed error:", oEmbedUrl, err)
       }
-    } catch {}
+    }
   }
 
   console.log("[transcript] shortCode:", shortCode, "username:", username)
@@ -421,11 +433,14 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
     return { transcript: null, caption: null, duration: null, username }
   }
 
-  // Fetch video URL via RapidAPI first, then fall back to scraping the public post HTML.
-  // When username is unavailable, use the full post URL as the lookup key.
-  const lookupKey = username ?? postUrl
+  // RapidAPI user-reels endpoint is user-centric — it needs a username, not a shortcode.
+  // Skip RapidAPI entirely when username is null to avoid wasting quota (returns 0 items).
+  if (!username) {
+    console.log("[transcript] no username found — skipping RapidAPI, going straight to HTML fallbacks")
+  }
+  const lookupKey = username ?? null
   console.log("[transcript] lookupKey:", lookupKey, "shortCode:", shortCode)
-  const { videoUrl, caption, duration } = await rapidApiGetVideoUrl(lookupKey, shortCode, postUrl)
+  const { videoUrl, caption, duration } = await rapidApiGetVideoUrl(lookupKey ?? postUrl, shortCode, postUrl)
   console.log("[transcript] videoUrl found:", !!videoUrl)
 
   if (!videoUrl) {
