@@ -418,10 +418,17 @@ function PostRow({ post, isAdmin, onDelete, onTranscriptSaved }: RowProps) {
   const [localTranscript, setLocalTranscript] = useState<string | null>(post.transcript)
 
   const isIG = (post.post_url ?? "").includes("instagram.com")
+  const isIGReel = /instagram\.com\/(reel|reels)\//.test(post.post_url ?? "")
+  const isIGNonReel = isIG && !isIGReel
   const isYT = (post.post_url ?? "").includes("youtube.com") || (post.post_url ?? "").includes("youtu.be")
 
   async function handleTranscribe() {
     if (!post.post_url) return
+    // Instagram solo funciona con reels
+    if (isIGNonReel) {
+      setTranscriptErr("Instagram solo funciona con reels, no con posts fijos.")
+      return
+    }
     setTranscribing(true); setTranscriptErr(null)
     try {
       const supabase = createClient()
@@ -552,7 +559,15 @@ function PostRow({ post, isAdmin, onDelete, onTranscriptSaved }: RowProps) {
               </button>
             )}
             {/* Transcribe button (only if no transcript and valid URL) */}
-            {!transcript && (isIG || isYT) && post.post_url && (
+            {!transcript && isIGNonReel && post.post_url && (
+              <span
+                className="inline-flex items-center gap-1.5 rounded-lg border border-orange-500/20 bg-orange-500/[0.06] px-2.5 py-1.5 text-[11px] font-medium text-orange-400/70 cursor-not-allowed"
+                title="Instagram solo funciona con reels, no con posts fijos"
+              >
+                <Instagram className="h-3 w-3" /> Solo reels
+              </span>
+            )}
+            {!transcript && (isIGReel || isYT) && post.post_url && (
               <button
                 onClick={handleTranscribe}
                 disabled={transcribing}
@@ -628,11 +643,20 @@ function PostRow({ post, isAdmin, onDelete, onTranscriptSaved }: RowProps) {
                     <p className="text-sm text-[#ffde21]/70 leading-relaxed line-clamp-4 font-light">{transcript}</p>
                   </div>
                 )}
-                {!transcript && (isIG || isYT) && post.post_url && (
+                {!transcript && isIGNonReel && post.post_url && (
+                  <div className="rounded-xl border border-orange-500/20 bg-orange-500/[0.04] px-4 py-3 flex items-start gap-3">
+                    <Instagram className="h-4 w-4 text-orange-400/60 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-semibold text-orange-300/80">Instagram solo funciona con reels</p>
+                      <p className="text-[11px] text-orange-300/40 mt-0.5">Los posts fijos no tienen audio transcribible. Este link no es un reel.</p>
+                    </div>
+                  </div>
+                )}
+                {!transcript && (isIGReel || isYT) && post.post_url && (
                   <div className="rounded-xl border border-dashed border-white/[0.08] px-4 py-3 flex items-center gap-3">
                     <Mic className="h-4 w-4 text-white/20 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-white/35">Sin transcript — usá el mismo método que Transcript de Videos</p>
+                      <p className="text-xs text-white/35">Sin transcript — mismo método que Transcript de Videos</p>
                     </div>
                     <button
                       onClick={handleTranscribe}
