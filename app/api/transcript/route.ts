@@ -164,7 +164,7 @@ async function rapidApiGetVideoUrl(
   lookupKey: string,
   shortCode: string,
   postUrl?: string
-): Promise<{ videoUrl: string | null; caption: string | null; duration: string | null }> {
+): Promise<{ videoUrl: string | null; caption: string | null; duration: string | null; username?: string | null }> {
   const empty = { videoUrl: null, caption: null, duration: null }
   if (!process.env.RAPIDAPI_KEY) return empty
 
@@ -270,19 +270,37 @@ async function rapidApiGetVideoUrl(
     const ogDescriptionMatch = html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i)
     const ogTitleMatch = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i)
 
-    if (!rawVideo) return null
+    // Try to extract username from HTML — works even from cloud IPs
+    const usernamePatterns = [
+      /"username":"([^"]+)"/i,
+      /"owner":\s*\{[^}]*"username":"([^"]+)"/i,
+      /<meta[^>]+property=["']og:url["'][^>]+content=["']https:\/\/www\.instagram\.com\/([^/?#"']+)\/(?:reel|p)\//i,
+      /instagram\.com\/([^/?#"'\s]+)\/(?:reel|p)\//i,
+    ]
+    let extractedUsername: string | null = null
+    for (const p of usernamePatterns) {
+      const m = html.match(p)
+      const candidate = m?.[1]?.replace(/^@/, "").trim() ?? null
+      if (candidate && !["reel", "p", "reels", "tv"].includes(candidate)) {
+        extractedUsername = candidate
+        break
+      }
+    }
 
-    const videoUrl = decodeValue(rawVideo)
-    if (!/^https?:\/\//i.test(videoUrl)) return null
+    if (!rawVideo && !extractedUsername) return null
+
+    const videoUrl = rawVideo ? decodeValue(rawVideo) : null
+    if (videoUrl && !/^https?:\/\//i.test(videoUrl)) return null
 
     return {
-      videoUrl,
+      videoUrl: videoUrl ?? null,
       caption: ogTitleMatch?.[1]
         ? decodeValue(ogTitleMatch[1])
         : ogDescriptionMatch?.[1]
           ? decodeValue(ogDescriptionMatch[1])
           : null,
       duration: null,
+      username: extractedUsername,
     }
   }
 
@@ -373,16 +391,54 @@ async function rapidApiGetVideoUrl(
       }
 
       const html = await pageRes.text()
+      const extracted = extractVideoFromHtml(html)
       console.log("[transcript] html fallback markers:", candidateUrl, {
         hasOgVideo: /og:video/i.test(html),
         hasVideoUrl: /"video_url"/i.test(html),
         hasVideoVersions: /"video_versions"/i.test(html),
         hasContentUrl: /"contentUrl"/i.test(html),
+        extractedUsername: extracted?.username ?? null,
         htmlLength: html.length,
       })
-      const extracted = extractVideoFromHtml(html)
       if (extracted?.videoUrl) {
         return extracted
+      }
+      // Even without video URL, if we got a username from HTML, try RapidAPI now
+      if (extracted?.username && process.env.RAPIDAPI_KEY) {
+        console.log("[transcript] got username from HTML:", extracted.username, "— retrying RapidAPI")
+        const rapidHeaders = {
+          "Content-Type": "application/json",
+          "X-RapidAPI-Key": process.env.RAPIDAPI_KEY,
+          "X-RapidAPI-Host": RAPIDAPI_IG_HOST,
+        }
+        try {
+          const rapidRes = await fetch(
+            `https://${RAPIDAPI_IG_HOST}/user-reels?username_or_id_or_url=${encodeURIComponent(extracted.username)}`,
+            { headers: rapidHeaders, signal: AbortSignal.timeout(30_000) }
+          )
+          if (rapidRes.ok) {
+            const data = await rapidRes.json()
+            const items: any[] = data?.data?.items ?? data?.items ?? []
+            const match =
+              items.find((it: any) => (it.code ?? it.shortcode) === shortCode) ??
+              items.find((it: any) => `${it.code ?? it.shortcode ?? ""}`.toLowerCase() === shortCode.toLowerCase())
+            const videoUrl = match?.video_url ?? match?.video_versions?.[0]?.url ?? null
+            console.log("[transcript] RapidAPI retry result — items:", items.length, "videoUrl:", !!videoUrl)
+            if (videoUrl) {
+              const rawDur = match?.video_duration ?? match?.duration ?? null
+              return {
+                videoUrl,
+                caption: match?.caption?.text ?? match?.caption ?? null,
+                duration: rawDur && Number.isFinite(Number(rawDur))
+                  ? `${Math.floor(Number(rawDur) / 60)}:${String(Math.round(Number(rawDur) % 60)).padStart(2, "0")}`
+                  : null,
+                username: extracted.username,
+              }
+            }
+          }
+        } catch (err) {
+          console.log("[transcript] RapidAPI retry error:", err)
+        }
       }
     } catch (err) {
       console.log("[transcript] html fallback error:", candidateUrl, err)
@@ -440,8 +496,11 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
   }
   const lookupKey = username ?? null
   console.log("[transcript] lookupKey:", lookupKey, "shortCode:", shortCode)
-  const { videoUrl, caption, duration } = await rapidApiGetVideoUrl(lookupKey ?? postUrl, shortCode, postUrl)
-  console.log("[transcript] videoUrl found:", !!videoUrl)
+  const result = await rapidApiGetVideoUrl(lookupKey ?? postUrl, shortCode, postUrl)
+  const { videoUrl, caption, duration } = result
+  // Username might have been extracted from HTML inside rapidApiGetVideoUrl
+  if (!username && result.username) username = result.username
+  console.log("[transcript] videoUrl found:", !!videoUrl, "username:", username)
 
   if (!videoUrl) {
     return { transcript: null, caption, duration, username }
