@@ -395,7 +395,7 @@ function AnalysisBlock({ text }: { text: string }) {
   }).filter(s => s.body)
 
   if (sections.length === 0) {
-    return <p className="text-xs text-white/60 leading-relaxed whitespace-pre-wrap">{clean}</p>
+    return <p className="text-sm text-white/60 leading-relaxed whitespace-pre-wrap">{clean}</p>
   }
 
   return (
@@ -407,11 +407,11 @@ function AnalysisBlock({ text }: { text: string }) {
             {s.header && (
               <div className="flex items-center gap-2 bg-[#ffde21]/[0.06] border-b border-white/[0.04] px-3 py-2">
                 {icon && <span className="text-sm">{icon}</span>}
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#ffde21]/70">{s.header}</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-[#ffde21]/70">{s.header}</p>
               </div>
             )}
             <div className="px-3 py-2.5 bg-white/[0.01]">
-              <p className="text-xs text-[#ffde21]/75 leading-relaxed">{s.body}</p>
+              <p className="text-sm text-[#ffde21]/75 leading-relaxed">{s.body}</p>
             </div>
           </div>
         )
@@ -628,7 +628,7 @@ function PostRow({ post, isAdmin, onDelete, onTranscriptSaved }: RowProps) {
                 {post.description && (
                   <div className="rounded-xl border border-[#ffde21]/10 bg-[#ffde21]/[0.04] px-4 py-3">
                     <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/50 mb-2">Hook / Descripción</p>
-                    <p className="text-sm text-[#ffde21] leading-relaxed font-medium">{post.description}</p>
+                    <p className="text-base text-[#ffde21] leading-relaxed font-medium">{post.description}</p>
                   </div>
                 )}
                 {transcript && (
@@ -651,7 +651,7 @@ function PostRow({ post, isAdmin, onDelete, onTranscriptSaved }: RowProps) {
                         </button>
                       </div>
                     </div>
-                    <p className="text-sm text-[#ffde21]/70 leading-relaxed line-clamp-4 font-light">{transcript}</p>
+                    <p className="text-base text-[#ffde21]/70 leading-relaxed line-clamp-4 font-light">{transcript}</p>
                   </div>
                 )}
                 {!transcript && isIGNonReel && post.post_url && (
