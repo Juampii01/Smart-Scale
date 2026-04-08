@@ -91,7 +91,7 @@ function ExpandCell({ label, content, preview, yellow }: { label: string; conten
     <>
       <button
         onClick={e => { e.stopPropagation(); setOpen(true) }}
-        className={`text-left text-sm leading-snug line-clamp-2 hover:opacity-80 transition-opacity ${yellow ? "text-[#ffde21]/80 font-medium" : "text-white/60"}`}
+        className={`block w-full text-left text-sm leading-snug line-clamp-2 overflow-hidden hover:opacity-80 transition-opacity ${yellow ? "text-[#ffde21]/80 font-medium" : "text-white/60"}`}
       >
         {preview ?? content.slice(0, 90)}{content.length > 90 ? "…" : ""}
       </button>
@@ -122,11 +122,11 @@ function VideoRow({ video, channelName, platform }: { video: VideoResult; channe
         </a>
       </td>
       {/* TITLE o HOOK */}
-      <td className="px-4 py-4 max-w-[180px]">
+      <td className="px-4 py-4 max-w-[180px] overflow-hidden">
         <ExpandCell label={isIG ? "Hook / Caption" : "Título"} content={isIG ? hookContent : titleContent} />
       </td>
       {/* DESCRIPTION (YouTube) o vacío (Instagram) */}
-      <td className="px-4 py-4 max-w-[160px]">
+      <td className="px-4 py-4 max-w-[160px] overflow-hidden">
         <ExpandCell label="Descripción" content={descContent} yellow />
       </td>
       {/* VIEWS */}
@@ -138,11 +138,11 @@ function VideoRow({ video, channelName, platform }: { video: VideoResult; channe
         <span className="text-sm text-white/40 tabular-nums">{video.duration || "—"}</span>
       </td>
       {/* TRANSCRIPT */}
-      <td className="px-4 py-4 max-w-[180px]">
+      <td className="px-4 py-4 max-w-[180px] overflow-hidden">
         <ExpandCell label="Transcript" content={video.transcript || null} yellow />
       </td>
       {/* ANALYSIS */}
-      <td className="px-4 py-4 max-w-[180px]">
+      <td className="px-4 py-4 max-w-[180px] overflow-hidden">
         <ExpandCell label="Análisis IA" content={video.analysis || null} yellow />
       </td>
       {/* THUMBNAIL */}

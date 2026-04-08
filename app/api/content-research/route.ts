@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import Anthropic from "@anthropic-ai/sdk"
+import { getInstagramTranscript } from "@/lib/instagram-transcript"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -52,34 +53,6 @@ async function rapidApiInstagramFetch(username: string, count = 50): Promise<any
   }
 }
 
-async function transcribeWithAssemblyAI(videoUrl: string): Promise<string | null> {
-  const apiKey = process.env.ASSEMBLYAI_API_KEY
-  if (!apiKey) return null
-  try {
-    const submitRes = await fetch("https://api.assemblyai.com/v2/transcript", {
-      method: "POST",
-      headers: { "Authorization": apiKey, "Content-Type": "application/json" },
-      body: JSON.stringify({ audio_url: videoUrl }),
-      signal: AbortSignal.timeout(15_000),
-    })
-    if (!submitRes.ok) return null
-    const { id } = await submitRes.json()
-    if (!id) return null
-    const deadline = Date.now() + 180_000
-    while (Date.now() < deadline) {
-      await new Promise(r => setTimeout(r, 4000))
-      const pollRes = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
-        headers: { "Authorization": apiKey },
-        signal: AbortSignal.timeout(10_000),
-      })
-      if (!pollRes.ok) return null
-      const result = await pollRes.json()
-      if (result.status === "completed") return result.text ?? null
-      if (result.status === "error") return null
-    }
-  } catch {}
-  return null
-}
 
 // ─── YouTube ──────────────────────────────────────────────────────────────────
 
@@ -151,7 +124,7 @@ async function getTopVideos(channelId: string, timeframeDays: number) {
     .map((v: any) => ({
       video_id:     v.id,
       title:        v.snippet?.title ?? "",
-      description:  (v.snippet?.description ?? "").slice(0, 300),
+      description:  v.snippet?.description ?? "",
       thumbnail:    v.snippet?.thumbnails?.high?.url
                  ?? v.snippet?.thumbnails?.medium?.url
                  ?? v.snippet?.thumbnails?.default?.url
@@ -324,8 +297,10 @@ async function getTopInstagramPosts(username: string, timeframeDays: number) {
 
   console.log("[content-research] mapped posts after filter+sort:", mapped.length)
 
-  // Transcripciones usando CDN URL obtenida de RapidAPI
-  const transcripts = await Promise.all(mapped.map((p: any) => getInstagramTranscript(p.post_url, p.cdn_video_url)))
+  // Transcripciones usando el mismo pipeline que la sección Transcript de videos
+  const transcripts = await Promise.all(
+    mapped.map((p: any) => getInstagramTranscript(p.post_url, p.cdn_video_url).then(r => r.transcript))
+  )
 
   const posts = mapped.map((p: any, i: number) => {
     const { post_url, cdn_video_url, ...rest } = p
@@ -340,12 +315,6 @@ async function getTopInstagramPosts(username: string, timeframeDays: number) {
   }
 }
 
-async function getInstagramTranscript(postUrl: string, cdnVideoUrl?: string | null): Promise<string | null> {
-  // Si ya tenemos la URL del CDN del video (obtenida durante el scraping), transcribir directo
-  if (cdnVideoUrl) return transcribeWithAssemblyAI(cdnVideoUrl)
-  // Sin URL de CDN no podemos transcribir sin Apify
-  return null
-}
 
 // ─── Claude análisis ──────────────────────────────────────────────────────────
 
