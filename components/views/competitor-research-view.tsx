@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { createPortal } from "react-dom"
 import {
-  Plus, ExternalLink, Copy, Check, Trash2, ChevronDown, ChevronUp,
+  Plus, ExternalLink, Copy, Check, Trash2, ChevronDown,
   Search, TrendingUp, X, AlertTriangle, Users, Sparkles, Loader2,
   Instagram, Youtube, Link2, FileText, Mic
 } from "lucide-react"
@@ -359,6 +359,172 @@ function ConfirmDeleteDialog({ onConfirm, onCancel }: { onConfirm: () => void; o
   )
 }
 
+// ─── Post Detail Modal ────────────────────────────────────────────────────────
+
+interface PostDetailModalProps {
+  post: Post
+  isAdmin: boolean
+  localTranscript: string | null
+  transcribing: boolean
+  transcriptErr: string | null
+  onTranscribe: () => void
+  onDelete: () => void
+  onClose: () => void
+}
+
+function PostDetailModal({
+  post, isAdmin, localTranscript, transcribing, transcriptErr, onTranscribe, onDelete, onClose
+}: PostDetailModalProps) {
+  const transcript = localTranscript
+  const words = transcript ? transcript.split(/\s+/).filter(Boolean).length : 0
+  const isIG = (post.post_url ?? "").includes("instagram.com")
+  const isIGReel = /instagram\.com\/(reel|reels)\//.test(post.post_url ?? "")
+  const isIGNonReel = isIG && !isIGReel
+  const isYT = (post.post_url ?? "").includes("youtube.com") || (post.post_url ?? "").includes("youtu.be")
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [onClose])
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative flex flex-col w-full max-w-2xl max-h-[90vh] rounded-2xl border border-white/[0.1] bg-[#111113] shadow-2xl overflow-hidden">
+
+        {/* Modal header */}
+        <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-white/[0.07] flex-shrink-0">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2.5 mb-1">
+              {isIG && <Instagram className="h-4 w-4 text-pink-400 flex-shrink-0" />}
+              {isYT && <Youtube className="h-4 w-4 text-red-400 flex-shrink-0" />}
+              {!isIG && !isYT && <Link2 className="h-4 w-4 text-white/40 flex-shrink-0" />}
+              <h2 className="text-base font-bold text-white truncate">{post.creator}</h2>
+            </div>
+            <div className="flex items-center gap-3 flex-wrap">
+              {post.views != null && (
+                <span className="flex items-center gap-1 text-sm">
+                  <TrendingUp className="h-3.5 w-3.5 text-[#ffde21]/60" />
+                  <span className="font-bold text-[#ffde21] tabular-nums">{fmt(post.views)}</span>
+                  <span className="text-white/30 text-xs">views</span>
+                </span>
+              )}
+              {post.likes != null && (
+                <span className="text-sm text-white/50 tabular-nums">{fmt(post.likes)} <span className="text-white/25 text-xs">likes</span></span>
+              )}
+              {post.duration && (
+                <span className="rounded-lg bg-white/[0.06] px-2 py-0.5 text-xs text-white/40 tabular-nums">{post.duration}</span>
+              )}
+              {transcript && (
+                <span className="flex items-center gap-1 rounded-lg bg-[#ffde21]/10 border border-[#ffde21]/20 px-2 py-0.5 text-[10px] font-semibold text-[#ffde21]/80">
+                  <FileText className="h-2.5 w-2.5" /> Transcript
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {post.post_url && (
+              <a href={post.post_url} target="_blank" rel="noopener noreferrer"
+                className="rounded-lg p-2 text-white/30 hover:text-[#ffde21] hover:bg-[#ffde21]/10 transition-all" title="Ver post original">
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            )}
+            {isAdmin && (
+              <button onClick={() => { onDelete(); onClose() }}
+                className="rounded-lg p-2 text-white/20 hover:bg-red-500/10 hover:text-red-400 transition-all" title="Eliminar">
+                <Trash2 className="h-4 w-4" />
+              </button>
+            )}
+            <button onClick={onClose}
+              className="rounded-lg p-2 text-white/30 hover:bg-white/[0.06] hover:text-white/70 transition-all">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+          {/* Transcript error */}
+          {transcriptErr && (
+            <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2">
+              <AlertTriangle className="h-3.5 w-3.5 text-red-400 flex-shrink-0" />
+              <p className="text-sm text-red-400">{transcriptErr}</p>
+            </div>
+          )}
+
+          {/* Description */}
+          {post.description && (
+            <div className="rounded-xl border border-[#ffde21]/10 bg-[#ffde21]/[0.04] px-4 py-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/50">Hook / Descripción</p>
+                <button onClick={() => navigator.clipboard.writeText(post.description!)}
+                  className="text-white/25 hover:text-white/50 transition-colors">
+                  <Copy className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <p className="text-base text-[#ffde21] leading-relaxed font-medium">{post.description}</p>
+            </div>
+          )}
+
+          {/* Transcript */}
+          {transcript ? (
+            <div className="rounded-xl border border-[#ffde21]/10 bg-[#ffde21]/[0.03] px-4 py-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/50">Transcript</p>
+                  <span className="text-[10px] text-white/25">{words.toLocaleString()} palabras</span>
+                </div>
+                <button onClick={() => navigator.clipboard.writeText(transcript)}
+                  className="inline-flex items-center gap-1 text-xs text-white/30 hover:text-white/60 transition-colors">
+                  <Copy className="h-3.5 w-3.5" /> Copiar
+                </button>
+              </div>
+              <p className="text-base text-[#ffde21]/70 leading-relaxed font-light whitespace-pre-wrap">{transcript}</p>
+            </div>
+          ) : (isIGReel || isYT) && post.post_url ? (
+            <div className="rounded-xl border border-dashed border-white/[0.08] px-4 py-4 flex items-center gap-3">
+              <Mic className="h-4 w-4 text-white/20 flex-shrink-0" />
+              <p className="flex-1 text-sm text-white/35">Sin transcript — podés generarlo ahora</p>
+              <button onClick={onTranscribe} disabled={transcribing}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#ffde21]/10 border border-[#ffde21]/20 px-3 py-1.5 text-sm font-semibold text-[#ffde21]/80 hover:bg-[#ffde21]/20 transition-all disabled:opacity-40 flex-shrink-0">
+                {transcribing ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Transcribiendo…</> : <><Mic className="h-3.5 w-3.5" /> Transcribir</>}
+              </button>
+            </div>
+          ) : isIGNonReel ? (
+            <div className="rounded-xl border border-orange-500/20 bg-orange-500/[0.04] px-4 py-3 flex items-start gap-3">
+              <Instagram className="h-4 w-4 text-orange-400/60 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-orange-300/80">Instagram solo funciona con reels</p>
+                <p className="text-xs text-orange-300/40 mt-0.5">Los posts fijos no tienen audio transcribible.</p>
+              </div>
+            </div>
+          ) : null}
+
+          {/* Analysis */}
+          {post.analysis && (
+            <div className="rounded-xl border border-[#ffde21]/10 bg-[#ffde21]/[0.03] px-4 py-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/50">Análisis IA</p>
+                  <Sparkles className="h-3.5 w-3.5 text-[#ffde21]/30" />
+                </div>
+                <button onClick={() => navigator.clipboard.writeText(post.analysis!)}
+                  className="inline-flex items-center gap-1 text-xs text-white/30 hover:text-white/60 transition-colors">
+                  <Copy className="h-3.5 w-3.5" /> Copiar
+                </button>
+              </div>
+              <AnalysisBlock text={post.analysis} />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>,
+    document.body
+  )
+}
+
 // ─── Table Row ────────────────────────────────────────────────────────────────
 
 interface RowProps {
@@ -421,9 +587,8 @@ function AnalysisBlock({ text }: { text: string }) {
 }
 
 function PostRow({ post, isAdmin, onDelete, onTranscriptSaved }: RowProps) {
-  const [expanded, setExpanded] = useState(false)
+  const [showDetail, setShowDetail] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [showTranscriptModal, setShowTranscriptModal] = useState(false)
   const [transcribing, setTranscribing] = useState(false)
   const [transcriptErr, setTranscriptErr] = useState<string | null>(null)
   const [localTranscript, setLocalTranscript] = useState<string | null>(post.transcript)
@@ -507,22 +672,29 @@ function PostRow({ post, isAdmin, onDelete, onTranscriptSaved }: RowProps) {
           onCancel={() => setConfirmDelete(false)}
         />
       )}
-      {showTranscriptModal && transcript && (
-        <TranscriptModal
-          transcript={transcript}
-          creator={post.creator}
-          platform={isIG ? "instagram" : isYT ? "youtube" : null}
-          onClose={() => setShowTranscriptModal(false)}
+      {showDetail && (
+        <PostDetailModal
+          post={post}
+          isAdmin={isAdmin}
+          localTranscript={localTranscript}
+          transcribing={transcribing}
+          transcriptErr={transcriptErr}
+          onTranscribe={handleTranscribe}
+          onDelete={() => { setConfirmDelete(true); setShowDetail(false) }}
+          onClose={() => setShowDetail(false)}
         />
       )}
 
-      <div className={`rounded-2xl border transition-all duration-200 bg-[#111113] ${expanded ? "border-[#ffde21]/20" : "border-white/[0.07]"}`}>
-        {/* Card header — always visible */}
-        <div
-          className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-white/[0.02] transition-colors rounded-2xl"
-          onClick={() => setExpanded(v => !v)}
-        >
+      <div
+        className="rounded-2xl border border-white/[0.07] bg-[#111113] cursor-pointer hover:border-[#ffde21]/20 hover:bg-white/[0.02] transition-all duration-200"
+        onClick={() => setShowDetail(true)}
+      >
+        <div className="flex items-center justify-between px-5 py-4">
           <div className="flex items-center gap-4 min-w-0">
+            {/* Platform icon */}
+            <span className="flex-shrink-0 text-white/20">
+              {isIG ? <Instagram className="h-4 w-4 text-pink-400/60" /> : isYT ? <Youtube className="h-4 w-4 text-red-400/60" /> : <Link2 className="h-4 w-4" />}
+            </span>
             {/* Creator */}
             <p className="text-base font-semibold text-white whitespace-nowrap">{post.creator}</p>
 
@@ -548,8 +720,7 @@ function PostRow({ post, isAdmin, onDelete, onTranscriptSaved }: RowProps) {
               {post.duration && (
                 <span className="rounded-lg bg-white/[0.06] px-2 py-0.5 text-xs text-white/40 tabular-nums">{post.duration}</span>
               )}
-              {/* Transcript badge */}
-              {transcript && (
+              {localTranscript && (
                 <span className="flex items-center gap-1 rounded-lg bg-[#ffde21]/10 border border-[#ffde21]/20 px-2 py-0.5 text-[10px] font-semibold text-[#ffde21]/80">
                   <FileText className="h-2.5 w-2.5" /> Transcript
                 </span>
@@ -557,148 +728,17 @@ function PostRow({ post, isAdmin, onDelete, onTranscriptSaved }: RowProps) {
             </div>
           </div>
 
-          {/* Actions */}
+          {/* Right side: delete + expand hint */}
           <div className="flex items-center gap-2 flex-shrink-0 ml-4" onClick={e => e.stopPropagation()}>
-            {/* View transcript button */}
-            {transcript && (
-              <button
-                onClick={() => setShowTranscriptModal(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#ffde21]/20 bg-[#ffde21]/[0.07] px-2.5 py-1.5 text-[11px] font-semibold text-[#ffde21]/80 hover:bg-[#ffde21]/15 hover:text-[#ffde21] transition-all"
-                title="Ver transcripción completa"
-              >
-                <FileText className="h-3 w-3" /> Ver
-              </button>
-            )}
-            {/* Transcribe button (only if no transcript and valid URL) */}
-            {!transcript && isIGNonReel && post.post_url && (
-              <span
-                className="inline-flex items-center gap-1.5 rounded-lg border border-orange-500/20 bg-orange-500/[0.06] px-2.5 py-1.5 text-[11px] font-medium text-orange-400/70 cursor-not-allowed"
-                title="Instagram solo funciona con reels, no con posts fijos"
-              >
-                <Instagram className="h-3 w-3" /> Solo reels
-              </span>
-            )}
-            {!transcript && (isIGReel || isYT) && post.post_url && (
-              <button
-                onClick={handleTranscribe}
-                disabled={transcribing}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-[11px] font-medium text-white/40 hover:border-[#ffde21]/30 hover:bg-[#ffde21]/[0.06] hover:text-[#ffde21]/70 transition-all disabled:opacity-40"
-                title="Generar transcripción"
-              >
-                {transcribing
-                  ? <Loader2 className="h-3 w-3 animate-spin" />
-                  : <Mic className="h-3 w-3" />}
-                {transcribing ? "…" : "Transcribir"}
-              </button>
-            )}
-            {post.post_url && (
-              <a href={post.post_url} target="_blank" rel="noopener noreferrer"
-                className="rounded-lg p-1.5 text-white/30 hover:text-[#ffde21] hover:bg-[#ffde21]/10 transition-all">
-                <ExternalLink className="h-4 w-4" />
-              </a>
-            )}
             {isAdmin && (
               <button onClick={() => setConfirmDelete(true)}
                 className="rounded-lg p-1.5 text-white/20 hover:bg-red-500/10 hover:text-red-400 transition-all">
                 <Trash2 className="h-4 w-4" />
               </button>
             )}
-            <button onClick={() => setExpanded(v => !v)}
-              className="rounded-lg p-1.5 text-white/30 hover:bg-white/[0.06] hover:text-white/60 transition-all">
-              {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </button>
+            <ChevronDown className="h-4 w-4 text-white/20" />
           </div>
         </div>
-
-        {/* Expanded content */}
-        {expanded && (
-          <div className="border-t border-white/[0.06] px-5 py-5 space-y-4">
-
-            {/* Transcript error */}
-            {transcriptErr && (
-              <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2">
-                <AlertTriangle className="h-3.5 w-3.5 text-red-400 flex-shrink-0" />
-                <p className="text-xs text-red-400">{transcriptErr}</p>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Left: Description + Transcript preview */}
-              <div className="space-y-4">
-                {post.description && (
-                  <div className="rounded-xl border border-[#ffde21]/10 bg-[#ffde21]/[0.04] px-4 py-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/50 mb-2">Hook / Descripción</p>
-                    <p className="text-base text-[#ffde21] leading-relaxed font-medium">{post.description}</p>
-                  </div>
-                )}
-                {transcript && (
-                  <div className="rounded-xl border border-[#ffde21]/10 bg-[#ffde21]/[0.03] px-4 py-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/50">Transcript</p>
-                        <span className="text-[10px] text-white/25">{words.toLocaleString()} palabras</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => setShowTranscriptModal(true)}
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#ffde21]/60 hover:text-[#ffde21] transition-colors"
-                        >
-                          <FileText className="h-3 w-3" /> Ver completo →
-                        </button>
-                        <button onClick={() => navigator.clipboard.writeText(transcript)}
-                          className="text-white/25 hover:text-white/50 transition-colors">
-                          <Copy className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                    <p className="text-base text-[#ffde21]/70 leading-relaxed line-clamp-4 font-light">{transcript}</p>
-                  </div>
-                )}
-                {!transcript && isIGNonReel && post.post_url && (
-                  <div className="rounded-xl border border-orange-500/20 bg-orange-500/[0.04] px-4 py-3 flex items-start gap-3">
-                    <Instagram className="h-4 w-4 text-orange-400/60 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-semibold text-orange-300/80">Instagram solo funciona con reels</p>
-                      <p className="text-[11px] text-orange-300/40 mt-0.5">Los posts fijos no tienen audio transcribible. Este link no es un reel.</p>
-                    </div>
-                  </div>
-                )}
-                {!transcript && (isIGReel || isYT) && post.post_url && (
-                  <div className="rounded-xl border border-dashed border-white/[0.08] px-4 py-3 flex items-center gap-3">
-                    <Mic className="h-4 w-4 text-white/20 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-white/35">Sin transcript — mismo método que Transcript de Videos</p>
-                    </div>
-                    <button
-                      onClick={handleTranscribe}
-                      disabled={transcribing}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#ffde21]/10 border border-[#ffde21]/20 px-3 py-1.5 text-xs font-semibold text-[#ffde21]/80 hover:bg-[#ffde21]/20 transition-all disabled:opacity-40 flex-shrink-0"
-                    >
-                      {transcribing ? <><Loader2 className="h-3 w-3 animate-spin" /> Transcribiendo…</> : <><Mic className="h-3 w-3" /> Transcribir</>}
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Right: Analysis */}
-              {post.analysis && (
-                <div className="rounded-xl border border-[#ffde21]/10 bg-[#ffde21]/[0.03] px-4 py-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/50">Análisis IA</p>
-                      <Sparkles className="h-3.5 w-3.5 text-[#ffde21]/30" />
-                    </div>
-                    <button onClick={() => navigator.clipboard.writeText(post.analysis!)}
-                      className="inline-flex items-center gap-1 text-xs text-white/30 hover:text-white/60 transition-colors">
-                      <Copy className="h-3.5 w-3.5" /> Copiar
-                    </button>
-                  </div>
-                  <AnalysisBlock text={post.analysis} />
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </>
   )
