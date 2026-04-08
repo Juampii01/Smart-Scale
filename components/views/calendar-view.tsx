@@ -46,7 +46,7 @@ const ITEMS: CalendarItem[] = [
     status: "active",
   },
   {
-    day: "Miércoles",
+    day: "Jueves",
     time: "3:00 PM",
     tzLabel: "Miami",
     title: "Lab/Q&A",
