@@ -36,7 +36,7 @@ const ITEMS: CalendarItem[] = [
   },
   {
     day: "Martes",
-    time: "1:00 PM",
+    time: "3:00 PM",
     tzLabel: "Miami",
     title: "Contenido Orgánico & Marca Personal",
     description: "con Juampi Acosta",
