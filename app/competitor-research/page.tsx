@@ -2,13 +2,11 @@
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { useState, useEffect, useCallback } from "react"
-import { createPortal } from "react-dom"
 import { createClient } from "@/lib/supabase"
 import { AiLoading } from "@/components/ui/ai-loading"
 import {
-  Youtube, Instagram, ExternalLink, Copy, Check, ChevronDown,
+  Youtube, Instagram, ExternalLink, Copy, Check, ChevronDown, ChevronUp,
   Sparkles, Trash2, Eye, ThumbsUp, MessageCircle, Clock, Search,
-  Maximize2, Type, X,
 } from "lucide-react"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -39,49 +37,12 @@ interface HistoryItem {
   created_at: string
 }
 
-interface DetailModalData {
-  label: string
-  title: string
-  content: string
-  tone?: "default" | "highlight"
-  icon?: "title" | "description" | "transcript" | "analysis"
-  meta?: string
-}
-
-interface DetailCardProps {
-  label: string
-  preview: string
-  onOpen: () => void
-  accent?: "default" | "highlight"
-  icon?: "title" | "description" | "transcript" | "analysis"
-  meta?: string
-}
-
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function fmt(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
   return n.toLocaleString()
-}
-
-function getDetailIcon(icon?: "title" | "description" | "transcript" | "analysis") {
-  switch (icon) {
-    case "title":
-      return <Type className="h-4 w-4" />
-    case "description":
-      return <Eye className="h-4 w-4" />
-    case "transcript":
-      return <Copy className="h-4 w-4" />
-    case "analysis":
-      return <Sparkles className="h-4 w-4" />
-    default:
-      return <Eye className="h-4 w-4" />
-  }
-}
-
-function getDetailPreview(text: string, len = 260): string {
-  return text.length > len ? text.slice(0, len).trimEnd() + "…" : text
 }
 
 function CopyBtn({ text }: { text: string | null }) {
@@ -102,311 +63,126 @@ function CopyBtn({ text }: { text: string | null }) {
   )
 }
 
-function DetailCard({
-  label,
-  preview,
-  onOpen,
-  accent = "default",
-  icon = "description",
-  meta,
-}: DetailCardProps) {
-  const isHighlight = accent === "highlight"
-
-  return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className={`group w-full rounded-2xl border px-4 py-4 text-left transition-all duration-200 ${
-        isHighlight
-          ? "border-[#ffde21]/12 bg-[#ffde21]/[0.035] hover:border-[#ffde21]/28 hover:bg-[#ffde21]/[0.06]"
-          : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12] hover:bg-white/[0.035]"
-      }`}
-    >
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <span className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border ${
-            isHighlight
-              ? "border-[#ffde21]/20 bg-[#ffde21]/10 text-[#ffde21]"
-              : "border-white/[0.08] bg-white/[0.04] text-white/45"
-          }`}>
-            {getDetailIcon(icon)}
-          </span>
-          <div className="min-w-0">
-            <p className={`text-[10px] font-semibold uppercase tracking-[0.22em] ${
-              isHighlight ? "text-[#ffde21]/70" : "text-white/35"
-            }`}>
-              {label}
-            </p>
-            {meta && <p className="mt-0.5 text-[11px] text-white/25">{meta}</p>}
-          </div>
-        </div>
-
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1 text-[11px] text-white/35 transition-all group-hover:border-white/[0.16] group-hover:text-white/60">
-          <Maximize2 className="h-3 w-3" />
-          Ver completo
-        </span>
-      </div>
-
-      <p className={`text-sm leading-7 ${
-        isHighlight ? "text-[#ffde21]/76" : "text-white/58"
-      }`}>
-        {preview}
-      </p>
-    </button>
-  )
-}
-
-function DetailContentModal({
-  data,
-  onClose,
-}: {
-  data: DetailModalData
-  onClose: () => void
-}) {
-  const [copied, setCopied] = useState(false)
-  const isHighlight = data.tone === "highlight"
-  const shouldFlattenContent = data.icon === "title" || data.icon === "description"
-  const displayContent = shouldFlattenContent
-    ? data.content.replace(/\s*\n+\s*/g, " ").replace(/\s{2,}/g, " ").trim()
-    : data.content
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
-    }
-    document.addEventListener("keydown", onKey)
-    document.body.style.overflow = "hidden"
-    return () => {
-      document.removeEventListener("keydown", onKey)
-      document.body.style.overflow = ""
-    }
-  }, [onClose])
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(data.content)
-    setCopied(true)
-    window.setTimeout(() => setCopied(false), 1800)
-  }
-
-  return createPortal(
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-5">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
-
-      <div className="relative flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#0b0b0d]/95 shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.06] to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-        <div className="relative flex h-full flex-col">
-          <div className="border-b border-white/[0.06] bg-[#111113]/90 px-5 py-4 backdrop-blur-xl sm:px-7 sm:py-5">
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0 flex-1">
-                <div className="mb-3 flex items-center gap-2">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${
-                    isHighlight
-                      ? "border-[#ffde21]/20 bg-[#ffde21]/10 text-[#ffde21]"
-                      : "border-white/[0.08] bg-white/[0.04] text-white/50"
-                  }`}>
-                    {getDetailIcon(data.icon)}
-                  </div>
-                  <div className="min-w-0">
-                    <p className={`text-[11px] font-bold uppercase tracking-[0.24em] ${
-                      isHighlight ? "text-[#ffde21]/75" : "text-white/35"
-                    }`}>
-                      {data.label}
-                    </p>
-                    <p className="text-[11px] text-white/25">Vista expandida del contenido</p>
-                  </div>
-                </div>
-
-                <h3 className={`max-w-3xl text-lg font-semibold leading-tight sm:text-[22px] ${
-                  isHighlight ? "text-[#ffde21]" : "text-white"
-                }`}>
-                  {data.title}
-                </h3>
-
-                <div className="mt-3 flex flex-wrap items-center gap-2.5 text-xs text-white/35">
-                  {data.meta && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5">
-                      <Eye className="h-3 w-3" />
-                      {data.meta}
-                    </span>
-                  )}
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5">
-                    <Maximize2 className="h-3 w-3" />
-                    Lectura completa
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex shrink-0 items-center gap-2">
-                <button
-                  onClick={handleCopy}
-                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 text-sm font-medium text-white/60 transition-all hover:border-white/[0.16] hover:bg-white/[0.07] hover:text-white"
-                >
-                  {copied ? <Check className={`h-4 w-4 ${isHighlight ? "text-[#ffde21]" : "text-emerald-400"}`} /> : <Copy className="h-4 w-4" />}
-                  {copied ? "Copiado" : "Copiar"}
-                </button>
-                <button
-                  onClick={onClose}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/45 transition-all hover:border-white/[0.16] hover:bg-white/[0.07] hover:text-white"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="min-h-0 flex-1 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.01)_100%)] px-4 py-4 sm:px-6 sm:py-6">
-            <div className={`h-full overflow-hidden rounded-[24px] border shadow-inner ${
-              isHighlight
-                ? "border-[#ffde21]/12 bg-[#120f03]"
-                : "border-white/[0.07] bg-[#121216]"
-            }`}>
-              <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
-                <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/25">
-                  <span className={`h-2 w-2 rounded-full ${isHighlight ? "bg-[#ffde21]/80" : "bg-white/25"}`} />
-                  {data.label}
-                </div>
-                <div className="text-[11px] text-white/20">Scroll para leer todo</div>
-              </div>
-
-              <div className="h-[calc(100%-53px)] overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
-                <div className="mx-auto max-w-3xl">
-                  <p className={`${shouldFlattenContent ? "whitespace-normal" : "whitespace-pre-wrap"} text-[15px] font-light leading-8 tracking-[0.01em] ${
-                    isHighlight ? "text-[#ffde21]/76" : "text-white/72"
-                  }`}>
-                    {displayContent}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>,
-    document.body
-  )
-}
-
 // ─── Video Row (expandable) ───────────────────────────────────────────────────
 
-function VideoRow({ video }: { video: VideoResult }) {
-  const [detailModal, setDetailModal] = useState<DetailModalData | null>(null)
+function VideoRow({ video, channelName, platform }: { video: VideoResult; channelName: string; platform: string }) {
+  const [expanded, setExpanded] = useState(false)
+  const isIG = platform === "instagram"
 
-  const transcriptMeta = video.transcript
-    ? `${video.transcript.split(/\s+/).filter(Boolean).length.toLocaleString()} palabras`
-    : "No disponible"
-
-  const openTitleModal = () => setDetailModal({
-    label: "Title",
-    title: video.title,
-    content: video.title,
-    tone: "default",
-    icon: "title",
-  })
-
-  const openDescriptionModal = () => setDetailModal({
-    label: "Description",
-    title: video.title,
-    content: video.description || "Sin descripción",
-    tone: "highlight",
-    icon: "description",
-  })
-
-  const openTranscriptModal = () => setDetailModal({
-    label: "Transcript",
-    title: video.title,
-    content: video.transcript || "Transcript no disponible.",
-    tone: "highlight",
-    icon: "transcript",
-    meta: transcriptMeta,
-  })
-
-  const openAnalysisModal = () => setDetailModal({
-    label: "Analysis",
-    title: video.title,
-    content: video.analysis || "Análisis no disponible.",
-    tone: "highlight",
-    icon: "analysis",
-  })
+  // For Instagram: title === description (caption). Show first 80 chars as hook in TITLE, hide DESCRIPTION.
+  const titleCell = isIG
+    ? (video.description?.slice(0, 80) || video.title?.slice(0, 80) || "—")
+    : (video.title || "—")
 
   return (
     <>
-      <tr className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
-        <td className="px-4 py-4 whitespace-nowrap">
-          <span className="text-[15px] font-medium text-white/82">{video.title.split(/[-|·]/)[0].trim().slice(0, 18) || "—"}</span>
+      <tr
+        className={`border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors cursor-pointer ${expanded ? "bg-white/[0.02]" : ""}`}
+        onClick={() => setExpanded(v => !v)}
+      >
+        <td className="px-4 py-3.5 whitespace-nowrap">
+          <span className="text-sm font-medium text-white/75">{channelName || "—"}</span>
         </td>
-        <td className="px-4 py-4" onClick={e => e.stopPropagation()}>
+        <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
           <a href={video.video_url} target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-[#ffde21] hover:text-[#ffe84d] transition-colors">
+            className="inline-flex items-center gap-1 text-xs text-[#ffde21] hover:text-[#ffe84d] transition-colors">
             View <ExternalLink className="h-3 w-3" />
           </a>
         </td>
-        <td className="px-4 py-4 max-w-[220px]">
-          <button
-            type="button"
-            onClick={openTitleModal}
-            className="group inline-flex max-w-full items-start gap-2 text-left"
-          >
-            <span className="text-[14px] leading-6 text-white/68 line-clamp-2 group-hover:text-white transition-colors">{video.title}</span>
-          </button>
+        <td className="px-4 py-3.5 max-w-[200px]">
+          <span className="text-xs text-white/55 line-clamp-2">{titleCell}</span>
         </td>
-        <td className="px-4 py-4 max-w-[170px]">
-          <button
-            type="button"
-            onClick={openDescriptionModal}
-            className="group inline-flex max-w-full items-start gap-2 text-left"
-          >
-            <span className="text-[14px] leading-6 text-[#ffde21]/78 line-clamp-2 font-medium group-hover:text-[#ffde21] transition-colors">{video.description || "—"}</span>
-          </button>
+        <td className="px-4 py-3.5 max-w-[140px]">
+          <span className="text-xs text-[#ffde21]/70 line-clamp-2 font-medium">
+            {isIG ? "—" : (video.description || "—")}
+          </span>
         </td>
-        <td className="px-4 py-4 text-right whitespace-nowrap">
-          <span className="text-[16px] font-bold text-[#ffde21] tabular-nums">{fmt(video.views)}</span>
+        <td className="px-4 py-3.5 text-right whitespace-nowrap">
+          <span className="text-sm font-bold text-[#ffde21] tabular-nums">{fmt(video.views)}</span>
         </td>
-        <td className="px-4 py-4 text-center whitespace-nowrap">
-          <span className="text-[14px] text-white/48 tabular-nums">{video.duration || "—"}</span>
+        <td className="px-4 py-3.5 text-center whitespace-nowrap">
+          <span className="text-xs text-white/40 tabular-nums">{video.duration || "—"}</span>
         </td>
-        <td className="px-4 py-4 max-w-[200px]">
-          <button
-            type="button"
-            onClick={openTranscriptModal}
-            className="group inline-flex max-w-full items-start gap-2 text-left"
-          >
-            <span className="text-[14px] leading-6 text-white/52 line-clamp-3 group-hover:text-white/72 transition-colors">
-              {video.transcript ? getDetailPreview(video.transcript, 90) : "Transcript no disponible."}
-            </span>
-          </button>
+        <td className="px-4 py-3.5 max-w-[180px]" onClick={e => e.stopPropagation()}>
+          <CopyBtn text={video.transcript || null} />
         </td>
-        <td className="px-4 py-4 max-w-[200px]">
-          <button
-            type="button"
-            onClick={openAnalysisModal}
-            className="group inline-flex max-w-full items-start gap-2 text-left"
-          >
-            <span className="text-[14px] leading-6 text-[#ffde21]/78 line-clamp-3 group-hover:text-[#ffde21] transition-colors">
-              {video.analysis ? getDetailPreview(video.analysis, 90) : "Análisis no disponible."}
-            </span>
-          </button>
+        <td className="px-4 py-3.5 max-w-[180px]" onClick={e => e.stopPropagation()}>
+          <CopyBtn text={video.analysis || null} />
         </td>
-        <td className="px-4 py-4" onClick={e => e.stopPropagation()}>
+        <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
           <div className="w-20 h-[45px] rounded-lg overflow-hidden border border-white/[0.07] bg-white/[0.03]">
             {video.thumbnail
               ? <img src={video.thumbnail} alt="" className="w-full h-full object-cover" />
               : <div className="flex h-full items-center justify-center"><Youtube className="h-4 w-4 text-white/20" /></div>}
           </div>
         </td>
-        <td className="px-3 py-4">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.03] text-white/20">
-            <Maximize2 className="h-3.5 w-3.5" />
-          </span>
+        <td className="px-3 py-3.5" onClick={e => e.stopPropagation()}>
+          <button onClick={() => setExpanded(v => !v)}
+            className="rounded-lg p-1.5 text-white/25 hover:bg-white/[0.06] hover:text-white/60 transition-all">
+            {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          </button>
         </td>
       </tr>
-
-      {detailModal && (
-        <DetailContentModal
-          data={detailModal}
-          onClose={() => setDetailModal(null)}
-        />
+      {expanded && (
+        <tr className="border-b border-white/[0.06] bg-[#0c0c0d]/60">
+          <td colSpan={10} className="px-6 py-5">
+            <div className="space-y-5">
+              <div className="flex gap-4">
+                {video.thumbnail && (
+                  <div className="w-36 h-20 rounded-xl overflow-hidden border border-white/[0.07] flex-shrink-0">
+                    <img src={video.thumbnail} alt="" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-white">{video.title}</p>
+                  <div className="flex flex-wrap gap-3 mt-2">
+                    <span className="flex items-center gap-1 text-xs text-white/40"><Eye className="h-3 w-3" />{fmt(video.views)}</span>
+                    <span className="flex items-center gap-1 text-xs text-white/40"><ThumbsUp className="h-3 w-3" />{fmt(video.likes)}</span>
+                    <span className="flex items-center gap-1 text-xs text-white/40"><MessageCircle className="h-3 w-3" />{fmt(video.comments)}</span>
+                    <span className="flex items-center gap-1 text-xs text-white/40"><Clock className="h-3 w-3" />{video.duration}</span>
+                  </div>
+                  <a href={video.video_url} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 mt-2 text-[11px] text-[#ffde21]/60 hover:text-[#ffde21] transition-colors">
+                    <ExternalLink className="h-3 w-3" /> Ver video
+                  </a>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30">Transcript</p>
+                    {video.transcript && (
+                      <button onClick={() => navigator.clipboard.writeText(video.transcript!)}
+                        className="ml-auto inline-flex items-center gap-1 text-[10px] text-white/25 hover:text-white/50">
+                        <Copy className="h-3 w-3" /> Copiar
+                      </button>
+                    )}
+                  </div>
+                  <div className="rounded-xl border border-[#ffde21]/10 bg-[#ffde21]/[0.03] px-4 py-3 max-h-48 overflow-y-auto">
+                    {video.transcript
+                      ? <p className="text-xs text-[#ffde21]/75 leading-relaxed whitespace-pre-wrap">{video.transcript}</p>
+                      : <p className="text-xs text-white/25 italic">Transcript no disponible.</p>}
+                  </div>
+                </div>
+                {video.analysis && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Sparkles className="h-3 w-3 text-[#ffde21]/30" />
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/50">Análisis IA</p>
+                      <button onClick={() => navigator.clipboard.writeText(video.analysis)}
+                        className="ml-auto inline-flex items-center gap-1 text-[10px] text-white/25 hover:text-white/50">
+                        <Copy className="h-3 w-3" /> Copiar
+                      </button>
+                    </div>
+                    <div className="rounded-xl border border-[#ffde21]/10 bg-[#ffde21]/[0.03] px-4 py-3 max-h-48 overflow-y-auto">
+                      <p className="text-xs text-[#ffde21]/75 leading-relaxed whitespace-pre-wrap">{video.analysis}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </td>
+        </tr>
       )}
     </>
   )
@@ -414,24 +190,22 @@ function VideoRow({ video }: { video: VideoResult }) {
 
 // ─── Results Table ────────────────────────────────────────────────────────────
 
-function ResultsTable({ videos }: { videos: VideoResult[] }) {
+function ResultsTable({ videos, channelName, platform }: { videos: VideoResult[]; channelName: string; platform: string }) {
+  const isIG = platform === "instagram"
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[1180px] xl:min-w-0">
+      <table className="w-full min-w-[960px]">
         <thead>
           <tr className="border-b border-white/[0.06] bg-[#0c0c0d]/40">
-            {["CREATOR", "URL", "TITLE", "DESCRIPTION", "VIEWS ↕", "DURATION", "TRANSCRIPT", "ANALYSIS", "THUMBNAIL", ""].map((h, i) => (
-              <th
-                key={i}
-                className={`px-4 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/32 ${h === "VIEWS ↕" ? "text-right" : h === "DURATION" ? "text-center" : "text-left"}`}
-              >
+            {["CREATOR", "URL", isIG ? "HOOK" : "TITLE", isIG ? "" : "DESCRIPTION", "VIEWS ↕", "DURATION", "TRANSCRIPT", "ANALYSIS", "THUMBNAIL", ""].map((h, i) => (
+              <th key={i} className={`px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-white/25 ${h === "VIEWS ↕" ? "text-right" : h === "DURATION" ? "text-center" : "text-left"}`}>
                 {h}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {videos.map(v => <VideoRow key={v.video_id} video={v} />)}
+          {videos.map(v => <VideoRow key={v.video_id} video={v} channelName={channelName} platform={platform} />)}
         </tbody>
       </table>
       <div className="border-t border-white/[0.04] px-6 py-2.5">
@@ -498,7 +272,7 @@ function AnalysisCard({ item, onDelete, deletingId }: {
             className="flex items-center gap-2 h-8 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 text-xs font-semibold text-white/60 hover:text-white hover:border-white/20 transition-all"
           >
             View Results
-            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${expanded ? "rotate-180" : "rotate-0"}`} />
+            {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
         </div>
       </div>
@@ -506,7 +280,7 @@ function AnalysisCard({ item, onDelete, deletingId }: {
       {/* Expanded: videos table */}
       {expanded && item.videos?.length > 0 && (
         <div className="border-t border-white/[0.05] bg-[#0c0c0d]/40">
-          <ResultsTable videos={item.videos} />
+          <ResultsTable videos={item.videos} channelName={item.channel_name} platform={item.platform ?? "youtube"} />
         </div>
       )}
       {expanded && (!item.videos || item.videos.length === 0) && (
@@ -582,7 +356,7 @@ function CompetitorResearchContent() {
   }
 
   return (
-    <div className="px-4 py-8 max-w-[1500px] mx-auto space-y-6">
+    <div className="px-4 py-8 max-w-5xl mx-auto space-y-6">
 
       {/* ── New Analysis form ── */}
       <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#111113]">
@@ -676,7 +450,7 @@ function CompetitorResearchContent() {
             <p className="text-sm text-white/30">No analyses yet. Submit a competitor URL above to get started.</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {history.map(item => (
               <AnalysisCard key={item.id} item={item} onDelete={handleDelete} deletingId={deletingId} />
             ))}
