@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { createPortal } from "react-dom"
 import {
   Youtube, Instagram, Copy, Check, ChevronDown, ChevronUp,
-  Sparkles, Link2, Clock, User, FileText, ExternalLink, Trash2, FileVideo, X,
+  Sparkles, Link2, Clock, User, FileText, ExternalLink, Trash2, FileVideo, X, Maximize2,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { AiLoading } from "@/components/ui/ai-loading"
@@ -113,38 +113,33 @@ function HistoryTranscript({
   onOpen: () => void
 }) {
   const wordCount = transcript.split(/\s+/).filter(Boolean).length
-  const preview = transcript.slice(0, 320).trim()
+  const preview = transcript.slice(0, 280).trim()
 
   return (
     <div className="px-6 py-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <FileText className="h-3.5 w-3.5 text-white/35" />
-          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/38">Transcripción</p>
-          <span className="text-[11px] text-white/24">{wordCount.toLocaleString()} palabras</span>
+          <FileText className="h-3 w-3 text-white/30" />
+          <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">Transcripción</p>
+          <span className="text-[10px] text-white/20">{wordCount.toLocaleString()} palabras</span>
         </div>
         <div className="flex items-center gap-2">
           <CopyBtn text={transcript} label="Copiar" />
           <button
             onClick={onOpen}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white/45 hover:text-white hover:border-white/20 transition-all"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white/40 hover:text-white hover:border-white/20 transition-all"
           >
             <ExternalLink className="h-3 w-3" />
-            Ver completo
+            Ver en ventana
           </button>
         </div>
       </div>
 
       <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] px-4 py-4">
-        <p className="text-[15px] leading-8 text-white/56 whitespace-pre-wrap font-light">
-          {preview}{transcript.length > 320 ? "…" : ""}
-        </p>
+        <p className="text-sm text-white/45 leading-[1.85] whitespace-pre-wrap font-light">{preview}{transcript.length > 280 ? "…" : ""}</p>
       </div>
 
-      <button
-        onClick={onOpen}
-        className="mt-3 text-sm text-[#ffde21]/65 hover:text-[#ffde21] transition-colors"
-      >
+      <button onClick={onOpen} className="mt-3 text-xs text-[#ffde21]/50 hover:text-[#ffde21] transition-colors">
         Abrir transcripción completa →
       </button>
     </div>
@@ -175,27 +170,30 @@ function TranscriptModal({
   const handleCopy = async () => {
     await navigator.clipboard.writeText(data.transcript)
     setCopied(true)
-    window.setTimeout(() => setCopied(false), 1800)
+    window.setTimeout(() => setCopied(false), 2000)
   }
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"
+        onClick={onClose}
+      />
 
-      <div className="relative flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#0b0b0d]/95 shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
+      <div className="relative w-full max-w-5xl h-[90vh] overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#0b0b0d]/95 shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.06] to-transparent" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
         <div className="relative flex h-full flex-col">
-          <div className="border-b border-white/[0.06] bg-[#111113]/90 px-5 py-4 backdrop-blur-xl sm:px-7 sm:py-5">
+          <div className="border-b border-white/[0.06] bg-[#111113]/90 px-5 py-4 sm:px-7 sm:py-5 backdrop-blur-xl">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
                 <div className="mb-3 flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/50">
-                    <FileText className="h-4 w-4" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/10">
+                    <FileText className="h-4 w-4 text-[#ffde21]" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-white/38">Transcript Viewer</p>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#ffde21]/70">Transcript Viewer</p>
                     <p className="text-[11px] text-white/25">Lectura completa en una vista cómoda</p>
                   </div>
                 </div>
@@ -210,23 +208,23 @@ function TranscriptModal({
                     {data.wordCount.toLocaleString()} palabras
                   </span>
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5">
-                    <ExternalLink className="h-3 w-3" />
+                    <Maximize2 className="h-3 w-3" />
                     Vista expandida
                   </span>
                 </div>
               </div>
 
-              <div className="flex shrink-0 items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={handleCopy}
-                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 text-sm font-medium text-white/60 transition-all hover:border-white/[0.16] hover:bg-white/[0.07] hover:text-white"
+                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 text-sm font-medium text-white/60 hover:border-white/[0.16] hover:bg-white/[0.07] hover:text-white transition-all"
                 >
                   {copied ? <Check className="h-4 w-4 text-[#ffde21]" /> : <Copy className="h-4 w-4" />}
                   {copied ? "Copiado" : "Copiar"}
                 </button>
                 <button
                   onClick={onClose}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/45 transition-all hover:border-white/[0.16] hover:bg-white/[0.07] hover:text-white"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/45 hover:border-white/[0.16] hover:bg-white/[0.07] hover:text-white transition-all"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -238,7 +236,7 @@ function TranscriptModal({
             <div className="h-full overflow-hidden rounded-[24px] border border-white/[0.07] bg-[#121216] shadow-inner">
               <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/25">
-                  <span className="h-2 w-2 rounded-full bg-white/25" />
+                  <span className="h-2 w-2 rounded-full bg-[#ffde21]/80" />
                   Transcripción completa
                 </div>
                 <div className="text-[11px] text-white/20">Scroll para leer todo</div>
@@ -246,13 +244,95 @@ function TranscriptModal({
 
               <div className="h-[calc(100%-53px)] overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
                 <div className="mx-auto max-w-3xl">
-                  <p className="whitespace-pre-wrap text-[15px] font-light leading-8 tracking-[0.01em] text-white/72">
+                  <p className="text-[15px] leading-8 text-white/72 whitespace-pre-wrap font-light tracking-[0.01em]">
                     {data.transcript}
                   </p>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>,
+    document.body
+  )
+}
+
+// ─── History Detail Modal ─────────────────────────────────────────────────────
+
+function HistoryDetailModal({ item, onClose }: { item: HistoryItem; onClose: () => void }) {
+  const isYT = isYouTubeUrl(item.url)
+  const wordCount = item.transcript ? item.transcript.split(/\s+/).filter(Boolean).length : 0
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [onClose])
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative flex flex-col w-full max-w-2xl max-h-[90vh] rounded-2xl border border-white/[0.1] bg-[#111113] shadow-2xl overflow-hidden">
+
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-white/[0.07] flex-shrink-0">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${isYT ? "bg-red-500/10 border-red-500/15" : "bg-pink-500/10 border-pink-500/15"}`}>
+              {isYT ? <Youtube className="h-4 w-4 text-red-400" /> : <Instagram className="h-4 w-4 text-pink-400" />}
+            </div>
+            <div className="min-w-0">
+              <p className="text-base font-semibold text-white leading-tight">{item.title ?? "Video sin título"}</p>
+              <div className="flex items-center gap-3 mt-1 flex-wrap">
+                {item.creator && <span className="text-xs text-white/40">{item.creator}</span>}
+                {item.duration && <span className="flex items-center gap-1 text-xs text-white/30"><Clock className="h-3 w-3" />{item.duration}</span>}
+                <span className="text-xs text-white/20">{formatDate(item.created_at)}</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <a href={item.url} target="_blank" rel="noopener noreferrer"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.07] text-white/30 hover:text-white hover:border-white/20 transition-all">
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+            <button onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.07] text-white/30 hover:text-white hover:border-white/20 transition-all">
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+          {item.summary && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="h-3 w-3 text-[#ffde21]/60" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#ffde21]/50">Análisis IA</p>
+                <button onClick={() => navigator.clipboard.writeText(item.summary!)}
+                  className="ml-auto inline-flex items-center gap-1 text-[10px] text-white/25 hover:text-white/50 transition-colors">
+                  <Copy className="h-3 w-3" /> Copiar
+                </button>
+              </div>
+              <SummaryBlock text={item.summary} />
+            </div>
+          )}
+          {item.transcript && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <FileText className="h-3 w-3 text-white/30" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">Transcripción</p>
+                <span className="text-[10px] text-white/20">{wordCount.toLocaleString()} palabras</span>
+                <button onClick={() => navigator.clipboard.writeText(item.transcript!)}
+                  className="ml-auto inline-flex items-center gap-1 text-[10px] text-white/25 hover:text-white/50 transition-colors">
+                  <Copy className="h-3 w-3" /> Copiar
+                </button>
+              </div>
+              <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] px-4 py-4">
+                <p className="text-sm text-white/60 leading-[1.85] whitespace-pre-wrap font-light">{item.transcript}</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>,
@@ -272,6 +352,7 @@ export function TranscriptView() {
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [historyLoading, setHistoryLoading] = useState(true)
   const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null)
+  const [modalItem, setModalItem] = useState<HistoryItem | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const isYT = isYouTubeUrl(url)
@@ -329,7 +410,7 @@ export function TranscriptView() {
         body: JSON.stringify({ id }),
       })
       setHistory(prev => prev.filter(item => item.id !== id))
-      if (expandedHistoryId === id) setExpandedHistoryId(null)
+      if (modalItem?.id === id) setModalItem(null)
     } finally { setDeletingId(null) }
   }
 
@@ -457,11 +538,11 @@ export function TranscriptView() {
                     : <div className="flex h-full items-center justify-center"><Youtube className="h-5 w-5 text-red-400/40" /></div>}
                 </div>
                 <div className="min-w-0">
-                  {result.title && <p className="text-[16px] font-semibold text-white leading-7 line-clamp-2">{result.title}</p>}
+                  {result.title && <p className="text-sm font-semibold text-white leading-snug line-clamp-2">{result.title}</p>}
                   {result.creator && (
                     <div className="flex items-center gap-1.5 mt-1">
                       <User className="h-3 w-3 text-white/30" />
-                      <p className="text-sm text-white/46">{result.creator}</p>
+                      <p className="text-xs text-white/40">{result.creator}</p>
                     </div>
                   )}
                 </div>
@@ -507,8 +588,8 @@ export function TranscriptView() {
                     <FileText className="h-3.5 w-3.5 text-white/40" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/42">Transcripción completa</p>
-                    <p className="text-[11px] text-white/24 mt-0.5">{wordCount.toLocaleString()} palabras</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-white/40">Transcripción completa</p>
+                    <p className="text-[10px] text-white/20 mt-0.5">{wordCount.toLocaleString()} palabras</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -519,16 +600,16 @@ export function TranscriptView() {
                       transcript: result.transcript,
                       wordCount,
                     })}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white/45 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white/40 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all"
                   >
                     <ExternalLink className="h-3 w-3" />
-                    Ver completo
+                    Ver en ventana
                   </button>
                 </div>
               </div>
               <div className="px-6 py-5">
                 <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] px-4 py-4">
-                  <p className="text-[15px] leading-8 text-white/56 whitespace-pre-wrap font-light">
+                  <p className="text-sm text-white/45 leading-[1.85] whitespace-pre-wrap font-light">
                     {result.transcript.slice(0, 420).trim()}
                     {result.transcript.length > 420 ? "…" : ""}
                   </p>
@@ -539,7 +620,7 @@ export function TranscriptView() {
                     transcript: result.transcript,
                     wordCount,
                   })}
-                  className="mt-3 text-sm text-[#ffde21]/65 hover:text-[#ffde21] transition-colors"
+                  className="mt-3 text-xs text-[#ffde21]/60 hover:text-[#ffde21] transition-colors"
                 >
                   Abrir transcripción completa →
                 </button>
@@ -587,11 +668,11 @@ export function TranscriptView() {
                         : <Instagram className="h-3.5 w-3.5 text-pink-400" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[15px] font-medium text-white/84 truncate">{item.title ?? "Video sin título"}</p>
+                      <p className="text-sm font-medium text-white/80 truncate">{item.title ?? "Video sin título"}</p>
                       <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-                        {item.creator && <span className="text-sm text-white/42">{item.creator}</span>}
-                        {item.duration && <span className="flex items-center gap-1 text-sm text-white/28"><Clock className="h-3 w-3" />{item.duration}</span>}
-                        <span className="text-sm text-white/24">{formatDate(item.created_at)}</span>
+                        {item.creator && <span className="text-xs text-white/35">{item.creator}</span>}
+                        {item.duration && <span className="flex items-center gap-1 text-xs text-white/25"><Clock className="h-2.5 w-2.5" />{item.duration}</span>}
+                        <span className="text-xs text-white/20">{formatDate(item.created_at)}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
