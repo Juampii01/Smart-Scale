@@ -65,8 +65,15 @@ function CopyBtn({ text }: { text: string | null }) {
 
 // ─── Video Row (expandable) ───────────────────────────────────────────────────
 
-function VideoRow({ video }: { video: VideoResult }) {
+function VideoRow({ video, channelName, platform }: { video: VideoResult; channelName: string; platform: string }) {
   const [expanded, setExpanded] = useState(false)
+  const isIG = platform === "instagram"
+
+  // For Instagram: title === description (caption). Show first 80 chars as hook in TITLE, hide DESCRIPTION.
+  const titleCell = isIG
+    ? (video.description?.slice(0, 80) || video.title?.slice(0, 80) || "—")
+    : (video.title || "—")
+
   return (
     <>
       <tr
@@ -74,7 +81,7 @@ function VideoRow({ video }: { video: VideoResult }) {
         onClick={() => setExpanded(v => !v)}
       >
         <td className="px-4 py-3.5 whitespace-nowrap">
-          <span className="text-sm font-medium text-white/75">{video.title.split(/[-|·]/)[0].trim().slice(0, 18) || "—"}</span>
+          <span className="text-sm font-medium text-white/75">{channelName || "—"}</span>
         </td>
         <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
           <a href={video.video_url} target="_blank" rel="noopener noreferrer"
@@ -83,10 +90,12 @@ function VideoRow({ video }: { video: VideoResult }) {
           </a>
         </td>
         <td className="px-4 py-3.5 max-w-[200px]">
-          <span className="text-xs text-white/55 line-clamp-2">{video.title}</span>
+          <span className="text-xs text-white/55 line-clamp-2">{titleCell}</span>
         </td>
         <td className="px-4 py-3.5 max-w-[140px]">
-          <span className="text-xs text-[#ffde21]/70 line-clamp-2 font-medium">{video.description || "—"}</span>
+          <span className="text-xs text-[#ffde21]/70 line-clamp-2 font-medium">
+            {isIG ? "—" : (video.description || "—")}
+          </span>
         </td>
         <td className="px-4 py-3.5 text-right whitespace-nowrap">
           <span className="text-sm font-bold text-[#ffde21] tabular-nums">{fmt(video.views)}</span>
@@ -181,13 +190,14 @@ function VideoRow({ video }: { video: VideoResult }) {
 
 // ─── Results Table ────────────────────────────────────────────────────────────
 
-function ResultsTable({ videos }: { videos: VideoResult[] }) {
+function ResultsTable({ videos, channelName, platform }: { videos: VideoResult[]; channelName: string; platform: string }) {
+  const isIG = platform === "instagram"
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[960px]">
         <thead>
           <tr className="border-b border-white/[0.06] bg-[#0c0c0d]/40">
-            {["CREATOR", "URL", "TITLE", "DESCRIPTION", "VIEWS ↕", "DURATION", "TRANSCRIPT", "ANALYSIS", "THUMBNAIL", ""].map((h, i) => (
+            {["CREATOR", "URL", isIG ? "HOOK" : "TITLE", isIG ? "" : "DESCRIPTION", "VIEWS ↕", "DURATION", "TRANSCRIPT", "ANALYSIS", "THUMBNAIL", ""].map((h, i) => (
               <th key={i} className={`px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-white/25 ${h === "VIEWS ↕" ? "text-right" : h === "DURATION" ? "text-center" : "text-left"}`}>
                 {h}
               </th>
@@ -195,7 +205,7 @@ function ResultsTable({ videos }: { videos: VideoResult[] }) {
           </tr>
         </thead>
         <tbody>
-          {videos.map(v => <VideoRow key={v.video_id} video={v} />)}
+          {videos.map(v => <VideoRow key={v.video_id} video={v} channelName={channelName} platform={platform} />)}
         </tbody>
       </table>
       <div className="border-t border-white/[0.04] px-6 py-2.5">
@@ -270,7 +280,7 @@ function AnalysisCard({ item, onDelete, deletingId }: {
       {/* Expanded: videos table */}
       {expanded && item.videos?.length > 0 && (
         <div className="border-t border-white/[0.05] bg-[#0c0c0d]/40">
-          <ResultsTable videos={item.videos} />
+          <ResultsTable videos={item.videos} channelName={item.channel_name} platform={item.platform ?? "youtube"} />
         </div>
       )}
       {expanded && (!item.videos || item.videos.length === 0) && (
