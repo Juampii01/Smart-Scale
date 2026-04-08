@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { createPortal } from "react-dom"
 import {
   Youtube, Instagram, Copy, Check, ChevronDown, ChevronUp,
   Sparkles, Link2, Clock, User, FileText, ExternalLink, Trash2, FileVideo, X,
@@ -28,6 +29,12 @@ interface HistoryItem {
   summary: string | null
   transcript: string | null
   created_at: string
+}
+
+interface TranscriptModalData {
+  title: string
+  transcript: string
+  wordCount: number
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -98,36 +105,158 @@ function CopyBtn({ text, label = "Copiar" }: { text: string; label?: string }) {
   )
 }
 
-function HistoryTranscript({ transcript }: { transcript: string }) {
-  const [expanded, setExpanded] = useState(false)
+function HistoryTranscript({
+  transcript,
+  onOpen,
+}: {
+  transcript: string
+  onOpen: () => void
+}) {
   const wordCount = transcript.split(/\s+/).filter(Boolean).length
+  const preview = transcript.slice(0, 320).trim()
+
   return (
     <div className="px-6 py-5">
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <FileText className="h-3 w-3 text-white/30" />
-          <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">Transcripción</p>
-          <span className="text-[10px] text-white/20">{wordCount.toLocaleString()} palabras</span>
+          <FileText className="h-3.5 w-3.5 text-white/35" />
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/38">Transcripción</p>
+          <span className="text-[11px] text-white/24">{wordCount.toLocaleString()} palabras</span>
         </div>
         <div className="flex items-center gap-2">
           <CopyBtn text={transcript} label="Copiar" />
-          <button onClick={() => setExpanded(v => !v)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white/40 hover:text-white hover:border-white/20 transition-all">
-            {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-            {expanded ? "Colapsar" : "Expandir"}
+          <button
+            onClick={onOpen}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white/45 hover:text-white hover:border-white/20 transition-all"
+          >
+            <ExternalLink className="h-3 w-3" />
+            Ver completo
           </button>
         </div>
       </div>
-      <div className={`relative overflow-hidden transition-[max-height] duration-500 ease-in-out ${expanded ? "max-h-[9999px]" : "max-h-32"}`}>
-        <p className="text-sm text-white/45 leading-[1.85] whitespace-pre-wrap font-light">{transcript}</p>
-        {!expanded && <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#111113] to-transparent" />}
+
+      <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] px-4 py-4">
+        <p className="text-[15px] leading-8 text-white/56 whitespace-pre-wrap font-light">
+          {preview}{transcript.length > 320 ? "…" : ""}
+        </p>
       </div>
-      {!expanded && (
-        <button onClick={() => setExpanded(true)} className="mt-2 text-xs text-[#ffde21]/50 hover:text-[#ffde21] transition-colors">
-          Ver transcripción completa →
-        </button>
-      )}
+
+      <button
+        onClick={onOpen}
+        className="mt-3 text-sm text-[#ffde21]/65 hover:text-[#ffde21] transition-colors"
+      >
+        Abrir transcripción completa →
+      </button>
     </div>
+  )
+}
+
+function TranscriptModal({
+  data,
+  onClose,
+}: {
+  data: TranscriptModalData
+  onClose: () => void
+}) {
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose()
+    }
+    document.addEventListener("keydown", onKey)
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.removeEventListener("keydown", onKey)
+      document.body.style.overflow = ""
+    }
+  }, [onClose])
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(data.transcript)
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 1800)
+  }
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
+
+      <div className="relative flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#0b0b0d]/95 shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.06] to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+        <div className="relative flex h-full flex-col">
+          <div className="border-b border-white/[0.06] bg-[#111113]/90 px-5 py-4 backdrop-blur-xl sm:px-7 sm:py-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/50">
+                    <FileText className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-white/38">Transcript Viewer</p>
+                    <p className="text-[11px] text-white/25">Lectura completa en una vista cómoda</p>
+                  </div>
+                </div>
+
+                <h3 className="max-w-3xl text-lg font-semibold leading-tight text-white sm:text-[22px]">
+                  {data.title}
+                </h3>
+
+                <div className="mt-3 flex flex-wrap items-center gap-2.5 text-xs text-white/35">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5">
+                    <FileText className="h-3 w-3" />
+                    {data.wordCount.toLocaleString()} palabras
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5">
+                    <ExternalLink className="h-3 w-3" />
+                    Vista expandida
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  onClick={handleCopy}
+                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 text-sm font-medium text-white/60 transition-all hover:border-white/[0.16] hover:bg-white/[0.07] hover:text-white"
+                >
+                  {copied ? <Check className="h-4 w-4 text-[#ffde21]" /> : <Copy className="h-4 w-4" />}
+                  {copied ? "Copiado" : "Copiar"}
+                </button>
+                <button
+                  onClick={onClose}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/45 transition-all hover:border-white/[0.16] hover:bg-white/[0.07] hover:text-white"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="min-h-0 flex-1 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.01)_100%)] px-4 py-4 sm:px-6 sm:py-6">
+            <div className="h-full overflow-hidden rounded-[24px] border border-white/[0.07] bg-[#121216] shadow-inner">
+              <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
+                <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/25">
+                  <span className="h-2 w-2 rounded-full bg-white/25" />
+                  Transcripción completa
+                </div>
+                <div className="text-[11px] text-white/20">Scroll para leer todo</div>
+              </div>
+
+              <div className="h-[calc(100%-53px)] overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
+                <div className="mx-auto max-w-3xl">
+                  <p className="whitespace-pre-wrap text-[15px] font-light leading-8 tracking-[0.01em] text-white/72">
+                    {data.transcript}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body
   )
 }
 
@@ -139,7 +268,7 @@ export function TranscriptView() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<TranscriptResult | null>(null)
-  const [showFullTranscript, setShowFullTranscript] = useState(false)
+  const [transcriptModal, setTranscriptModal] = useState<TranscriptModalData | null>(null)
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [historyLoading, setHistoryLoading] = useState(true)
   const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null)
@@ -168,7 +297,7 @@ export function TranscriptView() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!url.trim() || loading) return
-    setLoading(true); setError(null); setResult(null); setShowFullTranscript(false)
+    setLoading(true); setError(null); setResult(null); setTranscriptModal(null)
     try {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
@@ -328,11 +457,11 @@ export function TranscriptView() {
                     : <div className="flex h-full items-center justify-center"><Youtube className="h-5 w-5 text-red-400/40" /></div>}
                 </div>
                 <div className="min-w-0">
-                  {result.title && <p className="text-sm font-semibold text-white leading-snug line-clamp-2">{result.title}</p>}
+                  {result.title && <p className="text-[16px] font-semibold text-white leading-7 line-clamp-2">{result.title}</p>}
                   {result.creator && (
                     <div className="flex items-center gap-1.5 mt-1">
                       <User className="h-3 w-3 text-white/30" />
-                      <p className="text-xs text-white/40">{result.creator}</p>
+                      <p className="text-sm text-white/46">{result.creator}</p>
                     </div>
                   )}
                 </div>
@@ -378,32 +507,43 @@ export function TranscriptView() {
                     <FileText className="h-3.5 w-3.5 text-white/40" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-white/40">Transcripción completa</p>
-                    <p className="text-[10px] text-white/20 mt-0.5">{wordCount.toLocaleString()} palabras</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/42">Transcripción completa</p>
+                    <p className="text-[11px] text-white/24 mt-0.5">{wordCount.toLocaleString()} palabras</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <CopyBtn text={result.transcript} label="Copiar texto" />
-                  <button onClick={() => setShowFullTranscript(v => !v)}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white/40 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all">
-                    {showFullTranscript ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                    {showFullTranscript ? "Colapsar" : "Expandir"}
+                  <button
+                    onClick={() => setTranscriptModal({
+                      title: result.title ?? "Transcripción",
+                      transcript: result.transcript,
+                      wordCount,
+                    })}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white/45 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    Ver completo
                   </button>
                 </div>
               </div>
-              <div className={`relative overflow-hidden transition-[max-height] duration-500 ease-in-out ${showFullTranscript ? "max-h-[9999px]" : "max-h-40"}`}>
-                <div className="px-6 py-5">
-                  <p className="text-sm text-white/45 leading-[1.85] whitespace-pre-wrap font-light">{result.transcript}</p>
+              <div className="px-6 py-5">
+                <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] px-4 py-4">
+                  <p className="text-[15px] leading-8 text-white/56 whitespace-pre-wrap font-light">
+                    {result.transcript.slice(0, 420).trim()}
+                    {result.transcript.length > 420 ? "…" : ""}
+                  </p>
                 </div>
-                {!showFullTranscript && <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#111113] via-[#111113]/80 to-transparent" />}
+                <button
+                  onClick={() => setTranscriptModal({
+                    title: result.title ?? "Transcripción",
+                    transcript: result.transcript,
+                    wordCount,
+                  })}
+                  className="mt-3 text-sm text-[#ffde21]/65 hover:text-[#ffde21] transition-colors"
+                >
+                  Abrir transcripción completa →
+                </button>
               </div>
-              {!showFullTranscript && (
-                <div className="px-6 pb-5 pt-1">
-                  <button onClick={() => setShowFullTranscript(true)} className="text-xs text-[#ffde21]/60 hover:text-[#ffde21] transition-colors">
-                    Ver transcripción completa →
-                  </button>
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -447,11 +587,11 @@ export function TranscriptView() {
                         : <Instagram className="h-3.5 w-3.5 text-pink-400" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white/80 truncate">{item.title ?? "Video sin título"}</p>
+                      <p className="text-[15px] font-medium text-white/84 truncate">{item.title ?? "Video sin título"}</p>
                       <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-                        {item.creator && <span className="text-xs text-white/35">{item.creator}</span>}
-                        {item.duration && <span className="flex items-center gap-1 text-xs text-white/25"><Clock className="h-2.5 w-2.5" />{item.duration}</span>}
-                        <span className="text-xs text-white/20">{formatDate(item.created_at)}</span>
+                        {item.creator && <span className="text-sm text-white/42">{item.creator}</span>}
+                        {item.duration && <span className="flex items-center gap-1 text-sm text-white/28"><Clock className="h-3 w-3" />{item.duration}</span>}
+                        <span className="text-sm text-white/24">{formatDate(item.created_at)}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
@@ -482,7 +622,16 @@ export function TranscriptView() {
                           <SummaryBlock text={item.summary} />
                         </div>
                       )}
-                      {item.transcript && <HistoryTranscript transcript={item.transcript} />}
+                      {item.transcript && (
+                        <HistoryTranscript
+                          transcript={item.transcript}
+                          onOpen={() => setTranscriptModal({
+                            title: item.title ?? "Transcripción",
+                            transcript: item.transcript!,
+                            wordCount: item.transcript!.split(/\s+/).filter(Boolean).length,
+                          })}
+                        />
+                      )}
                     </div>
                   )}
                 </div>
@@ -491,6 +640,12 @@ export function TranscriptView() {
           </div>
         )}
       </div>
+      {transcriptModal && (
+        <TranscriptModal
+          data={transcriptModal}
+          onClose={() => setTranscriptModal(null)}
+        />
+      )}
     </div>
   )
 }
