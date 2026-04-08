@@ -70,8 +70,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         {/* Logo */}
         <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-white/[0.07] px-5">
           <a href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
-            <span className="text-white text-base font-bold tracking-tight">Smart</span>
-            <span className="rounded-md bg-white px-2 py-0.5 text-sm font-bold tracking-tight text-black shadow-sm">
+            <span className="text-white text-xl font-bold tracking-tight">Smart</span>
+            <span className="rounded-md bg-white px-2.5 py-1 text-base font-bold tracking-tight text-black shadow-sm">
               Scale
             </span>
           </a>
