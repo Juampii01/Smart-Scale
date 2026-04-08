@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient as createSupabaseClient } from "@supabase/supabase-js"
+import { createServiceClient } from "@/lib/supabase-service"
 import { enqueueEvents, fireEventDispatcher, EventPayload } from "@/lib/events"
 import { zapierReportCompleted, zapierSaleRegistered } from "@/lib/zapier"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-function createServiceClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!
-  return createSupabaseClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  })
-}
 
 export async function POST(req: NextRequest) {
   try {

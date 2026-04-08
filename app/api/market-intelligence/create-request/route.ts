@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
+import { createServiceClient } from "@/lib/supabase-service"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -123,22 +123,7 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       )
 
-    if (
-      !process.env.SUPABASE_URL ||
-      !process.env.SUPABASE_SERVICE_ROLE_KEY
-    )
-      return NextResponse.json(
-        { error: "Missing Supabase environment variables" },
-        { status: 500 }
-      )
-
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
-      {
-        auth: { persistSession: false, autoRefreshToken: false },
-      }
-    )
+    const supabase = createServiceClient()
 
     const payload = JSON.parse(
       Buffer.from(access_token.split(".")[1], "base64").toString("utf8")

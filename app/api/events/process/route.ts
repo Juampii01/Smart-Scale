@@ -4,7 +4,7 @@
 // Protected by EVENTS_PROCESS_SECRET env var (set it in .env.local).
 
 import { NextRequest, NextResponse } from "next/server"
-import { createClient as createSupabaseClient } from "@supabase/supabase-js"
+import { createServiceClient } from "@/lib/supabase-service"
 import {
   notifyMonthlyReportCompleted,
   notifySaleRegistered,
@@ -17,13 +17,6 @@ export const dynamic = "force-dynamic"
 const BATCH_SIZE = 10
 const BACKOFF_SECONDS = [30, 120, 600] // 30s, 2min, 10min for retries 1, 2, 3
 
-function createServiceClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!
-  return createSupabaseClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  })
-}
 
 type EventRow = {
   id: string
