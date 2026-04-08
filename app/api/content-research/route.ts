@@ -124,7 +124,7 @@ async function getTopVideos(channelId: string, timeframeDays: number) {
     .map((v: any) => ({
       video_id:     v.id,
       title:        v.snippet?.title ?? "",
-      description:  (v.snippet?.description ?? "").slice(0, 300),
+      description:  v.snippet?.description ?? "",
       thumbnail:    v.snippet?.thumbnails?.high?.url
                  ?? v.snippet?.thumbnails?.medium?.url
                  ?? v.snippet?.thumbnails?.default?.url
