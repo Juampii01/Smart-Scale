@@ -571,54 +571,197 @@ async function getYouTubeMetadata(videoId: string) {
 }
 
 // ─── YouTube transcript ───────────────────────────────────────────────────────
+async function getYouTubeTranscript(
+  videoId: string
+): Promise<{ transcript: string | null; provider: string | null; reason?: string }> {
+  console.log("[yt] start", { videoId })
 
-async function getYouTubeTranscript(videoId: string): Promise<string | null> {
-  // Try 1: youtube-transcript library (works locally, sometimes in prod)
+  // Try 1: youtube-transcript
   try {
     const { YoutubeTranscript } = await import("youtube-transcript")
     const langs = ["es", "en", ""]
+
     for (const lang of langs) {
       try {
+        console.log("[yt] trying youtube-transcript", { videoId, lang: lang || "default" })
+
         const segments = lang
           ? await YoutubeTranscript.fetchTranscript(videoId, { lang })
           : await YoutubeTranscript.fetchTranscript(videoId)
-        const text = segments.map((t: any) => t.text).join(" ").trim()
-        if (text) return text
-      } catch {}
-    }
-  } catch {}
 
-  // Try 2: AssemblyAI — accepts YouTube URLs directly, bypasses IP blocks
+        const text = segments.map((t: any) => t.text).join(" ").trim()
+
+        if (text) {
+          console.log("[yt] youtube-transcript success", {
+            videoId,
+            lang: lang || "default",
+            length: text.length,
+          })
+          return { transcript: text, provider: "youtube-transcript" }
+        }
+      } catch (err: any) {
+        console.log("[yt] youtube-transcript failed", {
+          videoId,
+          lang: lang || "default",
+          message: err?.message ?? String(err),
+        })
+      }
+    }
+  } catch (err: any) {
+    console.log("[yt] import youtube-transcript failed", {
+      videoId,
+      message: err?.message ?? String(err),
+    })
+  }
+
+  // Try 2: AssemblyAI
   const assemblyKey = process.env.ASSEMBLYAI_API_KEY
+  console.log("[yt] assembly key exists", !!assemblyKey)
+
   if (assemblyKey) {
     try {
       const submitRes = await fetch("https://api.assemblyai.com/v2/transcript", {
         method: "POST",
-        headers: { "Authorization": assemblyKey, "Content-Type": "application/json" },
-        body: JSON.stringify({ audio_url: `https://www.youtube.com/watch?v=${videoId}` }),
-        signal: AbortSignal.timeout(15_000),
+        headers: {
+          Authorization: assemblyKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          audio_url: `https://www.youtube.com/watch?v=${videoId}`,
+        }),
+        signal: AbortSignal.timeout(30_000),
       })
-      if (submitRes.ok) {
-        const { id } = await submitRes.json()
-        if (id) {
-          const deadline = Date.now() + 240_000
-          while (Date.now() < deadline) {
-            await new Promise(r => setTimeout(r, 4000))
-            const pollRes = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
-              headers: { "Authorization": assemblyKey },
-              signal: AbortSignal.timeout(10_000),
-            })
-            if (!pollRes.ok) break
-            const result = await pollRes.json()
-            if (result.status === "completed" && result.text) return result.text
-            if (result.status === "error") break
+
+      const submitText = await submitRes.text()
+
+      console.log("[yt] assembly submit", {
+        videoId,
+        status: submitRes.status,
+        body: submitText,
+      })
+
+      if (!submitRes.ok) {
+        return {
+          transcript: null,
+          provider: "assemblyai",
+          reason: `submit_failed_${submitRes.status}`,
+        }
+      }
+
+      let submitJson: any = null
+      try {
+        submitJson = JSON.parse(submitText)
+      } catch (err: any) {
+        console.log("[yt] assembly submit parse failed", {
+          videoId,
+          message: err?.message ?? String(err),
+        })
+        return {
+          transcript: null,
+          provider: "assemblyai",
+          reason: "submit_parse_failed",
+        }
+      }
+
+      const id = submitJson?.id
+      if (!id) {
+        console.log("[yt] assembly submit missing id", { videoId, submitJson })
+        return {
+          transcript: null,
+          provider: "assemblyai",
+          reason: "missing_transcript_id",
+        }
+      }
+
+      const deadline = Date.now() + 240_000
+
+      while (Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 4000))
+
+        const pollRes = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
+          headers: { Authorization: assemblyKey },
+          signal: AbortSignal.timeout(15_000),
+        })
+
+        const pollText = await pollRes.text()
+
+        console.log("[yt] assembly poll", {
+          videoId,
+          id,
+          status: pollRes.status,
+          body: pollText,
+        })
+
+        if (!pollRes.ok) {
+          return {
+            transcript: null,
+            provider: "assemblyai",
+            reason: `poll_failed_${pollRes.status}`,
+          }
+        }
+
+        let result: any = null
+        try {
+          result = JSON.parse(pollText)
+        } catch (err: any) {
+          console.log("[yt] assembly poll parse failed", {
+            videoId,
+            id,
+            message: err?.message ?? String(err),
+          })
+          return {
+            transcript: null,
+            provider: "assemblyai",
+            reason: "poll_parse_failed",
+          }
+        }
+
+        if (result.status === "completed" && result.text) {
+          console.log("[yt] assembly success", {
+            videoId,
+            id,
+            length: result.text.length,
+          })
+          return { transcript: result.text, provider: "assemblyai" }
+        }
+
+        if (result.status === "error") {
+          console.log("[yt] assembly processing error", {
+            videoId,
+            id,
+            error: result.error,
+          })
+          return {
+            transcript: null,
+            provider: "assemblyai",
+            reason: result.error ?? "processing_error",
           }
         }
       }
-    } catch {}
+
+      return {
+        transcript: null,
+        provider: "assemblyai",
+        reason: "poll_timeout",
+      }
+    } catch (err: any) {
+      console.log("[yt] assembly failed", {
+        videoId,
+        message: err?.message ?? String(err),
+      })
+      return {
+        transcript: null,
+        provider: "assemblyai",
+        reason: err?.message ?? "assembly_exception",
+      }
+    }
   }
 
-  return null
+  return {
+    transcript: null,
+    provider: null,
+    reason: "no_provider_succeeded",
+  }
 }
 
 // ─── Claude summary ───────────────────────────────────────────────────────────
@@ -705,13 +848,18 @@ export async function POST(req: NextRequest) {
       creator   = metadata.creator
       thumbnail = metadata.thumbnail
       duration  = metadata.duration
-      transcript = await getYouTubeTranscript(videoId)
+
+      const ytResult = await getYouTubeTranscript(videoId)
+      transcript = ytResult.transcript
 
       if (!transcript) {
         return NextResponse.json({
-          error: "Este video no tiene subtítulos disponibles. Probá con otro video.",
+          error: "No se pudo obtener la transcripción de este video desde los proveedores disponibles.",
+          provider: ytResult.provider,
+          reason: ytResult.reason,
         }, { status: 422 })
       }
+
       summary = await generateSummary(transcript, creator)
     }
 
