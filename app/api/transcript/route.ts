@@ -576,7 +576,6 @@ async function getYouTubeTranscript(
 ): Promise<{ transcript: string | null; provider: string | null; reason?: string }> {
   console.log("[yt] start", { videoId })
 
-  // Try 1: youtube-transcript
   try {
     const { YoutubeTranscript } = await import("youtube-transcript")
     const langs = ["es", "en", ""]
@@ -614,153 +613,12 @@ async function getYouTubeTranscript(
     })
   }
 
-  // Try 2: AssemblyAI
-  const assemblyKey = process.env.ASSEMBLYAI_API_KEY
-  console.log("[yt] assembly key exists", !!assemblyKey)
-
-  if (assemblyKey) {
-    try {
-      const submitRes = await fetch("https://api.assemblyai.com/v2/transcript", {
-        method: "POST",
-        headers: {
-          Authorization: assemblyKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          audio_url: `https://www.youtube.com/watch?v=${videoId}`,
-        }),
-        signal: AbortSignal.timeout(30_000),
-      })
-
-      const submitText = await submitRes.text()
-
-      console.log("[yt] assembly submit", {
-        videoId,
-        status: submitRes.status,
-        body: submitText,
-      })
-
-      if (!submitRes.ok) {
-        return {
-          transcript: null,
-          provider: "assemblyai",
-          reason: `submit_failed_${submitRes.status}`,
-        }
-      }
-
-      let submitJson: any = null
-      try {
-        submitJson = JSON.parse(submitText)
-      } catch (err: any) {
-        console.log("[yt] assembly submit parse failed", {
-          videoId,
-          message: err?.message ?? String(err),
-        })
-        return {
-          transcript: null,
-          provider: "assemblyai",
-          reason: "submit_parse_failed",
-        }
-      }
-
-      const id = submitJson?.id
-      if (!id) {
-        console.log("[yt] assembly submit missing id", { videoId, submitJson })
-        return {
-          transcript: null,
-          provider: "assemblyai",
-          reason: "missing_transcript_id",
-        }
-      }
-
-      const deadline = Date.now() + 240_000
-
-      while (Date.now() < deadline) {
-        await new Promise((r) => setTimeout(r, 4000))
-
-        const pollRes = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
-          headers: { Authorization: assemblyKey },
-          signal: AbortSignal.timeout(15_000),
-        })
-
-        const pollText = await pollRes.text()
-
-        console.log("[yt] assembly poll", {
-          videoId,
-          id,
-          status: pollRes.status,
-          body: pollText,
-        })
-
-        if (!pollRes.ok) {
-          return {
-            transcript: null,
-            provider: "assemblyai",
-            reason: `poll_failed_${pollRes.status}`,
-          }
-        }
-
-        let result: any = null
-        try {
-          result = JSON.parse(pollText)
-        } catch (err: any) {
-          console.log("[yt] assembly poll parse failed", {
-            videoId,
-            id,
-            message: err?.message ?? String(err),
-          })
-          return {
-            transcript: null,
-            provider: "assemblyai",
-            reason: "poll_parse_failed",
-          }
-        }
-
-        if (result.status === "completed" && result.text) {
-          console.log("[yt] assembly success", {
-            videoId,
-            id,
-            length: result.text.length,
-          })
-          return { transcript: result.text, provider: "assemblyai" }
-        }
-
-        if (result.status === "error") {
-          console.log("[yt] assembly processing error", {
-            videoId,
-            id,
-            error: result.error,
-          })
-          return {
-            transcript: null,
-            provider: "assemblyai",
-            reason: result.error ?? "processing_error",
-          }
-        }
-      }
-
-      return {
-        transcript: null,
-        provider: "assemblyai",
-        reason: "poll_timeout",
-      }
-    } catch (err: any) {
-      console.log("[yt] assembly failed", {
-        videoId,
-        message: err?.message ?? String(err),
-      })
-      return {
-        transcript: null,
-        provider: "assemblyai",
-        reason: err?.message ?? "assembly_exception",
-      }
-    }
-  }
+  console.log("[yt] skipping AssemblyAI for YouTube URLs")
 
   return {
     transcript: null,
-    provider: null,
-    reason: "no_provider_succeeded",
+    provider: "youtube-transcript",
+    reason: "youtube_transcript_failed",
   }
 }
 
