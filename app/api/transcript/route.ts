@@ -571,55 +571,54 @@ async function getYouTubeMetadata(videoId: string) {
 }
 
 // ─── YouTube transcript ───────────────────────────────────────────────────────
-async function getYouTubeTranscript(
-  videoId: string
-): Promise<{ transcript: string | null; provider: string | null; reason?: string }> {
-  console.log("[yt] start", { videoId })
 
+async function getYouTubeTranscript(videoId: string): Promise<string | null> {
+  // Try 1: youtube-transcript library (works locally, sometimes in prod)
   try {
     const { YoutubeTranscript } = await import("youtube-transcript")
     const langs = ["es", "en", ""]
-
     for (const lang of langs) {
       try {
-        console.log("[yt] trying youtube-transcript", { videoId, lang: lang || "default" })
-
         const segments = lang
           ? await YoutubeTranscript.fetchTranscript(videoId, { lang })
           : await YoutubeTranscript.fetchTranscript(videoId)
-
         const text = segments.map((t: any) => t.text).join(" ").trim()
-
-        if (text) {
-          console.log("[yt] youtube-transcript success", {
-            videoId,
-            lang: lang || "default",
-            length: text.length,
-          })
-          return { transcript: text, provider: "youtube-transcript" }
-        }
-      } catch (err: any) {
-        console.log("[yt] youtube-transcript failed", {
-          videoId,
-          lang: lang || "default",
-          message: err?.message ?? String(err),
-        })
-      }
+        if (text) return text
+      } catch {}
     }
-  } catch (err: any) {
-    console.log("[yt] import youtube-transcript failed", {
-      videoId,
-      message: err?.message ?? String(err),
-    })
+  } catch {}
+
+  // Try 2: AssemblyAI — accepts YouTube URLs directly, bypasses IP blocks
+  const assemblyKey = process.env.ASSEMBLYAI_API_KEY
+  if (assemblyKey) {
+    try {
+      const submitRes = await fetch("https://api.assemblyai.com/v2/transcript", {
+        method: "POST",
+        headers: { "Authorization": assemblyKey, "Content-Type": "application/json" },
+        body: JSON.stringify({ audio_url: `https://www.youtube.com/watch?v=${videoId}` }),
+        signal: AbortSignal.timeout(15_000),
+      })
+      if (submitRes.ok) {
+        const { id } = await submitRes.json()
+        if (id) {
+          const deadline = Date.now() + 240_000
+          while (Date.now() < deadline) {
+            await new Promise(r => setTimeout(r, 4000))
+            const pollRes = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
+              headers: { "Authorization": assemblyKey },
+              signal: AbortSignal.timeout(10_000),
+            })
+            if (!pollRes.ok) break
+            const result = await pollRes.json()
+            if (result.status === "completed" && result.text) return result.text
+            if (result.status === "error") break
+          }
+        }
+      }
+    } catch {}
   }
 
-  console.log("[yt] skipping AssemblyAI for YouTube URLs")
-
-  return {
-    transcript: null,
-    provider: "youtube-transcript",
-    reason: "youtube_transcript_failed",
-  }
+  return null
 }
 
 // ─── Claude summary ───────────────────────────────────────────────────────────
@@ -706,18 +705,13 @@ export async function POST(req: NextRequest) {
       creator   = metadata.creator
       thumbnail = metadata.thumbnail
       duration  = metadata.duration
-
-      const ytResult = await getYouTubeTranscript(videoId)
-      transcript = ytResult.transcript
+      transcript = await getYouTubeTranscript(videoId)
 
       if (!transcript) {
         return NextResponse.json({
-          error: "No se pudo obtener la transcripción de este video desde los proveedores disponibles.",
-          provider: ytResult.provider,
-          reason: ytResult.reason,
+          error: "Este video no tiene subtítulos disponibles. Probá con otro video.",
         }, { status: 422 })
       }
-
       summary = await generateSummary(transcript, creator)
     }
 
