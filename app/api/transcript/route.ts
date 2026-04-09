@@ -573,9 +573,49 @@ async function getYouTubeMetadata(videoId: string) {
 // ─── YouTube transcript ───────────────────────────────────────────────────────
 async function getYouTubeTranscript(
   videoId: string
-): Promise<{ transcript: string | null; provider: string | null; reason?: string }> {
+): Promise<{ transcript: string | null; provider: string | null; reason?: string; debug?: string }> {
   console.log("[yt] start", { videoId })
 
+  const debugMessages: string[] = []
+
+  // 1) Camino más rápido: captions públicas de YouTube
+  try {
+    const { YoutubeTranscript } = await import("youtube-transcript")
+    const langs = ["es", "en", ""]
+
+    for (const lang of langs) {
+      try {
+        console.log("[yt] trying youtube-transcript", { videoId, lang: lang || "default" })
+        const segments = lang
+          ? await YoutubeTranscript.fetchTranscript(videoId, { lang })
+          : await YoutubeTranscript.fetchTranscript(videoId)
+
+        const text = segments.map((t: any) => t.text).join(" ").trim()
+        if (text) {
+          console.log("[yt] youtube-transcript success", {
+            videoId,
+            lang: lang || "default",
+            length: text.length,
+          })
+          return { transcript: text, provider: "youtube-transcript" }
+        }
+      } catch (err: any) {
+        const message = err?.message ?? String(err)
+        console.log("[yt] youtube-transcript failed", {
+          videoId,
+          lang: lang || "default",
+          message,
+        })
+        debugMessages.push(`youtube-transcript(${lang || "default"}): ${message}`)
+      }
+    }
+  } catch (err: any) {
+    const message = err?.message ?? String(err)
+    console.log("[yt] youtube-transcript import failed", { videoId, message })
+    debugMessages.push(`youtube-transcript import: ${message}`)
+  }
+
+  // 2) Fallback: audio real + AssemblyAI
   const assemblyKey = process.env.ASSEMBLYAI_API_KEY
   console.log("[yt] assembly key exists", !!assemblyKey)
 
@@ -584,12 +624,13 @@ async function getYouTubeTranscript(
       transcript: null,
       provider: "assemblyai",
       reason: "missing_assembly_key",
+      debug: `ASSEMBLYAI_API_KEY is not set | ${debugMessages.join(" | ")}`,
     }
   }
 
   try {
-    const ytdlModule = await import("ytdl-core")
-    const ytdl = (ytdlModule.default ?? ytdlModule) as typeof import("ytdl-core")
+    const ytdlModule = await import("@distube/ytdl-core")
+    const ytdl = (ytdlModule.default ?? ytdlModule) as typeof import("@distube/ytdl-core")
 
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`
     console.log("[yt] fetching audio info", { videoId, videoUrl })
@@ -617,6 +658,7 @@ async function getYouTubeTranscript(
         transcript: null,
         provider: "assemblyai",
         reason: "audio_url_not_found",
+        debug: `@distube/ytdl-core returned no audio-only format with a direct url | ${debugMessages.join(" | ")}`,
       }
     }
 
@@ -626,9 +668,7 @@ async function getYouTubeTranscript(
         Authorization: assemblyKey,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        audio_url: audioUrl,
-      }),
+      body: JSON.stringify({ audio_url: audioUrl }),
       signal: AbortSignal.timeout(30_000),
     })
 
@@ -645,6 +685,7 @@ async function getYouTubeTranscript(
         transcript: null,
         provider: "assemblyai",
         reason: `submit_failed_${submitRes.status}`,
+        debug: `${submitText} | ${debugMessages.join(" | ")}`,
       }
     }
 
@@ -652,14 +693,16 @@ async function getYouTubeTranscript(
     try {
       submitJson = JSON.parse(submitText)
     } catch (err: any) {
+      const message = err?.message ?? String(err)
       console.log("[yt] assembly submit parse failed", {
         videoId,
-        message: err?.message ?? String(err),
+        message,
       })
       return {
         transcript: null,
         provider: "assemblyai",
         reason: "submit_parse_failed",
+        debug: `${message} | raw=${submitText} | ${debugMessages.join(" | ")}`,
       }
     }
 
@@ -670,6 +713,7 @@ async function getYouTubeTranscript(
         transcript: null,
         provider: "assemblyai",
         reason: "missing_transcript_id",
+        debug: `${JSON.stringify(submitJson)} | ${debugMessages.join(" | ")}`,
       }
     }
 
@@ -697,6 +741,7 @@ async function getYouTubeTranscript(
           transcript: null,
           provider: "assemblyai",
           reason: `poll_failed_${pollRes.status}`,
+          debug: `${pollText} | ${debugMessages.join(" | ")}`,
         }
       }
 
@@ -704,15 +749,17 @@ async function getYouTubeTranscript(
       try {
         result = JSON.parse(pollText)
       } catch (err: any) {
+        const message = err?.message ?? String(err)
         console.log("[yt] assembly poll parse failed", {
           videoId,
           id,
-          message: err?.message ?? String(err),
+          message,
         })
         return {
           transcript: null,
           provider: "assemblyai",
           reason: "poll_parse_failed",
+          debug: `${message} | raw=${pollText} | ${debugMessages.join(" | ")}`,
         }
       }
 
@@ -735,6 +782,7 @@ async function getYouTubeTranscript(
           transcript: null,
           provider: "assemblyai",
           reason: result.error ?? "processing_error",
+          debug: debugMessages.join(" | "),
         }
       }
     }
@@ -743,17 +791,20 @@ async function getYouTubeTranscript(
       transcript: null,
       provider: "assemblyai",
       reason: "poll_timeout",
+      debug: debugMessages.join(" | "),
     }
   } catch (err: any) {
+    const message = err?.message ?? String(err)
     console.log("[yt] audio extraction failed", {
       videoId,
-      message: err?.message ?? String(err),
+      message,
       stack: err?.stack,
     })
     return {
       transcript: null,
       provider: "assemblyai",
       reason: "audio_extraction_failed",
+      debug: `${message} | ${debugMessages.join(" | ")}`,
     }
   }
 }
@@ -851,6 +902,7 @@ export async function POST(req: NextRequest) {
           error: "No se pudo obtener la transcripción de este video desde los proveedores disponibles.",
           provider: ytResult.provider,
           reason: ytResult.reason,
+          debug: ytResult.debug,
         }, { status: 422 })
       }
 
