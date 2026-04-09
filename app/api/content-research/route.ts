@@ -19,6 +19,40 @@ function parseDuration(iso: string): string {
   return `${h}${min}:${sec}`
 }
 
+function extractYouTubeChannelIdFromHtml(html: string): string {
+  const patterns = [
+    /https:\/\/www\.youtube\.com\/channel\/(UC[\w-]{20,})/i,
+    /"channelId":"(UC[\w-]{20,})"/i,
+    /itemprop="identifier" content="(UC[\w-]{20,})"/i,
+    /browseId":"(UC[\w-]{20,})"/i,
+  ]
+
+  for (const pattern of patterns) {
+    const match = html.match(pattern)
+    if (match?.[1]) return match[1]
+  }
+
+  return ""
+}
+
+async function resolveChannelIdFromPage(url: string): Promise<string> {
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+        "Accept-Language": "es,en;q=0.9",
+      },
+      signal: AbortSignal.timeout(15_000),
+    })
+
+    if (!res.ok) return ""
+    const html = await res.text()
+    return extractYouTubeChannelIdFromHtml(html)
+  } catch {
+    return ""
+  }
+}
+
 // ─── RapidAPI Instagram ───────────────────────────────────────────────────────
 
 const RAPIDAPI_IG_HOST = "instagram-scraper-20253.p.rapidapi.com"
@@ -63,20 +97,42 @@ async function resolveChannelId(url: string) {
   const channelMatch = url.match(/channel\/([^/?&]+)/)
   const handleMatch  = url.match(/@([^/?&]+)/)
   const userMatch    = url.match(/user\/([^/?&]+)/)
+  const customMatch  = url.match(/youtube\.com\/c\/([^/?&]+)/)
 
   let channelId = ""
 
   if (channelMatch) {
     channelId = channelMatch[1]
-  } else {
-    const query = handleMatch ? `@${handleMatch[1]}` : userMatch ? userMatch[1] : url
+  }
+
+  if (!channelId && (handleMatch || userMatch || customMatch)) {
+    channelId = await resolveChannelIdFromPage(url)
+  }
+
+  if (!channelId) {
+    const query = handleMatch
+      ? `@${handleMatch[1]}`
+      : userMatch
+        ? userMatch[1]
+        : customMatch
+          ? customMatch[1]
+          : url
+
     const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${encodeURIComponent(query)}&maxResults=1&key=${key}`,
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${encodeURIComponent(query)}&maxResults=5&key=${key}`,
       { signal: AbortSignal.timeout(10_000) }
     )
     if (!res.ok) throw new Error(`YouTube search error ${res.status}`)
     const data = await res.json().catch(() => ({}))
-    channelId = data.items?.[0]?.snippet?.channelId ?? data.items?.[0]?.id?.channelId ?? ""
+
+    channelId =
+      data.items?.find((item: any) => {
+        const handle = item?.snippet?.customUrl?.replace(/^@/, "")?.toLowerCase()
+        return handleMatch ? handle === handleMatch[1].toLowerCase() : true
+      })?.snippet?.channelId
+      ?? data.items?.[0]?.snippet?.channelId
+      ?? data.items?.[0]?.id?.channelId
+      ?? ""
   }
 
   if (!channelId) throw new Error("No se pudo resolver el canal de YouTube. Verificá la URL.")
@@ -98,18 +154,28 @@ async function resolveChannelId(url: string) {
 }
 
 async function getTopVideos(channelId: string, timeframeDays: number) {
-  const key            = process.env.YOUTUBE_API_KEY!
+  const key = process.env.YOUTUBE_API_KEY!
   const publishedAfter = new Date(Date.now() - timeframeDays * 86_400_000).toISOString()
 
-  const searchRes = await fetch(
-    `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&order=date&maxResults=50&publishedAfter=${encodeURIComponent(publishedAfter)}&key=${key}`,
-    { signal: AbortSignal.timeout(15_000) }
-  )
-  if (!searchRes.ok) throw new Error(`YouTube video search error ${searchRes.status}`)
-  const searchData = await searchRes.json().catch(() => ({}))
-  const videoIds: string[] = (searchData.items ?? [])
-    .map((v: any) => v.id?.videoId)
-    .filter(Boolean)
+  async function searchVideos(params: { publishedAfter?: string; maxResults?: number }) {
+    const searchRes = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&order=date&maxResults=${params.maxResults ?? 50}${params.publishedAfter ? `&publishedAfter=${encodeURIComponent(params.publishedAfter)}` : ""}&key=${key}`,
+      { signal: AbortSignal.timeout(15_000) }
+    )
+    if (!searchRes.ok) throw new Error(`YouTube video search error ${searchRes.status}`)
+    const searchData = await searchRes.json().catch(() => ({}))
+    return (searchData.items ?? [])
+      .map((v: any) => v.id?.videoId)
+      .filter(Boolean)
+  }
+
+  let videoIds: string[] = await searchVideos({ publishedAfter, maxResults: 50 })
+  let usedTimeframeFallback = false
+
+  if (!videoIds.length) {
+    videoIds = await searchVideos({ maxResults: 15 })
+    usedTimeframeFallback = true
+  }
 
   if (!videoIds.length) return []
 
@@ -120,27 +186,39 @@ async function getTopVideos(channelId: string, timeframeDays: number) {
   if (!statsRes.ok) throw new Error(`YouTube stats error ${statsRes.status}`)
   const statsData = await statsRes.json().catch(() => ({}))
 
-  const top5 = (statsData.items ?? [])
-    .map((v: any) => ({
-      video_id:     v.id,
-      title:        v.snippet?.title ?? "",
-      description:  v.snippet?.description ?? "",
-      thumbnail:    v.snippet?.thumbnails?.high?.url
-                 ?? v.snippet?.thumbnails?.medium?.url
-                 ?? v.snippet?.thumbnails?.default?.url
-                 ?? null,
-      video_url:    `https://www.youtube.com/watch?v=${v.id}`,
-      views:        Number(v.statistics?.viewCount   ?? 0),
-      likes:        Number(v.statistics?.likeCount   ?? 0),
-      comments:     Number(v.statistics?.commentCount ?? 0),
-      duration:     parseDuration(v.contentDetails?.duration ?? ""),
-      published_at: v.snippet?.publishedAt ?? null,
-      transcript:   null as string | null,
-    }))
+  const cutoffDate = new Date(Date.now() - timeframeDays * 86_400_000)
+
+  let items = (statsData.items ?? []).map((v: any) => ({
+    video_id:     v.id,
+    title:        v.snippet?.title ?? "",
+    description:  v.snippet?.description ?? "",
+    thumbnail:    v.snippet?.thumbnails?.high?.url
+               ?? v.snippet?.thumbnails?.medium?.url
+               ?? v.snippet?.thumbnails?.default?.url
+               ?? null,
+    video_url:    `https://www.youtube.com/watch?v=${v.id}`,
+    views:        Number(v.statistics?.viewCount ?? 0),
+    likes:        Number(v.statistics?.likeCount ?? 0),
+    comments:     Number(v.statistics?.commentCount ?? 0),
+    duration:     parseDuration(v.contentDetails?.duration ?? ""),
+    published_at: v.snippet?.publishedAt ?? null,
+    transcript:   null as string | null,
+  }))
+
+  if (!usedTimeframeFallback) {
+    items = items.filter((item: any) => item.published_at ? new Date(item.published_at) >= cutoffDate : true)
+  }
+
+  const top5 = items
     .sort((a: any, b: any) => b.views - a.views)
     .slice(0, 5)
 
-  // Fetch transcripts for each video
+  if (!top5.length && usedTimeframeFallback) {
+    return items
+      .sort((a: any, b: any) => b.views - a.views)
+      .slice(0, 5)
+  }
+
   const transcripts = await Promise.all(top5.map((v: any) => getYouTubeTranscript(v.video_id)))
   return top5.map((v: any, i: number) => ({ ...v, transcript: transcripts[i] ?? null }))
 }
@@ -448,7 +526,13 @@ export async function POST(req: NextRequest) {
       videos        = await getTopVideos(ch.channelId, timeframe_days)
     }
 
-    if (!videos.length) return NextResponse.json({ error: "No se encontraron videos en este perfil." }, { status: 404 })
+    if (!videos.length) {
+      return NextResponse.json({
+        error: isInstagram
+          ? "No se encontraron publicaciones recientes en este perfil."
+          : `No se encontraron videos recientes en este canal para el período seleccionado (${timeframe_days} días).`,
+      }, { status: 404 })
+    }
 
     const analyses = await generateAnalyses(channelName, videos)
     const videosWithAnalysis = videos.map((v: any, i: number) => ({ ...v, analysis: analyses[i] ?? "Análisis no disponible." }))
