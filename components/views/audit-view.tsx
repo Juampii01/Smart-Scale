@@ -478,12 +478,17 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
         return
       }
 
-      setAiResponse("Diagnóstico en proceso... Esto puede demorar unos segundos.")
-      if (data.request_id) {
+      // Result is returned directly — no polling needed
+      if (data.result) {
+        setAiResponse(data.result)
+        setLoading(false)
+        loadDiagnosisHistory()
+      } else if (data.request_id) {
+        // Fallback: poll (legacy requests)
         loadDiagnosisHistory()
         pollDiagnosisResult(data.request_id)
       } else {
-        setAiResponse("No se pudo obtener el ID del diagnóstico.")
+        setAiResponse("No se pudo obtener el diagnóstico.")
         setLoading(false)
       }
     } catch (err: any) {
