@@ -7,36 +7,36 @@ export const runtime = "nodejs"
 
 // ─── Module maps ──────────────────────────────────────────────────────────────
 
-const MODULES_MENOS20K: Record<string, { name: string; url: string | null }> = {
-  F1: { name: "La Ingeniera de un Simple Post",         url: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=3a570a586e744dedafdef91c419fe72d" },
-  F2: { name: "Los No Negociables Diarios",             url: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=c5c75f6311a645a5867f213dde41731b" },
-  F3: { name: "El Diamante de Autoridad & BIO",         url: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=5a91a467141640bf89bd4b13141181c6" },
-  F4: { name: "Quick Cash DM Ads",                      url: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=a201e7243ac44af4b58e721c7c455b42" },
-  E1: { name: "Mini-Serie Youtube Playbook",            url: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=5edbbfa66f1047a0a814f29e6dd236a0" },
-  E2: { name: "Airtable CRM y Base de Datos",           url: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=e40e73a9017a4d21a222c23cf1f15c16" },
-  E3: { name: "DM to Chat — Priorizacion de tu Pipeline", url: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=ad1eff5e3bc148dfb1fbaa577adad68c" },
-  I1: { name: "Tu Programa Matadolor™",                 url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=3114f6cc62a846a7a4f996697d45e075" },
-  I2: { name: "Onboarding Proceso",                     url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=6ab1072e74324d14b2b666f30f5a7092" },
-  I3: { name: "Tu Offer Doc",                           url: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=9bfa0b4c8323478ca0436e75aa3ad902" },
-  T1: { name: "Investigacion de Mercado",               url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=5517d71b489548e6aa1ed63890d0a600" },
-  T2: { name: "Recoleccion de Prueba Social",           url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=6b66e086de2f44feb598e4d7e8c9e0b9" },
-  T3: { name: "Una Simple Oferta | Blueprint",          url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=8ab64a0d4cf34a979f914fc2fd8eac62" },
+const MODULES_MENOS20K: Record<string, { name: string; level: string }> = {
+  F1: { name: "La Ingeniera de un Simple Post",          level: "Nivel 5" },
+  F2: { name: "Los No Negociables Diarios",              level: "Nivel 0" },
+  F3: { name: "El Diamante de Autoridad & BIO",          level: "Nivel 5" },
+  F4: { name: "Quick Cash DM Ads",                       level: "Nivel 5" },
+  E1: { name: "Mini-Serie Youtube Playbook",             level: "Nivel 7" },
+  E2: { name: "Airtable CRM y Base de Datos",            level: "Nivel 8" },
+  E3: { name: "DM to Chat — Priorizacion de tu Pipeline",level: "Nivel 6" },
+  I1: { name: "Tu Programa Matadolor™",                  level: "Nivel 3" },
+  I2: { name: "Onboarding Proceso",                      level: "Nivel 3" },
+  I3: { name: "Tu Offer Doc",                            level: "Nivel 6" },
+  T1: { name: "Investigacion de Mercado",                level: "Nivel 3" },
+  T2: { name: "Recoleccion de Prueba Social",            level: "Nivel 3" },
+  T3: { name: "Una Simple Oferta | Blueprint",           level: "Nivel 3" },
 }
 
-const MODULES_MAS20K: Record<string, { name: string; url: string | null }> = {
-  F4: { name: "Lead Magnets Principales",                          url: "https://www.skool.com/strategy-consulting/classroom/b70c523e?md=a35dd1def5c94d88a226995aea444f33" },
-  F5: { name: "Un Simple Protocolo de Ads",                        url: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=2612acf4f7e64788b327f4568554abe0" },
-  F6: { name: "Productividad y Calendario Optimizado",             url: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=dde2660eda3e48b09383936180dd1e1b" },
-  F7: { name: "Quick Cash DM Ads",                                 url: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=a201e7243ac44af4b58e721c7c455b42" },
-  E4: { name: "El Blueprint de una Marca con Identidad",           url: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=cfd8870603c54aff944465e90f275111" },
-  E5: { name: "Un Simple Video (VSL)",                             url: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=0bbae3a1de594f5b958e7affe859a652" },
-  E6: { name: "Workshops DDE",                                     url: null },
-  I4: { name: "Creacion de Tu Simple Oferta",                      url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=65d7aa8ec4f4471a96c5fa4a134383e4" },
-  I5: { name: "Tu World Class Delivery",                           url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=169b8b019d194654a84f1a2415b4502c" },
-  I6: { name: "Nivel 8 — IA & Sistemas",                          url: "https://www.skool.com/strategy-consulting/classroom/70b44121?md=09194ec249794bc7b686ea1e7b5122c2" },
-  T4: { name: "Comunidad Solida",                                  url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=49c844ba2c644830be548a4e9fe015cb" },
-  T5: { name: "Formulario de Contratacion",                        url: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=293abb85bfe445c8b8bc265e7278471d" },
-  T6: { name: "SmartScale Roadmap",                                url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=3038e1c85d064ea3af2e30952a1c71b6" },
+const MODULES_MAS20K: Record<string, { name: string; level: string }> = {
+  F4: { name: "Lead Magnets Principales",                level: "Nivel 4" },
+  F5: { name: "Un Simple Protocolo de Ads",              level: "Nivel 5" },
+  F6: { name: "Productividad y Calendario Optimizado",   level: "Nivel 5" },
+  F7: { name: "Quick Cash DM Ads",                       level: "Nivel 5" },
+  E4: { name: "El Blueprint de una Marca con Identidad", level: "Nivel 5" },
+  E5: { name: "Un Simple Video (VSL)",                   level: "Nivel 6" },
+  E6: { name: "Workshops DDE",                           level: "En creación" },
+  I4: { name: "Creacion de Tu Simple Oferta",            level: "Nivel 3" },
+  I5: { name: "Tu World Class Delivery",                 level: "Nivel 3" },
+  I6: { name: "IA & Sistemas",                           level: "Nivel 8" },
+  T4: { name: "Comunidad Solida",                        level: "Nivel 3" },
+  T5: { name: "Formulario de Contratacion",              level: "Nivel 6" },
+  T6: { name: "SmartScale Roadmap",                      level: "Nivel 0" },
 }
 
 // ─── Parse prompt → items per color ──────────────────────────────────────────
@@ -97,9 +97,9 @@ function buildDiagnosis(prompt: string, auditType: string): string {
   for (const item of orange) { const p = item.id[0]; if (p in pillarScore) pillarScore[p] += 1 }
   const primaryPillar = Object.entries(pillarScore).sort(([, a], [, b]) => b - a)[0]
 
-  const modLine = (mod: { name: string; url: string | null }) => {
-    if (!mod.url) return `- Mirá esto: ${mod.name} _(Módulo en creación)_`
-    return `- Mirá esto: [${mod.name}](${mod.url})`
+  const modLine = (mod: { name: string; level: string }) => {
+    if (mod.level === "En creación") return `- Módulo: **${mod.name}** _(En creación)_`
+    return `- Módulo: **${mod.name}** — ${mod.level}`
   }
 
   const lines: string[] = ["# Mi Ecosistema — Diagnóstico", ""]
