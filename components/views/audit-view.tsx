@@ -607,7 +607,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
           </div>
 
           {/* Sections */}
-          <div className="relative max-h-[980px] overflow-y-auto px-5 py-6">
+          <div className="relative px-5 py-6">
             <div className="space-y-10">
               {flywheelSectionItems.map((group) => (
                 <section key={group.prefix} className="space-y-4">
