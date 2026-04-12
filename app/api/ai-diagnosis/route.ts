@@ -7,36 +7,36 @@ export const runtime = "nodejs"
 
 // ─── Module maps ──────────────────────────────────────────────────────────────
 
-const MODULES_MENOS20K: Record<string, { name: string; url: string }> = {
-  F1: { name: "Un Simple Post™ Diario",              url: "https://www.skool.com/strategy-consulting/classroom/6de08095" },
-  F2: { name: "El Ritmo Semanal / No Negociables",   url: "https://www.skool.com/strategy-consulting/classroom/552a38a7" },
-  F3: { name: "El Caracter Diamante™",               url: "https://www.skool.com/strategy-consulting/classroom/6de08095" },
-  F4: { name: "Optimizar Quick Cash DM™",            url: "https://www.skool.com/strategy-consulting/classroom/c886e8bf" },
-  E1: { name: "La Mini-Serie Youtube",               url: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75" },
-  E2: { name: "The Airtable CRM",                    url: "https://www.skool.com/strategy-consulting/classroom/552a38a7" },
-  E3: { name: "DM-To-Close™ System",                 url: "https://www.skool.com/strategy-consulting/classroom/cd022ec1" },
-  I1: { name: "El Modelo Mata Dolor™",               url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4" },
-  I2: { name: "Onboarding Mastery",                  url: "https://www.skool.com/strategy-consulting/classroom/552a38a7" },
-  I3: { name: "The Offer Doc",                       url: "https://www.skool.com/strategy-consulting/classroom/cd022ec1" },
-  T1: { name: "Market Intelligence",                 url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4" },
-  T2: { name: "Recolectar Casos de Exito",           url: "https://www.skool.com/strategy-consulting/classroom/6de08095" },
-  T3: { name: "Una Simple Oferta™",                  url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4" },
+const MODULES_MENOS20K: Record<string, { name: string; url: string | null }> = {
+  F1: { name: "La Ingeniera de un Simple Post",         url: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=3a570a586e744dedafdef91c419fe72d" },
+  F2: { name: "Los No Negociables Diarios",             url: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=c5c75f6311a645a5867f213dde41731b" },
+  F3: { name: "El Diamante de Autoridad & BIO",         url: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=5a91a467141640bf89bd4b13141181c6" },
+  F4: { name: "Quick Cash DM Ads",                      url: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=a201e7243ac44af4b58e721c7c455b42" },
+  E1: { name: "Mini-Serie Youtube Playbook",            url: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=5edbbfa66f1047a0a814f29e6dd236a0" },
+  E2: { name: "Airtable CRM y Base de Datos",           url: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=e40e73a9017a4d21a222c23cf1f15c16" },
+  E3: { name: "DM to Chat — Priorizacion de tu Pipeline", url: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=ad1eff5e3bc148dfb1fbaa577adad68c" },
+  I1: { name: "Tu Programa Matadolor™",                 url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=3114f6cc62a846a7a4f996697d45e075" },
+  I2: { name: "Onboarding Proceso",                     url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=6ab1072e74324d14b2b666f30f5a7092" },
+  I3: { name: "Tu Offer Doc",                           url: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=9bfa0b4c8323478ca0436e75aa3ad902" },
+  T1: { name: "Investigacion de Mercado",               url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=5517d71b489548e6aa1ed63890d0a600" },
+  T2: { name: "Recoleccion de Prueba Social",           url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=6b66e086de2f44feb598e4d7e8c9e0b9" },
+  T3: { name: "Una Simple Oferta | Blueprint",          url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=8ab64a0d4cf34a979f914fc2fd8eac62" },
 }
 
-const MODULES_MAS20K: Record<string, { name: string; url: string }> = {
-  F4: { name: "Lead Magnets Multiples",                             url: "https://www.skool.com/strategy-consulting/classroom/6de08095" },
-  F5: { name: "Ecosistema Circular Ads",                            url: "https://www.skool.com/strategy-consulting/classroom/6de08095" },
-  F6: { name: "Calendario de Contenido Mensual (Hooks validados)",  url: "https://www.skool.com/strategy-consulting/classroom/6de08095" },
-  F7: { name: "Optimizar QUICK DM ADS - Cash Menu™",               url: "https://www.skool.com/strategy-consulting/classroom/c886e8bf" },
-  E4: { name: "Marca Con Identidad™",                               url: "https://www.skool.com/strategy-consulting/classroom/6de08095" },
-  E5: { name: "Un Simple Video VSL™",                               url: "https://www.skool.com/strategy-consulting/classroom/cd022ec1" },
-  E6: { name: "Workshops DDE",                                      url: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75" },
-  I4: { name: "Como Lanzar Ofertas",                                url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4" },
-  I5: { name: "Experiencia World Class",                            url: "https://www.skool.com/strategy-consulting/classroom/552a38a7" },
-  I6: { name: "AI + Systems",                                       url: "https://www.skool.com/strategy-consulting/classroom/552a38a7" },
-  T4: { name: "The Group Keys",                                     url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4" },
-  T5: { name: "Contratando Jugadores A",                            url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4" },
-  T6: { name: "El Roadmap de la Escalabilidad",                     url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4" },
+const MODULES_MAS20K: Record<string, { name: string; url: string | null }> = {
+  F4: { name: "Lead Magnets Principales",                          url: "https://www.skool.com/strategy-consulting/classroom/b70c523e?md=a35dd1def5c94d88a226995aea444f33" },
+  F5: { name: "Un Simple Protocolo de Ads",                        url: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=2612acf4f7e64788b327f4568554abe0" },
+  F6: { name: "Productividad y Calendario Optimizado",             url: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=dde2660eda3e48b09383936180dd1e1b" },
+  F7: { name: "Quick Cash DM Ads",                                 url: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=a201e7243ac44af4b58e721c7c455b42" },
+  E4: { name: "El Blueprint de una Marca con Identidad",           url: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=cfd8870603c54aff944465e90f275111" },
+  E5: { name: "Un Simple Video (VSL)",                             url: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=0bbae3a1de594f5b958e7affe859a652" },
+  E6: { name: "Workshops DDE",                                     url: null },
+  I4: { name: "Creacion de Tu Simple Oferta",                      url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=65d7aa8ec4f4471a96c5fa4a134383e4" },
+  I5: { name: "Tu World Class Delivery",                           url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=169b8b019d194654a84f1a2415b4502c" },
+  I6: { name: "Nivel 8 — IA & Sistemas",                          url: "https://www.skool.com/strategy-consulting/classroom/70b44121?md=09194ec249794bc7b686ea1e7b5122c2" },
+  T4: { name: "Comunidad Solida",                                  url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=49c844ba2c644830be548a4e9fe015cb" },
+  T5: { name: "Formulario de Contratacion",                        url: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=293abb85bfe445c8b8bc265e7278471d" },
+  T6: { name: "SmartScale Roadmap",                                url: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=3038e1c85d064ea3af2e30952a1c71b6" },
 }
 
 // ─── Parse prompt → items per color ──────────────────────────────────────────
@@ -72,15 +72,19 @@ function buildDiagnosis(prompt: string, auditType: string): string {
 
   const lines: string[] = ["# Mapa de Ruta Smart Scale", ""]
 
+  const modLine = (prefix: string, mod: { name: string; url: string | null } | undefined) => {
+    if (!mod) return ""
+    if (!mod.url) return `- ${prefix}: ${mod.name} _(Módulo en creación)_`
+    return `- ${prefix}: [${mod.name}](${mod.url})`
+  }
+
   // ── En primer lugar (rojo) ──
   if (red.length > 0) {
     lines.push("## En primer lugar", "")
     for (const item of red) {
       const mod = modules[item.id]
       lines.push(`### ${item.id}: ${item.label}`)
-      if (mod) {
-        lines.push(`- Mirá esto: [${mod.name}](${mod.url})`)
-      }
+      if (mod) lines.push(modLine("Mirá esto", mod))
       lines.push("")
     }
   }
@@ -91,9 +95,7 @@ function buildDiagnosis(prompt: string, auditType: string): string {
     for (const item of orange) {
       const mod = modules[item.id]
       lines.push(`### ${item.id}: ${item.label}`)
-      if (mod) {
-        lines.push(`- Mirá esto: [${mod.name}](${mod.url})`)
-      }
+      if (mod) lines.push(modLine("Mirá esto", mod))
       lines.push("")
     }
   }
@@ -104,9 +106,7 @@ function buildDiagnosis(prompt: string, auditType: string): string {
     for (const item of green) {
       const mod = modules[item.id]
       lines.push(`### ${item.id}: ${item.label}`)
-      if (mod) {
-        lines.push(`- Seguí apoyándote en: [${mod.name}](${mod.url})`)
-      }
+      if (mod) lines.push(modLine("Seguí apoyándote en", mod))
       lines.push("")
     }
   }
