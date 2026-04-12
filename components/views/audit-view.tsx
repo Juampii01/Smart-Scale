@@ -594,7 +594,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                 ‹
               </button>
               <div>
-                <h2 className="text-[18px] font-semibold tracking-tight text-white">Score Your Flywheel</h2>
+                <h2 className="text-[18px] font-semibold tracking-tight text-white">Mi Ecosistema</h2>
               </div>
             </div>
 

@@ -64,51 +64,83 @@ function parsePrompt(prompt: string): ParsedAudit {
   return { red, orange, green }
 }
 
+// ─── Pillar metadata ──────────────────────────────────────────────────────────
+
+const PILLAR_META: Record<string, { name: string; focus: string }> = {
+  F: {
+    name: "FASCINAR",
+    focus: "Tu prioridad es construir autoridad y atraer audiencia de calidad. Sin una base sólida de atracción, la conversión y el delivery no tienen de dónde alimentarse.",
+  },
+  E: {
+    name: "EDUCAR",
+    focus: "Tu prioridad es fortalecer el seguimiento, tu lista de email y el sistema de conversión desde DMs. Tenés audiencia pero no estás convirtiendo todo su potencial.",
+  },
+  I: {
+    name: "INVITAR",
+    focus: "Tu prioridad es mejorar el onboarding y la entrega para que tus clientes logren resultados rápidos. La retención y los referidos dependen de esto.",
+  },
+  T: {
+    name: "TRANSFORMAR",
+    focus: "Tu prioridad es clarificar tu oferta y construir prueba social contundente. Sin esto, la atracción y la conversión pierden potencia.",
+  },
+}
+
 // ─── Build deterministic markdown ─────────────────────────────────────────────
 
 function buildDiagnosis(prompt: string, auditType: string): string {
   const modules = auditType === "mas20k" ? MODULES_MAS20K : MODULES_MENOS20K
   const { red, orange, green } = parsePrompt(prompt)
 
-  const lines: string[] = ["# Mapa de Ruta Smart Scale", ""]
+  // ── Identify primary bottleneck pillar ──
+  const pillarScore: Record<string, number> = { F: 0, E: 0, I: 0, T: 0 }
+  for (const item of red)    { const p = item.id[0]; if (p in pillarScore) pillarScore[p] += 2 }
+  for (const item of orange) { const p = item.id[0]; if (p in pillarScore) pillarScore[p] += 1 }
+  const primaryPillar = Object.entries(pillarScore).sort(([, a], [, b]) => b - a)[0]
 
-  const modLine = (prefix: string, mod: { name: string; url: string | null } | undefined) => {
-    if (!mod) return ""
-    if (!mod.url) return `- ${prefix}: ${mod.name} _(Módulo en creación)_`
-    return `- ${prefix}: [${mod.name}](${mod.url})`
+  const modLine = (mod: { name: string; url: string | null }) => {
+    if (!mod.url) return `- Mirá esto: ${mod.name} _(Módulo en creación)_`
+    return `- Mirá esto: [${mod.name}](${mod.url})`
   }
 
-  // ── En primer lugar (rojo) ──
+  const lines: string[] = ["# Mi Ecosistema — Diagnóstico", ""]
+
+  // ── Foco estratégico ──
+  if (primaryPillar && primaryPillar[1] > 0) {
+    const pillar = PILLAR_META[primaryPillar[0]]
+    lines.push("## Tu foco este trimestre", "")
+    lines.push(`**${pillar.name}** — ${pillar.focus}`)
+    lines.push("")
+  }
+
+  // ── Trabajar primero (rojo) ──
   if (red.length > 0) {
-    lines.push("## En primer lugar", "")
+    lines.push("## Trabajar primero", "")
     for (const item of red) {
       const mod = modules[item.id]
       lines.push(`### ${item.id}: ${item.label}`)
-      if (mod) lines.push(modLine("Mirá esto", mod))
+      if (mod) lines.push(modLine(mod))
       lines.push("")
     }
   }
 
-  // ── En segundo lugar (naranja) ──
+  // ── Fortalecer después (naranja) ──
   if (orange.length > 0) {
-    lines.push("## En segundo lugar", "")
+    lines.push("## Fortalecer después", "")
     for (const item of orange) {
       const mod = modules[item.id]
       lines.push(`### ${item.id}: ${item.label}`)
-      if (mod) lines.push(modLine("Mirá esto", mod))
+      if (mod) lines.push(modLine(mod))
       lines.push("")
     }
   }
 
-  // ── Felicitaciones (verde) ──
+  // ── Lo que ya funciona (verde) — sin links ──
   if (green.length > 0) {
-    lines.push("## Felicitaciones", "")
+    lines.push("## Lo que ya funciona", "")
     for (const item of green) {
-      const mod = modules[item.id]
-      lines.push(`### ${item.id}: ${item.label}`)
-      if (mod) lines.push(modLine("Seguí apoyándote en", mod))
-      lines.push("")
+      lines.push(`- **${item.id}:** ${item.label}`)
     }
+    lines.push("")
   }
 
   if (!red.length && !orange.length && !green.length) {
