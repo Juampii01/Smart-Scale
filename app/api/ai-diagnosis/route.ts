@@ -245,3 +245,40 @@ export async function POST(req: NextRequest) {
     )
   }
 }
+
+// ─── DELETE: eliminar auditoría ───────────────────────────────────────────────
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { request_id, user_id } = await req.json()
+    if (!request_id || !user_id) {
+      return NextResponse.json({ error: "Missing request_id or user_id" }, { status: 400 })
+    }
+
+    const supabase = getAdminSupabase()
+
+    // Delete result first (FK constraint)
+    await supabase
+      .from("ai_diagnosis_results")
+      .delete()
+      .eq("request_id", request_id)
+
+    // Delete request (verify ownership)
+    const { error } = await supabase
+      .from("ai_diagnosis_requests")
+      .delete()
+      .eq("id", request_id)
+      .eq("user_id", user_id)
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: "Internal server error", detail: error?.message || "Unknown error" },
+      { status: 500 }
+    )
+  }
+}

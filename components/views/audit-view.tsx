@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase"
 import { useActiveClient, useSelectedMonth } from "@/components/layout/dashboard-layout"
 import { useAnnualMetrics } from "@/contexts/annual-metrics-context"
 import { AiLoading } from "@/components/ui/ai-loading"
+import { Trash2 } from "lucide-react"
 
 // ─── Audit data ──────────────────────────────────────────────────────────────
 
@@ -248,6 +249,7 @@ export function AuditView() {
   const [userId, setUserId] = useState<string | null>(null)
   const [diagnosisHistory, setDiagnosisHistory] = useState<DiagnosisHistoryItem[]>([])
   const [loadingHistory, setLoadingHistory] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const activeClientId = useActiveClient()
   const selectedMonth = useSelectedMonth() ?? "2025-12"
   const { annualMetrics, loading: loadingAudit, error } = useAnnualMetrics()
@@ -441,6 +443,26 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
     }
     setAiResponse("El diagnóstico está tardando más de lo esperado. Intenta actualizar en unos minutos.")
     setLoading(false)
+  }
+
+  const handleDelete = async (requestId: string) => {
+    if (!userId) return
+    setDeletingId(requestId)
+    try {
+      await fetch("/api/ai-diagnosis", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ request_id: requestId, user_id: userId }),
+      })
+      setDiagnosisHistory(prev => prev.filter(i => i.request_id !== requestId))
+      // If the deleted diagnosis was the active one, clear it
+      setAiResponse(prev => {
+        const deleted = diagnosisHistory.find(i => i.request_id === requestId)
+        return deleted?.result && prev === deleted.result ? "" : prev
+      })
+    } finally {
+      setDeletingId(null)
+    }
   }
 
   const generateAIResponse = async () => {
@@ -792,6 +814,17 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                         <span className="ml-auto text-[10px] text-white/25 font-mono">
                           {formatDiagnosisDate(item.created_at)}
                         </span>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item.request_id)}
+                          disabled={deletingId === item.request_id}
+                          className="flex h-6 w-6 items-center justify-center rounded-lg text-white/25 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
+                          title="Eliminar auditoría"
+                        >
+                          {deletingId === item.request_id
+                            ? <span className="h-3 w-3 rounded-full border border-white/20 border-t-white/60 animate-spin" />
+                            : <Trash2 className="h-3 w-3" />}
+                        </button>
                       </div>
 
                       <div className="mb-3 text-[10px] text-white/25 font-mono break-all">
