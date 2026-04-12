@@ -679,6 +679,12 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
           <div className="relative flex flex-col gap-3 px-6 py-5 md:flex-row md:items-center">
             <button
+              onClick={autoSelectRandom}
+              className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-white/70 transition hover:bg-white/[0.08] hover:text-white"
+            >
+              Seleccionar respuestas al azar
+            </button>
+            <button
               onClick={generateAIResponse}
               disabled={loading}
               className="rounded-xl bg-[#ffde21] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] disabled:opacity-50"
