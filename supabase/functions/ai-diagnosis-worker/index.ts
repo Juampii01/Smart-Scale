@@ -122,34 +122,55 @@ Reglas obligatorias:
 - Cada punto debe ocupar poco espacio.
 - Debes seguir exactamente el orden pedido y no salirte de ahí.`
 
+  const auditType = request.audit_type ?? "menos20k"
+  const isMas20k = auditType === "mas20k"
+
+  const moduleMappingMenos20k = `MAPPEO EXACTO DE ITEMS → MÓDULOS (auditoría < $20k/mes):
+
+F1 → "Un Simple Post™ Diario" → https://www.skool.com/strategy-consulting/classroom/6de08095
+F2 → "El Ritmo Semanal / No Negociables" → https://www.skool.com/strategy-consulting/classroom/552a38a7
+F3 → "El Caracter Diamante™" → https://www.skool.com/strategy-consulting/classroom/6de08095
+F4 → "Optimizar Quick Cash DM™" → https://www.skool.com/strategy-consulting/classroom/c886e8bf
+E1 → "La Mini-Serie Youtube" → https://www.skool.com/strategy-consulting/classroom/3b5a1f75
+E2 → "The Airtable CRM" → https://www.skool.com/strategy-consulting/classroom/552a38a7
+E3 → "DM-To-Close™ System" → https://www.skool.com/strategy-consulting/classroom/cd022ec1
+I1 → "El Modelo Mata Dolor™" → https://www.skool.com/strategy-consulting/classroom/fb42ffd4
+I2 → "Onboarding Mastery" → https://www.skool.com/strategy-consulting/classroom/552a38a7
+I3 → "The Offer Doc" → https://www.skool.com/strategy-consulting/classroom/cd022ec1
+T1 → "Market Intelligence" → https://www.skool.com/strategy-consulting/classroom/fb42ffd4
+T2 → "Recolectar Casos de Exito" → https://www.skool.com/strategy-consulting/classroom/6de08095
+T3 → "Una Simple Oferta™" → https://www.skool.com/strategy-consulting/classroom/fb42ffd4`
+
+  const moduleMappingMas20k = `MAPPEO EXACTO DE ITEMS → MÓDULOS (auditoría > $20k/mes):
+
+F4 → "Lead Magnets Multiples" → https://www.skool.com/strategy-consulting/classroom/6de08095
+F5 → "Ecosistema Circular Ads" → https://www.skool.com/strategy-consulting/classroom/6de08095
+F6 → "Calendario de Contenido Mensual (Hooks validados)" → https://www.skool.com/strategy-consulting/classroom/6de08095
+F7 → "Optimizar QUICK DM ADS - Cash Menu™" → https://www.skool.com/strategy-consulting/classroom/c886e8bf
+E4 → "Marca Con Identidad™" → https://www.skool.com/strategy-consulting/classroom/6de08095
+E5 → "Un Simple Video VSL™" → https://www.skool.com/strategy-consulting/classroom/cd022ec1
+E6 → "Workshops DDE" → https://www.skool.com/strategy-consulting/classroom/3b5a1f75
+I4 → "Como Lanzar Ofertas" → https://www.skool.com/strategy-consulting/classroom/fb42ffd4
+I5 → "Experiencia World Class" → https://www.skool.com/strategy-consulting/classroom/552a38a7
+I6 → "AI + Systems" → https://www.skool.com/strategy-consulting/classroom/552a38a7
+T4 → "The Group Keys" → https://www.skool.com/strategy-consulting/classroom/fb42ffd4
+T5 → "Contratando Jugadores A" → https://www.skool.com/strategy-consulting/classroom/fb42ffd4
+T6 → "El Roadmap de la Escalabilidad" → https://www.skool.com/strategy-consulting/classroom/fb42ffd4`
+
+  const moduleMapping = isMas20k ? moduleMappingMas20k : moduleMappingMenos20k
+
   const userMessage = `AUDITORÍA RESPONDIDA POR EL USUARIO:
 ${request.prompt}
 
 ---
 
-MÓDULOS DEL PROGRAMA SMART SCALE (usá estos links exactos según el área):
+${moduleMapping}
 
-F — FLUJO Y CONTENIDO (seguidores, DMs, contenido corto):
-- Contenido corto, banco de ideas, calendario, historias de conversión, optimización de perfil → "Módulo Fascinación y Conexión" → https://www.skool.com/strategy-consulting/classroom/6de08095
-- Quick Cash DM, Cash Sprint, Cash Menu → "Módulo Quick Cash" → https://www.skool.com/strategy-consulting/classroom/c886e8bf
-- Hot List, prospectos 5 estrellas, No Negociables diarios → "Módulo Operación Diaria" → https://www.skool.com/strategy-consulting/classroom/552a38a7
-
-E — EMAIL, VENTAS Y ENGAGEMENT (email, DM Close, formato largo):
-- Email marketing, conectar dominio, lista → "Módulo Email y Comunidad" (Mes 1, Semana 4 del Checklist)
-- DM Close, pitch de ventas, flow de conversación → "Módulo DM Closing" → https://www.skool.com/strategy-consulting/classroom/cd022ec1
-- YouTube, formato largo, Marca Auténtica → "Módulo YouTube Mastery" → https://www.skool.com/strategy-consulting/classroom/3b5a1f75
-- Sistema de seguimiento de leads, Hot List → "Módulo Operación Diaria" → https://www.skool.com/strategy-consulting/classroom/552a38a7
-
-I — IMPLEMENTACIÓN Y CLIENTES (onboarding, entrega, capacidad):
-- Onboarding de clientes, primera victoria en 30 días → "Nivel 0 Onboarding" → https://www.skool.com/strategy-consulting/classroom/552a38a7
-- Sistemas para no ser el cuello de botella, escalar sin quemarse → "Módulo Operación Diaria" → https://www.skool.com/strategy-consulting/classroom/552a38a7
-- Checklist de implementación paso a paso → "Program Checklist en el Portal" → https://smartscale.app/program-checklist
-
-T — TRANSFORMACIÓN Y OFERTA (oferta, avatar, casos de éxito):
-- Oferta simple, avatar, investigación de mercado, roadmap → "Módulo Simple Offer" → https://www.skool.com/strategy-consulting/classroom/fb42ffd4
-- Offer Doc, VSL, propuesta de valor → "Módulo Offer Doc y VSL" → https://www.skool.com/strategy-consulting/classroom/cd022ec1
-- Casos de éxito, testimonios, historias de transformación → "Módulo Fascinación y Conexión" → https://www.skool.com/strategy-consulting/classroom/6de08095
-- Sistema operativo central, zona de genialidad → "Ann AI GPT" → https://chat.openai.com/g/g-695303d24ad08191955f15ba514cb456-descubre-tu-sistema-operativo-central
+INSTRUCCIÓN IMPORTANTE:
+- Para cada item que aparezca en la auditoría, usá EXACTAMENTE el nombre del módulo y el link del mappeo de arriba.
+- No uses otros módulos ni otros links. Solo los del mappeo.
+- Si el item está marcado como [ROJO] o [NARANJA], derivá al módulo correspondiente del mappeo.
+- Si el item está marcado como [VERDE], también referenciá el módulo correspondiente del mappeo.
 
 ---
 

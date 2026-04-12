@@ -47,6 +47,14 @@ const sections = [
   },
 ]
 
+/// Flywheel groups: prefix → section meta
+const flywheelGroups = [
+  { prefix: "F", title: "Fascinar",   description: "Atracción, contenido y crecimiento de audiencia", color: "text-violet-300", dotColor: "bg-violet-400", ringColor: "ring-violet-400/30" },
+  { prefix: "E", title: "Educar",     description: "Email, seguimiento y conversión",                  color: "text-sky-300",    dotColor: "bg-sky-400",    ringColor: "ring-sky-400/30" },
+  { prefix: "I", title: "Invitar",    description: "Onboarding, entrega y resultados del cliente",     color: "text-emerald-300",dotColor: "bg-emerald-400",ringColor: "ring-emerald-400/30" },
+  { prefix: "T", title: "Transformar",description: "Oferta, transformación y prueba social",           color: "text-amber-300",  dotColor: "bg-amber-400",  ringColor: "ring-amber-400/30" },
+]
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type DiagnosisHistoryItem = {
@@ -59,93 +67,105 @@ type DiagnosisHistoryItem = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+/** Splits text into segments: bold (**...**), markdown links ([text](url)), arrow links (→ url), plain text */
+function renderInline(text: string, key: string) {
+  // Combined regex: markdown link, bold, arrow+url, bare url
+  const TOKEN = /(\[([^\]]+)\]\((https?:\/\/[^\s)]+)\))|(\*\*(.+?)\*\*)|(→\s*(https?:\/\/\S+))|(https?:\/\/\S+)/g
+  const nodes: React.ReactNode[] = []
+  let last = 0
+  let m: RegExpExecArray | null
+
+  while ((m = TOKEN.exec(text)) !== null) {
+    if (m.index > last) nodes.push(<Fragment key={`t-${key}-${last}`}>{text.slice(last, m.index)}</Fragment>)
+
+    if (m[1]) {
+      // [label](url)
+      nodes.push(
+        <a key={`ml-${key}-${m.index}`} href={m[3]} target="_blank" rel="noreferrer"
+          className="inline-flex items-center gap-1 font-medium text-[#ffde21] hover:text-[#ffe46b] underline underline-offset-2 transition-colors">
+          {m[2]}
+        </a>
+      )
+    } else if (m[4]) {
+      // **bold**
+      nodes.push(<strong key={`b-${key}-${m.index}`} className="font-semibold text-white">{m[5]}</strong>)
+    } else if (m[6]) {
+      // → https://...
+      const url = m[7]
+      const label = url.replace(/^https?:\/\//, "").replace(/\/$/, "")
+      nodes.push(
+        <Fragment key={`arr-${key}-${m.index}`}>
+          {" → "}
+          <a href={url} target="_blank" rel="noreferrer"
+            className="inline-flex items-center gap-1 font-medium text-[#ffde21] hover:text-[#ffe46b] underline underline-offset-2 transition-colors">
+            {label}
+          </a>
+        </Fragment>
+      )
+    } else if (m[8]) {
+      // bare url
+      const url = m[8]
+      nodes.push(
+        <a key={`url-${key}-${m.index}`} href={url} target="_blank" rel="noreferrer"
+          className="font-medium text-[#ffde21] hover:text-[#ffe46b] underline underline-offset-2 transition-colors break-all">
+          {url.replace(/^https?:\/\//, "")}
+        </a>
+      )
+    }
+    last = m.index + m[0].length
+  }
+
+  if (last < text.length) nodes.push(<Fragment key={`t-${key}-end`}>{text.slice(last)}</Fragment>)
+  return nodes.length ? nodes : text
+}
+
 function renderDiagnosisContent(content: string) {
   const lines = content.split("\n")
 
   return lines.map((rawLine, index) => {
     const line = rawLine.trim()
+    const k = String(index)
 
-    if (!line) {
-      return <div key={`spacer-${index}`} className="h-3" />
-    }
-
-    if (line === "---") {
-      return <div key={`divider-${index}`} className="my-5 h-px w-full bg-white/10" />
-    }
+    if (!line) return <div key={`spacer-${k}`} className="h-3" />
+    if (line === "---") return <div key={`divider-${k}`} className="my-5 h-px w-full bg-white/10" />
 
     if (line.startsWith("# ")) {
-      return (
-        <h2
-          key={`h1-${index}`}
-          className="text-2xl font-semibold tracking-tight text-white md:text-3xl"
-        >
-          {line.replace(/^#\s+/, "")}
-        </h2>
-      )
+      return <h2 key={`h1-${k}`} className="text-2xl font-semibold tracking-tight text-white md:text-3xl">{renderInline(line.replace(/^#\s+/, ""), k)}</h2>
     }
 
     if (line.startsWith("## ")) {
       return (
-        <div key={`h2-wrap-${index}`} className="pt-3">
-          <h3 className="text-lg font-semibold uppercase tracking-[0.14em] text-white/80">
-            {line.replace(/^##\s+/, "")}
-          </h3>
+        <div key={`h2-${k}`} className="pt-3">
+          <h3 className="text-lg font-semibold uppercase tracking-[0.14em] text-white/80">{renderInline(line.replace(/^##\s+/, ""), k)}</h3>
           <div className="mt-2 h-px w-full bg-white/10" />
         </div>
       )
     }
 
     if (line.startsWith("### ")) {
-      return (
-        <h4 key={`h3-${index}`} className="pt-2 text-base font-semibold text-white">
-          {line.replace(/^###\s+/, "")}
-        </h4>
-      )
+      return <h4 key={`h3-${k}`} className="pt-2 text-base font-semibold text-white">{renderInline(line.replace(/^###\s+/, ""), k)}</h4>
     }
 
     if (line.startsWith("> ")) {
       return (
-        <div
-          key={`quote-${index}`}
-          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/70"
-        >
-          {line.replace(/^>\s+/, "")}
+        <div key={`quote-${k}`} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/70">
+          {renderInline(line.replace(/^>\s+/, ""), k)}
         </div>
       )
     }
 
     if (line.startsWith("- ")) {
       return (
-        <div key={`bullet-${index}`} className="flex items-start gap-3 text-sm leading-7 text-white/60">
+        <div key={`bullet-${k}`} className="flex items-start gap-3 text-sm leading-7 text-white/60">
           <span className="mt-2.5 h-1 w-1 rounded-full bg-[#ffde21]/60 flex-shrink-0" />
-          <span>{line.replace(/^-\s+/, "")}</span>
+          <span>{renderInline(line.replace(/^-\s+/, ""), k)}</span>
         </div>
       )
     }
 
-    if (line.startsWith("**") && line.endsWith("**") && line.length > 4) {
-      return (
-        <p key={`strong-${index}`} className="text-sm font-semibold leading-7 text-white">
-          {line.replace(/^\*\*/, "").replace(/\*\*$/, "")}
-        </p>
-      )
-    }
-
-    const parts = line.split(/(\*\*.*?\*\*)/g)
-
     return (
-      <p key={`p-${index}`} className="text-sm leading-7 text-white/60 md:text-[15px]">
-        {parts.map((part, partIndex) => {
-          if (/^\*\*.*\*\*$/.test(part)) {
-            return (
-              <strong key={`strong-inline-${index}-${partIndex}`} className="font-semibold text-white">
-                {part.slice(2, -2)}
-              </strong>
-            )
-          }
-
-          return <Fragment key={`text-${index}-${partIndex}`}>{part}</Fragment>
-        })}
+      <p key={`p-${k}`} className="text-sm leading-7 text-white/60 md:text-[15px]">
+        {renderInline(line, k)}
       </p>
     )
   })
@@ -199,6 +219,26 @@ function getStatusCopy(status: string) {
   return "Todavía en procesamiento"
 }
 
+function ScorePillButton({
+  label, bgActive, ringColor, active, onClick,
+}: {
+  label: string; bgActive: string; ringColor: string; active: boolean; onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-lg border px-4 py-1.5 text-[13px] font-medium transition-all duration-150 ${
+        active
+          ? `${bgActive} ${ringColor} border-transparent text-white`
+          : "border-white/[0.12] bg-white/[0.04] text-white/50 hover:border-white/20 hover:text-white/70"
+      }`}
+    >
+      {label}
+    </button>
+  )
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function AuditView() {
@@ -212,7 +252,26 @@ export function AuditView() {
   const selectedMonth = useSelectedMonth() ?? "2025-12"
   const { annualMetrics, loading: loadingAudit, error } = useAnnualMetrics()
   const annualRevenue = annualMetrics?.total_revenue ?? 0
-  const auditType: 'menos20k' | 'mas20k' = annualRevenue >= 20000 ? 'mas20k' : 'menos20k'
+  const [maxMonthlyRevenue, setMaxMonthlyRevenue] = useState<number>(0)
+
+  // Fetch max single-month revenue to decide audit tier (threshold: $20k/mes)
+  useEffect(() => {
+    if (!activeClientId) return
+    const fetchMax = async () => {
+      const supabase = createClient()
+      const { data } = await supabase
+        .from("monthly_reports")
+        .select("total_revenue")
+        .eq("client_id", activeClientId)
+        .order("total_revenue", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      setMaxMonthlyRevenue(Number((data as any)?.total_revenue) || 0)
+    }
+    fetchMax()
+  }, [activeClientId])
+
+  const auditType: 'menos20k' | 'mas20k' = maxMonthlyRevenue >= 20000 ? 'mas20k' : 'menos20k'
 
   const diagnosisContent = useMemo(() => {
     if (!aiResponse) return null
@@ -220,6 +279,21 @@ export function AuditView() {
   }, [aiResponse])
 
   const selectedAnswersCount = useMemo(() => Object.keys(scores).length, [scores])
+
+  const flywheelSectionItems = useMemo(() => {
+    const currentSection = sections.find((_, idx) =>
+      (auditType === "menos20k" && idx === 0) || (auditType === "mas20k" && idx === 1)
+    )
+
+    if (!currentSection) return []
+
+    return flywheelGroups
+      .map((group) => ({
+        ...group,
+        items: currentSection.items.filter((item) => item.id.startsWith(group.prefix)),
+      }))
+      .filter((group) => group.items.length > 0)
+  }, [auditType])
 
   const loadDiagnosisHistory = useCallback(async () => {
     if (!userId) {
@@ -466,12 +540,12 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
             </span>
             <span
               className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-semibold ${
-                annualRevenue >= 20000
+                auditType === 'mas20k'
                   ? 'bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-400/20'
                   : 'bg-amber-500/10 text-amber-300 ring-1 ring-amber-400/20'
               }`}
             >
-              {annualRevenue >= 20000 ? 'Más de $20k' : 'Menos de $20k'}
+              {auditType === 'mas20k' ? 'Más de $20k/mes' : 'Menos de $20k/mes'}
             </span>
           </div>
         </div>
@@ -480,72 +554,72 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
       {loadingAudit ? (
         <p className="text-white/40 text-sm">Cargando tipo de auditoría…</p>
       ) : (
-        <>
-          {sections
-            .filter((section, idx) =>
-              (auditType === 'menos20k' && idx === 0) || (auditType === 'mas20k' && idx === 1)
-            )
-            .map((section) => (
-              <div key={section.title} className="space-y-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="h-3 w-[2px] rounded-full bg-[#ffde21]/60" />
-                  <h2 className="text-xs font-semibold uppercase tracking-widest text-white/45">
-                    {section.title}
-                  </h2>
-                </div>
+        <div className="relative overflow-hidden rounded-[28px] border border-white/[0.07] bg-[#17171a] shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.015),transparent_55%)]" />
 
-                {section.items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] transition-all duration-200 hover:border-white/15"
-                  >
-                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.02),transparent_60%)]" />
-                    <div className="relative flex items-center justify-between gap-6 p-5">
-                      <div>
-                        <div className="text-[10px] font-semibold uppercase tracking-widest text-white/30 mb-1">{item.id}</div>
-                        <div className="text-sm text-white/70">{item.label}</div>
-                      </div>
-                      <div className="flex gap-5 flex-shrink-0">
-                        <div className="flex flex-col items-center gap-1.5">
-                          <span className="text-[10px] text-white/30 uppercase tracking-wider">No está</span>
-                          <button
-                            onClick={() => setStatus(item.id, "red")}
-                            className={`w-7 h-7 rounded-full transition-all duration-200 ${
-                              scores[item.id] === "red"
-                                ? "bg-red-500 scale-110 ring-2 ring-red-400/50"
-                                : "bg-white/[0.06] hover:bg-red-500/60"
-                            }`}
-                          />
-                        </div>
-                        <div className="flex flex-col items-center gap-1.5">
-                          <span className="text-[10px] text-white/30 uppercase tracking-wider">Parcial</span>
-                          <button
-                            onClick={() => setStatus(item.id, "yellow")}
-                            className={`w-7 h-7 rounded-full transition-all duration-200 ${
-                              scores[item.id] === "yellow"
-                                ? "bg-[#ffde21] scale-110 ring-2 ring-[#ffde21]/50"
-                                : "bg-white/[0.06] hover:bg-[#ffde21]/60"
-                            }`}
-                          />
-                        </div>
-                        <div className="flex flex-col items-center gap-1.5">
-                          <span className="text-[10px] text-white/30 uppercase tracking-wider">Sí está</span>
-                          <button
-                            onClick={() => setStatus(item.id, "green")}
-                            className={`w-7 h-7 rounded-full transition-all duration-200 ${
-                              scores[item.id] === "green"
-                                ? "bg-emerald-500 scale-110 ring-2 ring-emerald-400/50"
-                                : "bg-white/[0.06] hover:bg-emerald-500/60"
-                            }`}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+          {/* Modal-style header */}
+          <div className="relative flex items-center justify-between border-b border-white/[0.05] px-6 py-5">
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.03] text-lg text-white/55"
+              >
+                ‹
+              </button>
+              <div>
+                <h2 className="text-[18px] font-semibold tracking-tight text-white">Score Your Flywheel</h2>
               </div>
-            ))}
-        </>
+            </div>
+
+            <button
+              type="button"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.03] text-xl leading-none text-white/55"
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Sections */}
+          <div className="relative max-h-[980px] overflow-y-auto px-5 py-6">
+            <div className="space-y-10">
+              {flywheelSectionItems.map((group) => (
+                <section key={group.prefix} className="space-y-4">
+                  <div className="px-1">
+                    <h3 className="text-[15px] font-bold uppercase tracking-[0.16em] text-white/88">
+                      {group.title.toUpperCase()}
+                    </h3>
+                  </div>
+
+                  <div className="space-y-3">
+                    {group.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="rounded-2xl border border-white/[0.07] bg-[#0f1012] px-5 py-4 space-y-3"
+                      >
+                        {/* ID + statement */}
+                        <div className="flex items-start gap-3">
+                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.05] px-2 text-[12px] font-bold text-[#ffde21] flex-shrink-0">
+                            {item.id}
+                          </span>
+                          <p className="text-[14px] leading-snug text-white/80 pt-0.5">
+                            {item.label}
+                          </p>
+                        </div>
+
+                        {/* Color pills */}
+                        <div className="flex gap-2">
+                          <ScorePillButton label="Rojo"   bgActive="bg-red-600"    ringColor="ring-1 ring-red-500/50"    active={scores[item.id] === "red"}    onClick={() => setStatus(item.id, "red")} />
+                          <ScorePillButton label="Naranja" bgActive="bg-orange-500" ringColor="ring-1 ring-orange-400/50" active={scores[item.id] === "yellow"} onClick={() => setStatus(item.id, "yellow")} />
+                          <ScorePillButton label="Verde"   bgActive="bg-emerald-600" ringColor="ring-1 ring-emerald-500/50" active={scores[item.id] === "green"}  onClick={() => setStatus(item.id, "green")} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Controls */}
@@ -570,7 +644,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                   {selectedAnswersCount} respuestas
                 </span>
                 <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white/40">
-                  {annualRevenue >= 20000 ? "Audit +20k" : "Audit -20k"}
+                  {auditType === 'mas20k' ? "Audit +$20k" : "Audit -$20k"}
                 </span>
               </div>
             </div>
