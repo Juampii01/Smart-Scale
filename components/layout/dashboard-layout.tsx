@@ -12,6 +12,17 @@ import { Sidebar } from "@/components/layout/sidebar"
 import { AnnualMetricsProvider } from "@/contexts/annual-metrics-context"
 import { NavigationProgress } from "@/components/ui/navigation-progress"
 
+declare global {
+  interface Window {
+    __DEBUG_DASHBOARD_CTX?: {
+      activeClientId: string | null
+      ownClientId: string | null
+      userRole: string | null
+      userEmail: string | null
+    }
+  }
+}
+
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Performance Center",
   "/channels": "Channels",
@@ -31,7 +42,6 @@ const PAGE_TITLES: Record<string, string> = {
   "/report-input": "Reporte Mensual",
   "/report-history": "Historial de Reportes",
   "/chi-chang": "Cha-Ching 💰",
-  "/competitor-research": "Competitor Research",
   "/transcript": "Transcript de Videos",
 }
 

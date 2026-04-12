@@ -20,6 +20,7 @@ const FIELD_GROUPS = [
       { key: "ad_spend",        label: "Inversión en Ads",    type: "number", hint: "USD" },
       { key: "software_costs",  label: "Costos de Software",  type: "number", hint: "USD" },
       { key: "variable_costs",  label: "Costos Variables",    type: "number", hint: "USD" },
+      { key: "nps_score",       label: "NPS Score",           type: "number", hint: "-100 a 100", min: -100 },
     ],
   },
   {
@@ -394,7 +395,7 @@ export function ReportInputView() {
                         value={values[field.key] ?? ""}
                         onChange={(e) => setValue(field.key, e.target.value)}
                         placeholder="0"
-                        min={0}
+                        min={"min" in field ? field.min : 0}
                         step="any"
                         className={`w-full rounded-xl border px-3 py-2 text-sm font-semibold text-white placeholder:text-white/20 focus:outline-none focus:ring-1 ${
                           isHighlight

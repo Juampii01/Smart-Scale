@@ -194,68 +194,76 @@ function AnalysisCard({ item, onDelete, deletingId }: {
 }) {
   const [expanded, setExpanded] = useState(false)
   const isInstagram = item.platform === "instagram"
-  const isRunning = false // All saved items are complete
+
+  const dateStr = new Date(item.created_at).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
 
   return (
-    <div className="rounded-2xl border border-white/[0.07] bg-[#111113] overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-white/[0.07] bg-[#141416]">
       {/* Header row */}
       <div className="flex items-center gap-4 px-5 py-4">
-        {/* Icon */}
-        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border overflow-hidden ${isInstagram ? "bg-pink-500/10 border-pink-500/15" : "bg-red-500/10 border-red-500/15"}`}>
-          {item.channel_avatar
-            ? <img src={item.channel_avatar} alt="" className="w-full h-full object-cover" />
-            : isInstagram ? <Instagram className="h-4 w-4 text-pink-400" /> : <Youtube className="h-4 w-4 text-red-400" />}
+        {/* Platform icon */}
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/[0.07] bg-[#1c1c1f]">
+          {isInstagram
+            ? <Instagram className="h-[18px] w-[18px] text-[#ffde21]" />
+            : <Youtube className="h-[18px] w-[18px] text-[#ffde21]" />}
         </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${isInstagram ? "bg-pink-500/10 text-pink-400 border border-pink-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
-              {isInstagram ? "Instagram" : "YouTube"}
+            <span className="text-[15px] font-semibold text-white">
+              {isInstagram ? "Instagram" : "Youtube"}
             </span>
-            <span className="text-sm font-semibold text-white truncate">
-              {item.channel_name || ""}
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-400">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 inline-block" />
-              Complete
+              Completado
             </span>
           </div>
-          <p className="text-[11px] text-white/30 mt-0.5 tabular-nums">
-            {new Date(item.created_at).toLocaleDateString("es-AR", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-            {" · "}Last {item.timeframe_days} days
+          {item.channel_name && (
+            <p className="mt-0.5 text-[13px] font-medium text-white/70 truncate">{item.channel_name}</p>
+          )}
+          <p className="mt-0.5 text-[12px] text-white/35 truncate">
+            {dateStr}
+            <span className="mx-1.5">-</span>
+            Últimos {item.timeframe_days} días
+            {item.videos?.length > 0 && (
+              <span className="ml-1.5 text-white/20">· {item.videos.length} videos</span>
+            )}
           </p>
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-2 shrink-0">
-          <a href={item.channel_url} target="_blank" rel="noopener noreferrer"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.07] text-white/25 hover:text-white hover:border-white/20 transition-all">
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
-          <button onClick={() => onDelete(item.id)} disabled={deletingId === item.id}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.07] text-white/25 hover:text-red-400 hover:border-red-500/30 hover:bg-red-500/[0.08] transition-all disabled:opacity-40">
+          <button
+            onClick={() => onDelete(item.id)}
+            disabled={deletingId === item.id}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-white/25 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
+          >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => setExpanded(v => !v)}
-            className="flex items-center gap-2 h-8 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 text-xs font-semibold text-white/60 hover:text-white hover:border-white/20 transition-all"
+            className="flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 py-2 text-[13px] font-medium text-white/70 hover:bg-white/[0.07] hover:text-white transition-all"
           >
-            View Results
+            Ver Resultados
             {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
         </div>
       </div>
 
       {/* Expanded: videos table */}
-      {expanded && item.videos?.length > 0 && (
-        <div className="border-t border-white/[0.05] bg-[#0c0c0d]/40">
-          <ResultsTable videos={item.videos} channelName={item.channel_name} platform={item.platform ?? "youtube"} />
-        </div>
-      )}
-      {expanded && (!item.videos || item.videos.length === 0) && (
-        <div className="border-t border-white/[0.05] px-6 py-8 text-center text-sm text-white/25">
-          No hay videos en este análisis.
+      {expanded && (
+        <div className="border-t border-white/[0.05] bg-[#0f0f11]">
+          {item.videos?.length > 0
+            ? <ResultsTable videos={item.videos} channelName={item.channel_name} platform={item.platform ?? "youtube"} />
+            : <div className="px-6 py-8 text-center text-sm text-white/25">No hay videos en este análisis.</div>
+          }
         </div>
       )}
     </div>
@@ -326,98 +334,123 @@ function CompetitorResearchContent() {
   }
 
   return (
-    <div className="px-4 py-8 max-w-5xl mx-auto space-y-6">
+    <div className="px-6 py-10 max-w-6xl mx-auto space-y-8">
 
       {/* ── New Analysis form ── */}
-      <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#111113]">
-        {/* Header */}
-        <div className="flex items-center gap-3 border-b border-white/[0.06] px-6 py-5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
-            <Search className="h-4 w-4 text-white/50" />
-          </div>
-          <h2 className="text-base font-bold text-white">New Analysis</h2>
+      <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#141416]">
+        <div className="flex items-center gap-3 px-6 py-5">
+          <Search className="h-4 w-4 text-white/50 shrink-0" />
+          <h2 className="text-[15px] font-bold text-white">Nuevo Análisis</h2>
         </div>
 
-        <div className="p-6 space-y-5">
-          {/* Platform + Timeframe dropdowns */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-white/55 uppercase tracking-widest mb-2">Platform</label>
+        <div className="border-t border-white/[0.06] px-6 py-6 space-y-5">
+          {/* Platform + Timeframe */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="block text-[13px] font-medium text-white/50">Plataforma</label>
               <div className="relative">
-                <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2">
-                  {platform === "youtube" ? <Youtube className="h-4 w-4 text-red-400" /> : <Instagram className="h-4 w-4 text-pink-400" />}
-                </div>
-                <select value={platform} onChange={e => { setPlatform(e.target.value as any); setChannelUrl(""); setError(null) }}
+                <select
+                  value={platform}
+                  onChange={e => { setPlatform(e.target.value as any); setChannelUrl(""); setError(null) }}
                   disabled={loading}
-                  className="h-11 w-full rounded-xl border border-white/[0.08] bg-[#0c0c0d] pl-10 pr-10 text-sm text-white/80 focus:border-[#ffde21]/40 focus:outline-none appearance-none cursor-pointer disabled:opacity-60">
+                  className="h-11 w-full rounded-xl border border-white/[0.08] bg-[#1c1c1f] px-4 pr-10 text-sm text-white/80 focus:border-white/20 focus:outline-none appearance-none cursor-pointer disabled:opacity-60"
+                >
                   <option value="youtube">YouTube</option>
                   <option value="instagram">Instagram</option>
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
               </div>
             </div>
-            <div>
-              <label className="block text-xs font-bold text-white/55 uppercase tracking-widest mb-2">Timeframe</label>
+
+            <div className="space-y-2">
+              <label className="block text-[13px] font-medium text-white/50">Período</label>
               <div className="relative">
-                <select value={timeframe} onChange={e => setTimeframe(Number(e.target.value) as any)}
+                <select
+                  value={timeframe}
+                  onChange={e => setTimeframe(Number(e.target.value) as any)}
                   disabled={loading}
-                  className="h-11 w-full rounded-xl border border-white/[0.08] bg-[#0c0c0d] px-4 pr-10 text-sm text-white/80 focus:border-[#ffde21]/40 focus:outline-none appearance-none cursor-pointer disabled:opacity-60">
-                  <option value={30}>Last 30 days</option>
-                  <option value={60}>Last 60 days</option>
-                  <option value={90}>Last 90 days</option>
+                  className="h-11 w-full rounded-xl border border-white/[0.08] bg-[#1c1c1f] px-4 pr-10 text-sm text-white/80 focus:border-white/20 focus:outline-none appearance-none cursor-pointer disabled:opacity-60"
+                >
+                  <option value={30}>Últimos 30 días</option>
+                  <option value={60}>Últimos 60 días</option>
+                  <option value={90}>Últimos 90 días</option>
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
               </div>
             </div>
           </div>
 
-          {/* Competitor URL */}
-          <div>
-            <label className="block text-xs font-bold text-white/55 uppercase tracking-widest mb-2">Competitor URL</label>
-            <form onSubmit={handleSubmit} className="space-y-3">
+          {/* URL + Submit */}
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="space-y-2">
+              <label className="block text-[13px] font-medium text-white/50">URL del Competidor</label>
               <input
                 type="url"
                 value={channelUrl}
                 onChange={e => { setChannelUrl(e.target.value); setError(null) }}
-                placeholder={platform === "youtube" ? "https://www.youtube.com/@channel" : "https://www.instagram.com/username/"}
-                className="h-11 w-full rounded-xl border border-white/[0.08] bg-[#0c0c0d] px-4 text-sm text-white placeholder:text-white/20 focus:border-[#ffde21]/50 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20 transition-all"
+                placeholder={platform === "youtube" ? "Ingresá la URL del canal de YouTube..." : "Ingresá la URL del perfil de Instagram..."}
+                className="h-11 w-full rounded-xl border border-white/[0.08] bg-[#1c1c1f] px-4 text-sm text-white placeholder:text-white/25 focus:border-white/20 focus:outline-none transition-all"
                 disabled={loading}
               />
-              <p className="text-xs text-white/25">One competitor profile per submission</p>
-              <button type="submit" disabled={!channelUrl.trim() || loading}
-                className="flex items-center gap-2 h-11 rounded-xl bg-[#ffde21] px-6 text-sm font-bold text-black hover:bg-[#ffe46b] disabled:opacity-40 transition">
-                {loading
-                  ? <><span className="h-3.5 w-3.5 rounded-full border-2 border-black/30 border-t-black animate-spin" /> Submitting…</>
-                  : "Submit"}
-              </button>
-            </form>
-          </div>
+              <p className="text-[12px] text-white/30">Un perfil de competidor por envío</p>
+            </div>
 
-          {error && <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>}
+            <button
+              type="submit"
+              disabled={!channelUrl.trim() || loading}
+              className="inline-flex items-center gap-2 h-10 rounded-xl bg-[#ffde21] px-5 text-sm font-bold text-black hover:bg-[#ffe46b] disabled:opacity-40 transition"
+            >
+              {loading ? (
+                <>
+                  <span className="h-3.5 w-3.5 rounded-full border-2 border-black/30 border-t-black animate-spin" />
+                  Iniciando...
+                </>
+              ) : (
+                <>
+                  <Search className="h-3.5 w-3.5" />
+                  Iniciar análisis
+                </>
+              )}
+            </button>
+          </form>
+
+          {error && (
+            <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+              {error}
+            </div>
+          )}
         </div>
 
         {loading && (
           <div className="border-t border-white/[0.05]">
-            <AiLoading title="Investigando canal"
-              steps={["Resolviendo canal…", "Obteniendo videos recientes…", "Analizando métricas…", "Seleccionando top 5…", "Generando análisis con IA…"]} />
+            <AiLoading
+              title="Investigando competidor"
+              steps={[
+                "Resolviendo canal…",
+                "Obteniendo videos recientes…",
+                "Analizando métricas…",
+                "Seleccionando los mejores resultados…",
+                "Generando insights con IA…",
+              ]}
+            />
           </div>
         )}
       </div>
 
       {/* ── Your Analyses ── */}
-      <div className="space-y-3">
-        <h2 className="text-base font-bold text-white px-1">Your Analyses</h2>
+      <div className="space-y-4">
+        <h2 className="text-[15px] font-bold text-white px-1">Tus Análisis</h2>
 
         {historyLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/10 border-t-white/40" />
           </div>
         ) : history.length === 0 ? (
-          <div className="rounded-2xl border border-white/[0.07] bg-[#111113] px-6 py-14 flex flex-col items-center gap-3">
+          <div className="rounded-[24px] border border-white/[0.07] bg-[#111113] px-6 py-16 flex flex-col items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.03]">
               <Search className="h-5 w-5 text-white/20" />
             </div>
-            <p className="text-sm text-white/30">No analyses yet. Submit a competitor URL above to get started.</p>
+            <p className="text-sm text-white/30">Todavía no hay análisis. Iniciá un análisis de competidor arriba para empezar.</p>
           </div>
         ) : (
           <div className="space-y-3">

@@ -138,7 +138,7 @@ export function SalesView() {
             .maybeSingle(),
           supabase
             .from("monthly_reports")
-            .select("month,scheduled_calls,attended_calls,new_clients,offer_docs_sent,cierres_por_offerdoc")
+            .select("month,scheduled_calls,attended_calls,new_clients,offer_docs_sent,offer_docs_responded,cierres_por_offerdoc,aplications")
             .eq("client_id", activeClientId)
             .order("month", { ascending: true })
             .limit(12),
@@ -151,11 +151,13 @@ export function SalesView() {
           setData(curRes.data ?? null)
           setHistory(
             (histRes.data ?? []).map(r => ({
-              month:    fmtMonth(r.month),
-              agendadas: Number(r.scheduled_calls) || 0,
-              atendidas: Number(r.attended_calls)  || 0,
-              cierres:   Number(r.new_clients)     || 0,
-              offerdocs: Number(r.cierres_por_offerdoc) || 0,
+              month:        fmtMonth(r.month),
+              agendadas:    Number(r.scheduled_calls)      || 0,
+              atendidas:    Number(r.attended_calls)       || 0,
+              cierres:      Number(r.new_clients)          || 0,
+              odEnviados:   Number(r.offer_docs_sent)      || 0,
+              odRespondidos:Number(r.offer_docs_responded) || 0,
+              odCierres:    Number(r.cierres_por_offerdoc) || 0,
             }))
           )
           setLoading(false)
@@ -310,7 +312,6 @@ export function SalesView() {
             <p className="text-xs text-white/35 mt-0.5">¿El pipeline está creciendo o deteriorándose?</p>
           </div>
           <div className="rounded-2xl border border-white/[0.07] bg-[#111113] p-6">
-            {/* Legend */}
             <div className="flex flex-wrap gap-5 mb-5">
               {[
                 { label: "Agendadas", color: "#818cf8" },
@@ -336,6 +337,45 @@ export function SalesView() {
                 <Bar dataKey="agendadas" name="Agendadas" fill="#818cf8" fillOpacity={0.7} radius={[3,3,0,0]} maxBarSize={32} />
                 <Line dataKey="atendidas" name="Atendidas" stroke="#60a5fa" strokeWidth={2.5} dot={{ fill: "#60a5fa", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
                 <Line dataKey="cierres"   name="Cierres"   stroke="#4ade80" strokeWidth={2.5} dot={{ fill: "#4ade80", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+      )}
+
+      {/* ── Offer Doc trend ── */}
+      {history.length >= 2 && (
+        <section className="space-y-4">
+          <div>
+            <h3 className="text-base font-bold text-white">Tendencia de Offer Docs</h3>
+            <p className="text-xs text-white/35 mt-0.5">Evolución mensual del pipeline de Offer Docs</p>
+          </div>
+          <div className="rounded-2xl border border-white/[0.07] bg-[#111113] p-6">
+            <div className="flex flex-wrap gap-5 mb-5">
+              {[
+                { label: "OD Enviados",    color: "#60a5fa" },
+                { label: "OD Respondidos", color: "#4ade80" },
+                { label: "Cierres x OD",   color: "#ffde21" },
+              ].map(l => (
+                <div key={l.label} className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: l.color }} />
+                  <span className="text-[11px] text-white/50">{l.label}</span>
+                </div>
+              ))}
+            </div>
+            <ResponsiveContainer width="100%" height={240}>
+              <ComposedChart data={history} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
+                <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <XAxis dataKey="month" stroke="transparent" tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }} tickLine={false} axisLine={false} />
+                <YAxis stroke="transparent" tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }} tickLine={false} axisLine={false} width={32} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#0f0f10", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", padding: "10px 14px" }}
+                  labelStyle={{ color: "#fff", fontWeight: 700, fontSize: 12 }}
+                  itemStyle={{ fontSize: 13, fontWeight: 600 }}
+                />
+                <Bar dataKey="odEnviados"    name="OD Enviados"    fill="#60a5fa" fillOpacity={0.7} radius={[3,3,0,0]} maxBarSize={32} />
+                <Line dataKey="odRespondidos" name="OD Respondidos" stroke="#4ade80" strokeWidth={2.5} dot={{ fill: "#4ade80", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+                <Line dataKey="odCierres"     name="Cierres x OD"  stroke="#ffde21" strokeWidth={2.5} dot={{ fill: "#ffde21", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
