@@ -20,7 +20,6 @@ const FIELD_GROUPS = [
       { key: "ad_spend",        label: "Inversión en Ads",    type: "number", hint: "USD" },
       { key: "software_costs",  label: "Costos de Software",  type: "number", hint: "USD" },
       { key: "variable_costs",  label: "Costos Variables",    type: "number", hint: "USD" },
-      { key: "nps_score",       label: "NPS — ¿Del 1 al 10, cuánto recomendarías Smart Scale?", type: "number", hint: "1 a 10", min: 1 },
     ],
   },
   {
@@ -77,10 +76,11 @@ const FIELD_GROUPS = [
     label: "Reflection",
     color: "bg-white/30",
     fields: [
-      { key: "biggest_win",    label: "Mayor Logro del Mes", type: "text" },
-      { key: "next_focus",     label: "Próximo Enfoque",     type: "text" },
-      { key: "support_needed", label: "Soporte Necesario",   type: "text" },
-      { key: "improvements",   label: "Mejoras",             type: "text" },
+      { key: "biggest_win",    label: "Mayor Logro del Mes",                                    type: "text" },
+      { key: "next_focus",     label: "Próximo Enfoque",                                        type: "text" },
+      { key: "support_needed", label: "Soporte Necesario",                                      type: "text" },
+      { key: "improvements",   label: "Mejoras",                                                type: "text" },
+      { key: "nps_score",      label: "¿Del 1 al 10, cuánto recomendarías Smart Scale?",        type: "number", hint: "1 a 10", min: 1 },
     ],
   },
 ] as const
