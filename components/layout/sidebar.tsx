@@ -144,10 +144,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                             )}
                           >
                             <item.icon
-                              className={cn(
-                                "h-[14px] w-[14px] flex-shrink-0 transition-colors",
-                                isActive ? "text-[#ffde21]" : "text-white/40"
-                              )}
+                              className="h-[14px] w-[14px] flex-shrink-0 text-[#ffde21]"
                             />
                             <span className={cn(
                               "text-[13px] leading-none",

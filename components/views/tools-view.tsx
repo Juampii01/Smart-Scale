@@ -157,6 +157,13 @@ export function ToolsView() {
             href:
               "https://chatgpt.com/g/g-69aef7270b348191b697c282ca70772b-offer-doc-builder",
           },
+          {
+            name: "Copywriter de Video a Carrusel",
+            description:
+              "GPT para convertir videos en carruseles listos para publicar, con copy optimizado para Instagram.",
+            href:
+              "https://chatgpt.com/g/g-69cde322c25c819182cb9207bce35a92-video-a-carrousel-copywriter-smart-scaletm",
+          },
         ]}
       />
       <ToolsSection
