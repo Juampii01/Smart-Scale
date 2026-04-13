@@ -140,7 +140,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                               "flex items-center gap-2.5 rounded-lg px-3 py-[7px] transition-all duration-150",
                               isActive
                                 ? "bg-white/[0.07] text-[#ffde21]"
-                                : "text-white/55 hover:bg-white/[0.05] hover:text-white/85"
+                                : "text-white/80 hover:bg-white/[0.05] hover:text-white"
                             )}
                           >
                             <item.icon
