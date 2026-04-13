@@ -80,7 +80,7 @@ const FIELD_GROUPS = [
       { key: "next_focus",     label: "Próximo Enfoque",                                        type: "text" },
       { key: "support_needed", label: "Soporte Necesario",                                      type: "text" },
       { key: "improvements",   label: "Mejoras",                                                type: "text" },
-      { key: "nps_score",      label: "¿Del 1 al 10, cuánto recomendarías Smart Scale?",        type: "number", hint: "1 a 10", min: 1 },
+      { key: "nps_score",      label: "¿Recomendarías Smart Scale?",  type: "number", hint: "del 1 al 10", min: 1, max: 10 },
     ],
   },
 ] as const
@@ -373,6 +373,44 @@ export function ReportInputView() {
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
               {group.fields.map((field) => {
                 const isHighlight = "highlight" in field && field.highlight
+                const isNps = field.key === "nps_score"
+
+                if (isNps) {
+                  return (
+                    <div key={field.key} className="sm:col-span-2 lg:col-span-3 flex flex-col gap-2 rounded-2xl border border-[#ffde21]/15 bg-[#ffde21]/[0.03] p-5">
+                      <label className="text-xs font-semibold uppercase tracking-widest text-white/65">
+                        {field.label}
+                        <span className="ml-1.5 text-white/35 normal-case tracking-normal font-normal">— del 1 al 10</span>
+                      </label>
+                      <div className="flex items-center gap-3 flex-wrap">
+                        {[1,2,3,4,5,6,7,8,9,10].map((n) => (
+                          <button
+                            key={n}
+                            type="button"
+                            onClick={() => setValue(field.key, String(n))}
+                            className={`h-10 w-10 rounded-xl text-sm font-bold transition-all ${
+                              values[field.key] === String(n)
+                                ? "bg-[#ffde21] text-black"
+                                : "border border-white/[0.08] bg-white/[0.03] text-white/50 hover:border-[#ffde21]/30 hover:text-white"
+                            }`}
+                          >
+                            {n}
+                          </button>
+                        ))}
+                        {values[field.key] && (
+                          <button
+                            type="button"
+                            onClick={() => setValue(field.key, "")}
+                            className="ml-2 text-xs text-white/25 hover:text-white/50 transition-colors"
+                          >
+                            limpiar
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )
+                }
+
                 return (
                   <div key={field.key} className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold uppercase tracking-widest text-white/65">
@@ -397,10 +435,10 @@ export function ReportInputView() {
                         placeholder="0"
                         min={"min" in field ? field.min : 0}
                         step="any"
-                        className={`w-full rounded-xl border px-3 py-2 text-sm font-semibold text-white placeholder:text-white/20 focus:outline-none focus:ring-1 ${
+                        className={`w-full rounded-xl border px-3 py-2 text-base font-semibold text-white placeholder:text-white/20 focus:outline-none focus:ring-1 ${
                           isHighlight
-                            ? "border-[#ffde21]/20 bg-[#ffde21]/[0.04] focus:border-[#ffde21]/40 focus:ring-[#ffde21]/20 text-base"
-                            : "border-white/[0.08] bg-white/[0.04] focus:border-[#ffde21]/40 focus:ring-[#ffde21]/20 text-base"
+                            ? "border-[#ffde21]/20 bg-[#ffde21]/[0.04] focus:border-[#ffde21]/40 focus:ring-[#ffde21]/20"
+                            : "border-white/[0.08] bg-white/[0.04] focus:border-[#ffde21]/40 focus:ring-[#ffde21]/20"
                         }`}
                       />
                     )}
