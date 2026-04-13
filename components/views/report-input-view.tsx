@@ -80,7 +80,7 @@ const FIELD_GROUPS = [
       { key: "next_focus",     label: "Próximo Enfoque",                                        type: "text" },
       { key: "support_needed", label: "Soporte Necesario",                                      type: "text" },
       { key: "improvements",   label: "Mejoras",                                                type: "text" },
-      { key: "nps_score",      label: "¿Recomendarías Smart Scale?",  type: "number", hint: "del 1 al 10", min: 1, max: 10 },
+      { key: "nps_score",      label: "¿Cuánto recomendarías Smart Scale?",  type: "number", hint: "del 1 al 10", min: 1, max: 10 },
     ],
   },
 ] as const
