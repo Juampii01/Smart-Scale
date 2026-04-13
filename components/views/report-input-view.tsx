@@ -365,7 +365,7 @@ export function ReportInputView() {
             <div className="flex items-center justify-between border-b border-white/[0.05] px-5 py-3">
               <div className="flex items-center gap-2">
                 <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
-                <span className="text-xs font-semibold uppercase tracking-widest text-white/50">{group.label}</span>
+                <span className="text-xs font-semibold uppercase tracking-widest text-white/75">{group.label}</span>
               </div>
               <span className="text-[10px] text-white/25">{group.fields.length} campos</span>
             </div>
@@ -375,10 +375,10 @@ export function ReportInputView() {
                 const isHighlight = "highlight" in field && field.highlight
                 return (
                   <div key={field.key} className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-semibold uppercase tracking-widest text-white/35">
+                    <label className="text-[10px] font-semibold uppercase tracking-widest text-white/65">
                       {field.label}
                       {"hint" in field && field.hint && (
-                        <span className="ml-1 text-white/20 normal-case tracking-normal">({field.hint})</span>
+                        <span className="ml-1 text-white/35 normal-case tracking-normal">({field.hint})</span>
                       )}
                     </label>
                     {field.type === "text" ? (
