@@ -365,7 +365,7 @@ export function ReportInputView() {
             <div className="flex items-center justify-between border-b border-white/[0.05] px-5 py-3">
               <div className="flex items-center gap-2">
                 <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
-                <span className="text-xs font-semibold uppercase tracking-widest text-white/75">{group.label}</span>
+                <span className="text-sm font-semibold uppercase tracking-widest text-white/75">{group.label}</span>
               </div>
               <span className="text-[10px] text-white/25">{group.fields.length} campos</span>
             </div>
@@ -375,10 +375,10 @@ export function ReportInputView() {
                 const isHighlight = "highlight" in field && field.highlight
                 return (
                   <div key={field.key} className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-semibold uppercase tracking-widest text-white/65">
+                    <label className="text-xs font-semibold uppercase tracking-widest text-white/65">
                       {field.label}
                       {"hint" in field && field.hint && (
-                        <span className="ml-1 text-white/35 normal-case tracking-normal">({field.hint})</span>
+                        <span className="ml-1 text-white/40 normal-case tracking-normal font-normal text-xs">({field.hint})</span>
                       )}
                     </label>
                     {field.type === "text" ? (
@@ -387,7 +387,7 @@ export function ReportInputView() {
                         onChange={(e) => setValue(field.key, e.target.value)}
                         rows={2}
                         placeholder="—"
-                        className="w-full resize-none rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-sm text-white placeholder:text-white/20 focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20"
+                        className="w-full resize-none rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-base text-white placeholder:text-white/20 focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20"
                       />
                     ) : (
                       <input
@@ -399,8 +399,8 @@ export function ReportInputView() {
                         step="any"
                         className={`w-full rounded-xl border px-3 py-2 text-sm font-semibold text-white placeholder:text-white/20 focus:outline-none focus:ring-1 ${
                           isHighlight
-                            ? "border-[#ffde21]/20 bg-[#ffde21]/[0.04] focus:border-[#ffde21]/40 focus:ring-[#ffde21]/20"
-                            : "border-white/[0.08] bg-white/[0.04] focus:border-[#ffde21]/40 focus:ring-[#ffde21]/20"
+                            ? "border-[#ffde21]/20 bg-[#ffde21]/[0.04] focus:border-[#ffde21]/40 focus:ring-[#ffde21]/20 text-base"
+                            : "border-white/[0.08] bg-white/[0.04] focus:border-[#ffde21]/40 focus:ring-[#ffde21]/20 text-base"
                         }`}
                       />
                     )}
