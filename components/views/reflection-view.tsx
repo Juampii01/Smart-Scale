@@ -12,35 +12,10 @@ type ReflectionReport = Record<string, any>
 
 function pickString(row: any, keys: string[]) {
   if (!row) return null
-
-  // 1) Exact key matches (preferred)
   for (const k of keys) {
     const v = row?.[k]
     if (typeof v === "string" && v.trim().length) return v
   }
-
-  // 2) Fallback: try to find a string field whose key includes one of the key tokens
-  //    (e.g. focus_next_month vs next_month_focus vs monthly_focus, etc.)
-  const loweredTokens = keys.map((k) => k.toLowerCase())
-  for (const [k, v] of Object.entries(row)) {
-    if (typeof v !== "string") continue
-    const kk = k.toLowerCase()
-    if (loweredTokens.some((t) => kk.includes(t))) {
-      const s = v.trim()
-      if (s.length) return s
-    }
-  }
-
-  // 3) Last resort: any non-empty reflection-ish text
-  for (const [k, v] of Object.entries(row)) {
-    if (typeof v !== "string") continue
-    const kk = k.toLowerCase()
-    if (kk.includes("reflection") || kk.includes("win") || kk.includes("focus") || kk.includes("support") || kk.includes("lesson") || kk.includes("improve") || kk.includes("feedback")) {
-      const s = v.trim()
-      if (s.length) return s
-    }
-  }
-
   return null
 }
 
