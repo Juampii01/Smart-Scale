@@ -6,7 +6,7 @@ import { useSelectedMonth, useActiveClient } from "@/components/layout/dashboard
 import { useMarkPageReady } from "@/hooks/use-mark-page-ready"
 import { useMinLoading } from "@/hooks/use-min-loading"
 import { ReflectionCardSkeleton, SectionHeaderSkeleton } from "@/components/ui/skeleton"
-import { Trophy, Target, Wrench } from "lucide-react"
+import { Trophy, Target, Wrench, Star } from "lucide-react"
 
 type ReflectionReport = Record<string, any>
 
@@ -102,30 +102,43 @@ export function ReflectionView() {
     }
   }, [monthValue, activeClientId])
 
+  const nps = pickNumber(data, ["nps_score"])
+
   const reflections = useMemo(
   () => [
     {
       icon: Trophy,
       title: "Mayor logro del mes",
       content: pickString(data, ["biggest_win"]),
+      numeric: null as number | null,
     },
     {
       icon: Target,
       title: "Enfoque principal del próximo mes",
       content: pickString(data, ["next_focus"]),
+      numeric: null as number | null,
     },
     {
       icon: Wrench,
       title: "Soporte y sistemas necesarios",
       content: pickString(data, ["support_needed"]),
+      numeric: null as number | null,
     },
     {
       icon: Wrench,
       title: "Mejoras y feedback",
       content: pickString(data, ["improvements"]),
+      numeric: null as number | null,
+    },
+    {
+      icon: Star,
+      title: "NPS Score",
+      content: null as string | null,
+      numeric: nps,
     },
   ],
-  [data]
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [data, nps]
 )
 
   if (showSkeleton) {
@@ -171,9 +184,19 @@ export function ReflectionView() {
                   </div>
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35">{item.title}</p>
                 </div>
-                <p className="text-sm leading-relaxed text-white/60">
-                  {item.content || "—"}
-                </p>
+                {item.numeric !== null ? (
+                  <p className={`text-3xl font-bold tabular-nums ${
+                    item.numeric >= 50 ? "text-emerald-400"
+                    : item.numeric >= 0 ? "text-amber-400"
+                    : "text-red-400"
+                  }`}>
+                    {item.numeric > 0 ? `+${item.numeric}` : item.numeric}
+                  </p>
+                ) : (
+                  <p className="text-sm leading-relaxed text-white/60">
+                    {item.content || "—"}
+                  </p>
+                )}
               </div>
             </div>
           )
