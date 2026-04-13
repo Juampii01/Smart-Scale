@@ -40,7 +40,7 @@ const CHARTS = [
     subtitle: "Total cash collected over time",
     type:     "bar"  as const,
     format:   "money" as const,
-    color:    "#ef6b6b",
+    color:    "#ffde21",
     gradId:   "grad_cash",
   },
   {
@@ -49,7 +49,7 @@ const CHARTS = [
     subtitle: "Monthly recurring revenue",
     type:     "area" as const,
     format:   "money" as const,
-    color:    "#ffde21",
+    color:    "#60a5fa",
     gradId:   "grad_mrr",
   },
   {
