@@ -56,11 +56,11 @@ function fmtNumber(v: any) {
 
 const KPI_DEFS = [
   { key: "cash_collected",  label: "Cash Collected",      money: true,  icon: Wallet,     color: "#ffde21" },
-  { key: "total_revenue",   label: "Total Revenue",        money: true,  icon: DollarSign, color: "#fb923c" },
-  { key: "mrr",             label: "MRR",                  money: true,  icon: Repeat,     color: "#60a5fa" },
-  { key: "ad_spend",        label: "Gasto Publicitario",   money: true,  icon: Megaphone,  color: "#ef4444" },
-  { key: "short_followers", label: "Seguidores Instagram", money: false, icon: Users,      color: "#818cf8" },
-  { key: "new_clients",     label: "Nuevos Clientes",      money: false, icon: UserPlus,   color: "#4ade80" },
+  { key: "total_revenue",   label: "Total Revenue",        money: true,  icon: DollarSign, color: "#ffde21" },
+  { key: "mrr",             label: "MRR",                  money: true,  icon: Repeat,     color: "#ffde21" },
+  { key: "ad_spend",        label: "Gasto Publicitario",   money: true,  icon: Megaphone,  color: "#ffde21" },
+  { key: "short_followers", label: "Seguidores Instagram", money: false, icon: Users,      color: "#ffde21" },
+  { key: "new_clients",     label: "Nuevos Clientes",      money: false, icon: UserPlus,   color: "#ffde21" },
 ]
 
 // ─── Component ────────────────────────────────────────────────────────────────
