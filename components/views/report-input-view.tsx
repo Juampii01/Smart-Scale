@@ -20,7 +20,7 @@ const FIELD_GROUPS = [
       { key: "ad_spend",        label: "Inversión en Ads",    type: "number", hint: "USD" },
       { key: "software_costs",  label: "Costos de Software",  type: "number", hint: "USD" },
       { key: "variable_costs",  label: "Costos Variables",    type: "number", hint: "USD" },
-      { key: "nps_score",       label: "NPS Score",           type: "number", hint: "-100 a 100", min: -100 },
+      { key: "nps_score",       label: "NPS — ¿Del 1 al 10, cuánto recomendarías Smart Scale?", type: "number", hint: "1 a 10", min: 1 },
     ],
   },
   {
