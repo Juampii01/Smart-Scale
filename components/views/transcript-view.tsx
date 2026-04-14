@@ -394,35 +394,35 @@ function HistoryDetailModal({ item, onClose }: { item: HistoryItem; onClose: () 
           </div>
         </div>
 
-        {/* Scrollable body */}
+        {/* Scrollable body — transcript first, analysis below */}
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+          {item.transcript && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <FileText className="h-3.5 w-3.5 text-[#ffde21]/60" />
+                <p className="text-[11px] font-bold uppercase tracking-widest text-white/70">Transcripción</p>
+                <span className="text-[10px] text-white/30">{wordCount.toLocaleString()} palabras</span>
+                <button onClick={() => navigator.clipboard.writeText(item.transcript!)}
+                  className="ml-auto inline-flex items-center gap-1 text-[10px] text-white/25 hover:text-white/50 transition-colors">
+                  <Copy className="h-3 w-3" /> Copiar
+                </button>
+              </div>
+              <div className="rounded-xl border border-white/[0.07] bg-[#0e0e10] px-4 py-4 max-h-72 overflow-y-auto">
+                <p className="text-sm text-white/65 leading-[1.85] whitespace-pre-wrap font-light">{item.transcript}</p>
+              </div>
+            </div>
+          )}
           {item.summary && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="h-3 w-3 text-[#ffde21]/60" />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#ffde21]/50">Análisis IA</p>
+                <Sparkles className="h-3 w-3 text-white/25" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">Análisis IA</p>
                 <button onClick={() => navigator.clipboard.writeText(item.summary!)}
                   className="ml-auto inline-flex items-center gap-1 text-[10px] text-white/25 hover:text-white/50 transition-colors">
                   <Copy className="h-3 w-3" /> Copiar
                 </button>
               </div>
               <SummaryBlock text={item.summary} />
-            </div>
-          )}
-          {item.transcript && (
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <FileText className="h-3 w-3 text-white/30" />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">Transcripción</p>
-                <span className="text-[10px] text-white/20">{wordCount.toLocaleString()} palabras</span>
-                <button onClick={() => navigator.clipboard.writeText(item.transcript!)}
-                  className="ml-auto inline-flex items-center gap-1 text-[10px] text-white/25 hover:text-white/50 transition-colors">
-                  <Copy className="h-3 w-3" /> Copiar
-                </button>
-              </div>
-              <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] px-4 py-4">
-                <p className="text-sm text-white/60 leading-[1.85] whitespace-pre-wrap font-light">{item.transcript}</p>
-              </div>
             </div>
           )}
         </div>
@@ -687,68 +687,60 @@ export function TranscriptView() {
             </div>
           </div>
 
-          {/* Summary */}
-          {(outputType === "summary" || outputType === "both") && (
-            <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
-              <div className="flex items-center gap-3 border-b border-white/[0.05] px-6 py-4">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#ffde21]/10 border border-[#ffde21]/20">
-                  <Sparkles className="h-3.5 w-3.5 text-[#ffde21]" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-[#ffde21]/80">Análisis IA</p>
-                  <p className="text-[10px] text-white/25 mt-0.5">Generado por Claude · basado en la transcripción</p>
-                </div>
-              </div>
-              <div className="p-6"><SummaryBlock text={result.summary} /></div>
-            </div>
-          )}
-
-          {/* Transcript */}
+          {/* ── Transcript (primary) ── */}
           {(outputType === "transcript" || outputType === "both") && (
-            <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
-              <div className="flex items-center justify-between border-b border-white/[0.05] px-6 py-4">
+            <div className="relative overflow-hidden rounded-2xl border border-white/[0.10] bg-[#111113]">
+              {/* yellow top accent — this is the main product */}
+              <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/0 via-[#ffde21]/60 to-[#ffde21]/0" />
+              <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.08]">
-                    <FileText className="h-3.5 w-3.5 text-white/40" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ffde21]/10 border border-[#ffde21]/20">
+                    <FileText className="h-4 w-4 text-[#ffde21]" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-white/40">Transcripción completa</p>
-                    <p className="text-[10px] text-white/20 mt-0.5">{wordCount.toLocaleString()} palabras</p>
+                    <p className="text-sm font-bold text-white">Transcripción</p>
+                    <p className="text-[11px] text-white/30 mt-0.5">{wordCount.toLocaleString()} palabras</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CopyBtn text={result.transcript} label="Copiar texto" />
+                  <CopyBtn text={result.transcript} label="Copiar" />
                   <button
                     onClick={() => setTranscriptModal({
                       title: result.title ?? "Transcripción",
                       transcript: result.transcript,
                       wordCount,
                     })}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white/40 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-xs font-medium text-white/50 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all"
                   >
-                    <ExternalLink className="h-3 w-3" />
-                    Ver en ventana
+                    <Maximize2 className="h-3 w-3" />
+                    Ver completa
                   </button>
                 </div>
               </div>
+
+              {/* Full transcript body — scrollable, no preview truncation */}
               <div className="px-6 py-5">
-                <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] px-4 py-4">
-                  <p className="text-sm text-white/45 leading-[1.85] whitespace-pre-wrap font-light">
-                    {result.transcript.slice(0, 420).trim()}
-                    {result.transcript.length > 420 ? "…" : ""}
+                <div className="max-h-[520px] overflow-y-auto rounded-2xl border border-white/[0.07] bg-[#0e0e10] px-5 py-5 scrollbar-thin">
+                  <p className="text-[15px] text-white/75 leading-[1.9] whitespace-pre-wrap font-light tracking-[0.01em]">
+                    {result.transcript}
                   </p>
                 </div>
-                <button
-                  onClick={() => setTranscriptModal({
-                    title: result.title ?? "Transcripción",
-                    transcript: result.transcript,
-                    wordCount,
-                  })}
-                  className="mt-3 text-xs text-[#ffde21]/60 hover:text-[#ffde21] transition-colors"
-                >
-                  Abrir transcripción completa →
-                </button>
               </div>
+            </div>
+          )}
+
+          {/* ── AI Analysis (secondary) ── */}
+          {(outputType === "summary" || outputType === "both") && result.summary && (
+            <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0f0f11]">
+              <div className="flex items-center gap-3 border-b border-white/[0.05] px-6 py-3.5">
+                <Sparkles className="h-3.5 w-3.5 text-white/30 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-white/35">Análisis IA</p>
+                  <p className="text-[10px] text-white/20 mt-0.5">Generado por Claude · basado en la transcripción</p>
+                </div>
+                <CopyBtn text={result.summary} label="Copiar" />
+              </div>
+              <div className="p-5"><SummaryBlock text={result.summary} /></div>
             </div>
           )}
         </div>
