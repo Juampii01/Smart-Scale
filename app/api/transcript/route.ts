@@ -306,6 +306,9 @@ async function rapidApiGetVideoUrl(
   const candidateUrls = [
     `https://www.instagram.com/reel/${shortCode}/embed/captioned/`,
     `https://www.instagram.com/p/${shortCode}/embed/captioned/`,
+    `https://www.instagram.com/reels/${shortCode}/`,
+    `https://www.instagram.com/reel/${shortCode}/`,
+    `https://www.instagram.com/p/${shortCode}/`,
     postUrl,
   ].filter(Boolean) as string[]
 
@@ -478,37 +481,97 @@ async function rapidApiGetVideoUrl(
 }
 
 async function getInstagramTranscript(postUrl: string): Promise<{ transcript: string | null; caption: string | null; duration: string | null; username: string | null }> {
+  const normalizedPostUrl = postUrl.replace(/\/+$/, "")
+
   // Extract shortcode and username from URL
-  // Supports: /p/CODE/, /reel/CODE/, /username/reel/CODE/
-  const shortCode = postUrl.match(/\/(p|reel|reels|tv)\/([^/?#]+)/)?.[2] ?? null
+  // Supports: /p/CODE/, /reel/CODE/, /reels/CODE/, /username/reel/CODE/
+  const shortCode = normalizedPostUrl.match(/\/(p|reel|reels|tv)\/([^/?#]+)/)?.[2] ?? null
 
   // Try to get username directly from URL (format: instagram.com/username/reel/shortcode/)
   let username: string | null = null
-  const urlUsernameMatch = postUrl.match(/instagram\.com\/([^/?#]+)\/(p|reel|reels|tv)\//)
+  const urlUsernameMatch = normalizedPostUrl.match(/instagram\.com\/([^/?#]+)\/(p|reel|reels|tv)\//)
   if (urlUsernameMatch?.[1] && !["p", "reel", "reels", "tv"].includes(urlUsernameMatch[1])) {
     username = urlUsernameMatch[1]
   }
 
-  // Fallback: oEmbed to get username — try both endpoints (v1 is more reliable for public posts)
+  // Fallback: oEmbed to get username — some endpoints return HTML with 200 instead of JSON
   if (!username) {
     const oEmbedUrls = [
-      `https://www.instagram.com/api/v1/oembed/?url=${encodeURIComponent(postUrl)}`,
-      `https://api.instagram.com/oembed/?url=${encodeURIComponent(postUrl)}`,
+      `https://www.instagram.com/api/v1/oembed/?url=${encodeURIComponent(normalizedPostUrl + "/")}`,
+      `https://api.instagram.com/oembed/?url=${encodeURIComponent(normalizedPostUrl + "/")}`,
     ]
+
     for (const oEmbedUrl of oEmbedUrls) {
       try {
         console.log("[transcript] oEmbed attempt:", oEmbedUrl)
-        const oEmbedRes = await fetch(oEmbedUrl, { signal: AbortSignal.timeout(8_000) })
+        const oEmbedRes = await fetch(oEmbedUrl, {
+          headers: {
+            "User-Agent": "Mozilla/5.0",
+            "Accept": "application/json,text/html;q=0.9,*/*;q=0.8",
+          },
+          signal: AbortSignal.timeout(8_000),
+        })
         console.log("[transcript] oEmbed status:", oEmbedRes.status)
-        if (oEmbedRes.ok) {
-          const oEmbed = await oEmbedRes.json()
-          username = oEmbed.author_name ?? null
-          console.log("[transcript] oEmbed author_name:", username)
-          if (username) break
+
+        if (!oEmbedRes.ok) continue
+
+        const contentType = oEmbedRes.headers.get("content-type") ?? ""
+        const raw = await oEmbedRes.text()
+
+        if (!contentType.includes("application/json") && raw.trim().startsWith("<")) {
+          console.log("[transcript] oEmbed returned HTML instead of JSON:", raw.slice(0, 180))
+          continue
         }
+
+        let oEmbed: any = null
+        try {
+          oEmbed = JSON.parse(raw)
+        } catch {
+          console.log("[transcript] oEmbed invalid JSON:", oEmbedUrl, raw.slice(0, 180))
+          continue
+        }
+
+        username = oEmbed?.author_name ?? null
+        console.log("[transcript] oEmbed author_name:", username)
+        if (username) break
       } catch (err) {
         console.log("[transcript] oEmbed error:", oEmbedUrl, err)
       }
+    }
+  }
+
+  // Extra fallback: recover username from the public HTML page when oEmbed fails
+  if (!username) {
+    try {
+      const pageRes = await fetch(normalizedPostUrl + "/", {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        },
+        redirect: "follow",
+        signal: AbortSignal.timeout(12_000),
+      })
+
+      if (pageRes.ok) {
+        const html = await pageRes.text()
+        const usernamePatterns = [
+          /"username":"([^"]+)"/i,
+          /"owner":\s*\{[^}]*"username":"([^"]+)"/i,
+          /<meta[^>]+property=["']og:url["'][^>]+content=["']https:\/\/www\.instagram\.com\/([^/?#"']+)\/(?:reel|p|reels|tv)\//i,
+        ]
+
+        for (const pattern of usernamePatterns) {
+          const match = html.match(pattern)
+          const candidate = match?.[1]?.replace(/^@/, "").trim() ?? null
+          if (candidate && !["reel", "reels", "p", "tv"].includes(candidate)) {
+            username = candidate
+            console.log("[transcript] username recovered from page html:", username)
+            break
+          }
+        }
+      }
+    } catch (err) {
+      console.log("[transcript] username html recovery error:", err)
     }
   }
 
@@ -525,7 +588,7 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
   }
   const lookupKey = username ?? null
   console.log("[transcript] lookupKey:", lookupKey, "shortCode:", shortCode)
-  const result = await rapidApiGetVideoUrl(lookupKey ?? postUrl, shortCode, postUrl)
+  const result = await rapidApiGetVideoUrl(lookupKey ?? normalizedPostUrl, shortCode, normalizedPostUrl + "/")
   const { videoUrl, caption, duration } = result
   // Username might have been extracted from HTML inside rapidApiGetVideoUrl
   if (!username && result.username) username = result.username
@@ -730,8 +793,8 @@ export async function POST(req: NextRequest) {
       if (!transcript) {
         return NextResponse.json({
           error: ig.username
-            ? "No se pudo transcribir este reel. Asegurate de que el video sea público, tenga audio y permita extraer el video."
-            : "No se pudo transcribir este reel. No se pudo resolver el video desde Instagram. Probá con un reel público o una URL con username visible.",
+            ? "No se pudo transcribir este reel. Instagram no permitió resolver el archivo de video aunque sí detectamos el usuario."
+            : "No se pudo transcribir este reel. Instagram no devolvió ni el usuario ni la URL real del video. Probá con un reel público, una URL del formato instagram.com/usuario/reel/... o intentá más tarde.",
         }, { status: 422 })
       }
       summary = await generateSummary(transcript, creator)
