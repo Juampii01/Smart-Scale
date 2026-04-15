@@ -191,7 +191,7 @@ export function CalendarView() {
           <p className="text-sm text-white/55 mb-3">
             Agendá tu llamada:{" "}
             <a
-              href="https://calendly.com/strategystudio-mkt/onboarding-call"
+              href="https://calendly.com/strategystudio-mkt/ann-s-privat-link"
               target="_blank"
               rel="noreferrer"
               className="text-[#ffde21]/70 hover:text-[#ffde21] underline underline-offset-2 transition-colors"
