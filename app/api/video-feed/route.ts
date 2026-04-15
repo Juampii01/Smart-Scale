@@ -8,8 +8,6 @@ export const maxDuration = 300
 
 // ─── Instagram scraping ───────────────────────────────────────────────────────
 
-const RAPIDAPI_IG_HOST = "instagram-scraper-20253.p.rapidapi.com"
-
 const IG_HEADERS: Record<string, string> = {
   "User-Agent":       "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
   "Accept":           "application/json, text/plain, */*",
@@ -38,25 +36,81 @@ function mapIGEdges(edges: any[], username: string) {
   })
 }
 
-function mapRapidApiItems(items: any[], username: string) {
-  return items.map((item: any) => {
-    const shortCode = item.code ?? item.shortcode ?? null
-    const isVideo   = item.media_type === 2 || !!item.video_url
-    return {
-      id:             item.pk ?? item.id ?? String(Math.random()),
-      shortCode,
-      caption:        item.caption?.text ?? item.caption ?? "",
-      timestamp:      item.taken_at ? new Date(item.taken_at * 1000).toISOString() : null,
-      likesCount:     item.like_count ?? 0,
-      commentsCount:  item.comment_count ?? 0,
-      videoPlayCount: item.play_count ?? item.view_count ?? null,
-      videoDuration:  item.video_duration ?? null,
-      displayUrl:     item.image_versions2?.candidates?.[0]?.url ?? item.thumbnail_url ?? null,
-      url:            shortCode ? `https://www.instagram.com/p/${shortCode}/` : `https://www.instagram.com/${username}/`,
-      ownerUsername:  username,
-      type:           isVideo ? "Video" : "Image",
+async function apifyInstagramProfileFetch(username: string): Promise<any[]> {
+  const token = process.env.APIFY_TOKEN
+  if (!token) return []
+
+  const profileUrl = `https://www.instagram.com/${username}/`
+
+  const attempts: Array<{ actor: string; input: Record<string, any> }> = [
+    {
+      actor: "apify~instagram-api-scraper",
+      input: {
+        directUrls: [profileUrl],
+        resultsType: "posts",
+        resultsLimit: 50,
+        addParentData: false,
+      },
+    },
+    {
+      actor: "apify~instagram-profile-scraper",
+      input: {
+        usernames: [username],
+        resultsLimit: 50,
+      },
+    },
+    {
+      actor: "scrapepilotapi~instagram-profile-post-scraper",
+      input: {
+        startUrls: [profileUrl],
+        maxPosts: 50,
+        pinnedMode: "include",
+      },
+    },
+  ]
+
+  for (const attempt of attempts) {
+    const endpoint = `https://api.apify.com/v2/acts/${attempt.actor}/run-sync-get-dataset-items?token=${token}`
+    try {
+      console.log("[video-feed][apify] attempt:", attempt.actor, attempt.input)
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(attempt.input),
+        signal: AbortSignal.timeout(60_000),
+      })
+
+      const raw = await res.text()
+      console.log("[video-feed][apify] status:", attempt.actor, res.status)
+
+      if (!res.ok) {
+        console.log("[video-feed][apify] body:", raw.slice(0, 500))
+        continue
+      }
+
+      let data: any = null
+      try {
+        data = JSON.parse(raw)
+      } catch {
+        console.log("[video-feed][apify] invalid JSON:", attempt.actor, raw.slice(0, 300))
+        continue
+      }
+
+      const items = Array.isArray(data)
+        ? data
+        : data?.items ?? data?.results ?? []
+
+      if (Array.isArray(items) && items.length > 0) {
+        console.log("[video-feed][apify] items:", attempt.actor, items.length)
+        return items
+      }
+    } catch (e) {
+      console.log("[video-feed][apify] exception:", attempt.actor, String(e))
     }
-  })
+  }
+
+  return []
 }
 
 async function getInstagramPosts(url: string) {
@@ -65,38 +119,82 @@ async function getInstagramPosts(url: string) {
 
   let rawItems: any[] = []
 
-  // 1. Direct fetch (works in dev)
+  // 1. Direct fetch
   try {
     const res = await fetch(
       `https://i.instagram.com/api/v1/users/web_profile_info/?username=${username}`,
       { headers: IG_HEADERS, signal: AbortSignal.timeout(12_000) }
     )
+
+    console.log("[video-feed] direct IG status:", res.status)
+
     if (res.ok) {
-      const data  = await res.json()
+      const data = await res.json()
       const edges = data?.data?.user?.edge_owner_to_timeline_media?.edges ?? []
+      console.log("[video-feed] direct IG edges:", edges.length)
       if (edges.length > 0) rawItems = mapIGEdges(edges, username)
     }
-  } catch {}
-
-  // 2. RapidAPI fallback (works in prod)
-  if (!rawItems.length && process.env.RAPIDAPI_KEY) {
-    try {
-      const res = await fetch(
-        `https://${RAPIDAPI_IG_HOST}/user-reels?username_or_id_or_url=${encodeURIComponent(username)}&url_embed_safe=false`,
-        {
-          headers: { "X-RapidAPI-Key": process.env.RAPIDAPI_KEY, "X-RapidAPI-Host": RAPIDAPI_IG_HOST },
-          signal:  AbortSignal.timeout(30_000),
-        }
-      )
-      if (res.ok) {
-        const data  = await res.json()
-        const items = data?.data?.items ?? data?.items ?? []
-        if (Array.isArray(items) && items.length) rawItems = mapRapidApiItems(items, username)
-      }
-    } catch {}
+  } catch (e) {
+    console.log("[video-feed] direct IG error:", String(e))
   }
 
-  if (!rawItems.length) throw new Error("No se encontraron posts en este perfil.")
+  // 2. Apify fallback
+  if (!rawItems.length) {
+    const apifyItems = await apifyInstagramProfileFetch(username)
+    if (apifyItems.length) {
+      rawItems = apifyItems.map((item: any) => {
+        const shortCode =
+          item.shortCode ??
+          item.shortcode ??
+          item.code ??
+          item.id ??
+          item.postId ??
+          null
+
+        const rawTimestamp =
+          item.timestamp ??
+          item.takenAt ??
+          item.taken_at ??
+          item.createdAt ??
+          item.created_at ??
+          null
+
+        const isoTimestamp =
+          typeof rawTimestamp === "number"
+            ? new Date(rawTimestamp > 1e12 ? rawTimestamp : rawTimestamp * 1000).toISOString()
+            : typeof rawTimestamp === "string"
+              ? rawTimestamp
+              : null
+
+        const isVideo =
+          item.type === "Video" ||
+          item.mediaType === "Video" ||
+          item.media_type === 2 ||
+          !!(item.videoUrl ?? item.video ?? item.video_url ?? item.downloadedVideo)
+
+        return {
+          id:             item.id ?? shortCode ?? String(Math.random()),
+          shortCode,
+          caption:        item.caption ?? item.text ?? item.title ?? item.description ?? item.captionText ?? "",
+          timestamp:      isoTimestamp,
+          likesCount:     item.likesCount ?? item.likes ?? item.likeCount ?? 0,
+          commentsCount:  item.commentsCount ?? item.comments ?? item.commentCount ?? 0,
+          videoPlayCount: item.videoPlayCount ?? item.videoViewCount ?? item.views ?? item.playCount ?? 0,
+          videoDuration:  item.videoDuration ?? item.duration ?? item.video_duration ?? null,
+          displayUrl:     item.displayUrl ?? item.thumbnailUrl ?? item.imageUrl ?? item.display_url ?? null,
+          url:            item.url ?? (shortCode ? `https://www.instagram.com/p/${shortCode}/` : `https://www.instagram.com/${username}/`),
+          ownerUsername:  item.ownerUsername ?? item.username ?? item.authorUsername ?? username,
+          type:           isVideo ? "Video" : "Image",
+        }
+      })
+      console.log("[video-feed] apify mapped items:", rawItems.length)
+    }
+  }
+
+  if (!rawItems.length) {
+    console.log("[video-feed] no posts found for profile:", username)
+    throw new Error("No se encontraron posts en este perfil.")
+  }
 
   const posts = rawItems.map((item: any) => ({
     post_id:      item.id ?? item.shortCode ?? String(Math.random()),
@@ -188,6 +286,7 @@ export async function GET(req: NextRequest) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ account: data ?? null })
   } catch (err: any) {
+    console.log("[video-feed][GET] error:", err?.message ?? err)
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
   }
 }
@@ -268,6 +367,7 @@ export async function POST(req: NextRequest) {
       newPostsCount: newPosts.length,
     })
   } catch (err: any) {
+    console.log("[video-feed][POST] error:", err?.message ?? err)
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
   }
 }
@@ -286,6 +386,7 @@ export async function DELETE(req: NextRequest) {
     await supabase.from("video_feed_accounts").delete().eq("user_id", user.id)
     return NextResponse.json({ success: true })
   } catch (err: any) {
+    console.log("[video-feed][DELETE] error:", err?.message ?? err)
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
   }
 }
