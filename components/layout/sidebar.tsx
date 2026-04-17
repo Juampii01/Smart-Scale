@@ -50,8 +50,10 @@ const NAV_GROUPS = [
 const ADMIN_NAV_GROUP = {
   label: "Admin",
   items: [
-    { name: "Tabla de Datos", href: "/admin/data",  icon: Table2 },
-    { name: "Leads",          href: "/admin/leads", icon: Users2 },
+    { name: "Tabla de Datos", href: "/admin/data",         icon: Table2  },
+    { name: "Leads",          href: "/admin/leads",        icon: Users2  },
+    { name: "Pagos",          href: "/admin/payments",     icon: DollarSign },
+    { name: "Aplicaciones",   href: "/admin/applications", icon: ClipboardList },
   ],
 }
 
