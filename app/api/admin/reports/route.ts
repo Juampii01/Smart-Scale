@@ -5,8 +5,23 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 const ALLOWED_FIELDS = new Set([
-  "cash_collected", "total_revenue", "mrr", "new_clients",
-  "ad_spend", "short_followers", "yt_subscribers", "nps_score",
+  // Revenue
+  "cash_collected", "total_revenue", "mrr",
+  "software_costs", "variable_costs", "ad_spend",
+  // Sales
+  "scheduled_calls", "attended_calls", "qualified_calls",
+  "inbound_messages", "aplications",
+  "offer_docs_sent", "offer_docs_responded", "cierres_por_offerdoc",
+  "new_clients", "active_clients",
+  // Instagram
+  "short_followers", "short_reach", "short_posts",
+  // YouTube
+  "yt_subscribers", "yt_new_subscribers", "yt_monthly_audience",
+  "yt_views", "yt_watch_time", "yt_videos",
+  // Email
+  "email_subscribers", "email_new_subscribers",
+  // Other
+  "nps_score",
 ])
 
 /** PATCH /api/admin/reports
