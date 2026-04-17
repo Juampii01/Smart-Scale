@@ -8,19 +8,50 @@ export const dynamic = "force-dynamic"
   SQL — run once in Supabase SQL editor:
 
   create table if not exists applications (
-    id              uuid primary key default gen_random_uuid(),
-    first_name      text,
-    last_name       text,
-    email           text,
-    primary_channel text,
-    question        text,
-    status          text not null default 'nueva',
-    notes           text,
-    created_at      timestamptz not null default now(),
-    updated_at      timestamptz not null default now()
+    id                   uuid primary key default gen_random_uuid(),
+    first_name           text,
+    last_name            text,
+    email                text,
+    whatsapp             text,
+    instagram_handle     text,
+    primary_channel      text,
+    short_content_link   text,
+    youtube_podcast_link text,
+    email_list_size      text,
+    monthly_revenue      text,
+    paying_clients       text,
+    client_work_style    text,
+    income_goal          text,
+    main_blocker         text,
+    superpowers          text,
+    contribution         text,
+    motivation           text,
+    one_year_goal        text,
+    terms_accepted       boolean not null default false,
+    status               text not null default 'nueva',
+    notes                text,
+    created_at           timestamptz not null default now(),
+    updated_at           timestamptz not null default now()
   );
   alter table applications enable row level security;
   create policy "service_role_all" on applications for all to service_role using (true) with check (true);
+
+  -- If the table already exists, add missing columns:
+  alter table applications add column if not exists whatsapp             text;
+  alter table applications add column if not exists instagram_handle     text;
+  alter table applications add column if not exists short_content_link   text;
+  alter table applications add column if not exists youtube_podcast_link text;
+  alter table applications add column if not exists email_list_size      text;
+  alter table applications add column if not exists monthly_revenue      text;
+  alter table applications add column if not exists paying_clients       text;
+  alter table applications add column if not exists client_work_style    text;
+  alter table applications add column if not exists income_goal          text;
+  alter table applications add column if not exists main_blocker         text;
+  alter table applications add column if not exists superpowers          text;
+  alter table applications add column if not exists contribution         text;
+  alter table applications add column if not exists motivation           text;
+  alter table applications add column if not exists one_year_goal        text;
+  alter table applications add column if not exists terms_accepted       boolean not null default false;
 */
 
 async function requireAdmin(jwt: string | null) {
@@ -34,6 +65,14 @@ async function requireAdmin(jwt: string | null) {
   return user
 }
 
+const ALL_FIELDS = [
+  "id","first_name","last_name","email","whatsapp","instagram_handle",
+  "primary_channel","short_content_link","youtube_podcast_link",
+  "email_list_size","monthly_revenue","paying_clients","client_work_style",
+  "income_goal","main_blocker","superpowers","contribution","motivation",
+  "one_year_goal","terms_accepted","status","notes","created_at",
+].join(", ")
+
 /** GET — all applications ordered by created_at desc */
 export async function GET(req: NextRequest) {
   try {
@@ -44,7 +83,7 @@ export async function GET(req: NextRequest) {
     const supabase = createServiceClient()
     const { data, error } = await supabase
       .from("applications")
-      .select("id, first_name, last_name, email, primary_channel, question, status, notes, created_at")
+      .select(ALL_FIELDS)
       .order("created_at", { ascending: false })
       .limit(1000)
 
@@ -65,19 +104,39 @@ export async function POST(req: NextRequest) {
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
 
-    const { first_name, last_name, email, primary_channel, question, status, notes } = body
+    const {
+      first_name, last_name, email, whatsapp, instagram_handle,
+      primary_channel, short_content_link, youtube_podcast_link,
+      email_list_size, monthly_revenue, paying_clients, client_work_style,
+      income_goal, main_blocker, superpowers, contribution, motivation,
+      one_year_goal, terms_accepted, status, notes,
+    } = body
 
     const supabase = createServiceClient()
     const { data, error } = await supabase
       .from("applications")
       .insert({
-        first_name:      first_name      || null,
-        last_name:       last_name       || null,
-        email:           email           || null,
-        primary_channel: primary_channel || null,
-        question:        question        || null,
-        status:          status          ?? "nueva",
-        notes:           notes           || null,
+        first_name:           first_name           || null,
+        last_name:            last_name            || null,
+        email:                email                || null,
+        whatsapp:             whatsapp             || null,
+        instagram_handle:     instagram_handle     || null,
+        primary_channel:      primary_channel      || null,
+        short_content_link:   short_content_link   || null,
+        youtube_podcast_link: youtube_podcast_link || null,
+        email_list_size:      email_list_size      || null,
+        monthly_revenue:      monthly_revenue      || null,
+        paying_clients:       paying_clients       || null,
+        client_work_style:    client_work_style    || null,
+        income_goal:          income_goal          || null,
+        main_blocker:         main_blocker         || null,
+        superpowers:          superpowers          || null,
+        contribution:         contribution         || null,
+        motivation:           motivation           || null,
+        one_year_goal:        one_year_goal        || null,
+        terms_accepted:       Boolean(terms_accepted),
+        status:               status               ?? "nueva",
+        notes:                notes                || null,
       })
       .select()
       .single()
@@ -89,7 +148,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/** PATCH — update status and/or notes */
+/** PATCH — update any allowed field */
 export async function PATCH(req: NextRequest) {
   try {
     const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
@@ -102,14 +161,16 @@ export async function PATCH(req: NextRequest) {
     const { id, ...updates } = body
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
+    const PATCHABLE = [
+      "status","notes","first_name","last_name","email","whatsapp",
+      "instagram_handle","primary_channel","short_content_link","youtube_podcast_link",
+      "email_list_size","monthly_revenue","paying_clients","client_work_style",
+      "income_goal","main_blocker","superpowers","contribution","motivation","one_year_goal",
+    ]
     const allowed: Record<string, any> = { updated_at: new Date().toISOString() }
-    if (updates.status          !== undefined) allowed.status          = updates.status
-    if (updates.notes           !== undefined) allowed.notes           = updates.notes
-    if (updates.first_name      !== undefined) allowed.first_name      = updates.first_name
-    if (updates.last_name       !== undefined) allowed.last_name       = updates.last_name
-    if (updates.email           !== undefined) allowed.email           = updates.email
-    if (updates.primary_channel !== undefined) allowed.primary_channel = updates.primary_channel
-    if (updates.question        !== undefined) allowed.question        = updates.question
+    for (const key of PATCHABLE) {
+      if (updates[key] !== undefined) allowed[key] = updates[key]
+    }
 
     const supabase = createServiceClient()
     const { error } = await supabase.from("applications").update(allowed).eq("id", id)
