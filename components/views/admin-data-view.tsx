@@ -150,26 +150,16 @@ function EditableCell({
   )
 }
 
+// Ann's fixed client_id — this view always shows her data only
+const ANN_CLIENT_ID = "9d2aebb4-93a7-490c-8ac9-afe1d1a42d57"
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function AdminDataView() {
-  const [clientId, setClientId] = useState<string | null>(null)
+  const [clientId] = useState<string>(ANN_CLIENT_ID)
   const [months,   setMonths]   = useState<string[]>([])
   const [pivot,    setPivot]    = useState<Record<string, Record<string, number | null>>>({})
   const [loading,  setLoading]  = useState(true)
-
-  // Load Ann's own client_id from her profile
-  useEffect(() => {
-    async function loadProfile() {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: profile } = await supabase
-        .from("profiles").select("client_id").eq("id", user.id).maybeSingle()
-      if (profile?.client_id) setClientId(profile.client_id)
-    }
-    loadProfile()
-  }, [])
 
   const loadReports = useCallback(async (cid: string) => {
     setLoading(true)
@@ -196,7 +186,7 @@ export function AdminDataView() {
     } finally { setLoading(false) }
   }, [])
 
-  useEffect(() => { if (clientId) loadReports(clientId) }, [clientId, loadReports])
+  useEffect(() => { loadReports(ANN_CLIENT_ID) }, [loadReports])
 
   const handleSaved = useCallback((month: string, key: string, val: number | null) => {
     setPivot(prev => ({ ...prev, [month]: { ...(prev[month] ?? {}), [key]: val } }))
