@@ -5,26 +5,33 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 /*
-  SQL to create the leads table (run once in Supabase SQL editor):
+  SQL — run once in Supabase SQL editor:
 
   create table if not exists leads (
     id          uuid primary key default gen_random_uuid(),
     name        text,
-    email       text,
-    phone       text,
-    instagram   text,
     tag         text,
     source      text,
+    lead_type   text,
     status      text not null default 'nuevo',
+    instagram   text,
+    rating      integer check (rating between 1 and 5),
+    niche       text,
     notes       text,
     raw_payload jsonb,
     created_at  timestamptz not null default now(),
     updated_at  timestamptz not null default now()
   );
-
-  -- Let service role access everything (webhook + admin API both use service role)
   alter table leads enable row level security;
   create policy "service_role_all" on leads for all to service_role using (true) with check (true);
+
+  -- If table already exists, add missing columns:
+  alter table leads add column if not exists lead_type text;
+  alter table leads add column if not exists rating    integer check (rating between 1 and 5);
+  alter table leads add column if not exists niche     text;
+  -- remove old columns we no longer use (optional):
+  -- alter table leads drop column if exists email;
+  -- alter table leads drop column if exists phone;
 */
 
 async function requireAdmin(jwt: string | null) {
@@ -38,7 +45,9 @@ async function requireAdmin(jwt: string | null) {
   return user
 }
 
-/** GET /api/admin/leads — returns all leads ordered by created_at desc */
+const SELECT_FIELDS = "id, name, tag, source, lead_type, status, instagram, rating, niche, notes, created_at"
+
+/** GET — all leads ordered by created_at desc */
 export async function GET(req: NextRequest) {
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
@@ -48,9 +57,9 @@ export async function GET(req: NextRequest) {
     const supabase = createServiceClient()
     const { data, error } = await supabase
       .from("leads")
-      .select("id, name, email, phone, instagram, tag, source, status, notes, created_at")
+      .select(SELECT_FIELDS)
       .order("created_at", { ascending: false })
-      .limit(500)
+      .limit(1000)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ leads: data ?? [] })
@@ -59,50 +68,49 @@ export async function GET(req: NextRequest) {
   }
 }
 
-/** PATCH /api/admin/leads — update status and/or notes of a lead */
+/** PATCH — update any editable field */
 export async function PATCH(req: NextRequest) {
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
     const user = await requireAdmin(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
-    let body: { id?: string; status?: string; notes?: string }
+    let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
 
-    const { id, status, notes } = body
+    const { id, ...updates } = body
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
-    const updates: Record<string, any> = { updated_at: new Date().toISOString() }
-    if (status !== undefined) updates.status = status
-    if (notes  !== undefined) updates.notes  = notes
+    const PATCHABLE = ["status", "source", "lead_type", "niche", "notes", "rating", "instagram", "tag", "name"]
+    const allowed: Record<string, any> = { updated_at: new Date().toISOString() }
+    for (const key of PATCHABLE) {
+      if (updates[key] !== undefined) allowed[key] = updates[key]
+    }
 
     const supabase = createServiceClient()
-    const { error } = await supabase.from("leads").update(updates).eq("id", id)
+    const { error } = await supabase.from("leads").update(allowed).eq("id", id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
     return NextResponse.json({ success: true })
   } catch (err: any) {
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
   }
 }
 
-/** DELETE /api/admin/leads — remove a lead by id */
+/** DELETE — remove a lead */
 export async function DELETE(req: NextRequest) {
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
     const user = await requireAdmin(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
-    let body: { id?: string }
+    let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
 
-    const { id } = body
-    if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
+    if (!body.id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
     const supabase = createServiceClient()
-    const { error } = await supabase.from("leads").delete().eq("id", id)
+    const { error } = await supabase.from("leads").delete().eq("id", body.id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
     return NextResponse.json({ success: true })
   } catch (err: any) {
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
