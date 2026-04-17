@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react"
 import { createClient } from "@/lib/supabase"
-import { ChevronDown, Loader2, RefreshCw, Download } from "lucide-react"
+import { Loader2, RefreshCw, Download } from "lucide-react"
 
 // ─── Metrics definition ───────────────────────────────────────────────────────
 
@@ -41,85 +41,63 @@ function fmtValue(v: number | null | undefined, format: "money" | "number"): str
 // ─── Editable Cell ────────────────────────────────────────────────────────────
 
 function EditableCell({
-  value,
-  metricKey,
-  month,
-  clientId,
-  onSaved,
+  value, metricKey, month, clientId, onSaved,
 }: {
-  value: number | null
+  value:     number | null
   metricKey: string
-  month: string
-  clientId: string
-  onSaved: (month: string, key: string, val: number | null) => void
+  month:     string
+  clientId:  string
+  onSaved:   (month: string, key: string, val: number | null) => void
 }) {
   const [editing, setEditing] = useState(false)
   const [draft,   setDraft]   = useState("")
   const [saving,  setSaving]  = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-
-  const metric = METRICS.find(m => m.key === metricKey)!
+  const metric   = METRICS.find(m => m.key === metricKey)!
 
   const startEdit = () => {
     setDraft(value != null ? String(value) : "")
     setEditing(true)
     setTimeout(() => inputRef.current?.select(), 0)
   }
-
   const cancel = () => { setEditing(false); setDraft("") }
 
   const save = async () => {
-    const num = draft.trim() === "" ? null : Number(draft.replace(/[$,K]/g, ""))
+    const num = draft.trim() === "" ? null : Number(draft.replace(/[$,KM]/g, ""))
     if (isNaN(num as number) && num !== null) { cancel(); return }
     setSaving(true)
     try {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
-
       await fetch("/api/admin/reports", {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${session.access_token}`,
-        },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
         body: JSON.stringify({ client_id: clientId, month, field: metricKey, value: num }),
       })
       onSaved(month, metricKey, num)
-    } finally {
-      setSaving(false)
-      setEditing(false)
-    }
+    } finally { setSaving(false); setEditing(false) }
   }
 
-  if (saving) {
-    return (
-      <td className="whitespace-nowrap px-4 py-3 text-right">
-        <span className="inline-flex items-center gap-1 text-[13px] text-[#ffde21]/50">
-          <Loader2 className="h-3 w-3 animate-spin" />
-        </span>
-      </td>
-    )
-  }
+  if (saving) return (
+    <td className="whitespace-nowrap px-4 py-3 text-right">
+      <Loader2 className="inline h-3 w-3 animate-spin text-[#ffde21]/40" />
+    </td>
+  )
 
-  if (editing) {
-    return (
-      <td className="whitespace-nowrap px-2 py-1.5">
-        <input
-          ref={inputRef}
-          type="number"
-          value={draft}
-          onChange={e => setDraft(e.target.value)}
-          onBlur={save}
-          onKeyDown={e => {
-            if (e.key === "Enter")  save()
-            if (e.key === "Escape") cancel()
-          }}
-          className="w-28 rounded-lg border border-[#ffde21]/40 bg-[#ffde21]/[0.07] px-2.5 py-1.5 text-right text-[13px] text-white focus:outline-none focus:ring-1 focus:ring-[#ffde21]/60"
-        />
-      </td>
-    )
-  }
+  if (editing) return (
+    <td className="whitespace-nowrap px-2 py-1.5">
+      <input
+        ref={inputRef}
+        type="number"
+        value={draft}
+        onChange={e => setDraft(e.target.value)}
+        onBlur={save}
+        onKeyDown={e => { if (e.key === "Enter") save(); if (e.key === "Escape") cancel() }}
+        className="w-28 rounded-lg border border-[#ffde21]/40 bg-[#ffde21]/[0.07] px-2.5 py-1.5 text-right text-[13px] text-white focus:outline-none focus:ring-1 focus:ring-[#ffde21]/60"
+      />
+    </td>
+  )
 
   return (
     <td
@@ -127,7 +105,7 @@ function EditableCell({
       title="Click para editar"
       className="group cursor-pointer whitespace-nowrap px-4 py-3 text-right transition-colors hover:bg-white/[0.04]"
     >
-      <span className={`text-[13px] tabular-nums ${value != null ? "text-white/80" : "text-white/20"} group-hover:text-white`}>
+      <span className={`text-[13px] tabular-nums group-hover:text-white ${value != null ? "text-white/80" : "text-white/20"}`}>
         {fmtValue(value, metric.format)}
       </span>
     </td>
@@ -137,56 +115,39 @@ function EditableCell({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function AdminDataView() {
-  const [clients,          setClients]          = useState<Array<{ id: string; name: string }>>([])
-  const [selectedClientId, setSelectedClientId] = useState<string>("")
-  const [months,           setMonths]           = useState<string[]>([])
-  // pivot[month][metricKey] = value
-  const [pivot,            setPivot]            = useState<Record<string, Record<string, number | null>>>({})
-  const [loading,          setLoading]          = useState(false)
-  const [clientsLoading,   setClientsLoading]   = useState(true)
+  const [clientId, setClientId] = useState<string | null>(null)
+  const [months,   setMonths]   = useState<string[]>([])
+  const [pivot,    setPivot]    = useState<Record<string, Record<string, number | null>>>({})
+  const [loading,  setLoading]  = useState(true)
 
-  // ── Load all clients ──────────────────────────────────────────────────────
+  // Load Ann's own client_id from her profile
   useEffect(() => {
-    async function load() {
-      try {
-        const supabase = createClient()
-        const { data } = await supabase
-          .from("profiles")
-          .select("id, client_id, name")
-          .order("name", { ascending: true })
-
-        const list = (data ?? []).filter((p: any) => p.client_id)
-        const mapped = list.map((p: any) => ({
-          id:   p.client_id as string,
-          name: p.name ?? `Cliente ${String(p.client_id).slice(0, 8)}`,
-        }))
-        // Dedupe by client_id
-        const seen = new Set<string>()
-        const unique = mapped.filter((c: any) => { if (seen.has(c.id)) return false; seen.add(c.id); return true })
-        setClients(unique)
-        if (unique.length) setSelectedClientId(unique[0].id)
-      } finally {
-        setClientsLoading(false)
-      }
+    async function loadProfile() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("client_id")
+        .eq("id", user.id)
+        .maybeSingle()
+      if (profile?.client_id) setClientId(profile.client_id)
     }
-    load()
+    loadProfile()
   }, [])
 
-  // ── Load reports for selected client ─────────────────────────────────────
-  const loadReports = useCallback(async (clientId: string) => {
-    if (!clientId) return
+  const loadReports = useCallback(async (cid: string) => {
     setLoading(true)
     try {
       const supabase = createClient()
       const { data } = await supabase
         .from("monthly_reports")
         .select("month, cash_collected, total_revenue, mrr, new_clients, ad_spend, short_followers, yt_subscribers, nps_score")
-        .eq("client_id", clientId)
+        .eq("client_id", cid)
         .order("month", { ascending: true })
 
       const rows = data ?? []
-      const mths = rows.map((r: any) => String(r.month).slice(0, 7))
-      setMonths(mths)
+      setMonths(rows.map((r: any) => String(r.month).slice(0, 7)))
 
       const pv: Record<string, Record<string, number | null>> = {}
       for (const row of rows) {
@@ -197,41 +158,25 @@ export function AdminDataView() {
         }
       }
       setPivot(pv)
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }, [])
 
-  useEffect(() => {
-    if (selectedClientId) loadReports(selectedClientId)
-  }, [selectedClientId, loadReports])
+  useEffect(() => { if (clientId) loadReports(clientId) }, [clientId, loadReports])
 
-  // ── Optimistic cell update ────────────────────────────────────────────────
   const handleSaved = useCallback((month: string, key: string, val: number | null) => {
-    setPivot(prev => ({
-      ...prev,
-      [month]: { ...(prev[month] ?? {}), [key]: val },
-    }))
+    setPivot(prev => ({ ...prev, [month]: { ...(prev[month] ?? {}), [key]: val } }))
   }, [])
 
-  // ── Export CSV ────────────────────────────────────────────────────────────
   const exportCsv = () => {
-    const clientName = clients.find(c => c.id === selectedClientId)?.name ?? "cliente"
     const header = ["Métrica", ...months.map(fmtMonthLabel)].join(",")
-    const rows = METRICS.map(m =>
-      [m.label, ...months.map(mo => pivot[mo]?.[m.key] ?? "")].join(",")
-    )
-    const csv = [header, ...rows].join("\n")
-    const blob = new Blob([csv], { type: "text/csv" })
-    const url  = URL.createObjectURL(blob)
-    const a    = Object.assign(document.createElement("a"), { href: url, download: `${clientName}.csv` })
-    a.click()
+    const rows   = METRICS.map(m => [m.label, ...months.map(mo => pivot[mo]?.[m.key] ?? "")].join(","))
+    const csv    = [header, ...rows].join("\n")
+    const blob   = new Blob([csv], { type: "text/csv" })
+    const url    = URL.createObjectURL(blob)
+    Object.assign(document.createElement("a"), { href: url, download: "smart-scale-data.csv" }).click()
     URL.revokeObjectURL(url)
   }
 
-  const selectedName = clients.find(c => c.id === selectedClientId)?.name ?? ""
-
-  // ─────────────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
 
@@ -239,35 +184,16 @@ export function AdminDataView() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Tabla de Datos</h1>
-          <p className="text-sm text-white/40 mt-0.5">Métricas mensuales por cliente · click en cualquier celda para editar</p>
+          <p className="text-sm text-white/40 mt-0.5">Métricas mensuales · click en cualquier celda para editar</p>
         </div>
-
-        <div className="flex items-center gap-3">
-          {/* Client selector */}
-          <div className="relative">
-            <select
-              value={selectedClientId}
-              onChange={e => setSelectedClientId(e.target.value)}
-              disabled={clientsLoading}
-              className="h-9 appearance-none cursor-pointer rounded-xl border border-white/[0.08] bg-[#1c1c1f] pl-4 pr-9 text-sm font-medium text-white focus:border-white/20 focus:outline-none disabled:opacity-50"
-            >
-              {clients.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
-          </div>
-
-          {/* Refresh */}
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => loadReports(selectedClientId)}
+            onClick={() => clientId && loadReports(clientId)}
             disabled={loading}
             className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-white/40 hover:text-white hover:border-white/20 transition-all disabled:opacity-40"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
-
-          {/* Export CSV */}
           <button
             onClick={exportCsv}
             disabled={!months.length}
@@ -281,22 +207,19 @@ export function AdminDataView() {
 
       {/* Table */}
       <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#111113]">
-        {loading || clientsLoading ? (
+        {loading ? (
           <div className="flex items-center justify-center py-24">
             <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />
           </div>
         ) : !months.length ? (
-          <div className="flex flex-col items-center gap-2 py-24 text-center">
-            <p className="text-sm text-white/30">
-              {selectedName ? `${selectedName} no tiene reportes cargados todavía.` : "Seleccioná un cliente."}
-            </p>
+          <div className="py-24 text-center">
+            <p className="text-sm text-white/25">No hay reportes cargados todavía.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b border-white/[0.06] bg-white/[0.02]">
-                  {/* Sticky metric name column */}
                   <th className="sticky left-0 z-10 bg-[#111113] px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-white/30 min-w-[160px]">
                     Métrica
                   </th>
@@ -309,11 +232,7 @@ export function AdminDataView() {
               </thead>
               <tbody>
                 {METRICS.map((metric, i) => (
-                  <tr
-                    key={metric.key}
-                    className={`border-b border-white/[0.04] transition-colors hover:bg-white/[0.02] ${i % 2 === 0 ? "" : "bg-white/[0.01]"}`}
-                  >
-                    {/* Sticky metric label */}
+                  <tr key={metric.key} className={`border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors ${i % 2 === 0 ? "" : "bg-white/[0.01]"}`}>
                     <td className="sticky left-0 z-10 bg-[#111113] px-5 py-3 text-[13px] font-semibold text-white/60 whitespace-nowrap">
                       {metric.label}
                     </td>
@@ -323,7 +242,7 @@ export function AdminDataView() {
                         value={pivot[m]?.[metric.key] ?? null}
                         metricKey={metric.key}
                         month={m}
-                        clientId={selectedClientId}
+                        clientId={clientId!}
                         onSaved={handleSaved}
                       />
                     ))}
@@ -336,7 +255,7 @@ export function AdminDataView() {
       </div>
 
       <p className="text-[11px] text-white/20 text-center">
-        Click en cualquier número para editarlo · Enter para guardar · Esc para cancelar
+        Click en cualquier número para editar · Enter para guardar · Esc para cancelar
       </p>
     </div>
   )
