@@ -41,8 +41,9 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Amount ───────────────────────────────────────────────────────────────
-    // Stripe always sends cents via Zapier (e.g. $400 → 40000).
-    // We always divide by 100.
+    // Zapier's Stripe integration already converts cents to dollars
+    // (e.g. Stripe's 200000 cents → Zapier sends 2000 for $2,000).
+    // So we use the value as-is — no division needed.
     const rawAmount =
       body.amount          ??
       body.amount_total    ??
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
       body.grand_total     ??
       0
 
-    const amount = Number(rawAmount) / 100
+    const amount = Number(rawAmount)
 
     // ── Name ─────────────────────────────────────────────────────────────────
     const name =
