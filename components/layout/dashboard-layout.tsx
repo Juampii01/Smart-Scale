@@ -43,6 +43,8 @@ const PAGE_TITLES: Record<string, string> = {
   "/report-history": "Historial de Reportes",
   "/chi-chang": "Cha-Ching 💰",
   "/transcript": "Transcript de Videos",
+  "/admin/data":  "Tabla de Datos",
+  "/admin/leads": "Leads",
 }
 
 const SelectedMonthContext = createContext<string | null>(null)
@@ -340,7 +342,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-[#0a0a0b] dark">
       <NavigationProgress />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin} />
 
       <div className="flex-1 flex flex-col lg:ml-[220px]">
         <header className="sticky top-0 z-10 border-b border-white/[0.08] bg-[#0a0a0b]/95 backdrop-blur-md">
