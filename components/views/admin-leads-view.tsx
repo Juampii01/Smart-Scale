@@ -12,6 +12,7 @@ import {
 interface Lead {
   id:         string
   name:       string | null
+  email:      string | null
   tag:        string | null
   source:     string | null
   lead_type:  string | null
@@ -169,6 +170,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
           {textField("Tipo de lead",       "lead_type", "ej: Orgánico, Paid, DM...")}
           {textField("Nicho",              "niche",     "ej: Fitness, Finanzas, Coaches...")}
           {textField("Instagram",          "instagram", "@usuario")}
+          {textField("Email",              "email",     "correo@ejemplo.com")}
 
           <div className="space-y-1.5">
             <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Algo acerca del lead</p>
@@ -246,9 +248,9 @@ export function AdminLeadsView() {
   }
 
   const exportCsv = () => {
-    const header = ["Nombre","Tag","Desde dónde llegó","Tipo","Estado","Instagram","Rating","Nicho","Notas","Fecha"].join(",")
+    const header = ["Nombre","Email","Tag","Desde dónde llegó","Tipo","Estado","Instagram","Rating","Nicho","Notas","Fecha"].join(",")
     const rows = filtered.map(l =>
-      [l.name, l.tag, l.source, l.lead_type, l.status, l.instagram, l.rating, l.niche, l.notes, l.created_at]
+      [l.name, l.email, l.tag, l.source, l.lead_type, l.status, l.instagram, l.rating, l.niche, l.notes, l.created_at]
         .map(v => `"${String(v ?? "").replace(/"/g, '""')}"`)
         .join(",")
     )
@@ -344,7 +346,7 @@ export function AdminLeadsView() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-white/[0.06] bg-white/[0.02]">
-                    {["Nombre","Tag","Instagram","Rating","Estado","Desde dónde llegó","Tipo","Nicho","Fecha",""].map(h => (
+                    {["Nombre","Email","Tag","Instagram","Rating","Estado","Desde dónde llegó","Tipo","Nicho","Fecha",""].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-white/25 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
@@ -361,6 +363,10 @@ export function AdminLeadsView() {
 
                       <td className="px-4 py-3 whitespace-nowrap">
                         <span className="text-[13px] font-semibold text-white">{lead.name ?? <span className="text-white/25">—</span>}</span>
+                      </td>
+
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <span className="text-[12px] text-white/50">{lead.email ?? <span className="text-white/20">—</span>}</span>
                       </td>
 
                       <td className="px-4 py-3 whitespace-nowrap">

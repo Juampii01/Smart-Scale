@@ -45,7 +45,7 @@ async function requireAdmin(jwt: string | null) {
   return user
 }
 
-const SELECT_FIELDS = "id, name, tag, source, lead_type, status, instagram, rating, niche, notes, created_at"
+const SELECT_FIELDS = "id, name, email, tag, source, lead_type, status, instagram, rating, niche, notes, created_at"
 
 /** GET — all leads ordered by created_at desc */
 export async function GET(req: NextRequest) {
@@ -81,7 +81,7 @@ export async function PATCH(req: NextRequest) {
     const { id, ...updates } = body
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
-    const PATCHABLE = ["status", "source", "lead_type", "niche", "notes", "rating", "instagram", "tag", "name"]
+    const PATCHABLE = ["status", "source", "lead_type", "niche", "notes", "rating", "instagram", "email", "tag", "name"]
     const allowed: Record<string, any> = { updated_at: new Date().toISOString() }
     for (const key of PATCHABLE) {
       if (updates[key] !== undefined) allowed[key] = updates[key]
