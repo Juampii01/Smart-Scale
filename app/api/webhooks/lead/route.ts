@@ -47,12 +47,13 @@ export async function POST(req: NextRequest) {
     // Supports flat payloads AND nested (e.g. GHL's contact object)
     const contact = raw?.contact ?? raw?.data?.contact ?? raw?.data ?? raw
 
+    const firstName = (contact?.first_name ?? contact?.firstName ?? "") as string
+    const lastName  = (contact?.last_name  ?? contact?.lastName  ?? "") as string
     const name =
       contact?.full_name ??
       contact?.fullName  ??
       contact?.name      ??
-      [contact?.first_name ?? contact?.firstName, contact?.last_name ?? contact?.lastName]
-        .filter(Boolean).join(" ") || null
+      ([firstName, lastName].filter(Boolean).join(" ") || null)
 
     const email =
       contact?.email ??
