@@ -55,7 +55,7 @@ function FunnelStep({
         <div className="relative flex items-center justify-between">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-1">{label}</p>
-            <p className="text-4xl font-bold tracking-tight text-white leading-none">
+            <p className="text-2xl sm:text-4xl font-bold tracking-tight text-white leading-none">
               {count > 0 ? count : "—"}
             </p>
           </div>
@@ -92,7 +92,7 @@ function MiniStat({ label, value, sub, color = "#ffde21" }: { label: string; val
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-5 hover:border-white/[0.12] transition-colors">
       <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: `${color}99` }}>{label}</p>
-      <p className="text-3xl font-bold tracking-tight text-white leading-none">{value}</p>
+      <p className="text-2xl sm:text-3xl font-bold tracking-tight text-white leading-none">{value}</p>
       {sub && <p className="mt-2 text-xs text-white/30">{sub}</p>}
     </div>
   )
@@ -248,7 +248,7 @@ export function SalesView() {
               <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Tasa de cierre</p>
               <p className="text-xs text-white/30 mt-0.5">cierres / llamadas atendidas</p>
             </div>
-            <p className={`text-4xl font-bold tabular-nums ${
+            <p className={`text-2xl sm:text-4xl font-bold tabular-nums ${
               Number(closeRatePct) >= 20 ? "text-emerald-300"
               : Number(closeRatePct) >= 10 ? "text-yellow-300"
               : "text-red-300"

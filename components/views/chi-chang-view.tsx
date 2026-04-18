@@ -156,7 +156,7 @@ export function ChiChangView() {
           </div>
 
           <Field label="¿Cuál es el próximo nivel que vas a conquistar?">
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {NIVEL_OPTIONS.map((opt) => {
                 const isActive = proximoNivel === opt.value
                 return (

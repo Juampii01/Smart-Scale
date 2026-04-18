@@ -59,7 +59,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
         onChange?.(v)
       }}
     >
-      <SelectTrigger className="w-[140px] bg-white/5 text-white border-border">
+      <SelectTrigger className="w-[110px] sm:w-[140px] bg-white/5 text-white border-border text-xs sm:text-sm">
         <SelectValue className="text-white" />
       </SelectTrigger>
       <SelectContent className="bg-black text-white border-border shadow-xl">

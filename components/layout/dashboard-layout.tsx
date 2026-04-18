@@ -354,8 +354,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <Menu className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-lg font-bold text-white leading-tight tracking-tight">{pageTitle}</h1>
-                <p className="text-[10px] text-white/35 leading-none mt-0.5 tracking-wide">Smart Scale Portal 2.0</p>
+                <h1 className="text-base sm:text-lg font-bold text-white leading-tight tracking-tight">{pageTitle}</h1>
+                <p className="hidden sm:block text-[10px] text-white/35 leading-none mt-0.5 tracking-wide">Smart Scale Portal 2.0</p>
               </div>
             </div>
 

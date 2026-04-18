@@ -247,7 +247,7 @@ function MarketIntelligenceContent() {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
               {[1,2,3,4,5].map(i => (
                 <div key={i}>
                     <Label htmlFor={`competitor-url-${i}`} className="mb-2 block text-white/40 text-[10px] font-semibold uppercase tracking-wider">Referencia {i}</Label>

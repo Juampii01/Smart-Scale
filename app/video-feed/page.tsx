@@ -336,7 +336,7 @@ function FeedView({ account, onRefresh, onDisconnect }: {
 
       {/* Grid — portrait 9:16 */}
       {filtered.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
           {filtered.map(p => <PostCard key={p.post_id} post={p} avg={avg} />)}
         </div>
       ) : (

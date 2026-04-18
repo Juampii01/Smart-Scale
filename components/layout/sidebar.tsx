@@ -111,8 +111,8 @@ export function Sidebar({ open, onClose, isAdmin = false }: SidebarProps) {
                 {isAdminGroup && (
                   <div className="mx-2 my-3 flex items-center gap-2">
                     <div className="flex-1 h-px bg-white/[0.07]" />
-                    <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.2em] text-[#ffde21]/40">
-                      <ShieldCheck className="h-2.5 w-2.5" />
+                    <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.15em] text-[#ffde21]/40 whitespace-nowrap">
+                      <ShieldCheck className="h-2.5 w-2.5 shrink-0" />
                       Smart Scale CRM
                     </span>
                     <div className="flex-1 h-px bg-white/[0.07]" />

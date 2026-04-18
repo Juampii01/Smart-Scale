@@ -29,7 +29,7 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
 function SectionCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-2xl border border-white/[0.07] p-7 space-y-6"
+      className="rounded-2xl border border-white/[0.07] p-5 sm:p-7 space-y-5 sm:space-y-6"
       style={{ backgroundColor: "#111113" }}
     >
       {children}
@@ -187,7 +187,7 @@ export default function ApplyPage() {
   if (submitted) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "#0a0a0b" }}>
-        <div className="max-w-md w-full text-center space-y-8">
+        <div className="max-w-md w-full text-center space-y-6 sm:space-y-8 px-2">
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#ffde21]">
             <Check className="h-10 w-10 text-black" strokeWidth={3} />
           </div>
@@ -241,7 +241,7 @@ export default function ApplyPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-2xl px-5 pb-28 pt-12 space-y-5">
+      <div className="mx-auto max-w-2xl px-4 sm:px-5 pb-20 sm:pb-28 pt-8 sm:pt-12 space-y-4 sm:space-y-5">
 
         {/* ── Hero */}
         <div className="space-y-5 pb-4">
@@ -249,7 +249,7 @@ export default function ApplyPage() {
             <span className="h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse" />
             <span className="text-[11px] font-bold text-[#ffde21] uppercase tracking-[0.18em]">Smart Scale™</span>
           </div>
-          <h1 className="text-[38px] font-black text-white leading-[1.1] tracking-tight">
+          <h1 className="text-[28px] sm:text-[38px] font-black text-white leading-[1.1] tracking-tight">
             Aplicá a<br />Smart Scale
           </h1>
           <p className="text-[15px] text-white/50 leading-relaxed max-w-lg">

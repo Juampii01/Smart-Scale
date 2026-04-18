@@ -185,7 +185,7 @@ export function ReflectionView() {
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35">{item.title}</p>
                 </div>
                 {item.numeric !== null ? (
-                  <p className={`text-3xl font-bold tabular-nums ${
+                  <p className={`text-2xl sm:text-3xl font-bold tabular-nums ${
                     item.numeric >= 50 ? "text-emerald-400"
                     : item.numeric >= 0 ? "text-amber-400"
                     : "text-red-400"
