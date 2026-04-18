@@ -444,7 +444,7 @@ export function AdminApplicationsView() {
                 </thead>
                 <tbody>
                   {!filtered.length ? (
-                    <tr><td colSpan={8} className="py-16 text-center text-sm text-white/25">
+                    <tr><td colSpan={9} className="py-16 text-center text-sm text-white/25">
                       {apps.length ? "No hay aplicaciones con ese filtro." : "Todavía no hay aplicaciones. Compartí el formulario (/apply) para recibirlas."}
                     </td></tr>
                   ) : filtered.map(app => (
@@ -504,6 +504,19 @@ export function AdminApplicationsView() {
                       {/* Arrow */}
                       <td className="px-4 py-3 whitespace-nowrap">
                         <ChevronRight className="h-4 w-4 text-white/15 group-hover:text-white/40 transition-colors" />
+                      </td>
+
+                      {/* Delete */}
+                      <td className="px-3 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                        <button
+                          onClick={() => handleDelete(app.id)}
+                          disabled={deletingId === app.id}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg text-white/15 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
+                        >
+                          {deletingId === app.id
+                            ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            : <Trash2 className="h-3.5 w-3.5" />}
+                        </button>
                       </td>
                     </tr>
                   ))}

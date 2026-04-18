@@ -77,7 +77,7 @@ function InlineField({ value, placeholder, onSave }: {
       placeholder={placeholder}
       onBlur={e    => onSave(e.target.value)}
       onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-      className="w-full rounded-lg border border-transparent bg-transparent px-2 py-1 text-[12px] text-white/55 placeholder:text-white/20 hover:border-white/[0.08] focus:border-white/20 focus:bg-white/[0.03] focus:text-white/80 focus:outline-none transition-all"
+      className="w-full rounded-lg border border-transparent bg-transparent px-2 py-1 text-[13px] text-white placeholder:text-white/45 hover:border-white/[0.08] focus:border-white/20 focus:bg-white/[0.03] focus:outline-none transition-all"
     />
   )
 }
@@ -102,7 +102,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
         placeholder={placeholder}
         onBlur={e    => onPatch(lead.id, { [key]: e.target.value || null })}
         onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-        className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white/70 placeholder:text-white/20 focus:border-white/20 focus:text-white/90 focus:outline-none transition-all"
+        className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
       />
     </div>
   )
@@ -113,7 +113,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
       <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[440px] flex-col border-l border-white/[0.08] shadow-2xl" style={{ backgroundColor: "#111113" }}>
 
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 border-b border-white/[0.06] px-6 py-5">
+        <div className="flex items-start justify-between gap-4 border-b border-white/[0.06] px-6 py-5" style={{ backgroundColor: "#111113" }}>
           <div className="min-w-0">
             <h2 className="text-lg font-bold text-white truncate">{lead.name ?? "Lead"}</h2>
             <p className="text-[12px] text-white/35 mt-0.5">{fmtDate(lead.created_at)}</p>
@@ -131,7 +131,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
         </div>
 
         {/* Rating + tag + instagram */}
-        <div className="border-b border-white/[0.06] px-6 py-4 space-y-3">
+        <div className="border-b border-white/[0.06] px-6 py-4 space-y-3" style={{ backgroundColor: "#111113" }}>
           <div className="flex items-center justify-between">
             <StarRating size="md" value={lead.rating}
               onChange={n => onPatch(lead.id, { rating: n || null })} />
@@ -152,7 +152,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
         </div>
 
         {/* Editable fields */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4" style={{ backgroundColor: "#111113" }}>
 
           <div className="space-y-1.5">
             <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Estado</p>
@@ -162,7 +162,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
               placeholder="ej: caliente, en proceso, cerrado..."
               onBlur={e    => onPatch(lead.id, { status: e.target.value || "nuevo" })}
               onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white/70 placeholder:text-white/20 focus:border-white/20 focus:text-white/90 focus:outline-none transition-all"
+              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
             />
           </div>
 
@@ -180,7 +180,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
               rows={4}
               onBlur={e    => onPatch(lead.id, { notes: e.target.value || null })}
               onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) (e.target as HTMLTextAreaElement).blur() }}
-              className="w-full resize-none rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white/70 placeholder:text-white/20 focus:border-white/20 focus:text-white/90 focus:outline-none transition-all"
+              className="w-full resize-none rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
             />
           </div>
 
@@ -342,12 +342,12 @@ export function AdminLeadsView() {
               <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto" style={{ backgroundColor: "#111113" }}>
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-white/[0.06] bg-white/[0.02]">
                     {["Nombre","Email","Tag","Instagram","Rating","Estado","Desde dónde llegó","Tipo","Nicho","Fecha",""].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-white/25 whitespace-nowrap">{h}</th>
+                      <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-white/40 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -359,64 +359,67 @@ export function AdminLeadsView() {
                   ) : filtered.map(lead => (
                     <tr key={lead.id}
                       onClick={() => setSelected(lead)}
-                      className="border-b border-white/[0.04] hover:bg-white/[0.02] cursor-pointer transition-colors group">
+                      className="border-b border-white/[0.04] cursor-pointer transition-colors group"
+                      style={{ backgroundColor: "#111113" }}
+                      onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#18181b")}
+                      onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#111113")}>
 
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="text-[13px] font-semibold text-white">{lead.name ?? <span className="text-white/25">—</span>}</span>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <span className="text-[14px] font-semibold text-white">{lead.name ?? <span className="text-white/30">—</span>}</span>
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="text-[12px] text-white/50">{lead.email ?? <span className="text-white/20">—</span>}</span>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <span className="text-[13px] text-white/90">{lead.email ?? <span className="text-white/30">—</span>}</span>
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         {lead.tag
-                          ? <span className="rounded-full border border-[#ffde21]/20 bg-[#ffde21]/[0.06] px-2.5 py-0.5 text-[11px] font-semibold text-[#ffde21]/70">{lead.tag}</span>
-                          : <span className="text-white/20 text-[12px]">—</span>}
+                          ? <span className="rounded-full border border-[#ffde21]/20 bg-[#ffde21]/[0.06] px-2.5 py-0.5 text-[12px] font-semibold text-[#ffde21]/90">{lead.tag}</span>
+                          : <span className="text-white/30 text-[13px]">—</span>}
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                      <td className="px-4 py-4 whitespace-nowrap" onClick={e => e.stopPropagation()}>
                         {lead.instagram
                           ? <a href={`https://instagram.com/${lead.instagram.replace("@","")}`}
                               target="_blank" rel="noopener noreferrer"
-                              className="flex items-center gap-1.5 text-[12px] text-pink-300/60 hover:text-pink-300 transition-colors">
+                              className="flex items-center gap-1.5 text-[13px] text-pink-300 hover:text-pink-200 transition-colors">
                               <Instagram className="h-3.5 w-3.5 shrink-0" />
                               {lead.instagram}
                             </a>
-                          : <span className="text-white/20 text-[12px]">—</span>}
+                          : <span className="text-white/30 text-[13px]">—</span>}
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                      <td className="px-4 py-4 whitespace-nowrap" onClick={e => e.stopPropagation()}>
                         <StarRating value={lead.rating}
                           onChange={n => patch(lead.id, { rating: n || null })} />
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap min-w-[120px]" onClick={e => e.stopPropagation()}>
+                      <td className="px-4 py-4 whitespace-nowrap min-w-[130px]" onClick={e => e.stopPropagation()}>
                         <InlineField value={lead.status !== "nuevo" ? lead.status : null}
                           placeholder="estado..." onSave={v => patch(lead.id, { status: v || "nuevo" })} />
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap min-w-[130px]" onClick={e => e.stopPropagation()}>
+                      <td className="px-4 py-4 whitespace-nowrap min-w-[140px]" onClick={e => e.stopPropagation()}>
                         <InlineField value={lead.source} placeholder="desde dónde..."
                           onSave={v => patch(lead.id, { source: v || null })} />
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap min-w-[110px]" onClick={e => e.stopPropagation()}>
+                      <td className="px-4 py-4 whitespace-nowrap min-w-[120px]" onClick={e => e.stopPropagation()}>
                         <InlineField value={lead.lead_type} placeholder="tipo..."
                           onSave={v => patch(lead.id, { lead_type: v || null })} />
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap min-w-[110px]" onClick={e => e.stopPropagation()}>
+                      <td className="px-4 py-4 whitespace-nowrap min-w-[120px]" onClick={e => e.stopPropagation()}>
                         <InlineField value={lead.niche} placeholder="nicho..."
                           onSave={v => patch(lead.id, { niche: v || null })} />
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="text-[11px] text-white/25">{fmtDate(lead.created_at)}</span>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <span className="text-[12px] text-white/60">{fmtDate(lead.created_at)}</span>
                       </td>
 
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <ChevronRight className="h-4 w-4 text-white/15 group-hover:text-white/40 transition-colors" />
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <ChevronRight className="h-4 w-4 text-white/25 group-hover:text-white/60 transition-colors" />
                       </td>
                     </tr>
                   ))}

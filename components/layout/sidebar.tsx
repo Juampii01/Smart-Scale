@@ -48,7 +48,7 @@ const NAV_GROUPS = [
 ]
 
 const ADMIN_NAV_GROUP = {
-  label: "Admin",
+  label: "Smart Scale CRM",
   items: [
     { name: "Tabla de Datos", href: "/admin/data",         icon: Table2  },
     { name: "Leads",          href: "/admin/leads",        icon: Users2  },
@@ -104,7 +104,7 @@ export function Sidebar({ open, onClose, isAdmin = false }: SidebarProps) {
           {[...NAV_GROUPS, ...(isAdmin ? [ADMIN_NAV_GROUP] : [])].map((group) => {
             const isCollapsed = collapsed[group.label]
             const hasActive = group.items.some(i => pathname === i.href)
-            const isAdminGroup = group.label === "Admin"
+            const isAdminGroup = group.label === "Smart Scale CRM"
 
             return (
               <div key={group.label} className="mb-1">
@@ -113,7 +113,7 @@ export function Sidebar({ open, onClose, isAdmin = false }: SidebarProps) {
                     <div className="flex-1 h-px bg-white/[0.07]" />
                     <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.2em] text-[#ffde21]/40">
                       <ShieldCheck className="h-2.5 w-2.5" />
-                      Admin
+                      Smart Scale CRM
                     </span>
                     <div className="flex-1 h-px bg-white/[0.07]" />
                   </div>

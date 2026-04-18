@@ -54,6 +54,41 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    // ── Webhook a Zapier (fire-and-forget, nunca bloquea la respuesta) ──────────
+    const webhookUrl = process.env.APPLY_WEBHOOK_URL ?? "https://hooks.zapier.com/hooks/catch/17540789/uj9kbbl/"
+    if (webhookUrl) {
+      const payload = new URLSearchParams({
+        id:                   data.id,
+        nombre:               first_name                              ?? "",
+        apellido:             last_name                               ?? "",
+        nombre_completo:      `${first_name} ${last_name}`.trim(),
+        email:                email                                   ?? "",
+        whatsapp:             whatsapp                                ?? "",
+        instagram:            instagram_handle                        ?? "",
+        canal_principal:      primary_channel                         ?? "",
+        link_contenido_corto: short_content_link                      ?? "",
+        link_youtube_podcast: youtube_podcast_link                    ?? "",
+        tamano_lista_emails:  email_list_size                         ?? "",
+        facturacion_mensual:  monthly_revenue                         ?? "",
+        clientes_pagos:       String(paying_clients                   ?? ""),
+        modalidad_trabajo:    client_work_style                       ?? "",
+        objetivo_ingresos:    income_goal                             ?? "",
+        bloqueo_principal:    main_blocker                            ?? "",
+        superpoderes:         superpowers                             ?? "",
+        aporte_al_equipo:     contribution                            ?? "",
+        motivacion:           motivation                              ?? "",
+        objetivo_1_anio:      one_year_goal                           ?? "",
+        fecha_envio:          new Date().toISOString(),
+      })
+
+      fetch(webhookUrl, {
+        method:  "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body:    payload.toString(),
+      }).catch(() => { /* silencioso — no rompe la respuesta */ })
+    }
+
     return NextResponse.json({ success: true, id: data.id })
   } catch (err: any) {
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
