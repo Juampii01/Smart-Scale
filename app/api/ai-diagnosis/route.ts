@@ -7,36 +7,36 @@ export const runtime = "nodejs"
 
 // ─── Module maps ──────────────────────────────────────────────────────────────
 
-const MODULES_MENOS20K: Record<string, { name: string; level: string }> = {
+// +$20k → F1-F3, E1-E3, T1-T3, I1-I3
+const MODULES_MAS20K: Record<string, { name: string; level: string }> = {
   F1: { name: "La Ingeniera de un Simple Post",          level: "Nivel 5" },
   F2: { name: "Los No Negociables Diarios",              level: "Nivel 0" },
   F3: { name: "El Diamante de Autoridad & BIO",          level: "Nivel 5" },
-  F4: { name: "Quick Cash DM Ads",                       level: "Nivel 5" },
   E1: { name: "Mini-Serie Youtube Playbook",             level: "Nivel 7" },
   E2: { name: "Airtable CRM y Base de Datos",            level: "Nivel 8" },
   E3: { name: "DM to Chat — Priorizacion de tu Pipeline",level: "Nivel 6" },
-  I1: { name: "Tu Programa Matadolor™",                  level: "Nivel 3" },
-  I2: { name: "Onboarding Proceso",                      level: "Nivel 3" },
-  I3: { name: "Tu Offer Doc",                            level: "Nivel 6" },
   T1: { name: "Investigacion de Mercado",                level: "Nivel 3" },
   T2: { name: "Recoleccion de Prueba Social",            level: "Nivel 3" },
   T3: { name: "Una Simple Oferta | Blueprint",           level: "Nivel 3" },
+  I1: { name: "Tu Programa Matadolor™",                  level: "Nivel 3" },
+  I2: { name: "Onboarding Proceso",                      level: "Nivel 3" },
+  I3: { name: "Tu Offer Doc",                            level: "Nivel 6" },
 }
 
-const MODULES_MAS20K: Record<string, { name: string; level: string }> = {
+// -$20k → F4-F6, E4-E6, T4-T6, I4-I6
+const MODULES_MENOS20K: Record<string, { name: string; level: string }> = {
   F4: { name: "Lead Magnets Principales",                level: "Nivel 4" },
   F5: { name: "Un Simple Protocolo de Ads",              level: "Nivel 5" },
   F6: { name: "Productividad y Calendario Optimizado",   level: "Nivel 5" },
-  F7: { name: "Quick Cash DM Ads",                       level: "Nivel 5" },
   E4: { name: "El Blueprint de una Marca con Identidad", level: "Nivel 5" },
   E5: { name: "Un Simple Video (VSL)",                   level: "Nivel 6" },
   E6: { name: "Workshops DDE",                           level: "En creación" },
-  I4: { name: "Creacion de Tu Simple Oferta",            level: "Nivel 3" },
-  I5: { name: "Tu World Class Delivery",                 level: "Nivel 3" },
-  I6: { name: "IA & Sistemas",                           level: "Nivel 8" },
   T4: { name: "Comunidad Solida",                        level: "Nivel 3" },
   T5: { name: "Formulario de Contratacion",              level: "Nivel 6" },
   T6: { name: "SmartScale Roadmap",                      level: "Nivel 0" },
+  I4: { name: "Creacion de Tu Simple Oferta",            level: "Nivel 3" },
+  I5: { name: "Tu World Class Delivery",                 level: "Nivel 3" },
+  I6: { name: "IA & Sistemas",                           level: "Nivel 8" },
 }
 
 // ─── Parse prompt → items per color ──────────────────────────────────────────
