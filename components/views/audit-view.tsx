@@ -11,39 +11,37 @@ import { Trash2 } from "lucide-react"
 
 const sections = [
   {
-    title: "Ecosistema Circular — menos de $20k/mes",
+    title: "Ecosistema Circular — más de $20k/mes",
     items: [
       { id: "F1", label: "Atraigo nuevos seguidores de forma consistente con mi contenido todos los días" },
-      { id: "F2", label: "Me siento seguro/a sabiendo qué publicar cada semana para crecer y convertir" },
-      { id: "F3", label: "Puedo iniciar 5 conversaciones de calidad por DM todos los días sin depender solo de ADS" },
-      { id: "F4", label: "Me llegan DM's calificados y agendas del quick cash DM" },
-      { id: "E1", label: "Mando de forma consistente al menos un email por semana a mi lista" },
-      { id: "E2", label: "Tengo un sistema para hacer seguimiento de leads, conversaciones, pagos y progreso de clientes" },
-      { id: "E3", label: "Solo dedico tiempo a hablar con prospectos 4+5★ con el DM-Close™" },
+      { id: "F2", label: "Me siento segura sabiendo qué publicar cada semana para crecer y convertir" },
+      { id: "F3", label: "Puedo iniciar 5 conversaciones de calidad por DM todos los días sin publicidad paga" },
+      { id: "E1", label: "Mando al menos un email por semana a mi lista de forma consistente" },
+      { id: "E2", label: "Tengo un sistema para rastrear leads, conversaciones, pagos y el progreso de mis clientes" },
+      { id: "E3", label: "Solo invierto tiempo hablando con prospectos de 4+5★ gracias a mi sistema de Chat-To-Close™️" },
+      { id: "T1", label: "Mi programa resuelve un problema profundo que mi audiencia ya está tratando de solucionar" },
+      { id: "T2", label: "Tengo al menos 5 casos de estudio que muestran una transformación clara como la que prometo" },
+      { id: "T3", label: "Tengo una oferta principal clara que puedo vender a al menos $3K" },
       { id: "I1", label: "Mis clientes logran su primera gran victoria en los primeros 30 días" },
-      { id: "I2", label: "Mi onboarding y recursos hacen que los clientes sepan exactamente qué esperar" },
+      { id: "I2", label: "Mi proceso de bienvenida y mis recursos hacen que los clientes sepan exactamente qué esperar" },
       { id: "I3", label: "Podría duplicar mis clientes mañana sin quemarme" },
-      { id: "T1", label: "Mi programa resuelve un dolor profundo que mi audiencia ya está intentando solucionar" },
-      { id: "T2", label: "Tengo al menos 5 entrevistas de casos de exito que muestran la transformación que prometo" },
-      { id: "T3", label: "Tengo una oferta central clara que puedo vender por al menos $3k" },
     ],
   },
   {
-    title: "Ecosistema Circular — más de $20k/mes",
+    title: "Ecosistema Circular — menos de $20k/mes",
     items: [
-      { id: "F4", label: "Mis publicaciones de contenido corto generan consultas de leads entrantes todos los días" },
-      { id: "F5", label: "Mi contenido genera guardados, compartidos y DMs de forma constante sin publicidad" },
-      { id: "F6", label: "Mi calendario de marketing está claramente planificado para el próximo mes" },
-      { id: "F7", label: "Recupere ROI de la inversion en Smart Scale con los DM QUICK CASH (O Cash Menu)" },
-      { id: "E4", label: "Aparezco de forma consistente cada semana en formato largo para construir mi Marca Autentica™" },
-      { id: "E5", label: "Los clientes compran sin necesitar persuasión en DMs ni en una llamada de ventas (puede ser llamada corta de 15 min logistica)" },
-      { id: "E6", label: "Puedo llenar de forma consistente un taller (Workshop) con una campaña de 7 días" },
-      { id: "I4", label: "Tengo un ritmo y una cadencia repetible para incorporar nuevos clientes de forma consistente" },
-      { id: "I5", label: "Mi proceso de onboarding es sin fricción, claro y no me requiere a mí" },
-      { id: "I6", label: "No soy el cuello de botella, mis clientes avanzan incluso cuando estoy offline" },
-      { id: "T4", label: "Mi comunidad de clientes genera amistades reales y referidos" },
-      { id: "T5", label: "Solo hago trabajo de alta traccion en mi Zona de Genialidad que me da energía al máximo" },
-      { id: "T6", label: "Puedo generar casos de exito todos los meses" },
+      { id: "F4", label: "Mis posts de contenido corto generan consultas de leads inbound todos los días" },
+      { id: "F5", label: "Mi contenido genera guardados, compartidos y DMs de forma consistente sin publicidad paga" },
+      { id: "F6", label: "Tengo mi calendario de contenido claramente planificado para el próximo mes" },
+      { id: "E4", label: "Aparezco de forma consistente cada semana en contenido largo para construir mi marca" },
+      { id: "E5", label: "Mis clientes compran sin necesitar que los convenza por DM ni en una llamada de ventas" },
+      { id: "E6", label: "Puedo llenar un workshop de forma consistente con una campaña de 7 días" },
+      { id: "T4", label: "Mi comunidad de clientes genera vínculos reales y referidos" },
+      { id: "T5", label: "Solo hago trabajo de alto impacto en mi zona de genialidad que me llena de energía" },
+      { id: "T6", label: "Genero casos de estudio con transformaciones reales todos los meses" },
+      { id: "I4", label: "Tengo un ritmo y proceso repetible para sumar nuevos clientes de forma consistente" },
+      { id: "I5", label: "Mi proceso de bienvenida es claro, fluido y no depende de mí para funcionar" },
+      { id: "I6", label: "No soy el cuello de botella: mis clientes avanzan aunque yo esté desconectada" },
     ],
   },
 ]
@@ -284,7 +282,7 @@ export function AuditView() {
 
   const flywheelSectionItems = useMemo(() => {
     const currentSection = sections.find((_, idx) =>
-      (auditType === "menos20k" && idx === 0) || (auditType === "mas20k" && idx === 1)
+      (auditType === "mas20k" && idx === 0) || (auditType === "menos20k" && idx === 1)
     )
 
     if (!currentSection) return []
@@ -364,7 +362,7 @@ export function AuditView() {
   }, [activeClientId, userId])
 
   const activeSection = sections.find((_, idx) =>
-    (auditType === 'menos20k' && idx === 0) || (auditType === 'mas20k' && idx === 1)
+    (auditType === 'mas20k' && idx === 0) || (auditType === 'menos20k' && idx === 1)
   )
 
   useEffect(() => {
