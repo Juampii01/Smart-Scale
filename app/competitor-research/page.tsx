@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase"
 import { AiLoading } from "@/components/ui/ai-loading"
 import {
   Youtube, Instagram, ExternalLink, Copy, ChevronDown, ChevronUp,
-  Trash2, Search, X,
+  Trash2, Search, X, Zap, AlertTriangle,
 } from "lucide-react"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -278,6 +278,9 @@ function CompetitorResearchContent() {
   const [timeframe, setTimeframe] = useState<30 | 60 | 90>(60)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [limitReached, setLimitReached] = useState<{ used: number; limit: number; resets_at: string } | null>(null)
+  const [cachedNotice, setCachedNotice] = useState(false)
+  const [monthUsage, setMonthUsage] = useState<{ used: number; limit: number } | null>(null)
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [historyLoading, setHistoryLoading] = useState(true)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -299,7 +302,10 @@ function CompetitorResearchContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!channelUrl.trim() || loading) return
-    setLoading(true); setError(null)
+    setLoading(true)
+    setError(null)
+    setLimitReached(null)
+    setCachedNotice(false)
     try {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
@@ -310,11 +316,26 @@ function CompetitorResearchContent() {
         body: JSON.stringify({ channel_url: channelUrl.trim(), timeframe_days: timeframe, platform }),
       })
       const data = await res.json()
+
+      if (res.status === 429 && data.limit_reached) {
+        setLimitReached({ used: data.used, limit: data.limit, resets_at: data.resets_at })
+        return
+      }
+
       if (!res.ok) { setError(data.error ?? "Error al investigar."); return }
+
+      // Update monthly usage counter
+      if (data.used != null && data.limit != null) {
+        setMonthUsage({ used: data.used, limit: data.limit })
+      }
+
+      // If result came from cache, show a notice
+      if (data.cached) setCachedNotice(true)
+
       setChannelUrl("")
       fetchHistory()
     } catch (err: any) {
-      setError(err?.message ?? "Error inesperado.")
+      setError(err?.message ?? "Error inesperado. Intentá de nuevo.")
     } finally { setLoading(false) }
   }
 
@@ -414,6 +435,42 @@ function CompetitorResearchContent() {
             </button>
           </form>
 
+          {/* Usage counter */}
+          {monthUsage && !limitReached && (
+            <div className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-2.5">
+              <Zap className="h-3.5 w-3.5 text-[#ffde21]/60 shrink-0" />
+              <span className="text-xs text-white/40">
+                Análisis este mes: <span className={`font-semibold ${monthUsage.used >= monthUsage.limit ? "text-red-400" : "text-white/70"}`}>{monthUsage.used}</span>
+                <span className="text-white/25"> / {monthUsage.limit}</span>
+              </span>
+            </div>
+          )}
+
+          {/* Cache notice */}
+          {cachedNotice && (
+            <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5">
+              <Zap className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+              <span className="text-xs text-emerald-300">Resultado del caché — ya analizaste este canal esta semana. No se usaron tokens.</span>
+            </div>
+          )}
+
+          {/* Limit reached */}
+          {limitReached && (
+            <div className="flex items-start gap-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3">
+              <AlertTriangle className="h-4 w-4 text-amber-400 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-amber-300">Límite mensual alcanzado</p>
+                <p className="text-xs text-amber-200/60 mt-0.5">
+                  Usaste {limitReached.used} de {limitReached.limit} análisis disponibles este mes.
+                  Los análisis se renuevan el{" "}
+                  {new Date(limitReached.resets_at).toLocaleDateString("es-AR", { day: "numeric", month: "long" })}.
+                </p>
+                <p className="text-xs text-amber-200/40 mt-1">Tus análisis anteriores siguen disponibles en el historial.</p>
+              </div>
+            </div>
+          )}
+
+          {/* Generic error */}
           {error && (
             <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
               {error}

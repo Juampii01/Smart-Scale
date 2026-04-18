@@ -492,6 +492,21 @@ async function getTopInstagramPosts(username: string, timeframeDays: number) {
 }
 
 
+// ─── Helpers de caché ─────────────────────────────────────────────────────────
+
+/** ISO start of current UTC week (Monday 00:00:00Z) */
+function startOfCurrentWeekUTC(): Date {
+  const now = new Date()
+  const dow = now.getUTCDay() || 7               // 1=Mon … 7=Sun
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - dow + 1))
+}
+
+/** ISO start of current UTC month */
+function startOfCurrentMonthUTC(): Date {
+  const now = new Date()
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
+}
+
 // ─── Claude análisis ──────────────────────────────────────────────────────────
 
 async function generateAnalyses(channelName: string, videos: any[]): Promise<string[]> {
@@ -507,7 +522,7 @@ async function generateAnalyses(channelName: string, videos: any[]): Promise<str
       .join("\n")
 
     const msg = await anthropic.messages.create({
-      model: "claude-opus-4-6",
+      model: "claude-haiku-4-5",
       max_tokens: 1200,
       messages: [{
         role: "user",
@@ -523,10 +538,18 @@ Ejemplo: ["análisis 1", "análisis 2"]`,
 
     const raw = msg.content.find((block) => block.type === "text")
     const text = raw?.type === "text" ? raw.text.trim() : "[]"
-    const parsed = JSON.parse(text)
+
+    // Tolerant parse: strip markdown fences if model added them
+    const cleaned = text.replace(/^```[a-z]*\n?/i, "").replace(/\n?```$/i, "").trim()
+    const parsed  = JSON.parse(cleaned)
     if (Array.isArray(parsed) && parsed.length === videos.length) return parsed
+
+    // Length mismatch — pad or trim gracefully
+    if (Array.isArray(parsed)) {
+      return videos.map((_, i) => parsed[i] ?? "Análisis no disponible.")
+    }
   } catch (error) {
-    console.error("generateAnalyses error:", error)
+    console.error("[content-research][generateAnalyses] error:", error)
   }
 
   return videos.map(() => "Análisis no disponible.")
@@ -559,6 +582,8 @@ export async function GET(req: NextRequest) {
 
 // ─── POST: nueva investigación ────────────────────────────────────────────────
 
+const MONTHLY_LIMIT = 5
+
 export async function POST(req: NextRequest) {
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
@@ -568,50 +593,148 @@ export async function POST(req: NextRequest) {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt)
     if (authErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    const { channel_url, timeframe_days = 60, platform } = await req.json()
+    const body = await req.json().catch(() => null)
+    if (!body) return NextResponse.json({ error: "Body inválido." }, { status: 400 })
+
+    const { channel_url, timeframe_days = 60, platform } = body
     if (!channel_url?.trim()) return NextResponse.json({ error: "channel_url requerido" }, { status: 400 })
 
     const isInstagram = platform === "instagram" || /instagram\.com/.test(channel_url)
 
+    // ── Paso 1: resolver URL canónica (barato) ────────────────────────────
+    let canonicalUrl  = ""
     let channelName   = ""
     let channelAvatar: string | null = null
-    let channelUrl    = channel_url.trim()
-    let videos: any[] = []
+    let channelId     = ""
 
     if (isInstagram) {
       const username = extractInstagramUsername(channel_url.trim())
       if (!username) return NextResponse.json({ error: "URL de Instagram no válida." }, { status: 400 })
-
-      const ig    = await getTopInstagramPosts(username, timeframe_days)
-      channelName   = ig.profileName
-      channelAvatar = ig.profileAvatar
-      channelUrl    = ig.profileUrl
-      videos        = ig.posts
+      canonicalUrl = `https://www.instagram.com/${username}/`
+      channelName  = username
     } else {
-      const ch    = await resolveChannelId(channel_url.trim())
-      channelName   = ch.channelName
-      channelAvatar = ch.channelAvatar
-      channelUrl    = ch.channelUrl
-      videos        = await getTopVideos(ch.channelId, timeframe_days)
+      try {
+        const ch      = await resolveChannelId(channel_url.trim())
+        channelName   = ch.channelName
+        channelAvatar = ch.channelAvatar
+        canonicalUrl  = ch.channelUrl
+        channelId     = ch.channelId
+      } catch (err: any) {
+        console.error("[content-research][resolve] error:", err?.message)
+        return NextResponse.json({ error: err?.message ?? "No se pudo resolver el canal de YouTube." }, { status: 400 })
+      }
+    }
+
+    // ── Paso 2: caché semanal — misma cuenta + mismo período esta semana ──
+    //    Si ya se analizó → devolvemos el resultado guardado sin gastar tokens
+    const weekStart = startOfCurrentWeekUTC()
+
+    const { data: cached, error: cacheErr } = await supabase
+      .from("content_research_history")
+      .select("id, channel_url, channel_name, channel_avatar, timeframe_days, platform, videos, created_at")
+      .eq("user_id", user.id)
+      .eq("channel_url", canonicalUrl)
+      .eq("timeframe_days", timeframe_days)
+      .gte("created_at", weekStart.toISOString())
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (cacheErr) {
+      console.warn("[content-research][cache check] error:", cacheErr.message)
+      // No bloqueamos — seguimos con análisis fresco
+    }
+
+    if (cached) {
+      console.log("[content-research] cache hit:", canonicalUrl)
+      return NextResponse.json({
+        id:            cached.id,
+        channelName:   cached.channel_name,
+        channelAvatar: cached.channel_avatar,
+        channelUrl:    cached.channel_url,
+        platform:      cached.platform,
+        timeframe_days: cached.timeframe_days,
+        videos:        cached.videos,
+        cached:        true,
+      })
+    }
+
+    // ── Paso 3: límite mensual — máx 5 análisis nuevos por mes ───────────
+    const monthStart = startOfCurrentMonthUTC()
+
+    const { count: monthCount, error: countErr } = await supabase
+      .from("content_research_history")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .gte("created_at", monthStart.toISOString())
+
+    if (countErr) {
+      console.warn("[content-research][month count] error:", countErr.message)
+    }
+
+    if ((monthCount ?? 0) >= MONTHLY_LIMIT) {
+      return NextResponse.json({
+        error:       `Límite mensual alcanzado. Podés realizar hasta ${MONTHLY_LIMIT} análisis nuevos por mes. Los análisis ya realizados seguirán disponibles en tu historial.`,
+        limit:        MONTHLY_LIMIT,
+        used:         monthCount ?? MONTHLY_LIMIT,
+        resets_at:    new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 1)).toISOString(),
+        limit_reached: true,
+      }, { status: 429 })
+    }
+
+    // ── Paso 4: análisis completo (costoso — solo si pasaron pasos 2 y 3) ─
+    let videos: any[] = []
+
+    if (isInstagram) {
+      const username = extractInstagramUsername(channel_url.trim())!
+      try {
+        const ig      = await getTopInstagramPosts(username, timeframe_days)
+        channelName   = ig.profileName
+        channelAvatar = ig.profileAvatar
+        canonicalUrl  = ig.profileUrl
+        videos        = ig.posts
+      } catch (err: any) {
+        console.error("[content-research][ig fetch] error:", err?.message)
+        return NextResponse.json({ error: "No se pudieron obtener los posts de Instagram. Verificá la URL e intentá de nuevo." }, { status: 502 })
+      }
+    } else {
+      try {
+        videos = await getTopVideos(channelId, timeframe_days)
+      } catch (err: any) {
+        console.error("[content-research][yt videos] error:", err?.message)
+        return NextResponse.json({ error: "No se pudieron obtener los videos de YouTube. Verificá la URL e intentá de nuevo." }, { status: 502 })
+      }
     }
 
     if (!videos.length) {
       return NextResponse.json({
         error: isInstagram
-          ? "No se encontraron publicaciones recientes en este perfil."
-          : `No se encontraron videos recientes en este canal para el período seleccionado (${timeframe_days} días).`,
+          ? "No se encontraron publicaciones recientes en este perfil. Probá con un período de tiempo más largo."
+          : `No se encontraron videos recientes en este canal en los últimos ${timeframe_days} días. Probá con un período más largo.`,
       }, { status: 404 })
     }
 
-    const analyses = await generateAnalyses(channelName, videos)
-    const videosWithAnalysis = videos.map((v: any, i: number) => ({ ...v, analysis: analyses[i] ?? "Análisis no disponible." }))
+    // ── Paso 5: análisis Claude (Haiku — optimizado) ──────────────────────
+    let analyses: string[]
+    try {
+      analyses = await generateAnalyses(channelName, videos)
+    } catch (err: any) {
+      console.error("[content-research][claude] error:", err?.message)
+      analyses = videos.map(() => "Análisis no disponible.")
+    }
 
+    const videosWithAnalysis = videos.map((v: any, i: number) => ({
+      ...v,
+      analysis: analyses[i] ?? "Análisis no disponible.",
+    }))
+
+    // ── Paso 6: guardar en historial ──────────────────────────────────────
     const { data: inserted, error: insertErr } = await supabase
       .from("content_research_history")
       .insert({
         user_id:        user.id,
         platform:       isInstagram ? "instagram" : "youtube",
-        channel_url:    channelUrl,
+        channel_url:    canonicalUrl,
         channel_name:   channelName,
         channel_avatar: channelAvatar,
         timeframe_days,
@@ -620,20 +743,23 @@ export async function POST(req: NextRequest) {
       .select("id")
       .single()
 
-    if (insertErr) console.warn("[content-research] insert error:", insertErr.message)
+    if (insertErr) console.warn("[content-research][insert] error:", insertErr.message)
 
     return NextResponse.json({
-      id:           inserted?.id ?? null,
+      id:            inserted?.id ?? null,
       channelName,
       channelAvatar,
-      channelUrl,
-      platform:     isInstagram ? "instagram" : "youtube",
+      channelUrl:    canonicalUrl,
+      platform:      isInstagram ? "instagram" : "youtube",
       timeframe_days,
-      videos:       videosWithAnalysis,
+      videos:        videosWithAnalysis,
+      cached:        false,
+      used:          (monthCount ?? 0) + 1,
+      limit:         MONTHLY_LIMIT,
     })
   } catch (err: any) {
-    console.error("[content-research] error:", err)
-    return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
+    console.error("[content-research][POST] error:", err)
+    return NextResponse.json({ error: err?.message ?? "Error interno. Intentá de nuevo en unos minutos." }, { status: 500 })
   }
 }
 
