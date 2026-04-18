@@ -10,23 +10,26 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Smart Scale",
   description: "Client Monthly Analytics Portal",
-  generator: "v0.app",
   icons: {
     icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
+      { url: "/smartscale-icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/icon-dark-32x32.png",     sizes: "32x32",   type: "image/png" },
+      { url: "/icon.svg",                type: "image/svg+xml" },
     ],
-    apple: "/apple-icon.png",
+    apple: { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    shortcut: "/smartscale-icon-512.png",
+  },
+  openGraph: {
+    title: "Smart Scale",
+    description: "Client Monthly Analytics Portal",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Smart Scale" }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Smart Scale",
+    description: "Client Monthly Analytics Portal",
+    images: ["/og-image.png"],
   },
 }
 
