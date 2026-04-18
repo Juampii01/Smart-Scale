@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
         fecha_envio:          new Date().toISOString(),
       })
 
-      fetch(webhookUrl, {
+      await fetch(webhookUrl, {
         method:  "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body:    payload.toString(),
