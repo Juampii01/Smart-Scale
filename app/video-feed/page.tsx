@@ -7,7 +7,7 @@ import { AiLoading } from "@/components/ui/ai-loading"
 import {
   Instagram, ExternalLink, Eye, ThumbsUp, MessageCircle,
   Sparkles, ChevronDown, ChevronUp, Copy, Check,
-  RefreshCw, Trash2, Play, Image as ImageIcon, Film,
+  RefreshCw, Play, Image as ImageIcon, Film,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -244,15 +244,13 @@ function ConnectForm({ onConnect }: { onConnect: (account: Account) => void }) {
 
 // ─── Feed View ────────────────────────────────────────────────────────────────
 
-function FeedView({ account, onRefresh, onDisconnect }: {
-  account:      Account
-  onRefresh:    () => Promise<{ newPostsCount?: number } | void>
-  onDisconnect: () => void
+function FeedView({ account, onRefresh }: {
+  account:   Account
+  onRefresh: () => Promise<{ newPostsCount?: number } | void>
 }) {
-  const [filter,        setFilter]        = useState<Filter>("all")
-  const [refreshing,    setRefreshing]    = useState(false)
-  const [disconnecting, setDisconnecting] = useState(false)
-  const [lastNew,       setLastNew]       = useState<number | null>(null)
+  const [filter,     setFilter]     = useState<Filter>("all")
+  const [refreshing, setRefreshing] = useState(false)
+  const [lastNew,    setLastNew]    = useState<number | null>(null)
 
   const avg      = avgScore(account.posts)
   const filtered = filter === "top"
@@ -267,11 +265,6 @@ function FeedView({ account, onRefresh, onDisconnect }: {
         setLastNew(result.newPostsCount ?? 0)
       }
     } finally { setRefreshing(false) }
-  }
-
-  const handleDisconnect = async () => {
-    setDisconnecting(true)
-    try { await onDisconnect() } finally { setDisconnecting(false) }
   }
 
   return (
@@ -308,13 +301,6 @@ function FeedView({ account, onRefresh, onDisconnect }: {
             className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.07] text-white/30 hover:border-white/20 hover:text-white/60 transition-all disabled:opacity-40"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
-          </button>
-          <button
-            onClick={handleDisconnect}
-            disabled={disconnecting}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.07] text-white/25 hover:border-red-500/30 hover:bg-red-500/[0.08] hover:text-red-400 transition-all disabled:opacity-40"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
@@ -391,13 +377,6 @@ function VideoFeedContent() {
     }
   }
 
-  const handleDisconnect = async () => {
-    const token = await getToken()
-    if (!token) return
-    await fetch("/api/video-feed", { method: "DELETE", headers: { Authorization: `Bearer ${token}` } })
-    setAccount(null)
-  }
-
   if (loadingAccount) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -409,7 +388,7 @@ function VideoFeedContent() {
   return (
     <div className="px-4 py-10 max-w-7xl mx-auto">
       {account
-        ? <FeedView account={account} onRefresh={handleRefresh} onDisconnect={handleDisconnect} />
+        ? <FeedView account={account} onRefresh={handleRefresh} />
         : <ConnectForm onConnect={setAccount} />}
     </div>
   )

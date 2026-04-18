@@ -4,7 +4,7 @@ import {
   X, BarChart3, Radio, DollarSign, MessageSquare, Wrench,
   CalendarDays, Lock, LayoutGrid, LineChart, ClipboardList,
   Zap, Globe, Upload, History, Telescope, FileVideo, Clapperboard,
-  ChevronDown, Table2, Users2, ShieldCheck,
+  ChevronDown, Table2, Users2, ShieldCheck, Trophy, FileBarChart,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -35,6 +35,9 @@ const NAV_GROUPS = [
       { name: "Implementacion",  href: "/program-checklist", icon: Zap },
       { name: "Tools",           href: "/tools",             icon: Wrench },
       { name: "Agenda",          href: "/calendar",          icon: CalendarDays },
+      { name: "Monday Win",      href: "/monday-win",        icon: Trophy },
+      { name: "Reporte Mensual", href: "/report-input",      icon: FileBarChart },
+      { name: "Cha-Ching 💰",    href: "/chi-chang",         icon: DollarSign },
     ],
   },
   {
