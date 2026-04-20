@@ -59,6 +59,7 @@ const ADMIN_NAV_GROUP = {
     { name: "Pagos",          href: "/admin/payments",     icon: DollarSign },
     { name: "Clientes",       href: "/admin/clients",      icon: UserCheck },
     { name: "Aplicaciones",   href: "/admin/applications", icon: ClipboardList },
+    { name: "Importar Datos", href: "/admin/import",       icon: Upload  },
   ],
 }
 

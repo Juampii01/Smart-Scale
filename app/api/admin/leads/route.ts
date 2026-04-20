@@ -96,6 +96,44 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
+/** POST — create a lead manually */
+export async function POST(req: NextRequest) {
+  try {
+    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+    const user = await requireAdmin(jwt)
+    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
+    let body: any
+    try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
+
+    const { name, instagram, tag, email, source, lead_type, niche, notes, rating } = body
+    if (!name?.trim()) return NextResponse.json({ error: "name is required" }, { status: 400 })
+
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from("leads")
+      .insert({
+        name:      name.trim(),
+        instagram: instagram || null,
+        tag:       tag       || null,
+        email:     email     || null,
+        source:    source    || null,
+        lead_type: lead_type || null,
+        niche:     niche     || null,
+        notes:     notes     || null,
+        rating:    rating ? Number(rating) : null,
+        status:    "nuevo",
+      })
+      .select(SELECT_FIELDS)
+      .single()
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ lead: data })
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
+  }
+}
+
 /** DELETE — remove a lead */
 export async function DELETE(req: NextRequest) {
   try {

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase"
 import {
-  Loader2, Trash2, RefreshCw, Download, X, Star,
+  Loader2, Trash2, RefreshCw, Download, X, Star, Plus,
   Instagram, ExternalLink, ChevronRight,
 } from "lucide-react"
 
@@ -190,14 +190,109 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
   )
 }
 
+// ─── New Lead Modal ───────────────────────────────────────────────────────────
+
+function NewLeadModal({
+  onClose,
+  onCreate,
+  creating,
+}: {
+  onClose:  () => void
+  onCreate: (data: Partial<Lead>) => Promise<void>
+  creating: boolean
+}) {
+  const [name,      setName]      = useState("")
+  const [instagram, setInstagram] = useState("")
+  const [tag,       setTag]       = useState("")
+  const [rating,    setRating]    = useState<number>(0)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!name.trim()) return
+    await onCreate({ name: name.trim(), instagram: instagram || null, tag: tag || null, rating: rating || null })
+  }
+
+  return (
+    <>
+      <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-sm rounded-2xl border border-white/[0.10] shadow-2xl p-6 space-y-4"
+          style={{ backgroundColor: "#111113" }}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="text-base font-bold text-white">Nuevo lead</h3>
+            <button type="button" onClick={onClose}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-white/30 hover:text-white hover:bg-white/[0.06] transition-all">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Nombre *</p>
+            <input
+              autoFocus
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Nombre completo"
+              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Instagram</p>
+            <input
+              type="text"
+              value={instagram}
+              onChange={e => setInstagram(e.target.value)}
+              placeholder="@usuario"
+              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Tag</p>
+            <input
+              type="text"
+              value={tag}
+              onChange={e => setTag(e.target.value)}
+              placeholder="ej: HOT, Cold, DM..."
+              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Calificación</p>
+            <StarRating size="md" value={rating || null} onChange={n => setRating(n === rating ? 0 : n)} />
+          </div>
+
+          <button
+            type="submit"
+            disabled={!name.trim() || creating}
+            className="w-full h-10 rounded-xl bg-[#ffde21] text-black text-[13px] font-bold hover:bg-[#ffe84d] transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+          >
+            {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Crear lead
+          </button>
+        </form>
+      </div>
+    </>
+  )
+}
+
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 export function AdminLeadsView() {
-  const [leads,      setLeads]      = useState<Lead[]>([])
-  const [loading,    setLoading]    = useState(true)
-  const [selected,   setSelected]   = useState<Lead | null>(null)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
-  const [search,     setSearch]     = useState("")
+  const [leads,        setLeads]        = useState<Lead[]>([])
+  const [loading,      setLoading]      = useState(true)
+  const [selected,     setSelected]     = useState<Lead | null>(null)
+  const [deletingId,   setDeletingId]   = useState<string | null>(null)
+  const [search,       setSearch]       = useState("")
+  const [filterRating, setFilterRating] = useState<number>(0)
+  const [showNewForm,  setShowNewForm]  = useState(false)
+  const [creating,     setCreating]     = useState(false)
 
   const getSession = async () => {
     const supabase = createClient()
@@ -220,6 +315,26 @@ export function AdminLeadsView() {
   }, [])
 
   useEffect(() => { fetchLeads() }, [fetchLeads])
+
+  const handleCreate = async (data: Partial<Lead>) => {
+    setCreating(true)
+    try {
+      const session = await getSession()
+      if (!session) return
+      const res = await fetch("/api/admin/leads", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+        body:    JSON.stringify(data),
+      })
+      const json = await res.json()
+      if (res.ok && json.lead) {
+        setLeads(prev => [json.lead, ...prev])
+        setShowNewForm(false)
+      }
+    } finally {
+      setCreating(false)
+    }
+  }
 
   const patch = async (id: string, updates: Partial<Lead>) => {
     setLeads(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l))
@@ -262,6 +377,7 @@ export function AdminLeadsView() {
   }
 
   const filtered = leads.filter(l => {
+    if (filterRating > 0 && l.rating !== filterRating) return false
     if (!search.trim()) return true
     const q = search.toLowerCase()
     return [l.name, l.tag, l.instagram, l.niche, l.lead_type, l.source, l.status]
@@ -274,6 +390,14 @@ export function AdminLeadsView() {
 
   return (
     <>
+      {showNewForm && (
+        <NewLeadModal
+          onClose={() => setShowNewForm(false)}
+          onCreate={handleCreate}
+          creating={creating}
+        />
+      )}
+
       {selected && (
         <DetailDrawer
           lead={selected}
@@ -302,6 +426,12 @@ export function AdminLeadsView() {
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
+            <button
+              onClick={() => setShowNewForm(true)}
+              className="flex items-center gap-2 h-9 rounded-xl bg-[#ffde21] px-4 text-sm font-bold text-black hover:bg-[#ffe84d] transition-all">
+              <Plus className="h-3.5 w-3.5" />
+              Nuevo lead
+            </button>
           </div>
         </div>
 
@@ -326,14 +456,42 @@ export function AdminLeadsView() {
           </p>
         </div>
 
-        {/* Search */}
-        <input
-          type="text"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Buscar por nombre, tag, nicho, instagram..."
-          className="h-9 rounded-xl border border-white/[0.08] bg-[#1c1c1f] px-4 text-sm text-white placeholder:text-white/25 focus:border-white/20 focus:outline-none w-full max-w-sm"
-        />
+        {/* Search + Star filter row */}
+        <div className="flex flex-wrap items-center gap-3">
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por nombre, tag, nicho, instagram..."
+            className="h-9 rounded-xl border border-white/[0.08] bg-[#1c1c1f] px-4 text-sm text-white placeholder:text-white/25 focus:border-white/20 focus:outline-none flex-1 min-w-[220px] max-w-sm"
+          />
+
+          {/* Star filter */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setFilterRating(0)}
+              className={`h-8 rounded-xl border px-3 text-[12px] font-medium transition-all ${
+                filterRating === 0
+                  ? "border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21]"
+                  : "border-white/[0.07] text-white/40 hover:text-white hover:border-white/20"
+              }`}>
+              Todas
+            </button>
+            {[1, 2, 3, 4, 5].map(star => (
+              <button
+                key={star}
+                onClick={() => setFilterRating(filterRating === star ? 0 : star)}
+                className={`h-8 rounded-xl border px-2.5 transition-all flex items-center gap-1 text-[12px] font-medium ${
+                  filterRating === star
+                    ? "border-amber-400/40 bg-amber-400/10 text-amber-300"
+                    : "border-white/[0.07] text-white/40 hover:text-amber-300 hover:border-amber-400/30"
+                }`}>
+                <Star className={`h-3 w-3 ${filterRating === star ? "fill-amber-400 text-amber-400" : "fill-transparent"}`} />
+                {star}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Table */}
         <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#111113]">

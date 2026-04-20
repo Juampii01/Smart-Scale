@@ -720,6 +720,108 @@ function SummaryCards({ clients }: { clients: Client[] }) {
   )
 }
 
+// ─── New Cash / Old Cash ──────────────────────────────────────────────────────
+
+function CashSection({ clients }: { clients: Client[] }) {
+  const now          = new Date()
+  const currentMonth = now.getMonth()
+  const currentYear  = now.getFullYear()
+
+  // New Cash: clients whose created_at is this month
+  const newClients = clients.filter(c => {
+    const d = new Date(c.created_at)
+    return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+  })
+
+  const newCash = newClients.reduce((sum, c) => {
+    const total =
+      c.total_amount ??
+      (c.installments.reduce((s, i) => s + i.amount, 0) ||
+       c.installment_amount * c.num_installments)
+    return sum + total
+  }, 0)
+
+  // Old Cash: installments due this month from pre-existing clients
+  const oldClients = clients.filter(c => {
+    const d = new Date(c.created_at)
+    return !(d.getMonth() === currentMonth && d.getFullYear() === currentYear)
+  })
+
+  const oldCashExpected = oldClients.reduce((sum, c) =>
+    sum + c.installments
+      .filter(i => {
+        const d = new Date(i.due_date + "T12:00:00")
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+      })
+      .reduce((s, i) => s + i.amount, 0)
+  , 0)
+
+  const oldCashCobrado = oldClients.reduce((sum, c) =>
+    sum + c.installments
+      .filter(i => {
+        if (!i.paid_at) return false
+        const d = new Date(i.paid_at)
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+      })
+      .reduce((s, i) => s + i.amount, 0)
+  , 0)
+
+  const oldCashPendiente = oldCashExpected - oldCashCobrado
+  const pct = oldCashExpected > 0 ? Math.min(100, (oldCashCobrado / oldCashExpected) * 100) : 0
+
+  const monthName = now.toLocaleDateString("es-AR", { month: "long", year: "numeric" })
+
+  return (
+    <div className="rounded-2xl border border-white/[0.07] bg-[#111113] px-5 py-5">
+      <p className="text-[11px] font-bold uppercase tracking-widest text-white/30 mb-4">
+        Cash — {monthName}
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+        {/* New Cash */}
+        <div>
+          <p className="text-[11px] text-white/35 mb-1 font-semibold uppercase tracking-wider">New Cash</p>
+          <p className="text-3xl font-bold text-[#ffde21] tabular-nums">{fmtMoney(newCash)}</p>
+          <p className="text-[12px] text-white/30 mt-1.5">
+            {newClients.length > 0
+              ? `${newClients.length} cliente${newClients.length !== 1 ? "s" : ""} nuevo${newClients.length !== 1 ? "s" : ""} este mes`
+              : "Sin clientes nuevos este mes"}
+          </p>
+        </div>
+
+        {/* Old Cash */}
+        <div>
+          <p className="text-[11px] text-white/35 mb-1 font-semibold uppercase tracking-wider">Old Cash</p>
+          <p className="text-3xl font-bold text-white tabular-nums">{fmtMoney(oldCashExpected)}</p>
+          <div className="mt-2 space-y-1.5">
+            {/* Progress bar */}
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <span className="text-[11px] text-white/40 shrink-0 tabular-nums">{Math.round(pct)}%</span>
+            </div>
+            <div className="flex gap-4 text-[12px]">
+              <span className="text-emerald-300 tabular-nums">
+                {fmtMoney(oldCashCobrado)} cobrado
+              </span>
+              {oldCashPendiente > 0 && (
+                <span className="text-amber-300/70 tabular-nums">
+                  {fmtMoney(oldCashPendiente)} pendiente
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
 // ─── Installment Progress Bar ─────────────────────────────────────────────────
 
 function InstallmentProgress({ client }: { client: Client }) {
@@ -941,6 +1043,9 @@ export function AdminClientsView() {
 
         {/* Summary cards */}
         <SummaryCards clients={clients} />
+
+        {/* New Cash / Old Cash */}
+        <CashSection clients={clients} />
 
         {/* Error message */}
         {error && (
