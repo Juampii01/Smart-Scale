@@ -48,7 +48,8 @@ interface Client {
   dashboard_email:     string | null
   dashboard_password:  string | null
   program_start:       string
-  num_installments:    number
+  program_duration:    number   // meses de programa
+  num_installments:    number   // cantidad de cuotas de pago
   installment_amount:  number
   status:              "activo" | "en_pausa" | "inactivo" | "completado"
   notes:              string | null
@@ -182,7 +183,7 @@ function WebhookCard() {
         </button>
       </div>
       <p className="text-[11px] text-white/25 mt-1.5">
-        Campos: <code className="text-white/40">nombre</code>, <code className="text-white/40">email</code>, <code className="text-white/40">telefono</code>, <code className="text-white/40">fecha_cierre</code>, <code className="text-white/40">setter</code>, <code className="text-white/40">closer</code>, <code className="text-white/40">programa</code>, <code className="text-white/40">cantidad_meses</code>, <code className="text-white/40">primer_pago</code>, <code className="text-white/40">mes_2</code>…<code className="text-white/40">mes_6</code>
+        Campos: <code className="text-white/40">nombre</code>, <code className="text-white/40">email</code>, <code className="text-white/40">telefono</code>, <code className="text-white/40">fecha_cierre</code>, <code className="text-white/40">setter</code>, <code className="text-white/40">closer</code>, <code className="text-white/40">programa</code>, <code className="text-white/40">cantidad_meses</code> (duración del programa), <code className="text-white/40">cantidad_pagos</code> (cuotas de pago), <code className="text-white/40">primer_pago</code>, <code className="text-white/40">mes_2</code>…<code className="text-white/40">mes_6</code>
       </p>
     </div>
   )
@@ -249,7 +250,7 @@ function DetailDrawer({
     setDeletingFuId(null)
   }
 
-  const endDate = addMonths(client.program_start, client.num_installments)
+  const endDate = addMonths(client.program_start, client.program_duration ?? client.num_installments)
   const paidCount = client.installments.filter(i => i.status === "pagado").length
 
   return (
@@ -454,7 +455,14 @@ function DetailDrawer({
           {/* Section 2: Installments */}
           <div className="px-6 py-5 space-y-3 border-b border-white/[0.06]">
             <div className="flex items-center justify-between">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Cuotas</p>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Cuotas de pago</p>
+                <p className="text-[11px] text-white/35 mt-0.5">
+                  Programa: <span className="text-white/60 font-semibold">{client.program_duration ?? client.num_installments} meses</span>
+                  {" · "}
+                  Pagos: <span className="text-white/60 font-semibold">{client.num_installments} cuota{client.num_installments !== 1 ? "s" : ""}</span>
+                </p>
+              </div>
               <span className="rounded-full bg-white/[0.05] px-2.5 py-0.5 text-[11px] font-bold text-white/50">
                 {paidCount}/{client.num_installments} pagadas
               </span>
@@ -1006,7 +1014,7 @@ export function AdminClientsView() {
                       const overdue  = clientHasOverdue(client)
                       const upcoming = clientHasUpcoming(client)
                       const nextFu   = nextFollowup(client)
-                      const endDate  = addMonths(client.program_start, client.num_installments)
+                      const endDate  = addMonths(client.program_start, client.program_duration ?? client.num_installments)
 
                       const rowBorder = overdue
                         ? "border-l-2 border-l-red-500/50"

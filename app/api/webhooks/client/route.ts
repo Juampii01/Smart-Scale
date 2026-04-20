@@ -93,9 +93,13 @@ export async function POST(req: NextRequest) {
     const rawStart = pick(body, "fecha_cierre", "fecha cierre", "start_date", "program_start", "mes_actual", "mes actual")
     const programStart = parseDate(rawStart) ?? new Date().toISOString().slice(0, 10)
 
-    // Number of installments
-    const rawMeses = pick(body, "cantidad_meses", "cantidad de meses de programa", "num_installments", "cantidad_pagos", "cantidad de pagos")
-    const numInstallments = Math.min(6, Math.max(1, parseInt(String(rawMeses ?? "1")) || 1))
+    // Program duration in months (how long the program lasts)
+    const rawDuracion = pick(body, "cantidad_meses", "cantidad de meses de programa", "meses_de_programa", "program_duration", "duracion")
+    const programDuration = Math.min(24, Math.max(1, parseInt(String(rawDuracion ?? "1")) || 1))
+
+    // Number of payment installments (how many payments, can differ from duration)
+    const rawCuotas = pick(body, "cantidad_pagos", "cantidad de pagos", "num_installments", "cuotas", "num_cuotas")
+    const numInstallments = Math.min(6, Math.max(1, parseInt(String(rawCuotas ?? String(programDuration))) || 1))
 
     // Total amount
     const rawTotal = pick(body, "pago_total", "pago total", "total_amount", "total")
@@ -130,6 +134,7 @@ export async function POST(req: NextRequest) {
         forma_pago:          formaPago || null,
         notes:               notes   || null,
         program_start:       programStart,
+        program_duration:    programDuration,
         num_installments:    numInstallments,
         installment_amount:  fallbackAmount,
         total_amount:        totalAmount ?? fallbackAmount * numInstallments,

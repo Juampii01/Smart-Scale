@@ -235,6 +235,7 @@ export async function PATCH(req: NextRequest) {
     if (body.address             !== undefined) allowed.address             = body.address || null
     if (body.dashboard_email     !== undefined) allowed.dashboard_email     = body.dashboard_email || null
     if (body.dashboard_password  !== undefined) allowed.dashboard_password  = body.dashboard_password || null
+    if (body.program_duration    !== undefined) allowed.program_duration    = Number(body.program_duration) || null
 
     const { error } = await supabase.from("crm_clients").update(allowed).eq("id", body.id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
