@@ -47,6 +47,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/admin/leads":        "Leads",
   "/admin/payments":     "Pagos",
   "/admin/applications": "Aplicaciones",
+  "/admin/clients":      "Clientes",
 }
 
 const SelectedMonthContext = createContext<string | null>(null)
@@ -342,12 +343,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen dark" style={{ backgroundColor: "#0a0a0b" }}>
+    <div className="flex h-screen overflow-hidden dark" style={{ backgroundColor: "#0a0a0b" }}>
       <NavigationProgress />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin} />
 
-      <div className="flex-1 flex flex-col lg:ml-[220px]" style={{ backgroundColor: "#0a0a0b" }}>
-        <header className="sticky top-0 z-10 border-b border-white/[0.08] backdrop-blur-md" style={{ backgroundColor: "rgba(10,10,11,0.95)" }}>
+      <div className="flex-1 flex flex-col lg:ml-[220px] h-full overflow-hidden" style={{ backgroundColor: "#0a0a0b" }}>
+        <header className="shrink-0 z-10 border-b border-white/[0.08] backdrop-blur-md" style={{ backgroundColor: "rgba(10,10,11,0.95)" }}>
           <div className="flex h-16 items-center justify-between px-4 lg:px-8">
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" className="lg:hidden text-white/60 hover:text-white" onClick={() => setSidebarOpen(true)}>
@@ -500,7 +501,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <ActiveClientContext.Provider value={activeClientId}>
           <AnnualMetricsProvider>
             <SelectedMonthContext.Provider value={selectedMonth}>
-              <main className="flex-1 p-4 lg:p-8" style={{ backgroundColor: "#0a0a0b" }}>{children}</main>
+              <main className="flex-1 overflow-y-auto p-4 lg:p-8" style={{ backgroundColor: "#0a0a0b" }}>{children}</main>
             </SelectedMonthContext.Provider>
           </AnnualMetricsProvider>
         </ActiveClientContext.Provider>
