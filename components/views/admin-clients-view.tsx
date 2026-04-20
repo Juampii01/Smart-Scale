@@ -39,10 +39,18 @@ interface Client {
   email:              string | null
   instagram:          string | null
   phone:              string | null
-  program_start:      string
-  num_installments:   number
-  installment_amount: number
-  status:             "activo" | "inactivo" | "completado"
+  setter:              string | null
+  closer:              string | null
+  programa:            string | null
+  forma_pago:          string | null
+  total_amount:        number | null
+  address:             string | null
+  dashboard_email:     string | null
+  dashboard_password:  string | null
+  program_start:       string
+  num_installments:    number
+  installment_amount:  number
+  status:              "activo" | "en_pausa" | "inactivo" | "completado"
   notes:              string | null
   created_at:         string
   updated_at:         string
@@ -110,8 +118,16 @@ function nextFollowup(client: Client): Followup | null {
 
 const CLIENT_STATUS_STYLE: Record<string, string> = {
   activo:     "bg-emerald-500/10 text-emerald-300 border-emerald-500/25",
+  en_pausa:   "bg-amber-500/10 text-amber-300 border-amber-500/25",
   inactivo:   "bg-red-500/10 text-red-300 border-red-500/25",
   completado: "bg-sky-500/10 text-sky-300 border-sky-500/25",
+}
+
+const CLIENT_STATUS_LABEL: Record<string, string> = {
+  activo:     "Activo",
+  en_pausa:   "En pausa",
+  inactivo:   "Inactivo",
+  completado: "Finalizado",
 }
 
 const INST_STATUS_STYLE: Record<string, string> = {
@@ -137,130 +153,37 @@ const FOLLOWUP_TYPE_ICON: Record<string, React.ReactNode> = {
 const inputCls = "w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
 const labelCls = "text-[10px] font-bold uppercase tracking-widest text-white/25"
 
-// ─── New Client Panel ─────────────────────────────────────────────────────────
+// ─── Webhook Card ─────────────────────────────────────────────────────────────
 
-function NewClientPanel({ onSave, onCancel }: {
-  onSave:   (data: any) => Promise<void>
-  onCancel: () => void
-}) {
-  const [name,               setName]              = useState("")
-  const [email,              setEmail]             = useState("")
-  const [instagram,          setInstagram]         = useState("")
-  const [phone,              setPhone]             = useState("")
-  const [programStart,       setProgramStart]      = useState("")
-  const [numInstallments,    setNumInstallments]   = useState("1")
-  const [installmentAmount,  setInstallmentAmount] = useState("")
-  const [notes,              setNotes]             = useState("")
-  const [saving,             setSaving]            = useState(false)
-  const [error,              setError]             = useState<string | null>(null)
+function WebhookCard() {
+  const [copied, setCopied] = useState(false)
+  const url = typeof window !== "undefined"
+    ? `${window.location.origin}/api/webhooks/client`
+    : "https://smartscale.space/api/webhooks/client"
 
-  const total = Number(installmentAmount || 0) * Number(numInstallments || 0)
-
-  const handleSave = async () => {
-    if (!name.trim() || !programStart || !numInstallments || !installmentAmount) {
-      setError("Completá los campos obligatorios (*).")
-      return
-    }
-    setError(null)
-    setSaving(true)
-    try {
-      await onSave({
-        name:               name.trim(),
-        email:              email.trim() || null,
-        instagram:          instagram.trim() || null,
-        phone:              phone.trim() || null,
-        program_start:      programStart,
-        num_installments:   Number(numInstallments),
-        installment_amount: Number(installmentAmount),
-        notes:              notes.trim() || null,
-      })
-    } catch (e: any) {
-      setError(e?.message ?? "Error al guardar")
-    } finally {
-      setSaving(false)
-    }
+  const copy = () => {
+    navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
-    <div className="rounded-2xl border border-[#ffde21]/15 bg-[#ffde21]/[0.02] p-5 space-y-5">
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-bold text-white">Nuevo cliente</h2>
-        <button onClick={onCancel} className="flex h-7 w-7 items-center justify-center rounded-lg text-white/30 hover:text-white hover:bg-white/[0.06] transition-all">
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-
-      {error && (
-        <p className="text-[12px] text-red-400 bg-red-500/10 rounded-lg px-3 py-2">{error}</p>
-      )}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="space-y-1.5">
-          <label className={labelCls}>Nombre *</label>
-          <input value={name} onChange={e => setName(e.target.value)} placeholder="Nombre completo" className={inputCls} />
-        </div>
-        <div className="space-y-1.5">
-          <label className={labelCls}>Email</label>
-          <input value={email} onChange={e => setEmail(e.target.value)} placeholder="correo@ejemplo.com" className={inputCls} />
-        </div>
-        <div className="space-y-1.5">
-          <label className={labelCls}>Instagram</label>
-          <input value={instagram} onChange={e => setInstagram(e.target.value)} placeholder="@usuario" className={inputCls} />
-        </div>
-        <div className="space-y-1.5">
-          <label className={labelCls}>Teléfono</label>
-          <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+54 11 1234-5678" className={inputCls} />
-        </div>
-        <div className="space-y-1.5">
-          <label className={labelCls}>Fecha de inicio *</label>
-          <input type="date" value={programStart} onChange={e => setProgramStart(e.target.value)}
-            className={`${inputCls} [color-scheme:dark]`} />
-        </div>
-        <div className="space-y-1.5">
-          <label className={labelCls}>Cantidad de cuotas *</label>
-          <select value={numInstallments} onChange={e => setNumInstallments(e.target.value)}
-            className="w-full appearance-none rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white focus:border-white/20 focus:outline-none transition-all">
-            {[1,2,3,4,5,6].map(n => (
-              <option key={n} value={n}>{n} cuota{n > 1 ? "s" : ""}</option>
-            ))}
-          </select>
-        </div>
-        <div className="space-y-1.5">
-          <label className={labelCls}>Monto por cuota (USD) *</label>
-          <input type="number" min="0" value={installmentAmount} onChange={e => setInstallmentAmount(e.target.value)}
-            placeholder="0" className={`${inputCls} text-right`} />
-        </div>
-        <div className="sm:col-span-2 space-y-1.5">
-          <label className={labelCls}>Notas</label>
-          <input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Observaciones..." className={inputCls} />
-        </div>
-      </div>
-
-      {/* Computed total */}
-      {Number(installmentAmount) > 0 && (
-        <div className="rounded-xl border border-[#ffde21]/15 bg-[#ffde21]/[0.04] px-4 py-2.5 flex items-center gap-2">
-          <DollarSign className="h-4 w-4 text-[#ffde21]/60 shrink-0" />
-          <span className="text-[13px] text-white/60">
-            Total:{" "}
-            <span className="font-bold text-[#ffde21]">{fmtMoney(Number(installmentAmount))}</span>
-            {" "}×{" "}
-            <span className="font-bold text-white">{numInstallments}</span>
-            {" "}cuota{Number(numInstallments) > 1 ? "s" : ""}{" = "}
-            <span className="font-bold text-[#ffde21]">{fmtMoney(total)}</span>
-          </span>
-        </div>
-      )}
-
+    <div className="rounded-2xl border border-white/[0.07] bg-[#111113] px-5 py-4">
+      <p className="text-[11px] font-bold uppercase tracking-widest text-white/30 mb-2">
+        Webhook URL — Zapier / Formulario de onboarding
+      </p>
       <div className="flex items-center gap-2">
-        <button onClick={handleSave} disabled={saving || !name.trim() || !programStart || !installmentAmount}
-          className="flex items-center gap-2 h-9 rounded-xl bg-[#ffde21] px-5 text-sm font-bold text-black hover:bg-[#ffe84d] disabled:opacity-40 transition-all">
-          {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-          Guardar cliente
-        </button>
-        <button onClick={onCancel} className="h-9 rounded-xl border border-white/[0.08] px-4 text-sm text-white/40 hover:text-white hover:border-white/20 transition-all">
-          Cancelar
+        <code className="flex-1 rounded-lg bg-white/[0.04] px-3 py-2 text-[12px] text-[#ffde21]/70 font-mono truncate">
+          {url}
+        </code>
+        <button onClick={copy}
+          className="shrink-0 h-8 rounded-lg border border-white/[0.08] px-3 text-[12px] text-white/40 hover:text-white hover:border-white/20 transition-all">
+          {copied ? "✓ Copiado" : "Copiar"}
         </button>
       </div>
+      <p className="text-[11px] text-white/25 mt-1.5">
+        Campos: <code className="text-white/40">nombre</code>, <code className="text-white/40">email</code>, <code className="text-white/40">telefono</code>, <code className="text-white/40">fecha_cierre</code>, <code className="text-white/40">setter</code>, <code className="text-white/40">closer</code>, <code className="text-white/40">programa</code>, <code className="text-white/40">cantidad_meses</code>, <code className="text-white/40">primer_pago</code>, <code className="text-white/40">mes_2</code>…<code className="text-white/40">mes_6</code>
+      </p>
     </div>
   )
 }
@@ -339,8 +262,8 @@ function DetailDrawer({
           <div className="min-w-0">
             <h2 className="text-lg font-bold text-white truncate">{client.name}</h2>
             <div className="flex items-center gap-2 mt-1">
-              <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold capitalize ${CLIENT_STATUS_STYLE[client.status]}`}>
-                {client.status}
+              <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${CLIENT_STATUS_STYLE[client.status] ?? ""}`}>
+                {CLIENT_STATUS_LABEL[client.status] ?? client.status}
               </span>
               <span className="text-[12px] text-white/30">desde {fmtDate(client.program_start)}</span>
             </div>
@@ -419,10 +342,73 @@ function DetailDrawer({
                   onChange={e => onPatchClient(client.id, { status: e.target.value as Client["status"] })}
                   className="w-full appearance-none rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white focus:border-white/20 focus:outline-none transition-all">
                   <option value="activo">Activo</option>
+                  <option value="en_pausa">En pausa</option>
                   <option value="inactivo">Inactivo</option>
-                  <option value="completado">Completado</option>
+                  <option value="completado">Finalizado</option>
                 </select>
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <p className={labelCls}>Setter</p>
+                <input
+                  type="text"
+                  defaultValue={client.setter ?? ""}
+                  placeholder="Nombre del setter"
+                  onBlur={e    => onPatchClient(client.id, { setter: e.target.value || null } as any)}
+                  onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
+                  className={inputCls}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <p className={labelCls}>Closer</p>
+                <input
+                  type="text"
+                  defaultValue={client.closer ?? ""}
+                  placeholder="Nombre del closer"
+                  onBlur={e    => onPatchClient(client.id, { closer: e.target.value || null } as any)}
+                  onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
+                  className={inputCls}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <p className={labelCls}>Programa</p>
+                <input
+                  type="text"
+                  defaultValue={client.programa ?? ""}
+                  placeholder="Nombre del programa"
+                  onBlur={e    => onPatchClient(client.id, { programa: e.target.value || null } as any)}
+                  onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
+                  className={inputCls}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <p className={labelCls}>Forma de pago</p>
+                <input
+                  type="text"
+                  defaultValue={client.forma_pago ?? ""}
+                  placeholder="ej: cuotas, contado..."
+                  onBlur={e    => onPatchClient(client.id, { forma_pago: e.target.value || null } as any)}
+                  onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
+                  className={inputCls}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <p className={labelCls}>Dirección</p>
+              <input
+                type="text"
+                defaultValue={client.address ?? ""}
+                placeholder="Dirección del cliente"
+                onBlur={e    => onPatchClient(client.id, { address: e.target.value || null } as any)}
+                onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
+                className={inputCls}
+              />
             </div>
 
             <div className="space-y-1.5">
@@ -434,6 +420,33 @@ function DetailDrawer({
                 onBlur={e    => onPatchClient(client.id, { notes: e.target.value || null })}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) (e.target as HTMLTextAreaElement).blur() }}
                 className="w-full resize-none rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
+              />
+            </div>
+          </div>
+
+          {/* Section: Credenciales del dashboard */}
+          <div className="px-6 py-5 space-y-4 border-b border-white/[0.06]">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Credenciales del Dashboard</p>
+            <div className="space-y-1.5">
+              <p className={labelCls}>Email de acceso</p>
+              <input
+                type="email"
+                defaultValue={client.dashboard_email ?? ""}
+                placeholder="correo@acceso.com"
+                onBlur={e    => onPatchClient(client.id, { dashboard_email: e.target.value || null } as any)}
+                onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
+                className={inputCls}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <p className={labelCls}>Contraseña</p>
+              <input
+                type="text"
+                defaultValue={client.dashboard_password ?? ""}
+                placeholder="Contraseña del cliente"
+                onBlur={e    => onPatchClient(client.id, { dashboard_password: e.target.value || null } as any)}
+                onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
+                className={inputCls}
               />
             </div>
           </div>
@@ -608,7 +621,11 @@ function DetailDrawer({
             <span>
               Total:{" "}
               <span className="text-white/60 font-semibold">
-                {fmtMoney(client.installment_amount * client.num_installments)}
+                {fmtMoney(
+                  client.total_amount ??
+                  (client.installments.reduce((s, i) => s + i.amount, 0) ||
+                  client.installment_amount * client.num_installments)
+                )}
               </span>
             </span>
           </div>
@@ -725,7 +742,6 @@ export function AdminClientsView() {
   const [deletingId,   setDeletingId]   = useState<string | null>(null)
   const [filterStatus, setFilterStatus] = useState<string>("todos")
   const [search,       setSearch]       = useState("")
-  const [showNewForm,  setShowNewForm]  = useState(false)
 
   const getSession = async () => {
     const supabase = createClient()
@@ -761,20 +777,6 @@ export function AdminClientsView() {
       if (updated) setSelected(updated)
     }
   }, [clients]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleAddClient = async (data: any) => {
-    const session = await getSession()
-    if (!session) throw new Error("No autenticado")
-    const res = await fetch("/api/admin/clients", {
-      method:  "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-      body:    JSON.stringify(data),
-    })
-    const json = await res.json()
-    if (!res.ok) throw new Error(json.error ?? "Error al crear cliente")
-    setShowNewForm(false)
-    await fetchClients()
-  }
 
   const handlePatchClient = async (id: string, updates: Partial<Client>) => {
     // Optimistic update
@@ -923,21 +925,11 @@ export function AdminClientsView() {
               className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-white/40 hover:text-white hover:border-white/20 transition-all disabled:opacity-40">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
-            <button onClick={() => setShowNewForm(true)} disabled={showNewForm}
-              className="flex items-center gap-2 h-9 rounded-xl bg-[#ffde21] px-4 text-sm font-bold text-black hover:bg-[#ffe84d] disabled:opacity-50 transition-all">
-              <Plus className="h-4 w-4" />
-              Nuevo cliente
-            </button>
           </div>
         </div>
 
-        {/* New client form */}
-        {showNewForm && (
-          <NewClientPanel
-            onSave={handleAddClient}
-            onCancel={() => setShowNewForm(false)}
-          />
-        )}
+        {/* Webhook card */}
+        <WebhookCard />
 
         {/* Summary cards */}
         <SummaryCards clients={clients} />
@@ -953,17 +945,23 @@ export function AdminClientsView() {
         {/* Filters + Search row */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 flex-wrap">
-            {["todos", "activo", "inactivo", "completado"].map(s => (
-              <button key={s} onClick={() => setFilterStatus(s)}
-                className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium capitalize transition-all ${
-                  filterStatus === s
+            {[
+              { key: "todos",      label: "Todos" },
+              { key: "activo",     label: "Activo" },
+              { key: "en_pausa",   label: "En pausa" },
+              { key: "inactivo",   label: "Inactivo" },
+              { key: "completado", label: "Finalizado" },
+            ].map(({ key, label }) => (
+              <button key={key} onClick={() => setFilterStatus(key)}
+                className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium transition-all ${
+                  filterStatus === key
                     ? "border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21]"
                     : "border-white/[0.07] text-white/40 hover:text-white hover:border-white/20"
                 }`}>
-                {s}
-                {s !== "todos" && (
+                {label}
+                {key !== "todos" && (
                   <span className="ml-1.5 text-[10px] opacity-60">
-                    {clients.filter(c => c.status === s).length}
+                    {clients.filter(c => c.status === key).length}
                   </span>
                 )}
               </button>
@@ -1059,8 +1057,8 @@ export function AdminClientsView() {
 
                           {/* Estado */}
                           <td className="px-4 py-3.5 whitespace-nowrap">
-                            <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold capitalize ${CLIENT_STATUS_STYLE[client.status]}`}>
-                              {client.status}
+                            <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${CLIENT_STATUS_STYLE[client.status] ?? ""}`}>
+                              {CLIENT_STATUS_LABEL[client.status] ?? client.status}
                             </span>
                           </td>
 
