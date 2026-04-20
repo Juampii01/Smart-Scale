@@ -5,6 +5,7 @@ import {
   CalendarDays, Lock, LayoutGrid, LineChart, ClipboardList,
   Zap, Globe, Upload, History, Telescope, FileVideo, Clapperboard,
   ChevronDown, Table2, Users2, ShieldCheck, Trophy, FileBarChart,
+  UserCheck,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -56,6 +57,7 @@ const ADMIN_NAV_GROUP = {
     { name: "Tabla de Datos", href: "/admin/data",         icon: Table2  },
     { name: "Leads",          href: "/admin/leads",        icon: Users2  },
     { name: "Pagos",          href: "/admin/payments",     icon: DollarSign },
+    { name: "Clientes",       href: "/admin/clients",      icon: UserCheck },
     { name: "Aplicaciones",   href: "/admin/applications", icon: ClipboardList },
   ],
 }
