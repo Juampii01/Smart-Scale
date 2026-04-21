@@ -82,6 +82,179 @@ function isInstagramUrl(url: string): boolean {
   return /instagram\.com\/(p|reel|reels|tv)\//.test(url)
 }
 
+function decodeHtmlEntities(value: string): string {
+  return value
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+}
+
+function stripXmlTags(value: string): string {
+  return decodeHtmlEntities(value)
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+function parseCaptionXml(xml: string): string | null {
+  const textMatches = [...xml.matchAll(/<text\b[^>]*>([\s\S]*?)<\/text>/gi)]
+  if (textMatches.length) {
+    const text = textMatches
+      .map((match) => stripXmlTags(match[1] ?? ""))
+      .filter(Boolean)
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim()
+
+    return text || null
+  }
+
+  const paragraphMatches = [...xml.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)]
+  if (paragraphMatches.length) {
+    const text = paragraphMatches
+      .map((match) => {
+        const paragraphInner = match[1] ?? ""
+        const segmentMatches = [...paragraphInner.matchAll(/<s\b[^>]*>([\s\S]*?)<\/s>/gi)]
+
+        if (segmentMatches.length) {
+          return segmentMatches
+            .map((segment) => stripXmlTags(segment[1] ?? ""))
+            .filter(Boolean)
+            .join(" ")
+        }
+
+        return stripXmlTags(paragraphInner)
+      })
+      .filter(Boolean)
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim()
+
+    return text || null
+  }
+
+  return null
+}
+
+function extractPlayerResponse(html: string): any | null {
+  const patterns = [
+    /ytInitialPlayerResponse\s*=\s*(\{[\s\S]*?\})\s*;/,
+    /window\[["']ytInitialPlayerResponse["']\]\s*=\s*(\{[\s\S]*?\})\s*;/,
+  ]
+
+  for (const pattern of patterns) {
+    const match = html.match(pattern)
+    if (!match?.[1]) continue
+    try {
+      return JSON.parse(match[1])
+    } catch {
+      continue
+    }
+  }
+
+  return null
+}
+
+async function getYouTubeTranscriptFromCaptionTracks(
+  videoId: string
+): Promise<{ transcript: string | null; provider: string; reason?: string; debug?: string }> {
+  try {
+    const watchRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+      signal: AbortSignal.timeout(20_000),
+    })
+
+    const watchHtml = await watchRes.text()
+    if (!watchRes.ok) {
+      return {
+        transcript: null,
+        provider: "youtube_watch_page",
+        reason: `watch_page_failed_${watchRes.status}`,
+        debug: watchHtml.slice(0, 800),
+      }
+    }
+
+    const playerResponse = extractPlayerResponse(watchHtml)
+    const playabilityStatus = playerResponse?.playabilityStatus?.status ?? null
+    const playabilityReason = playerResponse?.playabilityStatus?.reason ?? null
+
+    const captionTracks: any[] = playerResponse?.captions?.playerCaptionsTracklistRenderer?.captionTracks ?? []
+    if (!captionTracks.length) {
+      return {
+        transcript: null,
+        provider: "youtube_watch_page",
+        reason: playabilityStatus === "LOGIN_REQUIRED" ? "login_required" : "no_caption_tracks",
+        debug: JSON.stringify({ playabilityStatus, playabilityReason }),
+      }
+    }
+
+    const preferredTrack =
+      captionTracks.find((track) => track?.languageCode === "en") ??
+      captionTracks.find((track) => track?.languageCode?.startsWith("en")) ??
+      captionTracks.find((track) => !track?.kind) ??
+      captionTracks[0]
+
+    if (!preferredTrack?.baseUrl) {
+      return {
+        transcript: null,
+        provider: "youtube_watch_page",
+        reason: "caption_track_missing_base_url",
+        debug: JSON.stringify(captionTracks[0] ?? null),
+      }
+    }
+
+    const captionUrl = preferredTrack.baseUrl.includes("fmt=")
+      ? preferredTrack.baseUrl
+      : `${preferredTrack.baseUrl}&fmt=srv3`
+
+    const captionRes = await fetch(captionUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+      signal: AbortSignal.timeout(20_000),
+    })
+
+    const captionXml = await captionRes.text()
+    if (!captionRes.ok) {
+      return {
+        transcript: null,
+        provider: "youtube_watch_page",
+        reason: `caption_fetch_failed_${captionRes.status}`,
+        debug: captionXml.slice(0, 800),
+      }
+    }
+
+    const transcript = parseCaptionXml(captionXml)
+    if (!transcript) {
+      return {
+        transcript: null,
+        provider: "youtube_watch_page",
+        reason: "caption_parse_failed",
+        debug: captionXml.slice(0, 2000),
+      }
+    }
+
+    return {
+      transcript,
+      provider: "youtube_watch_page",
+    }
+  } catch (err: any) {
+    return {
+      transcript: null,
+      provider: "youtube_watch_page",
+      reason: "watch_page_exception",
+      debug: err?.message ?? String(err),
+    }
+  }
+}
+
 // ─── Transcription via AssemblyAI (download → upload → transcribe) ───────────
 
 async function assemblyAITranscript(cdnUrl: string, timeoutMs = 200_000): Promise<string | null> {
@@ -414,89 +587,117 @@ async function getYouTubeTranscript(
 ): Promise<{ transcript: string | null; provider: string | null; reason?: string; debug?: string }> {
   const token = process.env.APIFY_TOKEN
 
-  if (!token) {
-    return {
-      transcript: null,
+  let apifyFailure: { provider: string | null; reason?: string; debug?: string } | null = null
+
+  if (token) {
+    try {
+      const res = await fetch(
+        `https://api.apify.com/v2/acts/automation-lab~youtube-transcript/run-sync-get-dataset-items?token=${token}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            urls: [`https://www.youtube.com/watch?v=${videoId}`],
+            language: "en",
+            includeAutoGenerated: true,
+            mergeSegments: true,
+          }),
+          signal: AbortSignal.timeout(120_000),
+        }
+      )
+
+      const rawText = await res.text()
+
+      if (!res.ok) {
+        apifyFailure = {
+          provider: "apify",
+          reason: `apify_failed_${res.status}`,
+          debug: rawText,
+        }
+      } else {
+        let data: any[] = []
+        try {
+          data = JSON.parse(rawText)
+        } catch (err: any) {
+          apifyFailure = {
+            provider: "apify",
+            reason: "apify_parse_failed",
+            debug: `${err?.message ?? String(err)} | raw=${rawText}`,
+          }
+          data = []
+        }
+
+        const item = data?.[0] ?? null
+
+        const transcript = [
+          item?.fullText,
+          item?.transcript,
+          item?.text,
+          item?.captionsText,
+          item?.subtitlesText,
+          item?.segments?.map?.((segment: any) => segment?.text).filter(Boolean).join(" "),
+          item?.captions?.map?.((caption: any) => caption?.text).filter(Boolean).join(" "),
+          item?.subtitles?.map?.((subtitle: any) => subtitle?.text ?? subtitle?.subtitle).filter(Boolean).join(" "),
+        ].find((value) => typeof value === "string" && value.trim())?.trim() ?? null
+
+        if (transcript) {
+          return {
+            transcript,
+            provider: "apify",
+          }
+        }
+
+        const apifyItemError = typeof item?.error === "string" ? item.error : null
+        const normalizedApifyError = apifyItemError?.toLowerCase() ?? ""
+        apifyFailure = {
+          provider: "apify",
+          reason:
+            normalizedApifyError.includes("login") ||
+            normalizedApifyError.includes("age-restricted") ||
+            normalizedApifyError.includes("private")
+              ? "login_required"
+              : "no_captions_found",
+          debug: rawText,
+        }
+      }
+    } catch (err: any) {
+      apifyFailure = {
+        provider: "apify",
+        reason: "apify_exception",
+        debug: err?.message ?? String(err),
+      }
+    }
+  } else {
+    apifyFailure = {
       provider: "apify",
       reason: "missing_apify_token",
       debug: "APIFY_TOKEN is not set",
     }
   }
 
-  try {
-    const res = await fetch(
-      `https://api.apify.com/v2/acts/automation-lab~youtube-transcript/run-sync-get-dataset-items?token=${token}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          urls: [`https://www.youtube.com/watch?v=${videoId}`],
-          language: "en",
-          includeAutoGenerated: true,
-          mergeSegments: true,
-        }),
-        signal: AbortSignal.timeout(120_000),
-      }
-    )
+  const watchPageResult = await getYouTubeTranscriptFromCaptionTracks(videoId)
+  if (watchPageResult.transcript) {
+    return watchPageResult
+  }
 
-    const rawText = await res.text()
+  const preferredFailure = (() => {
+    if (watchPageResult.reason === "login_required") return watchPageResult
+    if (watchPageResult.reason === "no_caption_tracks") return watchPageResult
+    if (watchPageResult.reason?.startsWith("caption_fetch_failed_")) return watchPageResult
+    if (watchPageResult.reason === "caption_parse_failed") return watchPageResult
+    return apifyFailure ?? watchPageResult
+  })()
 
-    if (!res.ok) {
-      return {
-        transcript: null,
-        provider: "apify",
-        reason: `apify_failed_${res.status}`,
-        debug: rawText,
-      }
-    }
-
-    let data: any[] = []
-    try {
-      data = JSON.parse(rawText)
-    } catch (err: any) {
-      return {
-        transcript: null,
-        provider: "apify",
-        reason: "apify_parse_failed",
-        debug: `${err?.message ?? String(err)} | raw=${rawText}`,
-      }
-    }
-
-    const item = data?.[0] ?? null
-
-    const transcript = [
-      item?.fullText,
-      item?.transcript,
-      item?.text,
-      item?.captionsText,
-      item?.subtitlesText,
-      item?.segments?.map?.((segment: any) => segment?.text).filter(Boolean).join(" "),
-      item?.captions?.map?.((caption: any) => caption?.text).filter(Boolean).join(" "),
-      item?.subtitles?.map?.((subtitle: any) => subtitle?.text ?? subtitle?.subtitle).filter(Boolean).join(" "),
-    ].find((value) => typeof value === "string" && value.trim())?.trim() ?? null
-
-    if (!transcript) {
-      return {
-        transcript: null,
-        provider: "apify",
-        reason: "no_captions_found",
-        debug: rawText,
-      }
-    }
-
-    return {
-      transcript,
-      provider: "apify",
-    }
-  } catch (err: any) {
-    return {
-      transcript: null,
-      provider: "apify",
-      reason: "apify_exception",
-      debug: err?.message ?? String(err),
-    }
+  return {
+    transcript: null,
+    provider: preferredFailure?.provider ?? null,
+    reason: preferredFailure?.reason,
+    debug: [
+      apifyFailure ? `apify: ${apifyFailure.debug ?? apifyFailure.reason ?? "unknown"}` : null,
+      watchPageResult ? `watch_page: ${watchPageResult.debug ?? watchPageResult.reason ?? "unknown"}` : null,
+    ].filter(Boolean).join("\n\n"),
   }
 }
 
@@ -589,8 +790,12 @@ export async function POST(req: NextRequest) {
       transcript = ytResult.transcript
 
       if (!transcript) {
+        const errorMessage = ytResult.reason === "login_required"
+          ? "No se pudo obtener la transcripción porque este video requiere login, tiene restricción de edad o es privado."
+          : "No se pudo obtener la transcripción de este video desde los proveedores disponibles."
+
         return NextResponse.json({
-          error: "No se pudo obtener la transcripción de este video desde los proveedores disponibles.",
+          error: errorMessage,
           provider: ytResult.provider,
           reason: ytResult.reason,
           debug: ytResult.debug,
