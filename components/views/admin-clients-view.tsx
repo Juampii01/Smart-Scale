@@ -733,12 +733,10 @@ function CashSection({ clients }: { clients: Client[] }) {
     return d.getMonth() === currentMonth && d.getFullYear() === currentYear
   })
 
+  // New Cash = installment #1 of clients who started this month (the closing payment)
   const newCash = newClients.reduce((sum, c) => {
-    const total =
-      c.total_amount ??
-      (c.installments.reduce((s, i) => s + i.amount, 0) ||
-       c.installment_amount * c.num_installments)
-    return sum + total
+    const firstInst = c.installments.find(i => i.installment_number === 1)
+    return sum + (firstInst?.amount ?? c.installment_amount)
   }, 0)
 
   // Old Cash: installments due this month from pre-existing clients
