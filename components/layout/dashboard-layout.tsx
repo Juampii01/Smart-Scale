@@ -43,6 +43,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/report-history": "Historial de Reportes",
   "/chi-chang": "Cha-Ching 💰",
   "/transcript": "Transcript de Videos",
+  "/recursos":   "Biblioteca",
   "/admin/data":         "Tabla de Datos",
   "/admin/leads":        "Leads",
   "/admin/payments":     "Pagos",

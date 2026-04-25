@@ -5,7 +5,7 @@ import {
   CalendarDays, Lock, LayoutGrid, LineChart, ClipboardList,
   Zap, Globe, Upload, History, Telescope, FileVideo, Clapperboard,
   ChevronDown, Table2, Users2, ShieldCheck, Trophy, FileBarChart,
-  UserCheck,
+  UserCheck, BookOpen,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -47,6 +47,7 @@ const NAV_GROUPS = [
       { name: "Video Feed",           href: "/video-feed",          icon: Clapperboard },
       { name: "Competitor Research",  href: "/competitor-research", icon: Globe },
       { name: "Transcript de Videos", href: "/transcript",          icon: FileVideo },
+      { name: "Biblioteca",           href: "/recursos",            icon: BookOpen },
     ],
   },
 ]
