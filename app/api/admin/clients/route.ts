@@ -228,8 +228,6 @@ export async function PATCH(req: NextRequest) {
     if (body.phone      !== undefined) allowed.phone      = body.phone || null
     if (body.status     !== undefined) allowed.status     = body.status
     if (body.notes      !== undefined) allowed.notes      = body.notes || null
-    if (body.setter              !== undefined) allowed.setter              = body.setter || null
-    if (body.closer              !== undefined) allowed.closer              = body.closer || null
     if (body.programa            !== undefined) allowed.programa            = body.programa || null
     if (body.forma_pago          !== undefined) allowed.forma_pago          = body.forma_pago || null
     if (body.address             !== undefined) allowed.address             = body.address || null

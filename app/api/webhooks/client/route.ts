@@ -83,8 +83,6 @@ export async function POST(req: NextRequest) {
 
     const email   = pick(body, "email", "mejor_email", "mejor email del cliente") as string | null
     const phone   = pick(body, "telefono", "phone", "mejor_telefono", "mejor telefono del cliente") as string | null
-    const setter  = pick(body, "setter") as string | null
-    const closer  = pick(body, "closer") as string | null
     const programa = pick(body, "programa", "program") as string | null
     const formaPago = pick(body, "forma_pago", "forma de pago", "payment_method") as string | null
     const notes   = pick(body, "notas", "notes", "observaciones") as string | null
@@ -128,8 +126,6 @@ export async function POST(req: NextRequest) {
         name,
         email:               email   || null,
         phone:               phone   || null,
-        setter:              setter  || null,
-        closer:              closer  || null,
         programa:            programa || null,
         forma_pago:          formaPago || null,
         notes:               notes   || null,

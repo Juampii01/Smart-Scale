@@ -39,8 +39,6 @@ interface Client {
   email:              string | null
   instagram:          string | null
   phone:              string | null
-  setter:              string | null
-  closer:              string | null
   programa:            string | null
   forma_pago:          string | null
   total_amount:        number | null
@@ -183,7 +181,7 @@ function WebhookCard() {
         </button>
       </div>
       <p className="text-[11px] text-white/25 mt-1.5">
-        Campos: <code className="text-white/40">nombre</code>, <code className="text-white/40">email</code>, <code className="text-white/40">telefono</code>, <code className="text-white/40">fecha_cierre</code>, <code className="text-white/40">setter</code>, <code className="text-white/40">closer</code>, <code className="text-white/40">programa</code>, <code className="text-white/40">cantidad_meses</code> (duración del programa), <code className="text-white/40">cantidad_pagos</code> (cuotas de pago), <code className="text-white/40">primer_pago</code>, <code className="text-white/40">mes_2</code>…<code className="text-white/40">mes_6</code>
+        Campos: <code className="text-white/40">nombre</code>, <code className="text-white/40">email</code>, <code className="text-white/40">telefono</code>, <code className="text-white/40">fecha_cierre</code>, <code className="text-white/40">programa</code>, <code className="text-white/40">cantidad_meses</code> (duración del programa), <code className="text-white/40">cantidad_pagos</code> (cuotas de pago), <code className="text-white/40">primer_pago</code>, <code className="text-white/40">mes_2</code>…<code className="text-white/40">mes_6</code>
       </p>
     </div>
   )
@@ -347,31 +345,6 @@ function DetailDrawer({
                   <option value="inactivo">Inactivo</option>
                   <option value="completado">Finalizado</option>
                 </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <p className={labelCls}>Setter</p>
-                <input
-                  type="text"
-                  defaultValue={client.setter ?? ""}
-                  placeholder="Nombre del setter"
-                  onBlur={e    => onPatchClient(client.id, { setter: e.target.value || null } as any)}
-                  onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-                  className={inputCls}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <p className={labelCls}>Closer</p>
-                <input
-                  type="text"
-                  defaultValue={client.closer ?? ""}
-                  placeholder="Nombre del closer"
-                  onBlur={e    => onPatchClient(client.id, { closer: e.target.value || null } as any)}
-                  onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-                  className={inputCls}
-                />
               </div>
             </div>
 
