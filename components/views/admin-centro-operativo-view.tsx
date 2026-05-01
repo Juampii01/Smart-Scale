@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import {
   Cog, BookMarked, FolderKanban, KeyRound,
   Plus, ExternalLink, Trash2, Loader2, FolderOpen,
-  Search, AlertTriangle, Link2, FileText, Video, File, X,
+  Search, AlertTriangle, Link2, FileText, Video, File, X, ChevronDown,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -232,6 +232,7 @@ function ItemCard({ item, onDelete }: { item: Item; onDelete: (id: string) => vo
   const cfg = TYPE_CONFIG[item.type] ?? TYPE_CONFIG.link
   const Icon = cfg.icon
   const [deleting, setDeleting] = useState(false)
+  const [expanded, setExpanded] = useState(false)
 
   const handleDelete = async () => {
     if (!confirm(`¿Eliminar "${item.title}"?`)) return
@@ -247,42 +248,59 @@ function ItemCard({ item, onDelete }: { item: Item; onDelete: (id: string) => vo
   })
 
   return (
-    <div className="group flex items-start gap-3 rounded-2xl border border-white/[0.07] bg-[#111113] p-4 hover:border-white/[0.12] transition-all">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.05] flex-shrink-0 mt-0.5">
-        <Icon className={`h-4 w-4 ${cfg.color}`} />
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-semibold text-white leading-snug">{item.title}</p>
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            className="opacity-0 group-hover:opacity-100 flex-shrink-0 text-white/20 hover:text-red-400 transition-all mt-0.5"
-          >
-            {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-          </button>
+    <div className={`group rounded-2xl border bg-[#111113] transition-all duration-200 ${expanded ? "border-white/[0.15]" : "border-white/[0.07] hover:border-white/[0.12]"}`}>
+      {/* Header — always visible, clickable to expand */}
+      <button
+        onClick={() => setExpanded(v => !v)}
+        className="w-full flex items-center gap-3 p-4 text-left"
+      >
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.05] flex-shrink-0">
+          <Icon className={`h-4 w-4 ${cfg.color}`} />
         </div>
+        <p className="flex-1 text-sm font-semibold text-white leading-snug">{item.title}</p>
+        <ChevronDown
+          className={`h-4 w-4 text-white/30 flex-shrink-0 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+        />
+      </button>
 
-        {item.description && (
-          <p className="text-xs text-white/40 leading-relaxed mt-1 line-clamp-2">{item.description}</p>
-        )}
-
-        <div className="flex items-center justify-between gap-3 mt-2.5">
-          <span className="text-[10px] text-white/20">{date}</span>
-          {item.url && item.url !== "#" && (
-            <a
-              href={item.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs font-medium text-[#ffde21]/60 hover:text-[#ffde21] transition-colors"
-            >
-              <ExternalLink className="h-3 w-3" />
-              Abrir
-            </a>
+      {/* Expanded content */}
+      {expanded && (
+        <div className="px-4 pb-4 space-y-3 border-t border-white/[0.06] pt-3">
+          {item.description && (
+            <p className="text-xs text-white/50 leading-relaxed">{item.description}</p>
           )}
+
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className={`flex items-center gap-1 text-[10px] font-semibold uppercase tracking-widest ${cfg.color}`}>
+                <Icon className="h-3 w-3" />
+                {cfg.label}
+              </span>
+              <span className="text-[10px] text-white/20">{date}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              {item.url && item.url !== "#" && (
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-xs font-medium text-[#ffde21]/60 hover:text-[#ffde21] transition-colors"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Abrir
+                </a>
+              )}
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="text-white/20 hover:text-red-400 transition-colors"
+              >
+                {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
