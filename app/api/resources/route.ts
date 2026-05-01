@@ -46,6 +46,36 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// PATCH — update content (and optionally other fields) by id
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json()
+    const { id, title, url, description, content, category, type } = body
+    if (!id) return NextResponse.json({ error: "id requerido" }, { status: 400 })
+
+    const supabase = createServiceClient()
+    const updates: Record<string, unknown> = {}
+    if (title       !== undefined) updates.title       = title?.trim() || null
+    if (url         !== undefined) updates.url         = url?.trim()   || null
+    if (description !== undefined) updates.description = description?.trim() || null
+    if (content     !== undefined) updates.content     = content       || null
+    if (category    !== undefined) updates.category    = category?.trim() || null
+    if (type        !== undefined) updates.type        = type
+
+    const { data, error } = await supabase
+      .from("resources")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single()
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ resource: data })
+  } catch {
+    return NextResponse.json({ error: "Error interno" }, { status: 500 })
+  }
+}
+
 // DELETE — delete by id (?id=...)
 export async function DELETE(req: NextRequest) {
   const id = req.nextUrl.searchParams.get("id")

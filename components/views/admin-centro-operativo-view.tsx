@@ -1,11 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import {
   Cog, BookMarked, FolderKanban, KeyRound,
   Plus, ExternalLink, Trash2, Loader2, FolderOpen,
-  Search, AlertTriangle, Link2, FileText, Video, File, X, ChevronDown,
+  Search, AlertTriangle, Link2, FileText, Video, File, X,
+  ChevronRight, ArrowRight, Check, Copy, Pencil, Save,
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -16,6 +18,7 @@ interface Item {
   title: string
   url: string
   description: string | null
+  content: string | null
   category: string
   type: ResourceType
   created_at: string
@@ -67,18 +70,215 @@ const TYPE_CONFIG: Record<ResourceType, { label: string; icon: React.ElementType
   file:  { label: "Archivo", icon: File,      color: "text-amber-400"  },
 }
 
+// ─── Templates ────────────────────────────────────────────────────────────────
+
+const TEMPLATES: Record<SectionId, { label: string; content: string }[]> = {
+  "sop-sistemas": [
+    {
+      label: "SOP de herramienta",
+      content: `## ¿Qué hace esta herramienta?
+[Describir en 1-2 líneas para qué sirve]
+
+## Automatizaciones existentes
+- Automatización 1: [qué hace, qué dispara, qué produce]
+- Automatización 2: [qué hace, qué dispara, qué produce]
+
+## Herramientas que conecta
+→ [Herramienta A] → [Herramienta B] → [Resultado]
+
+## Cómo acceder
+- URL:
+- Usuario: [ver gestor de claves]
+- Documentación:
+
+## Qué hacer si hay un error
+1. Verificar [paso 1]
+2. Revisar [paso 2]
+3. Si persiste: contactar a [responsable]
+
+## Dónde revisar cada automatización
+- [Link al panel]`,
+    },
+  ],
+  "sop-operativos": [
+    {
+      label: "SOP de proceso",
+      content: `## Objetivo del proceso
+[Qué logra este proceso y cuándo se activa]
+
+## Paso a paso
+
+→ Paso 1: [Acción]
+   - Qué hacer:
+   - Link:
+   - Herramienta:
+
+→ Paso 2: [Acción]
+   - Qué hacer:
+   - Link:
+   - Herramienta:
+
+→ Paso 3: [Acción]
+   - Qué hacer:
+   - Link:
+   - Herramienta:
+
+## Herramientas involucradas
+- [Herramienta 1]
+- [Herramienta 2]
+
+## Qué revisar si algo falla
+1. [Check 1]
+2. [Check 2]
+3. Escalar a: [responsable]
+
+## Links útiles
+- [Link 1]:
+- [Link 2]: `,
+    },
+    {
+      label: "SOP de onboarding",
+      content: `## Objetivo
+Dar de alta a un nuevo cliente en todos los sistemas de SmartScale.
+
+## Paso a paso
+
+→ Paso 1: Crear perfil en el CRM
+   - Ir a: smartscale.space/admin/clients
+   - Completar: nombre, email, canal, programa, cuotas
+
+→ Paso 2: Enviar accesos al cliente
+   - Herramienta: [email / Slack]
+   - Template: [link al template]
+
+→ Paso 3: Configurar en Zapier
+   - Automatización: [nombre de la zap]
+   - Verificar que se dispare correctamente
+
+→ Paso 4: Agendar primera llamada
+   - Herramienta: Calendly / Google Calendar
+   - Link:
+
+→ Paso 5: Confirmar onboarding completo
+   - Marcar como "activo" en el CRM
+
+## Qué revisar si algo falla
+1. Verificar que el email no fue a spam
+2. Revisar logs de Zapier
+3. Contactar a: [responsable]`,
+    },
+  ],
+  "recursos-internos": [
+    {
+      label: "Recurso interno",
+      content: `## Descripción
+[Para qué sirve este recurso y cuándo usarlo]
+
+## Links
+- Principal:
+- Backup / alternativo:
+
+## Notas de uso
+[Instrucciones o contexto importante]
+
+## Última revisión
+[Fecha y por quién]`,
+    },
+  ],
+  "accesos": [
+    {
+      label: "Acceso a herramienta",
+      content: `## Herramienta
+[Nombre de la herramienta]
+
+## URL de acceso
+[URL]
+
+## Credenciales
+- Email/usuario: [especificar]
+- Contraseña: Ver gestor de claves del equipo (NO guardar aquí)
+
+## Permisos / plan
+[Qué plan tenemos, qué features incluye]
+
+## Quién tiene acceso
+- [Persona 1]
+- [Persona 2]
+
+## Notas
+[Contexto adicional, renovación, fecha de vencimiento, etc.]`,
+    },
+  ],
+}
+
 const MOCK_SEED: Omit<Item, "id" | "created_at">[] = [
   {
     title: "SOP Zapier — Automatizaciones internas",
     url: "#",
-    description: "Qué automatizaciones existen, cómo funcionan, qué herramientas conectan y qué hacer si hay un error.",
+    description: "Qué automatizaciones existen, cómo funcionan y qué hacer si hay un error.",
+    content: `## ¿Qué hace esta herramienta?
+Zapier conecta automáticamente las herramientas del equipo de SmartScale y ejecuta tareas sin intervención manual.
+
+## Automatizaciones existentes
+- Zap 1: Nuevo lead en formulario → CRM (SmartScale)
+- Zap 2: Pago confirmado → Email de bienvenida al cliente
+- Zap 3: Reporte mensual enviado → Notificación en Slack
+
+## Herramientas que conecta
+→ Typeform → SmartScale CRM → Slack
+→ Stripe → Email (Gmail) → CRM
+
+## Cómo acceder
+- URL: https://zapier.com
+- Usuario: Ver gestor de claves del equipo
+- Documentación: https://zapier.com/help
+
+## Qué hacer si hay un error
+1. Ir a Zapier → Task History y ver el error exacto
+2. Verificar que los campos mapeados siguen existiendo en la fuente
+3. Revisar si el token de conexión expiró (reconectar la app)
+4. Si persiste: escalar a [responsable técnico]
+
+## Dónde revisar cada automatización
+- Panel de Zaps: https://zapier.com/app/zaps
+- Task History: https://zapier.com/app/history`,
     category: "sop-sistemas",
     type: "doc",
   },
   {
     title: "SOP Onboarding — Alta de clientes",
     url: "#",
-    description: "Proceso paso a paso para dar de alta un nuevo cliente: links, tareas, herramientas y qué revisar si algo falla.",
+    description: "Proceso paso a paso para dar de alta un nuevo cliente.",
+    content: `## Objetivo
+Dar de alta a un nuevo cliente en todos los sistemas de SmartScale correctamente.
+
+## Paso a paso
+
+→ Paso 1: Crear perfil en el CRM
+   - Ir a: smartscale.space/admin/clients
+   - Completar: nombre, email, canal, programa, cuotas
+   - Estado inicial: "activo"
+
+→ Paso 2: Enviar accesos al cliente
+   - Herramienta: Gmail
+   - Template: [link al template de bienvenida]
+   - Asegurarse de incluir: usuario, contraseña temporal, link al portal
+
+→ Paso 3: Configurar automatizaciones en Zapier
+   - Verificar que se dispare la Zap de nuevo cliente
+   - Confirmar que el cliente aparece en el CRM
+
+→ Paso 4: Agendar primera llamada de kickoff
+   - Herramienta: Calendly
+   - Enviar link de agendamiento al cliente
+
+→ Paso 5: Confirmar onboarding completo
+   - Checklist: perfil en CRM ✓, accesos enviados ✓, llamada agendada ✓
+
+## Qué revisar si algo falla
+1. Si el email no llegó: verificar spam o error en dirección
+2. Si Zapier no se disparó: revisar Task History en Zapier
+3. Escalar a: [responsable]`,
     category: "sop-operativos",
     type: "doc",
   },
@@ -86,24 +286,353 @@ const MOCK_SEED: Omit<Item, "id" | "created_at">[] = [
     title: "Plantillas internas de seguimiento",
     url: "#",
     description: "Plantillas del equipo para seguimiento semanal y reportes.",
+    content: `## Descripción
+Colección de plantillas que usa el equipo de SmartScale para el seguimiento interno de clientes y métricas.
+
+## Links
+- Plantilla semanal: [agregar link]
+- Plantilla de reporte mensual: [agregar link]
+- Plantilla de onboarding checklist: [agregar link]
+
+## Notas de uso
+Copiar la plantilla antes de usar. No editar el original.
+
+## Última revisión
+[Agregar fecha]`,
     category: "recursos-internos",
     type: "file",
   },
   {
     title: "Links importantes del equipo",
     url: "#",
-    description: "Colección de links frecuentes: Drive, Notion, herramientas, etc.",
+    description: "Links frecuentes del equipo: Drive, Notion, herramientas.",
+    content: `## Descripción
+Colección de links que el equipo usa frecuentemente.
+
+## Links
+- Drive del equipo: [agregar link]
+- Notion / base de conocimiento: [agregar link]
+- Portal SmartScale: https://smartscale.space
+- CRM interno: https://smartscale.space/admin/clients
+- Zapier: https://zapier.com
+- Panel de pagos: [agregar link]
+
+## Notas de uso
+Actualizar cuando se agreguen nuevas herramientas al stack.
+
+## Última revisión
+[Agregar fecha]`,
     category: "recursos-internos",
     type: "link",
   },
   {
     title: "Acceso Zapier",
     url: "https://zapier.com",
-    description: "Email de acceso: usar contraseña guardada en el gestor de claves del equipo.",
+    description: "Acceso a la cuenta de Zapier del equipo SmartScale.",
+    content: `## Herramienta
+Zapier — plataforma de automatizaciones
+
+## URL de acceso
+https://zapier.com
+
+## Credenciales
+- Email/usuario: Ver gestor de claves del equipo
+- Contraseña: Ver gestor de claves del equipo (NO guardar aquí)
+
+## Permisos / plan
+Plan Profesional — incluye Zaps ilimitadas y acceso multi-usuario
+
+## Quién tiene acceso
+- [Agregar personas con acceso]
+
+## Notas
+Renovación anual. Verificar fecha de vencimiento en la cuenta.`,
     category: "accesos",
     type: "link",
   },
 ]
+
+// ─── Content Renderer ─────────────────────────────────────────────────────────
+
+function ContentRenderer({ content }: { content: string }) {
+  const lines = content.split("\n")
+
+  return (
+    <div className="space-y-1">
+      {lines.map((line, i) => {
+        if (line.startsWith("## ")) {
+          return (
+            <h3 key={i} className="text-sm font-semibold text-white mt-5 mb-2 first:mt-0">
+              {line.replace("## ", "")}
+            </h3>
+          )
+        }
+        if (line.startsWith("→ ")) {
+          return (
+            <div key={i} className="flex items-start gap-2 py-1">
+              <ArrowRight className="h-3.5 w-3.5 text-[#ffde21] flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-white/80 font-medium">{line.replace("→ ", "")}</span>
+            </div>
+          )
+        }
+        if (line.match(/^- /)) {
+          return (
+            <div key={i} className="flex items-start gap-2 pl-2 py-0.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-white/20 flex-shrink-0 mt-2" />
+              <span className="text-xs text-white/50 leading-relaxed">{line.replace(/^- /, "")}</span>
+            </div>
+          )
+        }
+        if (line.match(/^\d+\. /)) {
+          const num = line.match(/^(\d+)\. /)?.[1]
+          return (
+            <div key={i} className="flex items-start gap-2.5 pl-2 py-0.5">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ffde21]/15 text-[10px] font-bold text-[#ffde21] flex-shrink-0 mt-0.5">
+                {num}
+              </span>
+              <span className="text-xs text-white/50 leading-relaxed">{line.replace(/^\d+\. /, "")}</span>
+            </div>
+          )
+        }
+        if (line.trim() === "") return <div key={i} className="h-1" />
+        return (
+          <p key={i} className="text-xs text-white/50 leading-relaxed pl-2">{line}</p>
+        )
+      })}
+    </div>
+  )
+}
+
+// ─── SOP Modal ────────────────────────────────────────────────────────────────
+
+function SOPModal({
+  item,
+  sectionId,
+  onClose,
+  onUpdate,
+  onDelete,
+}: {
+  item: Item
+  sectionId: SectionId
+  onClose: () => void
+  onUpdate: (updated: Item) => void
+  onDelete: (id: string) => void
+}) {
+  const cfg = TYPE_CONFIG[item.type] ?? TYPE_CONFIG.link
+  const Icon = cfg.icon
+  const [editing, setEditing] = useState(false)
+  const [content, setContent] = useState(item.content ?? "")
+  const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const isAccesos = sectionId === "accesos"
+  const templates = TEMPLATES[sectionId] ?? []
+
+  const date = new Date(item.created_at).toLocaleDateString("es-AR", {
+    day: "2-digit", month: "long", year: "numeric",
+  })
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const res = await fetch("/api/resources", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id, content }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        onUpdate({ ...item, content })
+        setEditing(false)
+      } else {
+        alert(data.error || "Error al guardar")
+      }
+    } finally { setSaving(false) }
+  }
+
+  const handleDelete = async () => {
+    if (!confirm(`¿Eliminar "${item.title}"?`)) return
+    setDeleting(true)
+    try {
+      await fetch(`/api/resources?id=${item.id}`, { method: "DELETE" })
+      onDelete(item.id)
+      onClose()
+    } finally { setDeleting(false) }
+  }
+
+  const applyTemplate = (tmpl: { content: string }) => {
+    setContent(tmpl.content)
+    setEditing(true)
+    setTimeout(() => textareaRef.current?.focus(), 50)
+  }
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(content)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Panel */}
+      <div className="relative z-10 flex flex-col w-full max-w-2xl max-h-[90vh] rounded-2xl border border-white/[0.1] bg-[#111113] shadow-2xl overflow-hidden">
+
+        {/* Header */}
+        <div className="flex items-start gap-3 p-5 border-b border-white/[0.07] flex-shrink-0">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.05] flex-shrink-0">
+            <Icon className={`h-5 w-5 ${cfg.color}`} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-base font-semibold text-white leading-snug">{item.title}</h2>
+            {item.description && (
+              <p className="text-xs text-white/40 mt-0.5">{item.description}</p>
+            )}
+            <div className="flex items-center gap-3 mt-1.5">
+              <span className={`text-[10px] font-semibold uppercase tracking-widest ${cfg.color}`}>
+                {cfg.label}
+              </span>
+              <span className="text-[10px] text-white/20">{date}</span>
+              {item.url && item.url !== "#" && (
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-[10px] font-medium text-[#ffde21]/60 hover:text-[#ffde21] transition-colors"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Abrir link
+                </a>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex-shrink-0 text-white/30 hover:text-white/60 transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Security warning for accesos */}
+        {isAccesos && (
+          <div className="flex items-start gap-2.5 mx-5 mt-4 rounded-xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 flex-shrink-0">
+            <AlertTriangle className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-300/70 leading-relaxed">
+              <span className="font-semibold text-amber-300">No guardes contraseñas aquí.</span>{" "}
+              Solo referencias (email, usuario). Las credenciales deben estar en el gestor de claves del equipo.
+            </p>
+          </div>
+        )}
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          {/* Templates — only when no content */}
+          {!content && !editing && templates.length > 0 && (
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-2">
+                Comenzar con un template
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {templates.map((t) => (
+                  <button
+                    key={t.label}
+                    onClick={() => applyTemplate(t)}
+                    className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-white/50 hover:text-white hover:bg-white/[0.07] transition-all"
+                  >
+                    <Copy className="h-3 w-3" />
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Content area */}
+          {editing ? (
+            <textarea
+              ref={textareaRef}
+              value={content}
+              onChange={e => setContent(e.target.value)}
+              autoFocus
+              rows={20}
+              placeholder={`Escribí el contenido del SOP...\n\nUsá:\n## Título de sección\n→ Paso con flecha\n- Ítem de lista\n1. Paso numerado`}
+              className="w-full rounded-xl bg-white/[0.04] border border-[#ffde21]/20 px-4 py-3 text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-[#ffde21]/40 resize-none leading-relaxed font-mono"
+            />
+          ) : content ? (
+            <ContentRenderer content={content} />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-10 gap-3">
+              <FileText className="h-8 w-8 text-white/10" />
+              <p className="text-xs text-white/20 text-center">
+                Este SOP todavía no tiene contenido.<br />
+                Usá un template o escribí desde cero.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer actions */}
+        <div className="flex items-center justify-between gap-3 p-4 border-t border-white/[0.07] flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-white/30 hover:text-red-400 hover:bg-red-400/5 border border-transparent hover:border-red-400/10 transition-all"
+            >
+              {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+              Eliminar
+            </button>
+            {content && !editing && (
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-white/30 hover:text-white/60 border border-transparent hover:border-white/[0.08] transition-all"
+              >
+                {copied ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied ? "Copiado" : "Copiar"}
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {editing ? (
+              <>
+                <button
+                  onClick={() => { setContent(item.content ?? ""); setEditing(false) }}
+                  className="rounded-lg px-3 py-1.5 text-xs text-white/40 hover:text-white/60 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="flex items-center gap-1.5 rounded-xl bg-[#ffde21] px-4 py-1.5 text-xs font-semibold text-black hover:bg-[#ffde21]/90 transition-colors disabled:opacity-50"
+                >
+                  {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                  Guardar
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setEditing(true)}
+                className="flex items-center gap-1.5 rounded-xl bg-white/[0.07] px-4 py-1.5 text-xs font-semibold text-white hover:bg-white/[0.12] transition-colors border border-white/[0.08]"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Editar
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // ─── Add Item Form ─────────────────────────────────────────────────────────────
 
@@ -158,8 +687,7 @@ function AddItemForm({
           <AlertTriangle className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
           <p className="text-xs text-amber-300/80 leading-relaxed">
             <span className="font-semibold text-amber-300">No guardes contraseñas en texto plano.</span>{" "}
-            Usá este campo solo para referencias (email, nombre de usuario, dónde encontrar las credenciales).
-            Las contraseñas deben estar en el gestor de claves del equipo.
+            Solo referencias (email, usuario, dónde encontrar las credenciales).
           </p>
         </div>
       )}
@@ -180,11 +708,7 @@ function AddItemForm({
           className="w-full rounded-xl bg-white/[0.05] border border-white/[0.08] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#ffde21]/40"
         />
         <textarea
-          placeholder={
-            isAccesos
-              ? "Descripción: email de acceso, dónde están las credenciales…"
-              : "Descripción (opcional)"
-          }
+          placeholder="Descripción breve (opcional)"
           value={form.description}
           rows={2}
           onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
@@ -218,7 +742,7 @@ function AddItemForm({
             className="flex items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2 text-sm font-semibold text-black hover:bg-[#ffde21]/90 transition-colors disabled:opacity-50"
           >
             {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-            Guardar
+            Crear
           </button>
         </div>
       </form>
@@ -226,82 +750,44 @@ function AddItemForm({
   )
 }
 
-// ─── Item Card ─────────────────────────────────────────────────────────────────
+// ─── Item Row ──────────────────────────────────────────────────────────────────
 
-function ItemCard({ item, onDelete }: { item: Item; onDelete: (id: string) => void }) {
+function ItemRow({
+  item,
+  onClick,
+}: {
+  item: Item
+  onClick: () => void
+}) {
   const cfg = TYPE_CONFIG[item.type] ?? TYPE_CONFIG.link
   const Icon = cfg.icon
-  const [deleting, setDeleting] = useState(false)
-  const [expanded, setExpanded] = useState(false)
-
-  const handleDelete = async () => {
-    if (!confirm(`¿Eliminar "${item.title}"?`)) return
-    setDeleting(true)
-    try {
-      await fetch(`/api/resources?id=${item.id}`, { method: "DELETE" })
-      onDelete(item.id)
-    } finally { setDeleting(false) }
-  }
-
-  const date = new Date(item.created_at).toLocaleDateString("es-AR", {
-    day: "2-digit", month: "short", year: "numeric",
-  })
+  const hasContent = !!item.content
 
   return (
-    <div className={`group rounded-2xl border bg-[#111113] transition-all duration-200 ${expanded ? "border-white/[0.15]" : "border-white/[0.07] hover:border-white/[0.12]"}`}>
-      {/* Header — always visible, clickable to expand */}
-      <button
-        onClick={() => setExpanded(v => !v)}
-        className="w-full flex items-center gap-3 p-4 text-left"
-      >
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.05] flex-shrink-0">
-          <Icon className={`h-4 w-4 ${cfg.color}`} />
-        </div>
-        <p className="flex-1 text-sm font-semibold text-white leading-snug">{item.title}</p>
-        <ChevronDown
-          className={`h-4 w-4 text-white/30 flex-shrink-0 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
-        />
-      </button>
+    <button
+      onClick={onClick}
+      className="w-full group flex items-center gap-3 rounded-2xl border border-white/[0.07] bg-[#111113] px-4 py-3.5 hover:border-white/[0.15] hover:bg-white/[0.03] transition-all text-left"
+    >
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.05] flex-shrink-0">
+        <Icon className={`h-4 w-4 ${cfg.color}`} />
+      </div>
 
-      {/* Expanded content */}
-      {expanded && (
-        <div className="px-4 pb-4 space-y-3 border-t border-white/[0.06] pt-3">
-          {item.description && (
-            <p className="text-xs text-white/50 leading-relaxed">{item.description}</p>
-          )}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-white truncate">{item.title}</p>
+        {item.description && (
+          <p className="text-xs text-white/35 truncate mt-0.5">{item.description}</p>
+        )}
+      </div>
 
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className={`flex items-center gap-1 text-[10px] font-semibold uppercase tracking-widest ${cfg.color}`}>
-                <Icon className="h-3 w-3" />
-                {cfg.label}
-              </span>
-              <span className="text-[10px] text-white/20">{date}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              {item.url && item.url !== "#" && (
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-xs font-medium text-[#ffde21]/60 hover:text-[#ffde21] transition-colors"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  Abrir
-                </a>
-              )}
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="text-white/20 hover:text-red-400 transition-colors"
-              >
-                {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        {hasContent && (
+          <span className="text-[10px] font-semibold text-green-400/60 bg-green-400/10 rounded-full px-2 py-0.5">
+            Documentado
+          </span>
+        )}
+        <ChevronRight className="h-4 w-4 text-white/20 group-hover:text-white/50 transition-colors" />
+      </div>
+    </button>
   )
 }
 
@@ -311,15 +797,18 @@ function SectionPanel({
   section,
   items,
   onAdd,
+  onUpdate,
   onDelete,
 }: {
   section: (typeof SECTIONS)[number]
   items: Item[]
   onAdd: (item: Item) => void
+  onUpdate: (item: Item) => void
   onDelete: (id: string) => void
 }) {
   const [showForm, setShowForm] = useState(false)
   const [search, setSearch] = useState("")
+  const [activeItem, setActiveItem] = useState<Item | null>(null)
   const Icon = section.icon
   const isAccesos = section.id === "accesos"
 
@@ -351,8 +840,8 @@ function SectionPanel({
           <AlertTriangle className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
           <p className="text-xs text-amber-300/70 leading-relaxed">
             <span className="font-semibold text-amber-300">Aviso de seguridad:</span>{" "}
-            No guardar contraseñas en texto plano. Guardá solo referencias (email, usuario, herramienta) y las
-            credenciales reales deben vivir en el gestor de claves del equipo (1Password, Bitwarden, etc.).
+            Guardá solo referencias (email, usuario, dónde están las credenciales). Las contraseñas deben
+            vivir en el gestor de claves del equipo.
           </p>
         </div>
       )}
@@ -387,7 +876,7 @@ function SectionPanel({
         />
       )}
 
-      {/* Items */}
+      {/* Items list */}
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-14 gap-3">
           <FolderOpen className="h-8 w-8 text-white/10" />
@@ -404,11 +893,32 @@ function SectionPanel({
           )}
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-2">
           {filtered.map(item => (
-            <ItemCard key={item.id} item={item} onDelete={onDelete} />
+            <ItemRow
+              key={item.id}
+              item={item}
+              onClick={() => setActiveItem(item)}
+            />
           ))}
         </div>
+      )}
+
+      {/* Modal */}
+      {activeItem && (
+        <SOPModal
+          item={activeItem}
+          sectionId={section.id}
+          onClose={() => setActiveItem(null)}
+          onUpdate={updated => {
+            onUpdate(updated)
+            setActiveItem(updated)
+          }}
+          onDelete={id => {
+            onDelete(id)
+            setActiveItem(null)
+          }}
+        />
       )}
     </div>
   )
@@ -426,7 +936,6 @@ export function AdminCentroOperativoView() {
       .then(r => r.json())
       .then(d => {
         const fetched: Item[] = d.resources ?? []
-        // Seed mock data if DB is empty for centro-operativo categories
         const opCats: string[] = SECTIONS.map(s => s.id)
         const existing = fetched.filter(i => opCats.includes(i.category))
         if (existing.length === 0) {
@@ -446,8 +955,9 @@ export function AdminCentroOperativoView() {
   const section = SECTIONS.find(s => s.id === activeSection)!
   const sectionItems = items.filter(i => i.category === activeSection)
 
-  const handleAdd = (item: Item) => setItems(prev => [item, ...prev])
-  const handleDelete = (id: string) => setItems(prev => prev.filter(i => i.id !== id))
+  const handleAdd    = (item: Item)   => setItems(prev => [item, ...prev])
+  const handleUpdate = (item: Item)   => setItems(prev => prev.map(i => i.id === item.id ? item : i))
+  const handleDelete = (id: string)   => setItems(prev => prev.filter(i => i.id !== id))
 
   return (
     <div className="space-y-6">
@@ -472,15 +982,19 @@ export function AdminCentroOperativoView() {
             <button
               key={s.id}
               onClick={() => setActiveSection(s.id)}
-              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium border transition-all ${
+              className={cn(
+                "flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium border transition-all",
                 isActive
                   ? "border-[#ffde21]/30 bg-[#ffde21]/10 text-[#ffde21]"
-                  : "border-white/[0.08] bg-white/[0.03] text-white/50 hover:text-white/80 hover:bg-white/[0.06]"
-              }`}
+                  : "border-white/[0.08] bg-white/[0.03] text-white/50 hover:text-white/80 hover:bg-white/[0.06]",
+              )}
             >
               <Icon className={`h-3.5 w-3.5 ${isActive ? "text-[#ffde21]" : s.color}`} />
               {s.label}
-              <span className={`text-[10px] rounded-full px-1.5 py-0.5 ${isActive ? "bg-[#ffde21]/20 text-[#ffde21]" : "bg-white/[0.07] text-white/30"}`}>
+              <span className={cn(
+                "text-[10px] rounded-full px-1.5 py-0.5",
+                isActive ? "bg-[#ffde21]/20 text-[#ffde21]" : "bg-white/[0.07] text-white/30",
+              )}>
                 {count}
               </span>
             </button>
@@ -498,6 +1012,7 @@ export function AdminCentroOperativoView() {
           section={section}
           items={sectionItems}
           onAdd={handleAdd}
+          onUpdate={handleUpdate}
           onDelete={handleDelete}
         />
       )}
