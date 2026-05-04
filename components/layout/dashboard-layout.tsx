@@ -357,9 +357,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <header className="shrink-0 z-10 border-b border-white/[0.08] backdrop-blur-md" style={{ backgroundColor: "rgba(10,10,11,0.95)" }}>
           <div className="flex h-16 items-center justify-between px-4 lg:px-8">
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" className="lg:hidden text-white/60 hover:text-white" onClick={() => setSidebarOpen(true)}>
-                <Menu className="h-5 w-5" />
-              </Button>
+              {!sidebarOpen && (
+                <Button variant="ghost" size="icon" className="lg:hidden text-white/60 hover:text-white" onClick={() => setSidebarOpen(true)}>
+                  <Menu className="h-5 w-5" />
+                </Button>
+              )}
               <div>
                 <h1 className="text-base sm:text-lg font-bold text-white leading-tight tracking-tight flex items-center gap-2">
                   {pageTitle}
