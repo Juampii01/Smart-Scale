@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase"
 import { useActiveClient, useSelectedMonth } from "@/components/layout/dashboard-layout"
 import { useAnnualMetrics } from "@/contexts/annual-metrics-context"
 import { AiLoading } from "@/components/ui/ai-loading"
-import { Trash2 } from "lucide-react"
+import { Trash2, ArrowUpRight } from "lucide-react"
 
 // ─── Audit data ──────────────────────────────────────────────────────────────
 
@@ -62,6 +62,47 @@ type DiagnosisHistoryItem = {
   created_at: string | null
   updated_at: string | null
   result: string | null
+}
+
+type ItemColor = "red" | "yellow" | "green" | null
+
+type StructuredDiagnosis = {
+  version: number
+  segmento: string
+  scores: Record<string, {
+    name: string
+    puntos: number
+    estado: "Sólido" | "En construcción" | "Cuello de botella"
+    items: { id: string; color: ItemColor }[]
+  }>
+  focos: {
+    prioridad: number
+    modulo: string
+    etiqueta: string
+    titulo: string
+    diagnostico: string
+    skool_modulo: string | null
+    skool_nivel: string | null
+  }[]
+}
+
+function parseStructuredDiagnosis(raw: string): StructuredDiagnosis | null {
+  try {
+    const parsed = JSON.parse(raw)
+    if (parsed && typeof parsed === "object" && parsed.version && parsed.scores && parsed.focos) {
+      return parsed as StructuredDiagnosis
+    }
+  } catch { /* not JSON → markdown legacy */ }
+  return null
+}
+
+function previewDiagnosis(raw: string | null): string {
+  if (!raw) return ""
+  const structured = parseStructuredDiagnosis(raw)
+  if (!structured) return raw
+  const foco = structured.focos[0]
+  if (!foco) return "Diagnóstico generado."
+  return `${foco.titulo}\n\n${foco.diagnostico}`
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -238,6 +279,105 @@ function ScorePillButton({
   )
 }
 
+function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
+  const pillarOrder = ["f", "e", "t", "i"]
+
+  const stateStyles: Record<string, { bar: string; pill: string; score: string }> = {
+    "Sólido":             { bar: "bg-emerald-500", pill: "bg-emerald-500/10 text-emerald-300 border-emerald-400/20", score: "text-emerald-400" },
+    "En construcción":    { bar: "bg-amber-500",   pill: "bg-amber-500/10 text-amber-300 border-amber-400/20",     score: "text-amber-400" },
+    "Cuello de botella":  { bar: "bg-red-500",     pill: "bg-red-500/10 text-red-300 border-red-400/20",            score: "text-red-400" },
+  }
+
+  const dotColor = (c: ItemColor) =>
+    c === "green"  ? "bg-emerald-500" :
+    c === "yellow" ? "bg-amber-500"   :
+    c === "red"    ? "bg-red-500"     :
+    "bg-white/15"
+
+  const priorityPill = (idx: number) =>
+    idx === 0
+      ? "bg-red-500/15 text-red-300 border-red-400/25"
+      : "bg-amber-500/15 text-amber-300 border-amber-400/25"
+
+  return (
+    <div className="space-y-8">
+      {/* RESULTADO POR MÓDULO */}
+      <div className="space-y-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+          Resultado por módulo
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {pillarOrder.map(key => {
+            const s = data.scores[key]
+            if (!s) return null
+            const style = stateStyles[s.estado]
+            return (
+              <div key={key} className="rounded-2xl border border-white/[0.07] bg-[#1a1a1d] p-5">
+                <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-white/55 mb-2">
+                  {s.name}
+                </p>
+                <p className={`text-3xl font-bold tracking-tight ${style.score}`}>
+                  {s.puntos}<span className="text-white/30 text-2xl font-medium">/6</span>
+                </p>
+                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                  <div className={`h-full rounded-full ${style.bar}`} style={{ width: `${(s.puntos / 6) * 100}%` }} />
+                </div>
+                <div className="mt-3">
+                  <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${style.pill}`}>
+                    {s.estado}
+                  </span>
+                </div>
+                <div className="mt-3 flex items-center gap-1.5">
+                  {s.items.map(it => (
+                    <span key={it.id} className={`h-1.5 w-1.5 rounded-full ${dotColor(it.color)}`} title={`${it.id}: ${it.color ?? "sin responder"}`} />
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      <div className="h-px w-full bg-white/[0.06]" />
+
+      {/* TU FOCO ESTE TRIMESTRE */}
+      <div className="space-y-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+          Tu foco este trimestre
+        </p>
+        <div className="space-y-4">
+          {data.focos.map((f, idx) => (
+            <div key={idx} className="rounded-2xl border border-white/[0.07] bg-[#1a1a1d] p-6">
+              <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${priorityPill(idx)}`}>
+                {f.etiqueta}
+              </span>
+              <h3 className="mt-3 text-xl font-bold tracking-tight text-white md:text-2xl">
+                {f.titulo}
+              </h3>
+              <p className="mt-2 text-[14px] leading-7 text-white/65 md:text-[15px]">
+                {f.diagnostico}
+              </p>
+              {f.skool_modulo && (
+                <button
+                  type="button"
+                  className="mt-4 inline-flex items-start gap-2 rounded-xl border border-white/[0.1] bg-white/[0.04] px-4 py-2.5 text-left text-[13px] font-medium text-white/85 transition hover:border-white/20 hover:bg-white/[0.08]"
+                >
+                  <span>
+                    Dirigite al módulo <span className="font-semibold text-white">{f.skool_modulo}</span>
+                    {f.skool_nivel ? <> en <span className="font-semibold text-white">{f.skool_nivel}</span></> : null}
+                    {" — te va a ayudar a resolver esto."}
+                  </span>
+                  <ArrowUpRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function AuditView() {
@@ -273,10 +413,15 @@ export function AuditView() {
 
   const auditType: 'menos20k' | 'mas20k' = maxMonthlyRevenue >= 20000 ? 'mas20k' : 'menos20k'
 
-  const diagnosisContent = useMemo(() => {
+  const structuredDiagnosis = useMemo(() => {
     if (!aiResponse) return null
-    return renderDiagnosisContent(aiResponse)
+    return parseStructuredDiagnosis(aiResponse)
   }, [aiResponse])
+
+  const diagnosisContent = useMemo(() => {
+    if (!aiResponse || structuredDiagnosis) return null
+    return renderDiagnosisContent(aiResponse)
+  }, [aiResponse, structuredDiagnosis])
 
   const selectedAnswersCount = useMemo(() => Object.keys(scores).length, [scores])
 
@@ -737,6 +882,8 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                 <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm leading-7 text-red-200">
                   {aiResponse}
                 </div>
+              ) : structuredDiagnosis ? (
+                <DiagnosisCards data={structuredDiagnosis} />
               ) : (
                 <div className="space-y-3">
                   {diagnosisContent}
@@ -827,7 +974,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                         <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 min-h-[100px] mb-4">
                           <div className="text-xs leading-6 text-white/50 whitespace-pre-line max-h-40 overflow-y-auto">
                             {item.result
-                              ? item.result
+                              ? previewDiagnosis(item.result)
                               : item.status === "pending"
                               ? "Diagnóstico en proceso. Todavía no hay contenido final disponible."
                               : "No hay resultado almacenado para este diagnóstico."}

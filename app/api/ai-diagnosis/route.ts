@@ -1,153 +1,252 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import Anthropic from "@anthropic-ai/sdk"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
+export const maxDuration = 60
 
-// ─── Module maps ──────────────────────────────────────────────────────────────
+// ─── Module maps (Skool) ──────────────────────────────────────────────────────
+
+type SkoolModule = { name: string; level: string }
 
 // +$20k → F1-F3, E1-E3, T1-T3, I1-I3
-const MODULES_MAS20K: Record<string, { name: string; level: string }> = {
-  F1: { name: "La Ingeniera de un Simple Post",          level: "Nivel 5" },
-  F2: { name: "Los No Negociables Diarios",              level: "Nivel 0" },
-  F3: { name: "El Diamante de Autoridad & BIO",          level: "Nivel 5" },
-  E1: { name: "Mini-Serie Youtube Playbook",             level: "Nivel 7" },
-  E2: { name: "Airtable CRM y Base de Datos",            level: "Nivel 8" },
-  E3: { name: "DM to Chat — Priorizacion de tu Pipeline",level: "Nivel 6" },
-  T1: { name: "Investigacion de Mercado",                level: "Nivel 3" },
-  T2: { name: "Recoleccion de Prueba Social",            level: "Nivel 3" },
-  T3: { name: "Una Simple Oferta | Blueprint",           level: "Nivel 3" },
-  I1: { name: "Tu Programa Matadolor™",                  level: "Nivel 3" },
-  I2: { name: "Onboarding Proceso",                      level: "Nivel 3" },
-  I3: { name: "Tu Offer Doc",                            level: "Nivel 6" },
+const MODULES_MAS20K: Record<string, SkoolModule> = {
+  F1: { name: "La Ingeniera de un Simple Post",        level: "Nivel 5" },
+  F2: { name: "Productividad y Calendario Optimizado", level: "Nivel 5" },
+  F3: { name: "5 prospectos al dia - Persegui el NO",  level: "Nivel 6" },
+  E1: { name: "Cadencia de Emails semanales",          level: "Nivel 4" },
+  E2: { name: "Airtable CRM y Base de Datos",          level: "Nivel 8" },
+  E3: { name: "DM to Chat — Priorizacion de tu Pipeline", level: "Nivel 6" },
+  T1: { name: "Investigacion de Mercado",              level: "Nivel 3" },
+  T2: { name: "Recoleccion de Prueba Social",          level: "Nivel 3" },
+  T3: { name: "Una Simple Oferta | Blueprint",         level: "Nivel 3" },
+  I1: { name: "Tu Programa Matadolor™",                level: "Nivel 3" },
+  I2: { name: "Onboarding Proceso",                    level: "Nivel 3" },
+  I3: { name: "Delivery Escalable",                    level: "Nivel 3" },
 }
 
 // -$20k → F4-F6, E4-E6, T4-T6, I4-I6
-const MODULES_MENOS20K: Record<string, { name: string; level: string }> = {
-  F4: { name: "Lead Magnets Principales",                level: "Nivel 4" },
-  F5: { name: "Un Simple Protocolo de Ads",              level: "Nivel 5" },
-  F6: { name: "Productividad y Calendario Optimizado",   level: "Nivel 5" },
-  E4: { name: "El Blueprint de una Marca con Identidad", level: "Nivel 5" },
-  E5: { name: "Un Simple Video (VSL)",                   level: "Nivel 6" },
-  E6: { name: "Workshops DDE",                           level: "En creación" },
-  T4: { name: "Comunidad Solida",                        level: "Nivel 3" },
-  T5: { name: "Formulario de Contratacion",              level: "Nivel 6" },
-  T6: { name: "SmartScale Roadmap",                      level: "Nivel 0" },
-  I4: { name: "Creacion de Tu Simple Oferta",            level: "Nivel 3" },
-  I5: { name: "Tu World Class Delivery",                 level: "Nivel 3" },
-  I6: { name: "IA & Sistemas",                           level: "Nivel 8" },
+const MODULES_MENOS20K: Record<string, SkoolModule> = {
+  F4: { name: "La Ingeniera de un Simple Post",        level: "Nivel 5" },
+  F5: { name: "Contenido que Conecta y Convierte",     level: "Nivel 5" },
+  F6: { name: "Productividad y Calendario Optimizado", level: "Nivel 5" },
+  E4: { name: "Fundamentos del formato largo",         level: "Nivel 7" },
+  E5: { name: "Un Simple Video (VSL)",                 level: "Nivel 6" },
+  E6: { name: "Quick Cash DM Ads",                     level: "Nivel 5" },
+  T4: { name: "Comunidad Solida",                      level: "Nivel 3" },
+  T5: { name: "De Operador a CEO",                     level: "Nivel 3" },
+  T6: { name: "SOP | Como crear Caso de Exito en Youtube", level: "Nivel 3" },
+  I4: { name: "Creacion de Tu Simple Oferta",          level: "Nivel 3" },
+  I5: { name: "Tu World Class Delivery",               level: "Nivel 3" },
+  I6: { name: "IA & Sistemas",                         level: "Nivel 8" },
 }
 
-// ─── Parse prompt → items per color ──────────────────────────────────────────
+// ─── Pillar metadata ──────────────────────────────────────────────────────────
 
-type ParsedItem = { id: string; label: string }
-type ParsedAudit = { red: ParsedItem[]; orange: ParsedItem[]; green: ParsedItem[] }
+const PILLAR_NAMES: Record<string, string> = {
+  F: "FASCINATE",
+  E: "EDUCATE",
+  T: "TRANSFORM",
+  I: "INVITE",
+}
 
-function parsePrompt(prompt: string): ParsedAudit {
-  const red:    ParsedItem[] = []
-  const orange: ParsedItem[] = []
-  const green:  ParsedItem[] = []
+const PILLAR_DOMAINS: Record<string, string> = {
+  F: "atracción de leads, contenido corto, crecimiento de audiencia y consistencia",
+  E: "demanda orgánica, contenido largo, email marketing y automatización de nurturing",
+  T: "oferta principal, casos de éxito, prueba social y comunidad",
+  I: "sistema de prospección, onboarding, delivery sin depender de vos",
+}
 
+// Tie-break order: cuando 2 pilares empatan en score, gana el que está antes en esta lista
+const TIE_BREAK_ORDER = ["E", "F", "T", "I"]
+
+// ─── Parse user answers ───────────────────────────────────────────────────────
+
+type Color = "red" | "yellow" | "green"
+type AnsweredItem = { id: string; label: string; color: Color }
+
+function parsePrompt(prompt: string): AnsweredItem[] {
+  const items: AnsweredItem[] = []
   const lineRe = /^\s*-\s*\[(ROJO|NARANJA|VERDE)\]\s+([A-Z]\d+):\s+(.+)$/
 
   for (const line of prompt.split("\n")) {
     const m = line.match(lineRe)
     if (!m) continue
-    const [, color, id, label] = m
-    const item = { id, label: label.trim() }
-    if (color === "ROJO")    red.push(item)
-    if (color === "NARANJA") orange.push(item)
-    if (color === "VERDE")   green.push(item)
+    const [, colorEs, id, label] = m
+    const color: Color = colorEs === "ROJO" ? "red" : colorEs === "NARANJA" ? "yellow" : "green"
+    items.push({ id, label: label.trim(), color })
   }
-
-  return { red, orange, green }
+  return items
 }
 
-// ─── Pillar metadata ──────────────────────────────────────────────────────────
+// ─── Score & classify ─────────────────────────────────────────────────────────
 
-const PILLAR_META: Record<string, { name: string; focus: string }> = {
-  F: {
-    name: "FASCINAR",
-    focus: "Tu prioridad es construir autoridad y atraer audiencia de calidad. Sin una base sólida de atracción, la conversión y el delivery no tienen de dónde alimentarse.",
-  },
-  E: {
-    name: "EDUCAR",
-    focus: "Tu prioridad es fortalecer el seguimiento, tu lista de email y el sistema de conversión desde DMs. Tenés audiencia pero no estás convirtiendo todo su potencial.",
-  },
-  I: {
-    name: "INVITAR",
-    focus: "Tu prioridad es mejorar el onboarding y la entrega para que tus clientes logren resultados rápidos. La retención y los referidos dependen de esto.",
-  },
-  T: {
-    name: "TRANSFORMAR",
-    focus: "Tu prioridad es clarificar tu oferta y construir prueba social contundente. Sin esto, la atracción y la conversión pierden potencia.",
-  },
+const colorPoints = (c: Color) => (c === "green" ? 2 : c === "yellow" ? 1 : 0)
+
+function classify(puntos: number): "Sólido" | "En construcción" | "Cuello de botella" {
+  if (puntos >= 5) return "Sólido"
+  if (puntos >= 3) return "En construcción"
+  return "Cuello de botella"
 }
 
-// ─── Build deterministic markdown ─────────────────────────────────────────────
+type PillarScore = {
+  pillar: string                         // "F" | "E" | "T" | "I"
+  name: string                           // "FASCINATE", etc.
+  puntos: number
+  estado: "Sólido" | "En construcción" | "Cuello de botella"
+  items: { id: string; color: Color | null }[]   // 3 ítems en orden
+}
 
-function buildDiagnosis(prompt: string, auditType: string): string {
+function computeScores(answers: AnsweredItem[], auditType: string): PillarScore[] {
+  const allItemIds = auditType === "mas20k"
+    ? ["F1","F2","F3","E1","E2","E3","T1","T2","T3","I1","I2","I3"]
+    : ["F4","F5","F6","E4","E5","E6","T4","T5","T6","I4","I5","I6"]
+
+  const colorById = new Map(answers.map(a => [a.id, a.color]))
+
+  const result: PillarScore[] = []
+  for (const pillar of ["F", "E", "T", "I"]) {
+    const pillarItems = allItemIds.filter(id => id.startsWith(pillar))
+    const items = pillarItems.map(id => ({ id, color: colorById.get(id) ?? null }))
+    const puntos = items.reduce((sum, it) => sum + (it.color ? colorPoints(it.color) : 0), 0)
+    result.push({
+      pillar,
+      name: PILLAR_NAMES[pillar],
+      puntos,
+      estado: classify(puntos),
+      items,
+    })
+  }
+  return result
+}
+
+// ─── Decide focos (2 pilares con menor score) ─────────────────────────────────
+
+function pickFocos(scores: PillarScore[]): PillarScore[] {
+  // Ordená por score asc; en empate, usar TIE_BREAK_ORDER (E > F > T > I)
+  const sorted = [...scores].sort((a, b) => {
+    if (a.puntos !== b.puntos) return a.puntos - b.puntos
+    return TIE_BREAK_ORDER.indexOf(a.pillar) - TIE_BREAK_ORDER.indexOf(b.pillar)
+  })
+  // Tomar los 2 con menor score (siempre devolver 2 como en el screenshot)
+  return sorted.slice(0, 2)
+}
+
+// ─── Resolve Skool module for a foco ──────────────────────────────────────────
+
+function resolveSkoolModule(foco: PillarScore, auditType: string): SkoolModule | null {
   const modules = auditType === "mas20k" ? MODULES_MAS20K : MODULES_MENOS20K
-  const { red, orange, green } = parsePrompt(prompt)
+  // Item peor puntuado del pilar (red > yellow > green). Si todos sin responder, primer ítem.
+  const colorRank: Record<string, number> = { red: 0, yellow: 1, green: 2 }
+  const sorted = [...foco.items].sort((a, b) => {
+    const ra = a.color ? colorRank[a.color] : 99
+    const rb = b.color ? colorRank[b.color] : 99
+    return ra - rb
+  })
+  const worst = sorted[0]
+  return worst ? (modules[worst.id] ?? null) : null
+}
 
-  // ── Identify primary bottleneck pillar ──
-  const pillarScore: Record<string, number> = { F: 0, E: 0, I: 0, T: 0 }
-  for (const item of red)    { const p = item.id[0]; if (p in pillarScore) pillarScore[p] += 2 }
-  for (const item of orange) { const p = item.id[0]; if (p in pillarScore) pillarScore[p] += 1 }
-  const primaryPillar = Object.entries(pillarScore).sort(([, a], [, b]) => b - a)[0]
+// ─── Generate diagnostics with Claude ─────────────────────────────────────────
 
-  const modLine = (mod: { name: string; level: string }) => {
-    if (mod.level === "En creación") return `- Módulo: **${mod.name}** _(En creación)_`
-    return `- Módulo: **${mod.name}** — ${mod.level}`
+type FocoCopy = { titulo: string; diagnostico: string }
+
+async function generateFocoCopy(focos: PillarScore[], answers: AnsweredItem[]): Promise<FocoCopy[]> {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) throw new Error("Missing ANTHROPIC_API_KEY")
+
+  const anthropic = new Anthropic({ apiKey })
+
+  const labelById = new Map(answers.map(a => [a.id, a.label]))
+  const focosForPrompt = focos.map((f, idx) => {
+    const weak = f.items
+      .filter(it => it.color === "red" || it.color === "yellow")
+      .map(it => `  - [${it.color === "red" ? "ROJO" : "NARANJA"}] ${it.id}: ${labelById.get(it.id) ?? ""}`)
+      .join("\n")
+    return `FOCO ${idx + 1} — Pilar ${f.name} (score ${f.puntos}/6, estado: ${f.estado})
+Dominio: ${PILLAR_DOMAINS[f.pillar]}
+Debilidades del cliente:
+${weak || "  - (ninguna debilidad concreta — el pilar está sólido pero es de los más bajos)"}`
+  }).join("\n\n")
+
+  const prompt = `Sos coach de negocio para emprendedoras de coaching y cursos online dentro del programa Smart Scale. Estás generando los 2 focos prioritarios de un audit trimestral del Ecosistema Circular (FASCINATE → EDUCATE → TRANSFORM → INVITE).
+
+${focosForPrompt}
+
+Para cada foco, generá:
+1. "titulo": un título corto en formato "<Pilar capitalizado> — <2-4 palabras del problema>". Ejemplos: "Educate — Nutrición y demanda", "Transform — Oferta y prueba social", "Fascinate — Atracción y consistencia", "Invite — Onboarding y delivery". Usá el nombre del pilar exactamente como aparece (Educate / Fascinate / Transform / Invite).
+2. "diagnostico": 2-3 oraciones en segunda persona (vos), directa, sin lenguaje motivacional vacío. Explicá qué falta concretamente y por qué eso limita el crecimiento. No uses la palabra "cuello de botella". No menciones literalmente las afirmaciones del audit. Tono ejecutivo y específico.
+
+Respondé SOLO con un JSON array de exactamente ${focos.length} objetos. Sin markdown, sin texto adicional.
+Ejemplo:
+[
+  {"titulo": "Educate — Nutrición y demanda", "diagnostico": "Tu mayor brecha está en construir demanda real antes de que los leads lleguen. Sin contenido largo activo y sin automatizaciones de nurturing, dependés de tu presencia manual en cada venta. Eso limita tu capacidad de escalar sin quemarte."},
+  {"titulo": "Transform — Oferta y prueba social", "diagnostico": "..."}
+]`
+
+  const msg = await anthropic.messages.create({
+    model: "claude-haiku-4-5",
+    max_tokens: 800,
+    messages: [{ role: "user", content: prompt }],
+  })
+
+  const raw = msg.content.find(b => b.type === "text")
+  const text = raw?.type === "text" ? raw.text.trim() : "[]"
+  const cleaned = text.replace(/^```[a-z]*\n?/i, "").replace(/\n?```$/i, "").trim()
+  const parsed = JSON.parse(cleaned)
+  if (!Array.isArray(parsed)) throw new Error("LLM did not return array")
+  return parsed as FocoCopy[]
+}
+
+// ─── Build full diagnosis JSON ────────────────────────────────────────────────
+
+async function buildDiagnosis(prompt: string, auditType: string): Promise<string> {
+  const answers = parsePrompt(prompt)
+  const scores  = computeScores(answers, auditType)
+  const focos   = pickFocos(scores)
+
+  let copies: FocoCopy[] = []
+  try {
+    copies = await generateFocoCopy(focos, answers)
+  } catch {
+    // Fallback determinístico si la IA falla
+    copies = focos.map(f => ({
+      titulo: `${f.name.charAt(0)}${f.name.slice(1).toLowerCase()} — Foco prioritario`,
+      diagnostico: `Tu pilar ${f.name} tiene un score de ${f.puntos}/6 (${f.estado}). Es de los más bajos de tu ecosistema y conviene atacarlo este trimestre antes de avanzar con el resto.`,
+    }))
   }
 
-  const lines: string[] = ["# Mi Ecosistema — Diagnóstico", ""]
-
-  // ── Foco estratégico ──
-  if (primaryPillar && primaryPillar[1] > 0) {
-    const pillar = PILLAR_META[primaryPillar[0]]
-    lines.push("## Tu foco este trimestre", "")
-    lines.push(`**${pillar.name}** — ${pillar.focus}`)
-    lines.push("")
-  }
-
-  // ── Trabajar primero (rojo) ──
-  if (red.length > 0) {
-    lines.push("## Trabajar primero", "")
-    for (const item of red) {
-      const mod = modules[item.id]
-      lines.push(`### ${item.id}: ${item.label}`)
-      if (mod) lines.push(modLine(mod))
-      lines.push("")
+  const focosOut = focos.map((f, idx) => {
+    const skool = resolveSkoolModule(f, auditType)
+    const label = idx === 0
+      ? "Prioridad 1 — Ataca esto primero"
+      : `Prioridad 2 — Una vez estabilices ${focos[0].name.charAt(0)}${focos[0].name.slice(1).toLowerCase()}`
+    return {
+      prioridad: idx + 1,
+      modulo: f.name,
+      etiqueta: label,
+      titulo: copies[idx]?.titulo ?? `${f.name} — Foco prioritario`,
+      diagnostico: copies[idx]?.diagnostico ?? "",
+      skool_modulo: skool?.name ?? null,
+      skool_nivel: skool?.level ?? null,
     }
+  })
+
+  const out = {
+    version: 1,
+    segmento: auditType === "mas20k" ? "+20K" : "-20K",
+    scores: Object.fromEntries(scores.map(s => [s.pillar.toLowerCase(), {
+      name: s.name,
+      puntos: s.puntos,
+      estado: s.estado,
+      items: s.items,
+    }])),
+    focos: focosOut,
   }
 
-  // ── Fortalecer después (naranja) ──
-  if (orange.length > 0) {
-    lines.push("## Fortalecer después", "")
-    for (const item of orange) {
-      const mod = modules[item.id]
-      lines.push(`### ${item.id}: ${item.label}`)
-      if (mod) lines.push(modLine(mod))
-      lines.push("")
-    }
-  }
-
-  // ── Lo que ya funciona (verde) — sin links ──
-  if (green.length > 0) {
-    lines.push("## Lo que ya funciona", "")
-    for (const item of green) {
-      lines.push(`- **${item.id}:** ${item.label}`)
-    }
-    lines.push("")
-  }
-
-  if (!red.length && !orange.length && !green.length) {
-    lines.push("_No se encontraron puntos evaluados en la auditoría._")
-  }
-
-  return lines.join("\n")
+  return JSON.stringify(out)
 }
 
 // ─── GET: poll status ─────────────────────────────────────────────────────────
@@ -211,7 +310,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ─── POST: diagnóstico determinista (sin IA) ──────────────────────────────────
+// ─── POST: build diagnóstico (IA + determinístico) ────────────────────────────
 
 export async function POST(req: NextRequest) {
   try {
@@ -224,10 +323,8 @@ export async function POST(req: NextRequest) {
 
     const supabase = getAdminSupabase()
 
-    // 1. Build result deterministically — no AI call
-    const result = buildDiagnosis(prompt, auditType ?? "menos20k")
+    const result = await buildDiagnosis(prompt, auditType ?? "menos20k")
 
-    // 2. Save request as completed immediately
     const { data: inserted, error: requestError } = await supabase
       .from("ai_diagnosis_requests")
       .insert({
@@ -252,7 +349,6 @@ export async function POST(req: NextRequest) {
 
     const requestId = inserted.id
 
-    // 3. Save result
     await supabase.from("ai_diagnosis_results").insert({
       request_id:   requestId,
       result,
@@ -260,7 +356,6 @@ export async function POST(req: NextRequest) {
       created_at:   new Date().toISOString(),
     })
 
-    // 4. Return result directly — no polling needed
     return NextResponse.json({
       message:    "Diagnóstico completado.",
       request_id: requestId,
@@ -289,13 +384,11 @@ export async function DELETE(req: NextRequest) {
 
     const supabase = getAdminSupabase()
 
-    // Delete result first (FK constraint)
     await supabase
       .from("ai_diagnosis_results")
       .delete()
       .eq("request_id", request_id)
 
-    // Delete request (verify ownership)
     const { error } = await supabase
       .from("ai_diagnosis_requests")
       .delete()
