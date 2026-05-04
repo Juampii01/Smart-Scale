@@ -4,8 +4,7 @@ import {
   X, BarChart3, Radio, DollarSign, MessageSquare, Wrench,
   CalendarDays, Lock, LayoutGrid, LineChart, ClipboardList,
   Zap, Globe, Upload, History, Telescope, FileVideo, Clapperboard,
-  ChevronDown, Table2, Users2, ShieldCheck, Trophy, FileBarChart,
-  UserCheck, Layers, Briefcase,
+  ChevronDown, Trophy, FileBarChart, ShieldCheck, ArrowRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -51,19 +50,6 @@ const NAV_GROUPS = [
   },
 ]
 
-const ADMIN_NAV_GROUP = {
-  label: "Smart Scale CRM",
-  items: [
-    { name: "Tabla de Datos", href: "/admin/data",         icon: Table2  },
-    { name: "Leads",          href: "/admin/leads",        icon: Users2  },
-    { name: "Pagos",          href: "/admin/payments",     icon: DollarSign },
-    { name: "Clientes",       href: "/admin/clients",      icon: UserCheck },
-    { name: "Aplicaciones",   href: "/admin/applications", icon: ClipboardList },
-    { name: "Contratación",   href: "/admin/team-applications", icon: Briefcase },
-    { name: "Importar Datos",    href: "/admin/import",             icon: Upload  },
-    { name: "Centro Operativo", href: "/admin/centro-operativo",   icon: Layers  },
-  ],
-}
 
 export function Sidebar({ open, onClose, isAdmin = false }: SidebarProps) {
   const pathname = usePathname()
@@ -109,23 +95,12 @@ export function Sidebar({ open, onClose, isAdmin = false }: SidebarProps) {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-          {[...NAV_GROUPS, ...(isAdmin ? [ADMIN_NAV_GROUP] : [])].map((group) => {
+          {NAV_GROUPS.map((group) => {
             const isCollapsed = collapsed[group.label]
             const hasActive = group.items.some(i => pathname === i.href)
-            const isAdminGroup = group.label === "Smart Scale CRM"
 
             return (
               <div key={group.label} className="mb-1">
-                {isAdminGroup && (
-                  <div className="mx-2 my-3 flex items-center gap-2">
-                    <div className="flex-1 h-px bg-white/[0.07]" />
-                    <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.15em] text-[#ffde21]/40 whitespace-nowrap">
-                      <ShieldCheck className="h-2.5 w-2.5 shrink-0" />
-                      Smart Scale CRM
-                    </span>
-                    <div className="flex-1 h-px bg-white/[0.07]" />
-                  </div>
-                )}
                 {/* Group header — clickable to collapse */}
                 <button
                   onClick={() => toggleGroup(group.label)}
@@ -194,11 +169,24 @@ export function Sidebar({ open, onClose, isAdmin = false }: SidebarProps) {
         </nav>
 
         {/* Footer */}
-        <div className="flex-shrink-0 border-t border-white/[0.07] p-4">
-          <div className="flex items-center gap-2.5 rounded-xl bg-[#ffde21]/[0.07] px-3 py-2.5 border border-[#ffde21]/15">
+        <div className="flex-shrink-0 border-t border-white/[0.07] p-4 space-y-3">
+          {isAdmin && (
+            <Link href="/admin/clients" onClick={onClose}>
+              <div className="group flex items-center gap-2.5 rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.05] px-3 py-2.5 transition-all hover:border-[#ffde21]/40 hover:bg-[#ffde21]/[0.10]">
+                <ShieldCheck className="h-4 w-4 text-[#ffde21] flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-bold text-[#ffde21] tracking-wide">Smart Scale Internal</p>
+                  <p className="text-[10px] text-white/40 mt-0.5">Dashboard de admin</p>
+                </div>
+                <ArrowRight className="h-3.5 w-3.5 text-[#ffde21]/60 group-hover:text-[#ffde21] group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+              </div>
+            </Link>
+          )}
+
+          <div className="flex items-center gap-2.5 rounded-xl bg-white/[0.03] px-3 py-2.5 border border-white/[0.07]">
             <span className="flex h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse flex-shrink-0" />
             <div>
-              <p className="text-[10px] font-bold text-[#ffde21]/80 tracking-widest uppercase">Client Analytics</p>
+              <p className="text-[10px] font-bold text-white/60 tracking-widest uppercase">Client Analytics</p>
               <p className="text-[10px] text-white/30 mt-0.5">Portal 2.0</p>
             </div>
           </div>

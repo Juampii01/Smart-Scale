@@ -5,10 +5,11 @@ import type React from "react"
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
-import { ChevronDown, LogOut, Menu, User } from "lucide-react"
+import { ChevronDown, LogOut, Menu, User, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MonthSelector } from "@/components/layout/month-selector"
 import { Sidebar } from "@/components/layout/sidebar"
+import { AdminSidebar } from "@/components/layout/admin-sidebar"
 import { AnnualMetricsProvider } from "@/contexts/annual-metrics-context"
 import { NavigationProgress } from "@/components/ui/navigation-progress"
 
@@ -83,6 +84,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [selectedMonth, setSelectedMonth] = useState<string>("2025-12")
   const pathname = usePathname()
   const pageTitle = PAGE_TITLES[pathname] ?? "Smart Scale"
+  const isAdminMode = pathname.startsWith("/admin/")
 
   // Hydration-safe: load persisted selectedMonth after mount
   useEffect(() => {
@@ -347,7 +349,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen overflow-hidden dark" style={{ backgroundColor: "#0a0a0b" }}>
       <NavigationProgress />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin} />
+      {isAdminMode
+        ? <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        : <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin} />}
 
       <div className="flex-1 flex flex-col lg:ml-[220px] h-full overflow-hidden" style={{ backgroundColor: "#0a0a0b" }}>
         <header className="shrink-0 z-10 border-b border-white/[0.08] backdrop-blur-md" style={{ backgroundColor: "rgba(10,10,11,0.95)" }}>
@@ -357,50 +361,64 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <Menu className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-base sm:text-lg font-bold text-white leading-tight tracking-tight">{pageTitle}</h1>
-                <p className="hidden sm:block text-[10px] text-white/35 leading-none mt-0.5 tracking-wide">Smart Scale Portal 2.0</p>
+                <h1 className="text-base sm:text-lg font-bold text-white leading-tight tracking-tight flex items-center gap-2">
+                  {pageTitle}
+                  {isAdminMode && (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-[#ffde21]/30 bg-[#ffde21]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#ffde21]">
+                      <ShieldCheck className="h-2.5 w-2.5" />
+                      Internal
+                    </span>
+                  )}
+                </h1>
+                <p className="hidden sm:block text-[10px] text-white/35 leading-none mt-0.5 tracking-wide">
+                  {isAdminMode ? "Smart Scale Internal · Dashboard de Admin" : "Smart Scale Portal 2.0"}
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <Button
-                asChild
-                size="sm"
-                className="hidden sm:inline-flex bg-[#ffde21] text-black font-semibold hover:bg-[#ffe84d] border-0 text-xs px-3 h-8"
-                title="Monday Win"
-              >
-                <a href="/monday-win">Monday Win</a>
-              </Button>
+              {!isAdminMode && (
+                <>
+                  <Button
+                    asChild
+                    size="sm"
+                    className="hidden sm:inline-flex bg-[#ffde21] text-black font-semibold hover:bg-[#ffe84d] border-0 text-xs px-3 h-8"
+                    title="Monday Win"
+                  >
+                    <a href="/monday-win">Monday Win</a>
+                  </Button>
 
-              <Button
-                asChild
-                size="sm"
-                className="hidden sm:inline-flex bg-[#ffde21] text-black font-semibold hover:bg-[#ffe84d] border-0 text-xs px-3 h-8"
-                title="Reporte Mensual"
-              >
-                <a href="/report-input">Reporte Mensual</a>
-              </Button>
+                  <Button
+                    asChild
+                    size="sm"
+                    className="hidden sm:inline-flex bg-[#ffde21] text-black font-semibold hover:bg-[#ffe84d] border-0 text-xs px-3 h-8"
+                    title="Reporte Mensual"
+                  >
+                    <a href="/report-input">Reporte Mensual</a>
+                  </Button>
 
-              <Button
-                asChild
-                size="sm"
-                className="hidden sm:inline-flex bg-[#ffde21] text-black font-semibold hover:bg-[#ffe84d] border-0 text-xs px-3 h-8 gap-1.5"
-                title="Cha-Ching"
-              >
-                <a href="/chi-chang">
-                  <span className="text-[13px]">💰</span>
-                  Cha-Ching
-                </a>
-              </Button>
+                  <Button
+                    asChild
+                    size="sm"
+                    className="hidden sm:inline-flex bg-[#ffde21] text-black font-semibold hover:bg-[#ffe84d] border-0 text-xs px-3 h-8 gap-1.5"
+                    title="Cha-Ching"
+                  >
+                    <a href="/chi-chang">
+                      <span className="text-[13px]">💰</span>
+                      Cha-Ching
+                    </a>
+                  </Button>
 
-              <MonthSelector
-                value={selectedMonth}
-                onChange={(m) => {
-                  setSelectedMonth(m)
-                  if (typeof window !== "undefined") window.localStorage.setItem("selectedMonth", m)
-                }}
-                enabledMonths={enabledMonths}
-              />
+                  <MonthSelector
+                    value={selectedMonth}
+                    onChange={(m) => {
+                      setSelectedMonth(m)
+                      if (typeof window !== "undefined") window.localStorage.setItem("selectedMonth", m)
+                    }}
+                    enabledMonths={enabledMonths}
+                  />
+                </>
+              )}
 
               <div className="relative" ref={profileMenuRef}>
                 <Button
