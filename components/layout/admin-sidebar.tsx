@@ -14,7 +14,7 @@ interface AdminSidebarProps {
 }
 
 const ADMIN_NAV_ITEMS = [
-  { name: "Tabla de Datos",   href: "/admin/data",              icon: Table2 },
+  { name: "Adquisition Stats", href: "/admin/data",             icon: Table2 },
   { name: "Leads",            href: "/admin/leads",             icon: Users2 },
   { name: "Pagos",            href: "/admin/payments",          icon: DollarSign },
   { name: "Clientes",         href: "/admin/clients",           icon: UserCheck },

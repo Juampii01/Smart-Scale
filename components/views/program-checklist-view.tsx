@@ -1,7 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { ExternalLink, ChevronDown } from "lucide-react"
+import { useState, useEffect, useCallback, useRef } from "react"
+import { ExternalLink, ChevronDown, Loader2, Eye } from "lucide-react"
+import { createClient } from "@/lib/supabase"
+import { useActiveClient, useActiveClientName, useOwnClient } from "@/components/layout/dashboard-layout"
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -81,7 +83,7 @@ const programData: Array<{
         title: "Semana 2 - Invitacion y Educacion",
         tasks: [
           { label: "Tu Simple Video (VSL)", level: "Nivel 2 — Fascinación", outcome: "Contenido", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=0bbae3a1de594f5b958e7affe859a652" },
-          { label: "Quick Cash Menu (Elige el que mejor se adapte a tu instancia)", level: "Nivel 2 — Fascinación", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/c886e8bf?md=0eebb30149694e84990fd7c3268544f8" },
+          { label: "Youtube Mastery (1 video por semana)", level: "Nivel 3 — YouTube", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=42479de7dc754395b7ae750d6ab6f974" },
           { label: "Lanza tu Cash Sprint", level: "Nivel 2 — Fascinación", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/c886e8bf?md=0eebb30149694e84990fd7c3268544f8" },
           { label: "Tu Offer Doc creacion", level: "Nivel 2 — Fascinación", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=9bfa0b4c8323478ca0436e75aa3ad902" },
           { label: "Tu Storytelling pineado en tu IG", level: "Nivel 2 — Fascinación", outcome: "Marca", link: "https://www.instagram.com/p/DRSpznpEaD-/?img_index=1" },
@@ -124,7 +126,6 @@ const programData: Array<{
       {
         title: "Semana 1 - YouTube Mastery",
         tasks: [
-          { label: "Youtube Mastery (1 video por semana)", level: "Nivel 3 — YouTube", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=42479de7dc754395b7ae750d6ab6f974" },
           { label: "Elige el estilo de formato largo", level: "Nivel 3 — YouTube", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=3adb1d05bc754fb9b0b32ec8f508bee5" },
           { label: "Elige el estilo de las miniaturas", level: "Nivel 3 — YouTube", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=3c9f1620033e4fd78a72fddadb466b6f" },
           { label: "Lanza min 1 video de youtube a la semana", level: "Nivel 3 — YouTube", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=3adb1d05bc754fb9b0b32ec8f508bee5" },
@@ -230,15 +231,22 @@ const outcomeColors: Record<string, { bg: string; text: string; border: string; 
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function ProgramChecklistView() {
+  const activeClientId   = useActiveClient()
+  const activeClientName = useActiveClientName()
+  const ownClientId      = useOwnClient()
+
+  const isViewingOther = !!activeClientId && !!ownClientId && activeClientId !== ownClientId
+
   const [openMonths, setOpenMonths] = useState<Record<string, boolean>>({})
   const [openWeeks, setOpenWeeks] = useState<Record<string, boolean>>({})
   const [completed, setCompleted] = useState<Record<string, boolean>>({})
+  const [loading, setLoading]     = useState(true)
+  const [savingKeys, setSavingKeys] = useState<Set<string>>(new Set())
 
+  // UI prefs (open/closed) siguen en localStorage — no son data del cliente
   useEffect(() => {
-    const savedCompleted = localStorage.getItem("program-checklist-completed")
     const savedOpenMonths = localStorage.getItem("program-checklist-openMonths")
     const savedOpenWeeks = localStorage.getItem("program-checklist-openWeeks")
-    if (savedCompleted) setCompleted(JSON.parse(savedCompleted))
     if (savedOpenMonths) {
       setOpenMonths(JSON.parse(savedOpenMonths))
     } else {
@@ -248,13 +256,62 @@ export function ProgramChecklistView() {
     if (savedOpenWeeks) setOpenWeeks(JSON.parse(savedOpenWeeks))
   }, [])
 
-  useEffect(() => { localStorage.setItem("program-checklist-completed", JSON.stringify(completed)) }, [completed])
   useEffect(() => { localStorage.setItem("program-checklist-openMonths", JSON.stringify(openMonths)) }, [openMonths])
   useEffect(() => { localStorage.setItem("program-checklist-openWeeks", JSON.stringify(openWeeks)) }, [openWeeks])
 
+  // Carga el progreso del cliente activo desde Supabase
+  const supabaseRef = useRef(createClient())
+  const loadProgress = useCallback(async () => {
+    if (!activeClientId) {
+      setCompleted({})
+      setLoading(false)
+      return
+    }
+    setLoading(true)
+    try {
+      const { data: { session } } = await supabaseRef.current.auth.getSession()
+      if (!session) { setCompleted({}); return }
+      const res = await fetch(`/api/checklist-progress?client_id=${encodeURIComponent(activeClientId)}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (!res.ok) { setCompleted({}); return }
+      const json = await res.json()
+      const map: Record<string, boolean> = {}
+      for (const k of (json.tasks ?? []) as string[]) map[k] = true
+      setCompleted(map)
+    } catch {
+      setCompleted({})
+    } finally {
+      setLoading(false)
+    }
+  }, [activeClientId])
+
+  useEffect(() => { loadProgress() }, [loadProgress])
+
   const toggleMonth = (key: string) => setOpenMonths((p) => ({ ...p, [key]: !p[key] }))
   const toggleWeek  = (key: string) => setOpenWeeks((p) => ({ ...p, [key]: !p[key] }))
-  const toggleTask  = (key: string) => setCompleted((p) => ({ ...p, [key]: !p[key] }))
+
+  const toggleTask = async (key: string) => {
+    if (!activeClientId) return
+    const next = !completed[key]
+    // Optimista
+    setCompleted((p) => ({ ...p, [key]: next }))
+    setSavingKeys((s) => { const n = new Set(s); n.add(key); return n })
+    try {
+      const { data: { session } } = await supabaseRef.current.auth.getSession()
+      if (!session) return
+      await fetch("/api/checklist-progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ client_id: activeClientId, task_key: key, completed: next }),
+      })
+    } catch {
+      // Rollback en error
+      setCompleted((p) => ({ ...p, [key]: !next }))
+    } finally {
+      setSavingKeys((s) => { const n = new Set(s); n.delete(key); return n })
+    }
+  }
 
   const totalTasks = programData.flatMap((m) => m.weeks.flatMap((w) => w.tasks)).length
   const completedCount = Object.values(completed).filter(Boolean).length
@@ -266,9 +323,30 @@ export function ProgramChecklistView() {
         <div className="flex items-center gap-2.5 mb-1">
           <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
           <h1 className="text-sm font-semibold uppercase tracking-widest text-white/70">Program Journey Checklist</h1>
+          {loading && <Loader2 className="h-3.5 w-3.5 text-white/40 animate-spin" />}
         </div>
         <p className="text-xs text-white/30 ml-[18px]">Ecosistema circular mínimo viable · {completedCount}/{totalTasks} tareas completadas</p>
       </div>
+
+      {/* Banner de "viendo cliente" — solo cuando admin está viendo otro cliente */}
+      {isViewingOther && (
+        <div className="flex items-center gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
+          <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Viendo otro cliente</p>
+            <p className="text-[13px] text-white/75 mt-0.5">
+              Estás viendo el checklist de <span className="font-semibold text-white">{activeClientName ?? "(sin nombre)"}</span>. Los cambios que hagas se guardan en su cuenta.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Estado vacío si no hay cliente activo */}
+      {!activeClientId && !loading && (
+        <div className="rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.02] px-5 py-10 text-center text-sm text-white/40">
+          No hay un cliente activo seleccionado. Cambiá de perfil desde el menú superior para ver un checklist.
+        </div>
+      )}
 
       {/* Table */}
       <div className="rounded-2xl border border-white/[0.08] bg-[#0f1011] overflow-hidden">

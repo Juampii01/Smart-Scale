@@ -210,7 +210,7 @@ export function AdminDataView() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Tabla de Datos</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Adquisition Stats</h1>
           <p className="text-sm text-white/40 mt-0.5">
             {months.length
               ? `${months.length} ${months.length === 1 ? "mes" : "meses"} · click en cualquier celda para editar`

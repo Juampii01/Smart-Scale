@@ -45,7 +45,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/chi-chang": "Cha-Ching 💰",
   "/transcript": "Transcript de Videos",
   "/recursos":   "Biblioteca",
-  "/admin/data":         "Tabla de Datos",
+  "/admin/data":         "Adquisition Stats",
   "/admin/leads":        "Leads",
   "/admin/payments":     "Pagos",
   "/admin/applications": "Aplicaciones",
@@ -63,6 +63,20 @@ const ActiveClientContext = createContext<string | null>(null)
 
 export function useActiveClient() {
   return useContext(ActiveClientContext)
+}
+
+const ActiveClientNameContext = createContext<string | null>(null)
+
+export function useActiveClientName() {
+  return useContext(ActiveClientNameContext)
+}
+
+const OwnClientContext = createContext<string | null>(null)
+
+/** El client_id propio del usuario logueado (independiente del activeClient).
+ *  Para admins puede diferir; para clientes coincide con activeClient. */
+export function useOwnClient() {
+  return useContext(OwnClientContext)
 }
 
 function getRoleFromAccessToken(token: string | null | undefined): string | null {
@@ -521,11 +535,15 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </header>
 
         <ActiveClientContext.Provider value={activeClientId}>
-          <AnnualMetricsProvider>
-            <SelectedMonthContext.Provider value={selectedMonth}>
-              <main className="flex-1 overflow-y-auto p-4 lg:p-8" style={{ backgroundColor: "#0a0a0b" }}>{children}</main>
-            </SelectedMonthContext.Provider>
-          </AnnualMetricsProvider>
+          <ActiveClientNameContext.Provider value={activeClientName}>
+            <OwnClientContext.Provider value={ownClientId}>
+              <AnnualMetricsProvider>
+                <SelectedMonthContext.Provider value={selectedMonth}>
+                  <main className="flex-1 overflow-y-auto p-4 lg:p-8" style={{ backgroundColor: "#0a0a0b" }}>{children}</main>
+                </SelectedMonthContext.Provider>
+              </AnnualMetricsProvider>
+            </OwnClientContext.Provider>
+          </ActiveClientNameContext.Provider>
         </ActiveClientContext.Provider>
       </div>
     </div>
