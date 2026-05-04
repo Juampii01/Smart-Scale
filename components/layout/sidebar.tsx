@@ -5,7 +5,7 @@ import {
   CalendarDays, Lock, LayoutGrid, LineChart, ClipboardList,
   Zap, Globe, Upload, History, Telescope, FileVideo, Clapperboard,
   ChevronDown, Table2, Users2, ShieldCheck, Trophy, FileBarChart,
-  UserCheck, Layers,
+  UserCheck, Layers, Briefcase,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -59,6 +59,7 @@ const ADMIN_NAV_GROUP = {
     { name: "Pagos",          href: "/admin/payments",     icon: DollarSign },
     { name: "Clientes",       href: "/admin/clients",      icon: UserCheck },
     { name: "Aplicaciones",   href: "/admin/applications", icon: ClipboardList },
+    { name: "Contratación",   href: "/admin/team-applications", icon: Briefcase },
     { name: "Importar Datos",    href: "/admin/import",             icon: Upload  },
     { name: "Centro Operativo", href: "/admin/centro-operativo",   icon: Layers  },
   ],
