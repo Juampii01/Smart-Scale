@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useMemo } from "react"
 import { createClient } from "@/lib/supabase"
 import {
   Loader2, Plus, Trash2, RefreshCw, X, ChevronRight,
   CheckCircle2, Circle, AlertCircle, Clock, Users,
   DollarSign, Calendar, Phone, Mail, Instagram,
   MessageCircle, PhoneCall, AtSign, MoreHorizontal,
-  Check, UserCheck,
+  Check, UserCheck, ChevronUp, ChevronDown, ChevronsUpDown,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -813,6 +813,63 @@ function InstallmentProgress({ client }: { client: Client }) {
   )
 }
 
+// ─── Sortable column types ────────────────────────────────────────────────────
+
+type SortKey = "name" | "start" | "end" | "remaining" | "amount" | "status"
+
+const STATUS_ORDER: Record<string, number> = {
+  activo:     0,
+  en_pausa:   1,
+  inactivo:   2,
+  completado: 3,
+}
+
+function paidCountOf(c: Client): number {
+  return c.installments?.filter(i => i.status === "pagado").length ?? 0
+}
+
+function endDateOf(c: Client): string {
+  return addMonths(c.program_start, c.program_duration ?? c.num_installments)
+}
+
+function compareClients(a: Client, b: Client, key: SortKey): number {
+  switch (key) {
+    case "name":      return (a.name ?? "").toLowerCase().localeCompare((b.name ?? "").toLowerCase(), "es")
+    case "start":     return a.program_start.localeCompare(b.program_start)
+    case "end":       return endDateOf(a).localeCompare(endDateOf(b))
+    case "remaining": return (a.num_installments - paidCountOf(a)) - (b.num_installments - paidCountOf(b))
+    case "amount":    return (a.installment_amount ?? 0) - (b.installment_amount ?? 0)
+    case "status":    return (STATUS_ORDER[a.status] ?? 99) - (STATUS_ORDER[b.status] ?? 99)
+  }
+}
+
+function SortableTh({
+  label, sortKey: key, currentKey, dir, onClick,
+}: {
+  label: string
+  sortKey: SortKey
+  currentKey: SortKey
+  dir: "asc" | "desc"
+  onClick: () => void
+}) {
+  const active = currentKey === key
+  return (
+    <th
+      onClick={onClick}
+      className={`px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap cursor-pointer select-none transition-colors ${
+        active ? "text-[#ffde21]" : "text-white/25 hover:text-white/55"
+      }`}
+    >
+      <span className="inline-flex items-center gap-1.5">
+        {label}
+        {active
+          ? (dir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />)
+          : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
+      </span>
+    </th>
+  )
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function AdminClientsView() {
@@ -823,6 +880,17 @@ export function AdminClientsView() {
   const [deletingId,   setDeletingId]   = useState<string | null>(null)
   const [filterStatus, setFilterStatus] = useState<string>("todos")
   const [search,       setSearch]       = useState("")
+  const [sortKey,      setSortKey]      = useState<SortKey>("name")
+  const [sortDir,      setSortDir]      = useState<"asc" | "desc">("asc")
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir(d => d === "asc" ? "desc" : "asc")
+    } else {
+      setSortKey(key)
+      setSortDir("asc")
+    }
+  }
 
   const getSession = async () => {
     const supabase = createClient()
@@ -975,6 +1043,16 @@ export function AdminClientsView() {
       .some(v => v?.toLowerCase().includes(q))
   })
 
+  // Sorting
+  const sorted = useMemo(() => {
+    const arr = [...filtered]
+    arr.sort((a, b) => {
+      const cmp = compareClients(a, b, sortKey)
+      return sortDir === "asc" ? cmp : -cmp
+    })
+    return arr
+  }, [filtered, sortKey, sortDir])
+
   const today = todayStr()
 
   return (
@@ -1071,7 +1149,13 @@ export function AdminClientsView() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-white/[0.06] bg-white/[0.02]">
-                    {["Cliente", "Inicio", "Fin", "Cuotas", "Monto/cuota", "Estado", "Alertas", "Próx. follow-up", ""].map(h => (
+                    <SortableTh label="Cliente"      sortKey="name"      currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("name")} />
+                    <SortableTh label="Inicio"       sortKey="start"     currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("start")} />
+                    <SortableTh label="Fin"          sortKey="end"       currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("end")} />
+                    <SortableTh label="Cuotas"       sortKey="remaining" currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("remaining")} />
+                    <SortableTh label="Monto/cuota"  sortKey="amount"    currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("amount")} />
+                    <SortableTh label="Estado"       sortKey="status"    currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("status")} />
+                    {["Alertas", "Próx. follow-up", ""].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-white/25 whitespace-nowrap">
                         {h}
                       </th>
@@ -1079,14 +1163,14 @@ export function AdminClientsView() {
                   </tr>
                 </thead>
                 <tbody>
-                  {!filtered.length ? (
+                  {!sorted.length ? (
                     <tr>
                       <td colSpan={9} className="py-16 text-center text-sm text-white/25">
                         {clients.length ? "No hay clientes con ese filtro." : "Todavía no hay clientes registrados."}
                       </td>
                     </tr>
                   ) : (
-                    filtered.map(client => {
+                    sorted.map(client => {
                       const overdue  = clientHasOverdue(client)
                       const upcoming = clientHasUpcoming(client)
                       const nextFu   = nextFollowup(client)
