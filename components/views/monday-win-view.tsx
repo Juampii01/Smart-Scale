@@ -117,7 +117,7 @@ export function MondayWinView() {
         <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
           <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Atajo: este Monday Win es tuyo</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Aviso · este Monday Win es tuyo</p>
             <p className="text-[13px] text-white/75 mt-0.5">
               Estás navegando como <span className="font-semibold text-white">{activeName ?? "otro cliente"}</span>, pero este formulario siempre se guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
             </p>
@@ -146,7 +146,7 @@ export function MondayWinView() {
           <Field label="Principal logro de la semana pasada" hint="¿Cuál fue tu logro más importante?" required>
             <textarea
               rows={2}
-              placeholder="—"
+              placeholder="ej: Cerré 2 nuevos clientes a $3k cada uno desde DM"
               value={logro1}
               onChange={(e) => setLogro1(e.target.value)}
               required
@@ -157,7 +157,7 @@ export function MondayWinView() {
           <Field label="Segundo logro más importante" hint="¿Cuál fue tu segundo logro?">
             <textarea
               rows={2}
-              placeholder="—"
+              placeholder="ej: Lancé mi primer video de YouTube con 200 views"
               value={logro2}
               onChange={(e) => setLogro2(e.target.value)}
               className={textareaCls}
@@ -167,7 +167,7 @@ export function MondayWinView() {
           <Field label="Tercer logro más importante" hint="¿Cuál fue tu tercer logro?">
             <textarea
               rows={2}
-              placeholder="—"
+              placeholder="ej: Terminé el módulo de Ofertas y armé mi Offer Doc"
               value={logro3}
               onChange={(e) => setLogro3(e.target.value)}
               className={textareaCls}
@@ -184,10 +184,10 @@ export function MondayWinView() {
         </div>
         <div className="p-5 space-y-5">
 
-          <Field label='"Una sola cosa" para esta semana' hint="¿Cuál es la UNA cosa en la que te vas a enfocar para avanzar?" required>
+          <Field label='"Una sola cosa" para esta semana' hint="La ÚNICA cosa que si la hacés, todo lo demás se vuelve más fácil o irrelevante (de The ONE Thing, Gary Keller)." required>
             <textarea
               rows={2}
-              placeholder="—"
+              placeholder="ej: Grabar y publicar 1 video largo en YouTube"
               value={unaSolaCosa}
               onChange={(e) => setUnaSolaCosa(e.target.value)}
               required
@@ -198,7 +198,7 @@ export function MondayWinView() {
           <Field label="Bloqueo principal / Pregunta" hint="¿Qué pregunta podés hacernos para ayudarte a destrabarlo?" required>
             <textarea
               rows={2}
-              placeholder="—"
+              placeholder="ej: No sé cómo cerrar la objeción de precio. ¿Hay algún script?"
               value={bloqueo}
               onChange={(e) => setBloqueo(e.target.value)}
               required

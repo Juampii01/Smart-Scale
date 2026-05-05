@@ -165,43 +165,58 @@ export function ReflectionView() {
 
       {loading && <p className="text-white/40 text-sm">Cargando reflexión…</p>}
       {!loading && !error && !data && (
-        <p className="text-white/40 text-sm">No hay reflexión cargada para este mes.</p>
+        <div className="rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.02] px-6 py-10 text-center">
+          <p className="text-sm text-white/40 mb-3">No hay reflexión cargada para este mes.</p>
+          <a
+            href="/report-input"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2 text-[13px] font-bold text-black hover:bg-[#ffe46b] transition"
+          >
+            Cargar reporte mensual →
+          </a>
+        </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {reflections.map((item) => {
-          const Icon = item.icon
-          return (
-            <div
-              key={item.title}
-              className="group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-5 transition-all duration-200 hover:border-white/15"
-            >
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.03),transparent_60%)]" />
-              <div className="relative">
-                <div className="flex items-center gap-2.5 mb-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ffde21]/10 ring-1 ring-[#ffde21]/15">
-                    <Icon className="h-4 w-4 text-[#ffde21]" />
+      {!loading && data && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {reflections.map((item) => {
+            const Icon = item.icon
+            const isEmpty = item.numeric === null && !item.content
+            return (
+              <div
+                key={item.title}
+                className="group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-5 transition-all duration-200 hover:border-white/15"
+              >
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.03),transparent_60%)]" />
+                <div className="relative">
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ffde21]/10 ring-1 ring-[#ffde21]/15">
+                      <Icon className="h-4 w-4 text-[#ffde21]" />
+                    </div>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35">{item.title}</p>
                   </div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35">{item.title}</p>
+                  {item.numeric !== null ? (
+                    <p className={`text-2xl sm:text-3xl font-bold tabular-nums ${
+                      item.numeric >= 50 ? "text-emerald-400"
+                      : item.numeric >= 0 ? "text-amber-400"
+                      : "text-red-400"
+                    }`}>
+                      {item.numeric > 0 ? `+${item.numeric}` : item.numeric}
+                    </p>
+                  ) : isEmpty ? (
+                    <a href="/report-input" className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#ffde21]/70 hover:text-[#ffde21] transition">
+                      Agregar →
+                    </a>
+                  ) : (
+                    <p className="text-sm leading-relaxed text-white/60">
+                      {item.content}
+                    </p>
+                  )}
                 </div>
-                {item.numeric !== null ? (
-                  <p className={`text-2xl sm:text-3xl font-bold tabular-nums ${
-                    item.numeric >= 50 ? "text-emerald-400"
-                    : item.numeric >= 0 ? "text-amber-400"
-                    : "text-red-400"
-                  }`}>
-                    {item.numeric > 0 ? `+${item.numeric}` : item.numeric}
-                  </p>
-                ) : (
-                  <p className="text-sm leading-relaxed text-white/60">
-                    {item.content || "—"}
-                  </p>
-                )}
               </div>
-            </div>
-          )
-        })}
-      </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

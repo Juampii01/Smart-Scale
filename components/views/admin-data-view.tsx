@@ -53,6 +53,22 @@ const ROWS: Row[] = [
 
 const METRIC_ROWS = ROWS.filter((r): r is MetricRow => r.kind === "metric")
 
+// Agrupar las métricas por sección para el header con colspan
+type SectionGroup = { label: string; metrics: MetricRow[] }
+const SECTION_GROUPS: SectionGroup[] = (() => {
+  const groups: SectionGroup[] = []
+  let current: SectionGroup | null = null
+  for (const row of ROWS) {
+    if (row.kind === "section") {
+      current = { label: row.label, metrics: [] }
+      groups.push(current)
+    } else if (current) {
+      current.metrics.push(row)
+    }
+  }
+  return groups
+})()
+
 const ALL_FIELDS = METRIC_ROWS.map(r => r.key).join(", ")
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -79,14 +95,15 @@ function fmtValue(v: number | null | undefined, format: Fmt): string {
 // ─── Editable Cell ────────────────────────────────────────────────────────────
 
 function EditableCell({
-  value, metricKey, month, clientId, format, onSaved,
+  value, metricKey, month, clientId, format, onSaved, firstInGroup = false,
 }: {
-  value:     number | null
-  metricKey: string
-  month:     string
-  clientId:  string
-  format:    Fmt
-  onSaved:   (month: string, key: string, val: number | null) => void
+  value:        number | null
+  metricKey:    string
+  month:        string
+  clientId:     string
+  format:       Fmt
+  onSaved:      (month: string, key: string, val: number | null) => void
+  firstInGroup?: boolean
 }) {
   const [editing, setEditing] = useState(false)
   const [draft,   setDraft]   = useState("")
@@ -117,14 +134,16 @@ function EditableCell({
     } finally { setSaving(false); setEditing(false) }
   }
 
+  const groupBorder = firstInGroup ? "border-l border-white/[0.04]" : ""
+
   if (saving) return (
-    <td className="whitespace-nowrap px-4 py-2.5 text-right">
+    <td className={`whitespace-nowrap px-4 py-2.5 text-right ${groupBorder}`}>
       <Loader2 className="inline h-3 w-3 animate-spin text-[#ffde21]/40" />
     </td>
   )
 
   if (editing) return (
-    <td className="whitespace-nowrap px-2 py-1">
+    <td className={`whitespace-nowrap px-2 py-1 ${groupBorder}`}>
       <input
         ref={inputRef}
         type="number"
@@ -141,7 +160,7 @@ function EditableCell({
     <td
       onClick={startEdit}
       title="Click para editar"
-      className="group cursor-pointer whitespace-nowrap px-4 py-2.5 text-right transition-colors hover:bg-white/[0.04]"
+      className={`group cursor-pointer whitespace-nowrap px-4 py-2.5 text-right transition-colors hover:bg-white/[0.04] ${groupBorder}`}
     >
       <span className={`text-[13px] tabular-nums group-hover:text-white transition-colors ${value != null ? "text-white/80" : "text-white/15"}`}>
         {fmtValue(value, format)}
@@ -193,9 +212,9 @@ export function AdminDataView() {
   }, [])
 
   const exportCsv = () => {
-    const header = ["Métrica", ...months.map(fmtMonthLabel)].join(",")
-    const dataRows = METRIC_ROWS.map(m =>
-      [m.label, ...months.map(mo => pivot[mo]?.[m.key] ?? "")].join(",")
+    const header = ["Mes", ...METRIC_ROWS.map(m => m.label)].join(",")
+    const dataRows = months.map(m =>
+      [fmtMonthLabel(m), ...METRIC_ROWS.map(metric => pivot[m]?.[metric.key] ?? "")].join(",")
     )
     const csv  = [header, ...dataRows].join("\n")
     const blob = new Blob([csv], { type: "text/csv" })
@@ -212,9 +231,9 @@ export function AdminDataView() {
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Adquisition Stats</h1>
           <p className="text-sm text-white/40 mt-0.5">
-            {months.length
+            Datos de Ann Sahakyan · {months.length
               ? `${months.length} ${months.length === 1 ? "mes" : "meses"} · click en cualquier celda para editar`
-              : "Métricas mensuales"}
+              : "métricas mensuales"}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -250,50 +269,60 @@ export function AdminDataView() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b border-white/[0.06] bg-white/[0.02]">
-                  <th className="sticky left-0 z-10 bg-[#111113] px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-white/30 min-w-[190px]">
-                    Métrica
+                {/* Fila 1: secciones agrupadas con colspan */}
+                <tr className="border-b border-white/[0.04]">
+                  <th
+                    rowSpan={2}
+                    className="sticky left-0 z-20 border-r-2 border-[#ffde21]/30 bg-[#1a1a1d] px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/70 align-bottom min-w-[140px]"
+                  >
+                    Mes
                   </th>
-                  {months.map(m => (
-                    <th key={m} className="px-4 py-3.5 text-right text-[11px] font-semibold text-white/50 whitespace-nowrap min-w-[120px]">
-                      {fmtMonthLabel(m)}
+                  {SECTION_GROUPS.map(group => (
+                    <th
+                      key={group.label}
+                      colSpan={group.metrics.length}
+                      className="bg-white/[0.02] px-4 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-white/40 border-l border-white/[0.06]"
+                    >
+                      {group.label}
                     </th>
                   ))}
                 </tr>
+                {/* Fila 2: labels de cada métrica */}
+                <tr className="border-b border-white/[0.06] bg-white/[0.02]">
+                  {SECTION_GROUPS.map(group =>
+                    group.metrics.map((metric, idx) => (
+                      <th
+                        key={metric.key}
+                        className={`px-4 py-3 text-right text-[11px] font-semibold text-white/50 whitespace-nowrap min-w-[120px] ${idx === 0 ? "border-l border-white/[0.06]" : ""}`}
+                      >
+                        {metric.label}
+                      </th>
+                    ))
+                  )}
+                </tr>
               </thead>
               <tbody>
-                {ROWS.map((row, i) => {
-                  if (row.kind === "section") {
-                    return (
-                      <tr key={`section-${i}`} className="border-t border-white/[0.06]">
-                        <td
-                          colSpan={months.length + 1}
-                          className="sticky left-0 bg-white/[0.02] px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/35"
-                        >
-                          {row.label}
-                        </td>
-                      </tr>
-                    )
-                  }
-                  return (
-                    <tr key={row.key} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
-                      <td className="sticky left-0 z-10 bg-[#111113] px-5 py-2.5 text-[13px] text-white/55 whitespace-nowrap">
-                        {row.label}
-                      </td>
-                      {months.map(m => (
+                {months.map(m => (
+                  <tr key={m} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors group">
+                    <td className="sticky left-0 z-10 border-r-2 border-[#ffde21]/30 bg-[#1a1a1d] px-5 py-2.5 text-[13px] font-bold text-[#ffde21] whitespace-nowrap group-hover:bg-[#1f1f23] transition-colors">
+                      {fmtMonthLabel(m)}
+                    </td>
+                    {SECTION_GROUPS.map(group =>
+                      group.metrics.map((metric, idx) => (
                         <EditableCell
-                          key={m}
-                          value={pivot[m]?.[row.key] ?? null}
-                          metricKey={row.key}
+                          key={metric.key}
+                          value={pivot[m]?.[metric.key] ?? null}
+                          metricKey={metric.key}
                           month={m}
                           clientId={clientId!}
-                          format={row.format}
+                          format={metric.format}
                           onSaved={handleSaved}
+                          firstInGroup={idx === 0}
                         />
-                      ))}
-                    </tr>
-                  )
-                })}
+                      ))
+                    )}
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

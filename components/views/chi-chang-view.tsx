@@ -13,13 +13,14 @@ const NIVEL_OPTIONS = [
   { value: "$100K", label: "$100K", color: "#22c55e", dot: "bg-green-500" },
 ]
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
       <label className="text-[10px] font-semibold uppercase tracking-widest text-white/40">
         {label}
         {required && <span className="ml-1 text-[#ffde21]">*</span>}
       </label>
+      {hint && <p className="text-[11px] text-white/30 -mt-1 leading-snug">{hint}</p>}
       {children}
     </div>
   )
@@ -118,7 +119,7 @@ export function ChiChangView() {
         <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
           <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Atajo: este Cha-Ching es tuyo</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Aviso · este Cha-Ching es tuyo</p>
             <p className="text-[13px] text-white/75 mt-0.5">
               Estás navegando como <span className="font-semibold text-white">{activeName ?? "otro cliente"}</span>, pero este formulario siempre se guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
             </p>
@@ -145,12 +146,12 @@ export function ChiChangView() {
           </Field>
 
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Valor total del trato ($)" required>
+            <Field label="Valor total del trato ($)" required hint="Lo que vale el contrato (ej: $5K si vendiste un programa de $5K aunque cobres en cuotas)">
               <input
                 type="number"
                 min={0}
                 step="any"
-                placeholder="0"
+                placeholder="5000"
                 value={valorTrato}
                 onChange={(e) => setValorTrato(e.target.value)}
                 required
@@ -158,12 +159,12 @@ export function ChiChangView() {
               />
             </Field>
 
-            <Field label="Total Cash Collected ($)" required>
+            <Field label="Total Cash Collected ($)" required hint="Lo que YA cobraste hoy (ej: $1.500 si fue solo el primer pago)">
               <input
                 type="number"
                 min={0}
                 step="any"
-                placeholder="0"
+                placeholder="1500"
                 value={cashCollected}
                 onChange={(e) => setCashCollected(e.target.value)}
                 required
@@ -172,7 +173,7 @@ export function ChiChangView() {
             </Field>
           </div>
 
-          <Field label="¿Cuál es el próximo nivel que vas a conquistar?">
+          <Field label="¿Cuál es el próximo nivel que vas a conquistar? (opcional)">
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {NIVEL_OPTIONS.map((opt) => {
                 const isActive = proximoNivel === opt.value

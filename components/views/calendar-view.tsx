@@ -1,8 +1,60 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Calendar, Clock, ExternalLink, MapPin } from "lucide-react"
+import { Calendar, Clock, ExternalLink, MapPin, Copy, Check } from "lucide-react"
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Convierte "3:00 PM" en zona Miami (America/New_York) a la hora local del usuario. */
+function toUserLocalTime(timeStr: string): string | null {
+  const m = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)/i)
+  if (!m) return null
+  let hour = parseInt(m[1], 10)
+  const min = parseInt(m[2], 10)
+  if (m[3].toUpperCase() === "PM" && hour !== 12) hour += 12
+  if (m[3].toUpperCase() === "AM" && hour === 12) hour = 0
+
+  // Construir un Date que, interpretado como UTC, sea hoy a esta hora de Miami
+  const todayMiami = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" })
+  const baseUTC = new Date(`${todayMiami}T00:00:00Z`)
+  baseUTC.setUTCHours(hour, min)
+  const miamiHourStr = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", hour: "2-digit", hourCycle: "h23",
+  }).formatToParts(baseUTC).find(p => p.type === "hour")?.value ?? "0"
+  const miamiHour = parseInt(miamiHourStr, 10)
+  let diff = hour - miamiHour
+  if (diff < -12) diff += 24
+  if (diff > 12) diff -= 24
+  const realUTC = new Date(baseUTC.getTime() + diff * 3600 * 1000)
+
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "numeric", minute: "2-digit", hour12: true,
+  }).format(realUTC)
+}
+
+function CopyPasscodeButton({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false)
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(value)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    } catch {}
+  }
+  return (
+    <button
+      type="button"
+      onClick={onCopy}
+      className="inline-flex items-center gap-1 rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-1 text-[10px] font-semibold text-white/55 hover:text-[#ffde21] hover:border-[#ffde21]/30 transition-all"
+      title={copied ? "Copiado" : "Copiar código"}
+    >
+      {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+      {copied ? "Copiado" : "Copiar"}
+    </button>
+  )
+}
 
 type CalendarItem = {
   day:
@@ -145,6 +197,12 @@ export function CalendarView() {
                     <span className="text-white/20">·</span>
                     <span>{item.tzLabel ?? "Miami"}</span>
                   </div>
+                  {!cancelled && toUserLocalTime(item.time) && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="h-3.5 w-3.5" />
+                      <span className="text-[#ffde21]/70 font-semibold">Tu hora local: {toUserLocalTime(item.time)}</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 text-xs text-white/40">
                     <MapPin className="h-3.5 w-3.5" />
                     <span>Zoom</span>
@@ -153,9 +211,12 @@ export function CalendarView() {
 
                 {/* Passcode */}
                 {item.passcode && (
-                  <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2">
-                    <p className="text-[10px] text-white/30 uppercase tracking-wider">Código</p>
-                    <p className="mt-0.5 font-mono text-sm font-semibold text-white/80">{item.passcode}</p>
+                  <div className="flex items-center justify-between gap-2 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2">
+                    <div>
+                      <p className="text-[10px] text-white/30 uppercase tracking-wider">Código</p>
+                      <p className="mt-0.5 font-mono text-sm font-semibold text-white/80">{item.passcode}</p>
+                    </div>
+                    <CopyPasscodeButton value={item.passcode} />
                   </div>
                 )}
 

@@ -1,6 +1,6 @@
 // ─── Zapier Webhook Integration ───────────────────────────────────────────────
 // Fires outbound webhooks to Zapier "Catch Hook" triggers.
-// Zapier then routes to Slack, Airtable CRM, or any other integration.
+// Zapier routes a Slack message (y cualquier otra integración configurada).
 //
 // Required env vars:
 //   ZAPIER_WEBHOOK_REPORT   → fires when a monthly report is saved
@@ -8,7 +8,7 @@
 //
 // Zapier Zap setup:
 //   Trigger: "Webhooks by Zapier → Catch Hook"
-//   Actions: Slack message + Airtable create/update (use Zapier Paths for both)
+//   Actions: Slack message
 
 export interface ZapierResult {
   ok: boolean

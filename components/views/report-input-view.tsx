@@ -323,7 +323,7 @@ export function ReportInputView() {
             </h1>
           </div>
           <p className="text-xs text-white/30 ml-[18px]">
-            {isUpdate ? "Actualizando reporte existente" : "Nuevo reporte"} · Supabase → Slack → Airtable
+            {isUpdate ? "Actualizando reporte existente" : "Nuevo reporte"} · Supabase → Slack
           </p>
         </div>
 
@@ -332,7 +332,7 @@ export function ReportInputView() {
           <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
             <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Atajo: este reporte es tuyo</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Aviso · este reporte es tuyo</p>
               <p className="text-[13px] text-white/75 mt-0.5">
                 Estás navegando como <span className="font-semibold text-white">{activeName ?? "otro cliente"}</span>, pero este formulario siempre carga y guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
               </p>

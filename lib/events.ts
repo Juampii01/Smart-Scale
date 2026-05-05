@@ -5,7 +5,7 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 export type EventType =
   | "monthly_report.completed"
   | "sale.registered"
-  | "airtable.sync"
+  | "airtable.sync"  // @deprecated — Airtable ya no se usa. Solo se mantiene en el type por backwards-compat con eventos viejos en cola, que se completan como no-op.
 
 export interface EventPayload {
   client_id?: string

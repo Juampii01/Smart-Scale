@@ -1,5 +1,5 @@
 // POST /api/events/process
-// Processes pending outbound events: sends Slack notifications, syncs to Airtable.
+// Processes pending outbound events: sends Slack notifications.
 // Called by the event-dispatcher Edge Function OR directly as a fallback.
 // Protected by EVENTS_PROCESS_SECRET env var (set it in .env.local).
 
@@ -9,7 +9,7 @@ import {
   notifyMonthlyReportCompleted,
   notifySaleRegistered,
 } from "@/lib/slack"
-import { syncReportToAirtable, isAirtableConfigured } from "@/lib/airtable"
+// import { syncReportToAirtable, isAirtableConfigured } from "@/lib/airtable" // deshabilitado
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -122,20 +122,10 @@ async function processEvent(
       await logEvent(supabase, id, "info", "Slack sale notification sent successfully")
       await markEvent(supabase, id, "completed", attempts)
     } else if (event_type === "airtable.sync") {
-      if (!isAirtableConfigured()) {
-        await logEvent(supabase, id, "warn", "Airtable not configured — skipping")
-        await markEvent(supabase, id, "completed", attempts) // Not an error, just skipped
-        return
-      }
-
-      const reportData = (payload.report_data ?? payload) as Record<string, unknown>
-      const result = await syncReportToAirtable(reportData)
-
-      if (!result.ok) {
-        throw new Error(`Airtable error: ${result.error}`)
-      }
-
-      await logEvent(supabase, id, "info", `Airtable record upserted: ${result.record_id}`)
+      // Airtable ya no se usa — marcamos como completed para vaciar cola
+      // de eventos viejos. Si en el futuro se reactiva el sync, restaurar
+      // la lógica original (ver git history).
+      await logEvent(supabase, id, "info", "airtable.sync deprecated — skipping")
       await markEvent(supabase, id, "completed", attempts)
     } else {
       // Unknown event type — mark completed to avoid blocking queue

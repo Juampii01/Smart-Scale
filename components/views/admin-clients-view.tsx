@@ -878,9 +878,13 @@ function SortableTh({
   onClick: () => void
 }) {
   const active = currentKey === key
+  const sortHint = active
+    ? `Ordenado ${dir === "asc" ? "ascendente" : "descendente"} · click para invertir`
+    : "Click para ordenar"
   return (
     <th
       onClick={onClick}
+      title={sortHint}
       className={`px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap cursor-pointer select-none transition-colors ${
         active ? "text-[#ffde21]" : "text-white/25 hover:text-white/55"
       }`}
@@ -1046,9 +1050,12 @@ export function AdminClientsView() {
   }
 
   const handleDeleteClient = async (id: string) => {
+    const client = clients.find(c => c.id === id)
+    const name = client?.name ?? "este cliente"
+    if (!window.confirm(`¿Eliminar a ${name} y todas sus cuotas + follow-ups? Esta acción no se puede deshacer.`)) return
     setDeletingId(id)
     const session = await getSession()
-    if (!session) return
+    if (!session) { setDeletingId(null); return }
     await fetch("/api/admin/clients", {
       method:  "DELETE",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },

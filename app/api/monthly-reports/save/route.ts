@@ -139,15 +139,8 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const airtableEnabled = Boolean(process.env.AIRTABLE_API_KEY) && Boolean(process.env.AIRTABLE_BASE_ID)
-    if (airtableEnabled) {
-      eventsToEnqueue.push({
-        event_type: "airtable.sync",
-        payload: { ...sharedPayload, report_data: reportRow },
-        client_id: clientId,
-        user_id: userId ?? undefined,
-      })
-    }
+    // Airtable sync deshabilitado — ya no usamos Airtable.
+    // (Si se reactiva en el futuro, descomentar el bloque y poner las env vars.)
 
     let eventIds: string[] = []
     try {

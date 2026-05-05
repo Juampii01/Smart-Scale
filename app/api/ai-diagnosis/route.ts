@@ -17,7 +17,7 @@ const MODULES_MAS20K: Record<string, SkoolModule> = {
   F2: { name: "Productividad y Calendario Optimizado", level: "Nivel 5" },
   F3: { name: "5 prospectos al dia - Persegui el NO",  level: "Nivel 6" },
   E1: { name: "Cadencia de Emails semanales",          level: "Nivel 4" },
-  E2: { name: "Airtable CRM y Base de Datos",          level: "Nivel 8" },
+  E2: { name: "CRM y Base de Datos",                   level: "Nivel 8" },
   E3: { name: "DM to Chat — Priorizacion de tu Pipeline", level: "Nivel 6" },
   T1: { name: "Investigacion de Mercado",              level: "Nivel 3" },
   T2: { name: "Recoleccion de Prueba Social",          level: "Nivel 3" },

@@ -300,9 +300,12 @@ export function AdminApplicationsView() {
   }
 
   const handleDelete = async (id: string) => {
+    const app = apps.find(a => a.id === id)
+    const name = app ? `${app.first_name ?? ""} ${app.last_name ?? ""}`.trim() || "esta aplicación" : "esta aplicación"
+    if (!window.confirm(`¿Eliminar la aplicación de ${name}? Esta acción no se puede deshacer.`)) return
     setDeletingId(id)
     const session = await getSession()
-    if (!session) return
+    if (!session) { setDeletingId(null); return }
     await fetch("/api/admin/applications", {
       method: "DELETE",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },

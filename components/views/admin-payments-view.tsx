@@ -142,9 +142,12 @@ export function AdminPaymentsView() {
   }
 
   const handleDelete = async (id: string) => {
+    const payment = payments.find(p => p.id === id)
+    const label = payment ? `el pago de ${payment.name ?? "(sin nombre)"} por ${payment.amount ? `US$ ${payment.amount}` : "monto desconocido"}` : "este pago"
+    if (!window.confirm(`¿Eliminar ${label}? Esta acción no se puede deshacer.`)) return
     setDeletingId(id)
     const session = await getSession()
-    if (!session) return
+    if (!session) { setDeletingId(null); return }
     await fetch("/api/admin/payments", {
       method: "DELETE",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },

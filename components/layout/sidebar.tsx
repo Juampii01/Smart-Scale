@@ -5,6 +5,7 @@ import {
   CalendarDays, Lock, LayoutGrid, LineChart, ClipboardList,
   Zap, Globe, Upload, History, Telescope, FileVideo, Clapperboard,
   ChevronDown, Trophy, FileBarChart, ShieldCheck, ArrowRight,
+  ChevronLeft, ChevronRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -15,6 +16,8 @@ interface SidebarProps {
   open: boolean
   onClose: () => void
   isAdmin?: boolean
+  collapsed?: boolean
+  onToggleCollapsed?: () => void
 }
 
 const NAV_GROUPS = [
@@ -51,12 +54,12 @@ const NAV_GROUPS = [
 ]
 
 
-export function Sidebar({ open, onClose, isAdmin = false }: SidebarProps) {
+export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onToggleCollapsed }: SidebarProps) {
   const pathname = usePathname()
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
+  const [groupsCollapsed, setGroupsCollapsed] = useState<Record<string, boolean>>({})
 
   const toggleGroup = (label: string) => {
-    setCollapsed(prev => ({ ...prev, [label]: !prev[label] }))
+    setGroupsCollapsed(prev => ({ ...prev, [label]: !prev[label] }))
   }
 
   return (
@@ -67,26 +70,42 @@ export function Sidebar({ open, onClose, isAdmin = false }: SidebarProps) {
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-[220px] border-r border-white/[0.07] transition-transform duration-300 ease-in-out lg:translate-x-0",
+          "fixed left-0 top-0 z-50 h-full w-[220px] border-r border-white/[0.07] transition-all duration-200 ease-in-out lg:translate-x-0",
           "bg-[#111113] flex flex-col",
           open ? "translate-x-0" : "-translate-x-full",
+          collapsed && "lg:w-[64px]",
         )}
       >
-        {/* Logo */}
-        <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-white/[0.07] px-5">
-          <a href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-            <span className="text-white text-xl font-bold tracking-tight leading-none">Smart</span>
-            <span className="rounded-md bg-white px-2 py-1 text-xl font-bold tracking-tight text-black shadow-sm leading-none">
-              Scale
-            </span>
-          </a>
-          <div className="flex items-center gap-2">
-            <span className="text-[9px] font-semibold text-white/25 tracking-widest uppercase">
-              v2.0
-            </span>
+        {/* Logo + collapse toggle (siempre en la misma fila) */}
+        <div className={cn("flex h-16 flex-shrink-0 items-center border-b border-white/[0.07]", collapsed ? "lg:justify-center lg:px-2 px-5" : "justify-between px-5")}>
+          {/* Logo: solo cuando NO está colapsado en desktop, o siempre en mobile */}
+          {!collapsed && (
+            <a href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+              <span className="text-white text-xl font-bold tracking-tight leading-none">Smart</span>
+              <span className="rounded-md bg-white px-2 py-1 text-xl font-bold tracking-tight text-black shadow-sm leading-none">
+                Scale
+              </span>
+            </a>
+          )}
+
+          <div className="flex items-center gap-1.5">
+            {!collapsed && (
+              <span className="hidden lg:inline text-[9px] font-semibold text-white/25 tracking-widest uppercase">v2.0</span>
+            )}
+            {onToggleCollapsed && (
+              <button
+                className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg text-white/40 hover:text-[#ffde21] hover:bg-[#ffde21]/[0.08] transition-all border border-transparent hover:border-[#ffde21]/20"
+                onClick={onToggleCollapsed}
+                aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
+                title={collapsed ? "Expandir (Cmd+\\)" : "Colapsar (Cmd+\\)"}
+              >
+                {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              </button>
+            )}
             <button
               className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-white/50 hover:text-white hover:bg-white/10 transition-all"
               onClick={onClose}
+              aria-label="Cerrar menú"
             >
               <X className="h-4 w-4" />
             </button>
@@ -94,34 +113,36 @@ export function Sidebar({ open, onClose, isAdmin = false }: SidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+        <nav className={cn("flex-1 overflow-y-auto py-4 space-y-1", collapsed ? "lg:px-2" : "px-3")}>
           {NAV_GROUPS.map((group) => {
-            const isCollapsed = collapsed[group.label]
+            const isGroupCollapsed = groupsCollapsed[group.label]
             const hasActive = group.items.some(i => pathname === i.href)
 
             return (
               <div key={group.label} className="mb-1">
-                {/* Group header — clickable to collapse */}
-                <button
-                  onClick={() => toggleGroup(group.label)}
-                  className={cn(
-                    "w-full flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition-all duration-150",
-                    "hover:bg-white/[0.05]",
-                    hasActive && isCollapsed ? "text-[#ffde21]" : "text-white/80"
-                  )}
-                >
-                  <span className="text-[13px] font-semibold tracking-wide">{group.label}</span>
-                  <ChevronDown
+                {/* Group header — clickable to collapse (oculto cuando sidebar colapsada) */}
+                {!collapsed && (
+                  <button
+                    onClick={() => toggleGroup(group.label)}
                     className={cn(
-                      "h-3.5 w-3.5 text-white/30 transition-transform duration-200 flex-shrink-0",
-                      isCollapsed && "-rotate-90"
+                      "w-full flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition-all duration-150",
+                      "hover:bg-white/[0.05]",
+                      hasActive && isGroupCollapsed ? "text-[#ffde21]" : "text-white/80"
                     )}
-                  />
-                </button>
+                  >
+                    <span className="text-[13px] font-semibold tracking-wide">{group.label}</span>
+                    <ChevronDown
+                      className={cn(
+                        "h-3.5 w-3.5 text-white/30 transition-transform duration-200 flex-shrink-0",
+                        isGroupCollapsed && "-rotate-90"
+                      )}
+                    />
+                  </button>
+                )}
 
                 {/* Items */}
-                {!isCollapsed && (
-                  <div className="mt-0.5 space-y-0.5 pl-1">
+                {(collapsed || !isGroupCollapsed) && (
+                  <div className={cn("space-y-0.5", collapsed ? "lg:mt-0 mt-0.5 lg:pl-0 pl-1" : "mt-0.5 pl-1")}>
                     {group.items.map((item) => {
                       const isActive = pathname === item.href
 
@@ -129,11 +150,12 @@ export function Sidebar({ open, onClose, isAdmin = false }: SidebarProps) {
                         return (
                           <div
                             key={item.name}
-                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 opacity-25 cursor-not-allowed select-none"
+                            className={cn("flex items-center gap-2.5 rounded-lg px-3 py-2 opacity-25 cursor-not-allowed select-none", collapsed && "lg:justify-center lg:px-2")}
+                            title={item.name}
                           >
                             <item.icon className="h-[14px] w-[14px] text-white/40 flex-shrink-0" />
-                            <span className="text-[13px] text-white/40">{item.name}</span>
-                            <Lock className="ml-auto h-3 w-3 text-white/25 flex-shrink-0" />
+                            {!collapsed && <span className="text-[13px] text-white/40">{item.name}</span>}
+                            {!collapsed && <Lock className="ml-auto h-3 w-3 text-white/25 flex-shrink-0" />}
                           </div>
                         )
                       }
@@ -142,21 +164,25 @@ export function Sidebar({ open, onClose, isAdmin = false }: SidebarProps) {
                         <Link key={item.name} href={item.href} onClick={onClose}>
                           <div
                             className={cn(
-                              "flex items-center gap-2.5 rounded-lg px-3 py-[7px] transition-all duration-150",
+                              "flex items-center gap-2.5 rounded-lg py-[7px] transition-all duration-150",
+                              collapsed ? "lg:justify-center lg:px-2 px-3" : "px-3",
                               isActive
                                 ? "bg-white/[0.07] text-[#ffde21]"
                                 : "text-white/80 hover:bg-white/[0.05] hover:text-white"
                             )}
+                            title={collapsed ? item.name : undefined}
                           >
                             <item.icon
                               className="h-[14px] w-[14px] flex-shrink-0 text-[#ffde21]"
                             />
-                            <span className={cn(
-                              "text-[13px] leading-none",
-                              isActive ? "font-semibold" : "font-medium"
-                            )}>
-                              {item.name}
-                            </span>
+                            {!collapsed && (
+                              <span className={cn(
+                                "text-[13px] leading-none",
+                                isActive ? "font-semibold" : "font-medium"
+                              )}>
+                                {item.name}
+                              </span>
+                            )}
                           </div>
                         </Link>
                       )
@@ -169,27 +195,36 @@ export function Sidebar({ open, onClose, isAdmin = false }: SidebarProps) {
         </nav>
 
         {/* Footer */}
-        <div className="flex-shrink-0 border-t border-white/[0.07] p-4 space-y-3">
+        <div className={cn("flex-shrink-0 border-t border-white/[0.07] space-y-3", collapsed ? "lg:p-2 p-4" : "p-4")}>
           {isAdmin && (
-            <Link href="/admin/clients" onClick={onClose}>
-              <div className="group flex items-center gap-2.5 rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.05] px-3 py-2.5 transition-all hover:border-[#ffde21]/40 hover:bg-[#ffde21]/[0.10]">
+            <Link href="/admin/clients" onClick={onClose} title={collapsed ? "Smart Scale Internal" : undefined}>
+              <div className={cn(
+                "group flex items-center rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.05] py-2.5 transition-all hover:border-[#ffde21]/40 hover:bg-[#ffde21]/[0.10]",
+                collapsed ? "lg:justify-center lg:px-2 px-3 gap-2.5" : "px-3 gap-2.5"
+              )}>
                 <ShieldCheck className="h-4 w-4 text-[#ffde21] flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-bold text-[#ffde21] tracking-wide">Smart Scale Internal</p>
-                  <p className="text-[10px] text-white/40 mt-0.5">Dashboard de admin</p>
-                </div>
-                <ArrowRight className="h-3.5 w-3.5 text-[#ffde21]/60 group-hover:text-[#ffde21] group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                {!collapsed && (
+                  <>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-bold text-[#ffde21] tracking-wide">Smart Scale Internal</p>
+                      <p className="text-[10px] text-white/40 mt-0.5">Dashboard de admin</p>
+                    </div>
+                    <ArrowRight className="h-3.5 w-3.5 text-[#ffde21]/60 group-hover:text-[#ffde21] group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                  </>
+                )}
               </div>
             </Link>
           )}
 
-          <div className="flex items-center gap-2.5 rounded-xl bg-white/[0.03] px-3 py-2.5 border border-white/[0.07]">
-            <span className="flex h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse flex-shrink-0" />
-            <div>
-              <p className="text-[10px] font-bold text-white/60 tracking-widest uppercase">Client Analytics</p>
-              <p className="text-[10px] text-white/30 mt-0.5">Portal 2.0</p>
+          {!collapsed && (
+            <div className="flex items-center gap-2.5 rounded-xl bg-white/[0.03] px-3 py-2.5 border border-white/[0.07]">
+              <span className="flex h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse flex-shrink-0" />
+              <div>
+                <p className="text-[10px] font-bold text-white/60 tracking-widest uppercase">Client Analytics</p>
+                <p className="text-[10px] text-white/30 mt-0.5">Portal 2.0</p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </aside>
     </>

@@ -252,6 +252,9 @@ export function AdminTeamApplicationsView() {
   }
 
   const handleDelete = async (id: string) => {
+    const app = apps.find(a => a.id === id)
+    const name = app ? `${app.first_name ?? ""} ${app.last_name ?? ""}`.trim() || "esta aplicación" : "esta aplicación"
+    if (!window.confirm(`¿Eliminar la aplicación de ${name}? Esta acción no se puede deshacer.`)) return
     setDeletingId(id)
     const session = await getSession()
     if (!session) { setDeletingId(null); return }

@@ -12,6 +12,7 @@ import { Sidebar } from "@/components/layout/sidebar"
 import { AdminSidebar } from "@/components/layout/admin-sidebar"
 import { AnnualMetricsProvider } from "@/contexts/annual-metrics-context"
 import { NavigationProgress } from "@/components/ui/navigation-progress"
+import { HelpChat } from "@/components/ui/help-chat"
 
 declare global {
   interface Window {
@@ -95,10 +96,41 @@ function getRoleFromAccessToken(token: string | null | undefined): string | null
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [selectedMonth, setSelectedMonth] = useState<string>("2025-12")
   const pathname = usePathname()
   const pageTitle = PAGE_TITLES[pathname] ?? "Smart Scale"
   const isAdminMode = pathname.startsWith("/admin/")
+
+  // Sidebar collapsed state persisted en localStorage (solo aplica en desktop)
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const stored = window.localStorage.getItem("sidebarCollapsed")
+    if (stored) setSidebarCollapsed(stored === "true")
+  }, [])
+
+  const toggleSidebarCollapsed = () => {
+    setSidebarCollapsed(prev => {
+      const next = !prev
+      if (typeof window !== "undefined") window.localStorage.setItem("sidebarCollapsed", String(next))
+      return next
+    })
+  }
+
+  // Keyboard shortcut: Cmd/Ctrl + \ para toggle del sidebar
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null
+      const isInput = target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable
+      if (isInput) return
+      if ((e.metaKey || e.ctrlKey) && e.key === "\\") {
+        e.preventDefault()
+        toggleSidebarCollapsed()
+      }
+    }
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+  }, [])
 
   // Hydration-safe: load persisted selectedMonth after mount
   useEffect(() => {
@@ -364,10 +396,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen overflow-hidden dark" style={{ backgroundColor: "#0a0a0b" }}>
       <NavigationProgress />
       {isAdminMode
-        ? <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        : <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin} />}
+        ? <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />
+        : <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />}
 
-      <div className="flex-1 flex flex-col lg:ml-[220px] h-full overflow-hidden" style={{ backgroundColor: "#0a0a0b" }}>
+      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-[margin] duration-200 ${sidebarCollapsed ? 'lg:ml-[64px]' : 'lg:ml-[220px]'}`} style={{ backgroundColor: "#0a0a0b" }}>
         <header className="shrink-0 z-10 border-b border-white/[0.08] backdrop-blur-md" style={{ backgroundColor: "rgba(10,10,11,0.95)" }}>
           <div className="flex h-16 items-center justify-between px-4 lg:px-8">
             <div className="flex items-center gap-3">
@@ -546,6 +578,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           </ActiveClientNameContext.Provider>
         </ActiveClientContext.Provider>
       </div>
+
+      {/* AI Help Chat — botón flotante visible en todas las páginas del dashboard */}
+      <HelpChat />
     </div>
   )
 }

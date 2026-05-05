@@ -132,7 +132,7 @@ F2 → "El Ritmo Semanal / No Negociables" → https://www.skool.com/strategy-co
 F3 → "El Caracter Diamante™" → https://www.skool.com/strategy-consulting/classroom/6de08095
 F4 → "Optimizar Quick Cash DM™" → https://www.skool.com/strategy-consulting/classroom/c886e8bf
 E1 → "La Mini-Serie Youtube" → https://www.skool.com/strategy-consulting/classroom/3b5a1f75
-E2 → "The Airtable CRM" → https://www.skool.com/strategy-consulting/classroom/552a38a7
+E2 → "CRM y Base de Datos" → https://www.skool.com/strategy-consulting/classroom/552a38a7
 E3 → "DM-To-Close™ System" → https://www.skool.com/strategy-consulting/classroom/cd022ec1
 I1 → "El Modelo Mata Dolor™" → https://www.skool.com/strategy-consulting/classroom/fb42ffd4
 I2 → "Onboarding Mastery" → https://www.skool.com/strategy-consulting/classroom/552a38a7

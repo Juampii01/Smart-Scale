@@ -59,7 +59,7 @@ const programData: Array<{
           { label: "Tus Cinco P's", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Oferta", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=52831138818048658b4fc9495ade5f61" },
           { label: "Tu Simple Oferta", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Oferta", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=8ab64a0d4cf34a979f914fc2fd8eac62" },
           { label: "Constructor de tu Simple Oferta", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Oferta", link: "https://chatgpt.com/g/g-695470be71ec8191b89266dbd1948663-simple-offer-builder" },
-          { label: "CRM Airtable", level: "Nivel 0 — Onboarding", outcome: "Sistemas", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=a1738fc7ca8d49a7b4ecffb313fcac3d" },
+          { label: "CRM Hot List", level: "Nivel 0 — Onboarding", outcome: "Sistemas", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=a1738fc7ca8d49a7b4ecffb313fcac3d" },
         ],
       },
     ],
@@ -162,7 +162,7 @@ const programData: Array<{
       {
         title: "Automatización y AI",
         tasks: [
-          { label: "Airtable + CRM", level: "Nivel 8 — IA & Sistemas", outcome: "Sistemas", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=e40e73a9017a4d21a222c23cf1f15c16" },
+          { label: "CRM y Base de Datos", level: "Nivel 8 — IA & Sistemas", outcome: "Sistemas", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=e40e73a9017a4d21a222c23cf1f15c16" },
           { label: "Crea tu propio Coach AI para ganar tiempo", level: "Nivel 8 — IA & Sistemas", outcome: "AI", link: "https://www.skool.com/strategy-consulting/classroom/70b44121?md=7921fc8744fe4ef08f93a16766fa2ed6" },
           { label: "Automatizando lo necesario", level: "Nivel 8 — IA & Sistemas", outcome: "AI", link: "https://www.skool.com/strategy-consulting/classroom/70b44121?md=4633193f06c64e6eb95614d4d9b511b4" },
         ],

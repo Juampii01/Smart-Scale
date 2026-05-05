@@ -729,24 +729,10 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
           {/* Modal-style header */}
           <div className="relative flex items-center justify-between border-b border-white/[0.05] px-6 py-5">
-            <div className="flex items-center gap-4">
-              <button
-                type="button"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.03] text-lg text-white/55"
-              >
-                ‹
-              </button>
-              <div>
-                <h2 className="text-[18px] font-semibold tracking-tight text-white">Mi Ecosistema</h2>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.03] text-xl leading-none text-white/55"
-            >
-              ×
-            </button>
+            <h2 className="text-[18px] font-semibold tracking-tight text-white">Mi Ecosistema</h2>
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-white/30">
+              {selectedAnswersCount}/12 respondidas
+            </span>
           </div>
 
           {/* Sections */}
@@ -823,11 +809,15 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
           <div className="relative flex flex-col gap-3 px-6 py-5 md:flex-row md:items-center">
             <button
               onClick={generateAIResponse}
-              disabled={loading}
-              className="rounded-xl bg-[#ffde21] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] disabled:opacity-50"
+              disabled={loading || selectedAnswersCount === 0}
+              className="rounded-xl bg-[#ffde21] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] disabled:opacity-50 disabled:cursor-not-allowed"
+              title={selectedAnswersCount === 0 ? "Respondé al menos una pregunta para generar el diagnóstico" : undefined}
             >
               {loading ? "Generando…" : "Generar Diagnóstico Estratégico"}
             </button>
+            {selectedAnswersCount === 0 && !loading && (
+              <p className="text-[12px] text-white/35">Respondé al menos una pregunta arriba para activar.</p>
+            )}
           </div>
         </div>
 
@@ -966,9 +956,15 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                         </button>
                       </div>
 
-                      <div className="mb-3 text-[10px] text-white/25 font-mono break-all">
-                        {item.request_id}
-                      </div>
+                      <details className="mb-3 group/id">
+                        <summary className="text-[10px] text-white/20 hover:text-white/40 cursor-pointer select-none transition-colors list-none">
+                          <span className="group-open/id:hidden">Mostrar ID técnico</span>
+                          <span className="hidden group-open/id:inline">Ocultar ID</span>
+                        </summary>
+                        <div className="mt-1 text-[10px] text-white/25 font-mono break-all">
+                          {item.request_id}
+                        </div>
+                      </details>
 
                       <div className="flex-1 flex flex-col justify-between">
                         <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 min-h-[100px] mb-4">

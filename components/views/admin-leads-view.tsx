@@ -350,9 +350,12 @@ export function AdminLeadsView() {
   }
 
   const handleDelete = async (id: string) => {
+    const lead = leads.find(l => l.id === id)
+    const name = lead?.name?.trim() || "este lead"
+    if (!window.confirm(`¿Eliminar a ${name}? Esta acción no se puede deshacer.`)) return
     setDeletingId(id)
     const session = await getSession()
-    if (!session) return
+    if (!session) { setDeletingId(null); return }
     await fetch("/api/admin/leads", {
       method:  "DELETE",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
@@ -504,6 +507,16 @@ export function AdminLeadsView() {
             ))}
           </div>
         </div>
+
+        {/* Banner explicativo cuando el filtro 4-5 está activo */}
+        {filterRating === -1 && (
+          <div className="flex items-center gap-2.5 rounded-xl border border-amber-400/20 bg-amber-500/[0.05] px-4 py-2.5">
+            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 shrink-0" />
+            <p className="text-[12px] text-amber-200/80 flex-1">
+              Mostrando solo leads de <span className="font-semibold text-amber-200">4 y 5 estrellas</span>. Tocá <span className="font-semibold">Todas</span> arriba para ver todos los leads del pipeline.
+            </p>
+          </div>
+        )}
 
         {/* Table */}
         <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#111113]">

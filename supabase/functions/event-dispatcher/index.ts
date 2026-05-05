@@ -8,9 +8,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 const SLACK_WEBHOOK_URL = Deno.env.get("SLACK_WEBHOOK_URL") ?? null
-const AIRTABLE_API_KEY = Deno.env.get("AIRTABLE_API_KEY") ?? null
-const AIRTABLE_BASE_ID = Deno.env.get("AIRTABLE_BASE_ID") ?? null
-const AIRTABLE_TABLE_NAME = Deno.env.get("AIRTABLE_TABLE_NAME") ?? "Monthly Reports"
+// Airtable env vars eliminadas — ya no se usan.
 const ZAPIER_WEBHOOK_REPORT = Deno.env.get("ZAPIER_WEBHOOK_REPORT") ?? null
 const ZAPIER_WEBHOOK_SALE = Deno.env.get("ZAPIER_WEBHOOK_SALE") ?? null
 
@@ -194,71 +192,6 @@ async function handleSaleRegistered(payload: Record<string, unknown>) {
   return sendSlack(blocks, `🎉 ${label} registrados para ${clientName} en ${month}`)
 }
 
-// ─── Airtable integration ─────────────────────────────────────────────────────
-
-const AIRTABLE_FIELD_MAP: Record<string, string> = {
-  client_id: "Client ID", month: "Month", total_revenue: "Total Revenue",
-  cash_collected: "Cash Collected", mrr: "MRR", ad_spend: "Ad Spend",
-  software_costs: "Software Costs", variable_costs: "Variable Costs",
-  scheduled_calls: "Scheduled Calls", attended_calls: "Attended Calls",
-  aplications: "Applications", new_clients: "New Clients", active_clients: "Active Clients",
-  offer_docs_sent: "Offer Docs Sent", offer_docs_responded: "Offer Docs Responded",
-  cierres_por_offerdoc: "Cierres por OfferDoc",
-  short_followers: "Short-form Followers", short_reach: "Short-form Reach", short_posts: "Short-form Posts",
-  yt_subscribers: "YouTube Subscribers", yt_views: "YouTube Views", yt_videos: "YouTube Videos",
-  email_subscribers: "Email Subscribers", email_new_subscribers: "Email New Subscribers",
-  biggest_win: "Biggest Win", next_focus: "Next Focus",
-}
-
-async function handleAirtableSync(payload: Record<string, unknown>) {
-  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
-    return { ok: false, error: "Airtable not configured" }
-  }
-
-  const reportData = (payload.report_data ?? payload) as Record<string, unknown>
-  const fields: Record<string, unknown> = {}
-  for (const [k, v] of Object.entries(reportData)) {
-    if (["id", "created_at", "updated_at"].includes(k)) continue
-    if (v === null || v === undefined) continue
-    fields[AIRTABLE_FIELD_MAP[k] ?? k] = v
-  }
-
-  const base = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE_NAME)}`
-  const headers = { Authorization: `Bearer ${AIRTABLE_API_KEY}`, "Content-Type": "application/json" }
-
-  try {
-    // Search for existing record
-    const clientId = String(reportData.client_id ?? "")
-    const month = String(reportData.month ?? "").slice(0, 7)
-    if (clientId && month) {
-      const searchRes = await fetch(
-        `${base}?filterByFormula=AND({Client ID}="${clientId}",{Month}="${month}")&maxRecords=1`,
-        { headers }
-      )
-      if (searchRes.ok) {
-        const searchData = await searchRes.json()
-        const existingId = searchData?.records?.[0]?.id
-        if (existingId) {
-          const patchRes = await fetch(`${base}/${existingId}`, {
-            method: "PATCH", headers,
-            body: JSON.stringify({ fields }),
-          })
-          if (!patchRes.ok) return { ok: false, error: `Airtable PATCH ${patchRes.status}` }
-          return { ok: true }
-        }
-      }
-    }
-    const createRes = await fetch(base, {
-      method: "POST", headers,
-      body: JSON.stringify({ fields }),
-    })
-    if (!createRes.ok) return { ok: false, error: `Airtable POST ${createRes.status}` }
-    return { ok: true }
-  } catch (err: any) {
-    return { ok: false, error: err?.message }
-  }
-}
-
 // ─── Main event processor ─────────────────────────────────────────────────────
 
 async function processEvent(event: {
@@ -300,7 +233,10 @@ async function processEvent(event: {
         }).catch(() => {})
       }
     } else if (event_type === "airtable.sync") {
-      result = await handleAirtableSync(payload)
+      // Airtable ya no se usa — completar como no-op para vaciar cola.
+      await logEvent(id, "info", "airtable.sync deprecated — skipping")
+      await markEvent(id, "completed", attempts, max_attempts)
+      return
     } else {
       await logEvent(id, "warn", `Unknown event type: ${event_type}`)
       await markEvent(id, "completed", attempts, max_attempts)
