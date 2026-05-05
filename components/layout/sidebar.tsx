@@ -88,10 +88,7 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
             </a>
           )}
 
-          <div className="flex items-center gap-1.5">
-            {!collapsed && (
-              <span className="hidden lg:inline text-[9px] font-semibold text-white/25 tracking-widest uppercase">v2.0</span>
-            )}
+          <div className="flex items-center gap-1">
             {onToggleCollapsed && (
               <button
                 className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg text-white/40 hover:text-[#ffde21] hover:bg-[#ffde21]/[0.08] transition-all border border-transparent hover:border-[#ffde21]/20"
