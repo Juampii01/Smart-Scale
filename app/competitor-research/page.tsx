@@ -1,13 +1,13 @@
 "use client"
 
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { DashboardLayout, useActiveClient, useActiveClientName, useOwnClient } from "@/components/layout/dashboard-layout"
 import { useState, useEffect, useCallback } from "react"
 import { createPortal } from "react-dom"
 import { createClient } from "@/lib/supabase"
 import { AiLoading } from "@/components/ui/ai-loading"
 import {
   Youtube, Instagram, ExternalLink, Copy, ChevronDown, ChevronUp,
-  Trash2, Search, X, Zap, AlertTriangle,
+  Trash2, Search, X, Zap, AlertTriangle, Eye,
 } from "lucide-react"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -273,6 +273,11 @@ function AnalysisCard({ item, onDelete, deletingId }: {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 function CompetitorResearchContent() {
+  const activeClientId = useActiveClient()
+  const activeName     = useActiveClientName()
+  const ownClientId    = useOwnClient()
+  const isViewingOther = !!ownClientId && !!activeClientId && ownClientId !== activeClientId
+
   const [platform, setPlatform] = useState<"youtube" | "instagram">("youtube")
   const [channelUrl, setChannelUrl] = useState("")
   const [timeframe, setTimeframe] = useState<30 | 60 | 90>(60)
@@ -286,16 +291,18 @@ function CompetitorResearchContent() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const fetchHistory = useCallback(async () => {
+    if (!activeClientId) { setHistory([]); setHistoryLoading(false); return }
+    setHistoryLoading(true)
     try {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
-      const res = await fetch("/api/content-research", { headers: { "Authorization": `Bearer ${session.access_token}` } })
+      const res = await fetch(`/api/content-research?client_id=${encodeURIComponent(activeClientId)}`, { headers: { "Authorization": `Bearer ${session.access_token}` } })
       if (!res.ok) return
       const data = await res.json()
       setHistory(data.items ?? [])
     } catch { } finally { setHistoryLoading(false) }
-  }, [])
+  }, [activeClientId])
 
   useEffect(() => { fetchHistory() }, [fetchHistory])
 
@@ -313,7 +320,7 @@ function CompetitorResearchContent() {
       const res = await fetch("/api/content-research", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-        body: JSON.stringify({ channel_url: channelUrl.trim(), timeframe_days: timeframe, platform }),
+        body: JSON.stringify({ channel_url: channelUrl.trim(), timeframe_days: timeframe, platform, client_id: activeClientId }),
       })
       const data = await res.json()
 
@@ -348,7 +355,7 @@ function CompetitorResearchContent() {
       await fetch("/api/content-research", {
         method: "DELETE",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({ id, client_id: activeClientId }),
       })
       setHistory(prev => prev.filter(i => i.id !== id))
     } finally { setDeletingId(null) }
@@ -356,6 +363,19 @@ function CompetitorResearchContent() {
 
   return (
     <div className="px-6 py-10 max-w-6xl mx-auto space-y-8">
+
+      {/* Banner si admin está viendo otro cliente */}
+      {isViewingOther && (
+        <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
+          <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Viendo otro cliente</p>
+            <p className="text-[13px] text-white/75 mt-0.5">
+              Estás viendo las investigaciones de <span className="font-semibold text-white">{activeName ?? "(sin nombre)"}</span>. Cualquier nueva investigación se guarda en su cuenta.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── New Analysis form ── */}
       <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#141416]">

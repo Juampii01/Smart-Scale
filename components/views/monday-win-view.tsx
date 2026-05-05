@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { createClient } from "@/lib/supabase"
-import { useActiveClient } from "@/components/layout/dashboard-layout"
-import { CheckCircle, AlertCircle, Loader2, Star } from "lucide-react"
+import { useOwnClient, useActiveClient, useActiveClientName } from "@/components/layout/dashboard-layout"
+import { CheckCircle, AlertCircle, Loader2, Star, Eye } from "lucide-react"
 
 function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
   return (
@@ -22,7 +22,13 @@ const inputCls = "w-full rounded-xl border border-white/[0.08] bg-white/[0.04] p
 const textareaCls = inputCls + " resize-none"
 
 export function MondayWinView() {
+  // Monday Win SIEMPRE se guarda en la cuenta del usuario logueado.
+  // Si admin está viendo otro cliente, mostramos un aviso pero el
+  // form sigue grabando en su propia cuenta.
+  const ownClientId    = useOwnClient()
   const activeClientId = useActiveClient()
+  const activeName     = useActiveClientName()
+  const isViewingOther = !!ownClientId && !!activeClientId && ownClientId !== activeClientId
 
   const [fecha, setFecha] = useState(() => new Date().toISOString().slice(0, 10))
   const [logro1, setLogro1] = useState("")
@@ -36,7 +42,7 @@ export function MondayWinView() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!activeClientId) {
+    if (!ownClientId) {
       setStatus("error")
       setMessage("No hay cliente seleccionado. Elegí un cliente en la barra superior.")
       return
@@ -62,7 +68,7 @@ export function MondayWinView() {
           "Authorization": `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          client_id:    activeClientId,
+          client_id:    ownClientId,
           fecha,
           logro_1:      logro1,
           logro_2:      logro2 || null,
@@ -105,6 +111,19 @@ export function MondayWinView() {
           </div>
         </div>
       </div>
+
+      {/* Aviso si admin está viendo otro cliente */}
+      {isViewingOther && (
+        <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
+          <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Atajo: este Monday Win es tuyo</p>
+            <p className="text-[13px] text-white/75 mt-0.5">
+              Estás navegando como <span className="font-semibold text-white">{activeName ?? "otro cliente"}</span>, pero este formulario siempre se guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Fields */}
       <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111113]">
@@ -208,13 +227,13 @@ export function MondayWinView() {
       <div className="flex items-center gap-3 pb-6">
         <button
           type="submit"
-          disabled={status === "loading" || !activeClientId}
+          disabled={status === "loading" || !ownClientId}
           className="flex items-center gap-2 rounded-xl bg-[#ffde21] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
           {status === "loading" ? "Enviando…" : "Enviar Monday Win"}
         </button>
-        {!activeClientId && (
+        {!ownClientId && (
           <p className="text-xs text-red-400/70">Seleccioná un cliente primero.</p>
         )}
       </div>

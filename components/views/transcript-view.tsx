@@ -4,10 +4,11 @@ import { useState, useEffect, useCallback } from "react"
 import { createPortal } from "react-dom"
 import {
   Youtube, Instagram, Copy, Check, ChevronDown, ChevronUp,
-  Sparkles, Link2, Clock, User, FileText, ExternalLink, Trash2, FileVideo, X, Maximize2, Loader2,
+  Sparkles, Link2, Clock, User, FileText, ExternalLink, Trash2, FileVideo, X, Maximize2, Loader2, Eye,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { AiLoading } from "@/components/ui/ai-loading"
+import { useActiveClient, useActiveClientName, useOwnClient } from "@/components/layout/dashboard-layout"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -435,6 +436,11 @@ function HistoryDetailModal({ item, onClose }: { item: HistoryItem; onClose: () 
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 export function TranscriptView() {
+  const activeClientId = useActiveClient()
+  const activeName     = useActiveClientName()
+  const ownClientId    = useOwnClient()
+  const isViewingOther = !!ownClientId && !!activeClientId && ownClientId !== activeClientId
+
   const [url, setUrl] = useState("")
   const [platform, setPlatform] = useState<"youtube" | "instagram">("youtube")
   const [outputType, setOutputType] = useState<"transcript" | "summary" | "both">("both")
@@ -454,16 +460,18 @@ export function TranscriptView() {
   const isIGNonReel = isIG && !isIGReel
 
   const fetchHistory = useCallback(async () => {
+    if (!activeClientId) { setHistory([]); setHistoryLoading(false); return }
+    setHistoryLoading(true)
     try {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
-      const res = await fetch("/api/transcript", { headers: { "Authorization": `Bearer ${session.access_token}` } })
+      const res = await fetch(`/api/transcript?client_id=${encodeURIComponent(activeClientId)}`, { headers: { "Authorization": `Bearer ${session.access_token}` } })
       if (!res.ok) return
       const data = await res.json()
       setHistory(data.items ?? [])
     } catch { } finally { setHistoryLoading(false) }
-  }, [])
+  }, [activeClientId])
 
   useEffect(() => { fetchHistory() }, [fetchHistory])
 
@@ -490,7 +498,7 @@ export function TranscriptView() {
       const res = await fetch("/api/transcript", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-        body: JSON.stringify({ url: trimmedUrl, platform }),
+        body: JSON.stringify({ url: trimmedUrl, platform, client_id: activeClientId }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? "Error al procesar el video."); return }
@@ -512,7 +520,7 @@ export function TranscriptView() {
       await fetch("/api/transcript", {
         method: "DELETE",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({ id, client_id: activeClientId }),
       })
       setHistory(prev => prev.filter(item => item.id !== id))
       if (modalItem?.id === id) setModalItem(null)
@@ -524,6 +532,19 @@ export function TranscriptView() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-6 py-10">
+
+      {/* Banner si admin está viendo otro cliente */}
+      {isViewingOther && (
+        <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
+          <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Viendo otro cliente</p>
+            <p className="text-[13px] text-white/75 mt-0.5">
+              Estás viendo los transcripts de <span className="font-semibold text-white">{activeName ?? "(sin nombre)"}</span>. Cualquier transcript que generes se guarda en su cuenta.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── New Transcription form ── */}
       <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#141416]">

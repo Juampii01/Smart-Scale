@@ -290,7 +290,8 @@ export function AdminLeadsView() {
   const [selected,     setSelected]     = useState<Lead | null>(null)
   const [deletingId,   setDeletingId]   = useState<string | null>(null)
   const [search,       setSearch]       = useState("")
-  const [filterRating, setFilterRating] = useState<number>(0)
+  // -1 = solo 4-5 estrellas (default), 0 = todas, 1-5 = exacto
+  const [filterRating, setFilterRating] = useState<number>(-1)
   const [showNewForm,  setShowNewForm]  = useState(false)
   const [creating,     setCreating]     = useState(false)
 
@@ -377,6 +378,7 @@ export function AdminLeadsView() {
   }
 
   const filtered = leads.filter(l => {
+    if (filterRating === -1 && (l.rating === null || l.rating < 4)) return false
     if (filterRating > 0 && l.rating !== filterRating) return false
     if (!search.trim()) return true
     const q = search.toLowerCase()
@@ -476,6 +478,16 @@ export function AdminLeadsView() {
                   : "border-white/[0.07] text-white/40 hover:text-white hover:border-white/20"
               }`}>
               Todas
+            </button>
+            <button
+              onClick={() => setFilterRating(-1)}
+              className={`h-8 rounded-xl border px-3 transition-all flex items-center gap-1 text-[12px] font-medium ${
+                filterRating === -1
+                  ? "border-amber-400/40 bg-amber-400/10 text-amber-300"
+                  : "border-white/[0.07] text-white/40 hover:text-amber-300 hover:border-amber-400/30"
+              }`}>
+              <Star className={`h-3 w-3 ${filterRating === -1 ? "fill-amber-400 text-amber-400" : "fill-transparent"}`} />
+              4–5
             </button>
             {[1, 2, 3, 4, 5].map(star => (
               <button

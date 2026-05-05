@@ -8,6 +8,28 @@ export const dynamic = "force-dynamic"
 export const maxDuration = 300
 
 
+// ─── Auth helper: resuelve client_id permitido ───────────────────────────────
+async function resolveClientScope(supabase: ReturnType<typeof createServiceClient>, userId: string, requestedClientId: string | null) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, client_id")
+    .eq("id", userId)
+    .maybeSingle()
+
+  const role = String((profile as any)?.role ?? "").toLowerCase()
+  const ownClientId = (profile as any)?.client_id ?? null
+
+  if (role === "admin") {
+    return { clientId: requestedClientId ?? ownClientId, ok: true as const, role, ownClientId }
+  }
+  if (!ownClientId) return { ok: false as const, status: 403, message: "Forbidden" }
+  if (requestedClientId && requestedClientId !== ownClientId) {
+    return { ok: false as const, status: 403, message: "Forbidden" }
+  }
+  return { clientId: ownClientId, ok: true as const, role, ownClientId }
+}
+
+
 // ─── Helpers generales ────────────────────────────────────────────────────────
 
 function parseDuration(iso: string): string {
@@ -566,10 +588,16 @@ export async function GET(req: NextRequest) {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt)
     if (authErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
+    const { searchParams } = new URL(req.url)
+    const requestedClientId = searchParams.get("client_id")
+    const scope = await resolveClientScope(supabase, user.id, requestedClientId)
+    if (!scope.ok) return NextResponse.json({ error: scope.message }, { status: scope.status })
+    if (!scope.clientId) return NextResponse.json({ items: [] })
+
     const { data, error } = await supabase
       .from("content_research_history")
       .select("id, channel_url, channel_name, channel_avatar, timeframe_days, platform, videos, created_at")
-      .eq("user_id", user.id)
+      .eq("client_id", scope.clientId)
       .order("created_at", { ascending: false })
       .limit(20)
 
@@ -596,8 +624,12 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => null)
     if (!body) return NextResponse.json({ error: "Body inválido." }, { status: 400 })
 
-    const { channel_url, timeframe_days = 60, platform } = body
+    const { channel_url, timeframe_days = 60, platform, client_id: requestedClientId } = body
     if (!channel_url?.trim()) return NextResponse.json({ error: "channel_url requerido" }, { status: 400 })
+
+    const scope = await resolveClientScope(supabase, user.id, requestedClientId ?? null)
+    if (!scope.ok) return NextResponse.json({ error: scope.message }, { status: scope.status })
+    if (!scope.clientId) return NextResponse.json({ error: "Missing client_id" }, { status: 400 })
 
     const isInstagram = platform === "instagram" || /instagram\.com/.test(channel_url)
 
@@ -632,7 +664,7 @@ export async function POST(req: NextRequest) {
     const { data: cached, error: cacheErr } = await supabase
       .from("content_research_history")
       .select("id, channel_url, channel_name, channel_avatar, timeframe_days, platform, videos, created_at")
-      .eq("user_id", user.id)
+      .eq("client_id", scope.clientId)
       .eq("channel_url", canonicalUrl)
       .eq("timeframe_days", timeframe_days)
       .gte("created_at", weekStart.toISOString())
@@ -665,7 +697,7 @@ export async function POST(req: NextRequest) {
     const { count: monthCount, error: countErr } = await supabase
       .from("content_research_history")
       .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id)
+      .eq("client_id", scope.clientId)
       .gte("created_at", monthStart.toISOString())
 
     if (countErr) {
@@ -733,6 +765,7 @@ export async function POST(req: NextRequest) {
       .from("content_research_history")
       .insert({
         user_id:        user.id,
+        client_id:      scope.clientId,
         platform:       isInstagram ? "instagram" : "youtube",
         channel_url:    canonicalUrl,
         channel_name:   channelName,
@@ -774,10 +807,15 @@ export async function DELETE(req: NextRequest) {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt)
     if (authErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    const { id } = await req.json()
+    const body = await req.json()
+    const { id, client_id: requestedClientId } = body
     if (!id) return NextResponse.json({ error: "id requerido" }, { status: 400 })
 
-    await supabase.from("content_research_history").delete().eq("id", id).eq("user_id", user.id)
+    const scope = await resolveClientScope(supabase, user.id, requestedClientId ?? null)
+    if (!scope.ok) return NextResponse.json({ error: scope.message }, { status: scope.status })
+    if (!scope.clientId) return NextResponse.json({ error: "Missing client_id" }, { status: 400 })
+
+    await supabase.from("content_research_history").delete().eq("id", id).eq("client_id", scope.clientId)
     return NextResponse.json({ success: true })
   } catch (err: any) {
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })

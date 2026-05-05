@@ -6,6 +6,27 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 export const maxDuration = 300
 
+// ─── Auth helper: resuelve client_id permitido ───────────────────────────────
+async function resolveClientScope(supabase: ReturnType<typeof createServiceClient>, userId: string, requestedClientId: string | null) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, client_id")
+    .eq("id", userId)
+    .maybeSingle()
+
+  const role = String((profile as any)?.role ?? "").toLowerCase()
+  const ownClientId = (profile as any)?.client_id ?? null
+
+  if (role === "admin") {
+    return { clientId: requestedClientId ?? ownClientId, ok: true as const, role, ownClientId }
+  }
+  if (!ownClientId) return { ok: false as const, status: 403, message: "Forbidden" }
+  if (requestedClientId && requestedClientId !== ownClientId) {
+    return { ok: false as const, status: 403, message: "Forbidden" }
+  }
+  return { clientId: ownClientId, ok: true as const, role, ownClientId }
+}
+
 // ─── Instagram scraping ───────────────────────────────────────────────────────
 
 const IG_HEADERS: Record<string, string> = {
@@ -277,10 +298,16 @@ export async function GET(req: NextRequest) {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt)
     if (authErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
+    const { searchParams } = new URL(req.url)
+    const requestedClientId = searchParams.get("client_id")
+    const scope = await resolveClientScope(supabase, user.id, requestedClientId)
+    if (!scope.ok) return NextResponse.json({ error: scope.message }, { status: scope.status })
+    if (!scope.clientId) return NextResponse.json({ account: null })
+
     const { data, error } = await supabase
       .from("video_feed_accounts")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("client_id", scope.clientId)
       .maybeSingle()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -302,14 +329,19 @@ export async function POST(req: NextRequest) {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt)
     if (authErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    const { channel_url } = await req.json()
+    const body = await req.json()
+    const { channel_url, client_id: requestedClientId } = body
     if (!channel_url?.trim()) return NextResponse.json({ error: "channel_url requerido" }, { status: 400 })
+
+    const scope = await resolveClientScope(supabase, user.id, requestedClientId ?? null)
+    if (!scope.ok) return NextResponse.json({ error: scope.message }, { status: scope.status })
+    if (!scope.clientId) return NextResponse.json({ error: "Missing client_id" }, { status: 400 })
 
     // 1. Load existing stored posts
     const { data: existing } = await supabase
       .from("video_feed_accounts")
       .select("posts, channel_avatar")
-      .eq("user_id", user.id)
+      .eq("client_id", scope.clientId)
       .maybeSingle()
 
     const existingPosts: any[] = existing?.posts ?? []
@@ -348,6 +380,7 @@ export async function POST(req: NextRequest) {
       .upsert(
         {
           user_id:        user.id,
+          client_id:      scope.clientId,
           platform:       "instagram",
           channel_url:    ig.profileUrl,
           channel_name:   ig.profileName,
@@ -355,7 +388,7 @@ export async function POST(req: NextRequest) {
           posts:          merged,
           updated_at:     new Date().toISOString(),
         },
-        { onConflict: "user_id" }
+        { onConflict: "client_id" }
       )
 
     return NextResponse.json({
@@ -383,7 +416,15 @@ export async function DELETE(req: NextRequest) {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt)
     if (authErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    await supabase.from("video_feed_accounts").delete().eq("user_id", user.id)
+    let body: any = {}
+    try { body = await req.json() } catch { /* DELETE puede no tener body */ }
+    const requestedClientId = body?.client_id ?? null
+
+    const scope = await resolveClientScope(supabase, user.id, requestedClientId)
+    if (!scope.ok) return NextResponse.json({ error: scope.message }, { status: scope.status })
+    if (!scope.clientId) return NextResponse.json({ error: "Missing client_id" }, { status: 400 })
+
+    await supabase.from("video_feed_accounts").delete().eq("client_id", scope.clientId)
     return NextResponse.json({ success: true })
   } catch (err: any) {
     console.log("[video-feed][DELETE] error:", err?.message ?? err)

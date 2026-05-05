@@ -1,7 +1,13 @@
 {
-"functions": {
+  "functions": {
     "app/api/**": {
       "maxDuration": 300
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/billing-alerts",
+      "schedule": "0 12 * * *"
+    }
+  ]
 }

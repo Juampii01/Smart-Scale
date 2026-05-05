@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase"
-import { useActiveClient, useSelectedMonth } from "@/components/layout/dashboard-layout"
-import { CheckCircle, AlertCircle, Loader2, AlertTriangle, History, FileText } from "lucide-react"
+import { useOwnClient, useActiveClient, useActiveClientName, useSelectedMonth } from "@/components/layout/dashboard-layout"
+import { CheckCircle, AlertCircle, Loader2, AlertTriangle, History, FileText, Eye } from "lucide-react"
 import { ReportHistoryView } from "@/components/views/report-history-view"
 
 // ─── Field definitions ────────────────────────────────────────────────────────
@@ -141,7 +141,13 @@ function ConfirmOverwriteDialog({
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function ReportInputView() {
+  // Reporte Mensual SIEMPRE se guarda en la cuenta del usuario logueado.
+  // El read/write usa ownClientId; activeClientId solo se usa para mostrar
+  // el aviso cuando admin está navegando como otro cliente.
+  const ownClientId    = useOwnClient()
   const activeClientId = useActiveClient()
+  const activeName     = useActiveClientName()
+  const isViewingOther = !!ownClientId && !!activeClientId && ownClientId !== activeClientId
   const ctxMonth = useSelectedMonth()
   const [tab, setTab] = useState<"form" | "history">("form")
 
@@ -158,7 +164,7 @@ export function ReportInputView() {
 
   // Load existing report for selected client+month
   useEffect(() => {
-    if (!activeClientId || !month) return
+    if (!ownClientId || !month) return
     setLoadingExisting(true)
     setExistingData(null)
     setValues({})
@@ -169,7 +175,7 @@ export function ReportInputView() {
     supabase
       .from("monthly_reports")
       .select("*")
-      .eq("client_id", activeClientId)
+      .eq("client_id", ownClientId)
       .eq("month", monthValue)
       .maybeSingle()
       .then(({ data }) => {
@@ -187,7 +193,7 @@ export function ReportInputView() {
         setLoadingExisting(false)
       })
       .catch(() => setLoadingExisting(false))
-  }, [activeClientId, month])
+  }, [ownClientId, month])
 
   const setValue = (key: string, val: string) => {
     setValues((prev) => ({ ...prev, [key]: val }))
@@ -209,7 +215,7 @@ export function ReportInputView() {
         return
       }
 
-      const body: Record<string, unknown> = { client_id: activeClientId, month }
+      const body: Record<string, unknown> = { client_id: ownClientId, month }
       for (const [key, raw] of Object.entries(values)) {
         if (raw !== "" && raw !== null && raw !== undefined) body[key] = raw
       }
@@ -246,7 +252,7 @@ export function ReportInputView() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!activeClientId) {
+    if (!ownClientId) {
       setStatus("error")
       setMessage("No hay cliente seleccionado. Elegí un cliente en la barra superior.")
       return
@@ -321,6 +327,19 @@ export function ReportInputView() {
           </p>
         </div>
 
+        {/* Aviso si admin está viendo otro cliente */}
+        {isViewingOther && (
+          <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
+            <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Atajo: este reporte es tuyo</p>
+              <p className="text-[13px] text-white/75 mt-0.5">
+                Estás navegando como <span className="font-semibold text-white">{activeName ?? "otro cliente"}</span>, pero este formulario siempre carga y guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Month + client selector */}
         <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-5">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
@@ -345,12 +364,12 @@ export function ReportInputView() {
                   Reporte existente — se sobreescribirá
                 </span>
               )}
-              {!loadingExisting && !isUpdate && activeClientId && (
+              {!loadingExisting && !isUpdate && ownClientId && (
                 <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-emerald-400">
                   Nuevo reporte
                 </span>
               )}
-              {!activeClientId && (
+              {!ownClientId && (
                 <span className="rounded-full border border-red-400/20 bg-red-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-red-400">
                   Sin cliente seleccionado
                 </span>
@@ -468,7 +487,7 @@ export function ReportInputView() {
         <div className="flex items-center gap-3 pb-6">
           <button
             type="submit"
-            disabled={status === "loading" || !activeClientId}
+            disabled={status === "loading" || !ownClientId}
             className="flex items-center gap-2 rounded-xl bg-[#ffde21] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}

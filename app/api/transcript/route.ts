@@ -7,6 +7,32 @@ export const dynamic = "force-dynamic"
 export const maxDuration = 300
 
 
+// ─── Auth helper: resuelve client_id permitido ───────────────────────────────
+// Admin → puede usar cualquier client_id (el del activeClient).
+// Regular → solo su propio profiles.client_id.
+async function resolveClientScope(supabase: ReturnType<typeof createServiceClient>, userId: string, requestedClientId: string | null) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, client_id")
+    .eq("id", userId)
+    .maybeSingle()
+
+  const role = String((profile as any)?.role ?? "").toLowerCase()
+  const ownClientId = (profile as any)?.client_id ?? null
+
+  if (role === "admin") {
+    // Admin puede consultar cualquier cliente; si no pasaron client_id usa el suyo
+    return { clientId: requestedClientId ?? ownClientId, ok: true as const, role, ownClientId }
+  }
+  // Regular: solo su propio cliente
+  if (!ownClientId) return { ok: false as const, status: 403, message: "Forbidden" }
+  if (requestedClientId && requestedClientId !== ownClientId) {
+    return { ok: false as const, status: 403, message: "Forbidden" }
+  }
+  return { clientId: ownClientId, ok: true as const, role, ownClientId }
+}
+
+
 // ─── GET: history ─────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
@@ -19,10 +45,16 @@ export async function GET(req: NextRequest) {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt)
     if (authErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
+    const { searchParams } = new URL(req.url)
+    const requestedClientId = searchParams.get("client_id")
+    const scope = await resolveClientScope(supabase, user.id, requestedClientId)
+    if (!scope.ok) return NextResponse.json({ error: scope.message }, { status: scope.status })
+    if (!scope.clientId) return NextResponse.json({ items: [] })
+
     const { data, error } = await supabase
       .from("transcript_history")
       .select("id, url, title, creator, duration, summary, transcript, created_at")
-      .eq("user_id", user.id)
+      .eq("client_id", scope.clientId)
       .order("created_at", { ascending: false })
       .limit(50)
 
@@ -45,17 +77,21 @@ export async function DELETE(req: NextRequest) {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt)
     if (authErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    let body: { id?: string }
+    let body: { id?: string; client_id?: string }
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
 
-    const { id } = body
+    const { id, client_id: requestedClientId } = body
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
+
+    const scope = await resolveClientScope(supabase, user.id, requestedClientId ?? null)
+    if (!scope.ok) return NextResponse.json({ error: scope.message }, { status: scope.status })
+    if (!scope.clientId) return NextResponse.json({ error: "Missing client_id" }, { status: 400 })
 
     const { error } = await supabase
       .from("transcript_history")
       .delete()
       .eq("id", id)
-      .eq("user_id", user.id)
+      .eq("client_id", scope.clientId)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ success: true })
@@ -744,11 +780,14 @@ export async function POST(req: NextRequest) {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt)
     if (authErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    let body: { url?: string }
+    let body: { url?: string; client_id?: string }
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
 
     const url = body.url?.trim()
     if (!url) return NextResponse.json({ error: "url is required" }, { status: 400 })
+
+    const scope = await resolveClientScope(supabase, user.id, body.client_id ?? null)
+    if (!scope.ok) return NextResponse.json({ error: scope.message }, { status: scope.status })
 
     let title: string | null = null
     let creator: string | null = null
@@ -805,9 +844,10 @@ export async function POST(req: NextRequest) {
       summary = await generateSummary(transcript, creator)
     }
 
-    // Save to history
+    // Save to history (scopeado por client_id, no por user_id)
     await supabase.from("transcript_history").insert({
       user_id:   user.id,
+      client_id: scope.clientId,
       url,
       title,
       creator,

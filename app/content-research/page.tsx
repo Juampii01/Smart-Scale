@@ -1,6 +1,6 @@
 "use client"
 
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { DashboardLayout, useActiveClient, useActiveClientName, useOwnClient } from "@/components/layout/dashboard-layout"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { createClient } from "@/lib/supabase"
 import { AiLoading } from "@/components/ui/ai-loading"
@@ -270,10 +270,11 @@ function ResultsTable({ result }: { result: ResearchResult }) {
 
 // ─── History Section ──────────────────────────────────────────────────────────
 
-function HistorySection({ items, onSelect, onDelete }: {
+function HistorySection({ items, onSelect, onDelete, clientId }: {
   items: HistoryItem[]
   onSelect: (item: HistoryItem) => void
   onDelete: (id: string) => void
+  clientId: string | null
 }) {
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
@@ -286,7 +287,7 @@ function HistorySection({ items, onSelect, onDelete }: {
       await fetch("/api/content-research", {
         method: "DELETE",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({ id, client_id: clientId }),
       })
       onDelete(id)
     } finally {
@@ -348,6 +349,11 @@ function HistorySection({ items, onSelect, onDelete }: {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 function ContentResearchContent() {
+  const activeClientId = useActiveClient()
+  const activeName     = useActiveClientName()
+  const ownClientId    = useOwnClient()
+  const isViewingOther = !!ownClientId && !!activeClientId && ownClientId !== activeClientId
+
   const [channelUrl, setChannelUrl] = useState("")
   const [timeframe, setTimeframe] = useState<30 | 60 | 90>(30)
   const [loading, setLoading] = useState(false)
@@ -360,11 +366,13 @@ function ContentResearchContent() {
   const resultsRef = useRef<HTMLDivElement>(null)
 
   const fetchHistory = useCallback(async () => {
+    if (!activeClientId) { setHistory([]); setHistoryLoading(false); return }
+    setHistoryLoading(true)
     try {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
-      const res = await fetch("/api/content-research", {
+      const res = await fetch(`/api/content-research?client_id=${encodeURIComponent(activeClientId)}`, {
         headers: { "Authorization": `Bearer ${session.access_token}` },
       })
       if (!res.ok) return
@@ -373,7 +381,7 @@ function ContentResearchContent() {
     } catch {} finally {
       setHistoryLoading(false)
     }
-  }, [])
+  }, [activeClientId])
 
   useEffect(() => { fetchHistory() }, [fetchHistory])
 
@@ -388,7 +396,7 @@ function ContentResearchContent() {
       const res = await fetch("/api/content-research", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-        body: JSON.stringify({ channel_url: channelUrl.trim(), timeframe_days: timeframe }),
+        body: JSON.stringify({ channel_url: channelUrl.trim(), timeframe_days: timeframe, client_id: activeClientId }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? "Error al investigar el canal."); return }
@@ -419,6 +427,19 @@ function ContentResearchContent() {
         <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Content Research</h1>
         <p className="text-sm text-white/40">Analizá los top 5 videos de cualquier canal de YouTube por métricas reales.</p>
       </div>
+
+      {/* Banner si admin está viendo otro cliente */}
+      {isViewingOther && (
+        <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
+          <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Viendo otro cliente</p>
+            <p className="text-[13px] text-white/75 mt-0.5">
+              Estás viendo las investigaciones de <span className="font-semibold text-white">{activeName ?? "(sin nombre)"}</span>. Cualquier nueva investigación se guarda en su cuenta.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Form */}
       <div className="overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
@@ -498,6 +519,7 @@ function ContentResearchContent() {
       {!historyLoading && history.length > 0 && (
         <HistorySection
           items={history}
+          clientId={activeClientId}
           onSelect={handleSelectHistory}
           onDelete={id => setHistory(prev => prev.filter(i => i.id !== id))}
         />

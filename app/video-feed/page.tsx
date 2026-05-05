@@ -1,6 +1,6 @@
 "use client"
 
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { DashboardLayout, useActiveClient, useActiveClientName, useOwnClient } from "@/components/layout/dashboard-layout"
 import { useState, useEffect, useCallback } from "react"
 import { createClient } from "@/lib/supabase"
 import { AiLoading } from "@/components/ui/ai-loading"
@@ -153,7 +153,7 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
 
 // ─── Connect Form (Instagram only) ───────────────────────────────────────────
 
-function ConnectForm({ onConnect }: { onConnect: (account: Account) => void }) {
+function ConnectForm({ onConnect, clientId }: { onConnect: (account: Account) => void; clientId: string | null }) {
   const [url,     setUrl]     = useState("")
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState<string | null>(null)
@@ -169,7 +169,7 @@ function ConnectForm({ onConnect }: { onConnect: (account: Account) => void }) {
       const res  = await fetch("/api/video-feed", {
         method:  "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body:    JSON.stringify({ channel_url: url.trim(), platform: "instagram" }),
+        body:    JSON.stringify({ channel_url: url.trim(), platform: "instagram", client_id: clientId }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? "Error al conectar."); return }
@@ -340,6 +340,11 @@ function FeedView({ account, onRefresh }: {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 function VideoFeedContent() {
+  const activeClientId = useActiveClient()
+  const activeName     = useActiveClientName()
+  const ownClientId    = useOwnClient()
+  const isViewingOther = !!ownClientId && !!activeClientId && ownClientId !== activeClientId
+
   const [account,        setAccount]        = useState<Account | null>(null)
   const [loadingAccount, setLoadingAccount] = useState(true)
 
@@ -350,14 +355,16 @@ function VideoFeedContent() {
   }
 
   const loadAccount = useCallback(async () => {
+    if (!activeClientId) { setAccount(null); setLoadingAccount(false); return }
+    setLoadingAccount(true)
     const token = await getToken()
     if (!token) { setLoadingAccount(false); return }
     try {
-      const res  = await fetch("/api/video-feed", { headers: { Authorization: `Bearer ${token}` } })
+      const res  = await fetch(`/api/video-feed?client_id=${encodeURIComponent(activeClientId)}`, { headers: { Authorization: `Bearer ${token}` } })
       const data = await res.json()
       setAccount(data.account ?? null)
     } catch {} finally { setLoadingAccount(false) }
-  }, [])
+  }, [activeClientId])
 
   useEffect(() => { loadAccount() }, [loadAccount])
 
@@ -368,7 +375,7 @@ function VideoFeedContent() {
     const res  = await fetch("/api/video-feed", {
       method:  "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body:    JSON.stringify({ channel_url: account.channel_url, platform: "instagram" }),
+      body:    JSON.stringify({ channel_url: account.channel_url, platform: "instagram", client_id: activeClientId }),
     })
     const data = await res.json()
     if (res.ok) {
@@ -386,10 +393,23 @@ function VideoFeedContent() {
   }
 
   return (
-    <div className="px-4 py-10 max-w-7xl mx-auto">
+    <div className="px-4 py-10 max-w-7xl mx-auto space-y-6">
+      {/* Banner si admin está viendo otro cliente */}
+      {isViewingOther && (
+        <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
+          <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Viendo otro cliente</p>
+            <p className="text-[13px] text-white/75 mt-0.5">
+              Estás viendo el video feed de <span className="font-semibold text-white">{activeName ?? "(sin nombre)"}</span>. Cualquier conexión o refresh se guarda en su cuenta.
+            </p>
+          </div>
+        </div>
+      )}
+
       {account
         ? <FeedView account={account} onRefresh={handleRefresh} />
-        : <ConnectForm onConnect={setAccount} />}
+        : <ConnectForm onConnect={setAccount} clientId={activeClientId} />}
     </div>
   )
 }

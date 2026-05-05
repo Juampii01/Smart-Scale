@@ -49,6 +49,7 @@ interface Client {
   program_duration:    number   // meses de programa
   num_installments:    number   // cantidad de cuotas de pago
   installment_amount:  number
+  is_monthly_subscription: boolean
   status:              "activo" | "en_pausa" | "inactivo" | "completado"
   notes:              string | null
   created_at:         string
@@ -259,7 +260,14 @@ function DetailDrawer({
         {/* Header */}
         <div className="flex items-start justify-between gap-4 border-b border-white/[0.06] px-6 py-5" style={{ backgroundColor: "#111113" }}>
           <div className="min-w-0">
-            <h2 className="text-lg font-bold text-white truncate">{client.name}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold text-white truncate">{client.name}</h2>
+              {client.is_monthly_subscription && (
+                <span className="inline-flex items-center rounded-full border border-[#ffde21]/30 bg-[#ffde21]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#ffde21] shrink-0">
+                  Mensual
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2 mt-1">
               <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${CLIENT_STATUS_STYLE[client.status] ?? ""}`}>
                 {CLIENT_STATUS_LABEL[client.status] ?? client.status}
@@ -371,6 +379,23 @@ function DetailDrawer({
                   className={inputCls}
                 />
               </div>
+            </div>
+
+            {/* Plan mensual toggle */}
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 flex items-start gap-3">
+              <input
+                type="checkbox"
+                id={`monthly-${client.id}`}
+                defaultChecked={!!client.is_monthly_subscription}
+                onChange={e => onPatchClient(client.id, { is_monthly_subscription: e.target.checked } as any)}
+                className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/[0.05] accent-[#ffde21] cursor-pointer"
+              />
+              <label htmlFor={`monthly-${client.id}`} className="flex-1 cursor-pointer">
+                <p className="text-[13px] font-semibold text-white">Plan mensual auto-renovable</p>
+                <p className="text-[11px] text-white/40 mt-0.5 leading-snug">
+                  Cuando se marque la cuota como pagada, el sistema genera la siguiente automáticamente. Slack alerta 5 días antes de cada cobro. Apagá esto para finalizar la suscripción.
+                </p>
+              </label>
             </div>
 
             <div className="space-y-1.5">
@@ -1194,7 +1219,17 @@ export function AdminClientsView() {
                           {/* Cliente */}
                           <td className="px-4 py-3.5 whitespace-nowrap">
                             <div>
-                              <p className="text-[13px] font-semibold text-white">{client.name}</p>
+                              <div className="flex items-center gap-2">
+                                <p className="text-[13px] font-semibold text-white">{client.name}</p>
+                                {client.is_monthly_subscription && (
+                                  <span
+                                    className="inline-flex items-center rounded-full border border-[#ffde21]/30 bg-[#ffde21]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#ffde21]"
+                                    title="Plan mensual auto-renovable"
+                                  >
+                                    Mensual
+                                  </span>
+                                )}
+                              </div>
                               {client.instagram && (
                                 <p className="text-[11px] text-pink-300/60 mt-0.5">{client.instagram}</p>
                               )}

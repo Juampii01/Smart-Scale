@@ -27,39 +27,39 @@ const programData: Array<{
           { label: "Guardar los dias y horarios de las llamadas grupales en tu Calendario", level: "Start Here", outcome: "Orientación", link: "https://smartscale.space/calendar" },
           { label: "Separa 10 min cada lunes en tu calendario y lanza tus monday wins", level: "Start Here", outcome: "Hábito", link: "https://smartscale.space/monday-win" },
           { label: "Separa 15 min en tu calendario cada mes para tus monthly report", level: "Start Here", outcome: "Hábito", link: "/report-input" },
-          { label: "Tu Nueva Identidad - Declaracion", level: "Start Here", outcome: "Mentalidad", link: "https://www.skool.com/strategy-consulting/classroom/f41aa6b4?md=351ece87aa8a4c80914e6ce3f34af00e" },
-          { label: "Pedir el libro Dollars Flow to me Easily", level: "Start Here", outcome: "Orientación", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=0479e58fae32495ca6922040269a4faf" },
+          { label: "Tu Nueva Identidad - Declaracion", level: "Nivel 1 — Mente & Visión", outcome: "Mentalidad", link: "https://www.skool.com/strategy-consulting/classroom/f41aa6b4?md=351ece87aa8a4c80914e6ce3f34af00e" },
+          { label: "Pedir el libro Dollars Flow to me Easily", level: "Nivel 0 — Onboarding", outcome: "Orientación", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=0479e58fae32495ca6922040269a4faf" },
         ],
       },
       {
         title: "Semana 2 - Estableciendo Vision y Auditoria",
         note: "Solo si ya estás escalando y tienes autoridad suficiente puedes adelantarte y lanzar tu Quick Cash",
         tasks: [
-          { label: "Quick Cash Menu (Elige el que mejor se adapte a tu instancia)", level: "Nivel 1 — Visión", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/c886e8bf?md=0eebb30149694e84990fd7c3268544f8" },
-          { label: "Lanza tu Cash Sprint", level: "Nivel 1 — Visión", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/c886e8bf?md=0eebb30149694e84990fd7c3268544f8" },
-          { label: "Calculando tu numero de libertad", level: "Nivel 1 — Visión", outcome: "Estrategia", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=b8270a0a8be84237a3d92e60b29982c1" },
-          { label: "Tu Actual Sistema Operativo revisa el GPT", level: "Nivel 1 — Visión", outcome: "Estrategia", link: "https://chatgpt.com/g/g-695303d24ad08191955f15ba514cb456-descubre-tu-sistema-operativo-central" },
-          { label: "Revisa Ann AI y guardalo en tus GPT's", level: "Start Here", outcome: "Orientación", link: "https://chatgpt.com/g/g-695abe5acb4c8191a4092a38da71c883" },
-          { label: "Accede a tu plataforma de performance y familiarizate", level: "Start Here", outcome: "Plataforma", link: "https://smartscale.space/" },
-          { label: "La Trampa del apalancamiento", level: "Nivel 1 — Visión", outcome: "Mentalidad", link: "https://www.skool.com/strategy-consulting/classroom/fa0f6055?md=6a92a4c76ae54f3b8ea194c6b629d509" },
+          { label: "Quick Cash Menu (Elige el que mejor se adapte a tu instancia)", level: "Nivel 5 — Conexión & Fascinación", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/c886e8bf?md=0eebb30149694e84990fd7c3268544f8" },
+          { label: "Lanza tu Cash Sprint", level: "Nivel 5 — Conexión & Fascinación", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/c886e8bf?md=0eebb30149694e84990fd7c3268544f8" },
+          { label: "Calculando tu numero de libertad", level: "Nivel 0 — Onboarding", outcome: "Estrategia", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=b8270a0a8be84237a3d92e60b29982c1" },
+          { label: "Tu Actual Sistema Operativo revisa el GPT", level: "Nivel 1 — Mente & Visión", outcome: "Estrategia", link: "https://chatgpt.com/g/g-695303d24ad08191955f15ba514cb456-descubre-tu-sistema-operativo-central" },
+          { label: "Revisa Ann AI y guardalo en tus GPT's", level: "Nivel 2 — Tu Modelo", outcome: "Orientación", link: "https://chatgpt.com/g/g-695abe5acb4c8191a4092a38da71c883" },
+          { label: "Accede a tu plataforma de performance y familiarizate", level: "Nivel 0 — Onboarding", outcome: "Plataforma", link: "https://smartscale.space/" },
+          { label: "La Trampa del apalancamiento", level: "Nivel 2 — Tu Modelo", outcome: "Mentalidad", link: "https://www.skool.com/strategy-consulting/classroom/fa0f6055?md=6a92a4c76ae54f3b8ea194c6b629d509" },
         ],
       },
       {
         title: "Semana 3 - Metodo Matadolor",
         tasks: [
-          { label: "Investigacion de Mercado para definir a tu Cliente Ideal", level: "Nivel 1 — Visión", outcome: "Oferta", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=5517d71b489548e6aa1ed63890d0a600" },
-          { label: "Tu Avatar Worksheet", level: "Nivel 1 — Visión", outcome: "Oferta", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=57892d6c6c7040c6a6fd4e3f27ab38c4" },
-          { label: "Programa Matadolor", level: "Nivel 1 — Visión", outcome: "Oferta", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=3114f6cc62a846a7a4f996697d45e075" },
+          { label: "Investigacion de Mercado para definir a tu Cliente Ideal", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Oferta", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=5517d71b489548e6aa1ed63890d0a600" },
+          { label: "Tu Avatar Worksheet", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Oferta", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=57892d6c6c7040c6a6fd4e3f27ab38c4" },
+          { label: "Programa Matadolor", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Oferta", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=3114f6cc62a846a7a4f996697d45e075" },
         ],
       },
       {
         title: "Semana 4 - Transformacion & Diseño de Delivery",
         tasks: [
-          { label: "Tu Roadmap", level: "Nivel 1 — Visión", outcome: "Estrategia", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=3038e1c85d064ea3af2e30952a1c71b6" },
-          { label: "Tus Cinco P's", level: "Nivel 1 — Visión", outcome: "Oferta", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=52831138818048658b4fc9495ade5f61" },
-          { label: "Tu Simple Oferta", level: "Nivel 1 — Visión", outcome: "Oferta", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=8ab64a0d4cf34a979f914fc2fd8eac62" },
-          { label: "Constructor de tu Simple Oferta", level: "Nivel 1 — Visión", outcome: "Oferta", link: "https://chatgpt.com/g/g-695470be71ec8191b89266dbd1948663-simple-offer-builder" },
-          { label: "CRM Airtable", level: "Nivel 1 — Visión", outcome: "Sistemas", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=a1738fc7ca8d49a7b4ecffb313fcac3d" },
+          { label: "Tu Roadmap", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Estrategia", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=3038e1c85d064ea3af2e30952a1c71b6" },
+          { label: "Tus Cinco P's", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Oferta", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=52831138818048658b4fc9495ade5f61" },
+          { label: "Tu Simple Oferta", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Oferta", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=8ab64a0d4cf34a979f914fc2fd8eac62" },
+          { label: "Constructor de tu Simple Oferta", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Oferta", link: "https://chatgpt.com/g/g-695470be71ec8191b89266dbd1948663-simple-offer-builder" },
+          { label: "CRM Airtable", level: "Nivel 0 — Onboarding", outcome: "Sistemas", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=a1738fc7ca8d49a7b4ecffb313fcac3d" },
         ],
       },
     ],
@@ -72,48 +72,52 @@ const programData: Array<{
       {
         title: "Semana 1 - Fascinacion y Conexion",
         tasks: [
-          { label: "El Diamante de Autoridad & Optimizacion de BIO", level: "Nivel 2 — Fascinación", outcome: "Marca", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=5a91a467141640bf89bd4b13141181c6" },
-          { label: "Tu creador inteligente y banco de ideas", level: "Nivel 2 — Fascinación", outcome: "Contenido", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=b75b68859e534048bf6fcdec697b0457" },
-          { label: "Tus Historias de Conversion", level: "Nivel 2 — Fascinación", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=50f9815603874c5b859b0f70aac2d15a" },
-          { label: "Crea tu calendario de contenido", level: "Nivel 2 — Fascinación", outcome: "Contenido", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=dde2660eda3e48b09383936180dd1e1b" },
-          { label: "Amplifica con follow me AD el contenido que ya te trae min 30% de leads calificados organicamente", level: "Nivel 2 — Fascinación", outcome: "Contenido", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=2a5b1b985dc645078b8f3e23097090ed" },
+          { label: "El Diamante de Autoridad & Optimizacion de BIO", level: "Nivel 5 — Conexión & Fascinación", outcome: "Marca", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=5a91a467141640bf89bd4b13141181c6" },
+          { label: "Marketing de 1 hora — clase + Notion para estructurar", level: "Nivel 2 — Tu Modelo", outcome: "Marketing", link: "https://www.skool.com/strategy-consulting/classroom/522e3128?md=2d548c9f999c4c5db2793dc09ef28a90" },
+          { label: "Tu creador inteligente y banco de ideas", level: "Nivel 5 — Conexión & Fascinación", outcome: "Contenido", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=b75b68859e534048bf6fcdec697b0457" },
+          { label: "Tus Historias de Conversion", level: "Nivel 5 — Conexión & Fascinación", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=50f9815603874c5b859b0f70aac2d15a" },
+          { label: "Crea tu calendario de contenido", level: "Nivel 5 — Conexión & Fascinación", outcome: "Contenido", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=dde2660eda3e48b09383936180dd1e1b" },
+          { label: "Amplifica con follow me AD el contenido que ya te trae min 30% de leads calificados organicamente", level: "Nivel 5 — Conexión & Fascinación", outcome: "Contenido", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=2a5b1b985dc645078b8f3e23097090ed" },
         ],
       },
       {
         title: "Semana 2 - Invitacion y Educacion",
         tasks: [
-          { label: "Tu Simple Video (VSL)", level: "Nivel 2 — Fascinación", outcome: "Contenido", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=0bbae3a1de594f5b958e7affe859a652" },
-          { label: "Youtube Mastery (1 video por semana)", level: "Nivel 3 — YouTube", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=42479de7dc754395b7ae750d6ab6f974" },
-          { label: "Lanza tu Cash Sprint", level: "Nivel 2 — Fascinación", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/c886e8bf?md=0eebb30149694e84990fd7c3268544f8" },
-          { label: "Tu Offer Doc creacion", level: "Nivel 2 — Fascinación", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=9bfa0b4c8323478ca0436e75aa3ad902" },
-          { label: "Tu Storytelling pineado en tu IG", level: "Nivel 2 — Fascinación", outcome: "Marca", link: "https://www.instagram.com/p/DRSpznpEaD-/?img_index=1" },
-          { label: "Tu Mecanismo Unico pineado en tu IG", level: "Nivel 2 — Fascinación", outcome: "Marca", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=5517d71b489548e6aa1ed63890d0a600" },
-          { label: "Prueba social pineada en tu IG", level: "Nivel 2 — Fascinación", outcome: "Prueba Social", link: "https://www.instagram.com/p/DHbiubtR6TT/?img_index=1" },
-          { label: "Optimiza tu calendario", level: "Nivel 2 — Fascinación", outcome: "Hábito", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=dde2660eda3e48b09383936180dd1e1b" },
-          { label: "Crea 1 post al dia (reel o carrousel)", level: "Nivel 2 — Fascinación", outcome: "Contenido", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=2c6a3a66e89642188d34e5210dee125b" },
-          { label: "Valores principales / aspiraciones (historia de conversion)", level: "Nivel 2 — Fascinación", outcome: "Marca", link: "https://www.instagram.com/p/DUYksVlEW2e/?img_index=1" },
-          { label: "Testimonios (screenshots o videos)", level: "Nivel 2 — Fascinación", outcome: "Prueba Social", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=6b66e086de2f44feb598e4d7e8c9e0b9" },
+          { label: "Tu Simple Video (VSL)", level: "Nivel 6 — Invitación & Conversión", outcome: "Contenido", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=0bbae3a1de594f5b958e7affe859a652" },
+          { label: "Youtube Mastery (1 video por semana)", level: "Nivel 7 — Educando", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=42479de7dc754395b7ae750d6ab6f974" },
+          { label: "Elige el estilo de formato largo", level: "Nivel 7 — Educando", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=3adb1d05bc754fb9b0b32ec8f508bee5" },
+          { label: "Elige el estilo de las miniaturas", level: "Nivel 7 — Educando", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=3c9f1620033e4fd78a72fddadb466b6f" },
+          { label: "Lanza min 1 video de youtube a la semana", level: "Nivel 7 — Educando", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=3adb1d05bc754fb9b0b32ec8f508bee5" },
+          { label: "Lanza 1 testimonio grabado con Riverside.io o zoom al mes", level: "Nivel 7 — Educando", outcome: "Prueba Social", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=40551f5eef354be0b3d39e19fcca079b" },
+          { label: "Lanza como retargeting todos los testimonios", level: "Nivel 7 — Educando", outcome: "Prueba Social", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=e498e27a718a4fffbc45cf7e4dddcf0b" },
+          { label: "Tu Offer Doc creacion", level: "Nivel 6 — Invitación & Conversión", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=9bfa0b4c8323478ca0436e75aa3ad902" },
+          { label: "Tu Storytelling pineado en tu IG", level: "Nivel 5 — Conexión & Fascinación", outcome: "Marca", link: "https://www.instagram.com/p/DRSpznpEaD-/?img_index=1" },
+          { label: "Tu Mecanismo Unico pineado en tu IG", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Marca", link: "https://www.instagram.com/p/DHbiubtR6TT/?img_index=1" },
+          { label: "Prueba social pineada en tu IG", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Prueba Social", link: "https://www.instagram.com/p/DHbiubtR6TT/?img_index=1" },
+          { label: "Optimiza tu calendario", level: "Nivel 5 — Conexión & Fascinación", outcome: "Hábito", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=dde2660eda3e48b09383936180dd1e1b" },
+          { label: "Crea 1 post al dia (reel o carrousel)", level: "Nivel 5 — Conexión & Fascinación", outcome: "Contenido", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=2c6a3a66e89642188d34e5210dee125b" },
+          { label: "Pinear valores, principales y aspiraciones en tu Instagram", level: "Nivel 5 — Conexión & Fascinación", outcome: "Marca", link: "https://www.instagram.com/p/DUYksVlEW2e/?img_index=1" },
+          { label: "Pinear testimonios (screenshots o videos) en tu perfil de Instagram o highlights", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Prueba Social", link: "https://www.instagram.com/p/DHbiubtR6TT/?img_index=1" },
         ],
       },
       {
         title: "Semana 3 - DM Closing y Prospeccion",
         tasks: [
-          { label: "DM closing to chat flow", level: "Nivel 2 — Fascinación", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=a9d8934b41fd4138ab26c9fabc44322f" },
-          { label: "Crea tu flow", level: "Nivel 2 — Fascinación", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=5a5803ca0e294156913c67c5a2d221ad" },
-          { label: "Crea tu pitch de venta si todavia tomas llamadas", level: "Nivel 2 — Fascinación", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=7dd701d43d7a48209b5f061aa832abf8" },
-          { label: "Revisa todo el modulo y arma tu pitch", level: "Nivel 2 — Fascinación", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=a9d8934b41fd4138ab26c9fabc44322f" },
-          { label: "Crea tu Hot List y empieza a hablar con min 5 leads 5 estrellas al dia", level: "Nivel 2 — Fascinación", outcome: "Prospección", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=a1738fc7ca8d49a7b4ecffb313fcac3d" },
+          { label: "DM closing to chat flow", level: "Nivel 6 — Invitación & Conversión", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=a9d8934b41fd4138ab26c9fabc44322f" },
+          { label: "Crea tu flow", level: "Nivel 6 — Invitación & Conversión", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=5a5803ca0e294156913c67c5a2d221ad" },
+          { label: "Crea tu pitch de venta si todavia tomas llamadas", level: "Nivel 6 — Invitación & Conversión", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=7dd701d43d7a48209b5f061aa832abf8" },
+          { label: "Crea tu Hot List y empieza a hablar con min 5 leads 5 estrellas al dia", level: "Nivel 6 — Invitación & Conversión", outcome: "Prospección", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=a1738fc7ca8d49a7b4ecffb313fcac3d" },
         ],
       },
       {
         title: "Semana 4 - Comunidad, Email y Marca",
         tasks: [
-          { label: "Conecta tu dominio a KIT (o la plataforma que uses)", level: "Nivel 2 — Fascinación", outcome: "Email", link: "https://www.skool.com/strategy-consulting/classroom/b70c523e?md=e1e76ebea4364969bf2eaa75a0552461" },
-          { label: "Usa Google Workspace + tu email profesional", level: "Nivel 2 — Fascinación", outcome: "Email", link: "https://www.skool.com/strategy-consulting/classroom/fa0f6055?md=8267f9e439f34297861b488bf7e79a7c" },
-          { label: "Emails semanales", level: "Nivel 2 — Fascinación", outcome: "Email", link: "https://www.skool.com/strategy-consulting/classroom/b70c523e?md=e56ae4e1d4194784a40ae599215b24a8" },
-          { label: "Crea tu mini-curso magnet en Youtube", level: "Nivel 2 — Fascinación", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=5edbbfa66f1047a0a814f29e6dd236a0" },
-          { label: "Lanza tu automatizacion de bienvenida + secuencia de email a la mini serie", level: "Nivel 2 — Fascinación", outcome: "Email", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=87b3a0099ece4a03948b4dbdb3a77588" },
-          { label: "Mapea tu Blueprint de Marca con Identidad", level: "Nivel 2 — Fascinación", outcome: "Marca", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=cfd8870603c54aff944465e90f275111" },
+          { label: "Conecta tu dominio a KIT (o la plataforma que uses)", level: "Nivel 4 — Comunidad Email", outcome: "Email", link: "https://www.skool.com/strategy-consulting/classroom/b70c523e?md=e1e76ebea4364969bf2eaa75a0552461" },
+          { label: "↳ Usá Google Workspace para tu email profesional (complementa el paso anterior)", level: "Nivel 4 — Comunidad Email", outcome: "Email", link: "https://www.skool.com/strategy-consulting/classroom/fa0f6055?md=8267f9e439f34297861b488bf7e79a7c" },
+          { label: "Emails semanales", level: "Nivel 4 — Comunidad Email", outcome: "Email", link: "https://www.skool.com/strategy-consulting/classroom/b70c523e?md=e56ae4e1d4194784a40ae599215b24a8" },
+          { label: "Crea tu mini-curso magnet en Youtube", level: "Nivel 4 — Comunidad Email", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=5edbbfa66f1047a0a814f29e6dd236a0" },
+          { label: "Lanza tu automatizacion de bienvenida + secuencia de email a la mini serie", level: "Nivel 4 — Comunidad Email", outcome: "Email", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=87b3a0099ece4a03948b4dbdb3a77588" },
+          { label: "Mapea tu Blueprint de Marca con Identidad", level: "Nivel 5 — Conexión & Fascinación", outcome: "Marca", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=cfd8870603c54aff944465e90f275111" },
         ],
       },
     ],
@@ -121,23 +125,13 @@ const programData: Array<{
 
   // ── MES 3 ──────────────────────────────────────────────────────────────────
   {
-    month: "Mes 3 - Youtube y No Negociables",
+    month: "Mes 3 - No Negociables",
     weeks: [
       {
-        title: "Semana 1 - YouTube Mastery",
+        title: "Semana 1 - No Negociables",
         tasks: [
-          { label: "Elige el estilo de formato largo", level: "Nivel 3 — YouTube", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=3adb1d05bc754fb9b0b32ec8f508bee5" },
-          { label: "Elige el estilo de las miniaturas", level: "Nivel 3 — YouTube", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=3c9f1620033e4fd78a72fddadb466b6f" },
-          { label: "Lanza min 1 video de youtube a la semana", level: "Nivel 3 — YouTube", outcome: "YouTube", link: "https://www.skool.com/strategy-consulting/classroom/3b5a1f75?md=3adb1d05bc754fb9b0b32ec8f508bee5" },
-          { label: "Lanza 1 testimonio grabado con Riverside.io o zoom al mes", level: "Nivel 3 — YouTube", outcome: "Prueba Social", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=40551f5eef354be0b3d39e19fcca079b" },
-          { label: "Lanza como retargeting todos los testimonios", level: "Nivel 3 — YouTube", outcome: "Prueba Social", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=e498e27a718a4fffbc45cf7e4dddcf0b" },
-        ],
-      },
-      {
-        title: "Semana 2 - No Negociables",
-        tasks: [
-          { label: "Estructura tus No Negociables diarios y semanales (trata de completarlos antes del medio dia)", level: "Nivel 3 — YouTube", outcome: "Hábito", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=c5c75f6311a645a5867f213dde41731b" },
-          { label: "Auditoria en la plataforma de performance", level: "Nivel 3 — YouTube", outcome: "Auditoría", link: "/audit" },
+          { label: "Estructura tus No Negociables diarios y semanales (trata de completarlos antes del medio dia)", level: "Nivel 0 — Onboarding", outcome: "Hábito", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=c5c75f6311a645a5867f213dde41731b" },
+          { label: "Auditoria en la plataforma de performance", level: "Nivel 0 — Onboarding", outcome: "Auditoría", link: "/audit" },
         ],
       },
     ],
@@ -150,12 +144,12 @@ const programData: Array<{
       {
         title: "Lanzamiento",
         tasks: [
-          { label: "Elige una fecha para tu workshop", level: "Nivel 4 — Lanzamiento", outcome: "Workshop", link: "https://www.skool.com/strategy-consulting/classroom/c886e8bf?md=0eebb30149694e84990fd7c3268544f8" },
-          { label: "Estructura titulo y tema principal del workshop", level: "Nivel 4 — Lanzamiento", outcome: "Workshop", link: "https://www.skool.com/strategy-consulting/classroom/c886e8bf?md=0eebb30149694e84990fd7c3268544f8" },
-          { label: "Crea la landing page del Workshop con el copy", level: "Nivel 4 — Lanzamiento", outcome: "Workshop", link: "https://www.skool.com/strategy-consulting/classroom/b70c523e?md=cfee5091576e4defb0465db9a37ac366" },
-          { label: "Crea la secuencia de 5 dias de emails para el workshop", level: "Nivel 4 — Lanzamiento", outcome: "Email", link: "https://www.skool.com/strategy-consulting/classroom/b70c523e?md=7f86085e7e60436d806e9ee499de05ee" },
-          { label: "Lanza la campaña en Ig, email y Youtube", level: "Nivel 4 — Lanzamiento", outcome: "Lanzamiento", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=cb32e2ecee074f60bb7be5211efd60ef" },
-          { label: "Lanza tu primer Workshop y toma data", level: "Nivel 4 — Lanzamiento", outcome: "Lanzamiento", link: "pending" },
+          { label: "Elige una fecha para tu workshop", level: "Nivel 5 — Conexión & Fascinación", outcome: "Workshop", link: "https://www.skool.com/strategy-consulting/classroom/c886e8bf?md=0eebb30149694e84990fd7c3268544f8" },
+          { label: "Estructura titulo y tema principal del workshop", level: "Nivel 5 — Conexión & Fascinación", outcome: "Workshop", link: "https://www.skool.com/strategy-consulting/classroom/c886e8bf?md=0eebb30149694e84990fd7c3268544f8" },
+          { label: "Crea la landing page del Workshop con el copy", level: "Nivel 4 — Comunidad Email", outcome: "Workshop", link: "https://www.skool.com/strategy-consulting/classroom/b70c523e?md=cfee5091576e4defb0465db9a37ac366" },
+          { label: "Crea la secuencia de 5 dias de emails para el workshop", level: "Nivel 4 — Comunidad Email", outcome: "Email", link: "https://www.skool.com/strategy-consulting/classroom/b70c523e?md=7f86085e7e60436d806e9ee499de05ee" },
+          { label: "Lanza la campaña en Ig, email y Youtube", level: "Nivel 5 — Conexión & Fascinación", outcome: "Lanzamiento", link: "" },
+          { label: "Lanza tu primer Workshop y toma data", level: "Nivel 5 — Conexión & Fascinación", outcome: "Lanzamiento", link: "" },
         ],
       },
     ],
@@ -168,9 +162,9 @@ const programData: Array<{
       {
         title: "Automatización y AI",
         tasks: [
-          { label: "Airtable + CRM", level: "Nivel 5 — Sistemas", outcome: "Sistemas", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=e40e73a9017a4d21a222c23cf1f15c16" },
-          { label: "Crea tu propio Coach AI para ganar tiempo", level: "Nivel 5 — Sistemas", outcome: "AI", link: "https://www.skool.com/strategy-consulting/classroom/70b44121?md=7921fc8744fe4ef08f93a16766fa2ed6" },
-          { label: "Automatizando lo necesario", level: "Nivel 5 — Sistemas", outcome: "AI", link: "https://www.skool.com/strategy-consulting/classroom/70b44121?md=4633193f06c64e6eb95614d4d9b511b4" },
+          { label: "Airtable + CRM", level: "Nivel 8 — IA & Sistemas", outcome: "Sistemas", link: "https://www.skool.com/strategy-consulting/classroom/552a38a7?md=e40e73a9017a4d21a222c23cf1f15c16" },
+          { label: "Crea tu propio Coach AI para ganar tiempo", level: "Nivel 8 — IA & Sistemas", outcome: "AI", link: "https://www.skool.com/strategy-consulting/classroom/70b44121?md=7921fc8744fe4ef08f93a16766fa2ed6" },
+          { label: "Automatizando lo necesario", level: "Nivel 8 — IA & Sistemas", outcome: "AI", link: "https://www.skool.com/strategy-consulting/classroom/70b44121?md=4633193f06c64e6eb95614d4d9b511b4" },
         ],
       },
     ],
@@ -183,11 +177,11 @@ const programData: Array<{
       {
         title: "Escalando",
         tasks: [
-          { label: "Crear el Roadmap de tu Cliente", level: "Nivel 6 — Escala", outcome: "Entrega", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=3038e1c85d064ea3af2e30952a1c71b6" },
-          { label: "Revisar tu proceso de Onboarding", level: "Nivel 6 — Escala", outcome: "Entrega", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=6ab1072e74324d14b2b666f30f5a7092" },
-          { label: "Priorizando tu pipeline de leads 5 estrellas", level: "Nivel 6 — Escala", outcome: "Prospección", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=ad1eff5e3bc148dfb1fbaa577adad68c" },
-          { label: "Auditoria de tu Ecosistema Circular", level: "Nivel 6 — Escala", outcome: "Auditoría", link: "https://smartscale.space/audit" },
-          { label: "Enmarca tu Siguiente Paso para enfocarte", level: "Nivel 6 — Escala", outcome: "Estrategia", link: "" },
+          { label: "Crear el Roadmap de tu Cliente", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Entrega", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=3038e1c85d064ea3af2e30952a1c71b6" },
+          { label: "Revisar tu proceso de Onboarding", level: "Nivel 3 — Transformación & Fundamentos", outcome: "Entrega", link: "https://www.skool.com/strategy-consulting/classroom/fb42ffd4?md=6ab1072e74324d14b2b666f30f5a7092" },
+          { label: "Priorizando tu pipeline de leads 5 estrellas", level: "Nivel 6 — Invitación & Conversión", outcome: "Prospección", link: "https://www.skool.com/strategy-consulting/classroom/cd022ec1?md=ad1eff5e3bc148dfb1fbaa577adad68c" },
+          { label: "Auditoria de tu Ecosistema Circular", level: "Nivel 0 — Onboarding", outcome: "Auditoría", link: "https://smartscale.space/audit" },
+          { label: "Enmarca tu Siguiente Paso para enfocarte", level: "Nivel 0 — Onboarding", outcome: "Estrategia", link: "" },
         ],
       },
     ],
@@ -197,13 +191,16 @@ const programData: Array<{
 // ─── Color maps ───────────────────────────────────────────────────────────────
 
 const levelColors: Record<string, string> = {
-  "Start Here":           "bg-[#1e3a5f] text-[#60a5fa] border-[#2563ab]/40",
-  "Nivel 1 — Visión":     "bg-[#1a3a4a] text-[#38bdf8] border-[#0ea5e9]/40",
-  "Nivel 2 — Fascinación":"bg-[#2a1f4a] text-[#a78bfa] border-[#7c3aed]/40",
-  "Nivel 3 — YouTube":    "bg-[#3a1a1a] text-[#f87171] border-[#dc2626]/40",
-  "Nivel 4 — Lanzamiento":"bg-[#3a2a10] text-[#fbbf24] border-[#d97706]/40",
-  "Nivel 5 — Sistemas":   "bg-[#1a3a2a] text-[#34d399] border-[#059669]/40",
-  "Nivel 6 — Escala":     "bg-[#2a3a1a] text-[#a3e635] border-[#65a30d]/40",
+  "Start Here":                              "bg-[#1e3a5f] text-[#60a5fa] border-[#2563ab]/40",
+  "Nivel 0 — Onboarding":                    "bg-[#3a1a1a] text-[#f87171] border-[#dc2626]/40", // 🔴
+  "Nivel 1 — Mente & Visión":                "bg-[#3a2410] text-[#fb923c] border-[#ea580c]/40", // 🟠
+  "Nivel 2 — Tu Modelo":                     "bg-[#3a3010] text-[#facc15] border-[#ca8a04]/40", // 🟡
+  "Nivel 3 — Transformación & Fundamentos":  "bg-[#1a3a2a] text-[#4ade80] border-[#16a34a]/40", // 🟢
+  "Nivel 4 — Comunidad Email":               "bg-[#1a2a4a] text-[#60a5fa] border-[#2563eb]/40", // 🔵
+  "Nivel 5 — Conexión & Fascinación":        "bg-[#2a1f4a] text-[#a78bfa] border-[#7c3aed]/40", // 🟤
+  "Nivel 6 — Invitación & Conversión":       "bg-[#2a154a] text-[#c084fc] border-[#9333ea]/40", // 🟣
+  "Nivel 7 — Educando":                      "bg-[#1a1a1a] text-[#a1a1aa] border-[#52525b]/40", // ⚫
+  "Nivel 8 — IA & Sistemas":                 "bg-[#0e3a4a] text-[#22d3ee] border-[#0891b2]/40", // 🤖
 }
 
 const outcomeColors: Record<string, { bg: string; text: string; border: string; emoji: string }> = {
@@ -217,6 +214,7 @@ const outcomeColors: Record<string, { bg: string; text: string; border: string; 
   "Contenido":     { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "🎬" },
   "Email":         { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "📧" },
   "Marca":         { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "✨" },
+  "Marketing":     { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "📈" },
   "Prueba Social": { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "⭐" },
   "Prospección":   { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "🎯" },
   "YouTube":       { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "▶️" },
@@ -352,7 +350,7 @@ export function ProgramChecklistView() {
       <div className="rounded-2xl border border-white/[0.08] bg-[#0f1011] overflow-hidden">
 
         {/* Column headers */}
-        <div className="grid grid-cols-[140px_1fr_180px_185px_110px_200px] border-b border-white/[0.07] bg-[#141416]">
+        <div className="grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-b border-white/[0.07] bg-[#141416]">
           {["STATUS","IMPLEMENTATION MILESTONE","LEVEL","OUTCOME","ROADMAP","URL"].map((col) => (
             <div key={col} className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-white/25">
               {col}
@@ -438,7 +436,7 @@ export function ProgramChecklistView() {
                       return (
                         <div
                           key={task.label}
-                          className={`grid grid-cols-[140px_1fr_180px_185px_110px_200px] border-t border-white/[0.04] transition-colors duration-150 ${
+                          className={`grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-t border-white/[0.04] transition-colors duration-150 ${
                             isDone ? "bg-[#ffde21]/[0.02]" : "hover:bg-white/[0.015]"
                           }`}
                         >
