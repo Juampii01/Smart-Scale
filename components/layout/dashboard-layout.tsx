@@ -552,7 +552,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     <button
                       type="button"
                       role="menuitem"
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-500 hover:bg-emerald-400/10"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground hover:bg-foreground/[0.06]"
                       onClick={async () => {
                         await supabase.auth.signOut()
                         setProfileMenuOpen(false)
