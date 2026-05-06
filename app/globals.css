@@ -81,6 +81,42 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
+   LIGHT MODE: yellow accents legibles
+   ─────────────────────────────────────────────────────────────────────────
+   El amarillo brand (#ffde21) sobre blanco es ilegible cuando se usa
+   como TEXTO o como bg translúcido. Lo cambiamos a amber-700 (#a16207)
+   que mantiene la familia de color pero con contraste suficiente.
+   El bg-[#ffde21] SÓLIDO (botones) queda intacto — esos sí se ven bien.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Texto amarillo → amber oscuro */
+:root:not(.dark) [class*="text-[#ffde21]"] {
+  color: #a16207 !important;
+}
+:root:not(.dark) [class*="text-[#ffe46b]"],
+:root:not(.dark) [class*="text-[#ffe84d]"] {
+  color: #b45309 !important;
+}
+
+/* Backgrounds amarillos TRANSLÚCIDOS (badges, hover states) → amber claro */
+:root:not(.dark) [class*="bg-[#ffde21]/["],
+:root:not(.dark) [class*="bg-[#ffde21]/0"],
+:root:not(.dark) [class*="bg-[#ffde21]/1"] {
+  background-color: rgba(161, 98, 7, 0.10) !important;
+}
+
+/* Borders amarillos más definidos */
+:root:not(.dark) [class*="border-[#ffde21]/"] {
+  border-color: rgba(161, 98, 7, 0.35) !important;
+}
+:root:not(.dark) [class*="border-[#ffde21]"]:not([class*="/"]) {
+  border-color: #a16207 !important;
+}
+
+/* Decorative dots/dividers amarillos sólidos pequeños siguen siendo brand,
+   no se tocan (bg-[#ffde21] sin opacidad permanece amarillo intenso) */
+
+/* ─────────────────────────────────────────────────────────────────────────
    DARK MODE — preserva exactamente el look actual del dashboard
    (#0a0a0b base, #111113 elevated, etc.)
    ───────────────────────────────────────────────────────────────────────── */
