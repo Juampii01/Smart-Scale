@@ -189,7 +189,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-black text-foreground">
+    <div className="relative min-h-screen bg-background text-foreground">
       {/* Background */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(700px_circle_at_20%_15%,rgba(255,255,255,0.10),transparent_55%),radial-gradient(700px_circle_at_80%_20%,rgba(255,255,255,0.08),transparent_55%),radial-gradient(900px_circle_at_50%_90%,rgba(255,255,255,0.06),transparent_55%)]" />
@@ -217,7 +217,7 @@ export default function SignupPage() {
               <div className="space-y-2">
                 <label className="block text-sm text-foreground/70">Email</label>
                 <input
-                  className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 px-3 text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/20 focus:ring-2 focus:ring-white/10"
+                  className="h-11 w-full rounded-xl border border-foreground/10 bg-foreground/[0.04] px-3 text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/20 focus:ring-2 focus:ring-white/10"
                   placeholder="you@domain.com"
                   type="email"
                   value={email}
@@ -230,7 +230,7 @@ export default function SignupPage() {
               <div className="space-y-2">
                 <label className="block text-sm text-foreground/70">Contraseña</label>
                 <input
-                  className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 px-3 text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/20 focus:ring-2 focus:ring-white/10"
+                  className="h-11 w-full rounded-xl border border-foreground/10 bg-foreground/[0.04] px-3 text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/20 focus:ring-2 focus:ring-white/10"
                   placeholder="Mínimo 6 caracteres"
                   type="password"
                   value={password}
@@ -242,13 +242,13 @@ export default function SignupPage() {
               </div>
 
               {err ? (
-                <div className="rounded-xl border border-foreground/10 bg-black/40 p-3 text-sm text-foreground/80">
+                <div className="rounded-xl border border-foreground/10 bg-foreground/[0.06] p-3 text-sm text-foreground/80">
                   {err}
                 </div>
               ) : null}
 
               {msg ? (
-                <div className="rounded-xl border border-foreground/10 bg-black/30 p-3 text-sm text-foreground/75">
+                <div className="rounded-xl border border-foreground/10 bg-foreground/[0.04] p-3 text-sm text-foreground/75">
                   {msg}
                 </div>
               ) : null}
@@ -286,7 +286,7 @@ export default function SignupPage() {
 
               {/* Debug panel (dev only) */}
               {debug ? (
-                <details className="rounded-xl border border-foreground/10 bg-black/20 p-3 text-xs text-foreground/70">
+                <details className="rounded-xl border border-foreground/10 bg-foreground/[0.03] p-3 text-xs text-foreground/70">
                   <summary className="cursor-pointer select-none text-foreground/70">Debug</summary>
                   <pre className="mt-2 overflow-auto whitespace-pre-wrap break-words">
                     {JSON.stringify(debug, null, 2)}

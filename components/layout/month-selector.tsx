@@ -62,7 +62,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
       <SelectTrigger className="w-[110px] sm:w-[140px] bg-foreground/5 text-foreground border-border text-xs sm:text-sm">
         <SelectValue className="text-foreground" />
       </SelectTrigger>
-      <SelectContent className="bg-black text-foreground border-border shadow-xl">
+      <SelectContent className="bg-popover text-popover-foreground border-border shadow-xl">
         {months.map((m) => (
           <SelectItem
             key={m.value}

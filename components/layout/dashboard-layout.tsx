@@ -501,7 +501,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   <div
                     role="menu"
                     aria-label="Perfil"
-                    className="absolute right-0 mt-2 w-64 overflow-hidden rounded-xl border border-foreground/10 bg-black/80 text-foreground shadow-lg backdrop-blur"
+                    className="absolute right-0 mt-2 w-64 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg backdrop-blur"
                   >
                     <div className="px-3 py-2">
                       {clientDisplayName && !isAdmin && (
