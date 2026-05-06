@@ -66,8 +66,8 @@ function DetailRow({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null
   return (
     <div className="space-y-1">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">{label}</p>
-      <p className="text-[13px] text-white/75 leading-relaxed whitespace-pre-wrap">{value}</p>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">{label}</p>
+      <p className="text-[13px] text-foreground/75 leading-relaxed whitespace-pre-wrap">{value}</p>
     </div>
   )
 }
@@ -76,7 +76,7 @@ function DetailLink({ label, value }: { label: string; value?: string | null }) 
   if (!value) return null
   return (
     <div className="space-y-1">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">{label}</p>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">{label}</p>
       <a href={value} target="_blank" rel="noopener noreferrer"
         className="flex items-center gap-1.5 text-[13px] text-[#ffde21]/70 hover:text-[#ffde21] transition-colors truncate">
         <Link2 className="h-3.5 w-3.5 shrink-0" />
@@ -107,28 +107,28 @@ function DetailDrawer({
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Panel */}
-      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[520px] flex-col border-l border-white/[0.08] bg-[#111113] shadow-2xl">
+      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[520px] flex-col border-l border-foreground/[0.08] bg-card shadow-2xl">
 
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 border-b border-white/[0.06] px-6 py-5">
+        <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
           <div className="min-w-0">
-            <h2 className="text-lg font-bold text-white truncate">{fullName(app)}</h2>
-            <p className="text-[12px] text-white/40 mt-0.5">{fmtDate(app.created_at)}</p>
+            <h2 className="text-lg font-bold text-foreground truncate">{fullName(app)}</h2>
+            <p className="text-[12px] text-foreground/40 mt-0.5">{fmtDate(app.created_at)}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => onDelete(app.id)} disabled={deleting}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
             <button onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-white/30 hover:text-white hover:bg-white/[0.06] transition-all">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
               <X className="h-4 w-4" />
             </button>
           </div>
         </div>
 
         {/* Status + Notes */}
-        <div className="border-b border-white/[0.06] px-6 py-4 space-y-3">
+        <div className="border-b border-foreground/[0.06] px-6 py-4 space-y-3">
           <div className="flex items-center gap-3">
             <select
               value={app.status}
@@ -141,7 +141,7 @@ function DetailDrawer({
               <option value="rechazada">Rechazada</option>
             </select>
             {app.primary_channel && (
-              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-white/5 text-white/40 border-white/10"}`}>
+              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-foreground/5 text-foreground/40 border-foreground/10"}`}>
                 {app.primary_channel}
               </span>
             )}
@@ -152,7 +152,7 @@ function DetailDrawer({
             placeholder="Agregar nota interna..."
             onBlur={e => onNotesChange(app.id, e.target.value)}
             onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-            className="w-full rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-[12px] text-white/60 placeholder:text-white/20 focus:border-white/20 focus:text-white/80 focus:outline-none transition-all"
+            className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[12px] text-foreground/60 placeholder:text-foreground/20 focus:border-foreground/20 focus:text-foreground/80 focus:outline-none transition-all"
           />
         </div>
 
@@ -165,23 +165,23 @@ function DetailDrawer({
             <div className="grid grid-cols-1 gap-3">
               {app.email && (
                 <div className="flex items-center gap-2">
-                  <Mail className="h-3.5 w-3.5 shrink-0 text-white/25" />
-                  <a href={`mailto:${app.email}`} className="text-[13px] text-white/65 hover:text-white transition-colors">{app.email}</a>
+                  <Mail className="h-3.5 w-3.5 shrink-0 text-foreground/25" />
+                  <a href={`mailto:${app.email}`} className="text-[13px] text-foreground/65 hover:text-foreground transition-colors">{app.email}</a>
                 </div>
               )}
               {app.whatsapp && (
                 <div className="flex items-center gap-2">
-                  <Phone className="h-3.5 w-3.5 shrink-0 text-white/25" />
-                  <span className="text-[13px] text-white/65">{app.whatsapp}</span>
+                  <Phone className="h-3.5 w-3.5 shrink-0 text-foreground/25" />
+                  <span className="text-[13px] text-foreground/65">{app.whatsapp}</span>
                 </div>
               )}
               {app.instagram_handle && (
                 <div className="flex items-center gap-2">
-                  <Instagram className="h-3.5 w-3.5 shrink-0 text-white/25" />
+                  <Instagram className="h-3.5 w-3.5 shrink-0 text-foreground/25" />
                   <a
                     href={`https://instagram.com/${app.instagram_handle.replace("@","")}`}
                     target="_blank" rel="noopener noreferrer"
-                    className="text-[13px] text-white/65 hover:text-white transition-colors"
+                    className="text-[13px] text-foreground/65 hover:text-foreground transition-colors"
                   >
                     {app.instagram_handle}
                   </a>
@@ -209,9 +209,9 @@ function DetailDrawer({
                 { label: "Clientes pagos",    value: app.paying_clients },
                 { label: "Modelo de trabajo", value: app.client_work_style },
               ].map(({ label, value }) => value ? (
-                <div key={label} className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 space-y-0.5">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">{label}</p>
-                  <p className="text-[13px] font-semibold text-white/80">{value}</p>
+                <div key={label} className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2.5 space-y-0.5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">{label}</p>
+                  <p className="text-[13px] font-semibold text-foreground/80">{value}</p>
                 </div>
               ) : null)}
             </div>
@@ -368,25 +368,25 @@ export function AdminApplicationsView() {
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Aplicaciones</h1>
-            <p className="text-sm text-white/40 mt-0.5">{apps.length} aplicaciones</p>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Aplicaciones</h1>
+            <p className="text-sm text-foreground/40 mt-0.5">{apps.length} aplicaciones</p>
           </div>
           <div className="flex items-center gap-2">
             <a
               href="/apply"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 h-9 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 text-sm font-medium text-white/50 hover:text-white hover:border-white/20 transition-all"
+              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               Ver formulario
             </a>
             <button onClick={fetchApps} disabled={loading}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-white/40 hover:text-white hover:border-white/20 transition-all disabled:opacity-40">
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
             <button onClick={exportCsv} disabled={!filtered.length}
-              className="flex items-center gap-2 h-9 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 text-sm font-medium text-white/50 hover:text-white hover:border-white/20 transition-all disabled:opacity-40">
+              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
@@ -396,8 +396,8 @@ export function AdminApplicationsView() {
         {/* Summary cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {(["nueva","revisada","aceptada","rechazada"] as const).map(s => (
-            <div key={s} className="rounded-2xl border border-white/[0.07] bg-[#111113] px-4 py-3.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 capitalize">{s}</p>
+            <div key={s} className="rounded-2xl border border-foreground/[0.07] bg-card px-4 py-3.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25 capitalize">{s}</p>
               <p className={`mt-1 text-2xl font-bold ${STATUS_STYLE[s].split(" ")[1]}`}>
                 {apps.filter(a => a.status === s).length}
               </p>
@@ -412,7 +412,7 @@ export function AdminApplicationsView() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre, email o canal..."
-            className="h-9 rounded-xl border border-white/[0.08] bg-[#1c1c1f] px-4 text-sm text-white placeholder:text-white/25 focus:border-white/20 focus:outline-none w-64"
+            className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/20 focus:outline-none w-64"
           />
           <div className="flex items-center gap-2 flex-wrap">
             {["todas","nueva","revisada","aceptada","rechazada"].map(s => (
@@ -420,7 +420,7 @@ export function AdminApplicationsView() {
                 className={`h-8 rounded-xl border px-3 text-[12px] font-medium capitalize transition-all ${
                   filterStatus === s
                     ? "border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21]"
-                    : "border-white/[0.07] text-white/40 hover:text-white hover:border-white/20"
+                    : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
                 }`}>
                 {s}
                 {s !== "todas" && <span className="ml-1 text-[10px] opacity-60">{apps.filter(a => a.status === s).length}</span>}
@@ -430,7 +430,7 @@ export function AdminApplicationsView() {
         </div>
 
         {/* Table */}
-        <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#111113]">
+        <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />
@@ -439,50 +439,50 @@ export function AdminApplicationsView() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-white/[0.06] bg-white/[0.02]">
+                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
                     {["Nombre","Email","Instagram","Canal","Facturación","Estado","Fecha",""].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-white/25 whitespace-nowrap">{h}</th>
+                      <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {!filtered.length ? (
-                    <tr><td colSpan={9} className="py-16 text-center text-sm text-white/25">
+                    <tr><td colSpan={9} className="py-16 text-center text-sm text-foreground/25">
                       {apps.length ? "No hay aplicaciones con ese filtro." : "Todavía no hay aplicaciones. Compartí el formulario (/apply) para recibirlas."}
                     </td></tr>
                   ) : filtered.map(app => (
                     <tr
                       key={app.id}
                       onClick={() => setSelectedApp(app)}
-                      className="border-b border-white/[0.04] hover:bg-white/[0.02] cursor-pointer transition-colors group"
+                      className="border-b border-foreground/[0.04] hover:bg-foreground/[0.02] cursor-pointer transition-colors group"
                     >
                       {/* Nombre */}
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="text-[13px] font-semibold text-white">{fullName(app)}</span>
+                        <span className="text-[13px] font-semibold text-foreground">{fullName(app)}</span>
                       </td>
 
                       {/* Email */}
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="text-[13px] text-white/50">{app.email ?? <span className="text-white/20">—</span>}</span>
+                        <span className="text-[13px] text-foreground/50">{app.email ?? <span className="text-foreground/20">—</span>}</span>
                       </td>
 
                       {/* Instagram */}
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="text-[13px] text-white/50">{app.instagram_handle ?? <span className="text-white/20">—</span>}</span>
+                        <span className="text-[13px] text-foreground/50">{app.instagram_handle ?? <span className="text-foreground/20">—</span>}</span>
                       </td>
 
                       {/* Canal */}
                       <td className="px-4 py-3 whitespace-nowrap">
                         {app.primary_channel
-                          ? <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-white/5 text-white/40 border-white/10"}`}>
+                          ? <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-foreground/5 text-foreground/40 border-foreground/10"}`}>
                               {app.primary_channel}
                             </span>
-                          : <span className="text-white/20 text-[13px]">—</span>}
+                          : <span className="text-foreground/20 text-[13px]">—</span>}
                       </td>
 
                       {/* Facturación */}
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="text-[12px] text-white/45">{app.monthly_revenue ?? <span className="text-white/20">—</span>}</span>
+                        <span className="text-[12px] text-foreground/45">{app.monthly_revenue ?? <span className="text-foreground/20">—</span>}</span>
                       </td>
 
                       {/* Status */}
@@ -501,12 +501,12 @@ export function AdminApplicationsView() {
 
                       {/* Date */}
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="text-[11px] text-white/25">{fmtDate(app.created_at)}</span>
+                        <span className="text-[11px] text-foreground/25">{fmtDate(app.created_at)}</span>
                       </td>
 
                       {/* Arrow */}
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <ChevronRight className="h-4 w-4 text-white/15 group-hover:text-white/40 transition-colors" />
+                        <ChevronRight className="h-4 w-4 text-foreground/15 group-hover:text-foreground/40 transition-colors" />
                       </td>
 
                       {/* Delete */}
@@ -514,7 +514,7 @@ export function AdminApplicationsView() {
                         <button
                           onClick={() => handleDelete(app.id)}
                           disabled={deletingId === app.id}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg text-white/15 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
+                          className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/15 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
                         >
                           {deletingId === app.id
                             ? <Loader2 className="h-3.5 w-3.5 animate-spin" />

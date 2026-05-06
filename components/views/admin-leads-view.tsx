@@ -55,7 +55,7 @@ function StarRating({
           className="transition-transform hover:scale-110 focus:outline-none"
         >
           <Star className={`${dim} transition-colors ${
-            star <= active ? "fill-amber-400 text-amber-400" : "fill-transparent text-white/20"
+            star <= active ? "fill-amber-400 text-amber-400" : "fill-transparent text-foreground/20"
           }`} />
         </button>
       ))}
@@ -77,7 +77,7 @@ function InlineField({ value, placeholder, onSave }: {
       placeholder={placeholder}
       onBlur={e    => onSave(e.target.value)}
       onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-      className="w-full rounded-lg border border-transparent bg-transparent px-2 py-1 text-[13px] text-white placeholder:text-white/45 hover:border-white/[0.08] focus:border-white/20 focus:bg-white/[0.03] focus:outline-none transition-all"
+      className="w-full rounded-lg border border-transparent bg-transparent px-2 py-1 text-[13px] text-foreground placeholder:text-foreground/45 hover:border-foreground/[0.08] focus:border-foreground/20 focus:bg-foreground/[0.03] focus:outline-none transition-all"
     />
   )
 }
@@ -95,14 +95,14 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
 
   const textField = (label: string, key: keyof Lead, placeholder: string) => (
     <div className="space-y-1.5">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">{label}</p>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">{label}</p>
       <input
         type="text"
         defaultValue={(lead[key] as string) ?? ""}
         placeholder={placeholder}
         onBlur={e    => onPatch(lead.id, { [key]: e.target.value || null })}
         onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-        className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
+        className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
       />
     </div>
   )
@@ -110,28 +110,28 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[440px] flex-col border-l border-white/[0.08] shadow-2xl" style={{ backgroundColor: "#111113" }}>
+      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[440px] flex-col border-l border-foreground/[0.08] shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
 
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 border-b border-white/[0.06] px-6 py-5" style={{ backgroundColor: "#111113" }}>
+        <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5" style={{ backgroundColor: "var(--card)" }}>
           <div className="min-w-0">
-            <h2 className="text-lg font-bold text-white truncate">{lead.name ?? "Lead"}</h2>
-            <p className="text-[12px] text-white/35 mt-0.5">{fmtDate(lead.created_at)}</p>
+            <h2 className="text-lg font-bold text-foreground truncate">{lead.name ?? "Lead"}</h2>
+            <p className="text-[12px] text-foreground/35 mt-0.5">{fmtDate(lead.created_at)}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => onDelete(lead.id)} disabled={deleting}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
             <button onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-white/30 hover:text-white hover:bg-white/[0.06] transition-all">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
               <X className="h-4 w-4" />
             </button>
           </div>
         </div>
 
         {/* Rating + tag + instagram */}
-        <div className="border-b border-white/[0.06] px-6 py-4 space-y-3" style={{ backgroundColor: "#111113" }}>
+        <div className="border-b border-foreground/[0.06] px-6 py-4 space-y-3" style={{ backgroundColor: "var(--card)" }}>
           <div className="flex items-center justify-between">
             <StarRating size="md" value={lead.rating}
               onChange={n => onPatch(lead.id, { rating: n || null })} />
@@ -152,17 +152,17 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
         </div>
 
         {/* Editable fields */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4" style={{ backgroundColor: "#111113" }}>
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4" style={{ backgroundColor: "var(--card)" }}>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Estado</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Estado</p>
             <input
               type="text"
               defaultValue={lead.status !== "nuevo" ? lead.status : ""}
               placeholder="ej: caliente, en proceso, cerrado..."
               onBlur={e    => onPatch(lead.id, { status: e.target.value || "nuevo" })}
               onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
             />
           </div>
 
@@ -173,14 +173,14 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
           {textField("Email",              "email",     "correo@ejemplo.com")}
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Algo acerca del lead</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Algo acerca del lead</p>
             <textarea
               defaultValue={lead.notes ?? ""}
               placeholder="Observaciones, contexto, intereses..."
               rows={4}
               onBlur={e    => onPatch(lead.id, { notes: e.target.value || null })}
               onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) (e.target as HTMLTextAreaElement).blur() }}
-              className="w-full resize-none rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
+              className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
             />
           </div>
 
@@ -218,53 +218,53 @@ function NewLeadModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-sm rounded-2xl border border-white/[0.10] shadow-2xl p-6 space-y-4"
-          style={{ backgroundColor: "#111113" }}
+          className="w-full max-w-sm rounded-2xl border border-foreground/[0.10] shadow-2xl p-6 space-y-4"
+          style={{ backgroundColor: "var(--card)" }}
         >
           <div className="flex items-center justify-between mb-1">
-            <h3 className="text-base font-bold text-white">Nuevo lead</h3>
+            <h3 className="text-base font-bold text-foreground">Nuevo lead</h3>
             <button type="button" onClick={onClose}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-white/30 hover:text-white hover:bg-white/[0.06] transition-all">
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
               <X className="h-4 w-4" />
             </button>
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Nombre *</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Nombre *</p>
             <input
               autoFocus
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="Nombre completo"
-              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
             />
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Instagram</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Instagram</p>
             <input
               type="text"
               value={instagram}
               onChange={e => setInstagram(e.target.value)}
               placeholder="@usuario"
-              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
             />
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Tag</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Tag</p>
             <input
               type="text"
               value={tag}
               onChange={e => setTag(e.target.value)}
               placeholder="ej: HOT, Cold, DM..."
-              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
             />
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Calificación</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Calificación</p>
             <StarRating size="md" value={rating || null} onChange={n => setRating(n === rating ? 0 : n)} />
           </div>
 
@@ -418,16 +418,16 @@ export function AdminLeadsView() {
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Leads</h1>
-            <p className="text-sm text-white/40 mt-0.5">{leads.length} leads</p>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Leads</h1>
+            <p className="text-sm text-foreground/40 mt-0.5">{leads.length} leads</p>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={fetchLeads} disabled={loading}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-white/40 hover:text-white hover:border-white/20 transition-all disabled:opacity-40">
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
             <button onClick={exportCsv} disabled={!filtered.length}
-              className="flex items-center gap-2 h-9 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 text-sm font-medium text-white/50 hover:text-white hover:border-white/20 transition-all disabled:opacity-40">
+              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
@@ -441,23 +441,23 @@ export function AdminLeadsView() {
         </div>
 
         {/* Webhook card */}
-        <div className="rounded-2xl border border-white/[0.07] bg-[#111113] px-5 py-4">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-white/30 mb-2">
+        <div className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-4">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-2">
             Webhook URL — ManyChat / Zapier
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 rounded-lg bg-white/[0.04] px-3 py-2 text-[12px] text-[#ffde21]/70 font-mono truncate">
+            <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-[#ffde21]/70 font-mono truncate">
               {webhookUrl}
             </code>
             <button
               onClick={() => navigator.clipboard.writeText(webhookUrl)}
-              className="shrink-0 h-8 rounded-lg border border-white/[0.08] px-3 text-[12px] text-white/40 hover:text-white hover:border-white/20 transition-all"
+              className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all"
             >
               Copiar
             </button>
           </div>
-          <p className="text-[11px] text-white/25 mt-1.5">
-            Campos: <code className="text-white/40">name</code>, <code className="text-white/40">tag</code>, <code className="text-white/40">instagram</code>
+          <p className="text-[11px] text-foreground/25 mt-1.5">
+            Campos: <code className="text-foreground/40">name</code>, <code className="text-foreground/40">tag</code>, <code className="text-foreground/40">instagram</code>
           </p>
         </div>
 
@@ -468,7 +468,7 @@ export function AdminLeadsView() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre, tag, nicho, instagram..."
-            className="h-9 rounded-xl border border-white/[0.08] bg-[#1c1c1f] px-4 text-sm text-white placeholder:text-white/25 focus:border-white/20 focus:outline-none flex-1 min-w-[220px] max-w-sm"
+            className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/20 focus:outline-none flex-1 min-w-[220px] max-w-sm"
           />
 
           {/* Star filter */}
@@ -478,7 +478,7 @@ export function AdminLeadsView() {
               className={`h-8 rounded-xl border px-3 text-[12px] font-medium transition-all ${
                 filterRating === 0
                   ? "border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21]"
-                  : "border-white/[0.07] text-white/40 hover:text-white hover:border-white/20"
+                  : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
               }`}>
               Todas
             </button>
@@ -487,7 +487,7 @@ export function AdminLeadsView() {
               className={`h-8 rounded-xl border px-3 transition-all flex items-center gap-1 text-[12px] font-medium ${
                 filterRating === -1
                   ? "border-amber-400/40 bg-amber-400/10 text-amber-300"
-                  : "border-white/[0.07] text-white/40 hover:text-amber-300 hover:border-amber-400/30"
+                  : "border-foreground/[0.07] text-foreground/40 hover:text-amber-300 hover:border-amber-400/30"
               }`}>
               <Star className={`h-3 w-3 ${filterRating === -1 ? "fill-amber-400 text-amber-400" : "fill-transparent"}`} />
               4–5
@@ -499,7 +499,7 @@ export function AdminLeadsView() {
                 className={`h-8 rounded-xl border px-2.5 transition-all flex items-center gap-1 text-[12px] font-medium ${
                   filterRating === star
                     ? "border-amber-400/40 bg-amber-400/10 text-amber-300"
-                    : "border-white/[0.07] text-white/40 hover:text-amber-300 hover:border-amber-400/30"
+                    : "border-foreground/[0.07] text-foreground/40 hover:text-amber-300 hover:border-amber-400/30"
                 }`}>
                 <Star className={`h-3 w-3 ${filterRating === star ? "fill-amber-400 text-amber-400" : "fill-transparent"}`} />
                 {star}
@@ -519,46 +519,46 @@ export function AdminLeadsView() {
         )}
 
         {/* Table */}
-        <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#111113]">
+        <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />
             </div>
           ) : (
-            <div className="overflow-x-auto" style={{ backgroundColor: "#111113" }}>
+            <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-white/[0.06] bg-white/[0.02]">
+                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
                     {["Nombre","Email","Tag","Instagram","Rating","Estado","Desde dónde llegó","Tipo","Nicho","Fecha",""].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-white/40 whitespace-nowrap">{h}</th>
+                      <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {!filtered.length ? (
-                    <tr><td colSpan={10} className="py-16 text-center text-sm text-white/25">
+                    <tr><td colSpan={10} className="py-16 text-center text-sm text-foreground/25">
                       {leads.length ? "No hay leads con esa búsqueda." : "Todavía no hay leads. Conectá ManyChat al webhook."}
                     </td></tr>
                   ) : filtered.map(lead => (
                     <tr key={lead.id}
                       onClick={() => setSelected(lead)}
-                      className="border-b border-white/[0.04] cursor-pointer transition-colors group"
-                      style={{ backgroundColor: "#111113" }}
+                      className="border-b border-foreground/[0.04] cursor-pointer transition-colors group"
+                      style={{ backgroundColor: "var(--card)" }}
                       onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#18181b")}
                       onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#111113")}>
 
                       <td className="px-4 py-4 whitespace-nowrap">
-                        <span className="text-[14px] font-semibold text-white">{lead.name ?? <span className="text-white/30">—</span>}</span>
+                        <span className="text-[14px] font-semibold text-foreground">{lead.name ?? <span className="text-foreground/30">—</span>}</span>
                       </td>
 
                       <td className="px-4 py-4 whitespace-nowrap">
-                        <span className="text-[13px] text-white/90">{lead.email ?? <span className="text-white/30">—</span>}</span>
+                        <span className="text-[13px] text-foreground/90">{lead.email ?? <span className="text-foreground/30">—</span>}</span>
                       </td>
 
                       <td className="px-4 py-4 whitespace-nowrap">
                         {lead.tag
                           ? <span className="rounded-full border border-[#ffde21]/20 bg-[#ffde21]/[0.06] px-2.5 py-0.5 text-[12px] font-semibold text-[#ffde21]/90">{lead.tag}</span>
-                          : <span className="text-white/30 text-[13px]">—</span>}
+                          : <span className="text-foreground/30 text-[13px]">—</span>}
                       </td>
 
                       <td className="px-4 py-4 whitespace-nowrap" onClick={e => e.stopPropagation()}>
@@ -569,7 +569,7 @@ export function AdminLeadsView() {
                               <Instagram className="h-3.5 w-3.5 shrink-0" />
                               {lead.instagram}
                             </a>
-                          : <span className="text-white/30 text-[13px]">—</span>}
+                          : <span className="text-foreground/30 text-[13px]">—</span>}
                       </td>
 
                       <td className="px-4 py-4 whitespace-nowrap" onClick={e => e.stopPropagation()}>
@@ -598,11 +598,11 @@ export function AdminLeadsView() {
                       </td>
 
                       <td className="px-4 py-4 whitespace-nowrap">
-                        <span className="text-[12px] text-white/60">{fmtDate(lead.created_at)}</span>
+                        <span className="text-[12px] text-foreground/60">{fmtDate(lead.created_at)}</span>
                       </td>
 
                       <td className="px-4 py-4 whitespace-nowrap">
-                        <ChevronRight className="h-4 w-4 text-white/25 group-hover:text-white/60 transition-colors" />
+                        <ChevronRight className="h-4 w-4 text-foreground/25 group-hover:text-foreground/60 transition-colors" />
                       </td>
                     </tr>
                   ))}

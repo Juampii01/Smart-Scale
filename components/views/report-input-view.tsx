@@ -74,7 +74,7 @@ const FIELD_GROUPS = [
   {
     key: "reflection",
     label: "Reflection",
-    color: "bg-white/30",
+    color: "bg-foreground/30",
     fields: [
       { key: "biggest_win",    label: "Mayor Logro del Mes",                                    type: "text" },
       { key: "next_focus",     label: "Próximo Enfoque",                                        type: "text" },
@@ -100,7 +100,7 @@ function ConfirmOverwriteDialog({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="relative overflow-hidden rounded-2xl border border-amber-400/20 bg-[#111113] shadow-2xl w-full max-w-md mx-4">
+      <div className="relative overflow-hidden rounded-2xl border border-amber-400/20 bg-card shadow-2xl w-full max-w-md mx-4">
         <div className="h-[2px] w-full bg-gradient-to-r from-amber-500/20 via-amber-500/60 to-amber-500/20" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(251,191,36,0.04),transparent_55%)]" />
         <div className="relative p-6 space-y-5">
@@ -109,10 +109,10 @@ function ConfirmOverwriteDialog({
               <AlertTriangle className="h-4 w-4 text-amber-400" />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35 mb-1">Reporte existente</p>
-              <h3 className="text-base font-semibold text-white">¿Reemplazar los datos?</h3>
-              <p className="mt-1.5 text-sm text-white/50">
-                Ya existe un reporte para <span className="font-semibold text-white/80">{month}</span>. Los datos actuales serán reemplazados por los que estás por guardar.
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1">Reporte existente</p>
+              <h3 className="text-base font-semibold text-foreground">¿Reemplazar los datos?</h3>
+              <p className="mt-1.5 text-sm text-foreground/50">
+                Ya existe un reporte para <span className="font-semibold text-foreground/80">{month}</span>. Los datos actuales serán reemplazados por los que estás por guardar.
               </p>
             </div>
           </div>
@@ -120,7 +120,7 @@ function ConfirmOverwriteDialog({
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-5 py-2 text-sm font-medium text-white/70 transition hover:bg-white/[0.08] hover:text-white"
+              className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-sm font-medium text-foreground/70 transition hover:bg-foreground/[0.08] hover:text-foreground"
             >
               Cancelar
             </button>
@@ -275,14 +275,14 @@ export function ReportInputView() {
   return (
     <>
       {/* Tab switcher */}
-      <div className="flex gap-1 mb-8 rounded-xl border border-white/[0.06] bg-[#111113] p-1 w-fit">
+      <div className="flex gap-1 mb-8 rounded-xl border border-foreground/[0.06] bg-card p-1 w-fit">
         <button
           type="button"
           onClick={() => setTab("form")}
           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
             tab === "form"
               ? "bg-[#ffde21] text-black"
-              : "text-white/40 hover:text-white/70"
+              : "text-foreground/40 hover:text-foreground/70"
           }`}
         >
           <FileText className="h-3.5 w-3.5" />
@@ -294,7 +294,7 @@ export function ReportInputView() {
           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
             tab === "history"
               ? "bg-[#ffde21] text-black"
-              : "text-white/40 hover:text-white/70"
+              : "text-foreground/40 hover:text-foreground/70"
           }`}
         >
           <History className="h-3.5 w-3.5" />
@@ -318,11 +318,11 @@ export function ReportInputView() {
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
-            <h1 className="text-sm font-semibold uppercase tracking-widest text-white/70">
+            <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">
               Cargar Reporte Mensual
             </h1>
           </div>
-          <p className="text-xs text-white/30 ml-[18px]">
+          <p className="text-xs text-foreground/30 ml-[18px]">
             {isUpdate ? "Actualizando reporte existente" : "Nuevo reporte"} · Supabase → Slack
           </p>
         </div>
@@ -333,29 +333,29 @@ export function ReportInputView() {
             <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Aviso · este reporte es tuyo</p>
-              <p className="text-[13px] text-white/75 mt-0.5">
-                Estás navegando como <span className="font-semibold text-white">{activeName ?? "otro cliente"}</span>, pero este formulario siempre carga y guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
+              <p className="text-[13px] text-foreground/75 mt-0.5">
+                Estás navegando como <span className="font-semibold text-foreground">{activeName ?? "otro cliente"}</span>, pero este formulario siempre carga y guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
               </p>
             </div>
           </div>
         )}
 
         {/* Month + client selector */}
-        <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-5">
+        <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card p-5">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
           <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35 mb-1.5">Mes del reporte</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1.5">Mes del reporte</p>
               <input
                 type="month"
                 value={month}
                 onChange={(e) => setMonth(e.target.value)}
-                className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2 text-sm font-semibold text-white focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20 [color-scheme:dark]"
+                className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2 text-sm font-semibold text-foreground focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20 [color-scheme:dark]"
               />
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               {loadingExisting && (
-                <span className="flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1 text-[10px] text-white/40">
+                <span className="flex items-center gap-1.5 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[10px] text-foreground/40">
                   <Loader2 className="h-3 w-3 animate-spin" />Cargando…
                 </span>
               )}
@@ -380,13 +380,13 @@ export function ReportInputView() {
 
         {/* Field groups */}
         {FIELD_GROUPS.map((group) => (
-          <div key={group.key} className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
-            <div className="flex items-center justify-between border-b border-white/[0.05] px-5 py-3">
+          <div key={group.key} className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+            <div className="flex items-center justify-between border-b border-foreground/[0.05] px-5 py-3">
               <div className="flex items-center gap-2">
                 <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
-                <span className="text-sm font-semibold uppercase tracking-widest text-white/75">{group.label}</span>
+                <span className="text-sm font-semibold uppercase tracking-widest text-foreground/75">{group.label}</span>
               </div>
-              <span className="text-[10px] text-white/25">{group.fields.length} campos</span>
+              <span className="text-[10px] text-foreground/25">{group.fields.length} campos</span>
             </div>
 
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -397,9 +397,9 @@ export function ReportInputView() {
                 if (isNps) {
                   return (
                     <div key={field.key} className="sm:col-span-2 lg:col-span-3 flex flex-col gap-2 rounded-2xl border border-[#ffde21]/15 bg-[#ffde21]/[0.03] p-5">
-                      <label className="text-xs font-semibold uppercase tracking-widest text-white/65">
+                      <label className="text-xs font-semibold uppercase tracking-widest text-foreground/65">
                         {field.label}
-                        <span className="ml-1.5 text-white/35 normal-case tracking-normal font-normal">— del 1 al 10</span>
+                        <span className="ml-1.5 text-foreground/35 normal-case tracking-normal font-normal">— del 1 al 10</span>
                       </label>
                       <div className="flex items-center gap-3 flex-wrap">
                         {[1,2,3,4,5,6,7,8,9,10].map((n) => (
@@ -410,7 +410,7 @@ export function ReportInputView() {
                             className={`h-10 w-10 rounded-xl text-sm font-bold transition-all ${
                               values[field.key] === String(n)
                                 ? "bg-[#ffde21] text-black"
-                                : "border border-white/[0.08] bg-white/[0.03] text-white/50 hover:border-[#ffde21]/30 hover:text-white"
+                                : "border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:border-[#ffde21]/30 hover:text-foreground"
                             }`}
                           >
                             {n}
@@ -420,7 +420,7 @@ export function ReportInputView() {
                           <button
                             type="button"
                             onClick={() => setValue(field.key, "")}
-                            className="ml-2 text-xs text-white/25 hover:text-white/50 transition-colors"
+                            className="ml-2 text-xs text-foreground/25 hover:text-foreground/50 transition-colors"
                           >
                             limpiar
                           </button>
@@ -432,10 +432,10 @@ export function ReportInputView() {
 
                 return (
                   <div key={field.key} className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold uppercase tracking-widest text-white/65">
+                    <label className="text-xs font-semibold uppercase tracking-widest text-foreground/65">
                       {field.label}
                       {"hint" in field && field.hint && (
-                        <span className="ml-1 text-white/40 normal-case tracking-normal font-normal text-xs">({field.hint})</span>
+                        <span className="ml-1 text-foreground/40 normal-case tracking-normal font-normal text-xs">({field.hint})</span>
                       )}
                     </label>
                     {field.type === "text" ? (
@@ -444,7 +444,7 @@ export function ReportInputView() {
                         onChange={(e) => setValue(field.key, e.target.value)}
                         rows={2}
                         placeholder="—"
-                        className="w-full resize-none rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-base text-white placeholder:text-white/20 focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20"
+                        className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-base text-foreground placeholder:text-foreground/20 focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20"
                       />
                     ) : (
                       <input
@@ -454,10 +454,10 @@ export function ReportInputView() {
                         placeholder="0"
                         min={"min" in field ? field.min : 0}
                         step="any"
-                        className={`w-full rounded-xl border px-3 py-2 text-base font-semibold text-white placeholder:text-white/20 focus:outline-none focus:ring-1 ${
+                        className={`w-full rounded-xl border px-3 py-2 text-base font-semibold text-foreground placeholder:text-foreground/20 focus:outline-none focus:ring-1 ${
                           isHighlight
                             ? "border-[#ffde21]/20 bg-[#ffde21]/[0.04] focus:border-[#ffde21]/40 focus:ring-[#ffde21]/20"
-                            : "border-white/[0.08] bg-white/[0.04] focus:border-[#ffde21]/40 focus:ring-[#ffde21]/20"
+                            : "border-foreground/[0.08] bg-foreground/[0.04] focus:border-[#ffde21]/40 focus:ring-[#ffde21]/20"
                         }`}
                       />
                     )}
@@ -493,7 +493,7 @@ export function ReportInputView() {
             {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
             {status === "loading" ? "Guardando…" : isUpdate ? "Actualizar reporte" : "Guardar reporte"}
           </button>
-          <p className="text-xs text-white/25">
+          <p className="text-xs text-foreground/25">
             Los datos se guardan primero en Supabase. Las notificaciones van en segundo plano.
           </p>
         </div>

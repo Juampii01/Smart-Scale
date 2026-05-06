@@ -191,16 +191,16 @@ const programData: Array<{
 // ─── Color maps ───────────────────────────────────────────────────────────────
 
 const levelColors: Record<string, string> = {
-  "Start Here":                              "bg-[#1e3a5f] text-[#60a5fa] border-[#2563ab]/40",
-  "Nivel 0 — Onboarding":                    "bg-[#3a1a1a] text-[#f87171] border-[#dc2626]/40", // 🔴
-  "Nivel 1 — Mente & Visión":                "bg-[#3a2410] text-[#fb923c] border-[#ea580c]/40", // 🟠
-  "Nivel 2 — Tu Modelo":                     "bg-[#3a3010] text-[#facc15] border-[#ca8a04]/40", // 🟡
-  "Nivel 3 — Transformación & Fundamentos":  "bg-[#1a3a2a] text-[#4ade80] border-[#16a34a]/40", // 🟢
-  "Nivel 4 — Comunidad Email":               "bg-[#1a2a4a] text-[#60a5fa] border-[#2563eb]/40", // 🔵
-  "Nivel 5 — Conexión & Fascinación":        "bg-[#2a1f4a] text-[#a78bfa] border-[#7c3aed]/40", // 🟤
-  "Nivel 6 — Invitación & Conversión":       "bg-[#2a154a] text-[#c084fc] border-[#9333ea]/40", // 🟣
-  "Nivel 7 — Educando":                      "bg-[#1a1a1a] text-[#a1a1aa] border-[#52525b]/40", // ⚫
-  "Nivel 8 — IA & Sistemas":                 "bg-[#0e3a4a] text-[#22d3ee] border-[#0891b2]/40", // 🤖
+  "Start Here":                              "bg-blue-500/15 text-blue-500 border-blue-500/40",
+  "Nivel 0 — Onboarding":                    "bg-red-500/15 text-red-500 border-red-500/40", // 🔴
+  "Nivel 1 — Mente & Visión":                "bg-orange-500/15 text-orange-500 border-orange-500/40", // 🟠
+  "Nivel 2 — Tu Modelo":                     "bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 border-yellow-500/40", // 🟡
+  "Nivel 3 — Transformación & Fundamentos":  "bg-green-500/15 text-green-600 dark:text-green-400 border-green-500/40", // 🟢
+  "Nivel 4 — Comunidad Email":               "bg-blue-600/15 text-blue-600 dark:text-blue-400 border-blue-600/40", // 🔵
+  "Nivel 5 — Conexión & Fascinación":        "bg-violet-500/15 text-violet-500 border-violet-500/40", // 🟤
+  "Nivel 6 — Invitación & Conversión":       "bg-purple-500/15 text-purple-500 border-purple-500/40", // 🟣
+  "Nivel 7 — Educando":                      "bg-foreground/[0.06] text-foreground/60 border-foreground/20", // ⚫
+  "Nivel 8 — IA & Sistemas":                 "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/40", // 🤖
 }
 
 const outcomeColors: Record<string, { bg: string; text: string; border: string; emoji: string }> = {
@@ -320,10 +320,10 @@ export function ProgramChecklistView() {
       <div>
         <div className="flex items-center gap-2.5 mb-1">
           <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
-          <h1 className="text-sm font-semibold uppercase tracking-widest text-white/70">Program Journey Checklist</h1>
-          {loading && <Loader2 className="h-3.5 w-3.5 text-white/40 animate-spin" />}
+          <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Program Journey Checklist</h1>
+          {loading && <Loader2 className="h-3.5 w-3.5 text-foreground/40 animate-spin" />}
         </div>
-        <p className="text-xs text-white/30 ml-[18px]">Ecosistema circular mínimo viable · {completedCount}/{totalTasks} tareas completadas</p>
+        <p className="text-xs text-foreground/30 ml-[18px]">Ecosistema circular mínimo viable · {completedCount}/{totalTasks} tareas completadas</p>
       </div>
 
       {/* Banner de "viendo cliente" — solo cuando admin está viendo otro cliente */}
@@ -332,8 +332,8 @@ export function ProgramChecklistView() {
           <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Viendo otro cliente</p>
-            <p className="text-[13px] text-white/75 mt-0.5">
-              Estás viendo el checklist de <span className="font-semibold text-white">{activeClientName ?? "(sin nombre)"}</span>. Los cambios que hagas se guardan en su cuenta.
+            <p className="text-[13px] text-foreground/75 mt-0.5">
+              Estás viendo el checklist de <span className="font-semibold text-foreground">{activeClientName ?? "(sin nombre)"}</span>. Los cambios que hagas se guardan en su cuenta.
             </p>
           </div>
         </div>
@@ -341,18 +341,18 @@ export function ProgramChecklistView() {
 
       {/* Estado vacío si no hay cliente activo */}
       {!activeClientId && !loading && (
-        <div className="rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.02] px-5 py-10 text-center text-sm text-white/40">
+        <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-sm text-foreground/40">
           No hay un cliente activo seleccionado. Cambiá de perfil desde el menú superior para ver un checklist.
         </div>
       )}
 
       {/* Table */}
-      <div className="rounded-2xl border border-white/[0.08] bg-[#0f1011] overflow-hidden">
+      <div className="rounded-2xl border border-foreground/[0.08] bg-[#0f1011] overflow-hidden">
 
         {/* Column headers */}
-        <div className="grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-b border-white/[0.07] bg-[#141416]">
+        <div className="grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-b border-foreground/[0.07] bg-card">
           {["STATUS","IMPLEMENTATION MILESTONE","LEVEL","OUTCOME","ROADMAP","URL"].map((col) => (
-            <div key={col} className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-white/25">
+            <div key={col} className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-foreground/25">
               {col}
             </div>
           ))}
@@ -367,21 +367,21 @@ export function ProgramChecklistView() {
           const isMonthOpen = openMonths[month.month]
 
           return (
-            <div key={month.month} className="border-t border-white/[0.07] first:border-t-0">
+            <div key={month.month} className="border-t border-foreground/[0.07] first:border-t-0">
 
               {/* Month row */}
               <div
                 onClick={() => toggleMonth(month.month)}
-                className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-white/[0.02] transition-colors select-none"
+                className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-foreground/[0.02] transition-colors select-none"
               >
                 <ChevronDown
-                  className={`h-4 w-4 flex-shrink-0 text-white/40 transition-transform duration-200 ${isMonthOpen ? "rotate-0" : "-rotate-90"}`}
+                  className={`h-4 w-4 flex-shrink-0 text-foreground/40 transition-transform duration-200 ${isMonthOpen ? "rotate-0" : "-rotate-90"}`}
                 />
-                <span className="flex-1 text-[14px] font-bold text-white">{month.month}</span>
+                <span className="flex-1 text-[14px] font-bold text-foreground">{month.month}</span>
                 {/* Progress right */}
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  <span className="text-[12px] text-white/40 tabular-nums">{monthDone}/{monthTotal}</span>
-                  <div className="w-32 h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
+                  <span className="text-[12px] text-foreground/40 tabular-nums">{monthDone}/{monthTotal}</span>
+                  <div className="w-32 h-1.5 bg-foreground/[0.08] rounded-full overflow-hidden">
                     <div
                       className="h-1.5 rounded-full transition-all duration-500"
                       style={{
@@ -390,7 +390,7 @@ export function ProgramChecklistView() {
                       }}
                     />
                   </div>
-                  <span className="text-[12px] text-white/40 tabular-nums w-8 text-right">{monthPct}%</span>
+                  <span className="text-[12px] text-foreground/40 tabular-nums w-8 text-right">{monthPct}%</span>
                 </div>
               </div>
 
@@ -401,19 +401,19 @@ export function ProgramChecklistView() {
                 const isWeekOpen = openWeeks[weekKey]
 
                 return (
-                  <div key={week.title} className="border-t border-white/[0.05]">
+                  <div key={week.title} className="border-t border-foreground/[0.05]">
 
                     {/* Week row */}
                     <div
                       onClick={() => toggleWeek(weekKey)}
-                      className="flex items-center gap-3 pl-10 pr-4 py-2.5 cursor-pointer hover:bg-white/[0.02] transition-colors select-none bg-white/[0.01]"
+                      className="flex items-center gap-3 pl-10 pr-4 py-2.5 cursor-pointer hover:bg-foreground/[0.02] transition-colors select-none bg-foreground/[0.01]"
                     >
                       <ChevronDown
-                        className={`h-3.5 w-3.5 flex-shrink-0 text-white/30 transition-transform duration-200 ${isWeekOpen ? "rotate-0" : "-rotate-90"}`}
+                        className={`h-3.5 w-3.5 flex-shrink-0 text-foreground/30 transition-transform duration-200 ${isWeekOpen ? "rotate-0" : "-rotate-90"}`}
                       />
                       <span className="h-4 w-[3px] rounded-full bg-[#ffde21]/60 flex-shrink-0" />
-                      <span className="flex-1 text-[13px] font-semibold text-white/70">{week.title}</span>
-                      <span className="text-[11px] text-white/30 tabular-nums flex-shrink-0">
+                      <span className="flex-1 text-[13px] font-semibold text-foreground/70">{week.title}</span>
+                      <span className="text-[11px] text-foreground/30 tabular-nums flex-shrink-0">
                         {weekDone}/{week.tasks.length}
                       </span>
                     </div>
@@ -430,14 +430,14 @@ export function ProgramChecklistView() {
                     {isWeekOpen && week.tasks.map((task) => {
                       const taskKey = month.month + task.label
                       const isDone  = completed[taskKey]
-                      const lc      = levelColors[task.level] ?? "bg-white/[0.04] text-white/40 border-white/10"
+                      const lc      = levelColors[task.level] ?? "bg-foreground/[0.04] text-foreground/40 border-foreground/10"
                       const oc      = outcomeColors[task.outcome]
 
                       return (
                         <div
                           key={task.label}
-                          className={`grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-t border-white/[0.04] transition-colors duration-150 ${
-                            isDone ? "bg-[#ffde21]/[0.02]" : "hover:bg-white/[0.015]"
+                          className={`grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-t border-foreground/[0.04] transition-colors duration-150 ${
+                            isDone ? "bg-[#ffde21]/[0.02]" : "hover:bg-foreground/[0.015]"
                           }`}
                         >
                           {/* STATUS */}
@@ -449,23 +449,23 @@ export function ProgramChecklistView() {
                               className={`h-5 w-5 rounded-full flex-shrink-0 border-2 flex items-center justify-center transition-all duration-200 ${
                                 isDone
                                   ? "border-emerald-500 bg-emerald-500"
-                                  : "border-white/20 bg-transparent"
+                                  : "border-foreground/20 bg-transparent"
                               }`}
                             >
                               {isDone && (
-                                <svg className="h-2.5 w-2.5 text-white" viewBox="0 0 10 10" fill="none">
+                                <svg className="h-2.5 w-2.5 text-foreground" viewBox="0 0 10 10" fill="none">
                                   <path d="M2 5l2.5 2.5L8 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                               )}
                             </div>
-                            <span className={`text-[11px] ${isDone ? "text-emerald-400" : "text-white/35"}`}>
+                            <span className={`text-[11px] ${isDone ? "text-emerald-400" : "text-foreground/35"}`}>
                               {isDone ? "Completado" : "No iniciado"}
                             </span>
                           </div>
 
                           {/* MILESTONE */}
                           <div className="flex items-center px-4 py-3 min-w-0">
-                            <span className={`text-[13px] leading-snug ${isDone ? "line-through text-white/25" : "text-white/75"}`}>
+                            <span className={`text-[13px] leading-snug ${isDone ? "line-through text-foreground/25" : "text-foreground/75"}`}>
                               {task.label}
                             </span>
                           </div>
@@ -485,13 +485,13 @@ export function ProgramChecklistView() {
                                 {task.outcome} {oc.emoji}
                               </span>
                             ) : (
-                              <span className="text-[11px] text-white/20">—</span>
+                              <span className="text-[11px] text-foreground/20">—</span>
                             )}
                           </div>
 
                           {/* ROADMAP */}
                           <div className="flex items-center px-4 py-3">
-                            <span className="text-[11px] text-white/25 truncate">{week.title.split(" - ")[0]}</span>
+                            <span className="text-[11px] text-foreground/25 truncate">{week.title.split(" - ")[0]}</span>
                           </div>
 
                           {/* URL */}
@@ -505,7 +505,7 @@ export function ProgramChecklistView() {
                                 href={task.link}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1.5 text-[11px] text-white/35 hover:text-[#ffde21] transition-colors truncate max-w-full"
+                                className="inline-flex items-center gap-1.5 text-[11px] text-foreground/35 hover:text-[#ffde21] transition-colors truncate max-w-full"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <ExternalLink className="h-3 w-3 flex-shrink-0" />
@@ -514,7 +514,7 @@ export function ProgramChecklistView() {
                                 </span>
                               </a>
                             ) : (
-                              <span className="text-[11px] text-white/15">—</span>
+                              <span className="text-[11px] text-foreground/15">—</span>
                             )}
                           </div>
                         </div>

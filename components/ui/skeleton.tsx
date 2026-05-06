@@ -7,7 +7,7 @@ export function Sk({ className }: { className?: string }) {
 /** KPI card skeleton — matches BusinessKPIs card exactly */
 export function KpiCardSkeleton() {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
+    <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
       <div className="h-[2px] w-full skeleton" />
       <div className="p-5">
         <div className="mb-4 flex items-start justify-between">
@@ -25,7 +25,7 @@ export function KpiCardSkeleton() {
 /** Generic stat card — matches StatCard in SalesView / ChannelsView */
 export function StatCardSkeleton() {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-5">
+    <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card p-5">
       <Sk className="h-2.5 w-24 mb-3" />
       <Sk className="h-8 w-20" />
       <Sk className="h-2 w-28 mt-2" />
@@ -36,7 +36,7 @@ export function StatCardSkeleton() {
 /** Funnel row skeleton — matches SalesView funnel steps */
 export function FunnelRowSkeleton() {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-5">
+    <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card p-5">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <Sk className="h-2.5 w-32" />
@@ -51,7 +51,7 @@ export function FunnelRowSkeleton() {
 /** Channel block skeleton */
 export function ChannelBlockSkeleton() {
   return (
-    <div className="rounded-2xl border border-white/[0.07] bg-[#111113] overflow-hidden">
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden">
       <div className="h-[2px] w-full skeleton" />
       <div className="p-5 space-y-4">
         <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ export function ChannelBlockSkeleton() {
 /** Reflection card skeleton */
 export function ReflectionCardSkeleton() {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-6">
+    <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card p-6">
       <div className="flex items-center gap-3 mb-5">
         <Sk className="h-10 w-10 rounded-full" />
         <Sk className="h-3 w-36" />

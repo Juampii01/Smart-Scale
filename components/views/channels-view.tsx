@@ -40,8 +40,8 @@ function calcDelta(cur: number | null | undefined, prev: number | null | undefin
 
 const tooltipBase = {
   contentStyle: {
-    backgroundColor: "#0f0f10",
-    border: "1px solid rgba(255,255,255,0.09)",
+    backgroundColor: "var(--card)",
+    border: "1px solid var(--border)",
     borderRadius: "14px",
     padding: "10px 14px",
   },
@@ -90,7 +90,7 @@ function ChannelCard({
   const hasDelta = delta.pct !== null
 
   return (
-    <div className="relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] hover:border-white/[0.12] transition-colors duration-200">
+    <div className="relative flex flex-col overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors duration-200">
       <div className="h-[2px] w-full" style={{ backgroundColor: color, opacity: noData ? 0.2 : 0.7 }} />
 
       <div className="flex-1 p-5 pb-2">
@@ -101,7 +101,7 @@ function ChannelCard({
               style={{ backgroundColor: `${color}18`, boxShadow: `0 0 0 1px ${color}30` }}>
               <Icon className="h-4 w-4" style={{ color }} />
             </div>
-            <span className="text-[13px] font-bold text-white/90">{title}</span>
+            <span className="text-[13px] font-bold text-foreground/90">{title}</span>
           </div>
           {hasDelta && !noData && (
             <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ring-1 ${
@@ -117,20 +117,20 @@ function ChannelCard({
 
         {noData ? (
           <div className="flex flex-col items-center justify-center py-6 gap-2">
-            <p className="text-white/20 text-sm">Sin datos</p>
-            <p className="text-white/15 text-xs">Cargá el reporte del mes</p>
+            <p className="text-foreground/20 text-sm">Sin datos</p>
+            <p className="text-foreground/15 text-xs">Cargá el reporte del mes</p>
           </div>
         ) : (
           <>
-            <p className="text-[36px] font-bold tracking-tight leading-none text-white">{audience}</p>
-            <p className="text-[11px] text-white/35 mt-1 mb-4">{audienceLabel}</p>
+            <p className="text-[36px] font-bold tracking-tight leading-none text-foreground">{audience}</p>
+            <p className="text-[11px] text-foreground/35 mt-1 mb-4">{audienceLabel}</p>
             <div className="space-y-0">
               {rows.map((row, i) => (
-                <div key={i} className={`flex items-center justify-between py-2 ${i < rows.length - 1 ? "border-b border-white/[0.05]" : ""}`}>
-                  <div className="flex items-center gap-1.5 text-xs text-white/40">
+                <div key={i} className={`flex items-center justify-between py-2 ${i < rows.length - 1 ? "border-b border-foreground/[0.05]" : ""}`}>
+                  <div className="flex items-center gap-1.5 text-xs text-foreground/40">
                     <row.icon className="h-3.5 w-3.5" />{row.label}
                   </div>
-                  <span className="text-sm font-semibold text-white tabular-nums">{row.value}</span>
+                  <span className="text-sm font-semibold text-foreground tabular-nums">{row.value}</span>
                 </div>
               ))}
             </div>
@@ -184,16 +184,16 @@ function GrowthIndexChart({ reports }: { reports: any[] }) {
   const activeChannels = channels.filter(ch => bases[ch.key] > 0)
 
   return (
-    <div className="rounded-2xl border border-white/[0.07] bg-[#111113] p-6">
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-6">
       <div className="flex items-start justify-between mb-1">
         <div>
-          <h4 className="text-[16px] font-bold text-white">Índice de Crecimiento</h4>
-          <p className="text-xs text-white/35 mt-0.5">
+          <h4 className="text-[16px] font-bold text-foreground">Índice de Crecimiento</h4>
+          <p className="text-xs text-foreground/35 mt-0.5">
             Base 100 = primer mes con datos. Muestra quién crece más rápido, sin importar la escala.
           </p>
         </div>
         {/* Tip */}
-        <span className="text-[10px] text-white/25 bg-white/[0.04] border border-white/[0.06] rounded-lg px-2 py-1 ml-4 mt-0.5 whitespace-nowrap">
+        <span className="text-[10px] text-foreground/25 bg-foreground/[0.04] border border-foreground/[0.06] rounded-lg px-2 py-1 ml-4 mt-0.5 whitespace-nowrap">
           200 = duplicó su audiencia
         </span>
       </div>
@@ -203,8 +203,8 @@ function GrowthIndexChart({ reports }: { reports: any[] }) {
         {activeChannels.map(ch => (
           <div key={ch.key} className="flex items-center gap-1.5">
             <span className="h-[3px] w-5 rounded-full" style={{ backgroundColor: ch.color }} />
-            <span className="text-[11px] text-white/55 font-medium">{ch.label}</span>
-            <span className="text-[10px] text-white/25">({fmtCompact(bases[ch.key])} base)</span>
+            <span className="text-[11px] text-foreground/55 font-medium">{ch.label}</span>
+            <span className="text-[10px] text-foreground/25">({fmtCompact(bases[ch.key])} base)</span>
           </div>
         ))}
       </div>
@@ -252,19 +252,19 @@ function ContentVsAudience({ reports }: { reports: any[] }) {
   const avgPosts = data.reduce((s, d) => s + d.posts, 0) / data.length
 
   return (
-    <div className="rounded-2xl border border-white/[0.07] bg-[#111113] p-6">
-      <h4 className="text-[16px] font-bold text-white mb-1">Posts vs Seguidores Instagram</h4>
-      <p className="text-xs text-white/35 mb-5">
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-6">
+      <h4 className="text-[16px] font-bold text-foreground mb-1">Posts vs Seguidores Instagram</h4>
+      <p className="text-xs text-foreground/35 mb-5">
         ¿Cuándo publicás más, la audiencia crece? Buscá el patrón entre las barras y la línea.
       </p>
       <div className="flex flex-wrap gap-5 mb-4">
         <div className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-sm bg-[#ffde21]" />
-          <span className="text-[11px] text-white/50">Posts publicados</span>
+          <span className="text-[11px] text-foreground/50">Posts publicados</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="h-[3px] w-5 rounded-full bg-[#818cf8]" />
-          <span className="text-[11px] text-white/50">Seguidores IG</span>
+          <span className="text-[11px] text-foreground/50">Seguidores IG</span>
         </div>
       </div>
       <ResponsiveContainer width="100%" height={220}>
@@ -313,17 +313,17 @@ function YouTubeTrend({ reports }: { reports: any[] }) {
   }))
 
   return (
-    <div className="rounded-2xl border border-white/[0.07] bg-[#111113] p-6">
-      <h4 className="text-[16px] font-bold text-white mb-1">YouTube — Suscriptores vs Vistas</h4>
-      <p className="text-xs text-white/35 mb-5">¿Las vistas generan suscriptores o son independientes?</p>
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-6">
+      <h4 className="text-[16px] font-bold text-foreground mb-1">YouTube — Suscriptores vs Vistas</h4>
+      <p className="text-xs text-foreground/35 mb-5">¿Las vistas generan suscriptores o son independientes?</p>
       <div className="flex flex-wrap gap-5 mb-4">
         <div className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-sm bg-[#f87171]" />
-          <span className="text-[11px] text-white/50">Vistas</span>
+          <span className="text-[11px] text-foreground/50">Vistas</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="h-[3px] w-5 rounded-full bg-[#fbbf24]" />
-          <span className="text-[11px] text-white/50">Suscriptores</span>
+          <span className="text-[11px] text-foreground/50">Suscriptores</span>
         </div>
       </div>
       <ResponsiveContainer width="100%" height={200}>
@@ -433,20 +433,20 @@ export function ChannelsView() {
     <div className="space-y-10">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-bold text-white">Rendimiento por Canal</h2>
-        <p className="text-[13px] text-white/40 mt-0.5">Señales de cada canal · {monthYYYYMM}</p>
+        <h2 className="text-xl font-bold text-foreground">Rendimiento por Canal</h2>
+        <p className="text-[13px] text-foreground/40 mt-0.5">Señales de cada canal · {monthYYYYMM}</p>
       </div>
 
       {error    && <p className="text-red-400 text-sm">{error}</p>}
       {!loading && !error && !current && (
-        <p className="text-white/40 text-sm">No hay reporte para este mes.</p>
+        <p className="text-foreground/40 text-sm">No hay reporte para este mes.</p>
       )}
 
       {/* ── Channel cards ── */}
       <section className="space-y-3">
         <div>
-          <h3 className="text-base font-bold text-white">Este mes</h3>
-          <p className="text-xs text-white/35 mt-0.5">vs mes anterior — sparkline = últimos 8 meses</p>
+          <h3 className="text-base font-bold text-foreground">Este mes</h3>
+          <p className="text-xs text-foreground/35 mt-0.5">vs mes anterior — sparkline = últimos 8 meses</p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           <ChannelCard
@@ -482,8 +482,8 @@ export function ChannelsView() {
       {reports.length >= 2 && (
         <section className="space-y-3">
           <div>
-            <h3 className="text-base font-bold text-white">¿Quién está creciendo más rápido?</h3>
-            <p className="text-xs text-white/35 mt-0.5">
+            <h3 className="text-base font-bold text-foreground">¿Quién está creciendo más rápido?</h3>
+            <p className="text-xs text-foreground/35 mt-0.5">
               No importa la escala absoluta — lo que importa es la pendiente
             </p>
           </div>
@@ -495,8 +495,8 @@ export function ChannelsView() {
       {reports.length >= 2 && (
         <section className="space-y-3">
           <div>
-            <h3 className="text-base font-bold text-white">Correlaciones</h3>
-            <p className="text-xs text-white/35 mt-0.5">
+            <h3 className="text-base font-bold text-foreground">Correlaciones</h3>
+            <p className="text-xs text-foreground/35 mt-0.5">
               ¿El contenido que producís se traduce en audiencia?
             </p>
           </div>

@@ -53,10 +53,10 @@ function ConfirmDeleteDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative w-full max-w-sm rounded-2xl border border-red-500/30 bg-[#111113] p-6 shadow-2xl">
+      <div className="relative w-full max-w-sm rounded-2xl border border-red-500/30 bg-card p-6 shadow-2xl">
         <button
           onClick={onCancel}
-          className="absolute right-4 top-4 text-white/30 hover:text-white/70 transition-colors"
+          className="absolute right-4 top-4 text-foreground/30 hover:text-foreground/70 transition-colors"
         >
           <X className="h-4 w-4" />
         </button>
@@ -65,11 +65,11 @@ function ConfirmDeleteDialog({
           <AlertTriangle className="h-5 w-5 text-red-400" />
         </div>
 
-        <h3 className="text-sm font-semibold uppercase tracking-widest text-white mb-1">
+        <h3 className="text-sm font-semibold uppercase tracking-widest text-foreground mb-1">
           Eliminar reporte
         </h3>
-        <p className="text-sm text-white/50 mb-5">
-          Vas a eliminar el reporte de <span className="text-white font-medium">{fmtMonth(month)}</span>.
+        <p className="text-sm text-foreground/50 mb-5">
+          Vas a eliminar el reporte de <span className="text-foreground font-medium">{fmtMonth(month)}</span>.
           Esta acción no se puede deshacer.
         </p>
 
@@ -77,7 +77,7 @@ function ConfirmDeleteDialog({
           <button
             onClick={onCancel}
             disabled={loading}
-            className="flex-1 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/60 hover:bg-white/[0.08] hover:text-white transition-all disabled:opacity-50"
+            className="flex-1 rounded-lg border border-foreground/10 bg-foreground/[0.04] px-4 py-2 text-sm text-foreground/60 hover:bg-foreground/[0.08] hover:text-foreground transition-all disabled:opacity-50"
           >
             Cancelar
           </button>
@@ -109,7 +109,7 @@ function ReportRow({
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#111113] overflow-hidden transition-all">
+    <div className="rounded-xl border border-foreground/[0.06] bg-card overflow-hidden transition-all">
       {/* Main row */}
       <div className="flex items-center gap-3 px-4 py-3.5">
         {/* Month badge */}
@@ -118,8 +118,8 @@ function ReportRow({
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-white">{fmtMonth(report.month)}</p>
-          <p className="text-[10px] text-white/30 mt-0.5">
+          <p className="text-sm font-semibold text-foreground">{fmtMonth(report.month)}</p>
+          <p className="text-[10px] text-foreground/30 mt-0.5">
             Creado {new Date(report.created_at).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" })}
           </p>
         </div>
@@ -127,15 +127,15 @@ function ReportRow({
         {/* Key metrics */}
         <div className="hidden sm:flex items-center gap-6">
           <div className="text-right">
-            <p className="text-[10px] text-white/30 uppercase tracking-wider">Revenue</p>
+            <p className="text-[10px] text-foreground/30 uppercase tracking-wider">Revenue</p>
             <p className="text-sm font-semibold text-emerald-400">{fmt(report.total_revenue)}</p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-white/30 uppercase tracking-wider">Cash</p>
-            <p className="text-sm font-medium text-white/70">{fmt(report.cash_collected)}</p>
+            <p className="text-[10px] text-foreground/30 uppercase tracking-wider">Cash</p>
+            <p className="text-sm font-medium text-foreground/70">{fmt(report.cash_collected)}</p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-white/30 uppercase tracking-wider">Nuevos</p>
+            <p className="text-[10px] text-foreground/30 uppercase tracking-wider">Nuevos</p>
             <p className="text-sm font-semibold text-[#ffde21]">{report.new_clients ?? "—"}</p>
           </div>
         </div>
@@ -144,7 +144,7 @@ function ReportRow({
         <div className="flex items-center gap-2 ml-2">
           <button
             onClick={() => setExpanded((v) => !v)}
-            className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.04] text-white/40 hover:text-white/80 hover:bg-white/[0.08] transition-all"
+            className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.06] bg-foreground/[0.04] text-foreground/40 hover:text-foreground/80 hover:bg-foreground/[0.08] transition-all"
           >
             {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
@@ -162,7 +162,7 @@ function ReportRow({
 
       {/* Expanded detail */}
       {expanded && (
-        <div className="border-t border-white/[0.06] px-4 py-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="border-t border-foreground/[0.06] px-4 py-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {[
             { label: "Revenue Total", value: fmt(report.total_revenue) },
             { label: "Cash Collected", value: fmt(report.cash_collected) },
@@ -174,20 +174,20 @@ function ReportRow({
             { label: "Llamadas Atendidas", value: report.attended_calls ?? "—" },
           ].map(({ label, value }) => (
             <div key={label}>
-              <p className="text-[10px] text-white/30 uppercase tracking-wider mb-0.5">{label}</p>
-              <p className="text-sm font-medium text-white/80">{String(value)}</p>
+              <p className="text-[10px] text-foreground/30 uppercase tracking-wider mb-0.5">{label}</p>
+              <p className="text-sm font-medium text-foreground/80">{String(value)}</p>
             </div>
           ))}
           {report.biggest_win && (
             <div className="col-span-2 sm:col-span-3 lg:col-span-4">
-              <p className="text-[10px] text-white/30 uppercase tracking-wider mb-0.5">Mayor logro</p>
-              <p className="text-sm text-white/70 leading-relaxed">{report.biggest_win}</p>
+              <p className="text-[10px] text-foreground/30 uppercase tracking-wider mb-0.5">Mayor logro</p>
+              <p className="text-sm text-foreground/70 leading-relaxed">{report.biggest_win}</p>
             </div>
           )}
           {report.next_focus && (
             <div className="col-span-2 sm:col-span-3 lg:col-span-4">
-              <p className="text-[10px] text-white/30 uppercase tracking-wider mb-0.5">Próximo foco</p>
-              <p className="text-sm text-white/70 leading-relaxed">{report.next_focus}</p>
+              <p className="text-[10px] text-foreground/30 uppercase tracking-wider mb-0.5">Próximo foco</p>
+              <p className="text-sm text-foreground/70 leading-relaxed">{report.next_focus}</p>
             </div>
           )}
         </div>
@@ -296,15 +296,15 @@ export function ReportHistoryView() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111113] px-6 py-5">
+      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.06] bg-card px-6 py-5">
         <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#ffde21]/60 via-[#ffde21]/30 to-transparent" />
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/70 mb-1">
               Datos
             </p>
-            <h2 className="text-xl font-bold text-white">Historial de Reportes</h2>
-            <p className="text-sm text-white/40 mt-1">
+            <h2 className="text-xl font-bold text-foreground">Historial de Reportes</h2>
+            <p className="text-sm text-foreground/40 mt-1">
               {loading ? "Cargando…" : `${reports.length} reporte${reports.length !== 1 ? "s" : ""} encontrado${reports.length !== 1 ? "s" : ""}`}
             </p>
           </div>
@@ -314,7 +314,7 @@ export function ReportHistoryView() {
       {/* Content */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-white/30" />
+          <Loader2 className="h-6 w-6 animate-spin text-foreground/30" />
         </div>
       ) : error ? (
         <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3">
@@ -323,12 +323,12 @@ export function ReportHistoryView() {
         </div>
       ) : !activeClientId ? (
         <div className="flex items-center justify-center py-20">
-          <p className="text-sm text-white/30">Seleccioná un cliente para ver el historial.</p>
+          <p className="text-sm text-foreground/30">Seleccioná un cliente para ver el historial.</p>
         </div>
       ) : reports.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <FileText className="h-10 w-10 text-white/10" />
-          <p className="text-sm text-white/30">No hay reportes cargados para este cliente.</p>
+          <FileText className="h-10 w-10 text-foreground/10" />
+          <p className="text-sm text-foreground/30">No hay reportes cargados para este cliente.</p>
         </div>
       ) : (
         <div className="space-y-2">

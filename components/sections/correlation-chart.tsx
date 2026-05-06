@@ -31,8 +31,8 @@ function fmtNum(v: number) {
 
 const tooltipBase = {
   contentStyle: {
-    backgroundColor: "#0f0f10",
-    border: "1px solid rgba(255,255,255,0.09)",
+    backgroundColor: "var(--card)",
+    border: "1px solid var(--border)",
     borderRadius: "14px",
     boxShadow: "0 24px 48px rgba(0,0,0,0.6)",
     padding: "12px 16px",
@@ -67,24 +67,24 @@ function CorrCard({
   const avgLine = data.length ? data.reduce((s, d) => s + d[lineKey], 0) / data.length : 0
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] hover:border-white/[0.12] transition-colors duration-200">
+    <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors duration-200">
       <div className="h-[2px] w-full bg-gradient-to-r"
         style={{ background: `linear-gradient(90deg, ${barColor}90, ${lineColor}90)` }} />
 
       <div className="p-6">
         {/* Header */}
-        <h3 className="text-[18px] font-bold text-white leading-tight">{title}</h3>
-        <p className="text-[12px] text-white/40 mt-1 mb-5 leading-relaxed">{insight}</p>
+        <h3 className="text-[18px] font-bold text-foreground leading-tight">{title}</h3>
+        <p className="text-[12px] text-foreground/40 mt-1 mb-5 leading-relaxed">{insight}</p>
 
         {/* Legend */}
         <div className="flex items-center gap-5 mb-4">
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: barColor }} />
-            <span className="text-[11px] text-white/50 font-medium">{barLabel}</span>
+            <span className="text-[11px] text-foreground/50 font-medium">{barLabel}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="h-[3px] w-5 rounded-full" style={{ backgroundColor: lineColor }} />
-            <span className="text-[11px] text-white/50 font-medium">{lineLabel}</span>
+            <span className="text-[11px] text-foreground/50 font-medium">{lineLabel}</span>
           </div>
         </div>
 
@@ -195,7 +195,7 @@ export function CorrelationChart() {
       <section>
         <div className="grid gap-5 md:grid-cols-2">
           {[0,1,2,3].map(i => (
-            <div key={i} className="h-[380px] animate-pulse rounded-2xl border border-white/[0.07] bg-[#111113]" />
+            <div key={i} className="h-[380px] animate-pulse rounded-2xl border border-foreground/[0.07] bg-card" />
           ))}
         </div>
       </section>
@@ -207,8 +207,8 @@ export function CorrelationChart() {
   return (
     <section className="space-y-5">
       <div>
-        <h2 className="text-xl font-bold text-white">Correlaciones</h2>
-        <p className="text-[13px] text-white/40 mt-0.5">
+        <h2 className="text-xl font-bold text-foreground">Correlaciones</h2>
+        <p className="text-[13px] text-foreground/40 mt-0.5">
           ¿Qué acciones generan los resultados? Compará métricas en el mismo eje de tiempo.
         </p>
       </div>

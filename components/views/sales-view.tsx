@@ -43,7 +43,7 @@ function FunnelStep({
   const col = convColor(pctOfTop)
   return (
     <div>
-      <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-5 hover:border-white/[0.12] transition-colors">
+      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card p-5 hover:border-foreground/[0.12] transition-colors">
         {/* Proportional fill bar as background */}
         <div
           className="absolute inset-y-0 left-0 rounded-2xl opacity-[0.07] transition-all duration-700"
@@ -54,8 +54,8 @@ function FunnelStep({
 
         <div className="relative flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-1">{label}</p>
-            <p className="text-2xl sm:text-4xl font-bold tracking-tight text-white leading-none">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/40 mb-1">{label}</p>
+            <p className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground leading-none">
               {count > 0 ? count : "—"}
             </p>
           </div>
@@ -64,7 +64,7 @@ function FunnelStep({
             <span className={`text-2xl font-bold tabular-nums ${col.text}`}>
               {pctOfTop}%
             </span>
-            <p className="text-[10px] text-white/30">del total agendado</p>
+            <p className="text-[10px] text-foreground/30">del total agendado</p>
             {/* Conversion from previous step */}
             {!isLast && convFromPrev < 100 && (
               <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ring-1 ${col.bg} ${col.text} ${col.ring}`}>
@@ -78,8 +78,8 @@ function FunnelStep({
       {/* Arrow between steps */}
       {!isLast && (
         <div className="flex flex-col items-center py-1 gap-0">
-          <div className="h-3 w-px bg-white/10" />
-          <ArrowDown className="h-3.5 w-3.5 text-white/20" />
+          <div className="h-3 w-px bg-foreground/10" />
+          <ArrowDown className="h-3.5 w-3.5 text-foreground/20" />
         </div>
       )}
     </div>
@@ -90,10 +90,10 @@ function FunnelStep({
 
 function MiniStat({ label, value, sub, color = "#ffde21" }: { label: string; value: string | number; sub?: string; color?: string }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-5 hover:border-white/[0.12] transition-colors">
+    <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card p-5 hover:border-foreground/[0.12] transition-colors">
       <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: `${color}99` }}>{label}</p>
-      <p className="text-2xl sm:text-3xl font-bold tracking-tight text-white leading-none">{value}</p>
-      {sub && <p className="mt-2 text-xs text-white/30">{sub}</p>}
+      <p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground leading-none">{value}</p>
+      {sub && <p className="mt-2 text-xs text-foreground/30">{sub}</p>}
     </div>
   )
 }
@@ -195,21 +195,21 @@ export function SalesView() {
     <div className="space-y-10">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-bold text-white">Ventas y Conversión</h2>
-        <p suppressHydrationWarning className="text-[13px] text-white/40 mt-0.5">
+        <h2 className="text-xl font-bold text-foreground">Ventas y Conversión</h2>
+        <p suppressHydrationWarning className="text-[13px] text-foreground/40 mt-0.5">
           Embudo mensual · {selectedMonth}
         </p>
       </div>
 
       {error && <p className="text-red-400 text-sm">{error}</p>}
-      {!loading && !error && !data && <p className="text-white/40 text-sm">No hay reporte para este mes.</p>}
+      {!loading && !error && !data && <p className="text-foreground/40 text-sm">No hay reporte para este mes.</p>}
 
       <div className="grid gap-10 lg:grid-cols-2">
         {/* ── Funnel visual ── */}
         <section className="space-y-4">
           <div>
-            <h3 className="text-base font-bold text-white">Embudo de llamadas</h3>
-            <p className="text-xs text-white/35 mt-0.5">Cada barra muestra qué tan ancho llega a cada paso</p>
+            <h3 className="text-base font-bold text-foreground">Embudo de llamadas</h3>
+            <p className="text-xs text-foreground/35 mt-0.5">Cada barra muestra qué tan ancho llega a cada paso</p>
           </div>
           <div>
             <FunnelStep
@@ -245,8 +245,8 @@ export function SalesView() {
               : "border-red-500/20 bg-red-500/[0.04]"
           }`}>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Tasa de cierre</p>
-              <p className="text-xs text-white/30 mt-0.5">cierres / llamadas atendidas</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/40">Tasa de cierre</p>
+              <p className="text-xs text-foreground/30 mt-0.5">cierres / llamadas atendidas</p>
             </div>
             <p className={`text-2xl sm:text-4xl font-bold tabular-nums ${
               Number(closeRatePct) >= 20 ? "text-emerald-300"
@@ -259,8 +259,8 @@ export function SalesView() {
         {/* ── Offer Docs + Aplicaciones ── */}
         <section className="space-y-4">
           <div>
-            <h3 className="text-base font-bold text-white">Offer Docs & Pipeline</h3>
-            <p className="text-xs text-white/35 mt-0.5">El recorrido desde la aplicación al cierre</p>
+            <h3 className="text-base font-bold text-foreground">Offer Docs & Pipeline</h3>
+            <p className="text-xs text-foreground/35 mt-0.5">El recorrido desde la aplicación al cierre</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <MiniStat label="Aplicaciones"        value={aplications || "—"} color="#818cf8" />
@@ -281,8 +281,8 @@ export function SalesView() {
 
           {/* Offer Doc funnel */}
           {odSent > 0 && (
-            <div className="rounded-2xl border border-white/[0.07] bg-[#111113] p-5 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Funnel Offer Doc</p>
+            <div className="rounded-2xl border border-foreground/[0.07] bg-card p-5 space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/40">Funnel Offer Doc</p>
               {[
                 { label: "Enviados", value: odSent,    pctW: 100,                         color: "#60a5fa" },
                 { label: "Respondidos", value: odResp, pctW: pct(odResp, odSent),         color: "#4ade80" },
@@ -290,10 +290,10 @@ export function SalesView() {
               ].map(row => (
                 <div key={row.label} className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="text-white/50">{row.label}</span>
-                    <span className="font-bold text-white tabular-nums">{row.value} <span className="text-white/35 font-normal">({row.pctW}%)</span></span>
+                    <span className="text-foreground/50">{row.label}</span>
+                    <span className="font-bold text-foreground tabular-nums">{row.value} <span className="text-foreground/35 font-normal">({row.pctW}%)</span></span>
                   </div>
-                  <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
+                  <div className="h-2 rounded-full bg-foreground/[0.06] overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-700"
                       style={{ width: `${row.pctW}%`, backgroundColor: row.color }} />
                   </div>
@@ -308,10 +308,10 @@ export function SalesView() {
       {history.length >= 2 && (
         <section className="space-y-4">
           <div>
-            <h3 className="text-base font-bold text-white">Tendencia del Embudo</h3>
-            <p className="text-xs text-white/35 mt-0.5">¿El pipeline está creciendo o deteriorándose?</p>
+            <h3 className="text-base font-bold text-foreground">Tendencia del Embudo</h3>
+            <p className="text-xs text-foreground/35 mt-0.5">¿El pipeline está creciendo o deteriorándose?</p>
           </div>
-          <div className="rounded-2xl border border-white/[0.07] bg-[#111113] p-6">
+          <div className="rounded-2xl border border-foreground/[0.07] bg-card p-6">
             <div className="flex flex-wrap gap-5 mb-5">
               {[
                 { label: "Agendadas", color: "#818cf8" },
@@ -320,7 +320,7 @@ export function SalesView() {
               ].map(l => (
                 <div key={l.label} className="flex items-center gap-1.5">
                   <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: l.color }} />
-                  <span className="text-[11px] text-white/50">{l.label}</span>
+                  <span className="text-[11px] text-foreground/50">{l.label}</span>
                 </div>
               ))}
             </div>
@@ -330,7 +330,7 @@ export function SalesView() {
                 <XAxis dataKey="month" stroke="transparent" tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }} tickLine={false} axisLine={false} />
                 <YAxis stroke="transparent" tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }} tickLine={false} axisLine={false} width={32} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#0f0f10", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", padding: "10px 14px" }}
+                  contentStyle={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "12px", padding: "10px 14px" }}
                   labelStyle={{ color: "#fff", fontWeight: 700, fontSize: 12 }}
                   itemStyle={{ fontSize: 13, fontWeight: 600 }}
                 />
@@ -347,10 +347,10 @@ export function SalesView() {
       {history.length >= 2 && (
         <section className="space-y-4">
           <div>
-            <h3 className="text-base font-bold text-white">Tendencia de Offer Docs</h3>
-            <p className="text-xs text-white/35 mt-0.5">Evolución mensual del pipeline de Offer Docs</p>
+            <h3 className="text-base font-bold text-foreground">Tendencia de Offer Docs</h3>
+            <p className="text-xs text-foreground/35 mt-0.5">Evolución mensual del pipeline de Offer Docs</p>
           </div>
-          <div className="rounded-2xl border border-white/[0.07] bg-[#111113] p-6">
+          <div className="rounded-2xl border border-foreground/[0.07] bg-card p-6">
             <div className="flex flex-wrap gap-5 mb-5">
               {[
                 { label: "OD Enviados",    color: "#60a5fa" },
@@ -359,7 +359,7 @@ export function SalesView() {
               ].map(l => (
                 <div key={l.label} className="flex items-center gap-1.5">
                   <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: l.color }} />
-                  <span className="text-[11px] text-white/50">{l.label}</span>
+                  <span className="text-[11px] text-foreground/50">{l.label}</span>
                 </div>
               ))}
             </div>
@@ -369,7 +369,7 @@ export function SalesView() {
                 <XAxis dataKey="month" stroke="transparent" tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }} tickLine={false} axisLine={false} />
                 <YAxis stroke="transparent" tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }} tickLine={false} axisLine={false} width={32} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#0f0f10", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", padding: "10px 14px" }}
+                  contentStyle={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "12px", padding: "10px 14px" }}
                   labelStyle={{ color: "#fff", fontWeight: 700, fontSize: 12 }}
                   itemStyle={{ fontSize: 13, fontWeight: 600 }}
                 />

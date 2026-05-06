@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,10 +33,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0c0c0d] flex">
+    <div className="min-h-screen bg-background flex relative">
+
+      {/* Theme toggle floating top-right */}
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
 
       {/* ── Left panel ── */}
-      <div className="hidden lg:flex lg:w-[52%] flex-col justify-between p-12 relative overflow-hidden border-r border-white/[0.05]">
+      <div className="hidden lg:flex lg:w-[52%] flex-col justify-between p-12 relative overflow-hidden border-r border-foreground/[0.05]">
 
         {/* Background glow */}
         <div className="pointer-events-none absolute inset-0">
@@ -55,8 +61,8 @@ export default function LoginPage() {
 
         {/* Top: Logo */}
         <div className="relative flex items-center gap-3">
-          <span className="text-white text-sm font-bold tracking-[0.22em]">SMART</span>
-          <span className="rounded-md bg-white px-2.5 py-1 text-xs font-bold tracking-wide text-black">
+          <span className="text-foreground text-sm font-bold tracking-[0.22em]">SMART</span>
+          <span className="rounded-md bg-foreground px-2.5 py-1 text-xs font-bold tracking-wide text-background">
             SCALE
           </span>
         </div>
@@ -68,13 +74,13 @@ export default function LoginPage() {
             <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#ffde21]/70">Portal 2.0</span>
           </div>
 
-          <h2 className="text-4xl font-bold leading-[1.15] tracking-tight text-white">
+          <h2 className="text-4xl font-bold leading-[1.15] tracking-tight text-foreground">
             Tu negocio,<br />
             bajo control.<br />
             <span className="text-[#ffde21]">En tiempo real.</span>
           </h2>
 
-          <p className="max-w-sm text-sm leading-relaxed text-white/35">
+          <p className="max-w-sm text-sm leading-relaxed text-foreground/35">
             Performance, auditoría, inteligencia de mercado y análisis de contenido — todo en un solo lugar.
           </p>
 
@@ -87,10 +93,10 @@ export default function LoginPage() {
             ].map((s) => (
               <div
                 key={s.label}
-                className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-2.5"
+                className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.03] px-4 py-2.5"
               >
-                <p className="text-[10px] text-white/30 uppercase tracking-widest">{s.label}</p>
-                <p className="mt-0.5 text-sm font-bold text-white">{s.value}</p>
+                <p className="text-[10px] text-foreground/30 uppercase tracking-widest">{s.label}</p>
+                <p className="mt-0.5 text-sm font-bold text-foreground">{s.value}</p>
               </div>
             ))}
           </div>
@@ -98,7 +104,7 @@ export default function LoginPage() {
 
         {/* Bottom: Version */}
         <div className="relative">
-          <p className="text-[10px] uppercase tracking-widest text-white/15">
+          <p className="text-[10px] uppercase tracking-widest text-foreground/15">
             © {new Date().getFullYear()} Smart Scale · v2.0
           </p>
         </div>
@@ -109,8 +115,8 @@ export default function LoginPage() {
 
         {/* Mobile logo */}
         <div className="mb-10 flex items-center gap-3 lg:hidden">
-          <span className="text-white text-sm font-bold tracking-[0.22em]">SMART</span>
-          <span className="rounded-md bg-white px-2.5 py-1 text-xs font-bold tracking-wide text-black">
+          <span className="text-foreground text-sm font-bold tracking-[0.22em]">SMART</span>
+          <span className="rounded-md bg-foreground px-2.5 py-1 text-xs font-bold tracking-wide text-background">
             SCALE
           </span>
         </div>
@@ -119,8 +125,8 @@ export default function LoginPage() {
 
           {/* Heading */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold tracking-tight text-white">Iniciar sesión</h1>
-            <p className="mt-1.5 text-sm text-white/35">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">Iniciar sesión</h1>
+            <p className="mt-1.5 text-sm text-foreground/35">
               Ingresá con tus credenciales para acceder.
             </p>
           </div>
@@ -129,11 +135,11 @@ export default function LoginPage() {
           <form onSubmit={onSubmit} className="space-y-4">
 
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold uppercase tracking-widest text-white/30">
+              <label className="block text-[11px] font-semibold uppercase tracking-widest text-foreground/30">
                 Email
               </label>
               <input
-                className="h-12 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 text-sm text-white outline-none placeholder:text-white/20 transition-all focus:border-[#ffde21]/50 focus:bg-white/[0.06] focus:ring-2 focus:ring-[#ffde21]/10"
+                className="h-12 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm text-foreground outline-none placeholder:text-foreground/20 transition-all focus:border-[#ffde21]/50 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-[#ffde21]/10"
                 placeholder="tu@email.com"
                 type="email"
                 value={email}
@@ -145,18 +151,18 @@ export default function LoginPage() {
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="block text-[11px] font-semibold uppercase tracking-widest text-white/30">
+                <label className="block text-[11px] font-semibold uppercase tracking-widest text-foreground/30">
                   Contraseña
                 </label>
                 <a
                   href="/forgot-password"
-                  className="text-[11px] text-white/30 transition hover:text-[#ffde21]"
+                  className="text-[11px] text-foreground/30 transition hover:text-[#ffde21]"
                 >
                   ¿La olvidaste?
                 </a>
               </div>
               <input
-                className="h-12 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 text-sm text-white outline-none placeholder:text-white/20 transition-all focus:border-[#ffde21]/50 focus:bg-white/[0.06] focus:ring-2 focus:ring-[#ffde21]/10"
+                className="h-12 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm text-foreground outline-none placeholder:text-foreground/20 transition-all focus:border-[#ffde21]/50 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-[#ffde21]/10"
                 placeholder="••••••••"
                 type="password"
                 value={password}
@@ -188,7 +194,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-8 text-center text-[11px] leading-relaxed text-white/20">
+          <p className="mt-8 text-center text-[11px] leading-relaxed text-foreground/20">
             Si tu cuenta requiere verificación, revisá tu inbox antes de entrar.
           </p>
         </div>

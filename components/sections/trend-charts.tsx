@@ -93,8 +93,8 @@ function ChartCard({
 
   const tooltipStyle = {
     contentStyle: {
-      backgroundColor: "#0f0f10",
-      border: "1px solid rgba(255,255,255,0.08)",
+      backgroundColor: "var(--card)",
+      border: "1px solid var(--border)",
       borderRadius: "12px",
       boxShadow: "0 20px 40px rgba(0,0,0,0.6)",
       padding: "10px 14px",
@@ -104,7 +104,7 @@ function ChartCard({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] hover:border-white/[0.12] transition-colors duration-200">
+    <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors duration-200">
       {/* Subtle top accent */}
       <div className="h-[2px] w-full" style={{ backgroundColor: cfg.color, opacity: 0.6 }} />
 
@@ -112,15 +112,15 @@ function ChartCard({
         {/* Header */}
         <div className="flex items-start justify-between mb-1">
           <div>
-            <h3 className="text-[19px] font-bold text-white leading-tight tracking-tight">{cfg.label}</h3>
-            <p className="text-[13px] text-white/45 mt-0.5">{cfg.subtitle}</p>
+            <h3 className="text-[19px] font-bold text-foreground leading-tight tracking-tight">{cfg.label}</h3>
+            <p className="text-[13px] text-foreground/45 mt-0.5">{cfg.subtitle}</p>
           </div>
           {diff !== null && (
             <span
               className={`mt-0.5 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold shrink-0 ml-3 ${
                 isUp   ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20"
                 : isDown ? "bg-red-500/10 text-red-400 ring-1 ring-red-500/20"
-                :          "bg-white/5 text-white/40 ring-1 ring-white/10"
+                :          "bg-foreground/5 text-foreground/40 ring-1 ring-white/10"
               }`}
             >
               {isUp && <TrendingUp className="h-3 w-3" />}
@@ -220,7 +220,7 @@ function ChartCard({
           </ResponsiveContainer>
         ) : (
           <div className="h-[220px] flex items-center justify-center">
-            <p className="text-sm text-white/25">Sin datos</p>
+            <p className="text-sm text-foreground/25">Sin datos</p>
           </div>
         )}
       </div>
@@ -285,7 +285,7 @@ export function TrendCharts() {
       <section>
         <div className="grid gap-5 md:grid-cols-2">
           {CHARTS.map(cfg => (
-            <div key={cfg.key} className="rounded-2xl border border-white/[0.07] bg-[#111113] h-[380px] animate-pulse" />
+            <div key={cfg.key} className="rounded-2xl border border-foreground/[0.07] bg-card h-[380px] animate-pulse" />
           ))}
         </div>
       </section>
@@ -299,7 +299,7 @@ export function TrendCharts() {
   if (!rows.length) {
     return (
       <section>
-        <p className="text-white/40 text-sm">Este cliente todavía no tiene reportes cargados.</p>
+        <p className="text-foreground/40 text-sm">Este cliente todavía no tiene reportes cargados.</p>
       </section>
     )
   }
@@ -308,8 +308,8 @@ export function TrendCharts() {
     <section className="space-y-5">
       <div className="flex items-center gap-2.5">
         <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
-        <h2 className="text-sm font-bold uppercase tracking-widest text-white/80">Analytics</h2>
-        <span className="ml-auto text-xs text-white/30 tabular-nums">{rows.length} meses</span>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-foreground/80">Analytics</h2>
+        <span className="ml-auto text-xs text-foreground/30 tabular-nums">{rows.length} meses</span>
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">

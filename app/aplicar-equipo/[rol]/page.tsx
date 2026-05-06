@@ -13,18 +13,18 @@ import {
 // ─── Shared input styles ──────────────────────────────────────────────────────
 
 const inputBase =
-  "w-full rounded-xl border px-4 py-3 text-[15px] text-white placeholder:text-white/30 focus:outline-none transition-all"
+  "w-full rounded-xl border px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/30 focus:outline-none transition-all"
 
 function inputStyle(focused = false) {
   return {
-    backgroundColor: focused ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.03)",
-    borderColor:     focused ? "rgba(255,222,33,0.45)"  : "rgba(255,255,255,0.09)",
+    backgroundColor: focused ? "color-mix(in srgb, var(--foreground) 5%, transparent)" : "color-mix(in srgb, var(--foreground) 3%, transparent)",
+    borderColor: focused ? "rgba(255, 222, 33, 0.45)" : "var(--border)",
   }
 }
 
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label className="block text-[13px] font-semibold text-white/60 mb-2 tracking-wide leading-snug">
+    <label className="block text-[13px] font-semibold text-foreground/60 mb-2 tracking-wide leading-snug">
       {children}
       {required && <span className="ml-1 text-[#ffde21]">*</span>}
     </label>
@@ -32,14 +32,14 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
 }
 
 function HelpText({ children }: { children: React.ReactNode }) {
-  return <p className="-mt-1 mb-1 text-[12px] text-white/40 leading-relaxed">{children}</p>
+  return <p className="-mt-1 mb-1 text-[12px] text-foreground/40 leading-relaxed">{children}</p>
 }
 
 function SectionCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-2xl border border-white/[0.07] p-5 sm:p-7 space-y-5 sm:space-y-6"
-      style={{ backgroundColor: "#111113" }}
+      className="rounded-2xl border border-foreground/[0.07] p-5 sm:p-7 space-y-5 sm:space-y-6"
+      style={{ backgroundColor: "var(--card)" }}
     >
       {children}
     </div>
@@ -52,7 +52,7 @@ function SectionHeader({ number, title }: { number: string; title: string }) {
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#ffde21] text-[13px] font-black text-black mt-0.5">
         {number}
       </div>
-      <h2 className="text-[18px] font-bold text-white leading-tight pt-1.5">{title}</h2>
+      <h2 className="text-[18px] font-bold text-foreground leading-tight pt-1.5">{title}</h2>
     </div>
   )
 }
@@ -92,11 +92,11 @@ function RadioGroup({
       {options.map(opt => (
         <label key={opt} className="flex items-center gap-3 cursor-pointer group" onClick={() => onChange(opt)}>
           <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-            value === opt ? "border-[#ffde21] bg-[#ffde21]" : "border-white/20 group-hover:border-white/40"
+            value === opt ? "border-[#ffde21] bg-[#ffde21]" : "border-foreground/20 group-hover:border-foreground/40"
           }`}>
             {value === opt && <span className="h-2 w-2 rounded-full bg-black" />}
           </span>
-          <span className="text-[14px] text-white/70 group-hover:text-white transition-colors">{opt}</span>
+          <span className="text-[14px] text-foreground/70 group-hover:text-foreground transition-colors">{opt}</span>
         </label>
       ))}
     </div>
@@ -120,14 +120,14 @@ export default function TeamApplyPage() {
   // ── Rol no encontrado ───────────────────────────────────────────────────────
   if (!form) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "#0a0a0b" }}>
+      <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "var(--background)" }}>
         <div className="max-w-md w-full text-center space-y-5">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-400/30">
             <AlertCircle className="h-8 w-8 text-amber-400" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-2xl font-black text-white">Puesto no disponible</h1>
-            <p className="text-white/50 text-[14px] leading-relaxed">
+            <h1 className="text-2xl font-black text-foreground">Puesto no disponible</h1>
+            <p className="text-foreground/50 text-[14px] leading-relaxed">
               No encontramos el puesto <span className="font-mono text-amber-300">{rol}</span>. Puede que el link esté desactualizado o el puesto haya sido cerrado.
             </p>
           </div>
@@ -201,14 +201,14 @@ export default function TeamApplyPage() {
   // ── Success ──────────────────────────────────────────────────────────────────
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "#0a0a0b" }}>
+      <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "var(--background)" }}>
         <div className="max-w-md w-full text-center space-y-6 sm:space-y-8 px-2">
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#ffde21]">
             <Check className="h-10 w-10 text-black" strokeWidth={3} />
           </div>
           <div className="space-y-3">
-            <h1 className="text-3xl font-black text-white">¡Aplicación enviada!</h1>
-            <p className="text-white/50 text-[15px] leading-relaxed">
+            <h1 className="text-3xl font-black text-foreground">¡Aplicación enviada!</h1>
+            <p className="text-foreground/50 text-[15px] leading-relaxed">
               Revisamos cada aplicación. Si hay fit, te contactamos en los próximos días.
               Si no recibís respuesta en 7 días, no hubo match por ahora — pero guardamos tu perfil para futuras aperturas.
             </p>
@@ -220,17 +220,17 @@ export default function TeamApplyPage() {
 
   // ── Form ─────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#0a0a0b" }} ref={topRef}>
+    <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }} ref={topRef}>
 
       {/* Top bar */}
-      <div className="sticky top-0 z-10 border-b border-white/[0.07] backdrop-blur-md" style={{ backgroundColor: "rgba(10,10,11,0.96)" }}>
+      <div className="sticky top-0 z-10 border-b border-foreground/[0.07] backdrop-blur-md" style={{ backgroundColor: "color-mix(in srgb, var(--background) 96%, transparent)" }}>
         <div className="mx-auto max-w-2xl px-5 py-3.5 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-            <span className="text-white text-[17px] font-bold tracking-tight">Smart</span>
-            <span className="rounded-md bg-white px-2 py-0.5 text-[14px] font-bold tracking-tight text-black shadow-sm">Scale</span>
-            <span className="text-[9px] font-semibold text-white/25 tracking-widest uppercase ml-0.5">v2.0</span>
+            <span className="text-foreground text-[17px] font-bold tracking-tight">Smart</span>
+            <span className="rounded-md bg-foreground px-2 py-0.5 text-[14px] font-bold tracking-tight text-background shadow-sm">Scale</span>
+            <span className="text-[9px] font-semibold text-foreground/25 tracking-widest uppercase ml-0.5">v2.0</span>
           </a>
-          <span className="text-[11px] font-bold text-white/25 uppercase tracking-[0.18em]">Equipo</span>
+          <span className="text-[11px] font-bold text-foreground/25 uppercase tracking-[0.18em]">Equipo</span>
         </div>
       </div>
 
@@ -242,11 +242,11 @@ export default function TeamApplyPage() {
             <span className="h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse" />
             <span className="text-[11px] font-bold text-[#ffde21] uppercase tracking-[0.18em]">Smart Scale Team</span>
           </div>
-          <h1 className="text-[28px] sm:text-[38px] font-black text-white leading-[1.1] tracking-tight">
+          <h1 className="text-[28px] sm:text-[38px] font-black text-foreground leading-[1.1] tracking-tight">
             {form.title}
           </h1>
           {form.subtitle && (
-            <p className="text-[15px] text-white/50 leading-relaxed max-w-lg whitespace-pre-line">
+            <p className="text-[15px] text-foreground/50 leading-relaxed max-w-lg whitespace-pre-line">
               {form.subtitle}
             </p>
           )}
@@ -277,7 +277,7 @@ export default function TeamApplyPage() {
               return (
                 <SectionCard key={`info-${sIdx}`}>
                   <SectionHeader number={number} title={section.title} />
-                  <div className="text-[14px] text-white/65 leading-relaxed whitespace-pre-line pl-[52px]">
+                  <div className="text-[14px] text-foreground/65 leading-relaxed whitespace-pre-line pl-[52px]">
                     {section.info}
                   </div>
                 </SectionCard>

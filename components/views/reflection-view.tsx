@@ -158,15 +158,15 @@ export function ReflectionView() {
       <div>
         <div className="flex items-center gap-2.5 mb-1">
           <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
-          <h1 className="text-sm font-semibold uppercase tracking-widest text-white/70">Reflexión Estratégica</h1>
+          <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Reflexión Estratégica</h1>
         </div>
-        <p className="text-white/30 text-xs ml-[18px]">Insights del mes · {selectedMonth}</p>
+        <p className="text-foreground/30 text-xs ml-[18px]">Insights del mes · {selectedMonth}</p>
       </div>
 
-      {loading && <p className="text-white/40 text-sm">Cargando reflexión…</p>}
+      {loading && <p className="text-foreground/40 text-sm">Cargando reflexión…</p>}
       {!loading && !error && !data && (
-        <div className="rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.02] px-6 py-10 text-center">
-          <p className="text-sm text-white/40 mb-3">No hay reflexión cargada para este mes.</p>
+        <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-10 text-center">
+          <p className="text-sm text-foreground/40 mb-3">No hay reflexión cargada para este mes.</p>
           <a
             href="/report-input"
             className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2 text-[13px] font-bold text-black hover:bg-[#ffe46b] transition"
@@ -184,7 +184,7 @@ export function ReflectionView() {
             return (
               <div
                 key={item.title}
-                className="group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-5 transition-all duration-200 hover:border-white/15"
+                className="group relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card p-5 transition-all duration-200 hover:border-foreground/15"
               >
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.03),transparent_60%)]" />
                 <div className="relative">
@@ -192,7 +192,7 @@ export function ReflectionView() {
                     <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ffde21]/10 ring-1 ring-[#ffde21]/15">
                       <Icon className="h-4 w-4 text-[#ffde21]" />
                     </div>
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35">{item.title}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35">{item.title}</p>
                   </div>
                   {item.numeric !== null ? (
                     <p className={`text-2xl sm:text-3xl font-bold tabular-nums ${
@@ -207,7 +207,7 @@ export function ReflectionView() {
                       Agregar →
                     </a>
                   ) : (
-                    <p className="text-sm leading-relaxed text-white/60">
+                    <p className="text-sm leading-relaxed text-foreground/60">
                       {item.content}
                     </p>
                   )}

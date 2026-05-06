@@ -6,12 +6,12 @@ import { Check, AlertCircle, Loader2, ChevronDown, ArrowRight } from "lucide-rea
 // ─── Shared input styles (inline bg for Tailwind arbitrary-color safety) ───────
 
 const inputBase =
-  "w-full rounded-xl border px-4 py-3 text-[15px] text-white placeholder:text-white/30 focus:outline-none transition-all"
+  "w-full rounded-xl border px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/30 focus:outline-none transition-all"
 
 function inputStyle(focused = false) {
   return {
-    backgroundColor: focused ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.03)",
-    borderColor:     focused ? "rgba(255,222,33,0.45)"  : "rgba(255,255,255,0.09)",
+    backgroundColor: focused ? "color-mix(in srgb, var(--foreground) 5%, transparent)" : "color-mix(in srgb, var(--foreground) 3%, transparent)",
+    borderColor: focused ? "rgba(255, 222, 33, 0.45)" : "var(--border)",
   }
 }
 
@@ -19,7 +19,7 @@ function inputStyle(focused = false) {
 
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label className="block text-[13px] font-semibold text-white/60 mb-2 tracking-wide">
+    <label className="block text-[13px] font-semibold text-foreground/60 mb-2 tracking-wide">
       {children}
       {required && <span className="ml-1 text-[#ffde21]">*</span>}
     </label>
@@ -29,8 +29,8 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
 function SectionCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-2xl border border-white/[0.07] p-5 sm:p-7 space-y-5 sm:space-y-6"
-      style={{ backgroundColor: "#111113" }}
+      className="rounded-2xl border border-foreground/[0.07] p-5 sm:p-7 space-y-5 sm:space-y-6"
+      style={{ backgroundColor: "var(--card)" }}
     >
       {children}
     </div>
@@ -44,8 +44,8 @@ function SectionHeader({ number, title, subtitle }: { number: string; title: str
         {number}
       </div>
       <div>
-        <h2 className="text-[18px] font-bold text-white leading-tight">{title}</h2>
-        {subtitle && <p className="text-[13px] text-white/40 mt-1">{subtitle}</p>}
+        <h2 className="text-[18px] font-bold text-foreground leading-tight">{title}</h2>
+        {subtitle && <p className="text-[13px] text-foreground/40 mt-1">{subtitle}</p>}
       </div>
     </div>
   )
@@ -87,12 +87,12 @@ function StyledSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
     <div className="relative">
       <select
         {...props}
-        style={{ ...inputStyle(focused), backgroundColor: "#111113" }}
+        style={{ ...inputStyle(focused), backgroundColor: "var(--card)" }}
         className={inputBase + " appearance-none cursor-pointer"}
         onFocus={e => { setFocused(true); props.onFocus?.(e) }}
         onBlur={e  => { setFocused(false); props.onBlur?.(e) }}
       />
-      <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+      <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
     </div>
   )
 }
@@ -105,11 +105,11 @@ function RadioGroup({ name, options, value, onChange }: {
       {options.map(opt => (
         <label key={opt} className="flex items-center gap-3 cursor-pointer group" onClick={() => onChange(opt)}>
           <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-            value === opt ? "border-[#ffde21] bg-[#ffde21]" : "border-white/20 group-hover:border-white/40"
+            value === opt ? "border-[#ffde21] bg-[#ffde21]" : "border-foreground/20 group-hover:border-foreground/40"
           }`}>
             {value === opt && <span className="h-2 w-2 rounded-full bg-black" />}
           </span>
-          <span className="text-[14px] text-white/70 group-hover:text-white transition-colors">{opt}</span>
+          <span className="text-[14px] text-foreground/70 group-hover:text-foreground transition-colors">{opt}</span>
         </label>
       ))}
     </div>
@@ -186,20 +186,20 @@ export default function ApplyPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "#0a0a0b" }}>
+      <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "var(--background)" }}>
         <div className="max-w-md w-full text-center space-y-6 sm:space-y-8 px-2">
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#ffde21]">
             <Check className="h-10 w-10 text-black" strokeWidth={3} />
           </div>
           <div className="space-y-3">
-            <h1 className="text-3xl font-black text-white">¡Aplicación enviada!</h1>
-            <p className="text-white/50 text-[15px] leading-relaxed">
+            <h1 className="text-3xl font-black text-foreground">¡Aplicación enviada!</h1>
+            <p className="text-foreground/50 text-[15px] leading-relaxed">
               Revisamos cada aplicación personalmente. Si hay match, te contactamos por Instagram.
             </p>
           </div>
-          <div className="rounded-2xl border border-[#ffde21]/15 p-6 text-left space-y-3" style={{ backgroundColor: "#111113" }}>
+          <div className="rounded-2xl border border-[#ffde21]/15 p-6 text-left space-y-3" style={{ backgroundColor: "var(--card)" }}>
             <p className="text-[11px] font-black text-[#ffde21]/60 uppercase tracking-[0.2em]">Próximos pasos</p>
-            <ul className="space-y-2.5 text-[13px] text-white/55">
+            <ul className="space-y-2.5 text-[13px] text-foreground/55">
               <li className="flex items-start gap-2.5">
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ffde21] shrink-0" />
                 Revisamos tu aplicación en detalle
@@ -222,22 +222,22 @@ export default function ApplyPage() {
   // ── Form ─────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#0a0a0b" }} ref={topRef}>
+    <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }} ref={topRef}>
 
       {/* ── Top bar (same style as portal header) */}
       <div
-        className="sticky top-0 z-10 border-b border-white/[0.07] backdrop-blur-md"
-        style={{ backgroundColor: "rgba(10,10,11,0.96)" }}
+        className="sticky top-0 z-10 border-b border-foreground/[0.07] backdrop-blur-md"
+        style={{ backgroundColor: "color-mix(in srgb, var(--background) 96%, transparent)" }}
       >
         <div className="mx-auto max-w-2xl px-5 py-3.5 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-            <span className="text-white text-[17px] font-bold tracking-tight">Smart</span>
-            <span className="rounded-md bg-white px-2 py-0.5 text-[14px] font-bold tracking-tight text-black shadow-sm">
+            <span className="text-foreground text-[17px] font-bold tracking-tight">Smart</span>
+            <span className="rounded-md bg-foreground px-2 py-0.5 text-[14px] font-bold tracking-tight text-background shadow-sm">
               Scale
             </span>
-            <span className="text-[9px] font-semibold text-white/25 tracking-widest uppercase ml-0.5">v2.0</span>
+            <span className="text-[9px] font-semibold text-foreground/25 tracking-widest uppercase ml-0.5">v2.0</span>
           </a>
-          <span className="text-[11px] font-bold text-white/25 uppercase tracking-[0.18em]">Application</span>
+          <span className="text-[11px] font-bold text-foreground/25 uppercase tracking-[0.18em]">Application</span>
         </div>
       </div>
 
@@ -249,10 +249,10 @@ export default function ApplyPage() {
             <span className="h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse" />
             <span className="text-[11px] font-bold text-[#ffde21] uppercase tracking-[0.18em]">Smart Scale™</span>
           </div>
-          <h1 className="text-[28px] sm:text-[38px] font-black text-white leading-[1.1] tracking-tight">
+          <h1 className="text-[28px] sm:text-[38px] font-black text-foreground leading-[1.1] tracking-tight">
             Aplicá a<br />Smart Scale
           </h1>
-          <p className="text-[15px] text-white/50 leading-relaxed max-w-lg">
+          <p className="text-[15px] text-foreground/50 leading-relaxed max-w-lg">
             Estamos buscando un tipo muy específico de creador que sabemos que podemos ayudar a escalar.
             Ayudanos a entender si sos la persona indicada.
           </p>
@@ -419,11 +419,11 @@ export default function ApplyPage() {
               <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all ${
                 form.terms_accepted
                   ? "border-[#ffde21] bg-[#ffde21]"
-                  : "border-white/20 group-hover:border-white/40"
+                  : "border-foreground/20 group-hover:border-foreground/40"
               }`}>
                 {form.terms_accepted && <Check className="h-3 w-3 text-black" strokeWidth={3} />}
               </span>
-              <span className="text-[14px] text-white/60 leading-relaxed group-hover:text-white/80 transition-colors">
+              <span className="text-[14px] text-foreground/60 leading-relaxed group-hover:text-foreground/80 transition-colors">
                 He leído y acepto los{" "}
                 <span className="text-[#ffde21] hover:underline">Términos y Condiciones</span>
                 <span className="text-[#ffde21] ml-1">*</span>
@@ -432,19 +432,19 @@ export default function ApplyPage() {
           </SectionCard>
 
           {/* Notice */}
-          <div className="rounded-xl border border-white/[0.06] px-5 py-4 space-y-2" style={{ backgroundColor: "#111113" }}>
-            <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.18em]">Antes de enviar</p>
-            <ul className="space-y-1.5 text-[13px] text-white/40">
+          <div className="rounded-xl border border-foreground/[0.06] px-5 py-4 space-y-2" style={{ backgroundColor: "var(--card)" }}>
+            <p className="text-[11px] font-black text-foreground/30 uppercase tracking-[0.18em]">Antes de enviar</p>
+            <ul className="space-y-1.5 text-[13px] text-foreground/40">
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full bg-white/20 shrink-0" />
+                <span className="mt-1.5 h-1 w-1 rounded-full bg-foreground/20 shrink-0" />
                 No cierres la ventana mientras se envía el formulario
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full bg-white/20 shrink-0" />
+                <span className="mt-1.5 h-1 w-1 rounded-full bg-foreground/20 shrink-0" />
                 Si tu aplicación es aprobada, te contactamos por Instagram con toda la propuesta
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full bg-white/20 shrink-0" />
+                <span className="mt-1.5 h-1 w-1 rounded-full bg-foreground/20 shrink-0" />
                 Si no hay match, también te avisamos
               </li>
             </ul>

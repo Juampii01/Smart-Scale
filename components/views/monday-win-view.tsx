@@ -8,17 +8,17 @@ import { CheckCircle, AlertCircle, Loader2, Star, Eye } from "lucide-react"
 function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-[10px] font-semibold uppercase tracking-widest text-white/40">
+      <label className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">
         {label}
         {required && <span className="ml-1 text-[#ffde21]">*</span>}
       </label>
-      {hint && <p className="text-[11px] text-white/25 -mt-1">{hint}</p>}
+      {hint && <p className="text-[11px] text-foreground/25 -mt-1">{hint}</p>}
       {children}
     </div>
   )
 }
 
-const inputCls = "w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-white placeholder:text-white/20 focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20 transition-all"
+const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2.5 text-sm font-medium text-foreground placeholder:text-foreground/20 focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20 transition-all"
 const textareaCls = inputCls + " resize-none"
 
 export function MondayWinView() {
@@ -98,7 +98,7 @@ export function MondayWinView() {
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111113] px-6 py-5">
+      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.06] bg-card px-6 py-5">
         <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#ffde21]/60 via-[#ffde21]/30 to-transparent" />
         <div className="flex items-center gap-4">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#ffde21]/10 ring-1 ring-[#ffde21]/20">
@@ -106,8 +106,8 @@ export function MondayWinView() {
           </div>
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/70 mb-0.5">Semanal</p>
-            <h2 className="text-lg font-bold text-white">Monday Win</h2>
-            <p className="text-xs text-white/30 mt-0.5">Compartí tus logros y enfoque de la semana.</p>
+            <h2 className="text-lg font-bold text-foreground">Monday Win</h2>
+            <p className="text-xs text-foreground/30 mt-0.5">Compartí tus logros y enfoque de la semana.</p>
           </div>
         </div>
       </div>
@@ -118,18 +118,18 @@ export function MondayWinView() {
           <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Aviso · este Monday Win es tuyo</p>
-            <p className="text-[13px] text-white/75 mt-0.5">
-              Estás navegando como <span className="font-semibold text-white">{activeName ?? "otro cliente"}</span>, pero este formulario siempre se guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
+            <p className="text-[13px] text-foreground/75 mt-0.5">
+              Estás navegando como <span className="font-semibold text-foreground">{activeName ?? "otro cliente"}</span>, pero este formulario siempre se guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
             </p>
           </div>
         </div>
       )}
 
       {/* Fields */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111113]">
-        <div className="flex items-center gap-2 border-b border-white/[0.05] px-5 py-3">
+      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.06] bg-card">
+        <div className="flex items-center gap-2 border-b border-foreground/[0.05] px-5 py-3">
           <span className="h-3 w-[2px] rounded-full bg-[#ffde21]" />
-          <span className="text-xs font-semibold uppercase tracking-widest text-white/40">Semana en revisión</span>
+          <span className="text-xs font-semibold uppercase tracking-widest text-foreground/40">Semana en revisión</span>
         </div>
         <div className="p-5 space-y-5">
 
@@ -177,10 +177,10 @@ export function MondayWinView() {
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111113]">
-        <div className="flex items-center gap-2 border-b border-white/[0.05] px-5 py-3">
+      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.06] bg-card">
+        <div className="flex items-center gap-2 border-b border-foreground/[0.05] px-5 py-3">
           <span className="h-3 w-[2px] rounded-full bg-[#ffde21]" />
-          <span className="text-xs font-semibold uppercase tracking-widest text-white/40">Esta semana</span>
+          <span className="text-xs font-semibold uppercase tracking-widest text-foreground/40">Esta semana</span>
         </div>
         <div className="p-5 space-y-5">
 

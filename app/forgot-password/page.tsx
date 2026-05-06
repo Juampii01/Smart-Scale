@@ -60,12 +60,12 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-black">
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-sm space-y-4 p-6 border border-white/10 rounded-xl"
+        className="w-full max-w-sm space-y-4 p-6 border border-foreground/10 rounded-xl"
       >
-        <h1 className="text-white text-xl font-semibold">Forgot password</h1>
+        <h1 className="text-foreground text-xl font-semibold">Forgot password</h1>
 
         <input
-          className="w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-white outline-none"
+          className="w-full rounded-md border border-foreground/10 bg-black/30 px-3 py-2 text-foreground outline-none"
           placeholder="Email"
           type="email"
           value={email}
@@ -79,12 +79,12 @@ export default function ForgotPasswordPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md border border-white/10 py-2 text-white hover:bg-white/5 disabled:opacity-60"
+          className="w-full rounded-md border border-foreground/10 py-2 text-foreground hover:bg-foreground/5 disabled:opacity-60"
         >
           {loading ? "Enviando..." : "Enviar email"}
         </button>
 
-        <Link href="/login" className="block text-sm text-white/60 hover:text-white">
+        <Link href="/login" className="block text-sm text-foreground/60 hover:text-foreground">
           Volver al login
         </Link>
       </form>

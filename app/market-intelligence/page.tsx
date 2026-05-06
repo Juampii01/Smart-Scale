@@ -205,17 +205,17 @@ function MarketIntelligenceContent() {
         <div className="mb-8">
           <div className="flex items-center gap-2.5 mb-2">
             <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-white/35">Smart Scale · IA 1.0</span>
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35">Smart Scale · IA 1.0</span>
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Market Intelligence</h1>
-          <p className="text-sm text-white/40">Investigación competitiva automatizada con inteligencia artificial.</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight mb-1">Market Intelligence</h1>
+          <p className="text-sm text-foreground/40">Investigación competitiva automatizada con inteligencia artificial.</p>
         </div>
 
         {/* Sección 1 – Laboratorio de Inteligencia */}
-        <div className="mb-8 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-6">
+        <div className="mb-8 overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card p-6">
           <div className="flex items-center gap-2.5 mb-6">
             <span className="h-3 w-[2px] rounded-full bg-[#ffde21]/60" />
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-white/50">Laboratorio de Inteligencia de Mercado</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-foreground/50">Laboratorio de Inteligencia de Mercado</h2>
           </div>
           {!hasSession ? (
             <div className="text-red-500 font-sans text-lg mb-4">No hay sesión activa. Por favor, inicia sesión para continuar.</div>
@@ -223,9 +223,9 @@ function MarketIntelligenceContent() {
           <form onSubmit={handleSubmit} className="space-y-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10" aria-disabled={!hasSession}>
               <div>
-                  <Label className="mb-2 block text-white/40 text-xs font-semibold uppercase tracking-wider">Entorno de Análisis</Label>
+                  <Label className="mb-2 block text-foreground/40 text-xs font-semibold uppercase tracking-wider">Entorno de Análisis</Label>
                 <Select value={platform} onValueChange={setPlatform}>
-                  <SelectTrigger className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl text-white/80 text-sm">
+                  <SelectTrigger className="w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl text-foreground/80 text-sm">
                     <SelectValue placeholder="Selecciona entorno competitivo" />
                   </SelectTrigger>
                   <SelectContent>
@@ -234,9 +234,9 @@ function MarketIntelligenceContent() {
                 </Select>
               </div>
               <div>
-                  <Label className="mb-2 block text-white/40 text-xs font-semibold uppercase tracking-wider">Horizonte Temporal</Label>
+                  <Label className="mb-2 block text-foreground/40 text-xs font-semibold uppercase tracking-wider">Horizonte Temporal</Label>
                 <Select value={timeframe} onValueChange={setTimeframe}>
-                  <SelectTrigger className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl text-white/80 text-sm">
+                  <SelectTrigger className="w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl text-foreground/80 text-sm">
                     <SelectValue placeholder="Selecciona horizonte de análisis" />
                   </SelectTrigger>
                   <SelectContent>
@@ -250,13 +250,13 @@ function MarketIntelligenceContent() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
               {[1,2,3,4,5].map(i => (
                 <div key={i}>
-                    <Label htmlFor={`competitor-url-${i}`} className="mb-2 block text-white/40 text-[10px] font-semibold uppercase tracking-wider">Referencia {i}</Label>
+                    <Label htmlFor={`competitor-url-${i}`} className="mb-2 block text-foreground/40 text-[10px] font-semibold uppercase tracking-wider">Referencia {i}</Label>
                   <Input
                     id={`competitor-url-${i}`}
                     placeholder="URL competidor"
                     value={competitors[i-1]}
                     onChange={e => handleCompetitorChange(i-1, e.target.value)}
-                    className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl text-white/80 text-sm placeholder:text-white/20"
+                    className="w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl text-foreground/80 text-sm placeholder:text-foreground/20"
                   />
                 </div>
               ))}
@@ -272,7 +272,7 @@ function MarketIntelligenceContent() {
             </div>
           </form>
           {loading && (
-            <div className="mt-4 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+            <div className="mt-4 rounded-2xl border border-foreground/[0.06] bg-foreground/[0.02]">
               <AiLoading
                 title="Iniciando investigación"
                 steps={[
@@ -287,14 +287,14 @@ function MarketIntelligenceContent() {
         </div>
 
         {/* Sección 2 – Historial de Investigaciones */}
-        <div className="mb-8 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
-          <div className="flex items-center justify-between border-b border-white/[0.06] px-6 py-4">
+        <div className="mb-8 overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+          <div className="flex items-center justify-between border-b border-foreground/[0.06] px-6 py-4">
             <div className="flex items-center gap-2.5">
               <span className="h-3 w-[2px] rounded-full bg-[#ffde21]/60" />
-              <h2 className="text-xs font-semibold uppercase tracking-widest text-white/50">Investigaciones anteriores</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-foreground/50">Investigaciones anteriores</h2>
             </div>
             {requests.length > 0 && (
-              <span className="text-[10px] text-white/25 tabular-nums">{requests.length} registros</span>
+              <span className="text-[10px] text-foreground/25 tabular-nums">{requests.length} registros</span>
             )}
           </div>
 
@@ -309,18 +309,18 @@ function MarketIntelligenceContent() {
                   : [];
 
                 return (
-                  <div key={req.id} className="group transition-colors hover:bg-white/[0.015]">
+                  <div key={req.id} className="group transition-colors hover:bg-foreground/[0.015]">
                     {/* Row */}
                     <div className="flex items-center gap-3 px-6 py-4">
                       {/* Platform icon */}
-                      <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.07]">
-                        <Youtube className="w-3.5 h-3.5 text-white/40" />
+                      <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-foreground/[0.04] border border-foreground/[0.07]">
+                        <Youtube className="w-3.5 h-3.5 text-foreground/40" />
                       </div>
 
                       {/* Main info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                          <span className="text-sm font-medium text-white/80 truncate">
+                          <span className="text-sm font-medium text-foreground/80 truncate">
                             {competitorCount} {competitorCount === 1 ? "competidor" : "competidores"} · {req.timeframe_days ?? "—"} días
                           </span>
                           {/* Status badge */}
@@ -331,10 +331,10 @@ function MarketIntelligenceContent() {
                           ) : req.status === "failed" ? (
                             <span className="inline-flex items-center rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-400">Fallido</span>
                           ) : (
-                            <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-[10px] font-semibold text-white/40">Pendiente</span>
+                            <span className="inline-flex items-center rounded-full border border-foreground/10 bg-foreground/[0.05] px-2 py-0.5 text-[10px] font-semibold text-foreground/40">Pendiente</span>
                           )}
                         </div>
-                        <div className="flex items-center gap-1 text-[11px] text-white/30">
+                        <div className="flex items-center gap-1 text-[11px] text-foreground/30">
                           <Clock className="w-3 h-3 flex-shrink-0" />
                           <span className="tabular-nums">{new Date(req.created_at).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
                         </div>
@@ -354,7 +354,7 @@ function MarketIntelligenceContent() {
                                 }, 80);
                               }
                             }}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-white/60 transition-colors hover:border-[#ffde21]/30 hover:bg-[#ffde21]/[0.06] hover:text-[#ffde21]"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-xs font-medium text-foreground/60 transition-colors hover:border-[#ffde21]/30 hover:bg-[#ffde21]/[0.06] hover:text-[#ffde21]"
                           >
                             <ExternalLink className="w-3 h-3" />
                             {isSelected ? "Ocultar" : "Ver análisis"}
@@ -362,14 +362,14 @@ function MarketIntelligenceContent() {
                         )}
                         <button
                           onClick={() => setExpandedId(isExpanded ? null : req.id)}
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg border border-white/[0.07] bg-white/[0.03] text-white/35 transition-colors hover:border-white/[0.12] hover:bg-white/[0.06] hover:text-white/60"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg border border-foreground/[0.07] bg-foreground/[0.03] text-foreground/35 transition-colors hover:border-foreground/[0.12] hover:bg-foreground/[0.06] hover:text-foreground/60"
                         >
                           {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                         </button>
                         <button
                           onClick={() => handleDelete(req.id)}
                           disabled={deletingId === req.id}
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg border border-white/[0.07] bg-white/[0.03] text-white/25 transition-colors hover:border-red-500/30 hover:bg-red-500/[0.08] hover:text-red-400 disabled:opacity-50"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg border border-foreground/[0.07] bg-foreground/[0.03] text-foreground/25 transition-colors hover:border-red-500/30 hover:bg-red-500/[0.08] hover:text-red-400 disabled:opacity-50"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -379,25 +379,25 @@ function MarketIntelligenceContent() {
                     {/* Expanded competitors */}
                     {isExpanded && (
                       <div className="px-6 pb-4 pt-0">
-                        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-                          <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30 mb-3">Referencias analizadas</p>
+                        <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] p-4">
+                          <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30 mb-3">Referencias analizadas</p>
                           <div className="flex flex-wrap gap-2">
                             {Array.isArray(req.competitors)
                               ? req.competitors.map((c: any, idx: number) => {
                                   const name = typeof c === "string" ? c : (c?.name || c?.channel_url || `Competidor ${idx + 1}`);
                                   const url = typeof c === "string" ? c : (c?.channel_url || null);
                                   return (
-                                    <div key={idx} className="flex items-center gap-1.5 rounded-lg border border-white/[0.07] bg-white/[0.03] px-3 py-1.5">
-                                      <span className="text-xs text-white/60 truncate max-w-[200px]">{name}</span>
+                                    <div key={idx} className="flex items-center gap-1.5 rounded-lg border border-foreground/[0.07] bg-foreground/[0.03] px-3 py-1.5">
+                                      <span className="text-xs text-foreground/60 truncate max-w-[200px]">{name}</span>
                                       {url && (
-                                        <a href={url} target="_blank" rel="noopener noreferrer" className="text-white/25 hover:text-[#ffde21] transition-colors">
+                                        <a href={url} target="_blank" rel="noopener noreferrer" className="text-foreground/25 hover:text-[#ffde21] transition-colors">
                                           <ExternalLink className="w-3 h-3" />
                                         </a>
                                       )}
                                     </div>
                                   );
                                 })
-                              : <span className="text-xs text-white/30">Sin referencias</span>
+                              : <span className="text-xs text-foreground/30">Sin referencias</span>
                             }
                           </div>
                         </div>
@@ -409,25 +409,25 @@ function MarketIntelligenceContent() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl border border-white/[0.07] bg-white/[0.03] mb-3">
-                <Youtube className="w-5 h-5 text-white/20" />
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] mb-3">
+                <Youtube className="w-5 h-5 text-foreground/20" />
               </div>
-              <p className="text-sm text-white/35">No hay investigaciones registradas.</p>
-              <p className="text-xs text-white/20 mt-1">Iniciá una nueva investigación arriba.</p>
+              <p className="text-sm text-foreground/35">No hay investigaciones registradas.</p>
+              <p className="text-xs text-foreground/20 mt-1">Iniciá una nueva investigación arriba.</p>
             </div>
           )}
         </div>
 
         {/* Sección 3 – Estado del Análisis */}
-        <div ref={resultsRef} className="mb-8 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-6">
+        <div ref={resultsRef} className="mb-8 overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card p-6">
           <div className="flex items-center gap-2.5 mb-5">
             <span className="h-3 w-[2px] rounded-full bg-[#ffde21]/60" />
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-white/50">Estado del Análisis</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-foreground/50">Estado del Análisis</h2>
           </div>
           {selectedRequest ? (
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
               <div className="flex items-center gap-3">
-                <span className="text-xs text-white/35 uppercase tracking-wider">Estado</span>
+                <span className="text-xs text-foreground/35 uppercase tracking-wider">Estado</span>
                 {selectedRequest.status === "completed" ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">Completado</span>
                 ) : selectedRequest.status === "processing" ? (
@@ -435,18 +435,18 @@ function MarketIntelligenceContent() {
                 ) : selectedRequest.status === "failed" ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-400">Fallido</span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/40">Pendiente</span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground/10 bg-foreground/5 px-3 py-1 text-xs font-semibold text-foreground/40">Pendiente</span>
                 )}
               </div>
               <div className="flex items-center gap-2 text-xs">
-                <span className="text-white/35">Inicio:</span>
-                <span className="text-white/60 tabular-nums">{new Date(selectedRequest.created_at).toLocaleString()}</span>
+                <span className="text-foreground/35">Inicio:</span>
+                <span className="text-foreground/60 tabular-nums">{new Date(selectedRequest.created_at).toLocaleString()}</span>
               </div>
               <div className="w-full md:w-1/3">
-                <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden mb-1.5">
-                  <div className={`h-1.5 rounded-full transition-all ${selectedRequest.status === "completed" ? "bg-emerald-500 w-full" : selectedRequest.status === "processing" ? "bg-blue-500 w-1/2" : "bg-white/20 w-1/4"}`} />
+                <div className="h-1.5 bg-foreground/[0.06] rounded-full overflow-hidden mb-1.5">
+                  <div className={`h-1.5 rounded-full transition-all ${selectedRequest.status === "completed" ? "bg-emerald-500 w-full" : selectedRequest.status === "processing" ? "bg-blue-500 w-1/2" : "bg-foreground/20 w-1/4"}`} />
                 </div>
-                <span className="text-[10px] text-white/30">
+                <span className="text-[10px] text-foreground/30">
                   {selectedRequest.status === "completed" ? "100% completado" : selectedRequest.status === "processing" ? "50% completado" : "25% completado"}
                 </span>
                 {selectedRequest.status === "failed" && selectedRequest.error_message && (
@@ -455,7 +455,7 @@ function MarketIntelligenceContent() {
               </div>
             </div>
           ) : (
-            <p className="text-white/35 text-sm">No hay investigación seleccionada.</p>
+            <p className="text-foreground/35 text-sm">No hay investigación seleccionada.</p>
           )}
         </div>
 
@@ -785,7 +785,7 @@ function MarketIntelligenceContent() {
               {result.analisis_de_videos && Array.isArray(result.analisis_de_videos) && (
                 <div className="col-span-1 md:col-span-2 bg-gradient-to-br from-gray-900 via-black to-gray-950 rounded-2xl p-10 border border-gray-800 shadow-xl flex flex-col gap-12">
                   <div className="flex items-center justify-between mb-6">
-                    <span className="font-extrabold text-2xl text-white tracking-tight">
+                    <span className="font-extrabold text-2xl text-foreground tracking-tight">
                       Análisis Individual de Videos
                     </span>
                   </div>
@@ -989,7 +989,7 @@ function HookBadge({ hook }: { hook: string }) {
     <div className="mt-2 w-44 max-w-xs select-none">
       <div
         className={
-          "bg-gradient-to-r from-green-700 via-green-500 to-green-300 bg-opacity-80 text-white text-xs font-bold rounded-xl px-3 py-2 border border-green-700 shadow-md backdrop-blur-sm cursor-pointer text-sm p-2 z-20 transition-all " +
+          "bg-gradient-to-r from-green-700 via-green-500 to-green-300 bg-opacity-80 text-foreground text-xs font-bold rounded-xl px-3 py-2 border border-green-700 shadow-md backdrop-blur-sm cursor-pointer text-sm p-2 z-20 transition-all " +
           (expanded ? "whitespace-normal overflow-visible" : "truncate whitespace-nowrap overflow-hidden")
         }
         title={expanded ? undefined : hook}

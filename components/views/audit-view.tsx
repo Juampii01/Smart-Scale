@@ -128,7 +128,7 @@ function renderInline(text: string, key: string) {
       )
     } else if (m[4]) {
       // **bold**
-      nodes.push(<strong key={`b-${key}-${m.index}`} className="font-semibold text-white">{m[5]}</strong>)
+      nodes.push(<strong key={`b-${key}-${m.index}`} className="font-semibold text-foreground">{m[5]}</strong>)
     } else if (m[6]) {
       // → https://...
       const url = m[7]
@@ -167,28 +167,28 @@ function renderDiagnosisContent(content: string) {
     const k = String(index)
 
     if (!line) return <div key={`spacer-${k}`} className="h-3" />
-    if (line === "---") return <div key={`divider-${k}`} className="my-5 h-px w-full bg-white/10" />
+    if (line === "---") return <div key={`divider-${k}`} className="my-5 h-px w-full bg-foreground/10" />
 
     if (line.startsWith("# ")) {
-      return <h2 key={`h1-${k}`} className="text-2xl font-semibold tracking-tight text-white md:text-3xl">{renderInline(line.replace(/^#\s+/, ""), k)}</h2>
+      return <h2 key={`h1-${k}`} className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">{renderInline(line.replace(/^#\s+/, ""), k)}</h2>
     }
 
     if (line.startsWith("## ")) {
       return (
         <div key={`h2-${k}`} className="pt-3">
-          <h3 className="text-lg font-semibold uppercase tracking-[0.14em] text-white/80">{renderInline(line.replace(/^##\s+/, ""), k)}</h3>
-          <div className="mt-2 h-px w-full bg-white/10" />
+          <h3 className="text-lg font-semibold uppercase tracking-[0.14em] text-foreground/80">{renderInline(line.replace(/^##\s+/, ""), k)}</h3>
+          <div className="mt-2 h-px w-full bg-foreground/10" />
         </div>
       )
     }
 
     if (line.startsWith("### ")) {
-      return <h4 key={`h3-${k}`} className="pt-2 text-base font-semibold text-white">{renderInline(line.replace(/^###\s+/, ""), k)}</h4>
+      return <h4 key={`h3-${k}`} className="pt-2 text-base font-semibold text-foreground">{renderInline(line.replace(/^###\s+/, ""), k)}</h4>
     }
 
     if (line.startsWith("> ")) {
       return (
-        <div key={`quote-${k}`} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/70">
+        <div key={`quote-${k}`} className="rounded-xl border border-foreground/10 bg-foreground/[0.03] px-4 py-3 text-sm text-foreground/70">
           {renderInline(line.replace(/^>\s+/, ""), k)}
         </div>
       )
@@ -196,7 +196,7 @@ function renderDiagnosisContent(content: string) {
 
     if (line.startsWith("- ")) {
       return (
-        <div key={`bullet-${k}`} className="flex items-start gap-3 text-sm leading-7 text-white/60">
+        <div key={`bullet-${k}`} className="flex items-start gap-3 text-sm leading-7 text-foreground/60">
           <span className="mt-2.5 h-1 w-1 rounded-full bg-[#ffde21]/60 flex-shrink-0" />
           <span>{renderInline(line.replace(/^-\s+/, ""), k)}</span>
         </div>
@@ -204,7 +204,7 @@ function renderDiagnosisContent(content: string) {
     }
 
     return (
-      <p key={`p-${k}`} className="text-sm leading-7 text-white/60 md:text-[15px]">
+      <p key={`p-${k}`} className="text-sm leading-7 text-foreground/60 md:text-[15px]">
         {renderInline(line, k)}
       </p>
     )
@@ -270,8 +270,8 @@ function ScorePillButton({
       onClick={onClick}
       className={`rounded-lg border px-4 py-1.5 text-[13px] font-medium transition-all duration-150 ${
         active
-          ? `${bgActive} ${ringColor} border-transparent text-white`
-          : "border-white/[0.12] bg-white/[0.04] text-white/50 hover:border-white/20 hover:text-white/70"
+          ? `${bgActive} ${ringColor} border-transparent text-foreground`
+          : "border-foreground/[0.12] bg-foreground/[0.04] text-foreground/50 hover:border-foreground/20 hover:text-foreground/70"
       }`}
     >
       {label}
@@ -292,7 +292,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
     c === "green"  ? "bg-emerald-500" :
     c === "yellow" ? "bg-amber-500"   :
     c === "red"    ? "bg-red-500"     :
-    "bg-white/15"
+    "bg-foreground/15"
 
   const priorityPill = (idx: number) =>
     idx === 0
@@ -303,7 +303,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
     <div className="space-y-8">
       {/* RESULTADO POR MÓDULO */}
       <div className="space-y-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/45">
           Resultado por módulo
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -312,14 +312,14 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
             if (!s) return null
             const style = stateStyles[s.estado]
             return (
-              <div key={key} className="rounded-2xl border border-white/[0.07] bg-[#1a1a1d] p-5">
-                <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-white/55 mb-2">
+              <div key={key} className="rounded-2xl border border-foreground/[0.07] bg-card p-5">
+                <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-foreground/55 mb-2">
                   {s.name}
                 </p>
                 <p className={`text-3xl font-bold tracking-tight ${style.score}`}>
-                  {s.puntos}<span className="text-white/30 text-2xl font-medium">/6</span>
+                  {s.puntos}<span className="text-foreground/30 text-2xl font-medium">/6</span>
                 </p>
-                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-foreground/[0.06]">
                   <div className={`h-full rounded-full ${style.bar}`} style={{ width: `${(s.puntos / 6) * 100}%` }} />
                 </div>
                 <div className="mt-3">
@@ -338,33 +338,33 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
         </div>
       </div>
 
-      <div className="h-px w-full bg-white/[0.06]" />
+      <div className="h-px w-full bg-foreground/[0.06]" />
 
       {/* TU FOCO ESTE TRIMESTRE */}
       <div className="space-y-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/45">
           Tu foco este trimestre
         </p>
         <div className="space-y-4">
           {data.focos.map((f, idx) => (
-            <div key={idx} className="rounded-2xl border border-white/[0.07] bg-[#1a1a1d] p-6">
+            <div key={idx} className="rounded-2xl border border-foreground/[0.07] bg-card p-6">
               <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${priorityPill(idx)}`}>
                 {f.etiqueta}
               </span>
-              <h3 className="mt-3 text-xl font-bold tracking-tight text-white md:text-2xl">
+              <h3 className="mt-3 text-xl font-bold tracking-tight text-foreground md:text-2xl">
                 {f.titulo}
               </h3>
-              <p className="mt-2 text-[14px] leading-7 text-white/65 md:text-[15px]">
+              <p className="mt-2 text-[14px] leading-7 text-foreground/65 md:text-[15px]">
                 {f.diagnostico}
               </p>
               {f.skool_modulo && (
                 <button
                   type="button"
-                  className="mt-4 inline-flex items-start gap-2 rounded-xl border border-white/[0.1] bg-white/[0.04] px-4 py-2.5 text-left text-[13px] font-medium text-white/85 transition hover:border-white/20 hover:bg-white/[0.08]"
+                  className="mt-4 inline-flex items-start gap-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.04] px-4 py-2.5 text-left text-[13px] font-medium text-foreground/85 transition hover:border-foreground/20 hover:bg-foreground/[0.08]"
                 >
                   <span>
-                    Dirigite al módulo <span className="font-semibold text-white">{f.skool_modulo}</span>
-                    {f.skool_nivel ? <> en <span className="font-semibold text-white">{f.skool_nivel}</span></> : null}
+                    Dirigite al módulo <span className="font-semibold text-foreground">{f.skool_modulo}</span>
+                    {f.skool_nivel ? <> en <span className="font-semibold text-foreground">{f.skool_nivel}</span></> : null}
                     {" — te va a ayudar a resolver esto."}
                   </span>
                   <ArrowUpRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
@@ -679,21 +679,21 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
       <div>
         <div className="flex items-center gap-2.5 mb-1">
           <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
-          <h1 className="text-sm font-semibold uppercase tracking-widest text-white/70">Auditoría Estratégica</h1>
+          <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Auditoría Estratégica</h1>
         </div>
-        <p className="text-xs text-white/30 ml-[18px]">Evaluación del Ecosistema Circular · {selectedMonth}</p>
+        <p className="text-xs text-foreground/30 ml-[18px]">Evaluación del Ecosistema Circular · {selectedMonth}</p>
       </div>
 
       {/* Revenue card */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
+      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
         <div className={`h-[2px] w-full ${annualRevenue >= 20000 ? "bg-emerald-500/60" : "bg-amber-500/60"}`} />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
         <div className="relative flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
           <div className="space-y-1">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35">
               Revenue total rolling 12 meses
             </p>
-            <div className="text-3xl font-bold tracking-tight text-white">
+            <div className="text-3xl font-bold tracking-tight text-foreground">
               {annualMetrics && typeof annualMetrics.total_revenue === 'number'
                 ? annualMetrics.total_revenue.toLocaleString('en-US', {
                     style: 'currency',
@@ -705,7 +705,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
           </div>
 
           <div className="flex flex-col items-start gap-2 md:items-end">
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-white/35">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35">
               Audit activo
             </span>
             <span
@@ -722,15 +722,15 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
       </div>
 
       {loadingAudit ? (
-        <p className="text-white/40 text-sm">Cargando tipo de auditoría…</p>
+        <p className="text-foreground/40 text-sm">Cargando tipo de auditoría…</p>
       ) : (
-        <div className="relative overflow-hidden rounded-[28px] border border-white/[0.07] bg-[#17171a] shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+        <div className="relative overflow-hidden rounded-[28px] border border-foreground/[0.07] bg-[#17171a] shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.015),transparent_55%)]" />
 
           {/* Modal-style header */}
-          <div className="relative flex items-center justify-between border-b border-white/[0.05] px-6 py-5">
-            <h2 className="text-[18px] font-semibold tracking-tight text-white">Mi Ecosistema</h2>
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-white/30">
+          <div className="relative flex items-center justify-between border-b border-foreground/[0.05] px-6 py-5">
+            <h2 className="text-[18px] font-semibold tracking-tight text-foreground">Mi Ecosistema</h2>
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30">
               {selectedAnswersCount}/12 respondidas
             </span>
           </div>
@@ -741,7 +741,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
               {flywheelSectionItems.map((group) => (
                 <section key={group.prefix} className="space-y-4">
                   <div className="px-1">
-                    <h3 className="text-[15px] font-bold uppercase tracking-[0.16em] text-white/88">
+                    <h3 className="text-[15px] font-bold uppercase tracking-[0.16em] text-foreground/88">
                       {group.title.toUpperCase()}
                     </h3>
                   </div>
@@ -750,14 +750,14 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                     {group.items.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-white/[0.07] bg-[#0f1012] px-5 py-4 space-y-3"
+                        className="rounded-2xl border border-foreground/[0.07] bg-[#0f1012] px-5 py-4 space-y-3"
                       >
                         {/* ID + statement */}
                         <div className="flex items-start gap-3">
-                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.05] px-2 text-[12px] font-bold text-[#ffde21] flex-shrink-0">
+                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-foreground/[0.08] bg-foreground/[0.05] px-2 text-[12px] font-bold text-[#ffde21] flex-shrink-0">
                             {item.id}
                           </span>
-                          <p className="text-[14px] leading-snug text-white/80 pt-0.5">
+                          <p className="text-[14px] leading-snug text-foreground/80 pt-0.5">
                             {item.label}
                           </p>
                         </div>
@@ -780,26 +780,26 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
       {/* Controls */}
       <div className="space-y-4">
-        <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
+        <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
           <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/20 via-[#ffde21]/40 to-[#ffde21]/20" />
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
 
-          <div className="relative border-b border-white/[0.05] px-6 py-5">
+          <div className="relative border-b border-foreground/[0.05] px-6 py-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35 mb-1">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1">
                   Audit Controls
                 </p>
-                <h3 className="text-base font-semibold text-white">
+                <h3 className="text-base font-semibold text-foreground">
                   Generar diagnóstico estratégico
                 </h3>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white/40">
+                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-foreground/40">
                   {selectedAnswersCount} respuestas
                 </span>
-                <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white/40">
+                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-foreground/40">
                   {auditType === 'mas20k' ? "Audit +$20k" : "Audit -$20k"}
                 </span>
               </div>
@@ -816,14 +816,14 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
               {loading ? "Generando…" : "Generar Diagnóstico Estratégico"}
             </button>
             {selectedAnswersCount === 0 && !loading && (
-              <p className="text-[12px] text-white/35">Respondé al menos una pregunta arriba para activar.</p>
+              <p className="text-[12px] text-foreground/35">Respondé al menos una pregunta arriba para activar.</p>
             )}
           </div>
         </div>
 
         {/* AI Loading */}
         {loading && !aiResponse && (
-          <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
+          <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
             <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/20 via-[#ffde21]/40 to-[#ffde21]/20" />
             <AiLoading
               title="Generando diagnóstico estratégico"
@@ -840,24 +840,24 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
         {/* AI Response */}
         {aiResponse && (
-          <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
+          <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
             <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/20 via-[#ffde21]/40 to-[#ffde21]/20" />
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
 
-            <div className="relative border-b border-white/[0.05] px-6 py-5">
+            <div className="relative border-b border-foreground/[0.05] px-6 py-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35 mb-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1">
                     Strategic Output
                   </p>
-                  <h3 className="text-base font-semibold text-white">
+                  <h3 className="text-base font-semibold text-foreground">
                     Diagnóstico Estratégico
                   </h3>
-                  <p className="mt-1.5 text-xs text-white/35 max-w-lg">
+                  <p className="mt-1.5 text-xs text-foreground/35 max-w-lg">
                     Una lectura ejecutiva del cuello de botella, las debilidades y la prioridad estratégica del negocio.
                   </p>
                 </div>
-                <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white/40">
+                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-foreground/40">
                   {loading ? "Procesando" : "Listo"}
                 </span>
               </div>
@@ -884,25 +884,25 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
         )}
 
         {/* History */}
-        <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113]">
+        <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,222,33,0.03),transparent_55%)]" />
 
-          <div className="relative border-b border-white/[0.05] px-6 py-6">
+          <div className="relative border-b border-foreground/[0.05] px-6 py-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/35 mb-1">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1">
                   Audit Archive
                 </p>
-                <h3 className="text-base font-semibold text-white">
+                <h3 className="text-base font-semibold text-foreground">
                   Historial de diagnósticos
                 </h3>
-                <p className="mt-1 text-xs text-white/35 max-w-lg">
+                <p className="mt-1 text-xs text-foreground/35 max-w-lg">
                   Revisá auditorías anteriores, compará estados y abrí cualquier diagnóstico guardado en un clic.
                 </p>
               </div>
-              <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-4 py-3 text-right">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30">Registros</p>
-                <p className="mt-0.5 text-lg font-bold text-white">
+              <div className="rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-4 py-3 text-right">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30">Registros</p>
+                <p className="mt-0.5 text-lg font-bold text-foreground">
                   {loadingHistory ? "…" : diagnosisHistory.length}
                 </p>
               </div>
@@ -911,11 +911,11 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
           <div className="relative px-6 py-6">
             {loadingHistory ? (
-              <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-5 py-5 text-sm text-white/40">
+              <div className="rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-5 py-5 text-sm text-foreground/40">
                 Cargando diagnósticos guardados…
               </div>
             ) : diagnosisHistory.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-white/[0.08] bg-white/[0.02] px-5 py-5 text-sm text-white/35">
+              <div className="rounded-xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-5 text-sm text-foreground/35">
                 Todavía no hay diagnósticos guardados para este cliente.
               </div>
             ) : (
@@ -929,46 +929,46 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                       className={`flex flex-col h-full justify-between rounded-2xl border p-5 transition-all duration-200 ${
                         isActiveDiagnosis
                           ? "border-[#ffde21]/30 bg-[#ffde21]/[0.04]"
-                          : "border-white/[0.07] bg-white/[0.02] hover:border-white/15"
+                          : "border-foreground/[0.07] bg-foreground/[0.02] hover:border-foreground/15"
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-4 flex-wrap">
-                        <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-white/35">
+                        <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-foreground/35">
                           #{String(diagnosisHistory.length - index).padStart(2, "0")}
                         </span>
                         <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${statusMeta.className}`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${statusMeta.dotClassName}`} />
                           {statusMeta.label}
                         </span>
-                        <span className="ml-auto text-[10px] text-white/25 font-mono">
+                        <span className="ml-auto text-[10px] text-foreground/25 font-mono">
                           {formatDiagnosisDate(item.created_at)}
                         </span>
                         <button
                           type="button"
                           onClick={() => handleDelete(item.request_id)}
                           disabled={deletingId === item.request_id}
-                          className="flex h-6 w-6 items-center justify-center rounded-lg text-white/25 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
+                          className="flex h-6 w-6 items-center justify-center rounded-lg text-foreground/25 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
                           title="Eliminar auditoría"
                         >
                           {deletingId === item.request_id
-                            ? <span className="h-3 w-3 rounded-full border border-white/20 border-t-white/60 animate-spin" />
+                            ? <span className="h-3 w-3 rounded-full border border-foreground/20 border-t-white/60 animate-spin" />
                             : <Trash2 className="h-3 w-3" />}
                         </button>
                       </div>
 
                       <details className="mb-3 group/id">
-                        <summary className="text-[10px] text-white/20 hover:text-white/40 cursor-pointer select-none transition-colors list-none">
+                        <summary className="text-[10px] text-foreground/20 hover:text-foreground/40 cursor-pointer select-none transition-colors list-none">
                           <span className="group-open/id:hidden">Mostrar ID técnico</span>
                           <span className="hidden group-open/id:inline">Ocultar ID</span>
                         </summary>
-                        <div className="mt-1 text-[10px] text-white/25 font-mono break-all">
+                        <div className="mt-1 text-[10px] text-foreground/25 font-mono break-all">
                           {item.request_id}
                         </div>
                       </details>
 
                       <div className="flex-1 flex flex-col justify-between">
-                        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 min-h-[100px] mb-4">
-                          <div className="text-xs leading-6 text-white/50 whitespace-pre-line max-h-40 overflow-y-auto">
+                        <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-4 py-3 min-h-[100px] mb-4">
+                          <div className="text-xs leading-6 text-foreground/50 whitespace-pre-line max-h-40 overflow-y-auto">
                             {item.result
                               ? previewDiagnosis(item.result)
                               : item.status === "pending"
@@ -987,7 +987,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                           className={`rounded-xl px-4 py-2 text-xs font-bold transition-all duration-150 ${
                             isActiveDiagnosis
                               ? "bg-[#ffde21] text-black"
-                              : "border border-white/[0.08] bg-white/[0.04] text-white/70 hover:bg-white/[0.08] hover:text-white"
+                              : "border border-foreground/[0.08] bg-foreground/[0.04] text-foreground/70 hover:bg-foreground/[0.08] hover:text-foreground"
                           } disabled:cursor-not-allowed disabled:opacity-40`}
                         >
                           {isActiveDiagnosis ? "Diagnóstico abierto" : "Ver diagnóstico completo"}

@@ -76,8 +76,8 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
 
   return (
     <div className={`group relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-200 ${
-      isTop ? "border-[#ffde21]/30 shadow-[0_0_20px_rgba(255,222,33,0.05)]" : "border-white/[0.07]"
-    } bg-[#111113]`}>
+      isTop ? "border-[#ffde21]/30 shadow-[0_0_20px_rgba(255,222,33,0.05)]" : "border-foreground/[0.07]"
+    } bg-card`}>
 
       {isTop && (
         <div className="absolute top-2.5 left-2.5 z-10 rounded-lg bg-[#ffde21] px-2 py-0.5 text-[10px] font-bold text-black shadow-sm">
@@ -86,12 +86,12 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
       )}
 
       <div className="absolute top-2.5 right-2.5 z-10 rounded-lg bg-black/50 p-1 backdrop-blur-sm">
-        {isVideo ? <Play className="h-3 w-3 text-white/70" /> : <ImageIcon className="h-3 w-3 text-white/50" />}
+        {isVideo ? <Play className="h-3 w-3 text-foreground/70" /> : <ImageIcon className="h-3 w-3 text-foreground/50" />}
       </div>
 
       {/* Thumbnail — portrait 9:16 */}
       <a href={post.post_url} target="_blank" rel="noopener noreferrer"
-        className="block relative overflow-hidden bg-white/[0.04]" style={{ aspectRatio: "9/16" }}>
+        className="block relative overflow-hidden bg-foreground/[0.04]" style={{ aspectRatio: "9/16" }}>
         {post.thumbnail && !thumbError
           ? <img
               src={`/api/proxy-image?url=${encodeURIComponent(post.thumbnail)}`}
@@ -100,15 +100,15 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           : <div className="flex h-full items-center justify-center">
-              <Film className="h-8 w-8 text-white/10" />
+              <Film className="h-8 w-8 text-foreground/10" />
             </div>}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between px-2.5 pb-2">
-          <span className="flex items-center gap-1 text-[11px] font-semibold text-white">
+          <span className="flex items-center gap-1 text-[11px] font-semibold text-foreground">
             <Eye className="h-3 w-3 opacity-70" />{post.views > 0 ? fmt(post.views) : "—"}
           </span>
           {post.duration && (
-            <span className="rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-white tabular-nums">
+            <span className="rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-foreground tabular-nums">
               {post.duration}
             </span>
           )}
@@ -117,27 +117,27 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
 
       {/* Info */}
       <div className="flex flex-col flex-1 p-3">
-        <p className="text-xs font-medium text-white/80 leading-snug line-clamp-2 mb-2">{post.title}</p>
+        <p className="text-xs font-medium text-foreground/80 leading-snug line-clamp-2 mb-2">{post.title}</p>
 
-        <div className="flex items-center gap-2.5 text-white/35 mb-2">
+        <div className="flex items-center gap-2.5 text-foreground/35 mb-2">
           <span className="flex items-center gap-0.5 text-[10px]"><ThumbsUp className="h-2.5 w-2.5" />{fmt(post.likes)}</span>
           <span className="flex items-center gap-0.5 text-[10px]"><MessageCircle className="h-2.5 w-2.5" />{fmt(post.comments)}</span>
           {post.published_at && <span className="text-[10px] ml-auto">{timeAgo(post.published_at)}</span>}
         </div>
 
         {post.analysis && (
-          <div className="border-t border-white/[0.05] pt-2 mt-auto">
+          <div className="border-t border-foreground/[0.05] pt-2 mt-auto">
             <button onClick={() => setExpanded(v => !v)} className="flex w-full items-center gap-1.5 text-left">
               <Sparkles className="h-2.5 w-2.5 text-[#ffde21]/50" />
               <span className="text-[9px] font-semibold uppercase tracking-widest text-[#ffde21]/50 flex-1">Análisis IA</span>
-              {expanded ? <ChevronUp className="h-3 w-3 text-white/20" /> : <ChevronDown className="h-3 w-3 text-white/20" />}
+              {expanded ? <ChevronUp className="h-3 w-3 text-foreground/20" /> : <ChevronDown className="h-3 w-3 text-foreground/20" />}
             </button>
             {expanded && (
               <div className="mt-2 space-y-2">
-                <p className="text-[10px] text-white/55 leading-relaxed">{post.analysis}</p>
+                <p className="text-[10px] text-foreground/55 leading-relaxed">{post.analysis}</p>
                 <button
                   onClick={() => { navigator.clipboard.writeText(post.analysis!); setCopied(true); setTimeout(() => setCopied(false), 1500) }}
-                  className="inline-flex items-center gap-1 text-[9px] text-white/25 hover:text-white/50 transition-colors"
+                  className="inline-flex items-center gap-1 text-[9px] text-foreground/25 hover:text-foreground/50 transition-colors"
                 >
                   {copied ? <Check className="h-2.5 w-2.5 text-emerald-400" /> : <Copy className="h-2.5 w-2.5" />}
                   Copiar análisis
@@ -194,12 +194,12 @@ function ConnectForm({ onConnect, clientId }: { onConnect: (account: Account) =>
             <Instagram className="h-7 w-7 text-pink-400" />
           </div>
         </div>
-        <h2 className="text-xl font-bold text-white text-center mb-1">Conectá tu Instagram</h2>
-        <p className="text-sm text-white/40 text-center mb-8">
+        <h2 className="text-xl font-bold text-foreground text-center mb-1">Conectá tu Instagram</h2>
+        <p className="text-sm text-foreground/40 text-center mb-8">
           Ingresá la URL de tu perfil para ver tus mejores posts de los últimos 30 días con análisis IA.
         </p>
 
-        <div className="rounded-2xl border border-white/[0.08] bg-[#111113] overflow-hidden">
+        <div className="rounded-2xl border border-foreground/[0.08] bg-card overflow-hidden">
           <div className="h-[2px] w-full bg-gradient-to-r from-pink-500/0 via-pink-500/40 to-pink-500/0" />
           <div className="p-6 space-y-4">
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -212,7 +212,7 @@ function ConnectForm({ onConnect, clientId }: { onConnect: (account: Account) =>
                   value={url}
                   onChange={e => { setUrl(e.target.value); setError(null) }}
                   placeholder="https://instagram.com/tuperfil/"
-                  className="h-11 w-full rounded-xl border border-white/[0.08] bg-[#0c0c0d] pl-10 pr-4 text-sm text-white placeholder:text-white/20 focus:border-pink-500/40 focus:outline-none focus:ring-1 focus:ring-pink-500/15 transition-all"
+                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-background pl-10 pr-4 text-sm text-foreground placeholder:text-foreground/20 focus:border-pink-500/40 focus:outline-none focus:ring-1 focus:ring-pink-500/15 transition-all"
                   disabled={loading}
                 />
               </div>
@@ -229,7 +229,7 @@ function ConnectForm({ onConnect, clientId }: { onConnect: (account: Account) =>
             )}
           </div>
           {loading && (
-            <div className="border-t border-white/[0.05]">
+            <div className="border-t border-foreground/[0.05]">
               <AiLoading
                 title="Obteniendo tus publicaciones"
                 steps={["Conectando con Instagram…", "Obteniendo publicaciones…", "Calculando métricas…", "Generando análisis IA…", "Casi listo…"]}
@@ -278,16 +278,16 @@ function FeedView({ account, onRefresh }: {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-white">@{account.channel_name}</span>
+            <span className="text-sm font-semibold text-foreground">@{account.channel_name}</span>
             <a href={account.channel_url} target="_blank" rel="noopener noreferrer"
-              className="text-white/25 hover:text-[#ffde21] transition-colors">
+              className="text-foreground/25 hover:text-[#ffde21] transition-colors">
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
-          <p className="text-[11px] text-white/30 mt-0.5">
+          <p className="text-[11px] text-foreground/30 mt-0.5">
             {account.posts.length} posts · últimos 30 días · Actualizado {timeAgo(account.updated_at)}
             {lastNew !== null && (
-              <span className={`ml-2 font-medium ${lastNew > 0 ? "text-emerald-400" : "text-white/25"}`}>
+              <span className={`ml-2 font-medium ${lastNew > 0 ? "text-emerald-400" : "text-foreground/25"}`}>
                 {lastNew > 0 ? `+${lastNew} nuevo${lastNew > 1 ? "s" : ""}` : "Sin posts nuevos"}
               </span>
             )}
@@ -298,7 +298,7 @@ function FeedView({ account, onRefresh }: {
             onClick={handleRefresh}
             disabled={refreshing}
             title="Actualizar — solo procesa posts nuevos"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.07] text-white/30 hover:border-white/20 hover:text-white/60 transition-all disabled:opacity-40"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.07] text-foreground/30 hover:border-foreground/20 hover:text-foreground/60 transition-all disabled:opacity-40"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
           </button>
@@ -312,12 +312,12 @@ function FeedView({ account, onRefresh }: {
             className={`h-8 rounded-lg px-4 text-xs font-semibold transition-all ${
               filter === f
                 ? "bg-[#ffde21] text-black"
-                : "border border-white/[0.07] bg-white/[0.03] text-white/40 hover:text-white/70"
+                : "border border-foreground/[0.07] bg-foreground/[0.03] text-foreground/40 hover:text-foreground/70"
             }`}>
             {f === "all" ? "Todos" : "Top Performing"}
           </button>
         ))}
-        <span className="ml-auto text-[11px] text-white/25">{filtered.length} publicaciones</span>
+        <span className="ml-auto text-[11px] text-foreground/25">{filtered.length} publicaciones</span>
       </div>
 
       {/* Grid — portrait 9:16 */}
@@ -327,7 +327,7 @@ function FeedView({ account, onRefresh }: {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
-          <p className="text-sm text-white/30">No hay publicaciones que superen el umbral.</p>
+          <p className="text-sm text-foreground/30">No hay publicaciones que superen el umbral.</p>
           <button onClick={() => setFilter("all")} className="text-xs text-[#ffde21]/60 hover:text-[#ffde21] transition-colors">
             Ver todas →
           </button>
@@ -387,7 +387,7 @@ function VideoFeedContent() {
   if (loadingAccount) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-white/50" />
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-foreground/10 border-t-white/50" />
       </div>
     )
   }
@@ -400,8 +400,8 @@ function VideoFeedContent() {
           <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Viendo otro cliente</p>
-            <p className="text-[13px] text-white/75 mt-0.5">
-              Estás viendo el video feed de <span className="font-semibold text-white">{activeName ?? "(sin nombre)"}</span>. Cualquier conexión o refresh se guarda en su cuenta.
+            <p className="text-[13px] text-foreground/75 mt-0.5">
+              Estás viendo el video feed de <span className="font-semibold text-foreground">{activeName ?? "(sin nombre)"}</span>. Cualquier conexión o refresh se guarda en su cuenta.
             </p>
           </div>
         </div>

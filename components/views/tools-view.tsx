@@ -30,22 +30,22 @@ export function ToolsSection({
       <div>
         <div className="flex items-center gap-2.5 mb-1">
           <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-white/70">{title}</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">{title}</h2>
         </div>
         {subtitle && (
-          <p className="text-xs text-white/30 ml-[18px]">{subtitle}</p>
+          <p className="text-xs text-foreground/30 ml-[18px]">{subtitle}</p>
         )}
       </div>
 
       {tools.length === 0 && showPlaceholder ? (
-        <p className="text-sm text-white/50">No hay herramientas cargadas.</p>
+        <p className="text-sm text-foreground/50">No hay herramientas cargadas.</p>
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {tools.map((t) => (
           <div
             key={t.href}
-            className="group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] transition-all duration-200 hover:border-[#ffde21]/25 hover:shadow-[0_0_40px_rgba(255,222,33,0.07)]"
+            className="group relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card transition-all duration-200 hover:border-[#ffde21]/25 hover:shadow-[0_0_40px_rgba(255,222,33,0.07)]"
           >
             <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/40 via-[#ffde21]/20 to-transparent" />
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.05),transparent_55%)]" />
@@ -61,16 +61,16 @@ export function ToolsSection({
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white tracking-tight leading-tight">{t.name}</p>
+                  <p className="text-sm font-semibold text-foreground tracking-tight leading-tight">{t.name}</p>
                   <p className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-[#ffde21]/60">
                     {variant === "gpt" ? "AI Tool" : "Form"}
                   </p>
                 </div>
-                <ExternalLink className="h-3.5 w-3.5 text-white/20 flex-shrink-0 mt-0.5" />
+                <ExternalLink className="h-3.5 w-3.5 text-foreground/20 flex-shrink-0 mt-0.5" />
               </div>
 
               {/* Description */}
-              <p className="text-xs leading-relaxed text-white/50">
+              <p className="text-xs leading-relaxed text-foreground/50">
                 {t.description}
               </p>
 
@@ -85,7 +85,7 @@ export function ToolsSection({
                       height={24}
                       className="rounded-full ring-1 ring-white/15"
                     />
-                    <span className="text-xs text-white/35">por Ann</span>
+                    <span className="text-xs text-foreground/35">por Ann</span>
                   </div>
                 ) : <div />}
 

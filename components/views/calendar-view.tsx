@@ -47,7 +47,7 @@ function CopyPasscodeButton({ value }: { value: string }) {
     <button
       type="button"
       onClick={onCopy}
-      className="inline-flex items-center gap-1 rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-1 text-[10px] font-semibold text-white/55 hover:text-[#ffde21] hover:border-[#ffde21]/30 transition-all"
+      className="inline-flex items-center gap-1 rounded-md border border-foreground/[0.08] bg-foreground/[0.03] px-2 py-1 text-[10px] font-semibold text-foreground/55 hover:text-[#ffde21] hover:border-[#ffde21]/30 transition-all"
       title={copied ? "Copiado" : "Copiar código"}
     >
       {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
@@ -131,7 +131,7 @@ function statusPill(status: CalendarItem["status"] | undefined) {
   }
   if (s === "tbd") {
     return (
-      <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-medium text-white/70">
+      <span className="inline-flex items-center rounded-full border border-foreground/10 bg-foreground/5 px-2 py-0.5 text-[11px] font-medium text-foreground/70">
         Próximamente
       </span>
     )
@@ -153,9 +153,9 @@ export function CalendarView() {
       <div>
         <div className="flex items-center gap-2.5 mb-1">
           <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
-          <h1 className="text-sm font-semibold uppercase tracking-widest text-white/70">Agenda Semanal</h1>
+          <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Agenda Semanal</h1>
         </div>
-        <p className="text-xs text-white/30 ml-[18px]">
+        <p className="text-xs text-foreground/30 ml-[18px]">
           Llamadas semanales · horario Miami · todas quedan grabadas
         </p>
       </div>
@@ -166,7 +166,7 @@ export function CalendarView() {
           return (
             <div
               key={`${item.day}-${item.time}-${item.title}`}
-              className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] transition-all duration-200 hover:border-[#ffde21]/25 hover:shadow-[0_0_30px_rgba(255,222,33,0.06)]"
+              className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card transition-all duration-200 hover:border-[#ffde21]/25 hover:shadow-[0_0_30px_rgba(255,222,33,0.06)]"
             >
               <div className={`h-[2px] w-full ${cancelled ? "bg-red-500/50" : "bg-gradient-to-r from-[#ffde21]/20 via-[#ffde21]/40 to-[#ffde21]/20"}`} />
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
@@ -175,11 +175,11 @@ export function CalendarView() {
                 {/* Title + status */}
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className={`text-sm font-semibold leading-tight ${cancelled ? "line-through text-white/40" : "text-white"}`}>
+                    <p className={`text-sm font-semibold leading-tight ${cancelled ? "line-through text-foreground/40" : "text-foreground"}`}>
                       {item.title}
                     </p>
                     {item.description && (
-                      <p className="mt-0.5 text-xs text-white/35">{item.description}</p>
+                      <p className="mt-0.5 text-xs text-foreground/35">{item.description}</p>
                     )}
                   </div>
                   {statusPill(item.status)}
@@ -187,14 +187,14 @@ export function CalendarView() {
 
                 {/* Time info */}
                 <div className="space-y-1.5">
-                  <div className="flex items-center gap-2 text-xs text-white/40">
+                  <div className="flex items-center gap-2 text-xs text-foreground/40">
                     <Calendar className="h-3.5 w-3.5" />
                     <span className={cancelled ? "line-through" : ""}>{item.day}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-white/40">
+                  <div className="flex items-center gap-2 text-xs text-foreground/40">
                     <Clock className="h-3.5 w-3.5" />
                     <span className={cancelled ? "line-through" : ""}>{item.time}</span>
-                    <span className="text-white/20">·</span>
+                    <span className="text-foreground/20">·</span>
                     <span>{item.tzLabel ?? "Miami"}</span>
                   </div>
                   {!cancelled && toUserLocalTime(item.time) && (
@@ -203,7 +203,7 @@ export function CalendarView() {
                       <span className="text-[#ffde21]/70 font-semibold">Tu hora local: {toUserLocalTime(item.time)}</span>
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-xs text-white/40">
+                  <div className="flex items-center gap-2 text-xs text-foreground/40">
                     <MapPin className="h-3.5 w-3.5" />
                     <span>Zoom</span>
                   </div>
@@ -211,10 +211,10 @@ export function CalendarView() {
 
                 {/* Passcode */}
                 {item.passcode && (
-                  <div className="flex items-center justify-between gap-2 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2">
+                  <div className="flex items-center justify-between gap-2 rounded-xl border border-foreground/[0.06] bg-foreground/[0.03] px-3 py-2">
                     <div>
-                      <p className="text-[10px] text-white/30 uppercase tracking-wider">Código</p>
-                      <p className="mt-0.5 font-mono text-sm font-semibold text-white/80">{item.passcode}</p>
+                      <p className="text-[10px] text-foreground/30 uppercase tracking-wider">Código</p>
+                      <p className="mt-0.5 font-mono text-sm font-semibold text-foreground/80">{item.passcode}</p>
                     </div>
                     <CopyPasscodeButton value={item.passcode} />
                   </div>
@@ -226,7 +226,7 @@ export function CalendarView() {
                   size="sm"
                   className={`w-full h-8 rounded-xl text-xs font-bold ${
                     cancelled
-                      ? "bg-white/5 text-white/30 pointer-events-none"
+                      ? "bg-foreground/5 text-foreground/30 pointer-events-none"
                       : "bg-[#ffde21] text-black hover:bg-[#ffe46b]"
                   }`}
                   disabled={!item.zoomUrl || cancelled}
@@ -245,11 +245,11 @@ export function CalendarView() {
       </div>
 
       {/* Monthly call card */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111113] p-5">
+      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card p-5">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,222,33,0.03),transparent_60%)]" />
         <div className="relative">
-          <p className="text-xs font-semibold uppercase tracking-widest text-white/35 mb-3">Llamada mensual con Ann</p>
-          <p className="text-sm text-white/55 mb-3">
+          <p className="text-xs font-semibold uppercase tracking-widest text-foreground/35 mb-3">Llamada mensual con Ann</p>
+          <p className="text-sm text-foreground/55 mb-3">
             Agendá tu llamada:{" "}
             <a
               href="https://calendly.com/strategystudio-mkt/ann-s-privat-link"
@@ -260,7 +260,7 @@ export function CalendarView() {
               calendly.com/strategystudio-mkt
             </a>
           </p>
-          <ul className="space-y-1 text-xs text-white/35 list-none">
+          <ul className="space-y-1 text-xs text-foreground/35 list-none">
             {[
               "Las llamadas son mensuales y no acumulables.",
               "Cada mes tenés disponible una (1) llamada.",

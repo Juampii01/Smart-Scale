@@ -140,7 +140,7 @@ const FOLLOWUP_TYPE_STYLE: Record<string, string> = {
   whatsapp: "bg-pink-500/10 text-pink-300 border-pink-500/25",
   llamada:  "bg-blue-500/10 text-blue-300 border-blue-500/25",
   email:    "bg-purple-500/10 text-purple-300 border-purple-500/25",
-  otro:     "bg-white/[0.05] text-white/50 border-white/[0.10]",
+  otro:     "bg-foreground/[0.05] text-foreground/50 border-foreground/[0.10]",
 }
 
 const FOLLOWUP_TYPE_ICON: Record<string, React.ReactNode> = {
@@ -150,8 +150,8 @@ const FOLLOWUP_TYPE_ICON: Record<string, React.ReactNode> = {
   otro:     <MoreHorizontal className="h-3 w-3" />,
 }
 
-const inputCls = "w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
-const labelCls = "text-[10px] font-bold uppercase tracking-widest text-white/25"
+const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
+const labelCls = "text-[10px] font-bold uppercase tracking-widest text-foreground/25"
 
 // ─── Webhook Card ─────────────────────────────────────────────────────────────
 
@@ -168,21 +168,21 @@ function WebhookCard() {
   }
 
   return (
-    <div className="rounded-2xl border border-white/[0.07] bg-[#111113] px-5 py-4">
-      <p className="text-[11px] font-bold uppercase tracking-widest text-white/30 mb-2">
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-4">
+      <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-2">
         Webhook URL — Zapier / Formulario de onboarding
       </p>
       <div className="flex items-center gap-2">
-        <code className="flex-1 rounded-lg bg-white/[0.04] px-3 py-2 text-[12px] text-[#ffde21]/70 font-mono truncate">
+        <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-[#ffde21]/70 font-mono truncate">
           {url}
         </code>
         <button onClick={copy}
-          className="shrink-0 h-8 rounded-lg border border-white/[0.08] px-3 text-[12px] text-white/40 hover:text-white hover:border-white/20 transition-all">
+          className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all">
           {copied ? "✓ Copiado" : "Copiar"}
         </button>
       </div>
-      <p className="text-[11px] text-white/25 mt-1.5">
-        Campos: <code className="text-white/40">nombre</code>, <code className="text-white/40">email</code>, <code className="text-white/40">telefono</code>, <code className="text-white/40">fecha_cierre</code>, <code className="text-white/40">programa</code>, <code className="text-white/40">cantidad_meses</code> (duración del programa), <code className="text-white/40">cantidad_pagos</code> (cuotas de pago), <code className="text-white/40">primer_pago</code>, <code className="text-white/40">mes_2</code>…<code className="text-white/40">mes_6</code>
+      <p className="text-[11px] text-foreground/25 mt-1.5">
+        Campos: <code className="text-foreground/40">nombre</code>, <code className="text-foreground/40">email</code>, <code className="text-foreground/40">telefono</code>, <code className="text-foreground/40">fecha_cierre</code>, <code className="text-foreground/40">programa</code>, <code className="text-foreground/40">cantidad_meses</code> (duración del programa), <code className="text-foreground/40">cantidad_pagos</code> (cuotas de pago), <code className="text-foreground/40">primer_pago</code>, <code className="text-foreground/40">mes_2</code>…<code className="text-foreground/40">mes_6</code>
       </p>
     </div>
   )
@@ -255,13 +255,13 @@ function DetailDrawer({
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[480px] flex-col border-l border-white/[0.08] shadow-2xl" style={{ backgroundColor: "#111113" }}>
+      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[480px] flex-col border-l border-foreground/[0.08] shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
 
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 border-b border-white/[0.06] px-6 py-5" style={{ backgroundColor: "#111113" }}>
+        <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5" style={{ backgroundColor: "var(--card)" }}>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-white truncate">{client.name}</h2>
+              <h2 className="text-lg font-bold text-foreground truncate">{client.name}</h2>
               {client.is_monthly_subscription && (
                 <span className="inline-flex items-center rounded-full border border-[#ffde21]/30 bg-[#ffde21]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#ffde21] shrink-0">
                   Mensual
@@ -272,27 +272,27 @@ function DetailDrawer({
               <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${CLIENT_STATUS_STYLE[client.status] ?? ""}`}>
                 {CLIENT_STATUS_LABEL[client.status] ?? client.status}
               </span>
-              <span className="text-[12px] text-white/30">desde {fmtDate(client.program_start)}</span>
+              <span className="text-[12px] text-foreground/30">desde {fmtDate(client.program_start)}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => onDeleteClient(client.id)} disabled={deleting}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
             <button onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-white/30 hover:text-white hover:bg-white/[0.06] transition-all">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
               <X className="h-4 w-4" />
             </button>
           </div>
         </div>
 
         {/* Scrollable body */}
-        <div className="flex-1 overflow-y-auto" style={{ backgroundColor: "#111113" }}>
+        <div className="flex-1 overflow-y-auto" style={{ backgroundColor: "var(--card)" }}>
 
           {/* Section 1: Info fields */}
-          <div className="px-6 py-5 space-y-4 border-b border-white/[0.06]">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Información</p>
+          <div className="px-6 py-5 space-y-4 border-b border-foreground/[0.06]">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Información</p>
 
             <div className="space-y-1.5">
               <p className={labelCls}>Nombre</p>
@@ -347,7 +347,7 @@ function DetailDrawer({
                 <select
                   defaultValue={client.status}
                   onChange={e => onPatchClient(client.id, { status: e.target.value as Client["status"] })}
-                  className="w-full appearance-none rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white focus:border-white/20 focus:outline-none transition-all">
+                  className="w-full appearance-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all">
                   <option value="activo">Activo</option>
                   <option value="en_pausa">En pausa</option>
                   <option value="inactivo">Inactivo</option>
@@ -382,17 +382,17 @@ function DetailDrawer({
             </div>
 
             {/* Plan mensual toggle */}
-            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 flex items-start gap-3">
+            <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-4 py-3 flex items-start gap-3">
               <input
                 type="checkbox"
                 id={`monthly-${client.id}`}
                 defaultChecked={!!client.is_monthly_subscription}
                 onChange={e => onPatchClient(client.id, { is_monthly_subscription: e.target.checked } as any)}
-                className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/[0.05] accent-[#ffde21] cursor-pointer"
+                className="mt-0.5 h-4 w-4 rounded border-foreground/20 bg-foreground/[0.05] accent-[#ffde21] cursor-pointer"
               />
               <label htmlFor={`monthly-${client.id}`} className="flex-1 cursor-pointer">
-                <p className="text-[13px] font-semibold text-white">Plan mensual auto-renovable</p>
-                <p className="text-[11px] text-white/40 mt-0.5 leading-snug">
+                <p className="text-[13px] font-semibold text-foreground">Plan mensual auto-renovable</p>
+                <p className="text-[11px] text-foreground/40 mt-0.5 leading-snug">
                   Cuando se marque la cuota como pagada, el sistema genera la siguiente automáticamente. Slack alerta 5 días antes de cada cobro. Apagá esto para finalizar la suscripción.
                 </p>
               </label>
@@ -418,14 +418,14 @@ function DetailDrawer({
                 rows={3}
                 onBlur={e    => onPatchClient(client.id, { notes: e.target.value || null })}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) (e.target as HTMLTextAreaElement).blur() }}
-                className="w-full resize-none rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[13px] text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none transition-all"
+                className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
               />
             </div>
           </div>
 
           {/* Section: Credenciales del dashboard */}
-          <div className="px-6 py-5 space-y-4 border-b border-white/[0.06]">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Credenciales del Dashboard</p>
+          <div className="px-6 py-5 space-y-4 border-b border-foreground/[0.06]">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Credenciales del Dashboard</p>
             <div className="space-y-1.5">
               <p className={labelCls}>Email de acceso</p>
               <input
@@ -451,23 +451,23 @@ function DetailDrawer({
           </div>
 
           {/* Section 2: Installments */}
-          <div className="px-6 py-5 space-y-3 border-b border-white/[0.06]">
+          <div className="px-6 py-5 space-y-3 border-b border-foreground/[0.06]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Cuotas de pago</p>
-                <p className="text-[11px] text-white/35 mt-0.5">
-                  Programa: <span className="text-white/60 font-semibold">{client.program_duration ?? client.num_installments} meses</span>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Cuotas de pago</p>
+                <p className="text-[11px] text-foreground/35 mt-0.5">
+                  Programa: <span className="text-foreground/60 font-semibold">{client.program_duration ?? client.num_installments} meses</span>
                   {" · "}
-                  Pagos: <span className="text-white/60 font-semibold">{client.num_installments} cuota{client.num_installments !== 1 ? "s" : ""}</span>
+                  Pagos: <span className="text-foreground/60 font-semibold">{client.num_installments} cuota{client.num_installments !== 1 ? "s" : ""}</span>
                 </p>
               </div>
-              <span className="rounded-full bg-white/[0.05] px-2.5 py-0.5 text-[11px] font-bold text-white/50">
+              <span className="rounded-full bg-foreground/[0.05] px-2.5 py-0.5 text-[11px] font-bold text-foreground/50">
                 {paidCount}/{client.num_installments} pagadas
               </span>
             </div>
 
             {/* Progress bar */}
-            <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+            <div className="h-1.5 rounded-full bg-foreground/[0.06] overflow-hidden">
               <div
                 className="h-full rounded-full bg-[#ffde21] transition-all duration-500"
                 style={{ width: `${client.num_installments > 0 ? (paidCount / client.num_installments) * 100 : 0}%` }}
@@ -476,15 +476,15 @@ function DetailDrawer({
 
             <div className="space-y-2">
               {client.installments.map(inst => (
-                <div key={inst.id} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 space-y-2">
+                <div key={inst.id} className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] p-3 space-y-2">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/[0.06] text-[11px] font-bold text-white/60 shrink-0">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground/[0.06] text-[11px] font-bold text-foreground/60 shrink-0">
                       {inst.installment_number}
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[13px] font-semibold text-white">{fmtMoney(inst.amount)}</span>
-                        <span className="text-[12px] text-white/40">{fmtDate(inst.due_date)}</span>
+                        <span className="text-[13px] font-semibold text-foreground">{fmtMoney(inst.amount)}</span>
+                        <span className="text-[12px] text-foreground/40">{fmtDate(inst.due_date)}</span>
                         <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${INST_STATUS_STYLE[inst.status]}`}>
                           {inst.status}
                         </span>
@@ -504,13 +504,13 @@ function DetailDrawer({
                     </button>
                   </div>
                   {inst.paid_at && (
-                    <p className="text-[11px] text-white/35 pl-9">Pagado el {fmtDate(inst.paid_at)}</p>
+                    <p className="text-[11px] text-foreground/35 pl-9">Pagado el {fmtDate(inst.paid_at)}</p>
                   )}
                 </div>
               ))}
 
               {client.installments.length === 0 && (
-                <p className="text-[12px] text-white/25 text-center py-3">Sin cuotas generadas.</p>
+                <p className="text-[12px] text-foreground/25 text-center py-3">Sin cuotas generadas.</p>
               )}
             </div>
           </div>
@@ -518,10 +518,10 @@ function DetailDrawer({
           {/* Section 3: Follow-ups */}
           <div className="px-6 py-5 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Seguimientos</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Seguimientos</p>
               <button
                 onClick={() => setShowFollowupForm(v => !v)}
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/[0.08] text-white/40 hover:text-[#ffde21] hover:border-[#ffde21]/30 transition-all">
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.08] text-foreground/40 hover:text-[#ffde21] hover:border-[#ffde21]/30 transition-all">
                 <Plus className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -533,12 +533,12 @@ function DetailDrawer({
                   <div className="space-y-1">
                     <p className={labelCls}>Fecha</p>
                     <input type="date" value={fuDate} onChange={e => setFuDate(e.target.value)}
-                      className="w-full rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-2 text-[12px] text-white focus:border-white/20 focus:outline-none [color-scheme:dark]" />
+                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12px] text-foreground focus:border-foreground/20 focus:outline-none [color-scheme:dark]" />
                   </div>
                   <div className="space-y-1">
                     <p className={labelCls}>Tipo</p>
                     <select value={fuType} onChange={e => setFuType(e.target.value as Followup["type"])}
-                      className="w-full appearance-none rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-2 text-[12px] text-white focus:border-white/20 focus:outline-none">
+                      className="w-full appearance-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12px] text-foreground focus:border-foreground/20 focus:outline-none">
                       <option value="whatsapp">WhatsApp</option>
                       <option value="llamada">Llamada</option>
                       <option value="email">Email</option>
@@ -548,7 +548,7 @@ function DetailDrawer({
                 </div>
                 <input value={fuNotes} onChange={e => setFuNotes(e.target.value)}
                   placeholder="Notas del seguimiento..."
-                  className="w-full rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-2 text-[12px] text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none" />
+                  className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none" />
                 <div className="flex items-center gap-2">
                   <button onClick={handleSaveFollowup} disabled={savingFu || !fuDate}
                     className="flex items-center gap-1.5 h-7 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] disabled:opacity-40 transition-all">
@@ -556,7 +556,7 @@ function DetailDrawer({
                     Guardar
                   </button>
                   <button onClick={() => setShowFollowupForm(false)}
-                    className="h-7 rounded-lg border border-white/[0.08] px-3 text-[12px] text-white/40 hover:text-white transition-all">
+                    className="h-7 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-foreground/40 hover:text-foreground transition-all">
                     Cancelar
                   </button>
                 </div>
@@ -573,12 +573,12 @@ function DetailDrawer({
                 })
                 .map(fu => (
                   <div key={fu.id} className={`rounded-xl border p-3 flex items-start gap-3 group transition-all ${
-                    fu.completed ? "border-white/[0.04] bg-white/[0.01] opacity-50" : "border-white/[0.07] bg-white/[0.02]"
+                    fu.completed ? "border-foreground/[0.04] bg-foreground/[0.01] opacity-50" : "border-foreground/[0.07] bg-foreground/[0.02]"
                   }`}>
                     <button
                       onClick={() => handleToggleFu(fu)}
                       disabled={togglingFu === fu.id}
-                      className="mt-0.5 shrink-0 text-white/30 hover:text-emerald-400 transition-colors disabled:opacity-40">
+                      className="mt-0.5 shrink-0 text-foreground/30 hover:text-emerald-400 transition-colors disabled:opacity-40">
                       {togglingFu === fu.id
                         ? <Loader2 className="h-4 w-4 animate-spin" />
                         : fu.completed
@@ -587,7 +587,7 @@ function DetailDrawer({
                     </button>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[12px] font-semibold text-white/80">{fmtDate(fu.scheduled_date)}</span>
+                        <span className="text-[12px] font-semibold text-foreground/80">{fmtDate(fu.scheduled_date)}</span>
                         <span className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${FOLLOWUP_TYPE_STYLE[fu.type]}`}>
                           {FOLLOWUP_TYPE_ICON[fu.type]}
                           {fu.type}
@@ -597,20 +597,20 @@ function DetailDrawer({
                         )}
                       </div>
                       {fu.notes && (
-                        <p className="text-[11px] text-white/40 mt-1">{fu.notes}</p>
+                        <p className="text-[11px] text-foreground/40 mt-1">{fu.notes}</p>
                       )}
                     </div>
                     <button
                       onClick={() => handleDeleteFu(fu.id)}
                       disabled={deletingFuId === fu.id}
-                      className="shrink-0 opacity-0 group-hover:opacity-100 flex h-6 w-6 items-center justify-center rounded-lg text-white/15 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
+                      className="shrink-0 opacity-0 group-hover:opacity-100 flex h-6 w-6 items-center justify-center rounded-lg text-foreground/15 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
                       {deletingFuId === fu.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
                     </button>
                   </div>
                 ))}
 
               {client.followups.length === 0 && !showFollowupForm && (
-                <p className="text-[12px] text-white/25 text-center py-3">Sin seguimientos agendados.</p>
+                <p className="text-[12px] text-foreground/25 text-center py-3">Sin seguimientos agendados.</p>
               )}
             </div>
           </div>
@@ -618,15 +618,15 @@ function DetailDrawer({
         </div>
 
         {/* Footer with summary */}
-        <div className="border-t border-white/[0.06] px-6 py-3" style={{ backgroundColor: "#111113" }}>
-          <div className="flex items-center gap-4 text-[11px] text-white/30">
+        <div className="border-t border-foreground/[0.06] px-6 py-3" style={{ backgroundColor: "var(--card)" }}>
+          <div className="flex items-center gap-4 text-[11px] text-foreground/30">
             <span>
               Fin estimado:{" "}
-              <span className="text-white/60 font-semibold">{fmtDate(endDate)}</span>
+              <span className="text-foreground/60 font-semibold">{fmtDate(endDate)}</span>
             </span>
             <span>
               Total:{" "}
-              <span className="text-white/60 font-semibold">
+              <span className="text-foreground/60 font-semibold">
                 {fmtMoney(
                   client.total_amount ??
                   (client.installments.reduce((s, i) => s + i.amount, 0) ||
@@ -680,7 +680,7 @@ function SummaryCards({ clients }: { clients: Client[] }) {
     {
       label: "Clientes activos",
       value: String(activeCount),
-      color: "text-white",
+      color: "text-foreground",
       icon:  <Users className="h-4 w-4" />,
     },
     {
@@ -698,7 +698,7 @@ function SummaryCards({ clients }: { clients: Client[] }) {
     {
       label: "Follow-ups hoy",
       value: String(followupsHoy),
-      color: followupsHoy > 0 ? "text-[#ffde21]" : "text-white/50",
+      color: followupsHoy > 0 ? "text-[#ffde21]" : "text-foreground/50",
       icon:  <Calendar className="h-4 w-4" />,
     },
   ]
@@ -706,10 +706,10 @@ function SummaryCards({ clients }: { clients: Client[] }) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {cards.map(card => (
-        <div key={card.label} className="rounded-2xl border border-white/[0.07] bg-[#111113] px-5 py-4">
+        <div key={card.label} className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-4">
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-white/25">{card.icon}</span>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-white/30">{card.label}</p>
+            <span className="text-foreground/25">{card.icon}</span>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30">{card.label}</p>
           </div>
           <p className={`text-2xl font-bold tabular-nums ${card.color}`}>{card.value}</p>
         </div>
@@ -768,17 +768,17 @@ function CashSection({ clients }: { clients: Client[] }) {
   const monthName = now.toLocaleDateString("es-AR", { month: "long", year: "numeric" })
 
   return (
-    <div className="rounded-2xl border border-white/[0.07] bg-[#111113] px-5 py-5">
-      <p className="text-[11px] font-bold uppercase tracking-widest text-white/30 mb-4">
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-5">
+      <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-4">
         Cash — {monthName}
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
         {/* New Cash */}
         <div>
-          <p className="text-[11px] text-white/35 mb-1 font-semibold uppercase tracking-wider">New Cash</p>
+          <p className="text-[11px] text-foreground/35 mb-1 font-semibold uppercase tracking-wider">New Cash</p>
           <p className="text-3xl font-bold text-[#ffde21] tabular-nums">{fmtMoney(newCash)}</p>
-          <p className="text-[12px] text-white/30 mt-1.5">
+          <p className="text-[12px] text-foreground/30 mt-1.5">
             {newClients.length > 0
               ? `${newClients.length} cliente${newClients.length !== 1 ? "s" : ""} nuevo${newClients.length !== 1 ? "s" : ""} este mes`
               : "Sin clientes nuevos este mes"}
@@ -787,18 +787,18 @@ function CashSection({ clients }: { clients: Client[] }) {
 
         {/* Old Cash */}
         <div>
-          <p className="text-[11px] text-white/35 mb-1 font-semibold uppercase tracking-wider">Old Cash</p>
-          <p className="text-3xl font-bold text-white tabular-nums">{fmtMoney(oldCashExpected)}</p>
+          <p className="text-[11px] text-foreground/35 mb-1 font-semibold uppercase tracking-wider">Old Cash</p>
+          <p className="text-3xl font-bold text-foreground tabular-nums">{fmtMoney(oldCashExpected)}</p>
           <div className="mt-2 space-y-1.5">
             {/* Progress bar */}
             <div className="flex items-center gap-2">
-              <div className="flex-1 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+              <div className="flex-1 h-1.5 rounded-full bg-foreground/[0.06] overflow-hidden">
                 <div
                   className="h-full rounded-full bg-emerald-500 transition-all duration-500"
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <span className="text-[11px] text-white/40 shrink-0 tabular-nums">{Math.round(pct)}%</span>
+              <span className="text-[11px] text-foreground/40 shrink-0 tabular-nums">{Math.round(pct)}%</span>
             </div>
             <div className="flex gap-4 text-[12px]">
               <span className="text-emerald-300 tabular-nums">
@@ -827,8 +827,8 @@ function InstallmentProgress({ client }: { client: Client }) {
 
   return (
     <div className="space-y-1">
-      <span className="text-[12px] text-white/60 tabular-nums">{paid}/{total} pagadas</span>
-      <div className="h-1.5 w-24 rounded-full bg-white/[0.06] overflow-hidden">
+      <span className="text-[12px] text-foreground/60 tabular-nums">{paid}/{total} pagadas</span>
+      <div className="h-1.5 w-24 rounded-full bg-foreground/[0.06] overflow-hidden">
         <div
           className="h-full rounded-full bg-[#ffde21] transition-all duration-500"
           style={{ width: `${pct}%` }}
@@ -886,7 +886,7 @@ function SortableTh({
       onClick={onClick}
       title={sortHint}
       className={`px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap cursor-pointer select-none transition-colors ${
-        active ? "text-[#ffde21]" : "text-white/25 hover:text-white/55"
+        active ? "text-[#ffde21]" : "text-foreground/25 hover:text-foreground/55"
       }`}
     >
       <span className="inline-flex items-center gap-1.5">
@@ -1108,12 +1108,12 @@ export function AdminClientsView() {
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Clientes</h1>
-            <p className="text-sm text-white/40 mt-0.5">{clients.length} clientes</p>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Clientes</h1>
+            <p className="text-sm text-foreground/40 mt-0.5">{clients.length} clientes</p>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={fetchClients} disabled={loading}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-white/40 hover:text-white hover:border-white/20 transition-all disabled:opacity-40">
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
           </div>
@@ -1150,7 +1150,7 @@ export function AdminClientsView() {
                 className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium transition-all ${
                   filterStatus === key
                     ? "border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21]"
-                    : "border-white/[0.07] text-white/40 hover:text-white hover:border-white/20"
+                    : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
                 }`}>
                 {label}
                 {key !== "todos" && (
@@ -1166,21 +1166,21 @@ export function AdminClientsView() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre, email, instagram..."
-            className="h-8 rounded-xl border border-white/[0.08] bg-[#1c1c1f] px-4 text-[13px] text-white placeholder:text-white/25 focus:border-white/20 focus:outline-none flex-1 min-w-[200px] max-w-xs"
+            className="h-8 rounded-xl border border-foreground/[0.08] bg-card px-4 text-[13px] text-foreground placeholder:text-foreground/25 focus:border-foreground/20 focus:outline-none flex-1 min-w-[200px] max-w-xs"
           />
         </div>
 
         {/* Table */}
-        <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#111113]">
+        <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />
             </div>
           ) : (
-            <div className="overflow-x-auto" style={{ backgroundColor: "#111113" }}>
+            <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-white/[0.06] bg-white/[0.02]">
+                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
                     <SortableTh label="Cliente"      sortKey="name"      currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("name")} />
                     <SortableTh label="Inicio"       sortKey="start"     currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("start")} />
                     <SortableTh label="Fin"          sortKey="end"       currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("end")} />
@@ -1188,7 +1188,7 @@ export function AdminClientsView() {
                     <SortableTh label="Monto/cuota"  sortKey="amount"    currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("amount")} />
                     <SortableTh label="Estado"       sortKey="status"    currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("status")} />
                     {["Alertas", "Próx. follow-up", ""].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-white/25 whitespace-nowrap">
+                      <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap">
                         {h}
                       </th>
                     ))}
@@ -1197,7 +1197,7 @@ export function AdminClientsView() {
                 <tbody>
                   {!sorted.length ? (
                     <tr>
-                      <td colSpan={9} className="py-16 text-center text-sm text-white/25">
+                      <td colSpan={9} className="py-16 text-center text-sm text-foreground/25">
                         {clients.length ? "No hay clientes con ese filtro." : "Todavía no hay clientes registrados."}
                       </td>
                     </tr>
@@ -1218,8 +1218,8 @@ export function AdminClientsView() {
                         <tr
                           key={client.id}
                           onClick={() => setSelected(client)}
-                          className={`border-b border-white/[0.04] cursor-pointer transition-colors group ${rowBorder}`}
-                          style={{ backgroundColor: "#111113" }}
+                          className={`border-b border-foreground/[0.04] cursor-pointer transition-colors group ${rowBorder}`}
+                          style={{ backgroundColor: "var(--card)" }}
                           onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#18181b")}
                           onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#111113")}
                         >
@@ -1227,7 +1227,7 @@ export function AdminClientsView() {
                           <td className="px-4 py-3.5 whitespace-nowrap">
                             <div>
                               <div className="flex items-center gap-2">
-                                <p className="text-[13px] font-semibold text-white">{client.name}</p>
+                                <p className="text-[13px] font-semibold text-foreground">{client.name}</p>
                                 {client.is_monthly_subscription && (
                                   <span
                                     className="inline-flex items-center rounded-full border border-[#ffde21]/30 bg-[#ffde21]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#ffde21]"
@@ -1245,12 +1245,12 @@ export function AdminClientsView() {
 
                           {/* Inicio */}
                           <td className="px-4 py-3.5 whitespace-nowrap">
-                            <span className="text-[12px] text-white/55">{fmtDate(client.program_start)}</span>
+                            <span className="text-[12px] text-foreground/55">{fmtDate(client.program_start)}</span>
                           </td>
 
                           {/* Fin */}
                           <td className="px-4 py-3.5 whitespace-nowrap">
-                            <span className="text-[12px] text-white/55">{fmtDate(endDate)}</span>
+                            <span className="text-[12px] text-foreground/55">{fmtDate(endDate)}</span>
                           </td>
 
                           {/* Cuotas */}
@@ -1260,7 +1260,7 @@ export function AdminClientsView() {
 
                           {/* Monto/cuota */}
                           <td className="px-4 py-3.5 whitespace-nowrap">
-                            <span className="text-[13px] font-semibold tabular-nums text-white/80">
+                            <span className="text-[13px] font-semibold tabular-nums text-foreground/80">
                               {fmtMoney(client.installment_amount)}
                             </span>
                           </td>
@@ -1282,7 +1282,7 @@ export function AdminClientsView() {
                                 <span className="h-2 w-2 rounded-full bg-yellow-500" title="Pago próximo en 7 días" />
                               )}
                               {!overdue && !upcoming && (
-                                <span className="text-white/15">—</span>
+                                <span className="text-foreground/15">—</span>
                               )}
                             </div>
                           </td>
@@ -1300,13 +1300,13 @@ export function AdminClientsView() {
                                 )}
                               </div>
                             ) : (
-                              <span className="text-white/20 text-[12px]">—</span>
+                              <span className="text-foreground/20 text-[12px]">—</span>
                             )}
                           </td>
 
                           {/* Chevron */}
                           <td className="px-4 py-3.5 whitespace-nowrap">
-                            <ChevronRight className="h-4 w-4 text-white/25 group-hover:text-white/60 transition-colors" />
+                            <ChevronRight className="h-4 w-4 text-foreground/25 group-hover:text-foreground/60 transition-colors" />
                           </td>
                         </tr>
                       )

@@ -49,9 +49,9 @@ function renderInline(text: string): React.ReactNode[] {
   while ((m = re.exec(text)) !== null) {
     if (m.index > lastIdx) parts.push(text.slice(lastIdx, m.index))
     if (m[1]) {
-      parts.push(<strong key={`b${key++}`} className="font-semibold text-white">{m[2]}</strong>)
+      parts.push(<strong key={`b${key++}`} className="font-semibold text-foreground">{m[2]}</strong>)
     } else if (m[3]) {
-      parts.push(<code key={`c${key++}`} className="rounded bg-white/[0.08] px-1 py-0.5 text-[12.5px] font-mono text-[#ffde21]/90">{m[4]}</code>)
+      parts.push(<code key={`c${key++}`} className="rounded bg-foreground/[0.08] px-1 py-0.5 text-[12.5px] font-mono text-[#ffde21]/90">{m[4]}</code>)
     }
     lastIdx = m.index + m[0].length
   }
@@ -171,18 +171,18 @@ export function HelpChat() {
 
       {/* Panel slide-over */}
       <div
-        className={`fixed right-0 top-0 z-50 h-full w-full max-w-md flex flex-col border-l border-white/[0.08] bg-[#0a0a0b] shadow-2xl transition-transform duration-300 ease-out ${open ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed right-0 top-0 z-50 h-full w-full max-w-md flex flex-col border-l border-foreground/[0.08] bg-background shadow-2xl transition-transform duration-300 ease-out ${open ? "translate-x-0" : "translate-x-full"}`}
         style={{ boxShadow: "rgba(0,0,0,0.5) -8px 0 32px" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 border-b border-white/[0.07] px-5 py-4 bg-[#0f0f11]">
+        <div className="flex items-center justify-between gap-3 border-b border-foreground/[0.07] px-5 py-4 bg-card">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ffde21]/10 ring-1 ring-[#ffde21]/20">
               <Sparkles className="h-4 w-4 text-[#ffde21]" />
             </div>
             <div>
-              <p className="text-[14px] font-bold text-white leading-tight">Asistente del dashboard</p>
-              <p className="text-[11px] text-white/35 mt-0.5">IA · te ayuda a usar Smart Scale</p>
+              <p className="text-[14px] font-bold text-foreground leading-tight">Asistente del dashboard</p>
+              <p className="text-[11px] text-foreground/35 mt-0.5">IA · te ayuda a usar Smart Scale</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -190,7 +190,7 @@ export function HelpChat() {
               <button
                 onClick={reset}
                 title="Reiniciar conversación"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/5 transition"
               >
                 <RotateCcw className="h-4 w-4" />
               </button>
@@ -198,7 +198,7 @@ export function HelpChat() {
             <button
               onClick={() => setOpen(false)}
               title="Cerrar (Esc)"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/5 transition"
             >
               <X className="h-4 w-4" />
             </button>
@@ -216,7 +216,7 @@ export function HelpChat() {
                 className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[13.5px] ${
                   m.role === "user"
                     ? "bg-[#ffde21] text-black font-medium"
-                    : "bg-white/[0.04] border border-white/[0.06] text-white/85"
+                    : "bg-foreground/[0.04] border border-foreground/[0.06] text-foreground/85"
                 }`}
               >
                 <div className="space-y-1">
@@ -228,8 +228,8 @@ export function HelpChat() {
 
           {loading && (
             <div className="flex justify-start">
-              <div className="rounded-2xl bg-white/[0.04] border border-white/[0.06] px-4 py-2.5">
-                <div className="flex items-center gap-2 text-[12px] text-white/40">
+              <div className="rounded-2xl bg-foreground/[0.04] border border-foreground/[0.06] px-4 py-2.5">
+                <div className="flex items-center gap-2 text-[12px] text-foreground/40">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   Pensando…
                 </div>
@@ -240,14 +240,14 @@ export function HelpChat() {
           {/* Starter questions cuando solo hay welcome */}
           {messages.length === 1 && !loading && (
             <div className="space-y-2 pt-2">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30 px-1">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30 px-1">
                 Probá con
               </p>
               {STARTER_QUESTIONS.map(q => (
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
-                  className="block w-full text-left rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-[12.5px] text-white/65 hover:text-white hover:border-[#ffde21]/30 hover:bg-[#ffde21]/[0.03] transition-all"
+                  className="block w-full text-left rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2 text-[12.5px] text-foreground/65 hover:text-foreground hover:border-[#ffde21]/30 hover:bg-[#ffde21]/[0.03] transition-all"
                 >
                   {q}
                 </button>
@@ -263,7 +263,7 @@ export function HelpChat() {
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSubmit} className="border-t border-white/[0.07] px-4 py-3 bg-[#0f0f11]">
+        <form onSubmit={handleSubmit} className="border-t border-foreground/[0.07] px-4 py-3 bg-card">
           <div className="flex items-end gap-2">
             <textarea
               ref={inputRef}
@@ -272,7 +272,7 @@ export function HelpChat() {
               onKeyDown={handleKeyDown}
               placeholder="Preguntá cualquier cosa sobre el dashboard…"
               rows={1}
-              className="flex-1 resize-none rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-2.5 text-[13px] text-white placeholder:text-white/25 focus:outline-none focus:border-[#ffde21]/40 focus:bg-white/[0.05] transition-all max-h-32"
+              className="flex-1 resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-[#ffde21]/40 focus:bg-foreground/[0.05] transition-all max-h-32"
               style={{ minHeight: "42px" }}
               disabled={loading}
             />
@@ -285,7 +285,7 @@ export function HelpChat() {
               <Send className="h-4 w-4" />
             </button>
           </div>
-          <p className="mt-1.5 text-[10px] text-white/25 text-center">
+          <p className="mt-1.5 text-[10px] text-foreground/25 text-center">
             Enter para enviar · Shift+Enter para nueva línea · Esc para cerrar
           </p>
         </form>

@@ -70,19 +70,19 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-[220px] border-r border-white/[0.07] transition-all duration-200 ease-in-out lg:translate-x-0",
-          "bg-[#111113] flex flex-col",
+          "fixed left-0 top-0 z-50 h-full w-[220px] border-r border-foreground/[0.07] transition-all duration-200 ease-in-out lg:translate-x-0",
+          "bg-card flex flex-col",
           open ? "translate-x-0" : "-translate-x-full",
           collapsed && "lg:w-[64px]",
         )}
       >
         {/* Logo + collapse toggle (siempre en la misma fila) */}
-        <div className={cn("flex h-16 flex-shrink-0 items-center border-b border-white/[0.07]", collapsed ? "lg:justify-center lg:px-2 px-5" : "justify-between px-5")}>
+        <div className={cn("flex h-16 flex-shrink-0 items-center border-b border-foreground/[0.07]", collapsed ? "lg:justify-center lg:px-2 px-5" : "justify-between px-5")}>
           {/* Logo: solo cuando NO está colapsado en desktop, o siempre en mobile */}
           {!collapsed && (
             <a href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-              <span className="text-white text-xl font-bold tracking-tight leading-none">Smart</span>
-              <span className="rounded-md bg-white px-2 py-1 text-xl font-bold tracking-tight text-black shadow-sm leading-none">
+              <span className="text-foreground text-xl font-bold tracking-tight leading-none">Smart</span>
+              <span className="rounded-md bg-foreground px-2 py-1 text-xl font-bold tracking-tight text-background shadow-sm leading-none">
                 Scale
               </span>
             </a>
@@ -91,7 +91,7 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
           <div className="flex items-center gap-1">
             {onToggleCollapsed && (
               <button
-                className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg text-white/40 hover:text-[#ffde21] hover:bg-[#ffde21]/[0.08] transition-all border border-transparent hover:border-[#ffde21]/20"
+                className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-[#ffde21] hover:bg-[#ffde21]/[0.08] transition-all border border-transparent hover:border-[#ffde21]/20"
                 onClick={onToggleCollapsed}
                 aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
                 title={collapsed ? "Expandir (Cmd+\\)" : "Colapsar (Cmd+\\)"}
@@ -100,7 +100,7 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
               </button>
             )}
             <button
-              className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-white/50 hover:text-white hover:bg-white/10 transition-all"
+              className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-foreground/50 hover:text-foreground hover:bg-foreground/10 transition-all"
               onClick={onClose}
               aria-label="Cerrar menú"
             >
@@ -123,14 +123,14 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
                     onClick={() => toggleGroup(group.label)}
                     className={cn(
                       "w-full flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition-all duration-150",
-                      "hover:bg-white/[0.05]",
-                      hasActive && isGroupCollapsed ? "text-[#ffde21]" : "text-white/80"
+                      "hover:bg-foreground/[0.05]",
+                      hasActive && isGroupCollapsed ? "text-[#ffde21]" : "text-foreground/80"
                     )}
                   >
                     <span className="text-[13px] font-semibold tracking-wide">{group.label}</span>
                     <ChevronDown
                       className={cn(
-                        "h-3.5 w-3.5 text-white/30 transition-transform duration-200 flex-shrink-0",
+                        "h-3.5 w-3.5 text-foreground/30 transition-transform duration-200 flex-shrink-0",
                         isGroupCollapsed && "-rotate-90"
                       )}
                     />
@@ -150,9 +150,9 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
                             className={cn("flex items-center gap-2.5 rounded-lg px-3 py-2 opacity-25 cursor-not-allowed select-none", collapsed && "lg:justify-center lg:px-2")}
                             title={item.name}
                           >
-                            <item.icon className="h-[14px] w-[14px] text-white/40 flex-shrink-0" />
-                            {!collapsed && <span className="text-[13px] text-white/40">{item.name}</span>}
-                            {!collapsed && <Lock className="ml-auto h-3 w-3 text-white/25 flex-shrink-0" />}
+                            <item.icon className="h-[14px] w-[14px] text-foreground/40 flex-shrink-0" />
+                            {!collapsed && <span className="text-[13px] text-foreground/40">{item.name}</span>}
+                            {!collapsed && <Lock className="ml-auto h-3 w-3 text-foreground/25 flex-shrink-0" />}
                           </div>
                         )
                       }
@@ -164,8 +164,8 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
                               "flex items-center gap-2.5 rounded-lg py-[7px] transition-all duration-150",
                               collapsed ? "lg:justify-center lg:px-2 px-3" : "px-3",
                               isActive
-                                ? "bg-white/[0.07] text-[#ffde21]"
-                                : "text-white/80 hover:bg-white/[0.05] hover:text-white"
+                                ? "bg-foreground/[0.07] text-[#ffde21]"
+                                : "text-foreground/80 hover:bg-foreground/[0.05] hover:text-foreground"
                             )}
                             title={collapsed ? item.name : undefined}
                           >
@@ -192,7 +192,7 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
         </nav>
 
         {/* Footer */}
-        <div className={cn("flex-shrink-0 border-t border-white/[0.07] space-y-3", collapsed ? "lg:p-2 p-4" : "p-4")}>
+        <div className={cn("flex-shrink-0 border-t border-foreground/[0.07] space-y-3", collapsed ? "lg:p-2 p-4" : "p-4")}>
           {isAdmin && (
             <Link href="/admin/clients" onClick={onClose} title={collapsed ? "Smart Scale Internal" : undefined}>
               <div className={cn(
@@ -204,7 +204,7 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
                   <>
                     <div className="flex-1 min-w-0">
                       <p className="text-[11px] font-bold text-[#ffde21] tracking-wide">Smart Scale Internal</p>
-                      <p className="text-[10px] text-white/40 mt-0.5">Dashboard de admin</p>
+                      <p className="text-[10px] text-foreground/40 mt-0.5">Dashboard de admin</p>
                     </div>
                     <ArrowRight className="h-3.5 w-3.5 text-[#ffde21]/60 group-hover:text-[#ffde21] group-hover:translate-x-0.5 transition-all flex-shrink-0" />
                   </>
@@ -214,11 +214,11 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
           )}
 
           {!collapsed && (
-            <div className="flex items-center gap-2.5 rounded-xl bg-white/[0.03] px-3 py-2.5 border border-white/[0.07]">
+            <div className="flex items-center gap-2.5 rounded-xl bg-foreground/[0.03] px-3 py-2.5 border border-foreground/[0.07]">
               <span className="flex h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse flex-shrink-0" />
               <div>
-                <p className="text-[10px] font-bold text-white/60 tracking-widest uppercase">Client Analytics</p>
-                <p className="text-[10px] text-white/30 mt-0.5">Portal 2.0</p>
+                <p className="text-[10px] font-bold text-foreground/60 tracking-widest uppercase">Client Analytics</p>
+                <p className="text-[10px] text-foreground/30 mt-0.5">Portal 2.0</p>
               </div>
             </div>
           )}

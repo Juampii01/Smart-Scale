@@ -393,23 +393,23 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden dark" style={{ backgroundColor: "#0a0a0b" }}>
+    <div className="flex h-screen overflow-hidden bg-background">
       <NavigationProgress />
       {isAdminMode
         ? <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />
         : <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />}
 
-      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-[margin] duration-200 ${sidebarCollapsed ? 'lg:ml-[64px]' : 'lg:ml-[220px]'}`} style={{ backgroundColor: "#0a0a0b" }}>
-        <header className="shrink-0 z-10 border-b border-white/[0.08] backdrop-blur-md" style={{ backgroundColor: "rgba(10,10,11,0.95)" }}>
+      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-[margin] duration-200 bg-background ${sidebarCollapsed ? 'lg:ml-[64px]' : 'lg:ml-[220px]'}`}>
+        <header className="shrink-0 z-10 border-b border-foreground/[0.08] bg-background/95 backdrop-blur-md">
           <div className="flex h-16 items-center justify-between px-4 lg:px-8">
             <div className="flex items-center gap-3">
               {!sidebarOpen && (
-                <Button variant="ghost" size="icon" className="lg:hidden text-white/60 hover:text-white" onClick={() => setSidebarOpen(true)}>
+                <Button variant="ghost" size="icon" className="lg:hidden text-foreground/60 hover:text-foreground" onClick={() => setSidebarOpen(true)}>
                   <Menu className="h-5 w-5" />
                 </Button>
               )}
               <div>
-                <h1 className="text-base sm:text-lg font-bold text-white leading-tight tracking-tight flex items-center gap-2">
+                <h1 className="text-base sm:text-lg font-bold text-foreground leading-tight tracking-tight flex items-center gap-2">
                   {pageTitle}
                   {isAdminMode && (
                     <span className="inline-flex items-center gap-1 rounded-full border border-[#ffde21]/30 bg-[#ffde21]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#ffde21]">
@@ -418,7 +418,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     </span>
                   )}
                 </h1>
-                <p className="hidden sm:block text-[10px] text-white/35 leading-none mt-0.5 tracking-wide">
+                <p className="hidden sm:block text-[10px] text-foreground/35 leading-none mt-0.5 tracking-wide">
                   {isAdminMode ? "Smart Scale Internal · Dashboard de Admin" : "Smart Scale Portal 2.0"}
                 </p>
               </div>
@@ -468,6 +468,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 </>
               )}
 
+              <ThemeToggle />
+
               <div className="relative" ref={profileMenuRef}>
                 <Button
                   variant="outline"
@@ -488,7 +490,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10">
                     <User className="h-4 w-4 text-[#ffde21]" />
                   </span>
-                  <span className="hidden sm:inline text-white font-semibold">
+                  <span className="hidden sm:inline text-foreground font-semibold">
                     {activeClientName ?? clientDisplayName ?? userEmail ?? "—"}
                   </span>
                   <ChevronDown className="h-4 w-4 opacity-80 text-[#ffde21]" />
@@ -498,20 +500,20 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   <div
                     role="menu"
                     aria-label="Perfil"
-                    className="absolute right-0 mt-2 w-64 overflow-hidden rounded-xl border border-white/10 bg-black/80 text-white shadow-lg backdrop-blur"
+                    className="absolute right-0 mt-2 w-64 overflow-hidden rounded-xl border border-foreground/10 bg-black/80 text-foreground shadow-lg backdrop-blur"
                   >
                     <div className="px-3 py-2">
                       {clientDisplayName && !isAdmin && (
-                        <p className="truncate text-sm font-semibold text-white">{clientDisplayName}</p>
+                        <p className="truncate text-sm font-semibold text-foreground">{clientDisplayName}</p>
                       )}
-                      <p className="text-xs text-white/40 truncate">{userEmail ?? "—"}</p>
+                      <p className="text-xs text-foreground/40 truncate">{userEmail ?? "—"}</p>
                     </div>
-                    <div className="h-px bg-white/10" />
+                    <div className="h-px bg-foreground/10" />
 
                     {isAdmin ? (
                       <>
                         <div className="px-3 py-2">
-                          <p className="text-xs text-white/60">Cambiar perfil</p>
+                          <p className="text-xs text-foreground/60">Cambiar perfil</p>
                         </div>
                         <div className="max-h-64 overflow-auto">
                           {profilesList.length ? (
@@ -523,7 +525,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                   key={p.id}
                                   type="button"
                                   role="menuitem"
-                                  className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-white hover:bg-[#ffde21]/10 ${isActive ? "bg-[#ffde21]/15" : ""} ${!isSelectable ? "opacity-50 cursor-not-allowed hover:bg-transparent" : ""}`}
+                                  className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-foreground hover:bg-[#ffde21]/10 ${isActive ? "bg-[#ffde21]/15" : ""} ${!isSelectable ? "opacity-50 cursor-not-allowed hover:bg-transparent" : ""}`}
                                   disabled={!isSelectable}
                                   onClick={() => {
                                     if (!p.client_id) return
@@ -533,16 +535,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                   }}
                                   title={p.client_id}
                                 >
-                                  <span className="truncate text-white">{p.client_name}</span>
+                                  <span className="truncate text-foreground">{p.client_name}</span>
                                   {isActive ? <span className="text-xs text-emerald-300/80">Activo</span> : null}
                                 </button>
                               )
                             })
                           ) : (
-                            <div className="px-3 py-2 text-sm text-white/60">No hay perfiles para mostrar.</div>
+                            <div className="px-3 py-2 text-sm text-foreground/60">No hay perfiles para mostrar.</div>
                           )}
                         </div>
-                        <div className="h-px bg-white/10" />
+                        <div className="h-px bg-foreground/10" />
                       </>
                     ) : null}
 
@@ -571,7 +573,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <OwnClientContext.Provider value={ownClientId}>
               <AnnualMetricsProvider>
                 <SelectedMonthContext.Provider value={selectedMonth}>
-                  <main className="flex-1 overflow-y-auto p-4 lg:p-8" style={{ backgroundColor: "#0a0a0b" }}>{children}</main>
+                  <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-background">{children}</main>
                 </SelectedMonthContext.Provider>
               </AnnualMetricsProvider>
             </OwnClientContext.Provider>

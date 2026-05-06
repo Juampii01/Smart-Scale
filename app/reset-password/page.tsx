@@ -255,13 +255,13 @@ export default function ResetPasswordPage() {
 
   if (!ready) {
     return (
-      <div className="relative min-h-screen bg-black text-white">
+      <div className="relative min-h-screen bg-black text-foreground">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(700px_circle_at_20%_15%,rgba(255,255,255,0.10),transparent_55%),radial-gradient(700px_circle_at_80%_20%,rgba(255,255,255,0.08),transparent_55%),radial-gradient(900px_circle_at_50%_90%,rgba(255,255,255,0.06),transparent_55%)]" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/70 to-black" />
         </div>
         <div className="relative flex min-h-screen items-center justify-center px-6 py-12">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-white/70 backdrop-blur-xl">
+          <div className="rounded-2xl border border-foreground/10 bg-foreground/5 p-6 text-sm text-foreground/70 backdrop-blur-xl">
             Cargando…
           </div>
         </div>
@@ -272,7 +272,7 @@ export default function ResetPasswordPage() {
   const inputsEnabled = hasSession || linkValidated;
 
   return (
-    <div className="relative min-h-screen bg-black text-white">
+    <div className="relative min-h-screen bg-black text-foreground">
       {/* Background */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(700px_circle_at_20%_15%,rgba(255,255,255,0.10),transparent_55%),radial-gradient(700px_circle_at_80%_20%,rgba(255,255,255,0.08),transparent_55%),radial-gradient(900px_circle_at_50%_90%,rgba(255,255,255,0.06),transparent_55%)]" />
@@ -283,14 +283,14 @@ export default function ResetPasswordPage() {
         <div className="w-full max-w-md">
           {/* Brand */}
           <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 backdrop-blur">
-              <span className="text-sm font-semibold tracking-widest text-white/90">SS</span>
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-foreground/10 bg-foreground/5 backdrop-blur">
+              <span className="text-sm font-semibold tracking-widest text-foreground/90">SS</span>
             </div>
-            <div className="text-xs font-semibold tracking-[0.35em] text-white/70">
+            <div className="text-xs font-semibold tracking-[0.35em] text-foreground/70">
               SMART SCALE
             </div>
             <h1 className="mt-2 text-2xl font-semibold tracking-tight">Reseteá tu contraseña</h1>
-            <p className="mt-1 text-sm text-white/60">
+            <p className="mt-1 text-sm text-foreground/60">
               Validá el link y elegí una nueva contraseña.
             </p>
           </div>
@@ -298,25 +298,25 @@ export default function ResetPasswordPage() {
           {/* Card */}
           <form
             onSubmit={onSubmit}
-            className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl"
+            className="rounded-2xl border border-foreground/10 bg-foreground/5 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl"
           >
             <div className="space-y-4">
               {err ? (
-                <div className="rounded-xl border border-white/10 bg-black/40 p-3 text-sm text-white/80 whitespace-pre-wrap">
+                <div className="rounded-xl border border-foreground/10 bg-black/40 p-3 text-sm text-foreground/80 whitespace-pre-wrap">
                   {err}
                 </div>
               ) : null}
 
               {info ? (
-                <div className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm text-white/75 whitespace-pre-wrap">
+                <div className="rounded-xl border border-foreground/10 bg-black/30 p-3 text-sm text-foreground/75 whitespace-pre-wrap">
                   {info}
                 </div>
               ) : null}
 
               <div className="space-y-2">
-                <label className="block text-sm text-white/70">Nueva contraseña</label>
+                <label className="block text-sm text-foreground/70">Nueva contraseña</label>
                 <input
-                  className="h-11 w-full rounded-xl border border-white/10 bg-black/30 px-3 text-white outline-none placeholder:text-white/30 focus:border-white/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
+                  className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 px-3 text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
                   placeholder="Mínimo 6 caracteres"
                   type="password"
                   value={password}
@@ -328,9 +328,9 @@ export default function ResetPasswordPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm text-white/70">Repetir contraseña</label>
+                <label className="block text-sm text-foreground/70">Repetir contraseña</label>
                 <input
-                  className="h-11 w-full rounded-xl border border-white/10 bg-black/30 px-3 text-white outline-none placeholder:text-white/30 focus:border-white/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
+                  className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 px-3 text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
                   placeholder="Repetí la contraseña"
                   type="password"
                   value={password2}
@@ -344,7 +344,7 @@ export default function ResetPasswordPage() {
               <button
                 type="submit"
                 disabled={loading || !hasSession}
-                className="h-11 w-full rounded-xl bg-white text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-60"
+                className="h-11 w-full rounded-xl bg-foreground text-sm font-semibold text-background transition hover:bg-foreground/90 disabled:opacity-60"
               >
                 {loading ? "Actualizando…" : "Actualizar contraseña"}
               </button>
@@ -352,13 +352,13 @@ export default function ResetPasswordPage() {
               <div className="flex items-center justify-between pt-1">
                 <Link
                   href="/login"
-                  className="text-sm text-white/65 underline-offset-4 hover:text-white hover:underline"
+                  className="text-sm text-foreground/65 underline-offset-4 hover:text-foreground hover:underline"
                 >
                   Volver al login
                 </Link>
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-white/65 underline-offset-4 hover:text-white hover:underline"
+                  className="text-sm text-foreground/65 underline-offset-4 hover:text-foreground hover:underline"
                 >
                   Pedir nuevo link
                 </Link>
@@ -366,7 +366,7 @@ export default function ResetPasswordPage() {
             </div>
           </form>
 
-          <p className="mt-6 text-center text-xs text-white/35">
+          <p className="mt-6 text-center text-xs text-foreground/35">
             © {new Date().getFullYear()} SMART SCALE
           </p>
         </div>

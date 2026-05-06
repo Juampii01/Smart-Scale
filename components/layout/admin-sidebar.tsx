@@ -37,19 +37,19 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-[220px] border-r border-white/[0.07] transition-all duration-200 ease-in-out lg:translate-x-0",
-          "bg-[#111113] flex flex-col",
+          "fixed left-0 top-0 z-50 h-full w-[220px] border-r border-foreground/[0.07] transition-all duration-200 ease-in-out lg:translate-x-0",
+          "bg-card flex flex-col",
           open ? "translate-x-0" : "-translate-x-full",
           collapsed && "lg:w-[64px]",
         )}
       >
         {/* Logo + collapse toggle (siempre en la misma fila) */}
-        <div className={cn("flex-shrink-0 border-b border-white/[0.07] py-3", collapsed ? "lg:px-2 px-5" : "px-5")}>
+        <div className={cn("flex-shrink-0 border-b border-foreground/[0.07] py-3", collapsed ? "lg:px-2 px-5" : "px-5")}>
           <div className={cn("flex items-center", collapsed ? "lg:justify-center justify-between" : "justify-between")}>
             {!collapsed && (
               <a href="/admin/clients" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-                <span className="text-white text-xl font-bold tracking-tight leading-none">Smart</span>
-                <span className="rounded-md bg-white px-2 py-1 text-xl font-bold tracking-tight text-black shadow-sm leading-none">
+                <span className="text-foreground text-xl font-bold tracking-tight leading-none">Smart</span>
+                <span className="rounded-md bg-foreground px-2 py-1 text-xl font-bold tracking-tight text-background shadow-sm leading-none">
                   Scale
                 </span>
               </a>
@@ -57,7 +57,7 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
             <div className="flex items-center gap-1.5">
               {onToggleCollapsed && (
                 <button
-                  className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg text-white/40 hover:text-[#ffde21] hover:bg-[#ffde21]/[0.08] transition-all border border-transparent hover:border-[#ffde21]/20"
+                  className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-[#ffde21] hover:bg-[#ffde21]/[0.08] transition-all border border-transparent hover:border-[#ffde21]/20"
                   onClick={onToggleCollapsed}
                   aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
                   title={collapsed ? "Expandir (Cmd+\\)" : "Colapsar (Cmd+\\)"}
@@ -66,7 +66,7 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
                 </button>
               )}
               <button
-                className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-white/50 hover:text-white hover:bg-white/10 transition-all"
+                className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-foreground/50 hover:text-foreground hover:bg-foreground/10 transition-all"
                 onClick={onClose}
                 aria-label="Cerrar menú"
               >
@@ -86,7 +86,7 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
         <div className={cn("pt-3", collapsed ? "lg:px-2 px-3" : "px-3")}>
           <Link href="/dashboard" onClick={onClose} title={collapsed ? "Volver al portal" : undefined}>
             <div className={cn(
-              "group flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.02] py-2 text-[12px] font-semibold text-white/55 hover:text-white hover:border-white/[0.15] transition-all",
+              "group flex items-center gap-2 rounded-lg border border-foreground/[0.07] bg-foreground/[0.02] py-2 text-[12px] font-semibold text-foreground/55 hover:text-foreground hover:border-foreground/[0.15] transition-all",
               collapsed ? "lg:justify-center lg:px-2 px-3" : "px-3"
             )}>
               <ArrowLeft className="h-3.5 w-3.5 flex-shrink-0" />
@@ -98,14 +98,14 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
         {/* Section header */}
         {!collapsed && (
           <div className="mx-2 mt-4 mb-2 flex items-center gap-2">
-            <div className="flex-1 h-px bg-white/[0.07]" />
+            <div className="flex-1 h-px bg-foreground/[0.07]" />
             <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.15em] text-[#ffde21]/40 whitespace-nowrap">
               Smart Scale CRM
             </span>
-            <div className="flex-1 h-px bg-white/[0.07]" />
+            <div className="flex-1 h-px bg-foreground/[0.07]" />
           </div>
         )}
-        {collapsed && <div className="mx-2 mt-4 mb-2 h-px bg-white/[0.07]" />}
+        {collapsed && <div className="mx-2 mt-4 mb-2 h-px bg-foreground/[0.07]" />}
 
         {/* Navigation */}
         <nav className={cn("flex-1 overflow-y-auto pb-4 space-y-0.5", collapsed ? "lg:px-2 px-3" : "px-3")}>
@@ -118,8 +118,8 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
                     "flex items-center gap-2.5 rounded-lg py-[7px] transition-all duration-150",
                     collapsed ? "lg:justify-center lg:px-2 px-3" : "px-3",
                     isActive
-                      ? "bg-white/[0.07] text-[#ffde21]"
-                      : "text-white/80 hover:bg-white/[0.05] hover:text-white"
+                      ? "bg-foreground/[0.07] text-[#ffde21]"
+                      : "text-foreground/80 hover:bg-foreground/[0.05] hover:text-foreground"
                   )}
                 >
                   <item.icon className="h-[14px] w-[14px] flex-shrink-0 text-[#ffde21]" />
@@ -139,12 +139,12 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
 
         {/* Footer */}
         {!collapsed && (
-          <div className="flex-shrink-0 border-t border-white/[0.07] p-4">
+          <div className="flex-shrink-0 border-t border-foreground/[0.07] p-4">
             <div className="flex items-center gap-2.5 rounded-xl bg-[#ffde21]/[0.07] px-3 py-2.5 border border-[#ffde21]/15">
               <ShieldCheck className="h-3.5 w-3.5 text-[#ffde21]/80 shrink-0" />
               <div>
                 <p className="text-[10px] font-bold text-[#ffde21]/80 tracking-widest uppercase">Smart Scale Internal</p>
-                <p className="text-[10px] text-white/30 mt-0.5">Admin only</p>
+                <p className="text-[10px] text-foreground/30 mt-0.5">Admin only</p>
               </div>
             </div>
           </div>
