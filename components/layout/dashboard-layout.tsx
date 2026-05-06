@@ -13,6 +13,7 @@ import { AdminSidebar } from "@/components/layout/admin-sidebar"
 import { AnnualMetricsProvider } from "@/contexts/annual-metrics-context"
 import { NavigationProgress } from "@/components/ui/navigation-progress"
 import { HelpChat } from "@/components/ui/help-chat"
+import { ThemeToggle } from "@/components/theme/theme-toggle"
 
 declare global {
   interface Window {

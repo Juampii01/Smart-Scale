@@ -38,8 +38,46 @@
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f4f4f5;
   --sidebar-accent-foreground: #0a0a0b;
-  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --sidebar-border: rgba(0, 0, 0, 0.10);
   --sidebar-ring: rgba(0, 0, 0, 0.25);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   LIGHT MODE polish — solo aplica fuera de .dark
+   - Yellow buttons: borde negro sutil + shadow para "pop" sobre blanco
+   - Cards/popovers: shadow sutil para depth
+   - Sidebar: separador más visible
+   ───────────────────────────────────────────────────────────────────────── */
+:root:not(.dark) button[class*="bg-[#ffde21]"],
+:root:not(.dark) a[class*="bg-[#ffde21]"],
+:root:not(.dark) [class*="bg-[#ffde21]"][role="button"],
+:root:not(.dark) button[class*="bg-[#ffe46b]"],
+:root:not(.dark) button[class*="bg-[#ffe84d]"],
+:root:not(.dark) a[class*="bg-[#ffe46b]"] {
+  border: 1px solid rgba(0, 0, 0, 0.18) !important;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+:root:not(.dark) button[class*="bg-[#ffde21]"]:hover,
+:root:not(.dark) a[class*="bg-[#ffde21]"]:hover {
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Cards (rounded-2xl/xl con bg-card) en light reciben shadow sutil */
+:root:not(.dark) [class*="bg-card"][class*="rounded-2xl"],
+:root:not(.dark) [class*="bg-card"][class*="rounded-xl"],
+:root:not(.dark) [class*="bg-card"][class*="rounded-[24px]"] {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+/* Sidebar con sombra muy sutil para diferenciarlo del background */
+:root:not(.dark) aside[class*="border-r"] {
+  box-shadow: 1px 0 0 rgba(0, 0, 0, 0.02);
+}
+
+/* Profile dropdown / outlined buttons en light: borde más definido */
+:root:not(.dark) [class*="border-emerald-400/30"] {
+  border-color: rgba(0, 0, 0, 0.15) !important;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
