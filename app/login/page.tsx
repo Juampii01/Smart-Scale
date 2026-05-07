@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { getDefaultLandingForRole } from "@/lib/auth/permissions";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,11 +15,22 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  async function redirectByRole(userId: string) {
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userId)
+      .maybeSingle();
+    const role = (prof as any)?.role ?? null;
+    router.replace(getDefaultLandingForRole(role));
+  }
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) router.replace("/reflection");
+      if (data.session?.user) redirectByRole(data.session.user.id);
     });
-  }, [router, supabase]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,7 +40,7 @@ export default function LoginPage() {
     setLoading(false);
     if (error) { setErrorMsg(error.message); return; }
     const { data } = await supabase.auth.getSession();
-    if (data.session) router.replace("/reflection");
+    if (data.session?.user) await redirectByRole(data.session.user.id);
     else setErrorMsg("No se pudo obtener la sesión. Intenta nuevamente.");
   }
 

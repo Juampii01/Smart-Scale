@@ -49,10 +49,12 @@ const PAGE_TITLES: Record<string, string> = {
   "/recursos":   "Biblioteca",
   "/admin/data":         "Adquisition Stats",
   "/admin/leads":        "Leads",
+  "/admin/setting":      "Setting CRM",
   "/admin/payments":     "Pagos",
   "/admin/applications": "Aplicaciones",
   "/admin/team-applications": "Contratación",
   "/admin/clients":      "Clientes",
+  "/admin/centro-operativo": "Centro Operativo",
 }
 
 const SelectedMonthContext = createContext<string | null>(null)

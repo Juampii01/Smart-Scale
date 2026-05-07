@@ -1,0 +1,186 @@
+import { NextRequest, NextResponse } from "next/server"
+import { createServiceClient } from "@/lib/supabase-service"
+import { requireInternal } from "@/lib/auth/api-guards"
+import { isAdmin } from "@/lib/auth/permissions"
+
+export const runtime = "nodejs"
+export const dynamic = "force-dynamic"
+
+/*
+  SQL — run once in Supabase SQL editor:
+
+  create table if not exists setting_daily_logs (
+    id                       uuid primary key default gen_random_uuid(),
+    setter_id                uuid not null references auth.users(id) on delete cascade,
+    date                     date not null,
+    new_conversations        integer not null default 0,
+    conversations_replied    integer not null default 0,
+    qualified_leads          integer not null default 0,
+    offer_docs_sent          integer not null default 0,
+    offer_doc_responses      integer not null default 0,
+    calls_done               integer not null default 0,
+    notes                    text,
+    created_at               timestamptz not null default now(),
+    updated_at               timestamptz not null default now(),
+    unique (setter_id, date)
+  );
+  alter table setting_daily_logs enable row level security;
+  create policy "service_role_all" on setting_daily_logs for all to service_role using (true) with check (true);
+*/
+
+const ALL_FIELDS = [
+  "id", "setter_id", "date",
+  "new_conversations", "conversations_replied", "qualified_leads",
+  "offer_docs_sent", "offer_doc_responses", "calls_done",
+  "notes", "created_at", "updated_at",
+].join(", ")
+
+const NUMERIC_FIELDS = [
+  "new_conversations", "conversations_replied", "qualified_leads",
+  "offer_docs_sent", "offer_doc_responses", "calls_done",
+] as const
+
+function sanitizeInt(v: any): number {
+  const n = Number(v)
+  if (!Number.isFinite(n) || n < 0) return 0
+  return Math.floor(n)
+}
+
+async function getRoleAndUser(jwt: string | null) {
+  if (!jwt) return null
+  const supabase = createServiceClient()
+  const { data: { user }, error } = await supabase.auth.getUser(jwt)
+  if (error || !user) return null
+  const { data: profile } = await supabase
+    .from("profiles").select("role").eq("id", user.id).maybeSingle()
+  return { user, role: (profile as any)?.role ?? null }
+}
+
+/** GET — admin ve todos, team/setter ve solo los suyos */
+export async function GET(req: NextRequest) {
+  try {
+    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+    const ctx = await getRoleAndUser(jwt)
+    if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
+    const supabase = createServiceClient()
+    const { searchParams } = new URL(req.url)
+    const since = searchParams.get("since")  // optional YYYY-MM-DD
+    const until = searchParams.get("until")  // optional YYYY-MM-DD
+
+    let query = supabase
+      .from("setting_daily_logs")
+      .select(ALL_FIELDS)
+      .order("date", { ascending: false })
+      .limit(500)
+
+    if (!isAdmin(ctx.role)) {
+      query = query.eq("setter_id", ctx.user.id)
+    }
+    if (since) query = query.gte("date", since)
+    if (until) query = query.lte("date", until)
+
+    const { data, error } = await query
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ logs: data ?? [] })
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
+  }
+}
+
+/** POST — upsert por (setter_id, date). El setter siempre carga sus propios datos. */
+export async function POST(req: NextRequest) {
+  try {
+    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+    const user = await requireInternal(jwt)
+    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
+    let body: any
+    try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
+
+    if (!body.date || !/^\d{4}-\d{2}-\d{2}$/.test(body.date)) {
+      return NextResponse.json({ error: "date (YYYY-MM-DD) is required" }, { status: 400 })
+    }
+
+    const row: Record<string, any> = {
+      setter_id: user.id,
+      date: body.date,
+      notes: body.notes || null,
+      updated_at: new Date().toISOString(),
+    }
+    for (const f of NUMERIC_FIELDS) {
+      row[f] = sanitizeInt(body[f])
+    }
+
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from("setting_daily_logs")
+      .upsert(row, { onConflict: "setter_id,date" })
+      .select()
+      .single()
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ log: data })
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
+  }
+}
+
+/** PATCH — actualizar campos por id. Setter solo puede tocar sus propios rows; admin todos. */
+export async function PATCH(req: NextRequest) {
+  try {
+    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+    const ctx = await getRoleAndUser(jwt)
+    if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
+    let body: any
+    try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
+
+    const { id, ...updates } = body
+    if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
+
+    const supabase = createServiceClient()
+
+    if (!isAdmin(ctx.role)) {
+      const { data: existing } = await supabase
+        .from("setting_daily_logs").select("setter_id").eq("id", id).maybeSingle()
+      if (!existing || (existing as any).setter_id !== ctx.user.id) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      }
+    }
+
+    const allowed: Record<string, any> = { updated_at: new Date().toISOString() }
+    for (const f of NUMERIC_FIELDS) {
+      if (updates[f] !== undefined) allowed[f] = sanitizeInt(updates[f])
+    }
+    if (updates.notes !== undefined) allowed.notes = updates.notes || null
+
+    const { error } = await supabase.from("setting_daily_logs").update(allowed).eq("id", id)
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ success: true })
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
+  }
+}
+
+/** DELETE — solo admin */
+export async function DELETE(req: NextRequest) {
+  try {
+    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+    const ctx = await getRoleAndUser(jwt)
+    if (!ctx || !isAdmin(ctx.role)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    let body: any
+    try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
+    if (!body.id) return NextResponse.json({ error: "id is required" }, { status: 400 })
+
+    const supabase = createServiceClient()
+    const { error } = await supabase.from("setting_daily_logs").delete().eq("id", body.id)
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ success: true })
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
+  }
+}

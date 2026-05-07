@@ -6,8 +6,12 @@ import {
   Plus, ExternalLink, Trash2, Loader2, FolderOpen,
   Search, AlertTriangle, Link2, FileText, Video, File, X,
   ChevronRight, ArrowRight, Check, Copy, Pencil, Save,
+  UserPlus,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase"
+import { isAdmin } from "@/lib/auth/permissions"
+import { NewUserDialog } from "@/components/admin/new-user-dialog"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -930,6 +934,17 @@ export function AdminCentroOperativoView() {
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [activeSection, setActiveSection] = useState<SectionId>("sop-sistemas")
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const [newUserOpen, setNewUserOpen] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data?.user) return
+      supabase.from("profiles").select("role").eq("id", data.user.id).maybeSingle()
+        .then(({ data: prof }) => setUserRole((prof as any)?.role ?? null))
+    })
+  }, [])
 
   useEffect(() => {
     fetch("/api/resources")
@@ -962,15 +977,30 @@ export function AdminCentroOperativoView() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-2.5 mb-1">
-          <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
-          <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Centro Operativo</h1>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2.5 mb-1">
+            <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+            <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Centro Operativo</h1>
+          </div>
+          <p className="text-xs text-foreground/30 ml-[18px]">
+            Base interna de SOPs, recursos, accesos y procesos del equipo SmartScale.
+          </p>
         </div>
-        <p className="text-xs text-foreground/30 ml-[18px]">
-          Base interna de SOPs, recursos, accesos y procesos del equipo SmartScale.
-        </p>
+
+        {isAdmin(userRole) && (
+          <button
+            onClick={() => setNewUserOpen(true)}
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2 text-sm font-bold text-black hover:bg-[#ffe84d] transition-colors"
+            title="Crear cuenta de usuario interna"
+          >
+            <UserPlus className="h-4 w-4" />
+            Nuevo usuario
+          </button>
+        )}
       </div>
+
+      <NewUserDialog open={newUserOpen} onClose={() => setNewUserOpen(false)} />
 
       {/* Section tabs */}
       <div className="flex gap-2 flex-wrap">
