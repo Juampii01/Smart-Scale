@@ -20,10 +20,11 @@ export const ROLE_OPTIONS = [
 ] as const
 
 export const TEAM_ALLOWED_ADMIN_PATHS = [
-  "/admin/applications",
-  "/admin/leads",
-  "/admin/centro-operativo",
   "/admin/data",
+  "/admin/leads",
+  "/admin/setting",
+  "/admin/applications",
+  "/admin/centro-operativo",
 ] as const
 
 export const SETTER_ALLOWED_ADMIN_PATHS = [

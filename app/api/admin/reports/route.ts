@@ -1,8 +1,52 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { requireInternal } from "@/lib/auth/api-guards"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
+
+const ALL_REPORT_FIELDS = [
+  "id", "client_id", "month",
+  "cash_collected", "total_revenue", "mrr",
+  "software_costs", "variable_costs", "ad_spend",
+  "scheduled_calls", "attended_calls", "qualified_calls",
+  "inbound_messages", "aplications",
+  "offer_docs_sent", "offer_docs_responded", "cierres_por_offerdoc",
+  "new_clients", "active_clients",
+  "short_followers", "short_reach", "short_posts",
+  "yt_subscribers", "yt_new_subscribers", "yt_monthly_audience",
+  "yt_views", "yt_watch_time", "yt_videos",
+  "email_subscribers", "email_new_subscribers",
+  "nps_score",
+].join(", ")
+
+/** GET /api/admin/reports?client_id=...
+ *  Devuelve todos los monthly_reports del cliente, ordenados por month asc.
+ *  Accesible para admin O team (lectura).
+ */
+export async function GET(req: NextRequest) {
+  try {
+    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+    const user = await requireInternal(jwt)
+    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
+    const { searchParams } = new URL(req.url)
+    const clientId = searchParams.get("client_id")
+    if (!clientId) return NextResponse.json({ error: "client_id is required" }, { status: 400 })
+
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from("monthly_reports")
+      .select(ALL_REPORT_FIELDS)
+      .eq("client_id", clientId)
+      .order("month", { ascending: true })
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ reports: data ?? [] })
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
+  }
+}
 
 const ALLOWED_FIELDS = new Set([
   // Revenue

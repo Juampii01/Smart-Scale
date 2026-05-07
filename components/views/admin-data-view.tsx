@@ -184,13 +184,15 @@ export function AdminDataView() {
     setLoading(true)
     try {
       const supabase = createClient()
-      const { data } = await supabase
-        .from("monthly_reports")
-        .select(`month, ${ALL_FIELDS}`)
-        .eq("client_id", cid)
-        .order("month", { ascending: true })
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { setLoading(false); return }
 
-      const rows = data ?? []
+      const res = await fetch(`/api/admin/reports?client_id=${cid}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const json = await res.json()
+      const rows = res.ok ? (json.reports ?? []) : []
+
       setMonths(rows.map((r: any) => String(r.month).slice(0, 7)))
 
       const pv: Record<string, Record<string, number | null>> = {}

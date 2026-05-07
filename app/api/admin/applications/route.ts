@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { requireInternal } from "@/lib/auth/api-guards"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -73,11 +74,11 @@ const ALL_FIELDS = [
   "one_year_goal","terms_accepted","status","notes","created_at",
 ].join(", ")
 
-/** GET — all applications ordered by created_at desc */
+/** GET — all applications ordered by created_at desc. Lectura: admin OR team. */
 export async function GET(req: NextRequest) {
   try {
     const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
+    const user = await requireInternal(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     const supabase = createServiceClient()

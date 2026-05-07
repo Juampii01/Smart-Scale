@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import {
   X, DollarSign, ClipboardList, Table2, Users2,
   UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
@@ -8,6 +9,8 @@ import {
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { createClient } from "@/lib/supabase"
+import { canAccessAdminPath } from "@/lib/auth/permissions"
 
 interface AdminSidebarProps {
   open: boolean
@@ -29,6 +32,22 @@ const ADMIN_NAV_ITEMS = [
 
 export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollapsed }: AdminSidebarProps) {
   const pathname = usePathname()
+  const [userRole, setUserRole] = useState<string | null | undefined>(undefined) // undefined = aún cargando
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data?.user) { setUserRole(null); return }
+      supabase.from("profiles").select("role").eq("id", data.user.id).maybeSingle()
+        .then(({ data: prof }) => setUserRole((prof as any)?.role ?? null))
+    })
+  }, [])
+
+  // Filtrar items según permisos del rol. Mientras carga (undefined) no mostramos
+  // nada para evitar el flash de "todos visible y luego se filtra".
+  const visibleItems = userRole === undefined
+    ? []
+    : ADMIN_NAV_ITEMS.filter(item => canAccessAdminPath(userRole, item.href))
 
   return (
     <>
@@ -110,7 +129,7 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
 
         {/* Navigation */}
         <nav className={cn("flex-1 overflow-y-auto pb-4 space-y-0.5", collapsed ? "lg:px-2 px-3" : "px-3")}>
-          {ADMIN_NAV_ITEMS.map(item => {
+          {visibleItems.map(item => {
             const isActive = pathname === item.href
             return (
               <Link key={item.name} href={item.href} onClick={onClose} title={collapsed ? item.name : undefined}>
