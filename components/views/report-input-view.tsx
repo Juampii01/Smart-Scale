@@ -100,13 +100,13 @@ function ConfirmOverwriteDialog({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="relative overflow-hidden rounded-2xl border border-amber-400/20 bg-card shadow-2xl w-full max-w-md mx-4">
+      <div className="relative overflow-hidden rounded-2xl border border-amber-400 bg-card shadow-2xl w-full max-w-md mx-4 dark:border-amber-400/20">
         <div className="h-[2px] w-full bg-gradient-to-r from-amber-500/20 via-amber-500/60 to-amber-500/20" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(251,191,36,0.04),transparent_55%)]" />
         <div className="relative p-6 space-y-5">
           <div className="flex items-start gap-3">
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500/10 ring-1 ring-amber-500/20">
-              <AlertTriangle className="h-4 w-4 text-amber-400" />
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-100 ring-1 ring-amber-400 dark:bg-amber-500/10 dark:ring-amber-500/20">
+              <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-400" />
             </div>
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1">Reporte existente</p>
@@ -360,17 +360,17 @@ export function ReportInputView() {
                 </span>
               )}
               {!loadingExisting && isUpdate && (
-                <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-amber-400">
+                <span className="rounded-full border border-amber-400 bg-amber-100 text-amber-900 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-400">
                   Reporte existente — se sobreescribirá
                 </span>
               )}
               {!loadingExisting && !isUpdate && ownClientId && (
-                <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-emerald-400">
+                <span className="rounded-full border border-emerald-400 bg-emerald-100 text-emerald-800 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-400">
                   Nuevo reporte
                 </span>
               )}
               {!ownClientId && (
-                <span className="rounded-full border border-red-400/20 bg-red-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-red-400">
+                <span className="rounded-full border border-red-400 bg-red-100 text-red-800 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-400">
                   Sin cliente seleccionado
                 </span>
               )}
@@ -472,8 +472,8 @@ export function ReportInputView() {
         {status !== "idle" && status !== "loading" && (
           <div className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${
             status === "success"
-              ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-200"
-              : "border-red-400/20 bg-red-500/10 text-red-200"
+              ? "border-emerald-400 bg-emerald-100 text-emerald-900 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200"
+              : "border-red-400 bg-red-100 text-red-900 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-200"
           }`}>
             {status === "success"
               ? <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />

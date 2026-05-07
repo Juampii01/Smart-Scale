@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireInternal } from "@/lib/auth/api-guards"
+import { requireInternal, requireAdmin as requireAdminGuard } from "@/lib/auth/api-guards"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -73,7 +73,8 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
+    // admin/team/setter pueden editar leads (parte del flujo de prospección)
+    const user = await requireInternal(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     let body: any
@@ -101,7 +102,8 @@ export async function PATCH(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
+    // admin/team/setter pueden crear leads (es el core del trabajo del setter)
+    const user = await requireInternal(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     let body: any

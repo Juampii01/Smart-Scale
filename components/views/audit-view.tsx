@@ -48,10 +48,10 @@ const sections = [
 
 /// Flywheel groups: prefix → section meta
 const flywheelGroups = [
-  { prefix: "F", title: "Fascinar",   description: "Atracción, contenido y crecimiento de audiencia", color: "text-violet-300", dotColor: "bg-violet-400", ringColor: "ring-violet-400/30" },
-  { prefix: "E", title: "Educar",     description: "Email, seguimiento y conversión",                  color: "text-sky-300",    dotColor: "bg-sky-400",    ringColor: "ring-sky-400/30" },
-  { prefix: "I", title: "Invitar",    description: "Onboarding, entrega y resultados del cliente",     color: "text-emerald-300",dotColor: "bg-emerald-400",ringColor: "ring-emerald-400/30" },
-  { prefix: "T", title: "Transformar",description: "Oferta, transformación y prueba social",           color: "text-amber-300",  dotColor: "bg-amber-400",  ringColor: "ring-amber-400/30" },
+  { prefix: "F", title: "Fascinar",   description: "Atracción, contenido y crecimiento de audiencia", color: "text-violet-700 dark:text-violet-300", dotColor: "bg-violet-600 dark:bg-violet-400", ringColor: "ring-violet-500 dark:ring-violet-400/30" },
+  { prefix: "E", title: "Educar",     description: "Email, seguimiento y conversión",                  color: "text-sky-700 dark:text-sky-300",    dotColor: "bg-sky-600 dark:bg-sky-400",    ringColor: "ring-sky-500 dark:ring-sky-400/30" },
+  { prefix: "I", title: "Invitar",    description: "Onboarding, entrega y resultados del cliente",     color: "text-emerald-700 dark:text-emerald-300",dotColor: "bg-emerald-600 dark:bg-emerald-400",ringColor: "ring-emerald-500 dark:ring-emerald-400/30" },
+  { prefix: "T", title: "Transformar",description: "Oferta, transformación y prueba social",           color: "text-amber-700 dark:text-amber-300",  dotColor: "bg-amber-600 dark:bg-amber-400",  ringColor: "ring-amber-500 dark:ring-amber-400/30" },
 ]
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -227,23 +227,23 @@ function getStatusMeta(status: string) {
   if (status === "completed") {
     return {
       label: "Completado",
-      className: "border-emerald-400/20 bg-emerald-500/10 text-emerald-200",
-      dotClassName: "bg-emerald-400",
+      className: "border-emerald-400 bg-emerald-100 text-emerald-900 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200",
+      dotClassName: "bg-emerald-600 dark:bg-emerald-400",
     }
   }
 
   if (status === "failed") {
     return {
       label: "Fallido",
-      className: "border-red-400/20 bg-red-500/10 text-red-200",
-      dotClassName: "bg-red-400",
+      className: "border-red-400 bg-red-100 text-red-900 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-200",
+      dotClassName: "bg-red-600 dark:bg-red-400",
     }
   }
 
   return {
     label: "Pendiente",
-    className: "border-amber-400/20 bg-amber-500/10 text-amber-200",
-    dotClassName: "bg-amber-400",
+    className: "border-amber-400 bg-amber-100 text-amber-900 dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-200",
+    dotClassName: "bg-amber-600 dark:bg-amber-400",
   }
 }
 
@@ -283,9 +283,9 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
   const pillarOrder = ["f", "e", "t", "i"]
 
   const stateStyles: Record<string, { bar: string; pill: string; score: string }> = {
-    "Sólido":             { bar: "bg-emerald-500", pill: "bg-emerald-500/10 text-emerald-300 border-emerald-400/20", score: "text-emerald-400" },
-    "En construcción":    { bar: "bg-amber-500",   pill: "bg-amber-500/10 text-amber-300 border-amber-400/20",     score: "text-amber-400" },
-    "Cuello de botella":  { bar: "bg-red-500",     pill: "bg-red-500/10 text-red-300 border-red-400/20",            score: "text-red-400" },
+    "Sólido":             { bar: "bg-emerald-500", pill: "bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-400/20", score: "text-emerald-700 dark:text-emerald-400" },
+    "En construcción":    { bar: "bg-amber-500",   pill: "bg-amber-100 text-amber-900 border-amber-400 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-400/20",            score: "text-amber-700 dark:text-amber-400" },
+    "Cuello de botella":  { bar: "bg-red-500",     pill: "bg-red-100 text-red-800 border-red-400 dark:bg-red-500/10 dark:text-red-300 dark:border-red-400/20",                       score: "text-red-700 dark:text-red-400" },
   }
 
   const dotColor = (c: ItemColor) =>
@@ -296,8 +296,8 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
 
   const priorityPill = (idx: number) =>
     idx === 0
-      ? "bg-red-500/15 text-red-300 border-red-400/25"
-      : "bg-amber-500/15 text-amber-300 border-amber-400/25"
+      ? "bg-red-100 text-red-800 border-red-400 dark:bg-red-500/15 dark:text-red-300 dark:border-red-400/25"
+      : "bg-amber-100 text-amber-900 border-amber-400 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-400/25"
 
   return (
     <div className="space-y-8">
@@ -711,8 +711,8 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
             <span
               className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-semibold ${
                 auditType === 'mas20k'
-                  ? 'bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-400/20'
-                  : 'bg-amber-500/10 text-amber-300 ring-1 ring-amber-400/20'
+                  ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-400/20'
+                  : 'bg-amber-100 text-amber-900 ring-1 ring-amber-400 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-400/20'
               }`}
             >
               {auditType === 'mas20k' ? 'Más de $20k/mes' : 'Menos de $20k/mes'}

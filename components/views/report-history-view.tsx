@@ -53,7 +53,7 @@ function ConfirmDeleteDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative w-full max-w-sm rounded-2xl border border-red-500/30 bg-card p-6 shadow-2xl">
+      <div className="relative w-full max-w-sm rounded-2xl border border-red-400 bg-card p-6 shadow-2xl dark:border-red-500/30">
         <button
           onClick={onCancel}
           className="absolute right-4 top-4 text-foreground/30 hover:text-foreground/70 transition-colors"
@@ -61,8 +61,8 @@ function ConfirmDeleteDialog({
           <X className="h-4 w-4" />
         </button>
 
-        <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 border border-red-500/20">
-          <AlertTriangle className="h-5 w-5 text-red-400" />
+        <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-red-100 border border-red-300 dark:bg-red-500/10 dark:border-red-500/20">
+          <AlertTriangle className="h-5 w-5 text-red-700 dark:text-red-400" />
         </div>
 
         <h3 className="text-sm font-semibold uppercase tracking-widest text-foreground mb-1">
@@ -84,7 +84,7 @@ function ConfirmDeleteDialog({
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="flex-1 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 hover:border-red-500/60 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 rounded-lg border border-red-400 bg-red-100 px-4 py-2 text-sm font-medium text-red-800 hover:bg-red-200 hover:border-red-500 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 dark:hover:border-red-500/60 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
             {loading ? "Eliminando…" : "Eliminar"}
@@ -151,7 +151,7 @@ function ReportRow({
           {isAdmin && (
             <button
               onClick={() => onDelete(report.id)}
-              className="flex h-7 w-7 items-center justify-center rounded-lg border border-red-500/20 bg-red-500/[0.04] text-red-400/60 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/40 transition-all"
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-red-300 bg-red-50 text-red-700 hover:text-red-900 hover:bg-red-100 hover:border-red-500 dark:border-red-500/20 dark:bg-red-500/[0.04] dark:text-red-400/60 dark:hover:text-red-400 dark:hover:bg-red-500/10 dark:hover:border-red-500/40 transition-all"
               title="Eliminar reporte"
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -317,9 +317,9 @@ export function ReportHistoryView() {
           <Loader2 className="h-6 w-6 animate-spin text-foreground/30" />
         </div>
       ) : error ? (
-        <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3">
-          <AlertTriangle className="h-4 w-4 text-red-400 flex-shrink-0" />
-          <p className="text-sm text-red-400">{error}</p>
+        <div className="flex items-center gap-3 rounded-xl border border-red-300 bg-red-50 px-4 py-3 dark:border-red-500/20 dark:bg-red-500/5">
+          <AlertTriangle className="h-4 w-4 text-red-700 dark:text-red-400 flex-shrink-0" />
+          <p className="text-sm text-red-800 dark:text-red-400">{error}</p>
         </div>
       ) : !activeClientId ? (
         <div className="flex items-center justify-center py-20">

@@ -124,7 +124,7 @@ function statusPill(status: CalendarItem["status"] | undefined) {
   const s = status ?? "active"
   if (s === "cancelled") {
     return (
-      <span className="inline-flex items-center rounded-full border border-red-400/30 bg-red-500/10 px-2 py-0.5 text-[11px] font-medium text-red-200">
+      <span className="inline-flex items-center rounded-full border border-red-400 bg-red-100 text-red-900 px-2 py-0.5 text-[11px] font-medium dark:border-red-400/30 dark:bg-red-500/10 dark:text-red-200">
         Cancelado
       </span>
     )
@@ -137,7 +137,7 @@ function statusPill(status: CalendarItem["status"] | undefined) {
     )
   }
   return (
-    <span className="inline-flex items-center rounded-full border border-emerald-400/25 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-200">
+    <span className="inline-flex items-center rounded-full border border-emerald-400 bg-emerald-100 text-emerald-900 px-2 py-0.5 text-[11px] font-medium dark:border-emerald-400/25 dark:bg-emerald-500/10 dark:text-emerald-200">
       Activo
     </span>
   )
