@@ -169,18 +169,43 @@ function EditableCell({
   )
 }
 
-// Ann's fixed client_id — this view always shows her data only
-const ANN_CLIENT_ID = "9d2aebb4-93a7-490c-8ac9-afe1d1a42d57"
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 
+interface ClientOption { id: string; name: string }
+
 export function AdminDataView() {
-  const [clientId] = useState<string>(ANN_CLIENT_ID)
+  const [clients,  setClients]  = useState<ClientOption[]>([])
+  const [clientId, setClientId] = useState<string>("")
   const [months,   setMonths]   = useState<string[]>([])
   const [pivot,    setPivot]    = useState<Record<string, Record<string, number | null>>>({})
   const [loading,  setLoading]  = useState(true)
+  const [loadingClients, setLoadingClients] = useState(true)
+
+  const activeClient = clients.find(c => c.id === clientId)
+
+  // Cargar lista de clientes una vez
+  useEffect(() => {
+    (async () => {
+      setLoadingClients(true)
+      try {
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return
+        const res = await fetch("/api/admin/clients", {
+          headers: { "Authorization": `Bearer ${session.access_token}` },
+        })
+        if (!res.ok) return
+        const json = await res.json()
+        const list: ClientOption[] = (json.clients ?? []).map((c: any) => ({ id: c.id, name: c.name }))
+        list.sort((a, b) => a.name.localeCompare(b.name))
+        setClients(list)
+        if (list.length > 0) setClientId(list[0].id)
+      } finally { setLoadingClients(false) }
+    })()
+  }, [])
 
   const loadReports = useCallback(async (cid: string) => {
+    if (!cid) { setMonths([]); setPivot({}); setLoading(false); return }
     setLoading(true)
     try {
       const supabase = createClient()
@@ -207,7 +232,7 @@ export function AdminDataView() {
     } finally { setLoading(false) }
   }, [])
 
-  useEffect(() => { loadReports(ANN_CLIENT_ID) }, [loadReports])
+  useEffect(() => { if (clientId) loadReports(clientId) }, [clientId, loadReports])
 
   const handleSaved = useCallback((month: string, key: string, val: number | null) => {
     setPivot(prev => ({ ...prev, [month]: { ...(prev[month] ?? {}), [key]: val } }))
@@ -221,7 +246,8 @@ export function AdminDataView() {
     const csv  = [header, ...dataRows].join("\n")
     const blob = new Blob([csv], { type: "text/csv" })
     const url  = URL.createObjectURL(blob)
-    Object.assign(document.createElement("a"), { href: url, download: "smart-scale-data.csv" }).click()
+    const filename = activeClient ? `smart-scale-${activeClient.name.toLowerCase().replace(/\s+/g, "-")}.csv` : "smart-scale-data.csv"
+    Object.assign(document.createElement("a"), { href: url, download: filename }).click()
     URL.revokeObjectURL(url)
   }
 
@@ -233,15 +259,29 @@ export function AdminDataView() {
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Adquisition Stats</h1>
           <p className="text-sm text-foreground/40 mt-0.5">
-            Datos de Ann Sahakyan · {months.length
+            {activeClient ? `Datos de ${activeClient.name}` : "Seleccioná un cliente"} · {months.length
               ? `${months.length} ${months.length === 1 ? "mes" : "meses"} · click en cualquier celda para editar`
               : "métricas mensuales"}
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <select
+            value={clientId}
+            onChange={e => setClientId(e.target.value)}
+            disabled={loadingClients || clients.length === 0}
+            className="h-9 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 text-sm text-white hover:border-white/20 transition-all disabled:opacity-40 focus:outline-none focus:border-[#ffde21]/50 min-w-[180px]"
+          >
+            {loadingClients
+              ? <option>Cargando…</option>
+              : clients.length === 0
+                ? <option>Sin clientes</option>
+                : clients.map(c => (
+                    <option key={c.id} value={c.id} className="bg-[#1c1c1f] text-white">{c.name}</option>
+                  ))}
+          </select>
           <button
             onClick={() => clientId && loadReports(clientId)}
-            disabled={loading}
+            disabled={loading || !clientId}
             className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />

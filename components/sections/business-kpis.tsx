@@ -175,9 +175,9 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
 
                   {current && previous && delta.diff !== null && (
                     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
-                      isUp   ? "bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20"
-                      : isDown ? "bg-red-500/10 text-red-300 ring-1 ring-red-500/20"
-                      :           "bg-foreground/5 text-foreground/40 ring-1 ring-white/10"
+                      isUp   ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/20"
+                      : isDown ? "bg-red-100 text-red-800 ring-1 ring-red-400 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/20"
+                      :           "bg-foreground/5 text-foreground/40 ring-1 ring-foreground/10"
                     }`}>
                       {isUp   && <TrendingUp   className="h-3 w-3" />}
                       {isDown && <TrendingDown className="h-3 w-3" />}

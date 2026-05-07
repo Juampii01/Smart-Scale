@@ -42,18 +42,25 @@ function fmtDate(iso: string) {
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  nueva:     "bg-blue-500/10 text-blue-300 border-blue-500/20",
-  revisada:  "bg-amber-500/10 text-amber-300 border-amber-500/20",
-  aceptada:  "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
-  rechazada: "bg-red-500/10 text-red-300 border-red-500/20",
+  nueva:     "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/20",
+  revisada:  "bg-amber-100 text-amber-900 border-amber-400 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20",
+  aceptada:  "bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20",
+  rechazada: "bg-red-100 text-red-800 border-red-300 dark:bg-red-500/10 dark:text-red-300 dark:border-red-500/20",
 }
 
 const CHANNEL_COLORS: Record<string, string> = {
-  Instagram: "bg-pink-500/10 text-pink-300 border-pink-500/20",
-  "Tik Tok": "bg-[#69C9D0]/10 text-[#69C9D0] border-[#69C9D0]/20",
-  YouTube:   "bg-red-500/10 text-red-300 border-red-500/20",
-  Facebook:  "bg-blue-500/10 text-blue-300 border-blue-500/20",
-  Linkedin:  "bg-sky-500/10 text-sky-300 border-sky-500/20",
+  Instagram: "bg-pink-100 text-pink-800 border-pink-300 dark:bg-pink-500/10 dark:text-pink-300 dark:border-pink-500/20",
+  "Tik Tok": "bg-cyan-100 text-cyan-800 border-cyan-300 dark:bg-[#69C9D0]/10 dark:text-[#69C9D0] dark:border-[#69C9D0]/20",
+  YouTube:   "bg-red-100 text-red-800 border-red-300 dark:bg-red-500/10 dark:text-red-300 dark:border-red-500/20",
+  Facebook:  "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/20",
+  Linkedin:  "bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-500/10 dark:text-sky-300 dark:border-sky-500/20",
+}
+
+const STATUS_NUMBER_COLOR: Record<string, string> = {
+  nueva:     "text-blue-700 dark:text-blue-300",
+  revisada:  "text-amber-700 dark:text-amber-300",
+  aceptada:  "text-emerald-700 dark:text-emerald-300",
+  rechazada: "text-red-700 dark:text-red-300",
 }
 
 function fullName(app: Application) {
@@ -398,7 +405,7 @@ export function AdminApplicationsView() {
           {(["nueva","revisada","aceptada","rechazada"] as const).map(s => (
             <div key={s} className="rounded-2xl border border-foreground/[0.07] bg-card px-4 py-3.5">
               <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25 capitalize">{s}</p>
-              <p className={`mt-1 text-2xl font-bold ${STATUS_STYLE[s].split(" ")[1]}`}>
+              <p className={`mt-1 text-2xl font-bold ${STATUS_NUMBER_COLOR[s]}`}>
                 {apps.filter(a => a.status === s).length}
               </p>
             </div>

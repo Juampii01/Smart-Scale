@@ -136,14 +136,14 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
             <StarRating size="md" value={lead.rating}
               onChange={n => onPatch(lead.id, { rating: n || null })} />
             {lead.tag && (
-              <span className="rounded-full border border-[#ffde21]/20 bg-[#ffde21]/[0.06] px-3 py-0.5 text-[11px] font-bold text-[#ffde21]/70">
+              <span className="rounded-full border border-amber-500 bg-amber-100 px-3 py-0.5 text-[11px] font-bold text-amber-900 dark:border-[#ffde21]/20 dark:bg-[#ffde21]/[0.06] dark:text-[#ffde21]/70">
                 {lead.tag}
               </span>
             )}
           </div>
           {ig && (
             <a href={`https://instagram.com/${ig}`} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 text-[13px] text-pink-300/70 hover:text-pink-300 transition-colors">
+              className="flex items-center gap-2 text-[13px] text-pink-700 hover:text-pink-900 dark:text-pink-300/70 dark:hover:text-pink-300 transition-colors">
               <Instagram className="h-4 w-4 shrink-0" />
               @{ig}
               <ExternalLink className="h-3 w-3 opacity-50" />
@@ -471,49 +471,36 @@ export function AdminLeadsView() {
             className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/20 focus:outline-none flex-1 min-w-[220px] max-w-sm"
           />
 
-          {/* Star filter */}
+          {/* Star filter — solo Todas + 4-5 */}
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setFilterRating(0)}
               className={`h-8 rounded-xl border px-3 text-[12px] font-medium transition-all ${
                 filterRating === 0
-                  ? "border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21]"
+                  ? "border-amber-600 bg-amber-500 text-black dark:border-[#ffde21]/40 dark:bg-[#ffde21]/10 dark:text-[#ffde21]"
                   : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
               }`}>
               Todas
             </button>
             <button
-              onClick={() => setFilterRating(-1)}
-              className={`h-8 rounded-xl border px-3 transition-all flex items-center gap-1 text-[12px] font-medium ${
+              onClick={() => setFilterRating(filterRating === -1 ? 0 : -1)}
+              className={`h-8 rounded-xl border px-3 transition-all flex items-center gap-1 text-[12px] font-bold ${
                 filterRating === -1
-                  ? "border-amber-400/40 bg-amber-400/10 text-amber-300"
-                  : "border-foreground/[0.07] text-foreground/40 hover:text-amber-300 hover:border-amber-400/30"
+                  ? "border-amber-600 bg-amber-500 text-black shadow-sm dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-300 dark:shadow-none"
+                  : "border-foreground/[0.07] text-foreground/40 hover:text-amber-700 hover:border-amber-400 hover:bg-amber-50 dark:hover:text-amber-300 dark:hover:border-amber-400/30 dark:hover:bg-transparent"
               }`}>
-              <Star className={`h-3 w-3 ${filterRating === -1 ? "fill-amber-400 text-amber-400" : "fill-transparent"}`} />
+              <Star className={`h-3 w-3 ${filterRating === -1 ? "fill-black text-black dark:fill-amber-400 dark:text-amber-400" : "fill-transparent"}`} />
               4–5
             </button>
-            {[1, 2, 3, 4, 5].map(star => (
-              <button
-                key={star}
-                onClick={() => setFilterRating(filterRating === star ? 0 : star)}
-                className={`h-8 rounded-xl border px-2.5 transition-all flex items-center gap-1 text-[12px] font-medium ${
-                  filterRating === star
-                    ? "border-amber-400/40 bg-amber-400/10 text-amber-300"
-                    : "border-foreground/[0.07] text-foreground/40 hover:text-amber-300 hover:border-amber-400/30"
-                }`}>
-                <Star className={`h-3 w-3 ${filterRating === star ? "fill-amber-400 text-amber-400" : "fill-transparent"}`} />
-                {star}
-              </button>
-            ))}
           </div>
         </div>
 
         {/* Banner explicativo cuando el filtro 4-5 está activo */}
         {filterRating === -1 && (
-          <div className="flex items-center gap-2.5 rounded-xl border border-amber-400/20 bg-amber-500/[0.05] px-4 py-2.5">
-            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 shrink-0" />
-            <p className="text-[12px] text-amber-200/80 flex-1">
-              Mostrando solo leads de <span className="font-semibold text-amber-200">4 y 5 estrellas</span>. Tocá <span className="font-semibold">Todas</span> arriba para ver todos los leads del pipeline.
+          <div className="flex items-center gap-2.5 rounded-xl border border-amber-500 bg-amber-100 px-4 py-2.5 dark:border-amber-400/20 dark:bg-amber-500/[0.05]">
+            <Star className="h-3.5 w-3.5 fill-amber-600 text-amber-600 shrink-0 dark:fill-amber-400 dark:text-amber-400" />
+            <p className="text-[12px] text-amber-900 flex-1 dark:text-amber-200/80">
+              Mostrando solo leads de <span className="font-bold text-amber-950 dark:font-semibold dark:text-amber-200">4 y 5 estrellas</span>. Tocá <span className="font-bold dark:font-semibold">Todas</span> arriba para ver todos los leads del pipeline.
             </p>
           </div>
         )}
@@ -554,7 +541,7 @@ export function AdminLeadsView() {
 
                       <td className="px-4 py-4 whitespace-nowrap">
                         {lead.tag
-                          ? <span className="rounded-full border border-[#ffde21]/20 bg-[#ffde21]/[0.06] px-2.5 py-0.5 text-[12px] font-semibold text-[#ffde21]/90">{lead.tag}</span>
+                          ? <span className="rounded-full border border-amber-500 bg-amber-100 px-2.5 py-0.5 text-[12px] font-semibold text-amber-900 dark:border-[#ffde21]/20 dark:bg-[#ffde21]/[0.06] dark:text-[#ffde21]/90">{lead.tag}</span>
                           : <span className="text-foreground/30 text-[13px]">—</span>}
                       </td>
 
@@ -562,7 +549,7 @@ export function AdminLeadsView() {
                         {lead.instagram
                           ? <a href={`https://instagram.com/${lead.instagram.replace("@","")}`}
                               target="_blank" rel="noopener noreferrer"
-                              className="flex items-center gap-1.5 text-[13px] text-pink-300 hover:text-pink-200 transition-colors">
+                              className="flex items-center gap-1.5 text-[13px] text-pink-700 hover:text-pink-900 dark:text-pink-300 dark:hover:text-pink-200 transition-colors">
                               <Instagram className="h-3.5 w-3.5 shrink-0" />
                               {lead.instagram}
                             </a>

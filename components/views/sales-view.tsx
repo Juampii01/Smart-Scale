@@ -27,9 +27,9 @@ function pct(num: number, den: number) {
 }
 
 function convColor(p: number) {
-  if (p >= 60) return { bar: "#4ade80", text: "text-emerald-300", bg: "bg-emerald-500/10", ring: "ring-emerald-500/20" }
-  if (p >= 30) return { bar: "#ffde21", text: "text-yellow-300",  bg: "bg-yellow-500/10",  ring: "ring-yellow-500/20"  }
-  return         { bar: "#f87171",  text: "text-red-300",     bg: "bg-red-500/10",     ring: "ring-red-500/20"     }
+  if (p >= 60) return { bar: "#4ade80", text: "text-emerald-700 dark:text-emerald-300", bg: "bg-emerald-100 dark:bg-emerald-500/10", ring: "ring-emerald-400 dark:ring-emerald-500/20" }
+  if (p >= 30) return { bar: "#ffde21", text: "text-yellow-700 dark:text-yellow-300",  bg: "bg-yellow-100 dark:bg-yellow-500/10",  ring: "ring-yellow-400 dark:ring-yellow-500/20"  }
+  return         { bar: "#f87171",  text: "text-red-700 dark:text-red-300",     bg: "bg-red-100 dark:bg-red-500/10",     ring: "ring-red-400 dark:ring-red-500/20"     }
 }
 
 // ─── Visual Funnel Step ───────────────────────────────────────────────────────
@@ -239,19 +239,19 @@ export function SalesView() {
           {/* Close rate callout */}
           <div className={`rounded-2xl border p-5 flex items-center justify-between ${
             Number(closeRatePct) >= 20
-              ? "border-emerald-500/20 bg-emerald-500/[0.06]"
+              ? "border-emerald-400 bg-emerald-100 dark:border-emerald-500/20 dark:bg-emerald-500/[0.06]"
               : Number(closeRatePct) >= 10
-              ? "border-yellow-500/20 bg-yellow-500/[0.04]"
-              : "border-red-500/20 bg-red-500/[0.04]"
+              ? "border-yellow-400 bg-yellow-100 dark:border-yellow-500/20 dark:bg-yellow-500/[0.04]"
+              : "border-red-400 bg-red-100 dark:border-red-500/20 dark:bg-red-500/[0.04]"
           }`}>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/40">Tasa de cierre</p>
               <p className="text-xs text-foreground/30 mt-0.5">cierres / llamadas atendidas</p>
             </div>
             <p className={`text-2xl sm:text-4xl font-bold tabular-nums ${
-              Number(closeRatePct) >= 20 ? "text-emerald-300"
-              : Number(closeRatePct) >= 10 ? "text-yellow-300"
-              : "text-red-300"
+              Number(closeRatePct) >= 20 ? "text-emerald-700 dark:text-emerald-300"
+              : Number(closeRatePct) >= 10 ? "text-yellow-700 dark:text-yellow-300"
+              : "text-red-700 dark:text-red-300"
             }`}>{closeRatePct}{closeRatePct !== "—" ? "%" : ""}</p>
           </div>
         </section>

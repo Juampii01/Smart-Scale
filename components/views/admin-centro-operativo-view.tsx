@@ -35,32 +35,32 @@ const SECTIONS = [
     id: "sop-sistemas",
     label: "SOPs de Sistemas",
     icon: Cog,
-    color: "text-blue-400",
-    accent: "border-blue-400/20 bg-blue-400/5",
+    color: "text-blue-700 dark:text-blue-400",
+    accent: "border-blue-300 bg-blue-50 dark:border-blue-400/20 dark:bg-blue-400/5",
     desc: "Automatizaciones, integraciones y documentación técnica de herramientas.",
   },
   {
     id: "sop-operativos",
     label: "SOPs Operativos",
     icon: BookMarked,
-    color: "text-green-400",
-    accent: "border-green-400/20 bg-green-400/5",
+    color: "text-green-700 dark:text-green-400",
+    accent: "border-green-300 bg-green-50 dark:border-green-400/20 dark:bg-green-400/5",
     desc: "Procesos internos paso a paso: onboarding, seguimiento, cierre.",
   },
   {
     id: "recursos-internos",
     label: "Recursos Internos",
     icon: FolderKanban,
-    color: "text-purple-400",
-    accent: "border-purple-400/20 bg-purple-400/5",
+    color: "text-purple-700 dark:text-purple-400",
+    accent: "border-purple-300 bg-purple-50 dark:border-purple-400/20 dark:bg-purple-400/5",
     desc: "Links, plantillas, documentos y materiales del equipo.",
   },
   {
     id: "accesos",
     label: "Accesos y Herramientas",
     icon: KeyRound,
-    color: "text-amber-400",
-    accent: "border-amber-400/20 bg-amber-400/5",
+    color: "text-amber-700 dark:text-amber-400",
+    accent: "border-amber-300 bg-amber-50 dark:border-amber-400/20 dark:bg-amber-400/5",
     desc: "Referencia de herramientas del stack. No guardar contraseñas en texto plano.",
   },
 ] as const
@@ -526,10 +526,10 @@ function SOPModal({
 
         {/* Security warning for accesos */}
         {isAccesos && (
-          <div className="flex items-start gap-2.5 mx-5 mt-4 rounded-xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 flex-shrink-0">
-            <AlertTriangle className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-amber-300/70 leading-relaxed">
-              <span className="font-semibold text-amber-300">No guardes contraseñas aquí.</span>{" "}
+          <div className="flex items-start gap-2.5 mx-5 mt-4 rounded-xl border border-amber-400 bg-amber-100 dark:border-amber-400/20 dark:bg-amber-400/5 px-4 py-3 flex-shrink-0">
+            <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-900 dark:text-amber-300/70 leading-relaxed">
+              <span className="font-bold text-amber-950 dark:font-semibold dark:text-amber-300">No guardes contraseñas aquí.</span>{" "}
               Solo referencias (email, usuario). Las credenciales deben estar en el gestor de claves del equipo.
             </p>
           </div>
@@ -687,10 +687,10 @@ function AddItemForm({
       </div>
 
       {isAccesos && (
-        <div className="flex items-start gap-2.5 rounded-xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 mb-4">
-          <AlertTriangle className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-300/80 leading-relaxed">
-            <span className="font-semibold text-amber-300">No guardes contraseñas en texto plano.</span>{" "}
+        <div className="flex items-start gap-2.5 rounded-xl border border-amber-400 bg-amber-100 dark:border-amber-400/20 dark:bg-amber-400/5 px-4 py-3 mb-4">
+          <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-900 dark:text-amber-300/80 leading-relaxed">
+            <span className="font-bold text-amber-950 dark:font-semibold dark:text-amber-300">No guardes contraseñas en texto plano.</span>{" "}
             Solo referencias (email, usuario, dónde encontrar las credenciales).
           </p>
         </div>
@@ -785,7 +785,7 @@ function ItemRow({
 
       <div className="flex items-center gap-2 flex-shrink-0">
         {hasContent && (
-          <span className="text-[10px] font-semibold text-green-400/60 bg-green-400/10 rounded-full px-2 py-0.5">
+          <span className="text-[10px] font-semibold text-green-800 bg-green-100 dark:text-green-400/60 dark:bg-green-400/10 rounded-full px-2 py-0.5">
             Documentado
           </span>
         )}
@@ -840,10 +840,10 @@ function SectionPanel({
       </div>
 
       {isAccesos && (
-        <div className="flex items-start gap-2.5 rounded-xl border border-amber-400/20 bg-amber-400/5 px-4 py-3">
-          <AlertTriangle className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-300/70 leading-relaxed">
-            <span className="font-semibold text-amber-300">Aviso de seguridad:</span>{" "}
+        <div className="flex items-start gap-2.5 rounded-xl border border-amber-400 bg-amber-100 dark:border-amber-400/20 dark:bg-amber-400/5 px-4 py-3">
+          <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-900 dark:text-amber-300/70 leading-relaxed">
+            <span className="font-bold text-amber-950 dark:font-semibold dark:text-amber-300">Aviso de seguridad:</span>{" "}
             Guardá solo referencias (email, usuario, dónde están las credenciales). Las contraseñas deben
             vivir en el gestor de claves del equipo.
           </p>
