@@ -2,7 +2,7 @@
 
 import {
   X, DollarSign, ClipboardList, Table2, Users2,
-  UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
+  UserCheck, Layers, Briefcase, ShieldCheck,
   ChevronLeft, ChevronRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -80,19 +80,6 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
               Internal
             </span>
           )}
-        </div>
-
-        {/* Back to portal */}
-        <div className={cn("pt-3", collapsed ? "lg:px-2 px-3" : "px-3")}>
-          <Link href="/dashboard" onClick={onClose} title={collapsed ? "Volver al portal" : undefined}>
-            <div className={cn(
-              "group flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.02] py-2 text-[12px] font-semibold text-white/55 hover:text-white hover:border-white/[0.15] transition-all",
-              collapsed ? "lg:justify-center lg:px-2 px-3" : "px-3"
-            )}>
-              <ArrowLeft className="h-3.5 w-3.5 flex-shrink-0" />
-              {!collapsed && "Volver al portal"}
-            </div>
-          </Link>
         </div>
 
         {/* Section header */}

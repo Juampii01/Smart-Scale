@@ -106,8 +106,8 @@ function ChannelCard({
           {hasDelta && !noData && (
             <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ring-1 ${
               isUp
-                ? "bg-emerald-500/10 text-emerald-300 ring-emerald-500/20"
-                : "bg-red-500/10 text-red-300 ring-red-500/20"
+                ? "bg-emerald-100 text-emerald-800 ring-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/20"
+                : "bg-red-100 text-red-800 ring-red-400 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/20"
             }`}>
               {isUp ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
               {delta.pct !== null ? `${delta.pct > 0 ? "+" : ""}${Math.round(delta.pct)}%` : "—"}

@@ -29,9 +29,9 @@ function fmtDate(iso: string) {
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  aceptado:  "bg-emerald-500/10 text-emerald-300 border-emerald-500/25",
-  rechazado: "bg-red-500/10 text-red-300 border-red-500/25",
-  pendiente: "bg-amber-500/10 text-amber-300 border-amber-500/25",
+  aceptado:  "bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/25",
+  rechazado: "bg-red-100 text-red-800 border-red-300 dark:bg-red-500/10 dark:text-red-300 dark:border-red-500/25",
+  pendiente: "bg-amber-100 text-amber-900 border-amber-400 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/25",
 }
 
 // ─── New Payment Row ──────────────────────────────────────────────────────────

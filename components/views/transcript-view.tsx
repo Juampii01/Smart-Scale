@@ -86,9 +86,9 @@ function PlatformPill({ isYT }: { isYT: boolean }) {
 // ─── Section colors ───────────────────────────────────────────────────────────
 
 const SECTIONS: Record<string, { icon: string; color: string; border: string; bg: string }> = {
-  "RESUMEN":      { icon: "📋", color: "text-blue-300",    border: "border-blue-500/20",    bg: "bg-blue-500/[0.06]"   },
-  "PUNTOS CLAVE": { icon: "🎯", color: "text-[#ffde21]",   border: "border-[#ffde21]/20",   bg: "bg-[#ffde21]/[0.05]" },
-  "CONCLUSIÓN":   { icon: "✅", color: "text-emerald-300", border: "border-emerald-500/20", bg: "bg-emerald-500/[0.06]"},
+  "RESUMEN":      { icon: "📋", color: "text-blue-700 dark:text-blue-300",    border: "border-blue-300 dark:border-blue-500/20",    bg: "bg-blue-50 dark:bg-blue-500/[0.06]"   },
+  "PUNTOS CLAVE": { icon: "🎯", color: "text-amber-800 dark:text-[#ffde21]",   border: "border-amber-400 dark:border-[#ffde21]/20",   bg: "bg-amber-50 dark:bg-[#ffde21]/[0.05]" },
+  "CONCLUSIÓN":   { icon: "✅", color: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-300 dark:border-emerald-500/20", bg: "bg-emerald-50 dark:bg-emerald-500/[0.06]"},
 }
 
 function SummaryBlock({ text }: { text: string }) {
@@ -371,8 +371,8 @@ function HistoryDetailModal({ item, onClose }: { item: HistoryItem; onClose: () 
         {/* Header */}
         <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-white/[0.07] flex-shrink-0">
           <div className="flex items-start gap-3 min-w-0">
-            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${isYT ? "bg-red-500/10 border-red-500/15" : "bg-pink-500/10 border-pink-500/15"}`}>
-              {isYT ? <Youtube className="h-4 w-4 text-red-400" /> : <Instagram className="h-4 w-4 text-pink-400" />}
+            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${isYT ? "bg-red-100 border-red-300 dark:bg-red-500/10 dark:border-red-500/15" : "bg-pink-100 border-pink-300 dark:bg-pink-500/10 dark:border-pink-500/15"}`}>
+              {isYT ? <Youtube className="h-4 w-4 text-red-600 dark:text-red-400" /> : <Instagram className="h-4 w-4 text-pink-600 dark:text-pink-400" />}
             </div>
             <div className="min-w-0">
               <p className="text-base font-semibold text-white leading-tight">{item.title ?? "Video sin título"}</p>
@@ -640,7 +640,7 @@ export function TranscriptView() {
           </form>
 
           {error && (
-            <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            <div className="rounded-xl border border-red-300 bg-red-100 px-4 py-3 text-sm text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
               {error}
             </div>
           )}

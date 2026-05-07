@@ -420,9 +420,9 @@ export function ProgramChecklistView() {
 
                     {/* Note banner */}
                     {isWeekOpen && week.note && (
-                      <div className="mx-4 mt-2 mb-1 flex items-start gap-2.5 rounded-lg border border-amber-400/20 bg-amber-500/[0.07] px-4 py-2.5">
-                        <span className="text-amber-400 text-[11px] flex-shrink-0 mt-0.5">⚡</span>
-                        <p className="text-[11px] text-amber-300/80 leading-snug">{week.note}</p>
+                      <div className="mx-4 mt-2 mb-1 flex items-start gap-2.5 rounded-lg border border-amber-400 bg-amber-100 px-4 py-2.5 dark:border-amber-400/20 dark:bg-amber-500/[0.07]">
+                        <span className="text-amber-700 text-[11px] flex-shrink-0 mt-0.5 dark:text-amber-400">⚡</span>
+                        <p className="text-[11px] text-amber-900 leading-snug dark:text-amber-300/80">{week.note}</p>
                       </div>
                     )}
 
@@ -497,7 +497,7 @@ export function ProgramChecklistView() {
                           {/* URL */}
                           <div className="flex items-center px-4 py-3">
                             {task.link === "pending" ? (
-                              <span className="inline-flex items-center rounded-md border border-amber-500/20 bg-amber-500/[0.07] px-2 py-0.5 text-[10px] font-medium text-amber-400/70">
+                              <span className="inline-flex items-center rounded-md border border-amber-400 bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/[0.07] dark:text-amber-400/70">
                                 Módulo en creación
                               </span>
                             ) : task.link ? (

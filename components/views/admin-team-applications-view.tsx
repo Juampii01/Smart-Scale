@@ -40,15 +40,15 @@ function fmtDate(iso: string) {
 const STATUS_LIST: Status[] = ["nueva", "revisando", "descartada", "aprobada", "contratada"]
 
 const STATUS_STYLE: Record<Status, string> = {
-  nueva:      "bg-blue-500/10 text-blue-300 border-blue-500/20",
-  revisando:  "bg-amber-500/10 text-amber-300 border-amber-500/20",
-  descartada: "bg-red-500/10 text-red-300 border-red-500/20",
-  aprobada:   "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
-  contratada: "bg-violet-500/10 text-violet-300 border-violet-500/20",
+  nueva:      "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/20",
+  revisando:  "bg-amber-100 text-amber-900 border-amber-400 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20",
+  descartada: "bg-red-100 text-red-800 border-red-300 dark:bg-red-500/10 dark:text-red-300 dark:border-red-500/20",
+  aprobada:   "bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20",
+  contratada: "bg-violet-100 text-violet-800 border-violet-300 dark:bg-violet-500/10 dark:text-violet-300 dark:border-violet-500/20",
 }
 
 const ROLE_BADGE: Record<string, string> = {
-  setter: "bg-[#ffde21]/10 text-[#ffde21] border-[#ffde21]/20",
+  setter: "bg-amber-200 text-amber-900 border-amber-500 dark:bg-[#ffde21]/10 dark:text-[#ffde21] dark:border-[#ffde21]/20",
 }
 
 function fullName(app: TeamApplication) {
