@@ -115,11 +115,11 @@ export function AnnualMetricsProvider({ children }: { children: React.ReactNode 
     fetchAnnualMetrics()
   }, [activeClientId])
 
-  if (!activeClientId) {
-    // No renderizar nada hasta que haya clientId
-    return null
-  }
-
+  // Renderizamos children siempre, incluso sin activeClientId. Cuando no hay
+  // client (users internos: admin/team/setter sin override), el context queda
+  // en sus defaults (annualMetrics=null) y los componentes hijos pueden manejar
+  // ese caso. NO retornar null acá: rompe el árbol completo de DashboardLayout
+  // para cualquier user sin client_id (todos los roles internos).
   return (
     <AnnualMetricsContext.Provider value={{ annualMetrics, loading, error }}>
       {children}
