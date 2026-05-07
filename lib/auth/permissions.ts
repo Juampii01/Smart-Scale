@@ -27,10 +27,9 @@ export const TEAM_ALLOWED_ADMIN_PATHS = [
   "/admin/centro-operativo",
 ] as const
 
-// Setter tiene los mismos paths que team (acceso al CRM completo en modo lectura).
-// La diferencia está en la UX por defecto: setter aterriza en /admin/setting (su flow principal).
+// Setter no ve Adquisition Stats (/admin/data); el resto igual que team.
+// Landing default: /admin/setting (su flow principal).
 export const SETTER_ALLOWED_ADMIN_PATHS = [
-  "/admin/data",
   "/admin/leads",
   "/admin/setting",
   "/admin/applications",
