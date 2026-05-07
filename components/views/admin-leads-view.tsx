@@ -542,10 +542,7 @@ export function AdminLeadsView() {
                   ) : filtered.map(lead => (
                     <tr key={lead.id}
                       onClick={() => setSelected(lead)}
-                      className="border-b border-foreground/[0.04] cursor-pointer transition-colors group"
-                      style={{ backgroundColor: "var(--card)" }}
-                      onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#18181b")}
-                      onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#111113")}>
+                      className="border-b border-foreground/[0.04] cursor-pointer transition-colors group bg-card hover:bg-muted">
 
                       <td className="px-4 py-4 whitespace-nowrap">
                         <span className="text-[14px] font-semibold text-foreground">{lead.name ?? <span className="text-foreground/30">—</span>}</span>

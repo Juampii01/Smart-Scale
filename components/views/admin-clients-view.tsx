@@ -1218,10 +1218,7 @@ export function AdminClientsView() {
                         <tr
                           key={client.id}
                           onClick={() => setSelected(client)}
-                          className={`border-b border-foreground/[0.04] cursor-pointer transition-colors group ${rowBorder}`}
-                          style={{ backgroundColor: "var(--card)" }}
-                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#18181b")}
-                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#111113")}
+                          className={`border-b border-foreground/[0.04] cursor-pointer transition-colors group bg-card hover:bg-muted ${rowBorder}`}
                         >
                           {/* Cliente */}
                           <td className="px-4 py-3.5 whitespace-nowrap">
