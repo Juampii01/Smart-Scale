@@ -77,7 +77,13 @@ export async function POST(req: NextRequest) {
     if (profileErr) {
       // Rollback: si el profile falla, borramos el auth user para no dejar orfandad
       await supabase.auth.admin.deleteUser(userId).catch(() => {})
-      return NextResponse.json({ error: `Auth creado pero falló profile: ${profileErr.message}` }, { status: 500 })
+
+      // Mensaje friendly para el caso típico: client_id NOT NULL constraint
+      const isClientIdNotNull = /client_id.+not[-_ ]null/i.test(profileErr.message)
+      const friendly = isClientIdNotNull
+        ? "La tabla profiles requiere client_id NOT NULL, pero los usuarios internos no tienen cliente asociado. Correr en Supabase: ALTER TABLE profiles ALTER COLUMN client_id DROP NOT NULL;"
+        : `Auth creado pero falló profile: ${profileErr.message}`
+      return NextResponse.json({ error: friendly }, { status: 500 })
     }
 
     return NextResponse.json({
