@@ -4,13 +4,13 @@ import { useEffect, useState } from "react"
 import {
   X, DollarSign, ClipboardList, Table2, Users2,
   UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
-  ChevronLeft, ChevronRight, MessageSquareText,
+  ChevronLeft, ChevronRight, MessageSquareText, Target,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
-import { canAccessAdminPath, isAdmin } from "@/lib/auth/permissions"
+import { canAccessAdminPath, isAdmin, isSetter } from "@/lib/auth/permissions"
 
 interface AdminSidebarProps {
   open: boolean
@@ -23,6 +23,7 @@ const ADMIN_NAV_ITEMS = [
   { name: "Adquisition Stats", href: "/admin/data",             icon: Table2 },
   { name: "Leads",            href: "/admin/leads",             icon: Users2 },
   { name: "Setting",          href: "/admin/setting",           icon: MessageSquareText },
+  { name: "Prospección",      href: "/admin/prospeccion",       icon: Target },
   { name: "Pagos",            href: "/admin/payments",          icon: DollarSign },
   { name: "Clientes",         href: "/admin/clients",           icon: UserCheck },
   { name: "Aplicaciones",     href: "/admin/applications",      icon: ClipboardList },
@@ -45,9 +46,15 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
 
   // Filtrar items según permisos del rol. Mientras carga (undefined) no mostramos
   // nada para evitar el flash de "todos visible y luego se filtra".
+  // Excepción: /admin/prospeccion solo aparece en sidebar para setter (es su workspace
+  // privado). Admin puede acceder vía URL para audit pero no lo ve en la nav.
   const visibleItems = userRole === undefined
     ? []
-    : ADMIN_NAV_ITEMS.filter(item => canAccessAdminPath(userRole, item.href))
+    : ADMIN_NAV_ITEMS.filter(item => {
+        if (!canAccessAdminPath(userRole, item.href)) return false
+        if (item.href === "/admin/prospeccion" && !isSetter(userRole)) return false
+        return true
+      })
 
   return (
     <>

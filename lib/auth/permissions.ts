@@ -27,13 +27,15 @@ export const TEAM_ALLOWED_ADMIN_PATHS = [
   "/admin/centro-operativo",
 ] as const
 
-// Setter no ve Adquisition Stats (/admin/data); el resto igual que team.
+// Setter no ve Adquisition Stats (/admin/data); el resto igual que team
+// MÁS /admin/prospeccion (workspace privado del setter, no lo ve nadie más).
 // Landing default: /admin/setting (su flow principal).
 export const SETTER_ALLOWED_ADMIN_PATHS = [
   "/admin/leads",
   "/admin/setting",
   "/admin/applications",
   "/admin/centro-operativo",
+  "/admin/prospeccion",
 ] as const
 
 export const ADMIN_DEFAULT_LANDING  = "/admin/leads"
