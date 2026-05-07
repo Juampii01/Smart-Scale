@@ -68,21 +68,36 @@ export async function GET(req: NextRequest) {
     const since = searchParams.get("since")  // optional YYYY-MM-DD
     const until = searchParams.get("until")  // optional YYYY-MM-DD
 
+    // Cualquier user internal ve TODOS los logs (admin/team/setter), no se filtra por rol.
     let query = supabase
       .from("setting_daily_logs")
       .select(ALL_FIELDS)
       .order("date", { ascending: false })
       .limit(500)
 
-    if (!isAdmin(ctx.role)) {
-      query = query.eq("setter_id", ctx.user.id)
-    }
     if (since) query = query.gte("date", since)
     if (until) query = query.lte("date", until)
 
     const { data, error } = await query
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ logs: data ?? [] })
+
+    // Enrich con nombre del setter desde profiles
+    let logs = data ?? []
+    if (logs.length) {
+      const setterIds = Array.from(new Set(logs.map((l: any) => l.setter_id)))
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, name, role")
+        .in("id", setterIds)
+      const profileMap = new Map((profiles ?? []).map((p: any) => [p.id, p]))
+      logs = logs.map((l: any) => ({
+        ...l,
+        setter_name: (profileMap.get(l.setter_id) as any)?.name ?? null,
+        setter_role: (profileMap.get(l.setter_id) as any)?.role ?? null,
+      }))
+    }
+
+    return NextResponse.json({ logs })
   } catch (err: any) {
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
   }

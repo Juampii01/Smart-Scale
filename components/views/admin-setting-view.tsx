@@ -21,6 +21,8 @@ type Log = {
   notes: string | null
   created_at: string
   updated_at: string
+  setter_name?: string | null
+  setter_role?: string | null
 }
 
 type FieldKey =
@@ -74,6 +76,12 @@ export function AdminSettingView() {
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogDate, setDialogDate] = useState<string | undefined>(undefined)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => setCurrentUserId(data?.user?.id ?? null))
+  }, [])
 
   async function loadLogs() {
     setLoading(true)
@@ -134,7 +142,10 @@ export function AdminSettingView() {
   }
 
   const today = todayISO()
-  const todayLoaded = logs.some(l => l.date === today)
+  // "hoy aún no cargado" = el USER LOGUEADO no cargó hoy (otros del equipo sí pueden haber cargado)
+  const todayLoadedByMe = currentUserId
+    ? logs.some(l => l.date === today && l.setter_id === currentUserId)
+    : false
 
   return (
     <div className="space-y-6">
@@ -215,9 +226,9 @@ export function AdminSettingView() {
             CRM diario
           </h2>
           <span className="text-[10px] text-foreground/40">
-            {logs.length} {logs.length === 1 ? "día registrado" : "días registrados"}
-            {!todayLoaded && (
-              <span className="ml-2 text-[#ffde21]">· hoy aún no cargado</span>
+            {logs.length} {logs.length === 1 ? "registro" : "registros"}
+            {!todayLoadedByMe && (
+              <span className="ml-2 text-[#ffde21]">· vos hoy aún no cargaste</span>
             )}
           </span>
         </div>
@@ -247,6 +258,7 @@ export function AdminSettingView() {
                 <thead>
                   <tr className="border-b-2 border-[#ffde21]/30 bg-foreground/[0.02]">
                     <th className="px-5 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-foreground/55 whitespace-nowrap">Fecha</th>
+                    <th className="px-3 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-foreground/55 whitespace-nowrap">Setter</th>
                     {COLUMNS.map(col => {
                       const Icon = col.icon
                       return (
@@ -269,13 +281,21 @@ export function AdminSettingView() {
                         key={log.id}
                         onClick={() => openForm(log.date)}
                         className="border-b border-foreground/[0.04] last:border-0 cursor-pointer hover:bg-foreground/[0.04] transition-colors group"
-                        title="Click para editar"
+                        title="Click para llenar/editar tu propio formulario de esta fecha"
                       >
                         <td className={`px-5 py-3 whitespace-nowrap text-[13px] ${
                           isToday ? "font-bold text-[#ffde21]" : "font-semibold text-foreground/85"
                         }`}>
                           {fmtDateLabel(log.date)}
                           {isToday && <span className="ml-2 text-[9px] font-bold uppercase tracking-widest text-[#ffde21]/70">Hoy</span>}
+                        </td>
+                        <td className="px-3 py-3 whitespace-nowrap text-[12px] text-foreground/75">
+                          {log.setter_name ?? <span className="text-foreground/30">—</span>}
+                          {log.setter_role && (
+                            <span className="ml-1.5 rounded-full border border-foreground/15 bg-foreground/[0.04] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-foreground/55">
+                              {log.setter_role}
+                            </span>
+                          )}
                         </td>
                         {COLUMNS.map(col => (
                           <td key={col.key} className="px-3 py-3 text-right tabular-nums text-foreground/85 text-[13px]">
