@@ -6,13 +6,14 @@ import {
   Plus, ExternalLink, Trash2, Loader2, FolderOpen,
   Search, AlertTriangle, Link2, FileText, Video, File, X,
   ChevronRight, ArrowRight, Check, Copy, Pencil, Save,
-  UserPlus, ListChecks,
+  UserPlus, ListChecks, Target,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase"
-import { isAdmin } from "@/lib/auth/permissions"
+import { isAdmin, isSetter, isTeam } from "@/lib/auth/permissions"
 import { NewUserDialog } from "@/components/admin/new-user-dialog"
 import { AdminSOPsView } from "@/components/views/admin-sops-view"
+import { AdminProspeccionView } from "@/components/views/admin-prospeccion-view"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -71,6 +72,14 @@ const SECTIONS = [
     color: "text-pink-700 dark:text-pink-400",
     accent: "border-pink-300 bg-pink-50 dark:border-pink-400/20 dark:bg-pink-400/5",
     desc: "Playbooks operativos con pasos numerados y templates copiables (Skool, Slack, etc.).",
+  },
+  {
+    id: "prospeccion",
+    label: "Prospección",
+    icon: Target,
+    color: "text-cyan-700 dark:text-cyan-400",
+    accent: "border-cyan-300 bg-cyan-50 dark:border-cyan-400/20 dark:bg-cyan-400/5",
+    desc: "Workspace privado del setter: listas, scripts, notas y follow-ups. Cada setter ve solo lo suyo.",
   },
 ] as const
 
@@ -951,9 +960,24 @@ export function AdminCentroOperativoView() {
     supabase.auth.getUser().then(({ data }) => {
       if (!data?.user) return
       supabase.from("profiles").select("role").eq("id", data.user.id).maybeSingle()
-        .then(({ data: prof }) => setUserRole((prof as any)?.role ?? null))
+        .then(({ data: prof }) => {
+          const role = (prof as any)?.role ?? null
+          setUserRole(role)
+          // Setter solo ve "Prospección" — auto-seleccionarla al entrar.
+          if (isSetter(role)) setActiveSection("prospeccion")
+        })
     })
   }, [])
+
+  // Filtro de secciones por rol:
+  //  - admin: todas (incluido Prospección, para audit)
+  //  - team:  todas EXCEPTO Prospección (es privada del setter)
+  //  - setter: SOLO Prospección (no ve SOPs, Recursos, Accesos — info sensible)
+  const visibleSections = SECTIONS.filter(s => {
+    if (isSetter(userRole)) return s.id === "prospeccion"
+    if (isTeam(userRole))   return s.id !== "prospeccion"
+    return true  // admin ve todo
+  })
 
   useEffect(() => {
     fetch("/api/resources")
@@ -1011,12 +1035,15 @@ export function AdminCentroOperativoView() {
 
       <NewUserDialog open={newUserOpen} onClose={() => setNewUserOpen(false)} />
 
-      {/* Section tabs */}
+      {/* Section tabs — filtradas por rol */}
       <div className="flex gap-2 flex-wrap">
-        {SECTIONS.map(s => {
+        {visibleSections.map(s => {
           const Icon = s.icon
           const count = items.filter(i => i.category === s.id).length
           const isActive = activeSection === s.id
+          // Las secciones "sops" y "prospeccion" usan otra tabla (no centro_operativo_items)
+          // por lo que el count de items no aplica.
+          const hideCount = s.id === "sops" || s.id === "prospeccion"
           return (
             <button
               key={s.id}
@@ -1030,7 +1057,7 @@ export function AdminCentroOperativoView() {
             >
               <Icon className={`h-3.5 w-3.5 ${isActive ? "text-[#ffde21]" : s.color}`} />
               {s.label}
-              {s.id !== "sops" && (
+              {!hideCount && (
                 <span className={cn(
                   "text-[10px] rounded-full px-1.5 py-0.5",
                   isActive ? "bg-[#ffde21]/20 text-[#ffde21]" : "bg-foreground/[0.07] text-foreground/30",
@@ -1050,9 +1077,11 @@ export function AdminCentroOperativoView() {
         </div>
       ) : activeSection === "sops" ? (
         <AdminSOPsView userRole={userRole} />
+      ) : activeSection === "prospeccion" ? (
+        <AdminProspeccionView />
       ) : (
         <SectionPanel
-          section={section as Exclude<typeof section, { id: "sops" }>}
+          section={section as Exclude<typeof section, { id: "sops" | "prospeccion" }>}
           items={sectionItems}
           onAdd={handleAdd}
           onUpdate={handleUpdate}

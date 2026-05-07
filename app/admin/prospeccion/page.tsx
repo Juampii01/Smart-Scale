@@ -1,12 +1,7 @@
-import { DashboardLayout }      from "@/components/layout/dashboard-layout"
-import { AdminProspeccionView } from "@/components/views/admin-prospeccion-view"
+import { redirect } from "next/navigation"
 
-export const dynamic = "force-dynamic"
-
-export default function AdminProspeccionPage() {
-  return (
-    <DashboardLayout>
-      <AdminProspeccionView />
-    </DashboardLayout>
-  )
+// Prospección ahora vive como tab dentro de /admin/centro-operativo.
+// Mantenemos esta ruta como redirect para no romper bookmarks/links viejos.
+export default function ProspeccionRedirect() {
+  redirect("/admin/centro-operativo")
 }
