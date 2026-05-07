@@ -6,12 +6,13 @@ import {
   Plus, ExternalLink, Trash2, Loader2, FolderOpen,
   Search, AlertTriangle, Link2, FileText, Video, File, X,
   ChevronRight, ArrowRight, Check, Copy, Pencil, Save,
-  UserPlus,
+  UserPlus, ListChecks,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase"
 import { isAdmin } from "@/lib/auth/permissions"
 import { NewUserDialog } from "@/components/admin/new-user-dialog"
+import { AdminSOPsView } from "@/components/views/admin-sops-view"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -63,6 +64,14 @@ const SECTIONS = [
     accent: "border-amber-300 bg-amber-50 dark:border-amber-400/20 dark:bg-amber-400/5",
     desc: "Referencia de herramientas del stack. No guardar contraseñas en texto plano.",
   },
+  {
+    id: "sops",
+    label: "SOPs",
+    icon: ListChecks,
+    color: "text-pink-700 dark:text-pink-400",
+    accent: "border-pink-300 bg-pink-50 dark:border-pink-400/20 dark:bg-pink-400/5",
+    desc: "Playbooks operativos con pasos numerados y templates copiables (Skool, Slack, etc.).",
+  },
 ] as const
 
 type SectionId = (typeof SECTIONS)[number]["id"]
@@ -76,7 +85,7 @@ const TYPE_CONFIG: Record<ResourceType, { label: string; icon: React.ElementType
 
 // ─── Templates ────────────────────────────────────────────────────────────────
 
-const TEMPLATES: Record<SectionId, { label: string; content: string }[]> = {
+const TEMPLATES: Partial<Record<SectionId, { label: string; content: string }[]>> = {
   "sop-sistemas": [
     {
       label: "SOP de herramienta",
@@ -1021,12 +1030,14 @@ export function AdminCentroOperativoView() {
             >
               <Icon className={`h-3.5 w-3.5 ${isActive ? "text-[#ffde21]" : s.color}`} />
               {s.label}
-              <span className={cn(
-                "text-[10px] rounded-full px-1.5 py-0.5",
-                isActive ? "bg-[#ffde21]/20 text-[#ffde21]" : "bg-foreground/[0.07] text-foreground/30",
-              )}>
-                {count}
-              </span>
+              {s.id !== "sops" && (
+                <span className={cn(
+                  "text-[10px] rounded-full px-1.5 py-0.5",
+                  isActive ? "bg-[#ffde21]/20 text-[#ffde21]" : "bg-foreground/[0.07] text-foreground/30",
+                )}>
+                  {count}
+                </span>
+              )}
             </button>
           )
         })}
@@ -1037,9 +1048,11 @@ export function AdminCentroOperativoView() {
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-6 w-6 animate-spin text-foreground/20" />
         </div>
+      ) : activeSection === "sops" ? (
+        <AdminSOPsView userRole={userRole} />
       ) : (
         <SectionPanel
-          section={section}
+          section={section as Exclude<typeof section, { id: "sops" }>}
           items={sectionItems}
           onAdd={handleAdd}
           onUpdate={handleUpdate}
