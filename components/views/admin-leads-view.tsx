@@ -389,9 +389,10 @@ export function AdminLeadsView() {
       .some(v => v?.toLowerCase().includes(q))
   })
 
-  const webhookUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/api/webhooks/lead`
-    : "https://smartscale.space/api/webhooks/lead"
+  const [webhookUrl, setWebhookUrl] = useState<string | null>(null)
+  useEffect(() => {
+    setWebhookUrl(`${window.location.origin}/api/webhooks/lead`)
+  }, [])
 
   return (
     <>
@@ -446,12 +447,13 @@ export function AdminLeadsView() {
             Webhook URL — ManyChat / Zapier
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-[#ffde21]/70 font-mono truncate">
-              {webhookUrl}
+            <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-[#ffde21]/70 font-mono truncate" suppressHydrationWarning>
+              {webhookUrl ?? "Cargando…"}
             </code>
             <button
-              onClick={() => navigator.clipboard.writeText(webhookUrl)}
-              className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all"
+              onClick={() => webhookUrl && navigator.clipboard.writeText(webhookUrl)}
+              disabled={!webhookUrl}
+              className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
             >
               Copiar
             </button>
@@ -492,6 +494,7 @@ export function AdminLeadsView() {
               <Star className={`h-3 w-3 ${filterRating === -1 ? "fill-black text-black dark:fill-amber-400 dark:text-amber-400" : "fill-transparent"}`} />
               4–5
             </button>
+            {/* Filtros de 1-3 ⭐ removidos: solo nos interesan leads calificados (4-5 ⭐). */}
           </div>
         </div>
 

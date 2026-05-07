@@ -5,7 +5,7 @@ import type React from "react"
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
-import { ChevronDown, LogOut, Menu, User, ShieldCheck } from "lucide-react"
+import { ChevronDown, LogOut, Menu, User, ShieldCheck, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MonthSelector } from "@/components/layout/month-selector"
 import { Sidebar } from "@/components/layout/sidebar"
@@ -278,9 +278,34 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           }
         }
 
-        // Initialize active client (admin can override via localStorage)
+        // Initialize active client.
+        //  - admin: stored override → su propio cid → null
+        //  - team / setter: su propio cid → fallback al cid del admin (Ann)
+        //  - cliente: su propio cid
+        const normalizedRole = String(role ?? "").toLowerCase()
         const stored = typeof window !== "undefined" ? window.localStorage.getItem("activeClientId") : null
-        const nextActive = (String(role ?? "").toLowerCase() === "admin" && stored) ? stored : (cid ?? null)
+
+        let nextActive: string | null = null
+        if (normalizedRole === "admin") {
+          nextActive = stored ?? cid ?? null
+        } else if (normalizedRole === "team" || normalizedRole === "setter") {
+          // Setter/team siempre miran el CRM del admin (Ann). Si no tienen client_id propio,
+          // resolvemos el client_id del primer admin como fallback.
+          if (cid) {
+            nextActive = cid
+          } else {
+            const { data: adminProfile } = await supabase
+              .from("profiles")
+              .select("client_id")
+              .eq("role", "admin")
+              .not("client_id", "is", null)
+              .limit(1)
+              .maybeSingle()
+            nextActive = (adminProfile as any)?.client_id ?? null
+          }
+        } else {
+          nextActive = cid ?? null
+        }
         setActiveClientId(nextActive)
       } else {
         // Silent fallback: profile couldn't be loaded (RLS/missing row/etc.)
@@ -503,32 +528,42 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   <div
                     role="menu"
                     aria-label="Perfil"
-                    className="absolute right-0 mt-2 w-64 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-lg backdrop-blur"
+                    className="absolute right-0 mt-2 w-72 overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl backdrop-blur"
                   >
-                    <div className="px-3 py-2">
-                      {clientDisplayName && !isAdmin && (
-                        <p className="truncate text-sm font-semibold text-foreground">{clientDisplayName}</p>
-                      )}
-                      <p className="text-xs text-foreground/40 truncate">{userEmail ?? "—"}</p>
+                    {/* Header — current user */}
+                    <div className="flex items-center gap-3 px-4 py-3 bg-foreground/[0.02]">
+                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21] text-[13px] font-bold">
+                        {(clientDisplayName ?? userEmail ?? "?").charAt(0).toUpperCase()}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        {clientDisplayName && !isAdmin && (
+                          <p className="truncate text-sm font-semibold text-foreground">{clientDisplayName}</p>
+                        )}
+                        <p className="truncate text-[11px] text-foreground/50">{userEmail ?? "—"}</p>
+                      </div>
                     </div>
-                    <div className="h-px bg-foreground/10" />
 
                     {isAdmin ? (
                       <>
-                        <div className="px-3 py-2">
-                          <p className="text-xs text-foreground/60">Cambiar perfil</p>
+                        <div className="px-4 pt-3 pb-1.5">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/40">Cambiar perfil</p>
                         </div>
-                        <div className="max-h-64 overflow-auto">
+                        <div className="max-h-72 overflow-auto pb-1.5 px-1.5">
                           {profilesList.length ? (
                             profilesList.map((p) => {
                               const isSelectable = Boolean(p.client_id)
                               const isActive = Boolean(p.client_id) && activeClientId === p.client_id
+                              const initial = (p.client_name ?? "?").charAt(0).toUpperCase()
                               return (
                                 <button
                                   key={p.id}
                                   type="button"
                                   role="menuitem"
-                                  className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-foreground hover:bg-[#ffde21]/10 ${isActive ? "bg-[#ffde21]/15" : ""} ${!isSelectable ? "opacity-50 cursor-not-allowed hover:bg-transparent" : ""}`}
+                                  className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
+                                    isActive
+                                      ? "bg-[#ffde21]/15 text-foreground"
+                                      : "text-foreground hover:bg-foreground/[0.06]"
+                                  } ${!isSelectable ? "opacity-40 cursor-not-allowed hover:bg-transparent" : ""}`}
                                   disabled={!isSelectable}
                                   onClick={() => {
                                     if (!p.client_id) return
@@ -538,30 +573,43 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                   }}
                                   title={p.client_id}
                                 >
-                                  <span className="truncate text-foreground">{p.client_name}</span>
-                                  {isActive ? <span className="text-xs text-emerald-300/80">Activo</span> : null}
+                                  <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                                    isActive
+                                      ? "bg-[#ffde21] text-black"
+                                      : "bg-foreground/[0.08] text-foreground/70"
+                                  }`}>
+                                    {initial}
+                                  </span>
+                                  <span className="truncate flex-1 font-medium">{p.client_name}</span>
+                                  {isActive && (
+                                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300">
+                                      <Check className="h-2.5 w-2.5" strokeWidth={3} />
+                                      Activo
+                                    </span>
+                                  )}
                                 </button>
                               )
                             })
                           ) : (
-                            <div className="px-3 py-2 text-sm text-foreground/60">No hay perfiles para mostrar.</div>
+                            <div className="px-3 py-3 text-sm text-foreground/60">No hay perfiles para mostrar.</div>
                           )}
                         </div>
-                        <div className="h-px bg-foreground/10" />
                       </>
                     ) : null}
+
+                    <div className="h-px bg-foreground/[0.07]" />
 
                     <button
                       type="button"
                       role="menuitem"
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground hover:bg-foreground/[0.06]"
+                      className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm font-medium text-foreground/80 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-500/10 dark:hover:text-red-300 transition-colors"
                       onClick={async () => {
                         await supabase.auth.signOut()
                         setProfileMenuOpen(false)
                         router.replace("/login")
                       }}
                     >
-                      <LogOut className="h-4 w-4 text-[#ffde21]" />
+                      <LogOut className="h-4 w-4" />
                       Cerrar sesión
                     </button>
                   </div>

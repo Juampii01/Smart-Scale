@@ -1,19 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { requireAdmin } from "@/lib/auth/api-guards"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
-
-async function requireAdmin(jwt: string | null) {
-  if (!jwt) return null
-  const supabase = createServiceClient()
-  const { data: { user }, error } = await supabase.auth.getUser(jwt)
-  if (error || !user) return null
-  const { data: profile } = await supabase
-    .from("profiles").select("role").eq("id", user.id).maybeSingle()
-  if (String(profile?.role ?? "").toLowerCase() !== "admin") return null
-  return user
-}
 
 /** GET — all clients with their installments and followups */
 export async function GET(req: NextRequest) {

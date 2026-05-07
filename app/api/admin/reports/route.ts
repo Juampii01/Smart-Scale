@@ -17,11 +17,11 @@ const ALL_REPORT_FIELDS = [
   "yt_subscribers", "yt_new_subscribers", "yt_monthly_audience",
   "yt_views", "yt_watch_time", "yt_videos",
   "email_subscribers", "email_new_subscribers",
-  "nps_score",
 ].join(", ")
 
-/** GET /api/admin/reports?client_id=...
- *  Devuelve todos los monthly_reports del cliente, ordenados por month asc.
+/** GET /api/admin/reports[?client_id=...]
+ *  Devuelve monthly_reports ordenados por month asc.
+ *  Si se pasa client_id, filtra. Si no, devuelve todos (CRM single-tenant de Ann).
  *  Accesible para admin O team (lectura).
  */
 export async function GET(req: NextRequest) {
@@ -32,14 +32,16 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url)
     const clientId = searchParams.get("client_id")
-    if (!clientId) return NextResponse.json({ error: "client_id is required" }, { status: 400 })
 
     const supabase = createServiceClient()
-    const { data, error } = await supabase
+    let query = supabase
       .from("monthly_reports")
       .select(ALL_REPORT_FIELDS)
-      .eq("client_id", clientId)
       .order("month", { ascending: true })
+
+    if (clientId) query = query.eq("client_id", clientId)
+
+    const { data, error } = await query
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ reports: data ?? [] })
@@ -64,8 +66,6 @@ const ALLOWED_FIELDS = new Set([
   "yt_views", "yt_watch_time", "yt_videos",
   // Email
   "email_subscribers", "email_new_subscribers",
-  // Other
-  "nps_score",
 ])
 
 /** PATCH /api/admin/reports

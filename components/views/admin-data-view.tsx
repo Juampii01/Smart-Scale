@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react"
 import { createClient } from "@/lib/supabase"
 import { Loader2, RefreshCw, Download } from "lucide-react"
+import { useActiveClient, useActiveClientName } from "@/components/layout/dashboard-layout"
 
 // ─── Metrics — all fields Ann actually fills ──────────────────────────────────
 
@@ -171,38 +172,13 @@ function EditableCell({
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-interface ClientOption { id: string; name: string }
-
 export function AdminDataView() {
-  const [clients,  setClients]  = useState<ClientOption[]>([])
-  const [clientId, setClientId] = useState<string>("")
-  const [months,   setMonths]   = useState<string[]>([])
-  const [pivot,    setPivot]    = useState<Record<string, Record<string, number | null>>>({})
-  const [loading,  setLoading]  = useState(true)
-  const [loadingClients, setLoadingClients] = useState(true)
-
-  const activeClient = clients.find(c => c.id === clientId)
-
-  // Cargar lista de clientes una vez
-  useEffect(() => {
-    (async () => {
-      setLoadingClients(true)
-      try {
-        const supabase = createClient()
-        const { data: { session } } = await supabase.auth.getSession()
-        if (!session) return
-        const res = await fetch("/api/admin/clients", {
-          headers: { "Authorization": `Bearer ${session.access_token}` },
-        })
-        if (!res.ok) return
-        const json = await res.json()
-        const list: ClientOption[] = (json.clients ?? []).map((c: any) => ({ id: c.id, name: c.name }))
-        list.sort((a, b) => a.name.localeCompare(b.name))
-        setClients(list)
-        if (list.length > 0) setClientId(list[0].id)
-      } finally { setLoadingClients(false) }
-    })()
-  }, [])
+  // Filtramos por el cliente activo del header (admin puede cambiar entre perfiles).
+  const clientId       = useActiveClient() ?? ""
+  const activeClientName = useActiveClientName()
+  const [months,  setMonths]  = useState<string[]>([])
+  const [pivot,   setPivot]   = useState<Record<string, Record<string, number | null>>>({})
+  const [loading, setLoading] = useState(true)
 
   const loadReports = useCallback(async (cid: string) => {
     if (!cid) { setMonths([]); setPivot({}); setLoading(false); return }
@@ -212,7 +188,7 @@ export function AdminDataView() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { setLoading(false); return }
 
-      const res = await fetch(`/api/admin/reports?client_id=${cid}`, {
+      const res = await fetch(`/api/admin/reports?client_id=${encodeURIComponent(cid)}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
       const json = await res.json()
@@ -232,7 +208,7 @@ export function AdminDataView() {
     } finally { setLoading(false) }
   }, [])
 
-  useEffect(() => { if (clientId) loadReports(clientId) }, [clientId, loadReports])
+  useEffect(() => { loadReports(clientId) }, [clientId, loadReports])
 
   const handleSaved = useCallback((month: string, key: string, val: number | null) => {
     setPivot(prev => ({ ...prev, [month]: { ...(prev[month] ?? {}), [key]: val } }))
@@ -246,8 +222,7 @@ export function AdminDataView() {
     const csv  = [header, ...dataRows].join("\n")
     const blob = new Blob([csv], { type: "text/csv" })
     const url  = URL.createObjectURL(blob)
-    const filename = activeClient ? `smart-scale-${activeClient.name.toLowerCase().replace(/\s+/g, "-")}.csv` : "smart-scale-data.csv"
-    Object.assign(document.createElement("a"), { href: url, download: filename }).click()
+    Object.assign(document.createElement("a"), { href: url, download: "smart-scale-data.csv" }).click()
     URL.revokeObjectURL(url)
   }
 
@@ -259,28 +234,14 @@ export function AdminDataView() {
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Adquisition Stats</h1>
           <p className="text-sm text-foreground/40 mt-0.5">
-            {activeClient ? `Datos de ${activeClient.name}` : "Seleccioná un cliente"} · {months.length
+            {activeClientName ? `Datos de ${activeClientName}` : "Sin cliente activo"} · {months.length
               ? `${months.length} ${months.length === 1 ? "mes" : "meses"} · click en cualquier celda para editar`
               : "métricas mensuales"}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <select
-            value={clientId}
-            onChange={e => setClientId(e.target.value)}
-            disabled={loadingClients || clients.length === 0}
-            className="h-9 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 text-sm text-white hover:border-white/20 transition-all disabled:opacity-40 focus:outline-none focus:border-[#ffde21]/50 min-w-[180px]"
-          >
-            {loadingClients
-              ? <option>Cargando…</option>
-              : clients.length === 0
-                ? <option>Sin clientes</option>
-                : clients.map(c => (
-                    <option key={c.id} value={c.id} className="bg-[#1c1c1f] text-white">{c.name}</option>
-                  ))}
-          </select>
           <button
-            onClick={() => clientId && loadReports(clientId)}
+            onClick={() => loadReports(clientId)}
             disabled={loading || !clientId}
             className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
           >
@@ -305,7 +266,9 @@ export function AdminDataView() {
           </div>
         ) : !months.length ? (
           <div className="py-24 text-center">
-            <p className="text-sm text-foreground/25">No hay reportes cargados todavía.</p>
+            <p className="text-sm text-foreground/25">
+              {clientId ? "No hay reportes cargados todavía." : "Seleccioná un cliente activo desde el menú de perfil arriba a la derecha."}
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">

@@ -29,7 +29,8 @@ function generateMonths(enabledMonths?: string[]) {
     }
   }
 
-  const sorted = Array.from(set).sort()
+  // Más reciente primero (descendente).
+  const sorted = Array.from(set).sort((a, b) => b.localeCompare(a))
   return sorted.map((value) => ({ value, disabled: false }))
 }
 
@@ -41,7 +42,8 @@ type MonthSelectorProps = {
 
 export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorProps) {
   const months = useMemo(() => generateMonths(enabledMonths), [enabledMonths])
-  const defaultMonth = months.slice(-1)[0]?.value ?? "2025-12"
+  // El más reciente está primero (orden descendente).
+  const defaultMonth = months[0]?.value ?? "2025-12"
 
   // Local state (used when parent doesn't control the value)
   const [selectedMonth, setSelectedMonth] = useState<string>(value ?? defaultMonth)

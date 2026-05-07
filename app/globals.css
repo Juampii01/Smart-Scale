@@ -4,49 +4,49 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ─────────────────────────────────────────────────────────────────────────
-   LIGHT MODE — blanco puro estilo Notion/Linear
+   LIGHT MODE — blanco con contraste fuerte (no diluido)
    ───────────────────────────────────────────────────────────────────────── */
 :root {
   --background: #ffffff;
   --foreground: #0a0a0b;
-  --card: #fafafa;
+  --card: #f1f1f3;
   --card-foreground: #0a0a0b;
   --popover: #ffffff;
   --popover-foreground: #0a0a0b;
   --primary: #0a0a0b;
   --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
+  --secondary: #ebebed;
   --secondary-foreground: #0a0a0b;
-  --muted: #f4f4f5;
-  --muted-foreground: rgba(10, 10, 11, 0.55);
+  --muted: #ebebed;
+  --muted-foreground: rgba(10, 10, 11, 0.65);
   --accent: #ffde21;
   --accent-foreground: #0a0a0b;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: #ffffff;
-  --border: rgba(0, 0, 0, 0.08);
-  --input: rgba(0, 0, 0, 0.08);
-  --ring: rgba(0, 0, 0, 0.25);
+  --border: rgba(0, 0, 0, 0.14);
+  --input: rgba(0, 0, 0, 0.14);
+  --ring: rgba(0, 0, 0, 0.30);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
-  --sidebar: #fafafa;
+  --sidebar: #f4f4f6;
   --sidebar-foreground: #0a0a0b;
   --sidebar-primary: #0a0a0b;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f4f4f5;
+  --sidebar-accent: #e5e5e8;
   --sidebar-accent-foreground: #0a0a0b;
-  --sidebar-border: rgba(0, 0, 0, 0.10);
-  --sidebar-ring: rgba(0, 0, 0, 0.25);
+  --sidebar-border: rgba(0, 0, 0, 0.16);
+  --sidebar-ring: rgba(0, 0, 0, 0.30);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
    LIGHT MODE polish — solo aplica fuera de .dark
-   - Yellow buttons: borde negro sutil + shadow para "pop" sobre blanco
-   - Cards/popovers: shadow sutil para depth
-   - Sidebar: separador más visible
+   - Yellow buttons: borde negro fuerte + shadow para dominancia
+   - Cards/popovers: shadow más visible para depth
+   - Sidebar: separador y bg diferenciado del background principal
    ───────────────────────────────────────────────────────────────────────── */
 :root:not(.dark) button[class*="bg-[#ffde21]"],
 :root:not(.dark) a[class*="bg-[#ffde21]"],
@@ -54,30 +54,55 @@
 :root:not(.dark) button[class*="bg-[#ffe46b]"],
 :root:not(.dark) button[class*="bg-[#ffe84d]"],
 :root:not(.dark) a[class*="bg-[#ffe46b]"] {
-  border: 1px solid rgba(0, 0, 0, 0.18) !important;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.85) !important;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.85), 0 4px 8px rgba(0, 0, 0, 0.10);
 }
 
 :root:not(.dark) button[class*="bg-[#ffde21]"]:hover,
 :root:not(.dark) a[class*="bg-[#ffde21]"]:hover {
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.85), 0 5px 12px rgba(0, 0, 0, 0.12);
 }
 
-/* Cards (rounded-2xl/xl con bg-card) en light reciben shadow sutil */
+:root:not(.dark) button[class*="bg-[#ffde21]"]:active,
+:root:not(.dark) a[class*="bg-[#ffde21]"]:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.85);
+}
+
+/* Cards (rounded-2xl/xl con bg-card) en light reciben shadow más visible */
 :root:not(.dark) [class*="bg-card"][class*="rounded-2xl"],
 :root:not(.dark) [class*="bg-card"][class*="rounded-xl"],
 :root:not(.dark) [class*="bg-card"][class*="rounded-[24px]"] {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
-/* Sidebar con sombra muy sutil para diferenciarlo del background */
+/* Sidebar diferenciado del fondo principal */
 :root:not(.dark) aside[class*="border-r"] {
-  box-shadow: 1px 0 0 rgba(0, 0, 0, 0.02);
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.04);
 }
 
 /* Profile dropdown / outlined buttons en light: borde más definido */
 :root:not(.dark) [class*="border-emerald-400/30"] {
-  border-color: rgba(0, 0, 0, 0.15) !important;
+  border-color: rgba(0, 0, 0, 0.20) !important;
+}
+
+/* Header del dashboard con borde inferior más visible */
+:root:not(.dark) header[class*="border-b"] {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Inputs con borde más definido para que tengan presencia */
+:root:not(.dark) input[class*="border-border"],
+:root:not(.dark) input[class*="border-foreground/[0.08]"],
+:root:not(.dark) textarea[class*="border-border"] {
+  border-color: rgba(0, 0, 0, 0.16) !important;
+}
+
+/* Item activo del sidebar más fuerte en light */
+:root:not(.dark) nav a > div[class*="bg-foreground/[0.07]"] {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────

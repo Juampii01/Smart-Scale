@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react"
 import {
   X, DollarSign, ClipboardList, Table2, Users2,
-  UserCheck, Layers, Briefcase, ShieldCheck,
+  UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
   ChevronLeft, ChevronRight, MessageSquareText,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
-import { canAccessAdminPath } from "@/lib/auth/permissions"
+import { canAccessAdminPath, isAdmin } from "@/lib/auth/permissions"
 
 interface AdminSidebarProps {
   open: boolean
@@ -101,6 +101,21 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
             </span>
           )}
         </div>
+
+        {/* Back to portal — solo para admin (setter/team no tienen portal de cliente) */}
+        {isAdmin(userRole) && (
+          <div className={cn("pt-3", collapsed ? "lg:px-2 px-3" : "px-3")}>
+            <Link href="/dashboard" onClick={onClose} title={collapsed ? "Volver al portal" : undefined}>
+              <div className={cn(
+                "group flex items-center gap-2 rounded-lg border border-foreground/[0.07] bg-foreground/[0.02] py-2 text-[12px] font-semibold text-foreground/55 hover:text-foreground hover:border-foreground/[0.15] transition-all",
+                collapsed ? "lg:justify-center lg:px-2 px-3" : "px-3"
+              )}>
+                <ArrowLeft className="h-3.5 w-3.5 flex-shrink-0" />
+                {!collapsed && "Volver al portal"}
+              </div>
+            </Link>
+          </div>
+        )}
 
         {/* Section header */}
         {!collapsed && (

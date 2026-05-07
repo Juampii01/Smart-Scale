@@ -157,11 +157,13 @@ const labelCls = "text-[10px] font-bold uppercase tracking-widest text-foregroun
 
 function WebhookCard() {
   const [copied, setCopied] = useState(false)
-  const url = typeof window !== "undefined"
-    ? `${window.location.origin}/api/webhooks/client`
-    : "https://smartscale.space/api/webhooks/client"
+  const [url, setUrl] = useState<string | null>(null)
+  useEffect(() => {
+    setUrl(`${window.location.origin}/api/webhooks/client`)
+  }, [])
 
   const copy = () => {
+    if (!url) return
     navigator.clipboard.writeText(url)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
@@ -173,11 +175,11 @@ function WebhookCard() {
         Webhook URL — Zapier / Formulario de onboarding
       </p>
       <div className="flex items-center gap-2">
-        <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-[#ffde21]/70 font-mono truncate">
-          {url}
+        <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-[#ffde21]/70 font-mono truncate" suppressHydrationWarning>
+          {url ?? "Cargando…"}
         </code>
-        <button onClick={copy}
-          className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all">
+        <button onClick={copy} disabled={!url}
+          className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
           {copied ? "✓ Copiado" : "Copiar"}
         </button>
       </div>
