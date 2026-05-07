@@ -14,6 +14,7 @@ import { AnnualMetricsProvider } from "@/contexts/annual-metrics-context"
 import { NavigationProgress } from "@/components/ui/navigation-progress"
 import { HelpChat } from "@/components/ui/help-chat"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
+import { isSetter, isTeam, SETTER_DEFAULT_LANDING, TEAM_DEFAULT_LANDING } from "@/lib/auth/permissions"
 
 declare global {
   interface Window {
@@ -112,6 +113,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     if (stored) setSidebarCollapsed(stored === "true")
   }, [])
 
+  // Setter / team que aterrizan en /dashboard (portal cliente) caen a su landing
+  // de admin: setter → /admin/setting, team → /admin/leads. Admin queda en /dashboard
+  // como portal "modo cliente" para revisar; cliente final también.
+
   const toggleSidebarCollapsed = () => {
     setSidebarCollapsed(prev => {
       const next = !prev
@@ -154,6 +159,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const profileMenuRef = useRef<HTMLDivElement | null>(null)
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
+
+  // Redirect setter / team que aterrizan en el portal cliente a su landing de admin.
+  useEffect(() => {
+    if (userRole == null) return
+    if (isAdminMode) return
+    if (isSetter(userRole)) router.replace(SETTER_DEFAULT_LANDING)
+    else if (isTeam(userRole)) router.replace(TEAM_DEFAULT_LANDING)
+  }, [userRole, isAdminMode, router])
 
   useEffect(() => {
     let mounted = true
