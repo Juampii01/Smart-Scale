@@ -89,28 +89,26 @@
    El bg-[#ffde21] SÓLIDO (botones) queda intacto — esos sí se ven bien.
    ───────────────────────────────────────────────────────────────────────── */
 
-/* Texto amarillo → amber oscuro */
-:root:not(.dark) [class*="text-[#ffde21]"] {
-  color: #a16207 !important;
-}
+/* Texto amarillo → negro (foreground) para máxima legibilidad */
+:root:not(.dark) [class*="text-[#ffde21]"],
 :root:not(.dark) [class*="text-[#ffe46b]"],
 :root:not(.dark) [class*="text-[#ffe84d]"] {
-  color: #b45309 !important;
+  color: var(--foreground) !important;
 }
 
-/* Backgrounds amarillos TRANSLÚCIDOS (badges, hover states) → amber claro */
+/* Backgrounds amarillos TRANSLÚCIDOS (badges, hover states) → gris muy sutil */
 :root:not(.dark) [class*="bg-[#ffde21]/["],
 :root:not(.dark) [class*="bg-[#ffde21]/0"],
 :root:not(.dark) [class*="bg-[#ffde21]/1"] {
-  background-color: rgba(161, 98, 7, 0.10) !important;
+  background-color: rgba(0, 0, 0, 0.04) !important;
 }
 
-/* Borders amarillos más definidos */
+/* Borders amarillos → border default (sutil pero visible) */
 :root:not(.dark) [class*="border-[#ffde21]/"] {
-  border-color: rgba(161, 98, 7, 0.35) !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
 }
 :root:not(.dark) [class*="border-[#ffde21]"]:not([class*="/"]) {
-  border-color: #a16207 !important;
+  border-color: var(--foreground) !important;
 }
 
 /* Decorative dots/dividers amarillos sólidos pequeños siguen siendo brand,
