@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { X, UserPlus, Copy, Check, AlertCircle } from "lucide-react"
+import { useState, useEffect } from "react"
+import { X, UserPlus, Copy, Check, AlertCircle, Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { ROLE_OPTIONS } from "@/lib/auth/permissions"
 
@@ -10,6 +10,8 @@ interface NewUserDialogProps {
   onClose: () => void
   onCreated?: (user: { id: string; email: string; role: string }) => void
 }
+
+interface ClientOption { id: string; name: string }
 
 export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) {
   const [email, setEmail] = useState("")
@@ -22,11 +24,38 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
   const [result, setResult] = useState<{ email: string; tempPassword: string | null } | null>(null)
   const [copied, setCopied] = useState(false)
 
+  // Solo se cargan cuando role='client' — selector de cliente para asociar
+  const [clients, setClients] = useState<ClientOption[]>([])
+  const [clientId, setClientId] = useState<string>("")
+  const [loadingClients, setLoadingClients] = useState(false)
+
+  useEffect(() => {
+    if (!open || role !== "client" || clients.length > 0) return
+    const load = async () => {
+      setLoadingClients(true)
+      try {
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return
+        const res = await fetch("/api/admin/clients", {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        if (!res.ok) return
+        const json = await res.json()
+        const list: ClientOption[] = (json.clients ?? []).map((c: any) => ({ id: c.id, name: c.name }))
+        list.sort((a, b) => a.name.localeCompare(b.name))
+        setClients(list)
+      } finally { setLoadingClients(false) }
+    }
+    load()
+  }, [open, role, clients.length])
+
   if (!open) return null
 
   function reset() {
     setEmail(""); setName(""); setRole("setter")
     setPassword(""); setAutoPassword(true)
+    setClientId("")
     setError(null); setResult(null); setCopied(false)
   }
 
@@ -54,6 +83,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
           name: name.trim() || null,
           role,
           password: autoPassword ? null : password,
+          ...(role === "client" && clientId ? { client_id: clientId } : {}),
         }),
       })
 
@@ -97,7 +127,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
             <div>
               <h2 className="text-base font-bold text-foreground">Nuevo usuario</h2>
               <p className="mt-0.5 text-xs text-foreground/55">
-                Crear cuenta interna (admin / team / setter)
+                Crear cuenta — admin / team / setter / cliente
               </p>
             </div>
           </div>
@@ -190,7 +220,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
               <label className="block text-[11px] font-semibold uppercase tracking-widest text-foreground/55">
                 Tipo de usuario
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {ROLE_OPTIONS.map(opt => (
                   <button
                     key={opt.value}
@@ -210,6 +240,31 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                 ))}
               </div>
             </div>
+
+            {/* Selector de cliente — solo cuando role='client' */}
+            {role === "client" && (
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-semibold uppercase tracking-widest text-foreground/55">
+                  Cliente asociado <span className="text-foreground/30 normal-case">(opcional)</span>
+                </label>
+                <select
+                  value={clientId}
+                  onChange={e => setClientId(e.target.value)}
+                  disabled={loadingClients}
+                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none focus:border-[#ffde21]/50 focus:ring-2 focus:ring-[#ffde21]/10 disabled:opacity-50"
+                >
+                  <option value="">— Sin cliente asociado —</option>
+                  {clients.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-foreground/50 leading-relaxed flex items-start gap-1.5">
+                  {loadingClients
+                    ? <><Loader2 className="h-3 w-3 animate-spin shrink-0 mt-0.5" /> Cargando clientes…</>
+                    : "El usuario va a poder ver el portal del cliente que selecciones. Si lo dejás vacío, lo asociás después desde Clientes."}
+                </p>
+              </div>
+            )}
 
             <div className="space-y-1.5">
               <label className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-foreground/55">

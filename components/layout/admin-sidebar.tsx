@@ -11,6 +11,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
 import { canAccessAdminPath, isAdmin } from "@/lib/auth/permissions"
+import { useEffectiveRole } from "@/lib/auth/view-as"
 
 interface AdminSidebarProps {
   open: boolean
@@ -43,11 +44,14 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
     })
   }, [])
 
+  // Si admin está en modo "view as setter/team", el sidebar se filtra como ese rol
+  const effectiveRole = useEffectiveRole(userRole === undefined ? null : userRole)
+
   // Filtrar items según permisos del rol. Mientras carga (undefined) no mostramos
   // nada para evitar el flash de "todos visible y luego se filtra".
   const visibleItems = userRole === undefined
     ? []
-    : ADMIN_NAV_ITEMS.filter(item => canAccessAdminPath(userRole, item.href))
+    : ADMIN_NAV_ITEMS.filter(item => canAccessAdminPath(effectiveRole, item.href))
 
   return (
     <>
@@ -103,7 +107,7 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
         </div>
 
         {/* Back to portal — solo para admin (setter/team no tienen portal de cliente) */}
-        {isAdmin(userRole) && (
+        {isAdmin(effectiveRole) && (
           <div className={cn("pt-3", collapsed ? "lg:px-2 px-3" : "px-3")}>
             <Link href="/dashboard" onClick={onClose} title={collapsed ? "Volver al portal" : undefined}>
               <div className={cn(

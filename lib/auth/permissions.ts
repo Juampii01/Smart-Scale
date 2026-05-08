@@ -14,9 +14,10 @@
 export type UserRole = "admin" | "team" | "setter" | string | null | undefined
 
 export const ROLE_OPTIONS = [
-  { value: "admin",  label: "Admin",  description: "Acceso total al CRM y gestión de usuarios" },
-  { value: "team",   label: "Team",   description: "Applications, leads, centro operativo y datos" },
-  { value: "setter", label: "Setter", description: "Solo Setting CRM (carga métricas diarias)" },
+  { value: "admin",  label: "Admin",   description: "Acceso total al CRM y gestión de usuarios" },
+  { value: "team",   label: "Team",    description: "Applications, leads, centro operativo y datos" },
+  { value: "setter", label: "Setter",  description: "Solo Setting CRM (carga métricas diarias)" },
+  { value: "client", label: "Cliente", description: "Acceso al portal del cliente (dashboard, métricas, recursos)" },
 ] as const
 
 export const TEAM_ALLOWED_ADMIN_PATHS = [

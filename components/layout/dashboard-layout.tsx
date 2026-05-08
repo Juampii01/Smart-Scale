@@ -5,7 +5,7 @@ import type React from "react"
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
-import { ChevronDown, LogOut, Menu, User, ShieldCheck, Check } from "lucide-react"
+import { ChevronDown, LogOut, Menu, User, ShieldCheck, Check, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MonthSelector } from "@/components/layout/month-selector"
 import { Sidebar } from "@/components/layout/sidebar"
@@ -15,6 +15,7 @@ import { NavigationProgress } from "@/components/ui/navigation-progress"
 import { HelpChat } from "@/components/ui/help-chat"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import { isSetter, isTeam, SETTER_DEFAULT_LANDING, TEAM_DEFAULT_LANDING } from "@/lib/auth/permissions"
+import { useViewAsRole, setViewAsRole, type ViewAsRole } from "@/lib/auth/view-as"
 
 declare global {
   interface Window {
@@ -159,6 +160,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const profileMenuRef = useRef<HTMLDivElement | null>(null)
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
+
+  // "View as" — admin puede impersonar visualmente a setter / team
+  const viewAsRole: ViewAsRole = useViewAsRole()
+  // Si NO es admin, ignoramos viewAs (solo admin puede impersonar)
+  const activeViewAs: ViewAsRole = isAdmin ? viewAsRole : null
 
   // Redirect setter / team que aterrizan en el portal cliente a su landing de admin.
   useEffect(() => {
@@ -441,6 +447,27 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         : <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />}
 
       <div className={`flex-1 flex flex-col h-full overflow-hidden transition-[margin] duration-200 bg-background ${sidebarCollapsed ? 'lg:ml-[64px]' : 'lg:ml-[220px]'}`}>
+
+        {/* "View as" banner — solo admin impersonando otro rol */}
+        {activeViewAs && (
+          <div className="shrink-0 flex items-center justify-between gap-3 px-4 lg:px-8 py-2 border-b border-amber-300 bg-amber-100 text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-200">
+            <div className="flex items-center gap-2 text-[13px] font-semibold">
+              <Eye className="h-3.5 w-3.5" />
+              <span>Modo "Ver como"</span>
+              <span className="rounded-full bg-amber-200 dark:bg-amber-500/30 px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest">
+                {activeViewAs}
+              </span>
+              <span className="hidden sm:inline text-[12px] font-medium opacity-75">— estás viendo el UI como lo vería un {activeViewAs}</span>
+            </div>
+            <button
+              onClick={() => setViewAsRole(null)}
+              className="inline-flex items-center gap-1.5 h-7 rounded-md border border-amber-700/40 bg-amber-200 px-2.5 text-[11.5px] font-bold text-amber-900 hover:bg-amber-300 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-100 dark:hover:bg-amber-500/30 transition-colors"
+            >
+              <EyeOff className="h-3 w-3" /> Volver a admin
+            </button>
+          </div>
+        )}
+
         <header className="shrink-0 z-10 border-b border-foreground/[0.08] bg-background/95 backdrop-blur-md">
           <div className="flex h-16 items-center justify-between px-4 lg:px-8">
             <div className="flex items-center gap-3">
@@ -609,6 +636,64 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         </div>
                       </>
                     ) : null}
+
+                    {/* "Ver como" — solo admin */}
+                    {isAdmin && (
+                      <>
+                        <div className="h-px bg-foreground/[0.07]" />
+                        <div className="px-4 pt-3 pb-1.5">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/40">Ver como</p>
+                        </div>
+                        <div className="px-1.5 pb-1.5 space-y-0.5">
+                          {(["setter", "team"] as const).map(r => {
+                            const active = activeViewAs === r
+                            return (
+                              <button
+                                key={r}
+                                type="button"
+                                role="menuitem"
+                                onClick={() => {
+                                  if (active) {
+                                    setViewAsRole(null)
+                                  } else {
+                                    setViewAsRole(r)
+                                    // Navegar al landing de ese rol para arrancar la vista
+                                    router.replace(r === "setter" ? SETTER_DEFAULT_LANDING : TEAM_DEFAULT_LANDING)
+                                  }
+                                  setProfileMenuOpen(false)
+                                }}
+                                className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
+                                  active
+                                    ? "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200"
+                                    : "text-foreground hover:bg-foreground/[0.06]"
+                                }`}
+                              >
+                                <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground/[0.08] text-[11px] font-bold text-foreground/70">
+                                  {r === "setter" ? "S" : "T"}
+                                </span>
+                                <span className="truncate flex-1 font-medium capitalize">{r}</span>
+                                {active && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-200 dark:bg-amber-500/30 px-2 py-0.5 text-[10px] font-bold">
+                                    <Check className="h-2.5 w-2.5" strokeWidth={3} />
+                                    Activo
+                                  </span>
+                                )}
+                              </button>
+                            )
+                          })}
+                          {activeViewAs && (
+                            <button
+                              type="button"
+                              onClick={() => { setViewAsRole(null); setProfileMenuOpen(false) }}
+                              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[12px] text-foreground/60 hover:bg-foreground/[0.06] transition-colors"
+                            >
+                              <EyeOff className="h-3.5 w-3.5" />
+                              Volver a vista admin
+                            </button>
+                          )}
+                        </div>
+                      </>
+                    )}
 
                     <div className="h-px bg-foreground/[0.07]" />
 

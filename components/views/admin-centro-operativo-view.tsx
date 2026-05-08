@@ -11,9 +11,11 @@ import {
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase"
 import { isAdmin, isSetter, isTeam } from "@/lib/auth/permissions"
+import { useEffectiveRole } from "@/lib/auth/view-as"
 import { NewUserDialog } from "@/components/admin/new-user-dialog"
 import { AdminSOPsView } from "@/components/views/admin-sops-view"
 import { AdminProspeccionView } from "@/components/views/admin-prospeccion-view"
+import { CentroOpPagesView } from "@/components/views/centro-op-pages-view"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -949,9 +951,6 @@ function SectionPanel({
 // ─── Main View ─────────────────────────────────────────────────────────────────
 
 export function AdminCentroOperativoView() {
-  const [items, setItems] = useState<Item[]>([])
-  const [loading, setLoading] = useState(true)
-  const [activeSection, setActiveSection] = useState<SectionId>("sop-sistemas")
   const [userRole, setUserRole] = useState<string | null>(null)
   const [newUserOpen, setNewUserOpen] = useState(false)
 
@@ -960,55 +959,15 @@ export function AdminCentroOperativoView() {
     supabase.auth.getUser().then(({ data }) => {
       if (!data?.user) return
       supabase.from("profiles").select("role").eq("id", data.user.id).maybeSingle()
-        .then(({ data: prof }) => {
-          const role = (prof as any)?.role ?? null
-          setUserRole(role)
-          // Setter solo ve "Prospección" — auto-seleccionarla al entrar.
-          if (isSetter(role)) setActiveSection("prospeccion")
-        })
+        .then(({ data: prof }) => setUserRole((prof as any)?.role ?? null))
     })
   }, [])
 
-  // Filtro de secciones por rol:
-  //  - admin: todas (incluido Prospección, para audit)
-  //  - team:  todas EXCEPTO Prospección (es privada del setter)
-  //  - setter: SOLO Prospección (no ve SOPs, Recursos, Accesos — info sensible)
-  const visibleSections = SECTIONS.filter(s => {
-    if (isSetter(userRole)) return s.id === "prospeccion"
-    if (isTeam(userRole))   return s.id !== "prospeccion"
-    return true  // admin ve todo
-  })
-
-  useEffect(() => {
-    fetch("/api/resources")
-      .then(r => r.json())
-      .then(d => {
-        const fetched: Item[] = d.resources ?? []
-        const opCats: string[] = SECTIONS.map(s => s.id)
-        const existing = fetched.filter(i => opCats.includes(i.category))
-        if (existing.length === 0) {
-          const seeded = MOCK_SEED.map((s, idx) => ({
-            ...s,
-            id: `mock-${idx}`,
-            created_at: new Date().toISOString(),
-          }))
-          setItems([...fetched.filter(i => !opCats.includes(i.category)), ...seeded])
-        } else {
-          setItems(fetched)
-        }
-      })
-      .finally(() => setLoading(false))
-  }, [])
-
-  const section = SECTIONS.find(s => s.id === activeSection)!
-  const sectionItems = items.filter(i => i.category === activeSection)
-
-  const handleAdd    = (item: Item)   => setItems(prev => [item, ...prev])
-  const handleUpdate = (item: Item)   => setItems(prev => prev.map(i => i.id === item.id ? item : i))
-  const handleDelete = (id: string)   => setItems(prev => prev.filter(i => i.id !== id))
+  // Si admin está en modo "view as", el contenido se filtra como ese rol
+  const effectiveRole = useEffectiveRole(userRole)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -1017,11 +976,11 @@ export function AdminCentroOperativoView() {
             <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Centro Operativo</h1>
           </div>
           <p className="text-xs text-foreground/30 ml-[18px]">
-            Base interna de SOPs, recursos, accesos y procesos del equipo SmartScale.
+            Wiki interno tipo Notion. Páginas anidables con bloques, listas, código, checklists.
           </p>
         </div>
 
-        {isAdmin(userRole) && (
+        {isAdmin(effectiveRole) && (
           <button
             onClick={() => setNewUserOpen(true)}
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2 text-sm font-bold text-black hover:bg-[#ffe84d] transition-colors"
@@ -1035,59 +994,7 @@ export function AdminCentroOperativoView() {
 
       <NewUserDialog open={newUserOpen} onClose={() => setNewUserOpen(false)} />
 
-      {/* Section tabs — filtradas por rol */}
-      <div className="flex gap-2 flex-wrap">
-        {visibleSections.map(s => {
-          const Icon = s.icon
-          const count = items.filter(i => i.category === s.id).length
-          const isActive = activeSection === s.id
-          // Las secciones "sops" y "prospeccion" usan otra tabla (no centro_operativo_items)
-          // por lo que el count de items no aplica.
-          const hideCount = s.id === "sops" || s.id === "prospeccion"
-          return (
-            <button
-              key={s.id}
-              onClick={() => setActiveSection(s.id)}
-              className={cn(
-                "flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium border transition-all",
-                isActive
-                  ? "border-[#ffde21]/30 bg-[#ffde21]/10 text-[#ffde21]"
-                  : "border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:text-foreground/80 hover:bg-foreground/[0.06]",
-              )}
-            >
-              <Icon className={`h-3.5 w-3.5 ${isActive ? "text-[#ffde21]" : s.color}`} />
-              {s.label}
-              {!hideCount && (
-                <span className={cn(
-                  "text-[10px] rounded-full px-1.5 py-0.5",
-                  isActive ? "bg-[#ffde21]/20 text-[#ffde21]" : "bg-foreground/[0.07] text-foreground/30",
-                )}>
-                  {count}
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Active section */}
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-foreground/20" />
-        </div>
-      ) : activeSection === "sops" ? (
-        <AdminSOPsView userRole={userRole} />
-      ) : activeSection === "prospeccion" ? (
-        <AdminProspeccionView />
-      ) : (
-        <SectionPanel
-          section={section as Exclude<typeof section, { id: "sops" | "prospeccion" }>}
-          items={sectionItems}
-          onAdd={handleAdd}
-          onUpdate={handleUpdate}
-          onDelete={handleDelete}
-        />
-      )}
+      <CentroOpPagesView userRole={effectiveRole} />
     </div>
   )
 }

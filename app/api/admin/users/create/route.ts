@@ -8,16 +8,20 @@ export const dynamic = "force-dynamic"
 /**
  * POST /api/admin/users/create
  *
- * Body: { email: string, password?: string, role: "admin"|"team"|"setter", name?: string }
+ * Body: { email: string, password?: string, role: "admin"|"team"|"setter"|"client", name?: string, client_id?: string }
  *
  * Crea un user en auth.users (con email_confirm=true para que pueda loguearse directo)
  * y guarda profiles.role + profiles.name. Solo accesible para admins.
+ *
+ * Para role='client' se puede pasar client_id (uuid de crm_clients) para asociarlo
+ * inmediatamente. Si no se pasa, queda null y el admin lo vincula después desde
+ * /admin/clients.
  *
  * Si no se da password, se genera una temporal y se devuelve en la respuesta para que
  * el admin se la comparta al usuario.
  */
 
-const VALID_ROLES = new Set(["admin", "team", "setter"])
+const VALID_ROLES = new Set(["admin", "team", "setter", "client"])
 
 function generateTempPassword(length = 14): string {
   const chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -41,6 +45,7 @@ export async function POST(req: NextRequest) {
     const role  = String(body.role  ?? "").trim().toLowerCase()
     const name  = body.name ? String(body.name).trim() : null
     const passwordInput = body.password ? String(body.password) : null
+    const clientId = body.client_id ? String(body.client_id).trim() : null
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "Email inválido" }, { status: 400 })
@@ -72,7 +77,7 @@ export async function POST(req: NextRequest) {
 
     const { error: profileErr } = await supabase
       .from("profiles")
-      .upsert({ id: userId, role, name, client_id: null }, { onConflict: "id" })
+      .upsert({ id: userId, role, name, client_id: clientId }, { onConflict: "id" })
 
     if (profileErr) {
       // Rollback: si el profile falla, borramos el auth user para no dejar orfandad
