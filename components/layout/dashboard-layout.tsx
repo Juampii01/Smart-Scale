@@ -99,10 +99,17 @@ function getRoleFromAccessToken(token: string | null | undefined): string | null
   }
 }
 
+// Mes actual del usuario en formato YYYY-MM. Se evalúa una vez al montar.
+function currentMonthYM(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+}
+
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [selectedMonth, setSelectedMonth] = useState<string>("2025-12")
+  // Default = mes actual. Sin persistencia — al recargar volvemos al mes actual.
+  const [selectedMonth, setSelectedMonth] = useState<string>(currentMonthYM())
   const pathname = usePathname()
   const pageTitle = PAGE_TITLES[pathname] ?? "Smart Scale"
   const isAdminMode = pathname.startsWith("/admin/")
@@ -141,11 +148,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", handler)
   }, [])
 
-  // Hydration-safe: load persisted selectedMonth after mount
-  useEffect(() => {
-    const stored = window.localStorage.getItem("selectedMonth")
-    if (stored) setSelectedMonth(stored)
-  }, [])
+  // Selected month NO se persiste: al recargar volvemos al mes actual.
+  // Si el user navega entre páginas mantiene la selección dentro de la sesión React.
   const [enabledMonths, setEnabledMonths] = useState<string[]>([])
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
@@ -216,13 +220,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         setEnabledMonths(months)
 
-        // If the current selected month isn't available but we have data, jump to the latest available.
+        // Si el mes seleccionado no tiene data, saltamos al más reciente disponible.
+        // Sin persistencia — recarga vuelve a defaultear al mes actual.
         if (months.length) {
-          setSelectedMonth((prev) => {
-            const next = months.includes(prev) ? prev : months[months.length - 1]
-            if (typeof window !== "undefined") window.localStorage.setItem("selectedMonth", next)
-            return next
-          })
+          setSelectedMonth((prev) => months.includes(prev) ? prev : months[months.length - 1])
         }
       } catch (err) {
         console.error("Failed to load enabled months", err)
@@ -527,10 +528,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                   <MonthSelector
                     value={selectedMonth}
-                    onChange={(m) => {
-                      setSelectedMonth(m)
-                      if (typeof window !== "undefined") window.localStorage.setItem("selectedMonth", m)
-                    }}
+                    onChange={setSelectedMonth}
                     enabledMonths={enabledMonths}
                   />
                 </>
