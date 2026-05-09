@@ -13,9 +13,9 @@ export const dynamic = "force-dynamic"
  * Crea un user en auth.users (con email_confirm=true para que pueda loguearse directo)
  * y guarda profiles.role + profiles.name. Solo accesible para admins.
  *
- * Para role='client' se puede pasar client_id (uuid de crm_clients) para asociarlo
- * inmediatamente. Si no se pasa, queda null y el admin lo vincula después desde
- * /admin/clients.
+ * Para role='client' se puede pasar client_id (uuid de la tabla `clients` —
+ * la del portal, no `crm_clients`). El FK profiles.client_id apunta a clients.
+ * Si no se pasa, queda null y el admin lo vincula después.
  *
  * Si no se da password, se genera una temporal y se devuelve en la respuesta para que
  * el admin se la comparta al usuario.
