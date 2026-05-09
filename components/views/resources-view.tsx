@@ -69,7 +69,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
     <div className="rounded-2xl border border-[#ffde21]/20 bg-card p-5 mb-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-foreground">Agregar recurso</h3>
-        <button onClick={onClose} className="text-foreground/30 hover:text-foreground/60 transition-colors">
+        <button onClick={onClose} aria-label="Cerrar" className="text-foreground/30 hover:text-foreground/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 rounded">
           <X className="h-4 w-4" />
         </button>
       </div>

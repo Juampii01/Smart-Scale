@@ -98,7 +98,7 @@ function DetailDrawer({
             </div>
             <h2 className="text-xl font-bold text-foreground truncate">{fullName(app)}</h2>
           </div>
-          <button onClick={onClose} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/5">
+          <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
             <X className="h-4 w-4" />
           </button>
         </div>
