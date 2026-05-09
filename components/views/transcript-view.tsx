@@ -682,8 +682,8 @@ export function TranscriptView() {
                     {/* Status */}
                     <div className="pr-4">
                       {status === "complete" ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-400 whitespace-nowrap">
-                          <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold text-emerald-800 whitespace-nowrap dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400">
+                          <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
                           Completado
                         </span>
                       ) : (

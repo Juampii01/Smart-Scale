@@ -125,7 +125,7 @@ function DetailDrawer({
               <button
                 onClick={() => onDelete(app.id)}
                 disabled={deleting}
-                className="ml-auto flex items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/[0.04] px-3 py-1.5 text-[12px] font-semibold text-red-300 hover:bg-red-500/10 disabled:opacity-40"
+                className="ml-auto flex items-center gap-1.5 rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-800 hover:bg-red-100 dark:border-red-500/20 dark:bg-red-500/[0.04] dark:text-red-300 dark:hover:bg-red-500/10 disabled:opacity-40"
               >
                 {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                 Eliminar

@@ -314,11 +314,11 @@ function MarketIntelligenceContent() {
                           </span>
                           {/* Status badge */}
                           {req.status === "completed" ? (
-                            <span className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">Completado</span>
+                            <span className="inline-flex items-center rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400">Completado</span>
                           ) : req.status === "processing" ? (
-                            <span className="inline-flex items-center rounded-full border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold text-blue-400">Procesando</span>
+                            <span className="inline-flex items-center rounded-full border border-blue-300 bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-800 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400">Procesando</span>
                           ) : req.status === "failed" ? (
-                            <span className="inline-flex items-center rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-400">Fallido</span>
+                            <span className="inline-flex items-center rounded-full border border-red-300 bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">Fallido</span>
                           ) : (
                             <span className="inline-flex items-center rounded-full border border-foreground/10 bg-foreground/[0.05] px-2 py-0.5 text-[10px] font-semibold text-foreground/40">Pendiente</span>
                           )}

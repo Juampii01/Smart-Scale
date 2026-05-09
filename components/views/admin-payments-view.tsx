@@ -204,9 +204,9 @@ export function AdminPaymentsView() {
       {/* Summary card */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
-          { label: "Total cobrado",   value: fmtMoney(totalAceptado),                               color: "text-emerald-300" },
-          { label: "Pagos aceptados", value: String(payments.filter(p => p.status === "aceptado").length),  color: "text-emerald-300" },
-          { label: "Pagos rechazados",value: String(payments.filter(p => p.status === "rechazado").length), color: "text-red-300"     },
+          { label: "Total cobrado",   value: fmtMoney(totalAceptado),                               color: "text-emerald-700 dark:text-emerald-300" },
+          { label: "Pagos aceptados", value: String(payments.filter(p => p.status === "aceptado").length),  color: "text-emerald-700 dark:text-emerald-300" },
+          { label: "Pagos rechazados",value: String(payments.filter(p => p.status === "rechazado").length), color: "text-red-700 dark:text-red-300"     },
         ].map(card => (
           <div key={card.label} className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-4">
             <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30">{card.label}</p>

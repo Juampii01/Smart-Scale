@@ -227,18 +227,18 @@ export default function ApplyPage() {
             Estamos buscando un tipo muy específico de creador que sabemos que podemos ayudar a escalar.
             Ayudanos a entender si sos la persona indicada.
           </p>
-          <div className="rounded-xl border border-amber-500/20 px-5 py-4" style={{ backgroundColor: "rgba(245,158,11,0.05)" }}>
-            <p className="text-[13px] text-amber-300/80 leading-relaxed">
-              <span className="font-bold text-amber-300">Solo trabajamos con</span> coaches de negocios o salud, consultores y educadores.
+          <div className="rounded-xl border border-amber-300 bg-amber-50 px-5 py-4 dark:border-amber-500/20 dark:bg-[rgba(245,158,11,0.05)]">
+            <p className="text-[13px] text-amber-800/90 dark:text-amber-300/80 leading-relaxed">
+              <span className="font-bold text-amber-900 dark:text-amber-300">Solo trabajamos con</span> coaches de negocios o salud, consultores y educadores.
               Si sos uno de ellos, lo vas a saber.
             </p>
           </div>
         </div>
         {/* ── Error */}
         {error && (
-          <div className="flex items-start gap-3 rounded-xl border border-red-500/25 px-4 py-3.5" style={{ backgroundColor: "rgba(239,68,68,0.07)" }}>
-            <AlertCircle className="h-4 w-4 shrink-0 text-red-400 mt-0.5" />
-            <p className="text-[13px] text-red-300">{error}</p>
+          <div className="flex items-start gap-3 rounded-xl border border-red-300 bg-red-50 px-4 py-3.5 dark:border-red-500/25 dark:bg-[rgba(239,68,68,0.07)]">
+            <AlertCircle className="h-4 w-4 shrink-0 text-red-700 dark:text-red-400 mt-0.5" />
+            <p className="text-[13px] text-red-800 dark:text-red-300">{error}</p>
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">

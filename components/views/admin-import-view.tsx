@@ -269,7 +269,7 @@ export function AdminImportView() {
                   >
                     {/* Month label */}
                     <td className="sticky left-0 z-10 px-4 py-2.5 whitespace-nowrap" style={{ backgroundColor: isSaved ? "rgba(16,185,129,0.06)" : "#0e0e10" }}>
-                      <span className={`text-[13px] font-semibold ${isSaved ? "text-emerald-300" : "text-foreground/80"}`}>
+                      <span className={`text-[13px] font-semibold ${isSaved ? "text-emerald-700 dark:text-emerald-300" : "text-foreground/80"}`}>
                         {row.label}
                       </span>
                     </td>

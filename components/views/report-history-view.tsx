@@ -128,7 +128,7 @@ function ReportRow({
         <div className="hidden sm:flex items-center gap-6">
           <div className="text-right">
             <p className="text-[10px] text-foreground/30 uppercase tracking-wider">Revenue</p>
-            <p className="text-sm font-semibold text-emerald-400">{fmt(report.total_revenue)}</p>
+            <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{fmt(report.total_revenue)}</p>
           </div>
           <div className="text-right">
             <p className="text-[10px] text-foreground/30 uppercase tracking-wider">Cash</p>
@@ -337,9 +337,9 @@ export function ReportHistoryView() {
       ) : (
         <div className="space-y-2">
           {deleteError && (
-            <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 mb-4">
-              <AlertTriangle className="h-4 w-4 text-red-400 flex-shrink-0" />
-              <p className="text-sm text-red-400">{deleteError}</p>
+            <div className="flex items-center gap-3 rounded-xl border border-red-300 bg-red-50 px-4 py-3 mb-4 dark:border-red-500/20 dark:bg-red-500/5">
+              <AlertTriangle className="h-4 w-4 text-red-700 dark:text-red-400 flex-shrink-0" />
+              <p className="text-sm text-red-700 dark:text-red-400">{deleteError}</p>
             </div>
           )}
           {reports.map((report) => (
