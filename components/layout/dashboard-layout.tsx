@@ -539,7 +539,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <div className="relative" ref={profileMenuRef}>
                 <Button
                   variant="outline"
-                  className="gap-2 text-emerald-400 hover:text-emerald-300 border-emerald-400/30 hover:bg-emerald-400/10"
+                  className="gap-2 text-foreground/80 hover:text-foreground border-foreground/[0.10] hover:border-foreground/[0.18] bg-card hover:bg-foreground/[0.04]"
                   onClick={() => setProfileMenuOpen((v) => !v)}
                   aria-haspopup="menu"
                   aria-expanded={profileMenuOpen}

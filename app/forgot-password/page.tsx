@@ -21,9 +21,6 @@ export default function ForgotPasswordPage() {
     const cleanEmail = email.trim().toLowerCase();
 
     try {
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
-      const redirectTo = origin ? `${origin}/reset-password` : undefined;
-
       const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
         redirectTo: "https://smartscalestrategy.netlify.app/reset-password",
     })
@@ -73,8 +70,8 @@ export default function ForgotPasswordPage() {
           required
         />
 
-        {err ? <p className="text-sm text-red-400 whitespace-pre-wrap">{err}</p> : null}
-        {msg ? <p className="text-sm text-green-400 whitespace-pre-wrap">{msg}</p> : null}
+        {err ? <p className="text-sm text-red-700 dark:text-red-400 whitespace-pre-wrap">{err}</p> : null}
+        {msg ? <p className="text-sm text-emerald-700 dark:text-emerald-400 whitespace-pre-wrap">{msg}</p> : null}
 
         <button
           type="submit"

@@ -5,9 +5,9 @@ import { createClient } from "@/lib/supabase"
 import {
   Loader2, Plus, Trash2, RefreshCw, X, ChevronRight,
   CheckCircle2, Circle, AlertCircle, Clock, Users,
-  DollarSign, Calendar, Phone, Mail, Instagram,
-  MessageCircle, PhoneCall, AtSign, MoreHorizontal,
-  Check, UserCheck, ChevronUp, ChevronDown, ChevronsUpDown,
+  DollarSign, Calendar, Mail,
+  MessageCircle, PhoneCall, MoreHorizontal,
+  Check, ChevronUp, ChevronDown, ChevronsUpDown,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -116,11 +116,13 @@ function nextFollowup(client: Client): Followup | null {
 
 // ─── Style constants ──────────────────────────────────────────────────────────
 
+// Pills dual-mode: en light el texto baja a -800 (legible sobre bg-x-100/x-50);
+// en dark sube a -300 (legible sobre bg-x-500/10). Bordes con poca opacidad.
 const CLIENT_STATUS_STYLE: Record<string, string> = {
-  activo:     "bg-emerald-500/10 text-emerald-300 border-emerald-500/25",
-  en_pausa:   "bg-amber-500/10 text-amber-300 border-amber-500/25",
-  inactivo:   "bg-red-500/10 text-red-300 border-red-500/25",
-  completado: "bg-sky-500/10 text-sky-300 border-sky-500/25",
+  activo:     "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/25",
+  en_pausa:   "bg-amber-100   text-amber-800   border-amber-300   dark:bg-amber-500/10   dark:text-amber-300   dark:border-amber-500/25",
+  inactivo:   "bg-red-100     text-red-800     border-red-300     dark:bg-red-500/10     dark:text-red-300     dark:border-red-500/25",
+  completado: "bg-sky-100     text-sky-800     border-sky-300     dark:bg-sky-500/10     dark:text-sky-300     dark:border-sky-500/25",
 }
 
 const CLIENT_STATUS_LABEL: Record<string, string> = {
@@ -131,16 +133,16 @@ const CLIENT_STATUS_LABEL: Record<string, string> = {
 }
 
 const INST_STATUS_STYLE: Record<string, string> = {
-  pagado:    "bg-emerald-500/10 text-emerald-300 border-emerald-500/25",
-  pendiente: "bg-amber-500/10 text-amber-300 border-amber-500/25",
-  vencido:   "bg-red-500/10 text-red-300 border-red-500/25",
+  pagado:    "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/25",
+  pendiente: "bg-amber-100   text-amber-800   border-amber-300   dark:bg-amber-500/10   dark:text-amber-300   dark:border-amber-500/25",
+  vencido:   "bg-red-100     text-red-800     border-red-300     dark:bg-red-500/10     dark:text-red-300     dark:border-red-500/25",
 }
 
 const FOLLOWUP_TYPE_STYLE: Record<string, string> = {
-  whatsapp: "bg-pink-500/10 text-pink-300 border-pink-500/25",
-  llamada:  "bg-blue-500/10 text-blue-300 border-blue-500/25",
-  email:    "bg-purple-500/10 text-purple-300 border-purple-500/25",
-  otro:     "bg-foreground/[0.05] text-foreground/50 border-foreground/[0.10]",
+  whatsapp: "bg-pink-100   text-pink-800   border-pink-300   dark:bg-pink-500/10   dark:text-pink-300   dark:border-pink-500/25",
+  llamada:  "bg-blue-100   text-blue-800   border-blue-300   dark:bg-blue-500/10   dark:text-blue-300   dark:border-blue-500/25",
+  email:    "bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-500/10 dark:text-purple-300 dark:border-purple-500/25",
+  otro:     "bg-foreground/[0.05] text-foreground/60 border-foreground/[0.10] dark:text-foreground/50",
 }
 
 const FOLLOWUP_TYPE_ICON: Record<string, React.ReactNode> = {
@@ -278,12 +280,12 @@ function DetailDrawer({
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button onClick={() => onDeleteClient(client.id)} disabled={deleting}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
+            <button onClick={() => onDeleteClient(client.id)} disabled={deleting} aria-label="Eliminar cliente"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
-            <button onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+            <button onClick={onClose} aria-label="Cerrar"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -497,8 +499,8 @@ function DetailDrawer({
                       disabled={togglingInst === inst.id}
                       className={`shrink-0 h-7 rounded-lg border px-2.5 text-[11px] font-semibold transition-all disabled:opacity-40 ${
                         inst.status === "pagado"
-                          ? "border-red-500/25 text-red-300 hover:bg-red-500/10"
-                          : "border-emerald-500/25 text-emerald-300 hover:bg-emerald-500/10"
+                          ? "border-red-300 text-red-700 hover:bg-red-100 dark:border-red-500/25 dark:text-red-300 dark:hover:bg-red-500/10"
+                          : "border-emerald-300 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
                       }`}>
                       {togglingInst === inst.id
                         ? <Loader2 className="h-3 w-3 animate-spin" />
@@ -584,7 +586,7 @@ function DetailDrawer({
                       {togglingFu === fu.id
                         ? <Loader2 className="h-4 w-4 animate-spin" />
                         : fu.completed
-                          ? <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                          ? <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                           : <Circle className="h-4 w-4" />}
                     </button>
                     <div className="flex-1 min-w-0">
@@ -688,13 +690,13 @@ function SummaryCards({ clients }: { clients: Client[] }) {
     {
       label: "Cobrado este mes",
       value: fmtMoney(cobradoEsteMes),
-      color: "text-emerald-300",
+      color: "text-emerald-700 dark:text-emerald-300",
       icon:  <DollarSign className="h-4 w-4" />,
     },
     {
       label: "Por cobrar este mes",
       value: fmtMoney(porCobrarEsteMes),
-      color: "text-amber-300",
+      color: "text-amber-700 dark:text-amber-300",
       icon:  <Clock className="h-4 w-4" />,
     },
     {
@@ -803,11 +805,11 @@ function CashSection({ clients }: { clients: Client[] }) {
               <span className="text-[11px] text-foreground/40 shrink-0 tabular-nums">{Math.round(pct)}%</span>
             </div>
             <div className="flex gap-4 text-[12px]">
-              <span className="text-emerald-300 tabular-nums">
+              <span className="text-emerald-700 dark:text-emerald-300 tabular-nums">
                 {fmtMoney(oldCashCobrado)} cobrado
               </span>
               {oldCashPendiente > 0 && (
-                <span className="text-amber-300/70 tabular-nums">
+                <span className="text-amber-700/80 dark:text-amber-300/70 tabular-nums">
                   {fmtMoney(oldCashPendiente)} pendiente
                 </span>
               )}
@@ -970,7 +972,7 @@ export function AdminClientsView() {
     })
   }
 
-  const handleToggleInstallment = async (installmentId: string, currentPaidAt: string | null) => {
+  const handleToggleInstallment = async (installmentId: string, _currentPaidAt: string | null) => {
     const session = await getSession()
     if (!session) return
     const res = await fetch("/api/admin/clients", {
@@ -1132,7 +1134,7 @@ export function AdminClientsView() {
 
         {/* Error message */}
         {error && (
-          <div className="flex items-center gap-2 rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-3 text-[13px] text-red-300">
+          <div className="flex items-center gap-2 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-[13px] text-red-800 dark:border-red-500/25 dark:bg-red-500/10 dark:text-red-300">
             <AlertCircle className="h-4 w-4 shrink-0" />
             {error}
           </div>
@@ -1175,8 +1177,27 @@ export function AdminClientsView() {
         {/* Table */}
         <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />
+            <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                    {["Cliente", "Inicio", "Fin", "Cuotas", "Monto/cuota", "Estado", "Alertas", "Próx. follow-up", ""].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <tr key={i} className="border-b border-foreground/[0.04]">
+                      {Array.from({ length: 9 }).map((_, j) => (
+                        <td key={j} className="px-4 py-4">
+                          <div className="h-3 skeleton rounded" style={{ width: `${50 + (i * 7 + j * 11) % 40}%` }} />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : (
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>

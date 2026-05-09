@@ -6,7 +6,7 @@ import { useSelectedMonth, useActiveClient } from "@/components/layout/dashboard
 import { useMarkPageReady } from "@/hooks/use-mark-page-ready"
 import { useMinLoading } from "@/hooks/use-min-loading"
 import { FunnelRowSkeleton, SectionHeaderSkeleton } from "@/components/ui/skeleton"
-import { TrendingUp, TrendingDown, ArrowDown } from "lucide-react"
+import { ArrowDown } from "lucide-react"
 import {
   ResponsiveContainer, ComposedChart, Bar, Line,
   XAxis, YAxis, CartesianGrid, Tooltip,
@@ -201,7 +201,7 @@ export function SalesView() {
         </p>
       </div>
 
-      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {error && <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>}
       {!loading && !error && !data && <p className="text-foreground/40 text-sm">No hay reporte para este mes.</p>}
 
       <div className="grid gap-10 lg:grid-cols-2">

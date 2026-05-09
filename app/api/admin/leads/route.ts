@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireInternal, requireAdmin as requireAdminGuard } from "@/lib/auth/api-guards"
+import { requireInternal } from "@/lib/auth/api-guards"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"

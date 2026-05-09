@@ -256,7 +256,7 @@ export function HelpChat() {
           )}
 
           {error && (
-            <div className="rounded-xl border border-red-500/25 bg-red-500/[0.06] px-3 py-2 text-[12px] text-red-300">
+            <div className="rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-[12px] text-red-800 dark:border-red-500/25 dark:bg-red-500/[0.06] dark:text-red-300">
               {error}
             </div>
           )}

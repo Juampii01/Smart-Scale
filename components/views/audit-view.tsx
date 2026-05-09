@@ -247,17 +247,6 @@ function getStatusMeta(status: string) {
   }
 }
 
-function getStatusCopy(status: string) {
-  if (status === "completed") {
-    return "Diagnóstico listo para revisar"
-  }
-
-  if (status === "failed") {
-    return "Hubo un error en la generación"
-  }
-
-  return "Todavía en procesamiento"
-}
 
 function ScorePillButton({
   label, bgActive, ringColor, active, onClick,
@@ -392,7 +381,7 @@ export function AuditView() {
   const ownClientId    = useOwnClient()
   const isOwnClient    = !!activeClientId && !!ownClientId && activeClientId === ownClientId
   const selectedMonth = useSelectedMonth() ?? "2025-12"
-  const { annualMetrics, loading: loadingAudit, error } = useAnnualMetrics()
+  const { annualMetrics, loading: loadingAudit } = useAnnualMetrics()
   const annualRevenue = annualMetrics?.total_revenue ?? 0
   const [maxMonthlyRevenue, setMaxMonthlyRevenue] = useState<number>(0)
 
@@ -664,16 +653,6 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
     }
   }
 
-  const autoSelectRandom = () => {
-    if (!activeSection) return
-    const options = ["red", "yellow", "green"]
-    const randomScores: Record<string, string> = {}
-    for (const item of activeSection.items) {
-      const random = options[Math.floor(Math.random() * options.length)]
-      randomScores[item.id] = random
-    }
-    setScores(randomScores)
-  }
 
   return (
     <div className="space-y-8">
@@ -726,8 +705,8 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
       {loadingAudit ? (
         <p className="text-foreground/40 text-sm">Cargando tipo de auditoría…</p>
       ) : (
-        <div className="relative overflow-hidden rounded-[28px] border border-foreground/[0.07] bg-[#17171a] shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.015),transparent_55%)]" />
+        <div className="relative overflow-hidden rounded-[28px] border border-foreground/[0.07] bg-card shadow-[0_0_0_1px_rgba(0,0,0,0.02)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(0,0,0,0.015),transparent_55%)] dark:bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.015),transparent_55%)]" />
 
           {/* Modal-style header */}
           <div className="relative flex items-center justify-between border-b border-foreground/[0.05] px-6 py-5">
@@ -752,7 +731,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                     {group.items.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-foreground/[0.07] bg-[#0f1012] px-5 py-4 space-y-3"
+                        className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] dark:bg-foreground/[0.04] px-5 py-4 space-y-3"
                       >
                         {/* ID + statement */}
                         <div className="flex items-start gap-3">

@@ -1,22 +1,16 @@
 "use client"
-
 import { useState, useRef } from "react"
 import { Check, AlertCircle, Loader2, ChevronDown, ArrowRight } from "lucide-react"
-
 // ─── Shared input styles (inline bg for Tailwind arbitrary-color safety) ───────
-
 const inputBase =
   "w-full rounded-xl border px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/30 focus:outline-none transition-all"
-
 function inputStyle(focused = false) {
   return {
     backgroundColor: focused ? "color-mix(in srgb, var(--foreground) 5%, transparent)" : "color-mix(in srgb, var(--foreground) 3%, transparent)",
     borderColor: focused ? "rgba(255, 222, 33, 0.45)" : "var(--border)",
   }
 }
-
 // ─── Small helpers ────────────────────────────────────────────────────────────
-
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
     <label className="block text-[13px] font-semibold text-foreground/60 mb-2 tracking-wide">
@@ -25,7 +19,6 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
     </label>
   )
 }
-
 function SectionCard({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -36,7 +29,6 @@ function SectionCard({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
-
 function SectionHeader({ number, title, subtitle }: { number: string; title: string; subtitle?: string }) {
   return (
     <div className="flex items-start gap-4 pb-1">
@@ -50,11 +42,9 @@ function SectionHeader({ number, title, subtitle }: { number: string; title: str
     </div>
   )
 }
-
 function Field({ children }: { children: React.ReactNode }) {
   return <div className="space-y-2">{children}</div>
 }
-
 function StyledInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   const [focused, setFocused] = useState(false)
   return (
@@ -67,7 +57,6 @@ function StyledInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
     />
   )
 }
-
 function StyledTextarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   const [focused, setFocused] = useState(false)
   return (
@@ -80,7 +69,6 @@ function StyledTextarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>
     />
   )
 }
-
 function StyledSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   const [focused, setFocused] = useState(false)
   return (
@@ -96,9 +84,8 @@ function StyledSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
     </div>
   )
 }
-
-function RadioGroup({ name, options, value, onChange }: {
-  name: string; options: string[]; value: string; onChange: (v: string) => void
+function RadioGroup({ options, value, onChange }: {
+  options: string[]; value: string; onChange: (v: string) => void
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -115,9 +102,7 @@ function RadioGroup({ name, options, value, onChange }: {
     </div>
   )
 }
-
 // ─── Initial State ────────────────────────────────────────────────────────────
-
 const INITIAL = {
   first_name: "", last_name: "", email: "", whatsapp: "", instagram_handle: "",
   primary_channel: "", short_content_link: "", youtube_podcast_link: "",
@@ -125,27 +110,21 @@ const INITIAL = {
   income_goal: "", main_blocker: "", superpowers: "", contribution: "",
   motivation: "", one_year_goal: "", terms_accepted: false,
 }
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function ApplyPage() {
   const [form, setForm]           = useState(INITIAL)
   const [loading, setLoading]     = useState(false)
   const [error, setError]         = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const topRef = useRef<HTMLDivElement>(null)
-
   const set = (key: keyof typeof INITIAL) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
       setForm(f => ({ ...f, [key]: e.target.value }))
-
   const setRadio = (key: keyof typeof INITIAL) => (v: string) =>
     setForm(f => ({ ...f, [key]: v }))
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-
     const required: (keyof typeof INITIAL)[] = [
       "first_name","last_name","email","whatsapp","instagram_handle",
       "primary_channel","short_content_link","youtube_podcast_link",
@@ -164,7 +143,6 @@ export default function ApplyPage() {
       topRef.current?.scrollIntoView({ behavior: "smooth" })
       return
     }
-
     setLoading(true)
     try {
       const res  = await fetch("/api/apply", {
@@ -181,9 +159,7 @@ export default function ApplyPage() {
       setLoading(false)
     }
   }
-
   // ── Success ──────────────────────────────────────────────────────────────────
-
   if (submitted) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "var(--background)" }}>
@@ -218,12 +194,9 @@ export default function ApplyPage() {
       </div>
     )
   }
-
   // ── Form ─────────────────────────────────────────────────────────────────────
-
   return (
     <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }} ref={topRef}>
-
       {/* ── Top bar (same style as portal header) */}
       <div
         className="sticky top-0 z-10 border-b border-foreground/[0.07] backdrop-blur-md"
@@ -240,9 +213,7 @@ export default function ApplyPage() {
           <span className="text-[11px] font-bold text-foreground/25 uppercase tracking-[0.18em]">Application</span>
         </div>
       </div>
-
       <div className="mx-auto max-w-2xl px-4 sm:px-5 pb-20 sm:pb-28 pt-8 sm:pt-12 space-y-4 sm:space-y-5">
-
         {/* ── Hero */}
         <div className="space-y-5 pb-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#ffde21]/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
@@ -256,24 +227,21 @@ export default function ApplyPage() {
             Estamos buscando un tipo muy específico de creador que sabemos que podemos ayudar a escalar.
             Ayudanos a entender si sos la persona indicada.
           </p>
-          <div className="rounded-xl border border-amber-500/20 px-5 py-4" style={{ backgroundColor: "rgba(245,158,11,0.05)" }}>
-            <p className="text-[13px] text-amber-300/80 leading-relaxed">
-              <span className="font-bold text-amber-300">Solo trabajamos con</span> coaches de negocios o salud, consultores y educadores.
+          <div className="rounded-xl border border-amber-300 bg-amber-50 px-5 py-4 dark:border-amber-500/20 dark:bg-[rgba(245,158,11,0.05)]">
+            <p className="text-[13px] text-amber-800/90 dark:text-amber-300/80 leading-relaxed">
+              <span className="font-bold text-amber-900 dark:text-amber-300">Solo trabajamos con</span> coaches de negocios o salud, consultores y educadores.
               Si sos uno de ellos, lo vas a saber.
             </p>
           </div>
         </div>
-
         {/* ── Error */}
         {error && (
-          <div className="flex items-start gap-3 rounded-xl border border-red-500/25 px-4 py-3.5" style={{ backgroundColor: "rgba(239,68,68,0.07)" }}>
-            <AlertCircle className="h-4 w-4 shrink-0 text-red-400 mt-0.5" />
-            <p className="text-[13px] text-red-300">{error}</p>
+          <div className="flex items-start gap-3 rounded-xl border border-red-300 bg-red-50 px-4 py-3.5 dark:border-red-500/25 dark:bg-[rgba(239,68,68,0.07)]">
+            <AlertCircle className="h-4 w-4 shrink-0 text-red-700 dark:text-red-400 mt-0.5" />
+            <p className="text-[13px] text-red-800 dark:text-red-300">{error}</p>
           </div>
         )}
-
         <form onSubmit={handleSubmit} className="space-y-4">
-
           {/* 1. Datos personales */}
           <SectionCard>
             <SectionHeader number="1" title="Datos personales" />
@@ -300,14 +268,12 @@ export default function ApplyPage() {
               <StyledInput value={form.instagram_handle} onChange={set("instagram_handle")} placeholder="@tuusuario" />
             </Field>
           </SectionCard>
-
           {/* 2. Tu negocio */}
           <SectionCard>
             <SectionHeader number="2" title="Tu Negocio" subtitle="Contanos sobre tu canal y presencia digital" />
             <Field>
               <Label required>Canal principal de contenido corto</Label>
               <RadioGroup
-                name="primary_channel"
                 options={["Instagram", "Facebook", "LinkedIn", "TikTok"]}
                 value={form.primary_channel}
                 onChange={setRadio("primary_channel")}
@@ -324,7 +290,6 @@ export default function ApplyPage() {
                 placeholder="https://youtube.com/@tucanal" />
             </Field>
           </SectionCard>
-
           {/* 3. Audiencia y métricas */}
           <SectionCard>
             <SectionHeader number="3" title="Audiencia y Métricas" />
@@ -362,14 +327,12 @@ export default function ApplyPage() {
             <Field>
               <Label required>¿Cómo trabajás con tus clientes?</Label>
               <RadioGroup
-                name="client_work_style"
                 options={["Solo 1 a 1", "1 a 1 + Grupal (híbrido)", "Solo grupal"]}
                 value={form.client_work_style}
                 onChange={setRadio("client_work_style")}
               />
             </Field>
           </SectionCard>
-
           {/* 4. Objetivos y bloqueos */}
           <SectionCard>
             <SectionHeader number="4" title="Objetivos y Bloqueos" />
@@ -384,7 +347,6 @@ export default function ApplyPage() {
                 placeholder="Contanos con detalle..." />
             </Field>
           </SectionCard>
-
           {/* 5. ¿Por qué vos? */}
           <SectionCard>
             <SectionHeader number="5" title="¿Por qué vos?"
@@ -410,7 +372,6 @@ export default function ApplyPage() {
                 placeholder="Tu visión a 12 meses..." />
             </Field>
           </SectionCard>
-
           {/* 6. Términos */}
           <SectionCard>
             <SectionHeader number="6" title="Términos y Condiciones" />
@@ -430,7 +391,6 @@ export default function ApplyPage() {
               </span>
             </label>
           </SectionCard>
-
           {/* Notice */}
           <div className="rounded-xl border border-foreground/[0.06] px-5 py-4 space-y-2" style={{ backgroundColor: "var(--card)" }}>
             <p className="text-[11px] font-black text-foreground/30 uppercase tracking-[0.18em]">Antes de enviar</p>
@@ -449,7 +409,6 @@ export default function ApplyPage() {
               </li>
             </ul>
           </div>
-
           {/* Submit */}
           <button
             type="submit"
@@ -463,7 +422,6 @@ export default function ApplyPage() {
               <><span>Enviar aplicación</span><ArrowRight className="h-5 w-5" /></>
             )}
           </button>
-
         </form>
       </div>
     </div>

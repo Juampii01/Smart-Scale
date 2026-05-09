@@ -437,7 +437,7 @@ export function ChannelsView() {
         <p className="text-[13px] text-foreground/40 mt-0.5">Señales de cada canal · {monthYYYYMM}</p>
       </div>
 
-      {error    && <p className="text-red-400 text-sm">{error}</p>}
+      {error    && <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>}
       {!loading && !error && !current && (
         <p className="text-foreground/40 text-sm">No hay reporte para este mes.</p>
       )}

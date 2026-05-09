@@ -23,10 +23,10 @@ interface Resource {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const TYPE_CONFIG: Record<ResourceType, { label: string; icon: React.ElementType; color: string }> = {
-  link:  { label: "Link",     icon: Link2,    color: "text-blue-400" },
-  doc:   { label: "Doc",      icon: FileText,  color: "text-green-400" },
-  video: { label: "Video",    icon: Video,     color: "text-purple-400" },
-  file:  { label: "Archivo",  icon: File,      color: "text-amber-400" },
+  link:  { label: "Link",     icon: Link2,    color: "text-blue-700   dark:text-blue-400"   },
+  doc:   { label: "Doc",      icon: FileText,  color: "text-green-700  dark:text-green-400"  },
+  video: { label: "Video",    icon: Video,     color: "text-purple-700 dark:text-purple-400" },
+  file:  { label: "Archivo",  icon: File,      color: "text-amber-700  dark:text-amber-400"  },
 }
 
 function typeFromUrl(url: string): ResourceType {
@@ -69,7 +69,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
     <div className="rounded-2xl border border-[#ffde21]/20 bg-card p-5 mb-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-foreground">Agregar recurso</h3>
-        <button onClick={onClose} className="text-foreground/30 hover:text-foreground/60 transition-colors">
+        <button onClick={onClose} aria-label="Cerrar" className="text-foreground/30 hover:text-foreground/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 rounded">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -130,7 +130,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
           })}
         </div>
 
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {error && <p className="text-xs text-red-700 dark:text-red-400">{error}</p>}
 
         <div className="flex justify-end">
           <button

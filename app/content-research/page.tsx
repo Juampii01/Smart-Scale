@@ -6,9 +6,8 @@ import { createClient } from "@/lib/supabase"
 import { AiLoading } from "@/components/ui/ai-loading"
 import {
   Youtube, ExternalLink, Copy, Check, ChevronDown, ChevronUp,
-  Sparkles, Trash2, History, Globe, Clock, Eye, ThumbsUp, MessageCircle,
+  Sparkles, Trash2, Clock, Eye, ThumbsUp, MessageCircle,
 } from "lucide-react"
-import { createPortal } from "react-dom"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -486,7 +485,7 @@ function ContentResearchContent() {
             </div>
 
             {error && (
-              <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>
+              <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">{error}</div>
             )}
           </form>
         </div>

@@ -5,8 +5,6 @@ import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
 type MetricsSectionProps = {
-  title?: string
-  subtitle?: string
   /** Pass the full monthly report row (e.g. from Supabase monthly_reports) */
   metrics: Record<string, any> | null
   /** Optional aggregated (year-to-date) metrics object aligned to the same keys as metrics */
@@ -102,8 +100,6 @@ function getFieldLabel(key: string) {
 }
 
 export function MetricsSection({
-  title = "All Metrics",
-  subtitle = "Full monthly report snapshot",
   metrics,
   annualMetrics,
   loading,
@@ -184,7 +180,7 @@ export function MetricsSection({
       </div>
 
       {loading && <p className="text-foreground/40 text-sm">Cargando métricas…</p>}
-      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {error && <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>}
 
       {!loading && !error && !metrics && (
         <p className="text-foreground/40 text-sm">No hay métricas cargadas para este mes.</p>

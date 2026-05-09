@@ -8,7 +8,7 @@
  * mes seleccionado con fondo amarillo lleno, meses sin data deshabilitados.
  */
 
-import React, { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import * as Popover from "@radix-ui/react-popover"
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react"
 

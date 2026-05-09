@@ -52,7 +52,7 @@ function StarRating({
           onClick={() => onChange(star === value ? 0 : star)}
           onMouseEnter={() => setHover(star)}
           onMouseLeave={() => setHover(null)}
-          className="transition-transform hover:scale-110 focus:outline-none"
+          className="transition-transform hover:scale-110 focus:outline-none focus-visible:scale-110 focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1 rounded-sm"
         >
           <Star className={`${dim} transition-colors ${
             star <= active ? "fill-amber-400 text-amber-400" : "fill-transparent text-foreground/20"
@@ -119,12 +119,12 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
             <p className="text-[12px] text-foreground/35 mt-0.5">{fmtDate(lead.created_at)}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button onClick={() => onDelete(lead.id)} disabled={deleting}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
+            <button onClick={() => onDelete(lead.id)} disabled={deleting} aria-label="Eliminar lead"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
-            <button onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+            <button onClick={onClose} aria-label="Cerrar"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -511,8 +511,27 @@ export function AdminLeadsView() {
         {/* Table */}
         <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />
+            <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                    {["Nombre","Email","Tag","Instagram","Rating","Estado","Desde dónde llegó","Tipo","Nicho","Fecha",""].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <tr key={i} className="border-b border-foreground/[0.04]">
+                      {Array.from({ length: 11 }).map((_, j) => (
+                        <td key={j} className="px-4 py-4">
+                          <div className="h-3 skeleton rounded" style={{ width: `${45 + (i * 13 + j * 7) % 50}%` }} />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : (
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>

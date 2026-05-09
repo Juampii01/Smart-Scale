@@ -123,12 +123,12 @@ function DetailDrawer({
             <p className="text-[12px] text-foreground/40 mt-0.5">{fmtDate(app.created_at)}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button onClick={() => onDelete(app.id)} disabled={deleting}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
+            <button onClick={() => onDelete(app.id)} disabled={deleting} aria-label="Eliminar aplicación"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
-            <button onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+            <button onClick={onClose} aria-label="Cerrar"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -140,7 +140,7 @@ function DetailDrawer({
             <select
               value={app.status}
               onChange={e => onStatusChange(app.id, e.target.value)}
-              className={`h-8 cursor-pointer appearance-none rounded-lg border px-3 pr-7 text-[12px] font-bold capitalize focus:outline-none ${STATUS_STYLE[app.status]}`}
+              className={`h-8 cursor-pointer appearance-none rounded-lg border px-3 pr-7 text-[12px] font-bold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[app.status]}`}
             >
               <option value="nueva">Nueva</option>
               <option value="revisada">Revisada</option>
@@ -497,7 +497,7 @@ export function AdminApplicationsView() {
                         <select
                           value={app.status}
                           onChange={e => handleStatusChange(app.id, e.target.value)}
-                          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[11px] font-semibold capitalize focus:outline-none ${STATUS_STYLE[app.status]}`}
+                          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[11px] font-semibold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[app.status]}`}
                         >
                           <option value="nueva">Nueva</option>
                           <option value="revisada">Revisada</option>

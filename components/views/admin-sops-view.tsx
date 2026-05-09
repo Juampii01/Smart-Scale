@@ -12,11 +12,11 @@
  * Crear soporta 2 modos: Manual (form completo) y Con IA (descripción → Claude).
  */
 
-import { useEffect, useState, useCallback, useRef } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase"
 import {
   Loader2, Plus, Search, Copy, Check, X, Trash2, Edit3, Sparkles,
-  ChevronRight, Clock, Tag as TagIcon, FileText,
+  ChevronRight, Clock, FileText,
 } from "lucide-react"
 import { isAdmin as isAdminRole } from "@/lib/auth/permissions"
 
@@ -355,7 +355,7 @@ function CreateEditModal({
           {/* Header */}
           <div className="flex items-center justify-between gap-4 border-b border-foreground/[0.06] px-6 py-4 shrink-0">
             <h2 className="text-lg font-bold text-foreground">{isEdit ? "Editar SOP" : "Nuevo SOP"}</h2>
-            <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -480,7 +480,7 @@ function CreateEditModal({
                           <select
                             value={t.channel}
                             onChange={e => updateTemplate(idx, { channel: e.target.value })}
-                            className="h-8 rounded-md border border-foreground/[0.08] bg-foreground/[0.03] px-2 text-[12px] font-semibold text-foreground focus:outline-none"
+                            className="h-8 rounded-md border border-foreground/[0.08] bg-foreground/[0.03] px-2 text-[12px] font-semibold text-foreground focus:outline-none focus:border-foreground/30"
                           >
                             {Object.entries(CHANNEL_LABELS).map(([v, lbl]) => (
                               <option key={v} value={v}>{lbl}</option>
@@ -490,7 +490,7 @@ function CreateEditModal({
                             value={t.label}
                             onChange={e => updateTemplate(idx, { label: e.target.value })}
                             placeholder="Aviso post-grabación"
-                            className="flex-1 h-8 rounded-md border border-foreground/[0.08] bg-foreground/[0.03] px-2 text-[12.5px] text-foreground placeholder:text-foreground/30 focus:outline-none"
+                            className="flex-1 h-8 rounded-md border border-foreground/[0.08] bg-foreground/[0.03] px-2 text-[12.5px] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-foreground/30"
                           />
                           <button
                             onClick={() => removeTemplate(idx)}
@@ -505,7 +505,7 @@ function CreateEditModal({
                           onChange={e => updateTemplate(idx, { body: e.target.value })}
                           rows={5}
                           placeholder="Contenido del mensaje. Para Skool, usá ➡️ al inicio de cada bullet."
-                          className="w-full rounded-md border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12.5px] text-foreground placeholder:text-foreground/30 focus:outline-none resize-y font-mono"
+                          className="w-full rounded-md border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12.5px] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-foreground/30 resize-y font-mono"
                         />
                       </div>
                     ))}

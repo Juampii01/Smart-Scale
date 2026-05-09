@@ -2,7 +2,7 @@
 import { DashboardLayout, useActiveClient } from "@/components/layout/dashboard-layout";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getLatestResearchRequest, getResearchResult, getResearchHistory } from "@/lib/marketIntelligence";
+import { getResearchResult, getResearchHistory } from "@/lib/marketIntelligence";
 import { createClient } from "@/lib/supabase";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,6 @@ function MarketIntelligenceContent() {
   const [requests, setRequests] = useState<any[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [result, setResult] = useState<any>(null);
-  const [userRole, setUserRole] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [hasSession, setHasSession] = useState<boolean>(true);
   const [targetUserId, setTargetUserId] = useState<string>("");
@@ -59,13 +58,6 @@ function MarketIntelligenceContent() {
 
       setUserId(userData.user.id);
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", userData.user.id)
-        .maybeSingle();
-
-      setUserRole(profile?.role || "");
     };
 
     loadUser();
@@ -304,9 +296,6 @@ function MarketIntelligenceContent() {
                 const isExpanded = expandedId === req.id;
                 const isSelected = selectedRequest?.id === req.id;
                 const competitorCount = Array.isArray(req.competitors) ? req.competitors.length : 0;
-                const competitorNames = Array.isArray(req.competitors)
-                  ? req.competitors.map((c: any) => typeof c === "string" ? c : (c?.name || c?.channel_url || "Canal")).slice(0, 3)
-                  : [];
 
                 return (
                   <div key={req.id} className="group transition-colors hover:bg-foreground/[0.015]">
@@ -325,11 +314,11 @@ function MarketIntelligenceContent() {
                           </span>
                           {/* Status badge */}
                           {req.status === "completed" ? (
-                            <span className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">Completado</span>
+                            <span className="inline-flex items-center rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400">Completado</span>
                           ) : req.status === "processing" ? (
-                            <span className="inline-flex items-center rounded-full border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold text-blue-400">Procesando</span>
+                            <span className="inline-flex items-center rounded-full border border-blue-300 bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-800 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400">Procesando</span>
                           ) : req.status === "failed" ? (
-                            <span className="inline-flex items-center rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-400">Fallido</span>
+                            <span className="inline-flex items-center rounded-full border border-red-300 bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">Fallido</span>
                           ) : (
                             <span className="inline-flex items-center rounded-full border border-foreground/10 bg-foreground/[0.05] px-2 py-0.5 text-[10px] font-semibold text-foreground/40">Pendiente</span>
                           )}

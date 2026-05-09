@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from "react"
 import { createPortal } from "react-dom"
 import {
-  Youtube, Instagram, Copy, Check, ChevronDown, ChevronUp,
-  Sparkles, Link2, Clock, User, FileText, ExternalLink, Trash2, FileVideo, X, Maximize2, Loader2, Eye,
+  Youtube, Instagram, Copy, Check, ChevronDown,
+  Sparkles, Clock, User, FileText, ExternalLink, FileVideo, X, Maximize2, Loader2, Eye,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { AiLoading } from "@/components/ui/ai-loading"
@@ -72,17 +72,6 @@ function getHistoryStatus(item: HistoryItem): "pending" | "complete" {
   return item.transcript && item.summary ? "complete" : "pending"
 }
 
-function PlatformPill({ isYT }: { isYT: boolean }) {
-  return (
-    <div className="inline-flex items-center gap-1.5 rounded-xl border border-[#ffde21]/14 bg-[#ffde21]/7 px-2 py-1.5">
-      <div className="flex h-5 w-5 items-center justify-center rounded-md border border-[#ffde21]/12 bg-[#ffde21]/8">
-        {isYT ? <Youtube className="h-3 w-3 text-[#ffde21]" /> : <Instagram className="h-3 w-3 text-[#ffde21]" />}
-      </div>
-      <span className="text-[11px] font-medium leading-none text-foreground/82">{isYT ? "YouTube" : "Instagram"}</span>
-    </div>
-  )
-}
-
 // ─── Section colors ───────────────────────────────────────────────────────────
 
 const SECTIONS: Record<string, { icon: string; color: string; border: string; bg: string }> = {
@@ -125,7 +114,7 @@ function SummaryBlock({ text }: { text: string }) {
   )
 }
 
-function CopyBtn({ text, label = "Copiar" }: { text: string; label?: string }) {
+function CopyBtn({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
   return (
     <button
@@ -134,47 +123,6 @@ function CopyBtn({ text, label = "Copiar" }: { text: string; label?: string }) {
     >
       {copied ? <Check className="h-4 w-4 text-[#ffde21]" /> : <Copy className="h-4 w-4" />}
     </button>
-  )
-}
-
-function HistoryTranscript({
-  transcript,
-  onOpen,
-}: {
-  transcript: string
-  onOpen: () => void
-}) {
-  const wordCount = transcript.split(/\s+/).filter(Boolean).length
-  const preview = transcript.slice(0, 280).trim()
-
-  return (
-    <div className="px-6 py-5">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <FileText className="h-3 w-3 text-foreground/30" />
-          <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/30">Transcripción</p>
-          <span className="text-[10px] text-foreground/20">{wordCount.toLocaleString()} palabras</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <CopyBtn text={transcript} label="Copiar" />
-          <button
-            onClick={onOpen}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-1.5 text-xs font-medium text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all"
-          >
-            <ExternalLink className="h-3 w-3" />
-            Ver en ventana
-          </button>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-4">
-        <p className="text-sm text-foreground/45 leading-[1.85] whitespace-pre-wrap font-light">{preview}{transcript.length > 280 ? "…" : ""}</p>
-      </div>
-
-      <button onClick={onOpen} className="mt-3 text-xs text-[#ffde21]/50 hover:text-[#ffde21] transition-colors">
-        Abrir transcripción completa →
-      </button>
-    </div>
   )
 }
 
@@ -264,8 +212,8 @@ function TranscriptModal({
             </div>
           </div>
 
-          <div className="min-h-0 flex-1 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.01)_100%)] px-4 py-4 sm:px-6 sm:py-6">
-            <div className="h-full overflow-hidden rounded-[24px] border border-foreground/[0.07] bg-[#121216] shadow-inner">
+          <div className="min-h-0 flex-1 bg-[linear-gradient(180deg,rgba(0,0,0,0.02)_0%,rgba(0,0,0,0.01)_100%)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.01)_100%)] px-4 py-4 sm:px-6 sm:py-6">
+            <div className="h-full overflow-hidden rounded-[24px] border border-foreground/[0.07] bg-card shadow-inner">
               <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-3">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/25">
                   <span className="h-2 w-2 rounded-full bg-[#ffde21]/80" />
@@ -328,7 +276,7 @@ function DetailModal({
           </div>
 
           <div className="flex items-center gap-2">
-            <CopyBtn text={data.content} label="Copiar" />
+            <CopyBtn text={data.content} />
             <button
               onClick={onClose}
               className="flex h-10 w-10 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] text-foreground/45 hover:border-foreground/[0.16] hover:bg-foreground/[0.07] hover:text-foreground transition-all"
@@ -344,88 +292,6 @@ function DetailModal({
               {data.content}
             </p>
           </div>
-        </div>
-      </div>
-    </div>,
-    document.body
-  )
-}
-
-// ─── History Detail Modal ─────────────────────────────────────────────────────
-
-function HistoryDetailModal({ item, onClose }: { item: HistoryItem; onClose: () => void }) {
-  const isYT = isYouTubeUrl(item.url)
-  const wordCount = item.transcript ? item.transcript.split(/\s+/).filter(Boolean).length : 0
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
-    document.addEventListener("keydown", onKey)
-    return () => document.removeEventListener("keydown", onKey)
-  }, [onClose])
-
-  return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative flex flex-col w-full max-w-2xl max-h-[90vh] rounded-2xl border border-foreground/[0.1] bg-card shadow-2xl overflow-hidden">
-
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-foreground/[0.07] flex-shrink-0">
-          <div className="flex items-start gap-3 min-w-0">
-            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${isYT ? "bg-red-100 border-red-300 dark:bg-red-500/10 dark:border-red-500/15" : "bg-pink-100 border-pink-300 dark:bg-pink-500/10 dark:border-pink-500/15"}`}>
-              {isYT ? <Youtube className="h-4 w-4 text-red-600 dark:text-red-400" /> : <Instagram className="h-4 w-4 text-pink-600 dark:text-pink-400" />}
-            </div>
-            <div className="min-w-0">
-              <p className="text-base font-semibold text-foreground leading-tight">{item.title ?? "Video sin título"}</p>
-              <div className="flex items-center gap-3 mt-1 flex-wrap">
-                {item.creator && <span className="text-xs text-foreground/40">{item.creator}</span>}
-                {item.duration && <span className="flex items-center gap-1 text-xs text-foreground/30"><Clock className="h-3 w-3" />{item.duration}</span>}
-                <span className="text-xs text-foreground/20">{formatDate(item.created_at)}</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <a href={item.url} target="_blank" rel="noopener noreferrer"
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.07] text-foreground/30 hover:text-foreground hover:border-foreground/20 transition-all">
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-            <button onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.07] text-foreground/30 hover:text-foreground hover:border-foreground/20 transition-all">
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Scrollable body — transcript first, analysis below */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
-          {item.transcript && (
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <FileText className="h-3.5 w-3.5 text-[#ffde21]/60" />
-                <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/70">Transcripción</p>
-                <span className="text-[10px] text-foreground/30">{wordCount.toLocaleString()} palabras</span>
-                <button onClick={() => navigator.clipboard.writeText(item.transcript!)}
-                  className="ml-auto inline-flex items-center gap-1 text-[10px] text-foreground/25 hover:text-foreground/50 transition-colors">
-                  <Copy className="h-3 w-3" /> Copiar
-                </button>
-              </div>
-              <div className="rounded-xl border border-foreground/[0.07] bg-card px-4 py-4 max-h-72 overflow-y-auto">
-                <p className="text-sm text-foreground/65 leading-[1.85] whitespace-pre-wrap font-light">{item.transcript}</p>
-              </div>
-            </div>
-          )}
-          {item.summary && (
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="h-3 w-3 text-foreground/25" />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/30">Análisis IA</p>
-                <button onClick={() => navigator.clipboard.writeText(item.summary!)}
-                  className="ml-auto inline-flex items-center gap-1 text-[10px] text-foreground/25 hover:text-foreground/50 transition-colors">
-                  <Copy className="h-3 w-3" /> Copiar
-                </button>
-              </div>
-              <SummaryBlock text={item.summary} />
-            </div>
-          )}
         </div>
       </div>
     </div>,
@@ -451,10 +317,7 @@ export function TranscriptView() {
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [historyLoading, setHistoryLoading] = useState(true)
   const [detailModal, setDetailModal] = useState<DetailModalData | null>(null)
-  const [modalItem, setModalItem] = useState<HistoryItem | null>(null)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const isYT = isYouTubeUrl(url)
   const isIG = isInstagramUrl(url)
   const isIGReel = isInstagramReel(url)
   const isIGNonReel = isIG && !isIGReel
@@ -509,22 +372,6 @@ export function TranscriptView() {
     } catch (err: any) {
       setError(err?.message ?? "Error inesperado.")
     } finally { setLoading(false) }
-  }
-
-  const handleDelete = async (id: string) => {
-    const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) return
-    setDeletingId(id)
-    try {
-      await fetch("/api/transcript", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-        body: JSON.stringify({ id, client_id: activeClientId }),
-      })
-      setHistory(prev => prev.filter(item => item.id !== id))
-      if (modalItem?.id === id) setModalItem(null)
-    } finally { setDeletingId(null) }
   }
 
   const wordCount = result ? result.transcript.split(/\s+/).filter(Boolean).length : 0
@@ -724,7 +571,7 @@ export function TranscriptView() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CopyBtn text={result.transcript} label="Copiar" />
+                  <CopyBtn text={result.transcript} />
                   <button
                     onClick={() => setTranscriptModal({
                       title: result.title ?? "Transcripción",
@@ -759,7 +606,7 @@ export function TranscriptView() {
                   <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/35">Análisis IA</p>
                   <p className="text-[10px] text-foreground/20 mt-0.5">Generado por Claude · basado en la transcripción</p>
                 </div>
-                <CopyBtn text={result.summary} label="Copiar" />
+                <CopyBtn text={result.summary} />
               </div>
               <div className="p-5"><SummaryBlock text={result.summary} /></div>
             </div>
@@ -835,8 +682,8 @@ export function TranscriptView() {
                     {/* Status */}
                     <div className="pr-4">
                       {status === "complete" ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-400 whitespace-nowrap">
-                          <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold text-emerald-800 whitespace-nowrap dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400">
+                          <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
                           Completado
                         </span>
                       ) : (

@@ -196,9 +196,9 @@ export function ReflectionView() {
                   </div>
                   {item.numeric !== null ? (
                     <p className={`text-2xl sm:text-3xl font-bold tabular-nums ${
-                      item.numeric >= 50 ? "text-emerald-400"
-                      : item.numeric >= 0 ? "text-amber-400"
-                      : "text-red-400"
+                      item.numeric >= 50 ? "text-emerald-700 dark:text-emerald-400"
+                      : item.numeric >= 0 ? "text-amber-700 dark:text-amber-400"
+                      : "text-red-700 dark:text-red-400"
                     }`}>
                       {item.numeric > 0 ? `+${item.numeric}` : item.numeric}
                     </p>

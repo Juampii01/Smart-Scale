@@ -98,7 +98,7 @@ function DetailDrawer({
             </div>
             <h2 className="text-xl font-bold text-foreground truncate">{fullName(app)}</h2>
           </div>
-          <button onClick={onClose} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/5">
+          <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -125,7 +125,7 @@ function DetailDrawer({
               <button
                 onClick={() => onDelete(app.id)}
                 disabled={deleting}
-                className="ml-auto flex items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/[0.04] px-3 py-1.5 text-[12px] font-semibold text-red-300 hover:bg-red-500/10 disabled:opacity-40"
+                className="ml-auto flex items-center gap-1.5 rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-800 hover:bg-red-100 dark:border-red-500/20 dark:bg-red-500/[0.04] dark:text-red-300 dark:hover:bg-red-500/10 disabled:opacity-40"
               >
                 {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                 Eliminar

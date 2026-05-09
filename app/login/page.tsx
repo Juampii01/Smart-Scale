@@ -185,7 +185,7 @@ export default function LoginPage() {
             </div>
 
             {errorMsg && (
-              <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs leading-relaxed text-red-300">
+              <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-xs leading-relaxed text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
                 {errorMsg}
               </div>
             )}

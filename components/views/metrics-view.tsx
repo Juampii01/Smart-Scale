@@ -48,7 +48,6 @@ function HealthRadar({ reports }: { reports: any[] }) {
   if (reports.length < 2) return null
 
   const last  = reports[reports.length - 1]
-  const prev  = reports[reports.length - 2]
 
   // Normalize each metric 0-100 relative to the max in history
   function norm(key: string) {
@@ -122,7 +121,7 @@ function SummaryStrip({ current, previous }: { current: any; previous: any }) {
             <div className="flex items-center justify-between">
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: kpi.color }} />
               {pct !== null && (
-                <span className={`text-[10px] font-bold ${isUp ? "text-emerald-400" : isDown ? "text-red-400" : "text-foreground/30"}`}>
+                <span className={`text-[10px] font-bold ${isUp ? "text-emerald-700 dark:text-emerald-400" : isDown ? "text-red-700 dark:text-red-400" : "text-foreground/30"}`}>
                   {pct > 0 ? "+" : ""}{Math.round(pct)}%
                 </span>
               )}

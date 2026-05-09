@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase"
 import {
-  Loader2, Plus, Trash2, RefreshCw, Download, Check, X, DollarSign,
+  Loader2, Plus, Trash2, RefreshCw, Download, Check, X,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -62,7 +62,7 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
       </td>
       <td className="px-4 py-2.5">
         <select value={status} onChange={e => setStatus(e.target.value as Payment["status"])}
-          className="h-8 w-full appearance-none rounded-lg border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground capitalize focus:outline-none">
+          className="h-8 w-full appearance-none rounded-lg border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1">
           <option value="aceptado">Aceptado</option>
           <option value="rechazado">Rechazado</option>
           <option value="pendiente">Pendiente</option>
@@ -71,11 +71,11 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
       <td className="px-4 py-2.5"><input value={description} onChange={e => setDescription(e.target.value)} placeholder="Descripción..." className={inputCls} /></td>
       <td className="px-4 py-2.5 whitespace-nowrap">
         <div className="flex items-center gap-1.5">
-          <button onClick={handleSave} disabled={saving || !name.trim() || !amount.trim()}
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#ffde21] text-black hover:bg-[#ffe84d] disabled:opacity-40 transition-all">
+          <button onClick={handleSave} disabled={saving || !name.trim() || !amount.trim()} aria-label="Guardar"
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#ffde21] text-black hover:bg-[#ffe84d] disabled:opacity-40 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1">
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
           </button>
-          <button onClick={onCancel} className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.08] text-foreground/40 hover:text-foreground transition-all">
+          <button onClick={onCancel} aria-label="Cancelar" className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.08] text-foreground/40 hover:text-foreground transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -204,9 +204,9 @@ export function AdminPaymentsView() {
       {/* Summary card */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
-          { label: "Total cobrado",   value: fmtMoney(totalAceptado),                               color: "text-emerald-300" },
-          { label: "Pagos aceptados", value: String(payments.filter(p => p.status === "aceptado").length),  color: "text-emerald-300" },
-          { label: "Pagos rechazados",value: String(payments.filter(p => p.status === "rechazado").length), color: "text-red-300"     },
+          { label: "Total cobrado",   value: fmtMoney(totalAceptado),                               color: "text-emerald-700 dark:text-emerald-300" },
+          { label: "Pagos aceptados", value: String(payments.filter(p => p.status === "aceptado").length),  color: "text-emerald-700 dark:text-emerald-300" },
+          { label: "Pagos rechazados",value: String(payments.filter(p => p.status === "rechazado").length), color: "text-red-700 dark:text-red-300"     },
         ].map(card => (
           <div key={card.label} className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-4">
             <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30">{card.label}</p>
@@ -274,7 +274,7 @@ export function AdminPaymentsView() {
                         <select
                           value={p.status}
                           onChange={e => handleStatusChange(p.id, e.target.value)}
-                          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[11px] font-semibold capitalize focus:outline-none ${STATUS_STYLE[p.status]}`}
+                          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[11px] font-semibold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[p.status]}`}
                         >
                           <option value="aceptado">Aceptado</option>
                           <option value="rechazado">Rechazado</option>
