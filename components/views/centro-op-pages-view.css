@@ -110,13 +110,69 @@
   border-radius: 0.75rem !important;
   box-shadow: 0 12px 24px -8px rgba(0,0,0,0.18), 0 4px 8px -4px rgba(0,0,0,0.1);
   overflow: hidden;
+  padding: 4px !important;
 }
 
-.bn-suggestion-menu-item[data-hovered="true"],
+/* Hover/selección — gris sutil (Notion-style), NO amarillo. BlockNote 0.50
+   marca el item activo con aria-selected="true" (no data-hovered). */
+.bn-suggestion-menu-item[aria-selected="true"],
 .bn-suggestion-menu-item:hover,
 .bn-toolbar button:hover {
-  background: rgba(255,222,33,0.12) !important;
+  background: rgba(127,127,127,0.10) !important;
   color: var(--foreground) !important;
+  border-radius: 0.4rem !important;
+}
+
+/* Item base — padding + radius */
+.bn-suggestion-menu-item {
+  border-radius: 0.4rem !important;
+  padding: 6px 8px !important;
+}
+
+/* Icon wrapper (cuadrado a la izquierda con H1, H2, etc) */
+.bn-mt-suggestion-menu-item-section[data-position="left"] {
+  background: rgba(127,127,127,0.08) !important;
+  border: 1px solid rgba(127,127,127,0.14) !important;
+  border-radius: 6px !important;
+  width: 36px !important;
+  height: 36px !important;
+  flex-shrink: 0 !important;
+}
+.bn-mt-suggestion-menu-item-section[data-position="left"] svg {
+  color: var(--foreground) !important;
+  opacity: 0.6 !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* Section headers ("Headings", "Basic blocks", "Advanced", "Media") */
+.bn-suggestion-menu-label {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: rgba(127,127,127,0.65) !important;
+  padding: 10px 10px 4px !important;
+}
+
+/* Keyboard shortcut chips (Mantine Badge dentro del menu item) */
+.bn-suggestion-menu .mantine-Badge-root {
+  font-family: var(--font-mono), ui-monospace, "SF Mono", monospace !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  background: rgba(127,127,127,0.10) !important;
+  border: 1px solid rgba(127,127,127,0.14) !important;
+  border-radius: 4px !important;
+  padding: 1px 6px !important;
+  height: auto !important;
+  min-height: 18px !important;
+  color: rgba(127,127,127,0.85) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+.bn-suggestion-menu .mantine-Badge-label {
+  color: inherit !important;
+  letter-spacing: 0 !important;
 }
 
 /* Placeholder text */
@@ -125,7 +181,8 @@
   font-style: normal !important;
 }
 
-/* Dark mode adjustments */
+/* ── Dark mode ──────────────────────────────────────────────────────────── */
+
 .dark .centro-op-bn .bn-container {
   --bn-colors-tooltip-background: #1c1c1f;
   --bn-colors-hovered-background: rgba(255,255,255,0.06);
@@ -134,4 +191,39 @@
 .dark .centro-op-bn pre {
   background: rgba(255,255,255,0.04);
   border-color: rgba(255,255,255,0.08);
+}
+
+/* Slash menu en dark — fondo más sólido + más contraste vs editor */
+.dark .bn-suggestion-menu,
+.dark .bn-toolbar {
+  background: #1f2023 !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  box-shadow: 0 16px 36px -10px rgba(0,0,0,0.55), 0 6px 12px -6px rgba(0,0,0,0.35);
+}
+
+.dark .bn-suggestion-menu-item[aria-selected="true"],
+.dark .bn-suggestion-menu-item:hover,
+.dark .bn-toolbar button:hover {
+  background: rgba(255,255,255,0.08) !important;
+}
+
+.dark .bn-suggestion-menu .mantine-Badge-root {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.10) !important;
+  color: rgba(255,255,255,0.55) !important;
+}
+
+.dark .bn-suggestion-menu-label {
+  color: rgba(255,255,255,0.40) !important;
+}
+
+/* Icon wrapper en dark — un toque MÁS oscuro que el menu (no más claro), tipo
+   Notion. SVG con menos brillo así no compite con el texto del título. */
+.dark .bn-mt-suggestion-menu-item-section[data-position="left"] {
+  background: rgba(0,0,0,0.25) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+.dark .bn-mt-suggestion-menu-item-section[data-position="left"] svg {
+  color: rgba(255,255,255,0.55) !important;
+  opacity: 1 !important;
 }
