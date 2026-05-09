@@ -212,9 +212,9 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
       <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-16 text-center">
         <FileText className="h-10 w-10 text-foreground/15" />
         <div>
-          <h3 className="text-base font-bold text-foreground/70">Playbook aún no creado</h3>
+          <h3 className="text-base font-bold text-foreground/70">Tu playbook aún no fue creado</h3>
           <p className="mt-1 text-[13px] text-foreground/45 max-w-md">
-            Tu coach todavía no armó tu playbook. Apenas lo cree, vas a verlo acá.
+            Apenas Ann lo arme, vas a verlo acá.
           </p>
         </div>
       </div>

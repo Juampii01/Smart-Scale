@@ -103,7 +103,7 @@ async function authedFetch(path: string, init?: RequestInit) {
 // ─── Tree row ─────────────────────────────────────────────────────────────────
 
 function TreeRow({
-  node, depth, selectedId, expanded, canManage,
+  node, depth, selectedId, expanded, canManage, canCreate,
   dragState, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd,
   onToggle, onSelect, onAddChild, onDelete,
 }: {
@@ -111,7 +111,8 @@ function TreeRow({
   depth:       number
   selectedId:  string | null
   expanded:    Set<string>
-  canManage:   boolean
+  canManage:   boolean   // admin/team — controla delete
+  canCreate:   boolean   // admin/team/client — controla crear subpágina y drag
   dragState:   DragState | null
   onDragStart: (id: string, parentId: string | null) => void
   onDragOver:  (e: React.DragEvent, id: string, parentId: string | null) => void
@@ -137,7 +138,7 @@ function TreeRow({
       {showLineAbove && <div className="h-0.5 bg-[#ffde21] mx-2 rounded-full" />}
 
       <div
-        draggable={canManage}
+        draggable={canCreate}
         onDragStart={() => onDragStart(node.page.id, node.page.parent_id)}
         onDragOver={(e) => onDragOver(e, node.page.id, node.page.parent_id)}
         onDragLeave={() => onDragLeave(node.page.id)}
@@ -153,7 +154,7 @@ function TreeRow({
         } ${isDragged ? "opacity-40" : ""}`}
         style={{ paddingLeft: `${4 + depth * 14}px` }}
       >
-        {canManage && (
+        {canCreate && (
           <span
             className={`flex h-4 w-3 shrink-0 items-center justify-center text-foreground/30 transition-opacity cursor-grab active:cursor-grabbing ${
               hovered ? "opacity-100" : "opacity-0"
@@ -182,30 +183,30 @@ function TreeRow({
           {node.page.title || "Sin título"}
         </span>
 
+        {canCreate && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onAddChild(node.page.id) }}
+            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-foreground/40 hover:bg-foreground/10 hover:text-foreground transition-all ${hovered ? "opacity-100" : "opacity-0"}`}
+            aria-label="Nueva subpágina"
+            title="Nueva subpágina"
+          >
+            <Plus className="h-3 w-3" />
+          </button>
+        )}
         {canManage && (
-          <>
-            <button
-              onClick={(e) => { e.stopPropagation(); onAddChild(node.page.id) }}
-              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-foreground/40 hover:bg-foreground/10 hover:text-foreground transition-all ${hovered ? "opacity-100" : "opacity-0"}`}
-              aria-label="Nueva subpágina"
-              title="Nueva subpágina"
-            >
-              <Plus className="h-3 w-3" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                if (confirm(`¿Borrar "${node.page.title}" y todas sus subpáginas? La acción no se puede deshacer.`)) {
-                  onDelete(node.page.id)
-                }
-              }}
-              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-foreground/30 hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-400 transition-all ${hovered ? "opacity-100" : "opacity-0"}`}
-              aria-label="Borrar"
-              title="Borrar"
-            >
-              <Trash2 className="h-3 w-3" />
-            </button>
-          </>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              if (confirm(`¿Borrar "${node.page.title}" y todas sus subpáginas? La acción no se puede deshacer.`)) {
+                onDelete(node.page.id)
+              }
+            }}
+            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-foreground/30 hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-400 transition-all ${hovered ? "opacity-100" : "opacity-0"}`}
+            aria-label="Borrar"
+            title="Borrar"
+          >
+            <Trash2 className="h-3 w-3" />
+          </button>
         )}
       </div>
 
@@ -221,6 +222,7 @@ function TreeRow({
               selectedId={selectedId}
               expanded={expanded}
               canManage={canManage}
+              canCreate={canCreate}
               dragState={dragState}
               onDragStart={onDragStart}
               onDragOver={onDragOver}
@@ -359,6 +361,9 @@ export function ClientPlaybookView({ userRole }: { userRole: string | null }) {
   const activeClientId = useActiveClient()
   const role = String(userRole ?? "").toLowerCase()
   const canManage = role === "admin" || role === "team"
+  // canCreate: el cliente también puede crear nuevas páginas y reordenar.
+  // Solo el delete sigue siendo admin/team (controlado por canManage en TreeRow).
+  const canCreate = canManage || role === "client"
   // canEdit incluye client (puede editar texto en sus propias páginas de Documentos)
   const canEdit = canManage || role === "client"
 
@@ -387,10 +392,10 @@ export function ClientPlaybookView({ userRole }: { userRole: string | null }) {
     } finally { setLoading(false) }
   }, [activeClientId])
 
-  // Auto-seed cuando admin/team entra y no hay páginas
+  // Auto-seed cuando entra cualquier usuario (admin/team/client) y no hay páginas.
+  // El API enforce que el cliente solo puede seedear su propio client_id.
   const seedIfEmpty = useCallback(async (current: Page[]) => {
     if (current.length > 0) return
-    if (!canManage)         return  // solo admin/team siembran
     if (!activeClientId)    return
     setSeeding(true)
     try {
@@ -404,7 +409,7 @@ export function ClientPlaybookView({ userRole }: { userRole: string | null }) {
         if (json.pages[0]) setSelectedId(json.pages[0].id)
       }
     } finally { setSeeding(false) }
-  }, [activeClientId, canManage])
+  }, [activeClientId])
 
   useEffect(() => {
     let cancelled = false
@@ -455,7 +460,7 @@ export function ClientPlaybookView({ userRole }: { userRole: string | null }) {
   const onSelect = (id: string) => setSelectedId(id)
 
   const createPage = async (parentId: string | null) => {
-    if (!activeClientId || !canManage) return
+    if (!activeClientId || !canCreate) return
     setCreating(true)
     try {
       const res = await authedFetch("/api/client-playbook", {
@@ -612,7 +617,7 @@ export function ClientPlaybookView({ userRole }: { userRole: string | null }) {
         <div className="border-b border-foreground/[0.06] px-3 py-3 space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/40">Documentos</h3>
-            {canManage && (
+            {canCreate && (
               <button
                 onClick={() => createPage(null)}
                 disabled={creating || seeding}
@@ -643,13 +648,9 @@ export function ClientPlaybookView({ userRole }: { userRole: string | null }) {
           ) : tree.length === 0 ? (
             <div className="px-3 py-6 text-center">
               <p className="text-[12px] text-foreground/40 mb-2">
-                {search
-                  ? "Sin resultados"
-                  : canManage
-                    ? "No hay documentos todavía"
-                    : "Tu coach todavía no creó documentos."}
+                {search ? "Sin resultados" : "No tenés documentos todavía"}
               </p>
-              {!search && canManage && (
+              {!search && canCreate && (
                 <button
                   onClick={() => createPage(null)}
                   className="inline-flex items-center gap-1 rounded-md border border-foreground/[0.08] bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground/60 hover:border-foreground/20 hover:text-foreground transition-all"
@@ -667,6 +668,7 @@ export function ClientPlaybookView({ userRole }: { userRole: string | null }) {
                 selectedId={selectedId}
                 expanded={expanded}
                 canManage={canManage}
+                canCreate={canCreate}
                 dragState={dragState}
                 onDragStart={onDragStart}
                 onDragOver={onDragOver}
@@ -715,7 +717,7 @@ export function ClientPlaybookView({ userRole }: { userRole: string | null }) {
             <FileText className="h-10 w-10 text-foreground/15" />
             <p className="text-[14px] text-foreground/50">
               {pages.length === 0
-                ? canManage ? "Empezá creando tu primera página." : "Tu coach todavía no creó documentos."
+                ? canCreate ? "Empezá creando tu primer documento." : "No hay documentos todavía."
                 : "Seleccioná un documento del sidebar."}
             </p>
           </div>

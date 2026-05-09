@@ -97,10 +97,10 @@ export async function POST(req: NextRequest) {
 
     const sb = createServiceClient()
 
-    // ── Bulk seed (solo admin/team) ─────────────────────────────────────────
+    // ── Bulk seed ───────────────────────────────────────────────────────────
+    // Cualquier rol puede seedear, pero resolveTargetClientId garantiza que
+    // el cliente solo puede seedear su propio client_id (no el de otro).
     if (Array.isArray(body.seeds)) {
-      if (ctx.role === "client") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
       const rows = body.seeds.map((s: any, i: number) => ({
         client_id:  targetClientId,
         parent_id:  null,

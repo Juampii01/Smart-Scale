@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase"
-import { useActiveClient } from "@/components/layout/dashboard-layout"
+import { useActiveClient, useOwnClient } from "@/components/layout/dashboard-layout"
 import { useMarkPageReady } from "@/hooks/use-mark-page-ready"
 import {
   Trash2, AlertTriangle, Loader2, FileText, ChevronDown, ChevronUp, X
@@ -200,6 +200,8 @@ function ReportRow({
 
 export function ReportHistoryView() {
   const activeClientId = useActiveClient()
+  const ownClientId    = useOwnClient()
+  const isOwn = !!activeClientId && !!ownClientId && activeClientId === ownClientId
   const [reports, setReports] = useState<MonthlyReport[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -328,7 +330,9 @@ export function ReportHistoryView() {
       ) : reports.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
           <FileText className="h-10 w-10 text-foreground/10" />
-          <p className="text-sm text-foreground/30">No hay reportes cargados para este cliente.</p>
+          <p className="text-sm text-foreground/30">
+            {isOwn ? "Todavía no tenés reportes cargados." : "No hay reportes cargados para este cliente."}
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
