@@ -37,6 +37,10 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
         const supabase = createClient()
         const { data: { session } } = await supabase.auth.getSession()
         if (!session) return
+        // El dropdown lista los clientes del CRM (`crm_clients`) — universo
+        // grande de clientes activos. Si el client_id elegido todavía no
+        // tiene row en la tabla `clients` (portal), el route /api/admin/users/create
+        // copia automáticamente el row antes de hacer el upsert al profile.
         const res = await fetch("/api/admin/clients", {
           headers: { Authorization: `Bearer ${session.access_token}` },
         })

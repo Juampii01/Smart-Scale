@@ -6,7 +6,7 @@ import {
   Area, AreaChart, Bar, BarChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts"
-import { useActiveClient } from "@/components/layout/dashboard-layout"
+import { useActiveClient, useOwnClient } from "@/components/layout/dashboard-layout"
 import { TrendingUp, TrendingDown } from "lucide-react"
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -232,6 +232,8 @@ function ChartCard({
 
 export function TrendCharts() {
   const activeClientId = useActiveClient()
+  const ownClientId    = useOwnClient()
+  const isOwn = !!activeClientId && !!ownClientId && activeClientId === ownClientId
   const [rows, setRows]     = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError]   = useState<string | null>(null)
@@ -299,7 +301,11 @@ export function TrendCharts() {
   if (!rows.length) {
     return (
       <section>
-        <p className="text-foreground/40 text-sm">Este cliente todavía no tiene reportes cargados.</p>
+        <p className="text-foreground/40 text-sm">
+          {isOwn
+            ? "Todavía no tenés reportes cargados."
+            : "Este cliente todavía no tiene reportes cargados."}
+        </p>
       </section>
     )
   }

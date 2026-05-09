@@ -2,7 +2,7 @@
 
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react"
 import { createClient } from "@/lib/supabase"
-import { useActiveClient, useSelectedMonth } from "@/components/layout/dashboard-layout"
+import { useActiveClient, useSelectedMonth, useOwnClient } from "@/components/layout/dashboard-layout"
 import { useAnnualMetrics } from "@/contexts/annual-metrics-context"
 import { AiLoading } from "@/components/ui/ai-loading"
 import { Trash2, ArrowUpRight } from "lucide-react"
@@ -389,6 +389,8 @@ export function AuditView() {
   const [loadingHistory, setLoadingHistory] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const activeClientId = useActiveClient()
+  const ownClientId    = useOwnClient()
+  const isOwnClient    = !!activeClientId && !!ownClientId && activeClientId === ownClientId
   const selectedMonth = useSelectedMonth() ?? "2025-12"
   const { annualMetrics, loading: loadingAudit, error } = useAnnualMetrics()
   const annualRevenue = annualMetrics?.total_revenue ?? 0
@@ -916,7 +918,9 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
               </div>
             ) : diagnosisHistory.length === 0 ? (
               <div className="rounded-xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-5 text-sm text-foreground/35">
-                Todavía no hay diagnósticos guardados para este cliente.
+                {isOwnClient
+                  ? "Todavía no tenés diagnósticos guardados."
+                  : "Todavía no hay diagnósticos guardados para este cliente."}
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
