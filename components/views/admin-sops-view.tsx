@@ -12,11 +12,11 @@
  * Crear soporta 2 modos: Manual (form completo) y Con IA (descripción → Claude).
  */
 
-import { useEffect, useState, useCallback, useRef } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase"
 import {
   Loader2, Plus, Search, Copy, Check, X, Trash2, Edit3, Sparkles,
-  ChevronRight, Clock, Tag as TagIcon, FileText,
+  ChevronRight, Clock, FileText,
 } from "lucide-react"
 import { isAdmin as isAdminRole } from "@/lib/auth/permissions"
 

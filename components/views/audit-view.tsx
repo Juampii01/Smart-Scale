@@ -247,17 +247,6 @@ function getStatusMeta(status: string) {
   }
 }
 
-function getStatusCopy(status: string) {
-  if (status === "completed") {
-    return "Diagnóstico listo para revisar"
-  }
-
-  if (status === "failed") {
-    return "Hubo un error en la generación"
-  }
-
-  return "Todavía en procesamiento"
-}
 
 function ScorePillButton({
   label, bgActive, ringColor, active, onClick,
@@ -392,7 +381,7 @@ export function AuditView() {
   const ownClientId    = useOwnClient()
   const isOwnClient    = !!activeClientId && !!ownClientId && activeClientId === ownClientId
   const selectedMonth = useSelectedMonth() ?? "2025-12"
-  const { annualMetrics, loading: loadingAudit, error } = useAnnualMetrics()
+  const { annualMetrics, loading: loadingAudit } = useAnnualMetrics()
   const annualRevenue = annualMetrics?.total_revenue ?? 0
   const [maxMonthlyRevenue, setMaxMonthlyRevenue] = useState<number>(0)
 
@@ -664,16 +653,6 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
     }
   }
 
-  const autoSelectRandom = () => {
-    if (!activeSection) return
-    const options = ["red", "yellow", "green"]
-    const randomScores: Record<string, string> = {}
-    for (const item of activeSection.items) {
-      const random = options[Math.floor(Math.random() * options.length)]
-      randomScores[item.id] = random
-    }
-    setScores(randomScores)
-  }
 
   return (
     <div className="space-y-8">

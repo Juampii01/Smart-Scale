@@ -6,7 +6,7 @@ import { useSelectedMonth, useActiveClient } from "@/components/layout/dashboard
 import { useMarkPageReady } from "@/hooks/use-mark-page-ready"
 import { useMinLoading } from "@/hooks/use-min-loading"
 import { FunnelRowSkeleton, SectionHeaderSkeleton } from "@/components/ui/skeleton"
-import { TrendingUp, TrendingDown, ArrowDown } from "lucide-react"
+import { ArrowDown } from "lucide-react"
 import {
   ResponsiveContainer, ComposedChart, Bar, Line,
   XAxis, YAxis, CartesianGrid, Tooltip,

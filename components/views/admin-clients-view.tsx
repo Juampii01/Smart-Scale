@@ -5,9 +5,9 @@ import { createClient } from "@/lib/supabase"
 import {
   Loader2, Plus, Trash2, RefreshCw, X, ChevronRight,
   CheckCircle2, Circle, AlertCircle, Clock, Users,
-  DollarSign, Calendar, Phone, Mail, Instagram,
-  MessageCircle, PhoneCall, AtSign, MoreHorizontal,
-  Check, UserCheck, ChevronUp, ChevronDown, ChevronsUpDown,
+  DollarSign, Calendar, Mail,
+  MessageCircle, PhoneCall, MoreHorizontal,
+  Check, ChevronUp, ChevronDown, ChevronsUpDown,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -972,7 +972,7 @@ export function AdminClientsView() {
     })
   }
 
-  const handleToggleInstallment = async (installmentId: string, currentPaidAt: string | null) => {
+  const handleToggleInstallment = async (installmentId: string, _currentPaidAt: string | null) => {
     const session = await getSession()
     if (!session) return
     const res = await fetch("/api/admin/clients", {

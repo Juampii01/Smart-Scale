@@ -64,7 +64,6 @@ function CorrCard({
 }: CorrCardProps) {
   // Avg reference lines
   const avgBar  = data.length ? data.reduce((s, d) => s + d[barKey],  0) / data.length : 0
-  const avgLine = data.length ? data.reduce((s, d) => s + d[lineKey], 0) / data.length : 0
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors duration-200">

@@ -15,7 +15,7 @@ import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase"
 import {
   Loader2, Plus, Search, X, Trash2, Edit3, Lock, FileText,
-  ChevronRight, Archive, ArchiveRestore, ListChecks, MessageSquare, Bell,
+  ChevronRight, ListChecks, MessageSquare, Bell,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────

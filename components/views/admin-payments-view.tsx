@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase"
 import {
-  Loader2, Plus, Trash2, RefreshCw, Download, Check, X, DollarSign,
+  Loader2, Plus, Trash2, RefreshCw, Download, Check, X,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────

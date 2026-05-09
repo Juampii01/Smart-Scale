@@ -245,7 +245,6 @@ export function ProgramChecklistView() {
   const [openWeeks, setOpenWeeks] = useState<Record<string, boolean>>({})
   const [completed, setCompleted] = useState<Record<string, boolean>>({})
   const [loading, setLoading]     = useState(true)
-  const [savingKeys, setSavingKeys] = useState<Set<string>>(new Set())
 
   // UI prefs (open/closed) siguen en localStorage — no son data del cliente
   useEffect(() => {
@@ -300,7 +299,6 @@ export function ProgramChecklistView() {
     const next = !completed[key]
     // Optimista
     setCompleted((p) => ({ ...p, [key]: next }))
-    setSavingKeys((s) => { const n = new Set(s); n.add(key); return n })
     try {
       const { data: { session } } = await supabaseRef.current.auth.getSession()
       if (!session) return
@@ -312,8 +310,6 @@ export function ProgramChecklistView() {
     } catch {
       // Rollback en error
       setCompleted((p) => ({ ...p, [key]: !next }))
-    } finally {
-      setSavingKeys((s) => { const n = new Set(s); n.delete(key); return n })
     }
   }
 

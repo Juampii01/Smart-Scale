@@ -2,7 +2,7 @@
 import { DashboardLayout, useActiveClient } from "@/components/layout/dashboard-layout";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getLatestResearchRequest, getResearchResult, getResearchHistory } from "@/lib/marketIntelligence";
+import { getResearchResult, getResearchHistory } from "@/lib/marketIntelligence";
 import { createClient } from "@/lib/supabase";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,6 @@ function MarketIntelligenceContent() {
   const [requests, setRequests] = useState<any[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [result, setResult] = useState<any>(null);
-  const [userRole, setUserRole] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [hasSession, setHasSession] = useState<boolean>(true);
   const [targetUserId, setTargetUserId] = useState<string>("");
@@ -59,13 +58,6 @@ function MarketIntelligenceContent() {
 
       setUserId(userData.user.id);
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", userData.user.id)
-        .maybeSingle();
-
-      setUserRole(profile?.role || "");
     };
 
     loadUser();
@@ -304,9 +296,6 @@ function MarketIntelligenceContent() {
                 const isExpanded = expandedId === req.id;
                 const isSelected = selectedRequest?.id === req.id;
                 const competitorCount = Array.isArray(req.competitors) ? req.competitors.length : 0;
-                const competitorNames = Array.isArray(req.competitors)
-                  ? req.competitors.map((c: any) => typeof c === "string" ? c : (c?.name || c?.channel_url || "Canal")).slice(0, 3)
-                  : [];
 
                 return (
                   <div key={req.id} className="group transition-colors hover:bg-foreground/[0.015]">

@@ -70,8 +70,6 @@ const SECTION_GROUPS: SectionGroup[] = (() => {
   return groups
 })()
 
-const ALL_FIELDS = METRIC_ROWS.map(r => r.key).join(", ")
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtMonthLabel(month: string) {

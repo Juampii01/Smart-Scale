@@ -48,7 +48,6 @@ function HealthRadar({ reports }: { reports: any[] }) {
   if (reports.length < 2) return null
 
   const last  = reports[reports.length - 1]
-  const prev  = reports[reports.length - 2]
 
   // Normalize each metric 0-100 relative to the max in history
   function norm(key: string) {

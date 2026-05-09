@@ -16,7 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { createClient } from "@/lib/supabase"
 import {
   ChevronRight, ChevronDown, Plus, Trash2, FileText, Loader2,
-  MoreHorizontal, Smile, Search, Lock, Target, Users,
+  Search, Lock, Target,
 } from "lucide-react"
 import { isAdmin as isAdminRole } from "@/lib/auth/permissions"
 import { useCreateBlockNote } from "@blocknote/react"

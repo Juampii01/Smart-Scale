@@ -2,8 +2,8 @@
 
 import {
   X, BarChart3, Radio, DollarSign, MessageSquare, Wrench,
-  CalendarDays, Lock, LayoutGrid, LineChart, ClipboardList,
-  Zap, Globe, Upload, History, Telescope, FileVideo, Clapperboard,
+  CalendarDays, Lock, LayoutGrid, ClipboardList,
+  Zap, Globe, FileVideo, Clapperboard,
   ChevronDown, Trophy, FileBarChart, ShieldCheck, ArrowRight,
   ChevronLeft, ChevronRight,
 } from "lucide-react"

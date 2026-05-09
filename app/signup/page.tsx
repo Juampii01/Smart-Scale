@@ -99,7 +99,6 @@ export default function SignupPage() {
       error: errInfo(error),
     };
 
-    console.log("SIGNUP RESULT", { data, error, debug: debugPayload });
     setDebug(debugPayload);
 
     if (error) {

@@ -6,9 +6,8 @@ import { createClient } from "@/lib/supabase"
 import { AiLoading } from "@/components/ui/ai-loading"
 import {
   Youtube, ExternalLink, Copy, Check, ChevronDown, ChevronUp,
-  Sparkles, Trash2, History, Globe, Clock, Eye, ThumbsUp, MessageCircle,
+  Sparkles, Trash2, Clock, Eye, ThumbsUp, MessageCircle,
 } from "lucide-react"
-import { createPortal } from "react-dom"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
