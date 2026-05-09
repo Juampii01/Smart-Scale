@@ -35,21 +35,19 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
       setLoadingClients(true)
       try {
         const supabase = createClient()
-        // Query directa a la tabla `clients` (la del portal — distinta de `crm_clients`).
-        // El FK de profiles.client_id apunta acá, así que el dropdown tiene que
-        // mostrar IDs de esta tabla, no de crm_clients.
-        const { data, error } = await supabase
-          .from("clients")
-          .select("id, nombre")
-          .order("nombre", { ascending: true })
-        if (error) {
-          console.error("Failed to load clients", error)
-          return
-        }
-        const list: ClientOption[] = (data ?? []).map((c: any) => ({
-          id:   c.id,
-          name: c.nombre ?? "(sin nombre)",
-        }))
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return
+        // El dropdown lista los clientes del CRM (`crm_clients`) — universo
+        // grande de clientes activos. Si el client_id elegido todavía no
+        // tiene row en la tabla `clients` (portal), el route /api/admin/users/create
+        // copia automáticamente el row antes de hacer el upsert al profile.
+        const res = await fetch("/api/admin/clients", {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        if (!res.ok) return
+        const json = await res.json()
+        const list: ClientOption[] = (json.clients ?? []).map((c: any) => ({ id: c.id, name: c.name }))
+        list.sort((a, b) => a.name.localeCompare(b.name))
         setClients(list)
       } finally { setLoadingClients(false) }
     }

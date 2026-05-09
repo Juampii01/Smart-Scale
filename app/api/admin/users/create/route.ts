@@ -62,6 +62,46 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServiceClient()
 
+    // ── Bridge: si el clientId existe en crm_clients pero NO en clients (la
+    // tabla del portal), copiamos el row antes de crear el auth user. El FK
+    // profiles.client_id apunta a clients, así que sin esto el upsert falla.
+    // Este bridge es seguro de correr ANTES de crear el auth user — si falla,
+    // no dejamos orfandad en auth.users.
+    if (role === "client" && clientId) {
+      const { data: portalClient } = await supabase
+        .from("clients")
+        .select("id")
+        .eq("id", clientId)
+        .maybeSingle()
+
+      if (!portalClient) {
+        const { data: crmClient } = await supabase
+          .from("crm_clients")
+          .select("name")
+          .eq("id", clientId)
+          .maybeSingle()
+
+        if (!crmClient) {
+          return NextResponse.json(
+            { error: "El client_id no existe ni en `clients` ni en `crm_clients`." },
+            { status: 400 },
+          )
+        }
+
+        const crmName = String((crmClient as any).name ?? "").trim() || "Sin nombre"
+        const { error: bridgeErr } = await supabase
+          .from("clients")
+          .insert({ id: clientId, name: crmName, nombre: crmName })
+
+        if (bridgeErr) {
+          return NextResponse.json(
+            { error: `No se pudo crear el row en \`clients\`: ${bridgeErr.message}` },
+            { status: 500 },
+          )
+        }
+      }
+    }
+
     const { data: created, error: createErr } = await supabase.auth.admin.createUser({
       email,
       password,
