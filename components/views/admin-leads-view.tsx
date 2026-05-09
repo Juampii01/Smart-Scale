@@ -511,8 +511,27 @@ export function AdminLeadsView() {
         {/* Table */}
         <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />
+            <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                    {["Nombre","Email","Tag","Instagram","Rating","Estado","Desde dónde llegó","Tipo","Nicho","Fecha",""].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <tr key={i} className="border-b border-foreground/[0.04]">
+                      {Array.from({ length: 11 }).map((_, j) => (
+                        <td key={j} className="px-4 py-4">
+                          <div className="h-3 skeleton rounded" style={{ width: `${45 + (i * 13 + j * 7) % 50}%` }} />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : (
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>

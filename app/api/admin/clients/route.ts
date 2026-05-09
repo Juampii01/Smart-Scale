@@ -14,27 +14,20 @@ export async function GET(req: NextRequest) {
 
     const supabase = createServiceClient()
 
-    const { data: clients, error: clientsError } = await supabase
-      .from("crm_clients")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(1000)
+    // Las 3 tablas se leen en paralelo — son independientes.
+    const [clientsRes, installmentsRes, followupsRes] = await Promise.all([
+      supabase.from("crm_clients").select("*").order("created_at", { ascending: false }).limit(1000),
+      supabase.from("crm_installments").select("*").order("installment_number", { ascending: true }),
+      supabase.from("crm_followups").select("*").order("scheduled_date", { ascending: true }),
+    ])
 
-    if (clientsError) return NextResponse.json({ error: clientsError.message }, { status: 500 })
+    if (clientsRes.error)     return NextResponse.json({ error: clientsRes.error.message },     { status: 500 })
+    if (installmentsRes.error) return NextResponse.json({ error: installmentsRes.error.message }, { status: 500 })
+    if (followupsRes.error)   return NextResponse.json({ error: followupsRes.error.message },   { status: 500 })
 
-    const { data: installments, error: installmentsError } = await supabase
-      .from("crm_installments")
-      .select("*")
-      .order("installment_number", { ascending: true })
-
-    if (installmentsError) return NextResponse.json({ error: installmentsError.message }, { status: 500 })
-
-    const { data: followups, error: followupsError } = await supabase
-      .from("crm_followups")
-      .select("*")
-      .order("scheduled_date", { ascending: true })
-
-    if (followupsError) return NextResponse.json({ error: followupsError.message }, { status: 500 })
+    const clients      = clientsRes.data
+    const installments = installmentsRes.data
+    const followups    = followupsRes.data
 
     const today = new Date()
     today.setHours(0, 0, 0, 0)

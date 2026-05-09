@@ -1177,8 +1177,27 @@ export function AdminClientsView() {
         {/* Table */}
         <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />
+            <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                    {["Cliente", "Inicio", "Fin", "Cuotas", "Monto/cuota", "Estado", "Alertas", "Próx. follow-up", ""].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <tr key={i} className="border-b border-foreground/[0.04]">
+                      {Array.from({ length: 9 }).map((_, j) => (
+                        <td key={j} className="px-4 py-4">
+                          <div className="h-3 skeleton rounded" style={{ width: `${50 + (i * 7 + j * 11) % 40}%` }} />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : (
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
