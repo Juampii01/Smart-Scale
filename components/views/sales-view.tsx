@@ -201,7 +201,7 @@ export function SalesView() {
         </p>
       </div>
 
-      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {error && <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>}
       {!loading && !error && !data && <p className="text-foreground/40 text-sm">No hay reporte para este mes.</p>}
 
       <div className="grid gap-10 lg:grid-cols-2">

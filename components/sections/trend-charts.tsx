@@ -118,9 +118,9 @@ function ChartCard({
           {diff !== null && (
             <span
               className={`mt-0.5 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold shrink-0 ml-3 ${
-                isUp   ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20"
-                : isDown ? "bg-red-500/10 text-red-400 ring-1 ring-red-500/20"
-                :          "bg-foreground/5 text-foreground/40 ring-1 ring-white/10"
+                isUp   ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20"
+                : isDown ? "bg-red-100 text-red-800 ring-1 ring-red-300 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20"
+                :          "bg-foreground/5 text-foreground/40 ring-1 ring-foreground/10 dark:ring-white/10"
               }`}
             >
               {isUp && <TrendingUp className="h-3 w-3" />}
@@ -295,7 +295,7 @@ export function TrendCharts() {
   }
 
   if (error) {
-    return <p className="text-red-400 text-sm">{error}</p>
+    return <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
   }
 
   if (!rows.length) {

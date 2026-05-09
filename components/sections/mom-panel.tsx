@@ -94,9 +94,9 @@ export function MoMPanel() {
             : "border-red-500/25 bg-red-500/10"
         }`}>
           {scorePositive
-            ? <TrendingUp   className="h-4 w-4 text-emerald-400" />
-            : <TrendingDown className="h-4 w-4 text-red-400" />}
-          <span className={`text-sm font-bold ${scorePositive ? "text-emerald-300" : "text-red-300"}`}>
+            ? <TrendingUp   className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            : <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />}
+          <span className={`text-sm font-bold ${scorePositive ? "text-emerald-700 dark:text-emerald-300" : "text-red-700 dark:text-red-300"}`}>
             {scorePositive ? "Mes positivo" : "Mes para revisar"}
           </span>
           <span className="text-foreground/30 text-xs ml-1">
@@ -149,8 +149,8 @@ export function MoMPanel() {
               {/* Change — THE KEY COLUMN */}
               <div className="flex flex-col items-center gap-1.5 px-2">
                 <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-bold ${
-                  isUp   ? "bg-emerald-500/15 text-emerald-300"
-                  : isDown ? "bg-red-500/15 text-red-300"
+                  isUp   ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                  : isDown ? "bg-red-500/15 text-red-700 dark:text-red-300"
                   :           "bg-foreground/[0.06] text-foreground/40"
                 }`}>
                   {isUp   && <TrendingUp   className="h-3 w-3 flex-shrink-0" />}
@@ -163,7 +163,7 @@ export function MoMPanel() {
                 {/* Progress bar showing magnitude */}
                 <div className="w-full h-1 rounded-full bg-foreground/[0.05] overflow-hidden">
                   <div
-                    className={`h-full rounded-full ${isUp ? "bg-emerald-400" : isDown ? "bg-red-400" : "bg-foreground/20"}`}
+                    className={`h-full rounded-full ${isUp ? "bg-emerald-500" : isDown ? "bg-red-500" : "bg-foreground/20"}`}
                     style={{ width: `${absPct}%` }}
                   />
                 </div>
@@ -172,8 +172,8 @@ export function MoMPanel() {
               {/* Current value — highlighted */}
               <div className="text-right">
                 <span className={`text-[15px] font-bold tabular-nums ${
-                  isUp   ? "text-emerald-300"
-                  : isDown ? "text-red-300"
+                  isUp   ? "text-emerald-700 dark:text-emerald-300"
+                  : isDown ? "text-red-700 dark:text-red-300"
                   :           "text-foreground"
                 }`}>
                   {fmtVal(cur)}

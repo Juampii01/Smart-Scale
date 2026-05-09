@@ -464,7 +464,7 @@ export function ProgramChecklistView() {
                                 </svg>
                               )}
                             </div>
-                            <span className={`text-[11px] ${isDone ? "text-emerald-400" : "text-foreground/35"}`}>
+                            <span className={`text-[11px] ${isDone ? "text-emerald-700 dark:text-emerald-400" : "text-foreground/35"}`}>
                               {isDone ? "Completado" : "No iniciado"}
                             </span>
                           </div>

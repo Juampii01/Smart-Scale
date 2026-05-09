@@ -131,11 +131,11 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
         </div>
         {current && previous && (
           <div className="flex items-center gap-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-2">
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+            <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
               <TrendingUp className="h-3.5 w-3.5" />{upCount} up
             </span>
             <span className="h-3 w-px bg-foreground/15" />
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-red-400">
+            <span className="flex items-center gap-1.5 text-xs font-semibold text-red-700 dark:text-red-400">
               <TrendingDown className="h-3.5 w-3.5" />{downCount} down
             </span>
           </div>

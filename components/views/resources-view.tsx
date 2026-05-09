@@ -23,10 +23,10 @@ interface Resource {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const TYPE_CONFIG: Record<ResourceType, { label: string; icon: React.ElementType; color: string }> = {
-  link:  { label: "Link",     icon: Link2,    color: "text-blue-400" },
-  doc:   { label: "Doc",      icon: FileText,  color: "text-green-400" },
-  video: { label: "Video",    icon: Video,     color: "text-purple-400" },
-  file:  { label: "Archivo",  icon: File,      color: "text-amber-400" },
+  link:  { label: "Link",     icon: Link2,    color: "text-blue-700   dark:text-blue-400"   },
+  doc:   { label: "Doc",      icon: FileText,  color: "text-green-700  dark:text-green-400"  },
+  video: { label: "Video",    icon: Video,     color: "text-purple-700 dark:text-purple-400" },
+  file:  { label: "Archivo",  icon: File,      color: "text-amber-700  dark:text-amber-400"  },
 }
 
 function typeFromUrl(url: string): ResourceType {
@@ -130,7 +130,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
           })}
         </div>
 
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {error && <p className="text-xs text-red-700 dark:text-red-400">{error}</p>}
 
         <div className="flex justify-end">
           <button

@@ -184,7 +184,7 @@ export function MetricsSection({
       </div>
 
       {loading && <p className="text-foreground/40 text-sm">Cargando métricas…</p>}
-      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {error && <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>}
 
       {!loading && !error && !metrics && (
         <p className="text-foreground/40 text-sm">No hay métricas cargadas para este mes.</p>
