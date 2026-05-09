@@ -1,13 +1,13 @@
 "use client"
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { ProgramChecklistView } from "@/components/views/program-checklist-view"
+import { ProgramTabsView } from "@/components/views/program-tabs-view"
 
 
 export default function ProgramChecklistPage() {
   return (
     <DashboardLayout>
-      <ProgramChecklistView />
+      <ProgramTabsView />
     </DashboardLayout>
   )
 }
