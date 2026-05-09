@@ -3,7 +3,7 @@
 /**
  * Admin "view as" — impersonation visual.
  *
- * El admin puede activar un modo "ver como [setter|team]" para QA-ear el UX
+ * El admin puede activar un modo "ver como [setter|client]" para QA-ear el UX
  * de otros roles sin tener que log out/in. Es solo UI: las llamadas a la API
  * siguen yendo con el JWT del admin, así que la data devuelta NO está
  * filtrada por rol. Para impersonation real de DB, hay que extender el
@@ -17,12 +17,14 @@ import { useSyncExternalStore } from "react"
 const STORAGE_KEY = "smartScale.viewAsRole"
 const EVENT_NAME  = "smartScale.viewAsRole.change"
 
-export type ViewAsRole = "setter" | "team" | null
+export type ViewAsRole = "setter" | "client" | null
 
 function readStorage(): ViewAsRole {
   if (typeof window === "undefined") return null
   const v = window.localStorage.getItem(STORAGE_KEY)
-  if (v === "setter" || v === "team") return v
+  if (v === "setter" || v === "client") return v
+  // Legacy: si quedó "team" guardado, lo limpiamos
+  if (v === "team") window.localStorage.removeItem(STORAGE_KEY)
   return null
 }
 

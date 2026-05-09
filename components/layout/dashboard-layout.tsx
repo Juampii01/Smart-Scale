@@ -445,7 +445,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       <NavigationProgress />
       {isAdminMode
         ? <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />
-        : <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />}
+        : <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin && !activeViewAs} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />}
 
       <div className={`flex-1 flex flex-col h-full overflow-hidden transition-[margin] duration-200 bg-background ${sidebarCollapsed ? 'lg:ml-[64px]' : 'lg:ml-[220px]'}`}>
 
@@ -643,7 +643,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/40">Ver como</p>
                         </div>
                         <div className="px-1.5 pb-1.5 space-y-0.5">
-                          {(["setter", "team"] as const).map(r => {
+                          {(["setter", "client"] as const).map(r => {
                             const active = activeViewAs === r
                             return (
                               <button
@@ -656,7 +656,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                   } else {
                                     setViewAsRole(r)
                                     // Navegar al landing de ese rol para arrancar la vista
-                                    router.replace(r === "setter" ? SETTER_DEFAULT_LANDING : TEAM_DEFAULT_LANDING)
+                                    router.replace(r === "setter" ? SETTER_DEFAULT_LANDING : "/dashboard")
                                   }
                                   setProfileMenuOpen(false)
                                 }}
@@ -667,9 +667,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                 }`}
                               >
                                 <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground/[0.08] text-[11px] font-bold text-foreground/70">
-                                  {r === "setter" ? "S" : "T"}
+                                  {r === "setter" ? "S" : "C"}
                                 </span>
-                                <span className="truncate flex-1 font-medium capitalize">{r}</span>
+                                <span className="truncate flex-1 font-medium capitalize">{r === "client" ? "Cliente" : r}</span>
                                 {active && (
                                   <span className="inline-flex items-center gap-1 rounded-full bg-amber-200 dark:bg-amber-500/30 px-2 py-0.5 text-[10px] font-bold">
                                     <Check className="h-2.5 w-2.5" strokeWidth={3} />

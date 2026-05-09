@@ -203,27 +203,33 @@ const levelColors: Record<string, string> = {
   "Nivel 8 — IA & Sistemas":                 "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/40", // 🤖
 }
 
+// Pills compatibles con light + dark mode. En light: fondo emerald-100 + texto emerald-800.
+// En dark: fondo emerald-900/40 + texto emerald-300 (look original).
+const OUTCOME_PILL = "bg-emerald-100 dark:bg-emerald-900/40"
+const OUTCOME_TEXT = "text-emerald-800 dark:text-emerald-300"
+const OUTCOME_BORDER = "border-emerald-400/50 dark:border-emerald-600/30"
+
 const outcomeColors: Record<string, { bg: string; text: string; border: string; emoji: string }> = {
-  "Orientación":   { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "✅" },
-  "Visión Clara":  { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "🎯" },
-  "Hábito":        { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "🔁" },
-  "Mentalidad":    { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "🧠" },
-  "Oferta":        { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "💼" },
-  "Estrategia":    { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "♟️" },
-  "Ventas":        { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "💰" },
-  "Contenido":     { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "🎬" },
-  "Email":         { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "📧" },
-  "Marca":         { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "✨" },
-  "Marketing":     { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "📈" },
-  "Prueba Social": { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "⭐" },
-  "Prospección":   { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "🎯" },
-  "YouTube":       { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "▶️" },
-  "Auditoría":     { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "🔍" },
-  "Workshop":      { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "🎤" },
-  "Lanzamiento":   { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "🚀" },
-  "Sistemas":      { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "⚙️" },
-  "AI":            { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "🤖" },
-  "Entrega":       { bg: "bg-emerald-900/40", text: "text-emerald-300", border: "border-emerald-600/30", emoji: "📦" },
+  "Orientación":   { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "✅" },
+  "Visión Clara":  { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "🎯" },
+  "Hábito":        { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "🔁" },
+  "Mentalidad":    { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "🧠" },
+  "Oferta":        { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "💼" },
+  "Estrategia":    { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "♟️" },
+  "Ventas":        { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "💰" },
+  "Contenido":     { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "🎬" },
+  "Email":         { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "📧" },
+  "Marca":         { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "✨" },
+  "Marketing":     { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "📈" },
+  "Prueba Social": { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "⭐" },
+  "Prospección":   { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "🎯" },
+  "YouTube":       { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "▶️" },
+  "Auditoría":     { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "🔍" },
+  "Workshop":      { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "🎤" },
+  "Lanzamiento":   { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "🚀" },
+  "Sistemas":      { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "⚙️" },
+  "AI":            { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "🤖" },
+  "Entrega":       { bg: OUTCOME_PILL, text: OUTCOME_TEXT, border: OUTCOME_BORDER, emoji: "📦" },
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -347,12 +353,12 @@ export function ProgramChecklistView() {
       )}
 
       {/* Table */}
-      <div className="rounded-2xl border border-foreground/[0.08] bg-[#0f1011] overflow-hidden">
+      <div className="rounded-2xl border border-foreground/[0.08] bg-card overflow-hidden">
 
         {/* Column headers */}
-        <div className="grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-b border-foreground/[0.07] bg-card">
+        <div className="grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-b border-foreground/[0.07] bg-foreground/[0.03]">
           {["STATUS","IMPLEMENTATION MILESTONE","LEVEL","OUTCOME","ROADMAP","URL"].map((col) => (
-            <div key={col} className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-foreground/25">
+            <div key={col} className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-foreground/55">
               {col}
             </div>
           ))}
