@@ -179,8 +179,9 @@
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -225,6 +226,13 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* Display serif para headings principales — Instrument Serif a tamaño grande
+     se ve elegante (display-style). Pequeños (h3+) siguen sans-serif para
+     legibilidad en cards/tablas/dialogs. */
+  h1, h2 {
+    font-family: var(--font-serif);
+    letter-spacing: -0.015em;
   }
 }
 
