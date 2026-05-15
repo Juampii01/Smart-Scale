@@ -263,6 +263,7 @@ export async function notifyClientOnboarded(payload: {
   program_start:     string
   setter_name?:      string | null
   temp_password?:    string | null
+  magic_link?:       string          // one-time login link to forward to client
   dashboard_url?:    string
 }): Promise<SlackResult & { channel_id?: string }> {
   // 1. Create (or find) the dedicated channel
@@ -296,11 +297,14 @@ export async function notifyClientOnboarded(payload: {
       { title: "Contacto",      value: contactParts.join("  ·  ") || "—" },
     ]),
     divider(),
-    ...(payload.temp_password ? [
+    ...(payload.magic_link ? [
+      section(`🔗 *Link de acceso del cliente (1 uso · 24hs):*\n${payload.magic_link}\n_Reenviárselo por WhatsApp si no ve el email._`),
+      divider(),
+    ] : payload.temp_password ? [
       section(`🔑 *Contraseña temporal:* \`${payload.temp_password}\`\nEl cliente debe cambiarla en su primer login.`),
       divider(),
     ] : []),
-    section(`🔗 <${url}/dashboard|Abrir portal del cliente>`),
+    section(`🖥️ <${url}/dashboard|Abrir portal del cliente>`),
     context(`Smart Scale Onboarding · ${new Date().toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}`),
   ]
 

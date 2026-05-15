@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
 import { notifyClientOnboarded } from "@/lib/slack"
+import { sendWelcomeEmail } from "@/lib/email"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -129,7 +130,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Error en profiles: ${profileErr.message}` }, { status: 500 })
     }
 
-    // ── 4. Obtener nombre del setter (best-effort, no bloquea el response) ────
+    // ── 4. Obtener nombre del setter (best-effort) ────────────────────────
     let setterName: string | null = null
     if (setterId) {
       const { data: setter } = await supabase
@@ -140,7 +141,36 @@ export async function POST(req: NextRequest) {
       setterName = (setter as any)?.name ?? null
     }
 
-    // ── 5. Crear canal Slack + notificar (fire-and-forget) ─────────────────
+    // ── 5. Generar magic link de primer acceso ────────────────────────────
+    // One-time link que el cliente usa para entrar sin contraseña.
+    // Expira en 24hs por defecto (configurable en Supabase Auth settings).
+    let magicLink: string | null = null
+    try {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ""
+      const { data: linkData, error: linkErr } = await supabase.auth.admin.generateLink({
+        type:       "magiclink",
+        email,
+        options: {
+          redirectTo: `${siteUrl}/dashboard`,
+        },
+      })
+      if (!linkErr && linkData?.properties?.action_link) {
+        magicLink = linkData.properties.action_link
+      }
+    } catch {}
+
+    // ── 6. Email de bienvenida con magic link (fire-and-forget) ──────────
+    if (magicLink) {
+      sendWelcomeEmail({
+        name,
+        email,
+        magic_link:  magicLink,
+        program,
+        setter_name: setterName,
+      }).catch(() => {/* no bloquear si Resend falla */})
+    }
+
+    // ── 7. Crear canal Slack + notificar (fire-and-forget) ────────────────
     notifyClientOnboarded({
       client_id:          clientId,
       name,
@@ -153,6 +183,7 @@ export async function POST(req: NextRequest) {
       program_start:      programStart,
       setter_name:        setterName,
       temp_password:      generated ? password : null,
+      magic_link:         magicLink ?? undefined,
     }).catch(() => {/* no bloquear si Slack falla */})
 
     return NextResponse.json({
