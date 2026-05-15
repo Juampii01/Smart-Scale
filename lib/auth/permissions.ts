@@ -26,6 +26,7 @@ export const TEAM_ALLOWED_ADMIN_PATHS = [
   "/admin/setting",
   "/admin/applications",
   "/admin/centro-operativo",
+  "/admin/onboarding",
 ] as const
 
 // Setter no ve Adquisition Stats (/admin/data); el resto igual que team.
@@ -36,6 +37,7 @@ export const SETTER_ALLOWED_ADMIN_PATHS = [
   "/admin/setting",
   "/admin/applications",
   "/admin/centro-operativo",
+  "/admin/onboarding",
 ] as const
 
 export const ADMIN_DEFAULT_LANDING  = "/admin/leads"

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import {
   X, DollarSign, ClipboardList, Table2, Users2,
   UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
-  ChevronLeft, ChevronRight, MessageSquareText,
+  ChevronLeft, ChevronRight, MessageSquareText, UserPlus,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -24,6 +24,7 @@ const ADMIN_NAV_ITEMS = [
   { name: "Adquisition Stats", href: "/admin/data",             icon: Table2 },
   { name: "Leads",            href: "/admin/leads",             icon: Users2 },
   { name: "Setting",          href: "/admin/setting",           icon: MessageSquareText },
+  { name: "Onboarding",       href: "/admin/onboarding",        icon: UserPlus },
   { name: "Pagos",            href: "/admin/payments",          icon: DollarSign },
   { name: "Clientes",         href: "/admin/clients",           icon: UserCheck },
   { name: "Aplicaciones",     href: "/admin/applications",      icon: ClipboardList },
