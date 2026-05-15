@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
+import { notifyClientOnboarded } from "@/lib/slack"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -108,9 +109,9 @@ export async function POST(req: NextRequest) {
     })
 
     if (authErr || !created?.user) {
-      // Rollback crm_clients y clients
-      await supabase.from("clients").delete().eq("id", clientId).catch(() => {})
-      await supabase.from("crm_clients").delete().eq("id", clientId).catch(() => {})
+      // Rollback crm_clients y clients (best-effort)
+      try { await supabase.from("clients").delete().eq("id", clientId) } catch {}
+      try { await supabase.from("crm_clients").delete().eq("id", clientId) } catch {}
       return NextResponse.json({ error: authErr?.message ?? "Error al crear la cuenta" }, { status: 500 })
     }
 
@@ -121,12 +122,38 @@ export async function POST(req: NextRequest) {
       .upsert({ id: userId, role: "client", name, client_id: clientId }, { onConflict: "id" })
 
     if (profileErr) {
-      // Rollback completo
-      await supabase.auth.admin.deleteUser(userId).catch(() => {})
-      await supabase.from("clients").delete().eq("id", clientId).catch(() => {})
-      await supabase.from("crm_clients").delete().eq("id", clientId).catch(() => {})
+      // Rollback completo (best-effort)
+      try { await supabase.auth.admin.deleteUser(userId) } catch {}
+      try { await supabase.from("clients").delete().eq("id", clientId) } catch {}
+      try { await supabase.from("crm_clients").delete().eq("id", clientId) } catch {}
       return NextResponse.json({ error: `Error en profiles: ${profileErr.message}` }, { status: 500 })
     }
+
+    // ── 4. Obtener nombre del setter (best-effort, no bloquea el response) ────
+    let setterName: string | null = null
+    if (setterId) {
+      const { data: setter } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("id", setterId)
+        .maybeSingle()
+      setterName = (setter as any)?.name ?? null
+    }
+
+    // ── 5. Crear canal Slack + notificar (fire-and-forget) ─────────────────
+    notifyClientOnboarded({
+      client_id:          clientId,
+      name,
+      email,
+      instagram,
+      phone,
+      program,
+      installment_amount: installmentAmt,
+      num_installments:   numInstallments,
+      program_start:      programStart,
+      setter_name:        setterName,
+      temp_password:      generated ? password : null,
+    }).catch(() => {/* no bloquear si Slack falla */})
 
     return NextResponse.json({
       ok: true,
