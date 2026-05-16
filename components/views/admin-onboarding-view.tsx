@@ -259,12 +259,8 @@ function OnboardingForm({
           <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#ffde21]/60">Programa</p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="sm:col-span-2">
-              <label className={labelCls}>Nombre del plan</label>
-              <select className={cn(inputCls, "cursor-pointer")} value={fields.program} onChange={set("program")}>
-                <option value="">— Seleccionar —</option>
-                <option value="Smart Scale grupal">Smart Scale grupal</option>
-                <option value="Smart Scale híbrido">Smart Scale híbrido</option>
-              </select>
+              <label className={labelCls}>Nombre del programa</label>
+              <input className={inputCls} placeholder="Ej: Smart Scale grupal, Smart Scale híbrido" value={fields.program} onChange={set("program")} />
             </div>
             <div>
               <label className={labelCls}>Monto total (USD)</label>
@@ -284,7 +280,7 @@ function OnboardingForm({
               <label className={labelCls}>Setter que cerró</label>
               <select className={cn(inputCls, "cursor-pointer")} value={fields.setter_id} onChange={set("setter_id")}>
                 <option value="">— Sin asignar —</option>
-                {setters.map(s => (
+                {setters.filter(s => s.name === "Fabri" || s.name?.includes("Fabri")).map(s => (
                   <option key={s.id} value={s.id}>{s.name ?? s.id}</option>
                 ))}
               </select>
