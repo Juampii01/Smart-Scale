@@ -26,7 +26,8 @@ export const dynamic = "force-dynamic"
  *   program_start date?   — fecha de inicio (YYYY-MM-DD)
  *   forma_pago    string?  — descripción de formato de pago (transferencia, tarjeta, etc)
  *   setter_id     string? — uuid del setter que cerró
- *   password      string? — si no se pasa, se genera una temporal
+ *
+ * La contraseña se genera automáticamente y se envía vía email (magic link).
  *
  * Solo accesible por admin, team y setter.
  */
@@ -59,7 +60,6 @@ export async function POST(req: NextRequest) {
     const programStart    = body.program_start       ? String(body.program_start)               : new Date().toISOString().slice(0, 10)
     const setterId        = body.setter_id           ? String(body.setter_id)                   : null
     const formaPago       = body.forma_pago          ? String(body.forma_pago).trim()           : null
-    const passwordInput   = body.password            ? String(body.password)                    : null
 
     // Contar cuotas no-null para calcular num_installments
     const numInstallments = Object.values(cuotas).filter(v => v != null).length || 1
@@ -67,11 +67,9 @@ export async function POST(req: NextRequest) {
     if (!name)  return NextResponse.json({ error: "El nombre es requerido" }, { status: 400 })
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return NextResponse.json({ error: "Email inválido" }, { status: 400 })
-    if (passwordInput && passwordInput.length < 8)
-      return NextResponse.json({ error: "La contraseña debe tener al menos 8 caracteres" }, { status: 400 })
 
-    const password  = passwordInput ?? generateTempPassword()
-    const generated = !passwordInput
+    const password  = generateTempPassword()
+    const generated = true
     const supabase  = createServiceClient()
 
     // ── 1. Crear en crm_clients ────────────────────────────────────────────
