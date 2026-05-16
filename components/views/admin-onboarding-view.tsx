@@ -250,7 +250,11 @@ function OnboardingForm({
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="sm:col-span-2">
               <label className={labelCls}>Nombre del plan</label>
-              <input className={inputCls} placeholder="Smart Scale 6M" value={fields.program} onChange={set("program")} />
+              <select className={cn(inputCls, "cursor-pointer")} value={fields.program} onChange={set("program")}>
+                <option value="">— Seleccionar —</option>
+                <option value="Smart Scale grupal">Smart Scale grupal</option>
+                <option value="Smart Scale híbrido">Smart Scale híbrido</option>
+              </select>
             </div>
             <div>
               <label className={labelCls}>Monto por cuota (USD)</label>
