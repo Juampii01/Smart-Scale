@@ -24,6 +24,7 @@ export const dynamic = "force-dynamic"
  *   installment_amount  number? — monto por cuota
  *   num_installments    number? — número de cuotas
  *   program_start date?   — fecha de inicio (YYYY-MM-DD)
+ *   forma_pago    string?  — descripción de formato de pago (transferencia, tarjeta, etc)
  *   setter_id     string? — uuid del setter que cerró
  *   password      string? — si no se pasa, se genera una temporal
  *
@@ -57,6 +58,7 @@ export async function POST(req: NextRequest) {
     const numInstallments = body.num_installments    != null ? Number(body.num_installments)    : 1
     const programStart    = body.program_start       ? String(body.program_start)               : new Date().toISOString().slice(0, 10)
     const setterId        = body.setter_id           ? String(body.setter_id)                   : null
+    const formaPago       = body.forma_pago          ? String(body.forma_pago).trim()           : null
     const passwordInput   = body.password            ? String(body.password)                    : null
 
     if (!name)  return NextResponse.json({ error: "El nombre es requerido" }, { status: 400 })
@@ -82,6 +84,7 @@ export async function POST(req: NextRequest) {
         num_installments:   numInstallments,
         status:             "activo",
         notes:              program ? `Programa: ${program}` : null,
+        forma_pago:         formaPago,
         ...(setterId ? { setter_id: setterId } : {}),
       })
       .select("id")

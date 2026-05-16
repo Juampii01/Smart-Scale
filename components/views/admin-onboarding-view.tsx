@@ -150,6 +150,7 @@ function OnboardingForm({
     num_installments:   "1",
     program_start:      new Date().toISOString().slice(0, 10),
     setter_id:          "",
+    forma_pago:         "",
     password:           "",
   })
   const [saving,  setSaving]  = useState(false)
@@ -181,6 +182,7 @@ function OnboardingForm({
           num_installments:   Number(fields.num_installments) || 1,
           program_start:      fields.program_start,
           setter_id:          fields.setter_id || null,
+          forma_pago:         fields.forma_pago.trim() || null,
           password:           fields.password.trim() || null,
         }),
       })
@@ -276,6 +278,10 @@ function OnboardingForm({
                   <option key={s.id} value={s.id}>{s.name ?? s.id}</option>
                 ))}
               </select>
+            </div>
+            <div className="sm:col-span-2">
+              <label className={labelCls}>Formato de pago</label>
+              <input className={inputCls} placeholder="Ej: transferencia, tarjeta, efectivo, plan de pagos..." value={fields.forma_pago} onChange={set("forma_pago")} />
             </div>
           </div>
         </div>
