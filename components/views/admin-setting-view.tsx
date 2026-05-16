@@ -7,6 +7,7 @@ import {
 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { EodFormDialog } from "@/components/admin/eod-form-dialog"
+import { MetricsContainer } from "@/components/metrics/metrics-container"
 
 type Log = {
   id: string
@@ -218,6 +219,11 @@ export function AdminSettingView() {
           ))}
         </div>
       </div>
+
+      {/* Advanced Metrics — para setters */}
+      {currentUserId && (
+        <MetricsContainer setterId={currentUserId} />
+      )}
 
       {/* Tabla diaria — solo días con log */}
       <div>

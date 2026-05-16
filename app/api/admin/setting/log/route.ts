@@ -32,12 +32,14 @@ const ALL_FIELDS = [
   "id", "setter_id", "date",
   "new_conversations", "conversations_replied", "qualified_leads",
   "offer_docs_sent", "offer_doc_responses", "calls_done",
+  "inbound_applications", "outbound_leads",
   "notes", "created_at", "updated_at",
 ].join(", ")
 
 const NUMERIC_FIELDS = [
   "new_conversations", "conversations_replied", "qualified_leads",
   "offer_docs_sent", "offer_doc_responses", "calls_done",
+  "inbound_applications", "outbound_leads",
 ] as const
 
 function sanitizeInt(v: any): number {
