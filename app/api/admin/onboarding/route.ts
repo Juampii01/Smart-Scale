@@ -21,8 +21,8 @@ export const dynamic = "force-dynamic"
  *   instagram     string?  — handle de Instagram
  *   phone         string?  — teléfono
  *   program       string?  — nombre del programa / plan
- *   installment_amount  number? — monto por cuota
- *   num_installments    number? — número de cuotas
+ *   total_amount  number?  — monto total del programa
+ *   cuotas        object?  — { cuota_1, cuota_2, ... cuota_6 } con montos de cada cuota
  *   program_start date?   — fecha de inicio (YYYY-MM-DD)
  *   forma_pago    string?  — descripción de formato de pago (transferencia, tarjeta, etc)
  *   setter_id     string? — uuid del setter que cerró
@@ -54,12 +54,15 @@ export async function POST(req: NextRequest) {
     const instagram       = body.instagram ? String(body.instagram).trim() : null
     const phone           = body.phone     ? String(body.phone).trim()    : null
     const program         = body.program   ? String(body.program).trim()  : null
-    const installmentAmt  = body.installment_amount  != null ? Number(body.installment_amount)  : 0
-    const numInstallments = body.num_installments    != null ? Number(body.num_installments)    : 1
+    const totalAmount     = body.total_amount != null ? Number(body.total_amount) : 0
+    const cuotas          = body.cuotas ?? {}
     const programStart    = body.program_start       ? String(body.program_start)               : new Date().toISOString().slice(0, 10)
     const setterId        = body.setter_id           ? String(body.setter_id)                   : null
     const formaPago       = body.forma_pago          ? String(body.forma_pago).trim()           : null
     const passwordInput   = body.password            ? String(body.password)                    : null
+
+    // Contar cuotas no-null para calcular num_installments
+    const numInstallments = Object.values(cuotas).filter(v => v != null).length || 1
 
     if (!name)  return NextResponse.json({ error: "El nombre es requerido" }, { status: 400 })
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
@@ -72,6 +75,14 @@ export async function POST(req: NextRequest) {
     const supabase  = createServiceClient()
 
     // ── 1. Crear en crm_clients ────────────────────────────────────────────
+    // Construir notas con detalles de cuotas
+    const notesLines: string[] = []
+    if (program) notesLines.push(`Programa: ${program}`)
+    const cuotasWithValues = Object.entries(cuotas).filter(([_, v]) => v != null)
+    if (cuotasWithValues.length > 0) {
+      notesLines.push(`Cuotas: ${cuotasWithValues.map(([k, v]) => `${k}=$${v}`).join(", ")}`)
+    }
+
     const { data: crmClient, error: crmErr } = await supabase
       .from("crm_clients")
       .insert({
@@ -80,10 +91,11 @@ export async function POST(req: NextRequest) {
         instagram,
         phone,
         program_start:      programStart,
-        installment_amount: installmentAmt,
+        installment_amount: totalAmount,           // guardar monto total aquí
         num_installments:   numInstallments,
+        total_amount:       totalAmount,
         status:             "activo",
-        notes:              program ? `Programa: ${program}` : null,
+        notes:              notesLines.join(" | ") || null,
         forma_pago:         formaPago,
         ...(setterId ? { setter_id: setterId } : {}),
       })
@@ -175,18 +187,18 @@ export async function POST(req: NextRequest) {
 
     // ── 7. Crear canal Slack + notificar (fire-and-forget) ────────────────
     notifyClientOnboarded({
-      client_id:          clientId,
+      client_id:     clientId,
       name,
       email,
       instagram,
       phone,
       program,
-      installment_amount: installmentAmt,
-      num_installments:   numInstallments,
-      program_start:      programStart,
-      setter_name:        setterName,
-      temp_password:      generated ? password : null,
-      magic_link:         magicLink ?? undefined,
+      total_amount:  totalAmount,
+      cuotas,
+      program_start: programStart,
+      setter_name:   setterName,
+      temp_password: generated ? password : null,
+      magic_link:    magicLink ?? undefined,
     }).catch(() => {/* no bloquear si Slack falla */})
 
     return NextResponse.json({

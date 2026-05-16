@@ -141,17 +141,22 @@ function OnboardingForm({
   const supabase = createClient()
 
   const [fields, setFields] = useState({
-    name:               "",
-    email:              "",
-    instagram:          "",
-    phone:              "",
-    program:            "",
-    installment_amount: "",
-    num_installments:   "1",
-    program_start:      new Date().toISOString().slice(0, 10),
-    setter_id:          "",
-    forma_pago:         "",
-    password:           "",
+    name:           "",
+    email:          "",
+    instagram:      "",
+    phone:          "",
+    program:        "",
+    total_amount:   "",
+    cuota_1:        "",
+    cuota_2:        "",
+    cuota_3:        "",
+    cuota_4:        "",
+    cuota_5:        "",
+    cuota_6:        "",
+    program_start:  new Date().toISOString().slice(0, 10),
+    setter_id:      "",
+    forma_pago:     "",
+    password:       "",
   })
   const [saving,  setSaving]  = useState(false)
   const [error,   setError]   = useState<string | null>(null)
@@ -173,17 +178,24 @@ function OnboardingForm({
         method:  "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
         body: JSON.stringify({
-          name:               fields.name.trim(),
-          email:              fields.email.trim(),
-          instagram:          fields.instagram.trim() || null,
-          phone:              fields.phone.trim()     || null,
-          program:            fields.program.trim()   || null,
-          installment_amount: fields.installment_amount ? Number(fields.installment_amount) : 0,
-          num_installments:   Number(fields.num_installments) || 1,
-          program_start:      fields.program_start,
-          setter_id:          fields.setter_id || null,
-          forma_pago:         fields.forma_pago.trim() || null,
-          password:           fields.password.trim() || null,
+          name:         fields.name.trim(),
+          email:        fields.email.trim(),
+          instagram:    fields.instagram.trim() || null,
+          phone:        fields.phone.trim()     || null,
+          program:      fields.program.trim()   || null,
+          total_amount: fields.total_amount ? Number(fields.total_amount) : 0,
+          cuotas: {
+            cuota_1: fields.cuota_1 ? Number(fields.cuota_1) : null,
+            cuota_2: fields.cuota_2 ? Number(fields.cuota_2) : null,
+            cuota_3: fields.cuota_3 ? Number(fields.cuota_3) : null,
+            cuota_4: fields.cuota_4 ? Number(fields.cuota_4) : null,
+            cuota_5: fields.cuota_5 ? Number(fields.cuota_5) : null,
+            cuota_6: fields.cuota_6 ? Number(fields.cuota_6) : null,
+          },
+          program_start: fields.program_start,
+          setter_id:     fields.setter_id || null,
+          forma_pago:    fields.forma_pago.trim() || null,
+          password:      fields.password.trim() || null,
         }),
       })
 
@@ -257,15 +269,11 @@ function OnboardingForm({
               </select>
             </div>
             <div>
-              <label className={labelCls}>Monto por cuota (USD)</label>
+              <label className={labelCls}>Monto total (USD)</label>
               <div className="relative">
                 <DollarSign className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/30" />
-                <input className={cn(inputCls, "pl-8")} type="number" min="0" placeholder="500" value={fields.installment_amount} onChange={set("installment_amount")} />
+                <input className={cn(inputCls, "pl-8")} type="number" min="0" placeholder="9000" value={fields.total_amount} onChange={set("total_amount")} />
               </div>
-            </div>
-            <div>
-              <label className={labelCls}>Cuotas</label>
-              <input className={inputCls} type="number" min="1" placeholder="6" value={fields.num_installments} onChange={set("num_installments")} />
             </div>
             <div>
               <label className={labelCls}>Fecha de inicio</label>
@@ -287,6 +295,29 @@ function OnboardingForm({
               <label className={labelCls}>Formato de pago</label>
               <input className={inputCls} placeholder="Ej: transferencia, tarjeta, efectivo, plan de pagos..." value={fields.forma_pago} onChange={set("forma_pago")} />
             </div>
+          </div>
+        </div>
+
+        {/* Cuotas */}
+        <div>
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#ffde21]/60">Cuotas (llenar las que correspondan)</p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i}>
+                <label className={labelCls}>Cuota {i}</label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/30" />
+                  <input
+                    className={cn(inputCls, "pl-8")}
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={(fields as any)[`cuota_${i}`]}
+                    onChange={set(`cuota_${i}` as any)}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

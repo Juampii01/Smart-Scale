@@ -252,19 +252,19 @@ export async function notifySaleRegistered(payload: {
 // Requires SLACK_BOT_TOKEN. Fails silently if the token is missing.
 
 export async function notifyClientOnboarded(payload: {
-  client_id:         string
-  name:              string
-  email:             string
-  instagram?:        string | null
-  phone?:            string | null
-  program?:          string | null
-  installment_amount: number
-  num_installments:  number
-  program_start:     string
-  setter_name?:      string | null
-  temp_password?:    string | null
-  magic_link?:       string          // one-time login link to forward to client
-  dashboard_url?:    string
+  client_id:     string
+  name:          string
+  email:         string
+  instagram?:    string | null
+  phone?:        string | null
+  program?:      string | null
+  total_amount:  number
+  cuotas?:       Record<string, number | null>
+  program_start: string
+  setter_name?:  string | null
+  temp_password?: string | null
+  magic_link?:   string          // one-time login link to forward to client
+  dashboard_url?: string
 }): Promise<SlackResult & { channel_id?: string }> {
   // 1. Create (or find) the dedicated channel
   const channelResult = await createSlackChannel(payload.name)
@@ -273,14 +273,21 @@ export async function notifyClientOnboarded(payload: {
   }
   const channelId = channelResult.channel_id
 
-  const mrr = payload.installment_amount * payload.num_installments
-  const mrrFmt = `$${mrr.toLocaleString("es-AR")}`
+  const mrrFmt = `$${payload.total_amount.toLocaleString("es-AR")}`
   const url = payload.dashboard_url ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://app.smartscale.co"
 
   // 2. Build the onboarding message
   const contactParts: string[] = []
   if (payload.instagram) contactParts.push(`📸 @${payload.instagram}`)
   if (payload.phone)     contactParts.push(`📱 ${payload.phone}`)
+
+  // Format cuotas para mostrar
+  const cuotasStr = payload.cuotas
+    ? Object.entries(payload.cuotas)
+        .filter(([_, v]) => v != null)
+        .map(([k, v]) => `${k}: $${(v as number).toLocaleString("es-AR")}`)
+        .join(" | ") || "—"
+    : "—"
 
   const blocks = [
     header("🎉 Nuevo cliente onboarded"),
@@ -290,8 +297,8 @@ export async function notifyClientOnboarded(payload: {
       { title: "Nombre",        value: payload.name },
       { title: "Email",         value: payload.email },
       { title: "Programa",      value: payload.program ?? "—" },
-      { title: "MRR total",     value: mrrFmt },
-      { title: "Cuotas",        value: `${payload.num_installments} × $${payload.installment_amount.toLocaleString("es-AR")}` },
+      { title: "Total",         value: mrrFmt },
+      { title: "Cuotas",        value: cuotasStr },
       { title: "Inicio",        value: payload.program_start },
       { title: "Setter",        value: payload.setter_name ?? "—" },
       { title: "Contacto",      value: contactParts.join("  ·  ") || "—" },
