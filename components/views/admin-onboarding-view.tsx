@@ -156,7 +156,6 @@ function OnboardingForm({
     program_start:  new Date().toISOString().slice(0, 10),
     setter_id:      "",
     forma_pago:     "",
-    password:       "",
   })
   const [saving,  setSaving]  = useState(false)
   const [error,   setError]   = useState<string | null>(null)
@@ -195,7 +194,6 @@ function OnboardingForm({
           program_start: fields.program_start,
           setter_id:     fields.setter_id || null,
           forma_pago:    fields.forma_pago.trim() || null,
-          password:      fields.password.trim() || null,
         }),
       })
 
@@ -318,15 +316,6 @@ function OnboardingForm({
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Cuenta */}
-        <div>
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#ffde21]/60">Cuenta del dashboard</p>
-          <div className="max-w-sm">
-            <label className={labelCls}>Contraseña (dejar vacío para generar automáticamente)</label>
-            <input className={inputCls} type="text" placeholder="Se genera una temporal" value={fields.password} onChange={set("password")} autoComplete="off" />
           </div>
         </div>
 
