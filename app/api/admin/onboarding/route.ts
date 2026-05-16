@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
 import { notifyClientOnboarded } from "@/lib/slack"
-import { sendWelcomeEmail } from "@/lib/email"
+import { sendWelcomeEmail, sendCredentialsToAdmin } from "@/lib/email"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -172,7 +172,7 @@ export async function POST(req: NextRequest) {
       }
     } catch {}
 
-    // ── 6. Email de bienvenida con magic link (fire-and-forget) ──────────
+    // ── 6. Email de bienvenida con magic link + credenciales al admin (fire-and-forget) ──────────
     if (magicLink) {
       sendWelcomeEmail({
         name,
@@ -180,6 +180,17 @@ export async function POST(req: NextRequest) {
         magic_link:  magicLink,
         program,
         setter_name: setterName,
+      }).catch(() => {/* no bloquear si Resend falla */})
+    }
+
+    // Enviar credenciales al admin que está haciendo el onboarding
+    if (caller && (caller as any).email) {
+      sendCredentialsToAdmin({
+        admin_email:   (caller as any).email,
+        client_name:   name,
+        client_email:  email,
+        temp_password: password,
+        program,
       }).catch(() => {/* no bloquear si Resend falla */})
     }
 
