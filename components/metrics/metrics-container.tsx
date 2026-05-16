@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MetricsOverviewPanel } from "./metrics-overview-panel"
+import { MetricsCommissionsPanel } from "./metrics-commissions-panel"
 import { ArrowDownUp, BarChart3, DollarSign, Users } from "lucide-react"
 
 export interface MetricsContainerProps {
@@ -102,9 +103,7 @@ export function MetricsContainer({ setterId }: MetricsContainerProps) {
 
         {/* Commissions Tab */}
         <TabsContent value="commissions">
-          <div className="rounded-lg border border-border bg-card p-8 text-center">
-            <p className="text-muted-foreground">Commission details coming soon...</p>
-          </div>
+          <MetricsCommissionsPanel setterId={setterId} month={selectedMonth} />
         </TabsContent>
       </Tabs>
     </div>
