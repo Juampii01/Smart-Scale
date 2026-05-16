@@ -154,36 +154,7 @@ export async function POST(req: NextRequest) {
       setterName = (setter as any)?.name ?? null
     }
 
-    // ── 5. Generar magic link de primer acceso ────────────────────────────
-    // One-time link que el cliente usa para entrar sin contraseña.
-    // Expira en 24hs por defecto (configurable en Supabase Auth settings).
-    let magicLink: string | null = null
-    try {
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ""
-      const { data: linkData, error: linkErr } = await supabase.auth.admin.generateLink({
-        type:       "magiclink",
-        email,
-        options: {
-          redirectTo: `${siteUrl}/dashboard`,
-        },
-      })
-      if (!linkErr && linkData?.properties?.action_link) {
-        magicLink = linkData.properties.action_link
-      }
-    } catch {}
-
-    // ── 6. Email de bienvenida con magic link + credenciales al admin (fire-and-forget) ──────────
-    if (magicLink) {
-      sendWelcomeEmail({
-        name,
-        email,
-        magic_link:  magicLink,
-        program,
-        setter_name: setterName,
-      }).catch(() => {/* no bloquear si Resend falla */})
-    }
-
-    // Enviar credenciales al admin que está haciendo el onboarding
+    // ── 5. Enviar credenciales al admin que está haciendo el onboarding (fire-and-forget) ──────────
     if (caller && (caller as any).email) {
       sendCredentialsToAdmin({
         admin_email:   (caller as any).email,
@@ -194,7 +165,7 @@ export async function POST(req: NextRequest) {
       }).catch(() => {/* no bloquear si Resend falla */})
     }
 
-    // ── 7. Crear canal Slack + notificar (fire-and-forget) ────────────────
+    // ── 6. Crear canal Slack + notificar (fire-and-forget) ────────────────
     notifyClientOnboarded({
       client_id:     clientId,
       name,
@@ -207,7 +178,6 @@ export async function POST(req: NextRequest) {
       program_start: programStart,
       setter_name:   setterName,
       temp_password: generated ? password : null,
-      magic_link:    magicLink ?? undefined,
     }).catch(() => {/* no bloquear si Slack falla */})
 
     return NextResponse.json({
