@@ -171,3 +171,135 @@ Smart Scale · ${siteUrl}
     text,
   })
 }
+
+// ─── Template: credenciales para el admin que creó el cliente ────────────────
+
+export async function sendCredentialsToAdmin(payload: {
+  admin_email:   string
+  client_name:   string
+  client_email:  string
+  temp_password: string
+  program?:      string | null
+}): Promise<EmailResult> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://app.smartscale.co"
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Credenciales del cliente</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+
+          <!-- Header -->
+          <tr>
+            <td style="padding-bottom:24px;" align="center">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
+                  <td width="6"></td>
+                  <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
+                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Card -->
+          <tr>
+            <td style="background:#ffffff;border-radius:16px;border:1px solid #e5e5e5;padding:40px 36px;">
+
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#a3a3a3;text-transform:uppercase;letter-spacing:0.08em;">
+                Credenciales para compartir
+              </p>
+              <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#1a1a1a;line-height:1.2;">
+                Cliente creado: ${payload.client_name}
+              </h1>
+
+              <p style="margin:0 0 24px;font-size:15px;color:#525252;line-height:1.6;">
+                El cliente ${payload.program ? `(<strong>${payload.program}</strong>)` : ""} está listo para acceder al dashboard.
+                <br><br>
+                Acá están las credenciales para que se las compartas.
+              </p>
+
+              <!-- Credenciales -->
+              <div style="background:#f5f5f4;border-radius:10px;padding:20px;margin-bottom:28px;">
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="padding-bottom:16px;">
+                      <p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#a3a3a3;text-transform:uppercase;letter-spacing:0.08em;">
+                        📧 Email
+                      </p>
+                      <p style="margin:0;font-size:14px;font-family:monospace;color:#1a1a1a;background:#ffffff;border:1px solid #e5e5e5;border-radius:6px;padding:10px;word-break:break-all;">
+                        ${payload.client_email}
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#a3a3a3;text-transform:uppercase;letter-spacing:0.08em;">
+                        🔑 Contraseña
+                      </p>
+                      <p style="margin:0;font-size:14px;font-family:monospace;color:#1a1a1a;background:#ffffff;border:1px solid #e5e5e5;border-radius:6px;padding:10px;word-break:break-all;">
+                        ${payload.temp_password}
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+
+              <div style="background:#d4edda;border-radius:10px;padding:16px 20px;margin-bottom:28px;">
+                <p style="margin:0;font-size:13px;color:#155724;line-height:1.5;">
+                  ✅ El cliente también recibió un email con un link de acceso directo. Compartí esta contraseña solo si lo preferís.
+                </p>
+              </div>
+
+              <a href="${siteUrl}/admin/onboarding" style="display:inline-block;background:#ffde21;color:#1a1a1a;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+                Volver a onboarding →
+              </a>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding-top:20px;" align="center">
+              <p style="margin:0;font-size:12px;color:#a3a3a3;">
+                Smart Scale · <a href="${siteUrl}" style="color:#a3a3a3;">${siteUrl.replace("https://", "")}</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+  const text = `Cliente creado: ${payload.client_name}${payload.program ? ` (${payload.program})` : ""}
+
+Email: ${payload.client_email}
+Contraseña: ${payload.temp_password}
+
+Compartí estas credenciales con el cliente por WhatsApp, email, o como prefiera.
+El cliente también recibirá un email con acceso directo (link de un solo uso).
+
+Smart Scale
+`
+
+  return sendEmail({
+    to:      payload.admin_email,
+    subject: `Credenciales de ${payload.client_name} — Smart Scale`,
+    html,
+    text,
+  })
+}
