@@ -400,7 +400,7 @@ export function AdminOnboardingView() {
     } finally {
       setLoading(false)
     }
-  }, [supabase])
+  }, []) // createClient() es estable en SSR — no necesita en deps
 
   // Cargar setters del equipo para el select
   useEffect(() => {
@@ -409,7 +409,7 @@ export function AdminOnboardingView() {
       .select("id, name")
       .in("role", ["setter", "admin", "team"])
       .then(({ data }) => setSetters((data as SetterProfile[]) ?? []))
-  }, [supabase])
+  }, []) // inicial solamente
 
   useEffect(() => { loadClients() }, [loadClients])
 
