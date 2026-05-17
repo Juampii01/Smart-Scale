@@ -28,49 +28,58 @@ export async function GET(req: NextRequest) {
 
     const supabase = createServiceClient()
 
-    // Query: aggregate client and installment data by setter
-    let query = supabase.rpc("get_setter_commissions" as any, {})
+    // Query: get all clients with their installments (no join needed yet)
+    let query = supabase
+      .from("crm_clients")
+      .select(`
+        setter_id,
+        id,
+        installment_amount,
+        num_installments,
+        crm_installments(client_id, amount, paid_at)
+      `)
 
-    // For now, we'll do it manually via raw SQL since RPC may not exist
-    // Use raw query via postgres
-    const result = setterId
-      ? await supabase.from("crm_clients")
-          .select(
-            `
-            setter_id,
-            profiles!crm_clients_setter_id_fkey(id, name),
-            id,
-            installment_amount,
-            num_installments,
-            crm_installments(client_id, amount, paid_at)
-            `
-          )
-          .eq("setter_id", setterId)
-      : await supabase.from("crm_clients")
-          .select(
-            `
-            setter_id,
-            profiles!crm_clients_setter_id_fkey(id, name),
-            id,
-            installment_amount,
-            num_installments,
-            crm_installments(client_id, amount, paid_at)
-            `
-          )
+    if (setterId) {
+      query = query.eq("setter_id", setterId)
+    }
+
+    const result = await query
 
     if (result.error) {
       return NextResponse.json({ error: result.error.message }, { status: 500 })
     }
 
+    // Fetch setter names separately from profiles
+    const setterIds = new Set<string>()
+    const clients = result.data ?? []
+    for (const client of clients) {
+      if ((client as any).setter_id) {
+        setterIds.add((client as any).setter_id)
+      }
+    }
+
+    const setterProfiles = new Map<string, string | null>()
+    if (setterIds.size > 0) {
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, name")
+        .in("id", Array.from(setterIds))
+
+      if (profiles) {
+        for (const p of profiles) {
+          setterProfiles.set((p as any).id, (p as any).name ?? null)
+        }
+      }
+    }
+
     // Aggregate data manually
     const setterMap = new Map<string, SetterCommissions>()
 
-    const clients = result.data ?? []
     for (const client of clients) {
       const sid = (client as any).setter_id
       if (!sid) continue
 
-      const profile = (client as any).profiles
+      const setterName = setterProfiles.get(sid) ?? null
       const mrrValue = ((client as any).installment_amount ?? 0) * ((client as any).num_installments ?? 1)
       const installments = (client as any).crm_installments ?? []
       const paidAmount = installments
@@ -80,7 +89,7 @@ export async function GET(req: NextRequest) {
       if (!setterMap.has(sid)) {
         setterMap.set(sid, {
           setter_id: sid,
-          setter_name: profile?.name ?? null,
+          setter_name: setterName,
           client_count: 0,
           mrr_total: 0,
           cash_collected: 0,
