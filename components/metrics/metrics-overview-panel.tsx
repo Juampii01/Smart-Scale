@@ -1,9 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { createClient } from "@/lib/supabase"
 import { MetricCard, MetricCardGrid } from "./metric-card"
 import { Card } from "@/components/ui/card"
 import { AlertCircle, CheckCircle2, TrendingUp, Users } from "lucide-react"
+
+async function getAuthToken(): Promise<string> {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  return session?.access_token || ""
+}
 
 export interface MetricsOverviewPanelProps {
   setterId: string
@@ -27,13 +34,28 @@ export function MetricsOverviewPanel({ setterId, month }: MetricsOverviewPanelPr
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!setterId) {
+      setError("No setter ID available")
+      setLoading(false)
+      return
+    }
+
     const loadMetrics = async () => {
       try {
         setLoading(true)
+        setError(null)
         const res = await fetch(
-          `/api/admin/setting/metrics?setter_id=${setterId}&month=${month}`
+          `/api/admin/setting/metrics?setter_id=${setterId}&month=${month}`,
+          {
+            headers: {
+              "Authorization": `Bearer ${await getAuthToken()}`,
+            },
+          }
         )
-        if (!res.ok) throw new Error("Failed to load metrics")
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}))
+          throw new Error(errorData.error || `HTTP ${res.status}`)
+        }
         const data = await res.json()
         setMetrics(data.metrics)
       } catch (err) {

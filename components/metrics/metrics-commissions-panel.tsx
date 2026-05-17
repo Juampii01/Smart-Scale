@@ -1,8 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { createClient } from "@/lib/supabase"
 import { Card } from "@/components/ui/card"
 import { AlertCircle, TrendingUp, DollarSign } from "lucide-react"
+
+async function getAuthToken(): Promise<string> {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  return session?.access_token || ""
+}
 
 export interface MetricsCommissionsPanelProps {
   setterId: string
@@ -35,13 +42,28 @@ export function MetricsCommissionsPanel({
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!setterId) {
+      setError("No setter ID available")
+      setLoading(false)
+      return
+    }
+
     const loadCommissions = async () => {
       try {
         setLoading(true)
+        setError(null)
         const res = await fetch(
-          `/api/admin/setting/metrics/commissions?setter_id=${setterId}&limit=12`
+          `/api/admin/setting/metrics/commissions?setter_id=${setterId}&limit=12`,
+          {
+            headers: {
+              "Authorization": `Bearer ${await getAuthToken()}`,
+            },
+          }
         )
-        if (!res.ok) throw new Error("Failed to load commissions")
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}))
+          throw new Error(errorData.error || `HTTP ${res.status}`)
+        }
         const data = await res.json()
         setCommissions(data.commissions || [])
         setSummary(data.summary)
