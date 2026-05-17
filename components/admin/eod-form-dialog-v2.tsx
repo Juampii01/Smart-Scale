@@ -9,22 +9,20 @@ import { createClient } from "@/lib/supabase"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 type FieldKey =
-  | "new_conversations"
+  | "new_conversations_inbound"
+  | "new_conversations_outbound"
   | "inbound_applications"
   | "conversations_replied"
-  | "outbound_leads"
-  | "outbound_replies"
   | "qualified_leads"
   | "offer_docs_sent"
   | "offer_doc_responses"
   | "calls_done"
 
 interface FormValues extends Record<FieldKey, number> {
-  new_conversations: number
+  new_conversations_inbound: number
+  new_conversations_outbound: number
   inbound_applications: number
   conversations_replied: number
-  outbound_leads: number
-  outbound_replies: number
   qualified_leads: number
   offer_docs_sent: number
   offer_doc_responses: number
@@ -57,11 +55,10 @@ interface EodFormDialogV2Props {
 export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodFormDialogV2Props) {
   const [date, setDate] = useState(initialDate ?? todayISO())
   const [values, setValues] = useState<FormValues>({
-    new_conversations: 0,
+    new_conversations_inbound: 0,
+    new_conversations_outbound: 0,
     inbound_applications: 0,
     conversations_replied: 0,
-    outbound_leads: 0,
-    outbound_replies: 0,
     qualified_leads: 0,
     offer_docs_sent: 0,
     offer_doc_responses: 0,
@@ -105,11 +102,10 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
         if (log) {
           setIsExisting(true)
           setValues({
-            new_conversations: log.new_conversations || 0,
+            new_conversations_inbound: log.new_conversations_inbound || 0,
+            new_conversations_outbound: log.new_conversations_outbound || 0,
             inbound_applications: log.inbound_applications || 0,
             conversations_replied: log.conversations_replied || 0,
-            outbound_leads: log.outbound_leads || 0,
-            outbound_replies: log.outbound_replies || 0,
             qualified_leads: log.qualified_leads || 0,
             offer_docs_sent: log.offer_docs_sent || 0,
             offer_doc_responses: log.offer_doc_responses || 0,
@@ -119,11 +115,10 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
         } else {
           setIsExisting(false)
           setValues({
-            new_conversations: 0,
+            new_conversations_inbound: 0,
+            new_conversations_outbound: 0,
             inbound_applications: 0,
             conversations_replied: 0,
-            outbound_leads: 0,
-            outbound_replies: 0,
             qualified_leads: 0,
             offer_docs_sent: 0,
             offer_doc_responses: 0,
@@ -180,11 +175,12 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
   const totalLoaded = Object.values(values).reduce((a, b) => a + b, 0)
 
   // Calculated rates
-  const inboundReplyRate = values.inbound_applications > 0
-    ? (values.conversations_replied / values.inbound_applications) * 100
+  const totalNewConversations = values.new_conversations_inbound + values.new_conversations_outbound
+  const inboundReplyRate = values.new_conversations_inbound > 0
+    ? (values.conversations_replied / values.new_conversations_inbound) * 100
     : 0
-  const outboundReplyRate = values.outbound_leads > 0
-    ? (values.outbound_replies / values.outbound_leads) * 100
+  const outboundReplyRate = values.new_conversations_outbound > 0
+    ? (values.conversations_replied / values.new_conversations_outbound) * 100
     : 0
   const docResponseRate = values.offer_docs_sent > 0
     ? (values.offer_doc_responses / values.offer_docs_sent) * 100
@@ -268,11 +264,11 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
                 <TabsContent value="inbound" className="space-y-4">
                   <div className="space-y-3">
                     <InputField
-                      label="Conversaciones nuevas"
-                      hint="Total de convos que abriste hoy"
+                      label="Conversaciones inbound 📥"
+                      hint="Conversaciones nuevas que llegan"
                       icon={MessageCircle}
-                      value={values.new_conversations}
-                      onChange={(v) => setValues(x => ({ ...x, new_conversations: v }))}
+                      value={values.new_conversations_inbound}
+                      onChange={(v) => setValues(x => ({ ...x, new_conversations_inbound: v }))}
                     />
                     <InputField
                       label="Aplicaciones inbound"
@@ -290,8 +286,8 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
                     />
                     <StatField
                       label="Inbound Reply Rate"
-                      value={pct(values.conversations_replied, values.inbound_applications)}
-                      hint="% de respuestas / aplicaciones"
+                      value={pct(values.conversations_replied, values.new_conversations_inbound)}
+                      hint="% de respuestas / inbound"
                     />
                   </div>
                 </TabsContent>
@@ -300,23 +296,28 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
                 <TabsContent value="outbound" className="space-y-4">
                   <div className="space-y-3">
                     <InputField
-                      label="Contactos outbound"
-                      hint="Leads que contactaste hoy"
+                      label="Conversaciones outbound 📤"
+                      hint="Conversaciones nuevas que sales tú"
                       icon={Send}
-                      value={values.outbound_leads}
-                      onChange={(v) => setValues(x => ({ ...x, outbound_leads: v }))}
+                      value={values.new_conversations_outbound}
+                      onChange={(v) => setValues(x => ({ ...x, new_conversations_outbound: v }))}
                     />
                     <InputField
-                      label="Respuestas outbound"
+                      label="Respuestas a outbound"
                       hint="Cuántos respondieron a tus contactos"
                       icon={MessageCircleReply}
-                      value={values.outbound_replies}
-                      onChange={(v) => setValues(x => ({ ...x, outbound_replies: v }))}
+                      value={values.conversations_replied}
+                      onChange={(v) => setValues(x => ({ ...x, conversations_replied: v }))}
                     />
                     <StatField
                       label="Outbound Reply Rate"
-                      value={pct(values.outbound_replies, values.outbound_leads)}
-                      hint="% de respuestas / contactos"
+                      value={pct(values.conversations_replied, values.new_conversations_outbound)}
+                      hint="% de respuestas / outbound"
+                    />
+                    <StatField
+                      label="Total nuevas conversaciones"
+                      value={String(totalNewConversations)}
+                      hint="inbound + outbound"
                     />
                   </div>
                 </TabsContent>
