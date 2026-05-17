@@ -6,8 +6,9 @@ import {
   FileText, ArrowDownToLine, Phone, Pencil, Inbox,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
-import { EodFormDialog } from "@/components/admin/eod-form-dialog"
+import { EodFormDialogV2 } from "@/components/admin/eod-form-dialog-v2"
 import { MetricsContainer } from "@/components/metrics/metrics-container"
+import { SettingDailyCRMView } from "@/components/setting/setting-daily-crm-view"
 
 type Log = {
   id: string
@@ -326,8 +327,11 @@ export function AdminSettingView() {
         )}
       </div>
 
+      {/* Detailed CRM Table */}
+      <SettingDailyCRMView logs={logs} />
+
       {/* Modal */}
-      <EodFormDialog
+      <EodFormDialogV2
         open={dialogOpen}
         onClose={handleClose}
         initialDate={dialogDate}
