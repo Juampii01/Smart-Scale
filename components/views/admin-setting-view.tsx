@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from "react"
 import { Loader2, RefreshCw, Download, ChevronLeft, ChevronRight } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
+import { SetterCommissionPanel } from "@/components/admin/setter-commission-panel"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -164,6 +165,8 @@ export function AdminSettingView() {
   const [month, setMonth] = useState(currentMonthISO())
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string>("")
 
   // Cargar los logs del mes seleccionado
   const loadLogs = useCallback(async (ym: string) => {
@@ -188,6 +191,24 @@ export function AdminSettingView() {
   useEffect(() => {
     loadLogs(month)
   }, [month, loadLogs])
+
+  // Load user profile
+  useEffect(() => {
+    const loadUser = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setUserId(user.id)
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle()
+        setUserRole((profile as any)?.role ?? null)
+      }
+    }
+    loadUser()
+  }, [])
 
   // Calcular totales mensuales
   const monthTotals = useMemo(() => {
@@ -291,6 +312,9 @@ export function AdminSettingView() {
           </button>
         </div>
       </div>
+
+      {/* Setter Commission Panel */}
+      {userId && <SetterCommissionPanel userRole={userRole} userId={userId} />}
 
       {loading ? (
         <div className="flex items-center justify-center py-24">

@@ -23,11 +23,12 @@ import "./centro-op-pages-view.css"
 import { isOnlyCheckboxToggleChange } from "@/lib/playbook-diff"
 
 interface PlaybookRow {
-  client_id:  string
-  content:    any[]
-  updated_by: string | null
-  created_at: string
-  updated_at: string
+  client_id:        string
+  content:          any[]
+  updated_by:       string | null
+  created_at:       string
+  updated_at:       string
+  visible_to_client: boolean
 }
 
 async function authedFetch(path: string, init?: RequestInit) {
@@ -52,6 +53,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   const [playbook, setPlaybook] = useState<PlaybookRow | null>(null)
   const [loading,  setLoading]  = useState(true)
   const [creating, setCreating] = useState(false)
+  const [revealing, setRevealing] = useState(false)
   const [savingState, setSavingState] = useState<"idle" | "saving" | "saved" | "error">("idle")
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const saveTimer = useRef<NodeJS.Timeout | null>(null)
@@ -91,6 +93,23 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
       setPlaybook(json.playbook)
       lastSavedRef.current = json.playbook.content ?? []
     } finally { setCreating(false) }
+  }
+
+  const revealPlaybook = async () => {
+    if (!activeClientId) return
+    setRevealing(true)
+    try {
+      const res = await authedFetch(`/api/client-playbook-main?action=reveal`, {
+        method: "PATCH",
+      })
+      const json = await res.json()
+      if (!res.ok || !json.playbook) {
+        alert(json?.error ?? "Error revelando playbook")
+        return
+      }
+      setPlaybook(json.playbook)
+      lastSavedRef.current = json.playbook.content ?? []
+    } finally { setRevealing(false) }
   }
 
   // ── Editor ──────────────────────────────────────────────────────────────────
@@ -217,6 +236,29 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
             Apenas Ann lo arme, vas a verlo acá.
           </p>
         </div>
+      </div>
+    )
+  }
+
+  // Client playbook reveal button (hidden until clicked)
+  if (!canManage && !playbook.visible_to_client) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-foreground/[0.07] bg-card px-6 py-16 text-center">
+        <FileText className="h-10 w-10 text-foreground/20" />
+        <div>
+          <h3 className="text-base font-bold text-foreground">Tu playbook está listo</h3>
+          <p className="mt-1 text-[13px] text-foreground/50 max-w-md">
+            Click en el botón para revelar tu playbook personalizado con el programa detallado y las checklist.
+          </p>
+        </div>
+        <button
+          onClick={revealPlaybook}
+          disabled={revealing}
+          className="inline-flex items-center gap-2 h-9 rounded-xl bg-[#ffde21] px-4 text-[13px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-50"
+        >
+          {revealing ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+          Revelar playbook
+        </button>
       </div>
     )
   }

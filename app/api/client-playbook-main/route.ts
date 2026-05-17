@@ -26,7 +26,7 @@ import { isOnlyCheckboxToggleChange } from "@/lib/playbook-diff"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-const SELECT_FIELDS = "client_id, content, updated_by, created_at, updated_at"
+const SELECT_FIELDS = "client_id, content, updated_by, created_at, updated_at, visible_to_client"
 
 interface AuthCtx {
   userId:   string
@@ -174,6 +174,42 @@ export async function DELETE(req: NextRequest) {
     const { error } = await sb.from("client_playbook_main").delete().eq("client_id", body.client_id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ ok: true })
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
+  }
+}
+
+// ─── PATCH — reveal playbook (client only) ──────────────────────────────────
+//
+// ?action=reveal — client clicks "Reveal Playbook" button, marks as visible
+// Sets visible_to_client = true (idempotent, safe to call multiple times)
+// Only clients can reveal their own playbook.
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+    const ctx = await authenticate(jwt)
+    if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    if (ctx.role !== "client") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
+    const action = req.nextUrl.searchParams.get("action")
+    if (action !== "reveal") {
+      return NextResponse.json({ error: "Invalid action" }, { status: 400 })
+    }
+
+    const targetClientId = ctx.clientId
+    if (!targetClientId) return NextResponse.json({ error: "client_id is required" }, { status: 400 })
+
+    const sb = createServiceClient()
+    const { data, error } = await sb
+      .from("client_playbook_main")
+      .update({ visible_to_client: true })
+      .eq("client_id", targetClientId)
+      .select(SELECT_FIELDS)
+      .single()
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ playbook: data })
   } catch (err: any) {
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
   }
