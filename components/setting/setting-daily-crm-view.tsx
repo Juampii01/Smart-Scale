@@ -286,7 +286,7 @@ export function SettingDailyCRMView({ logs }: SettingDailyCRMViewProps) {
 
       {logs.length > 0 && (
         <p className="mt-4 text-[11px] text-foreground/40">
-          {logs.length} {logs.length === 1 ? "registro" : "registros"} · Verde (>80%), Amarillo (50-80%), Rojo (<50%)
+          {logs.length} {logs.length === 1 ? "registro" : "registros"} · Verde (&gt;80%), Amarillo (50-80%), Rojo (&lt;50%)
         </p>
       )}
     </Card>
