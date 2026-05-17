@@ -11,10 +11,13 @@ interface SetterCommissions {
   client_count: number
   mrr_total: number
   cash_collected: number
+  old_cash: number          // cash from clients closed in previous months
+  new_cash: number          // cash from clients closed this month
   commission_earned: number
 }
 
 /** GET — fetch commission metrics for a single setter or all setters
+ * ?month=YYYY-MM — required, e.g., 2026-05 (groups by payment month)
  * ?setter_id={uuid} — optional, if provided returns only that setter
  * Requires team/admin role
  */
@@ -23,6 +26,11 @@ export async function GET(req: NextRequest) {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
     const user = await requireInternal(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
+    const month = req.nextUrl.searchParams.get("month") // e.g., "2026-05"
+    if (!month || !/^\d{4}-\d{2}$/.test(month)) {
+      return NextResponse.json({ error: "month (YYYY-MM) is required" }, { status: 400 })
+    }
 
     const setterId = req.nextUrl.searchParams.get("setter_id")
 
@@ -72,6 +80,23 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // Parse month to filter installments
+    const [targetYear, targetMonth] = month.split("-").map(Number)
+    const monthStart = new Date(targetYear, targetMonth - 1, 1)
+    const monthEnd = new Date(targetYear, targetMonth, 0)
+
+    // Get month when client was created (for old_cash detection)
+    const clientCreationMonths = new Map<string, string>()
+    for (const client of clients) {
+      const cid = (client as any).id
+      const created = (client as any).created_at
+      if (created) {
+        const createdDate = new Date(created)
+        const createdYm = `${createdDate.getFullYear()}-${String(createdDate.getMonth() + 1).padStart(2, "0")}`
+        clientCreationMonths.set(cid, createdYm)
+      }
+    }
+
     // Aggregate data manually
     const setterMap = new Map<string, SetterCommissions>()
 
@@ -82,9 +107,24 @@ export async function GET(req: NextRequest) {
       const setterName = setterProfiles.get(sid) ?? null
       const mrrValue = ((client as any).installment_amount ?? 0) * ((client as any).num_installments ?? 1)
       const installments = (client as any).crm_installments ?? []
-      const paidAmount = installments
-        .filter((inst: any) => inst.paid_at != null)
-        .reduce((sum: number, inst: any) => sum + (Number(inst.amount) || 0), 0)
+
+      // Filter installments paid in the target month
+      const installmentsPaidThisMonth = installments.filter((inst: any) => {
+        if (!inst.paid_at) return false
+        const paidDate = new Date(inst.paid_at)
+        return paidDate >= monthStart && paidDate <= monthEnd
+      })
+
+      if (installmentsPaidThisMonth.length === 0) continue
+
+      const cashThisMonth = installmentsPaidThisMonth.reduce(
+        (sum: number, inst: any) => sum + (Number(inst.amount) || 0),
+        0
+      )
+
+      // Determine if this is old_cash (client closed in previous month)
+      const clientCreatedMonth = clientCreationMonths.get((client as any).id) ?? month
+      const isOldCash = clientCreatedMonth !== month
 
       if (!setterMap.has(sid)) {
         setterMap.set(sid, {
@@ -93,6 +133,8 @@ export async function GET(req: NextRequest) {
           client_count: 0,
           mrr_total: 0,
           cash_collected: 0,
+          old_cash: 0,
+          new_cash: 0,
           commission_earned: 0,
         })
       }
@@ -100,7 +142,12 @@ export async function GET(req: NextRequest) {
       const record = setterMap.get(sid)!
       record.client_count += 1
       record.mrr_total += mrrValue
-      record.cash_collected += paidAmount
+      record.cash_collected += cashThisMonth
+      if (isOldCash) {
+        record.old_cash += cashThisMonth
+      } else {
+        record.new_cash += cashThisMonth
+      }
       record.commission_earned = record.cash_collected * 0.05
     }
 

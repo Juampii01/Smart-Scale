@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Loader2 } from "lucide-react"
+import { Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 
 interface CommissionData {
@@ -10,7 +10,20 @@ interface CommissionData {
   client_count: number
   mrr_total: number
   cash_collected: number
+  old_cash: number
+  new_cash: number
   commission_earned: number
+}
+
+function currentMonthISO(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+}
+
+function monthLabel(ym: string): string {
+  const [y, m] = ym.split("-")
+  const date = new Date(Number(y), Number(m) - 1, 1)
+  return date.toLocaleDateString("es-AR", { month: "long", year: "numeric" }).toUpperCase()
 }
 
 function formatCurrency(amount: number): string {
@@ -18,11 +31,19 @@ function formatCurrency(amount: number): string {
 }
 
 export function SetterCommissionPanel({ userRole, userId }: { userRole: string | null; userId: string }) {
+  const [month, setMonth] = useState(currentMonthISO())
   const [commissions, setCommissions] = useState<CommissionData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const isSetter = userRole === "setter"
+
+  const changeMonth = (delta: number) => {
+    const [y, m] = month.split("-")
+    const newDate = new Date(Number(y), Number(m) - 1 + delta, 1)
+    const newYm = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, "0")}`
+    setMonth(newYm)
+  }
 
   useEffect(() => {
     const load = async () => {
@@ -37,8 +58,8 @@ export function SetterCommissionPanel({ userRole, userId }: { userRole: string |
           return
         }
 
-        // Load commissions
-        const queryParam = isSetter ? `?setter_id=${userId}` : ""
+        // Load commissions for the selected month
+        const queryParam = isSetter ? `?month=${month}&setter_id=${userId}` : `?month=${month}`
         const res = await fetch(`/api/admin/setting/commissions${queryParam}`, {
           headers: {
             "Authorization": `Bearer ${session.access_token}`,
@@ -66,7 +87,7 @@ export function SetterCommissionPanel({ userRole, userId }: { userRole: string |
     }
 
     load()
-  }, [isSetter, userId])
+  }, [month, isSetter, userId])
 
   if (loading) {
     return (
@@ -92,16 +113,30 @@ export function SetterCommissionPanel({ userRole, userId }: { userRole: string |
     )
   }
 
-  // If setter: show single card
+  // If setter: show single card with month selector
   if (isSetter && commissions.length === 1) {
     const c = commissions[0]
     return (
       <div className="space-y-3">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Mi comisión</h3>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Mi comisión</h3>
+          <div className="flex items-center gap-2">
+            <button onClick={() => changeMonth(-1)} className="h-8 w-8 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes anterior">
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <div className="px-3 py-1 rounded-lg border border-foreground/10 min-w-[140px] text-center">
+              <span className="text-xs font-bold text-foreground">{monthLabel(month)}</span>
+            </div>
+            <button onClick={() => changeMonth(1)} className="h-8 w-8 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           <CommissionCard label="Clientes" value={String(c.client_count)} />
           <CommissionCard label="MRR" value={formatCurrency(c.mrr_total)} />
           <CommissionCard label="Cash Cobrado" value={formatCurrency(c.cash_collected)} />
+          <CommissionCard label="Old Cash" value={formatCurrency(c.old_cash)} small />
           <CommissionCard label="Comisión (5%)" value={formatCurrency(c.commission_earned)} highlight />
         </div>
       </div>
@@ -110,11 +145,24 @@ export function SetterCommissionPanel({ userRole, userId }: { userRole: string |
 
   // If admin/team: show summary + table
   const totalCommission = commissions.reduce((sum, c) => sum + c.commission_earned, 0)
+  const totalOldCash = commissions.reduce((sum, c) => sum + c.old_cash, 0)
+  const totalNewCash = commissions.reduce((sum, c) => sum + c.new_cash, 0)
 
   return (
     <div className="space-y-4">
-      <div>
+      <div className="flex items-center justify-between">
         <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Comisiones del equipo</h3>
+        <div className="flex items-center gap-2">
+          <button onClick={() => changeMonth(-1)} className="h-8 w-8 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes anterior">
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <div className="px-3 py-1 rounded-lg border border-foreground/10 min-w-[140px] text-center">
+            <span className="text-xs font-bold text-foreground">{monthLabel(month)}</span>
+          </div>
+          <button onClick={() => changeMonth(1)} className="h-8 w-8 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* Summary card */}
@@ -134,6 +182,7 @@ export function SetterCommissionPanel({ userRole, userId }: { userRole: string |
               <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Clientes</th>
               <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">MRR</th>
               <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Cash</th>
+              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80 text-[#ffde21]/70">Old</th>
               <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Comisión</th>
             </tr>
           </thead>
@@ -152,6 +201,9 @@ export function SetterCommissionPanel({ userRole, userId }: { userRole: string |
                 <td className="px-4 py-2.5 text-right text-foreground/80">
                   {formatCurrency(c.cash_collected)}
                 </td>
+                <td className="px-4 py-2.5 text-right text-[#ffde21]/60 text-xs">
+                  {c.old_cash > 0 ? formatCurrency(c.old_cash) : "—"}
+                </td>
                 <td className="px-4 py-2.5 text-right font-semibold text-[#ffde21]">
                   {formatCurrency(c.commission_earned)}
                 </td>
@@ -164,7 +216,7 @@ export function SetterCommissionPanel({ userRole, userId }: { userRole: string |
   )
 }
 
-function CommissionCard({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+function CommissionCard({ label, value, highlight, small }: { label: string; value: string; highlight?: boolean; small?: boolean }) {
   return (
     <div className={`rounded-xl border px-3 py-3 text-center ${
       highlight
@@ -174,7 +226,9 @@ function CommissionCard({ label, value, highlight }: { label: string; value: str
       <div className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50">
         {label}
       </div>
-      <div className={`mt-1.5 text-lg font-bold ${
+      <div className={`mt-1.5 font-bold ${
+        small ? "text-sm" : "text-lg"
+      } ${
         highlight ? "text-[#ffde21]" : "text-foreground"
       }`}>
         {value}
