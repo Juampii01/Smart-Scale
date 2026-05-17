@@ -1,31 +1,10 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
-import {
-  Loader2, Sunset, RefreshCw, MessageCircle, MessageCircleReply, Star,
-  FileText, ArrowDownToLine, Phone, Pencil, Inbox,
-} from "lucide-react"
+import { useEffect, useMemo, useState, useCallback, useRef } from "react"
+import { Loader2, RefreshCw, Download, ChevronLeft, ChevronRight } from "lucide-react"
 import { createClient } from "@/lib/supabase"
-import { EodFormDialogV2 } from "@/components/admin/eod-form-dialog-v2"
-import { MetricsContainer } from "@/components/metrics/metrics-container"
-import { SettingDailyCRMView } from "@/components/setting/setting-daily-crm-view"
 
-type Log = {
-  id: string
-  setter_id: string
-  date: string
-  new_conversations: number
-  conversations_replied: number
-  qualified_leads: number
-  offer_docs_sent: number
-  offer_doc_responses: number
-  calls_done: number
-  notes: string | null
-  created_at: string
-  updated_at: string
-  setter_name?: string | null
-  setter_role?: string | null
-}
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type FieldKey =
   | "new_conversations"
@@ -35,308 +14,366 @@ type FieldKey =
   | "offer_doc_responses"
   | "calls_done"
 
-const COLUMNS: { key: FieldKey; short: string; label: string; icon: any }[] = [
-  { key: "new_conversations",     short: "Convos",    label: "Convos nuevas",       icon: MessageCircle },
-  { key: "conversations_replied", short: "Resp.",     label: "Respuestas",          icon: MessageCircleReply },
-  { key: "qualified_leads",       short: "4-5⭐",     label: "Leads 4-5⭐",          icon: Star },
-  { key: "offer_docs_sent",       short: "Docs",      label: "Offer docs",          icon: FileText },
-  { key: "offer_doc_responses",   short: "Resp. doc", label: "Respuestas a doc",    icon: ArrowDownToLine },
-  { key: "calls_done",            short: "Calls",     label: "Llamadas",            icon: Phone },
+interface LogEntry {
+  date: string
+  setter_id: string
+  new_conversations: number | null
+  conversations_replied: number | null
+  qualified_leads: number | null
+  offer_docs_sent: number | null
+  offer_doc_responses: number | null
+  calls_done: number | null
+}
+
+const COLUMNS: { key: FieldKey; label: string; short: string }[] = [
+  { key: "new_conversations",     label: "Convos nuevas",        short: "Convos" },
+  { key: "conversations_replied", label: "Respuestas",           short: "Resp." },
+  { key: "qualified_leads",       label: "Leads 4-5⭐",          short: "4-5⭐" },
+  { key: "offer_docs_sent",       label: "Offer Docs enviados",  short: "Docs" },
+  { key: "offer_doc_responses",   label: "Respuestas a docs",    short: "Resp. doc" },
+  { key: "calls_done",            label: "Llamadas realizadas",  short: "Calls" },
 ]
 
-function todayISO(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`
-}
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function currentMonthISO(): string {
   const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
 }
 
-function fmtDateLabel(iso: string): string {
-  const [y, m, d] = iso.split("-")
-  const date = new Date(Number(y), Number(m) - 1, Number(d))
-  const dayName = date.toLocaleDateString("es-AR", { weekday: "short" })
-  const dayNum = date.getDate()
-  const monthName = date.toLocaleDateString("es-AR", { month: "short" })
-  return `${dayName.replace(".", "")} ${dayNum} ${monthName.replace(".", "")}`
+function monthLabel(ym: string): string {
+  const [y, m] = ym.split("-")
+  const date = new Date(Number(y), Number(m) - 1, 1)
+  return date.toLocaleDateString("es-AR", { month: "long", year: "numeric" })
 }
 
-function monthLabel(): string {
-  const d = new Date()
-  return d.toLocaleDateString("es-AR", { month: "long", year: "numeric" })
+function daysInMonth(ym: string): number {
+  const [y, m] = ym.split("-")
+  return new Date(Number(y), Number(m), 0).getDate()
 }
 
-function pct(num: number, den: number): string {
-  if (!den) return "—"
-  return `${Math.round((num / den) * 100)}%`
+function dayLabel(day: number): string {
+  return String(day).padStart(2, "0")
 }
+
+// ─── Editable Cell ────────────────────────────────────────────────────────────
+
+function EditableCell({
+  value,
+  fieldKey,
+  fullDate,
+  onSaved,
+}: {
+  value: number | null
+  fieldKey: FieldKey
+  fullDate: string   // YYYY-MM-DD
+  onSaved: (date: string, field: FieldKey, val: number | null) => void
+}) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState("")
+  const [saving, setSaving] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const startEdit = () => {
+    setDraft(value != null ? String(value) : "")
+    setEditing(true)
+    setTimeout(() => inputRef.current?.select(), 0)
+  }
+
+  const cancel = () => {
+    setEditing(false)
+    setDraft("")
+  }
+
+  const save = async () => {
+    const num = draft.trim() === "" ? null : Number(draft)
+    if (isNaN(num as number) && num !== null) {
+      cancel()
+      return
+    }
+    setSaving(true)
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      await fetch("/api/admin/setting/log", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ date: fullDate, field: fieldKey, value: num }),
+      })
+      onSaved(fullDate, fieldKey, num)
+    } finally {
+      setSaving(false)
+      setEditing(false)
+    }
+  }
+
+  if (saving) {
+    return (
+      <td className="whitespace-nowrap px-4 py-2.5 text-right">
+        <Loader2 className="inline h-3 w-3 animate-spin text-[#ffde21]/40" />
+      </td>
+    )
+  }
+
+  if (editing) {
+    return (
+      <td className="whitespace-nowrap px-2 py-1">
+        <input
+          ref={inputRef}
+          type="number"
+          value={draft}
+          onChange={e => setDraft(e.target.value)}
+          onBlur={save}
+          onKeyDown={e => {
+            if (e.key === "Enter") save()
+            if (e.key === "Escape") cancel()
+          }}
+          className="w-20 rounded-lg border border-[#ffde21]/40 bg-[#ffde21]/[0.07] px-2.5 py-1.5 text-right text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#ffde21]/60"
+        />
+      </td>
+    )
+  }
+
+  return (
+    <td
+      onClick={startEdit}
+      title="Click para editar"
+      className="group cursor-pointer whitespace-nowrap px-4 py-2.5 text-right transition-colors hover:bg-foreground/[0.04]"
+    >
+      <span className={`text-[13px] tabular-nums group-hover:text-foreground transition-colors ${value != null ? "text-foreground/80" : "text-foreground/15"}`}>
+        {value != null ? String(value) : "—"}
+      </span>
+    </td>
+  )
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 export function AdminSettingView() {
-  const [logs, setLogs] = useState<Log[]>([])
+  const [month, setMonth] = useState(currentMonthISO())
+  const [logs, setLogs] = useState<LogEntry[]>([])
   const [loading, setLoading] = useState(true)
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [dialogDate, setDialogDate] = useState<string | undefined>(undefined)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
+  // Cargar el ID del usuario actual
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => setCurrentUserId(data?.user?.id ?? null))
   }, [])
 
-  async function loadLogs() {
+  // Cargar los logs del mes seleccionado
+  const loadLogs = useCallback(async (ym: string) => {
     setLoading(true)
     try {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { setLoading(false); return }
-      const res = await fetch("/api/admin/setting/log", {
+      if (!session) {
+        setLoading(false)
+        return
+      }
+      const res = await fetch(`/api/admin/setting/log?month=${encodeURIComponent(ym)}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
       const json = await res.json()
-      if (res.ok) setLogs(json.logs ?? [])
+      setLogs(res.ok ? (json.logs ?? []) : [])
     } finally {
       setLoading(false)
     }
-  }
-  useEffect(() => { loadLogs() }, [])
+  }, [])
 
-  // Logs del mes en curso (para los KPIs de arriba)
-  const monthLogs = useMemo(() => {
-    const m = currentMonthISO()
-    return logs.filter(l => l.date.startsWith(m))
+  useEffect(() => {
+    loadLogs(month)
+  }, [month, loadLogs])
+
+  // Pivotar los logs: dayStr (DD) → { field → value }
+  // Usamos solo el día como clave para la tabla
+  const pivot = useMemo(() => {
+    const p: Record<string, Record<FieldKey, number | null>> = {}
+    for (const log of logs) {
+      const dayStr = log.date.slice(-2) // "2025-05-17" → "17"
+      p[dayStr] = {}
+      for (const col of COLUMNS) {
+        p[dayStr][col.key] = log[col.key] ?? null
+      }
+    }
+    return p
   }, [logs])
 
-  // Totales del mes por campo
+  // Calcular totales mensuales
   const monthTotals = useMemo(() => {
-    const sum = (k: FieldKey) => monthLogs.reduce((acc, l) => acc + (l[k] ?? 0), 0)
-    return {
-      new_conversations: sum("new_conversations"),
-      conversations_replied: sum("conversations_replied"),
-      qualified_leads: sum("qualified_leads"),
-      offer_docs_sent: sum("offer_docs_sent"),
-      offer_doc_responses: sum("offer_doc_responses"),
-      calls_done: sum("calls_done"),
+    const totals: Record<FieldKey, number> = {
+      new_conversations: 0,
+      conversations_replied: 0,
+      qualified_leads: 0,
+      offer_docs_sent: 0,
+      offer_doc_responses: 0,
+      calls_done: 0,
     }
-  }, [monthLogs])
+    for (const log of logs) {
+      for (const col of COLUMNS) {
+        if (log[col.key] != null) totals[col.key] += log[col.key]
+      }
+    }
+    return totals
+  }, [logs])
 
-  // Funnel rates del mes
-  const funnel = useMemo(() => {
-    const t = monthTotals
-    return [
-      { label: "Response rate",      value: pct(t.conversations_replied, t.new_conversations),    hint: "respuestas / convos" },
-      { label: "Qualification",      value: pct(t.qualified_leads, t.conversations_replied),       hint: "4-5⭐ / respuestas" },
-      { label: "Offer doc rate",     value: pct(t.offer_docs_sent, t.qualified_leads),             hint: "docs / calificados" },
-      { label: "Doc response rate",  value: pct(t.offer_doc_responses, t.offer_docs_sent),         hint: "respondieron al doc" },
-      { label: "Call rate",          value: pct(t.calls_done, t.offer_doc_responses),              hint: "calls / respuestas" },
-    ]
-  }, [monthTotals])
+  const handleSaved = useCallback((date: string, field: FieldKey, val: number | null) => {
+    // date es YYYY-MM-DD completo; log.date también es YYYY-MM-DD
+    setLogs(prev =>
+      prev.map(log =>
+        log.date === date ? { ...log, [field]: val } : log
+      )
+    )
+  }, [])
 
-  function openForm(date?: string) {
-    setDialogDate(date)
-    setDialogOpen(true)
+  const changMonth = (delta: number) => {
+    const [y, m] = month.split("-")
+    const newDate = new Date(Number(y), Number(m) - 1 + delta, 1)
+    const newYm = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, "0")}`
+    setMonth(newYm)
   }
 
-  function handleClose() {
-    setDialogOpen(false)
-    setDialogDate(undefined)
+  const exportCsv = () => {
+    const days = daysInMonth(month)
+    const header = ["Día", ...COLUMNS.map(c => c.label), ""].join(",")
+    const dataRows: string[] = []
+    for (let d = 1; d <= days; d++) {
+      const dayStr = dayLabel(d)
+      const row = [dayStr, ...COLUMNS.map(c => pivot[dayStr]?.[c.key] ?? "")]
+      dataRows.push(row.join(","))
+    }
+    const totalsRow = ["TOTAL", ...COLUMNS.map(c => monthTotals[c.key])]
+    const csv = [header, ...dataRows, totalsRow.join(",")].join("\n")
+    const blob = new Blob([csv], { type: "text/csv" })
+    const url = URL.createObjectURL(blob)
+    Object.assign(document.createElement("a"), {
+      href: url,
+      download: `setting-crm-${month}.csv`,
+    }).click()
+    URL.revokeObjectURL(url)
   }
 
-  const today = todayISO()
-  // "hoy aún no cargado" = el USER LOGUEADO no cargó hoy (otros del equipo sí pueden haber cargado)
-  const todayLoadedByMe = currentUserId
-    ? logs.some(l => l.date === today && l.setter_id === currentUserId)
-    : false
+  const days = daysInMonth(month)
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5 mb-1">
-            <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
-            <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Setting CRM</h1>
-          </div>
-          <p className="text-xs text-foreground/40 ml-[18px]">
-            Resumen del mes en curso y registros diarios cargados por el setter.
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Setting CRM</h1>
+          <p className="text-sm text-foreground/40 mt-0.5">
+            Tabla diaria de métricas de setter · click en cualquier celda para editar
           </p>
         </div>
 
+        {/* Controles: mes selector + botones */}
         <div className="flex items-center gap-2">
           <button
-            onClick={loadLogs}
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-foreground/[0.03] px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-foreground/[0.06] transition-colors"
+            onClick={() => changMonth(-1)}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground transition-all"
+            title="Mes anterior"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] min-w-[200px] justify-center">
+            <span className="text-sm font-semibold text-foreground capitalize">{monthLabel(month)}</span>
+          </div>
+
+          <button
+            onClick={() => changMonth(1)}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground transition-all"
+            title="Mes siguiente"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+
+          <button
+            onClick={() => loadLogs(month)}
+            disabled={loading}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
             title="Recargar"
           >
-            <RefreshCw className="h-3.5 w-3.5" />
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
+
           <button
-            onClick={() => openForm()}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2 text-sm font-bold text-black hover:bg-[#ffe84d] transition-colors"
+            onClick={exportCsv}
+            className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all"
+            title="Descargar CSV"
           >
-            <Sunset className="h-4 w-4" />
-            Llenar formulario
+            <Download className="h-3.5 w-3.5" />
+            CSV
           </button>
         </div>
       </div>
 
-      {/* KPIs del mes en curso */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-[11px] font-bold uppercase tracking-widest text-foreground/55">
-            Cómo viene <span className="text-[#ffde21]">{monthLabel()}</span>
-          </h2>
-          <span className="text-[10px] text-foreground/40">
-            {monthLogs.length} {monthLogs.length === 1 ? "día cargado" : "días cargados"}
-          </span>
-        </div>
+      {/* Table */}
+      <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                {/* Header row con labels de métricas */}
+                <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                  <th className="sticky left-0 z-20 border-r-2 border-[#ffde21]/30 bg-foreground/[0.02] px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/70 min-w-[80px]">
+                    Día
+                  </th>
+                  {COLUMNS.map((col, idx) => (
+                    <th
+                      key={col.key}
+                      className={`px-4 py-3 text-right text-[11px] font-semibold text-foreground/50 whitespace-nowrap min-w-[100px] ${idx === 0 ? "border-l border-foreground/[0.06]" : ""}`}
+                    >
+                      {col.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {/* Filas para cada día del mes */}
+                {Array.from({ length: days }, (_, i) => {
+                  const day = i + 1
+                  const dayStr = dayLabel(day)
+                  const fullDate = `${month}-${dayStr}`
+                  return (
+                    <tr key={day} className="border-b border-foreground/[0.04] hover:bg-foreground/[0.02] transition-colors">
+                      <td className="sticky left-0 z-10 bg-card px-5 py-3.5 border-r border-foreground/[0.08] font-semibold text-[13px] text-foreground/70">
+                        {dayStr}
+                      </td>
+                      {COLUMNS.map((col, idx) => (
+                        <EditableCell
+                          key={`${day}-${col.key}`}
+                          value={pivot[dayStr]?.[col.key] ?? null}
+                          fieldKey={col.key}
+                          fullDate={fullDate}
+                          onSaved={handleSaved}
+                        />
+                      ))}
+                    </tr>
+                  )
+                })}
 
-        {/* Totales por campo */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mb-3">
-          {COLUMNS.map(col => {
-            const Icon = col.icon
-            const value = monthTotals[col.key]
-            return (
-              <div key={col.key} className="rounded-xl border border-border bg-card px-4 py-3">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Icon className="h-3 w-3 text-[#ffde21]" />
-                  <p className="text-[10px] uppercase tracking-wider text-foreground/45 truncate">{col.short}</p>
-                </div>
-                <p className="text-2xl font-bold text-foreground tabular-nums">{value}</p>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Funnel rates del mes */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
-          {funnel.map(m => (
-            <div key={m.label} className="rounded-xl border border-border bg-foreground/[0.02] px-4 py-3">
-              <p className="text-[10px] uppercase tracking-wider text-foreground/45">{m.label}</p>
-              <p className="mt-1 text-xl font-bold text-foreground tabular-nums">{m.value}</p>
-              <p className="mt-0.5 text-[10px] text-foreground/35">{m.hint}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Advanced Metrics — para setters */}
-      {currentUserId && (
-        <MetricsContainer setterId={currentUserId} />
-      )}
-
-      {/* Tabla diaria — solo días con log */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-[11px] font-bold uppercase tracking-widest text-foreground/55">
-            CRM diario
-          </h2>
-          <span className="text-[10px] text-foreground/40">
-            {logs.length} {logs.length === 1 ? "registro" : "registros"}
-            {!todayLoadedByMe && (
-              <span className="ml-2 text-[#ffde21]">· vos hoy aún no cargaste</span>
-            )}
-          </span>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card overflow-hidden">
-          {loading ? (
-            <div className="px-6 py-16 flex items-center justify-center text-sm text-foreground/40">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" /> Cargando…
-            </div>
-          ) : logs.length === 0 ? (
-            <div className="px-6 py-16 flex flex-col items-center justify-center gap-3 text-center">
-              <Inbox className="h-8 w-8 text-foreground/20" />
-              <div>
-                <p className="text-sm font-semibold text-foreground/70">Aún no hay registros</p>
-                <p className="mt-1 text-xs text-foreground/40">Llenar el formulario del día para empezar.</p>
-              </div>
-              <button
-                onClick={() => openForm()}
-                className="mt-2 inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2 text-sm font-bold text-black hover:bg-[#ffe84d] transition-colors"
-              >
-                <Sunset className="h-4 w-4" /> Llenar formulario
-              </button>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b-2 border-[#ffde21]/30 bg-foreground/[0.02]">
-                    <th className="px-5 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-foreground/55 whitespace-nowrap">Fecha</th>
-                    <th className="px-3 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-foreground/55 whitespace-nowrap">Setter</th>
-                    {COLUMNS.map(col => {
-                      const Icon = col.icon
-                      return (
-                        <th key={col.key} className="px-3 py-3 text-right text-[10px] font-bold uppercase tracking-wider text-foreground/55 whitespace-nowrap" title={col.label}>
-                          <span className="inline-flex items-center gap-1.5">
-                            <Icon className="h-3 w-3 text-[#ffde21]" />
-                            {col.short}
-                          </span>
-                        </th>
-                      )
-                    })}
-                    <th className="w-12"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {logs.map(log => {
-                    const isToday = log.date === today
-                    return (
-                      <tr
-                        key={log.id}
-                        onClick={() => openForm(log.date)}
-                        className="border-b border-foreground/[0.04] last:border-0 cursor-pointer hover:bg-foreground/[0.04] transition-colors group"
-                        title="Click para llenar/editar tu propio formulario de esta fecha"
-                      >
-                        <td className={`px-5 py-3 whitespace-nowrap text-[13px] ${
-                          isToday ? "font-bold text-[#ffde21]" : "font-semibold text-foreground/85"
-                        }`}>
-                          {fmtDateLabel(log.date)}
-                          {isToday && <span className="ml-2 text-[9px] font-bold uppercase tracking-widest text-[#ffde21]/70">Hoy</span>}
-                        </td>
-                        <td className="px-3 py-3 whitespace-nowrap text-[12px] text-foreground/75">
-                          {log.setter_name ?? <span className="text-foreground/30">—</span>}
-                          {log.setter_role && (
-                            <span className="ml-1.5 rounded-full border border-foreground/15 bg-foreground/[0.04] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-foreground/55">
-                              {log.setter_role}
-                            </span>
-                          )}
-                        </td>
-                        {COLUMNS.map(col => (
-                          <td key={col.key} className="px-3 py-3 text-right tabular-nums text-foreground/85 text-[13px]">
-                            {log[col.key]}
-                          </td>
-                        ))}
-                        <td className="pr-4 text-foreground/30 group-hover:text-[#ffde21] transition-colors">
-                          <Pencil className="h-3.5 w-3.5" />
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-        {logs.length > 0 && (
-          <p className="mt-2 text-[10px] text-foreground/35">
-            Click en una fila para editar ese día.
-          </p>
+                {/* Fila de totales */}
+                <tr className="border-t-2 border-[#ffde21]/30 bg-foreground/[0.04] font-bold">
+                  <td className="sticky left-0 z-10 bg-foreground/[0.04] px-5 py-3.5 border-r border-foreground/[0.08] text-[13px] text-foreground/70 uppercase tracking-wide">
+                    Total
+                  </td>
+                  {COLUMNS.map(col => (
+                    <td key={`total-${col.key}`} className="whitespace-nowrap px-4 py-3.5 text-right text-[13px] text-foreground tabular-nums">
+                      {monthTotals[col.key]}
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
-
-      {/* Detailed CRM Table */}
-      <SettingDailyCRMView logs={logs} />
-
-      {/* Modal */}
-      <EodFormDialogV2
-        open={dialogOpen}
-        onClose={handleClose}
-        initialDate={dialogDate}
-        onSaved={loadLogs}
-      />
     </div>
   )
 }

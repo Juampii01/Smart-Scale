@@ -67,18 +67,29 @@ export async function GET(req: NextRequest) {
 
     const supabase = createServiceClient()
     const { searchParams } = new URL(req.url)
-    const since = searchParams.get("since")  // optional YYYY-MM-DD
-    const until = searchParams.get("until")  // optional YYYY-MM-DD
+    const month = searchParams.get("month")      // optional YYYY-MM
+    const since = searchParams.get("since")      // optional YYYY-MM-DD
+    const until = searchParams.get("until")      // optional YYYY-MM-DD
+
+    // Calcular since/until a partir de month si se proporciona
+    let querySince = since
+    let queryUntil = until
+    if (month && /^\d{4}-\d{2}$/.test(month)) {
+      const [y, m] = month.split("-")
+      querySince = `${y}-${m}-01`
+      const lastDay = new Date(Number(y), Number(m), 0).getDate()
+      queryUntil = `${y}-${m}-${String(lastDay).padStart(2, "0")}`
+    }
 
     // Cualquier user internal ve TODOS los logs (admin/team/setter), no se filtra por rol.
     let query = supabase
       .from("setting_daily_logs")
       .select(ALL_FIELDS)
-      .order("date", { ascending: false })
+      .order("date", { ascending: true })
       .limit(500)
 
-    if (since) query = query.gte("date", since)
-    if (until) query = query.lte("date", until)
+    if (querySince) query = query.gte("date", querySince)
+    if (queryUntil) query = query.lte("date", queryUntil)
 
     const { data, error } = await query
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -143,7 +154,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/** PATCH — actualizar campos por id. Setter solo puede tocar sus propios rows; admin todos. */
+/** PATCH — actualizar campos por date+field. Setter solo puede tocar sus propios rows; admin todos. */
 export async function PATCH(req: NextRequest) {
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
@@ -153,26 +164,60 @@ export async function PATCH(req: NextRequest) {
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
 
-    const { id, ...updates } = body
-    if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
+    const { id, date, field, value, ...otherUpdates } = body
 
+    // Soporta dos modos: por ID (legacy) o por date+field (nuevo)
+    let updateQuery = null
     const supabase = createServiceClient()
 
-    if (!isAdmin(ctx.role)) {
-      const { data: existing } = await supabase
-        .from("setting_daily_logs").select("setter_id").eq("id", id).maybeSingle()
-      if (!existing || (existing as any).setter_id !== ctx.user.id) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    if (id) {
+      // Modo legacy: actualizar por ID
+      if (!isAdmin(ctx.role)) {
+        const { data: existing } = await supabase
+          .from("setting_daily_logs").select("setter_id").eq("id", id).maybeSingle()
+        if (!existing || (existing as any).setter_id !== ctx.user.id) {
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+        }
       }
+      const allowed: Record<string, any> = { updated_at: new Date().toISOString(), ...otherUpdates }
+      for (const f of NUMERIC_FIELDS) {
+        if (otherUpdates[f] !== undefined) allowed[f] = sanitizeInt(otherUpdates[f])
+      }
+      if (otherUpdates.notes !== undefined) allowed.notes = otherUpdates.notes || null
+      updateQuery = supabase.from("setting_daily_logs").update(allowed).eq("id", id)
+    } else if (date && field) {
+      // Modo nuevo: actualizar por date+field (tabla mensual)
+      if (!NUMERIC_FIELDS.includes(field as any) && field !== "notes") {
+        return NextResponse.json({ error: `Invalid field: ${field}` }, { status: 400 })
+      }
+
+      // Buscar el log: si no es admin, solo puede editar el suyo
+      let logQuery = supabase
+        .from("setting_daily_logs")
+        .select("id, setter_id")
+        .eq("date", date)
+
+      if (!isAdmin(ctx.role)) {
+        logQuery = logQuery.eq("setter_id", ctx.user.id)
+      }
+
+      const { data: existing } = await logQuery.maybeSingle()
+      if (!existing) {
+        return NextResponse.json({ error: `No log found for ${date}` }, { status: 404 })
+      }
+
+      const allowed: Record<string, any> = { updated_at: new Date().toISOString() }
+      if (field === "notes") {
+        allowed.notes = value || null
+      } else {
+        allowed[field] = sanitizeInt(value)
+      }
+      updateQuery = supabase.from("setting_daily_logs").update(allowed).eq("id", existing.id)
+    } else {
+      return NextResponse.json({ error: "id OR (date+field) is required" }, { status: 400 })
     }
 
-    const allowed: Record<string, any> = { updated_at: new Date().toISOString() }
-    for (const f of NUMERIC_FIELDS) {
-      if (updates[f] !== undefined) allowed[f] = sanitizeInt(updates[f])
-    }
-    if (updates.notes !== undefined) allowed.notes = updates.notes || null
-
-    const { error } = await supabase.from("setting_daily_logs").update(allowed).eq("id", id)
+    const { error } = await updateQuery
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ success: true })
   } catch (err: any) {
