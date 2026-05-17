@@ -63,23 +63,23 @@ function StatusBadge({ status }: { status: string }) {
 // ─── Success modal ────────────────────────────────────────────────────────────
 
 function SuccessModal({
-  name, email, tempPassword, onClose,
+  name, email, tempPassword, magicLink, onClose,
 }: {
-  name: string; email: string; tempPassword: string | null; onClose: () => void
+  name: string; email: string; tempPassword: string | null; magicLink: string | null; onClose: () => void
 }) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState<"password" | "magic" | null>(null)
 
-  function copy(text: string) {
+  function copy(text: string, type: "password" | "magic") {
     navigator.clipboard.writeText(text).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      setCopied(type)
+      setTimeout(() => setCopied(null), 2000)
     })
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl mx-4">
+      <div className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
         <div className="mb-5 flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20">
             <Check className="h-5 w-5 text-emerald-500" />
@@ -99,6 +99,28 @@ function SuccessModal({
             <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">Email</p>
             <p className="mt-0.5 text-[13px] text-foreground">{email}</p>
           </div>
+          {magicLink && (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">Magic Link (acceso inmediato)</p>
+              <div className="mt-1.5 flex items-start gap-2">
+                <a
+                  href={magicLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 text-[12px] text-[#ffde21] hover:text-[#ffe84d] break-all line-clamp-2 underline"
+                >
+                  {magicLink}
+                </a>
+                <button
+                  onClick={() => copy(magicLink, "magic")}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-foreground/50 hover:text-foreground transition-colors"
+                >
+                  {copied === "magic" ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                </button>
+              </div>
+              <p className="mt-1.5 text-[10px] text-foreground/35">El cliente puede usar este link para acceder sin contraseña. Válido por 24 horas.</p>
+            </div>
+          )}
           {tempPassword && (
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">Contraseña temporal</p>
@@ -107,13 +129,13 @@ function SuccessModal({
                   {tempPassword}
                 </code>
                 <button
-                  onClick={() => copy(tempPassword)}
+                  onClick={() => copy(tempPassword, "password")}
                   className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-foreground/50 hover:text-foreground transition-colors"
                 >
-                  {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                  {copied === "password" ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="mt-1.5 text-[10px] text-foreground/35">Compartí esta contraseña con el cliente. Puede cambiarla desde su perfil.</p>
+              <p className="mt-1.5 text-[10px] text-foreground/35">Alternativa si no usa magic link. Puede cambiarla desde su perfil.</p>
             </div>
           )}
         </div>
@@ -135,7 +157,7 @@ function OnboardingForm({
   setters, onSuccess, onCancel,
 }: {
   setters:   SetterProfile[]
-  onSuccess: (data: { name: string; email: string; tempPassword: string | null }) => void
+  onSuccess: (data: { name: string; email: string; tempPassword: string | null; magicLink: string | null }) => void
   onCancel:  () => void
 }) {
   const supabase = createClient()
@@ -159,6 +181,23 @@ function OnboardingForm({
   })
   const [saving,  setSaving]  = useState(false)
   const [error,   setError]   = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Load user's role to determine if setter_id should be auto-assigned
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .maybeSingle()
+          .then(({ data: profile }) => {
+            setUserRole((profile as any)?.role ?? null)
+          })
+      }
+    })
+  }, [])
 
   function set(key: keyof typeof fields) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
@@ -200,7 +239,7 @@ function OnboardingForm({
       const json = await res.json()
       if (!res.ok) { setError(json?.error ?? "Error al crear onboarding"); return }
 
-      onSuccess({ name: json.client.name, email: json.user.email, tempPassword: json.tempPassword })
+      onSuccess({ name: json.client.name, email: json.user.email, tempPassword: json.tempPassword, magicLink: json.magicLink })
     } catch (err: any) {
       setError(err?.message ?? "Error inesperado")
     } finally {
@@ -278,12 +317,18 @@ function OnboardingForm({
             </div>
             <div>
               <label className={labelCls}>Setter que cerró</label>
-              <select className={cn(inputCls, "cursor-pointer")} value={fields.setter_id} onChange={set("setter_id")}>
-                <option value="">— Sin asignar —</option>
-                {setters.filter(s => s.name === "Fabri" || s.name?.includes("Fabri")).map(s => (
-                  <option key={s.id} value={s.id}>{s.name ?? s.id}</option>
-                ))}
-              </select>
+              {userRole === "setter" ? (
+                <div className="h-10 flex items-center rounded-xl border border-border bg-foreground/[0.03] px-3.5 text-[13px] text-foreground/60">
+                  Se asignará automáticamente a ti
+                </div>
+              ) : (
+                <select className={cn(inputCls, "cursor-pointer")} value={fields.setter_id} onChange={set("setter_id")}>
+                  <option value="">— Sin asignar —</option>
+                  {setters.map(s => (
+                    <option key={s.id} value={s.id}>{s.name ?? s.id}</option>
+                  ))}
+                </select>
+              )}
             </div>
             <div className="sm:col-span-2">
               <label className={labelCls}>Formato de pago</label>
@@ -411,7 +456,7 @@ export function AdminOnboardingView() {
   const [clients,  setClients]  = useState<OnboardingClient[]>([])
   const [setters,  setSetters]  = useState<SetterProfile[]>([])
   const [loading,  setLoading]  = useState(true)
-  const [success,  setSuccess]  = useState<{ name: string; email: string; tempPassword: string | null } | null>(null)
+  const [success,  setSuccess]  = useState<{ name: string; email: string; tempPassword: string | null; magicLink: string | null } | null>(null)
 
   const loadClients = useCallback(async () => {
     setLoading(true)
@@ -439,7 +484,7 @@ export function AdminOnboardingView() {
 
   useEffect(() => { loadClients() }, [loadClients])
 
-  function handleSuccess(data: { name: string; email: string; tempPassword: string | null }) {
+  function handleSuccess(data: { name: string; email: string; tempPassword: string | null; magicLink: string | null }) {
     setSuccess(data)
     setView("list")
     loadClients()
@@ -528,6 +573,7 @@ export function AdminOnboardingView() {
           name={success.name}
           email={success.email}
           tempPassword={success.tempPassword}
+          magicLink={success.magicLink}
           onClose={() => setSuccess(null)}
         />
       )}
