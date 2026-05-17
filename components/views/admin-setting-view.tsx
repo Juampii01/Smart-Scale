@@ -32,13 +32,13 @@ interface LogEntry {
 }
 
 const COLUMNS: { key: FieldKey; label: string; short: string }[] = [
-  { key: "new_conversations_inbound",   label: "Inbound",     short: "IB" },
-  { key: "new_conversations_outbound",  label: "Outbound",    short: "OB" },
-  { key: "conversations_replied",       label: "Respondidas", short: "RESP" },
-  { key: "qualified_leads",             label: "Leads 4-5",   short: "QL" },
+  { key: "new_conversations_inbound",   label: "Inbound",     short: "INBOUND" },
+  { key: "new_conversations_outbound",  label: "Outbound",    short: "OUTBOUND" },
+  { key: "conversations_replied",       label: "Respondidas", short: "RESPONDIDAS" },
+  { key: "qualified_leads",             label: "Leads 4-5",   short: "LEADS" },
   { key: "offer_docs_sent",             label: "Docs Sent",   short: "DOCS" },
-  { key: "offer_doc_responses",         label: "Doc Resp.",   short: "DR" },
-  { key: "calls_done",                  label: "Llamadas",    short: "CALL" },
+  { key: "offer_doc_responses",         label: "Doc Resp.",   short: "DOC RESP" },
+  { key: "calls_done",                  label: "Llamadas",    short: "LLAMADAS" },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

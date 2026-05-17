@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
     let query = supabase
       .from("setting_daily_logs")
       .select(ALL_FIELDS)
-      .order("date", { ascending: true })
+      .order("date", { ascending: false })
       .limit(500)
 
     if (querySince) query = query.gte("date", querySince)
