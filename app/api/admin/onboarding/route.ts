@@ -3,6 +3,7 @@ import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
 import { notifyClientOnboarded } from "@/lib/slack"
 import { sendWelcomeEmail, sendCredentialsToAdmin } from "@/lib/email"
+import { createGHLContact, parseFullName, formatPhoneForGHL } from "@/lib/ghl"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -307,7 +308,25 @@ export async function POST(req: NextRequest) {
       setterName = (setter as any)?.name ?? null
     }
 
-    // ── 11. Send credentials to admin (fire-and-forget) ────────────────────
+    // ── 11. Create contact in GHL (fire-and-forget) ────────────────────────
+    const { firstName, lastName } = parseFullName(name)
+    createGHLContact({
+      firstName,
+      lastName,
+      email,
+      phone: formatPhoneForGHL(phone),
+      source: "Smart Scale",
+      customFields: {
+        programa: program || "",
+        monto_total: String(totalAmount),
+        fecha_inicio: programStart,
+      },
+      tags: ["smart-scale", "onboarded"],
+    }).catch(err => {
+      console.error("GHL sync failed (non-blocking):", err)
+    })
+
+    // ── 12. Send credentials to admin (fire-and-forget) ────────────────────
     if (caller && (caller as any).email) {
       sendCredentialsToAdmin({
         admin_email:   (caller as any).email,
@@ -318,7 +337,7 @@ export async function POST(req: NextRequest) {
       }).catch(() => {/* no bloquear si Resend falla */})
     }
 
-    // ── 12. Slack notification (fire-and-forget) ───────────────────────────
+    // ── 13. Slack notification (fire-and-forget) ───────────────────────────
     notifyClientOnboarded({
       client_id:     clientId,
       name,
