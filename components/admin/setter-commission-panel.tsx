@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Loader2, ChevronLeft, ChevronRight } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 
 interface CommissionData {
@@ -15,11 +15,6 @@ interface CommissionData {
   commission_earned: number
 }
 
-function currentMonthISO(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
-}
-
 function monthLabel(ym: string): string {
   const [y, m] = ym.split("-")
   const date = new Date(Number(y), Number(m) - 1, 1)
@@ -30,20 +25,12 @@ function formatCurrency(amount: number): string {
   return `$${amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
-export function SetterCommissionPanel({ userRole, userId }: { userRole: string | null; userId: string }) {
-  const [month, setMonth] = useState(currentMonthISO())
+export function SetterCommissionPanel({ userRole, userId, month }: { userRole: string | null; userId: string; month: string }) {
   const [commissions, setCommissions] = useState<CommissionData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const isSetter = userRole === "setter"
-
-  const changeMonth = (delta: number) => {
-    const [y, m] = month.split("-")
-    const newDate = new Date(Number(y), Number(m) - 1 + delta, 1)
-    const newYm = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, "0")}`
-    setMonth(newYm)
-  }
 
   useEffect(() => {
     const load = async () => {
@@ -119,18 +106,7 @@ export function SetterCommissionPanel({ userRole, userId }: { userRole: string |
     return (
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Mi comisión</h3>
-          <div className="flex items-center gap-2">
-            <button onClick={() => changeMonth(-1)} className="h-8 w-8 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes anterior">
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <div className="px-3 py-1 rounded-lg border border-foreground/10 min-w-[140px] text-center">
-              <span className="text-xs font-bold text-foreground">{monthLabel(month)}</span>
-            </div>
-            <button onClick={() => changeMonth(1)} className="h-8 w-8 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Mi comisión — <span className="text-[#ffde21]">{monthLabel(month)}</span></h3>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           <CommissionCard label="Clientes" value={String(c.client_count)} />
@@ -151,18 +127,7 @@ export function SetterCommissionPanel({ userRole, userId }: { userRole: string |
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Comisiones del equipo</h3>
-        <div className="flex items-center gap-2">
-          <button onClick={() => changeMonth(-1)} className="h-8 w-8 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes anterior">
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <div className="px-3 py-1 rounded-lg border border-foreground/10 min-w-[140px] text-center">
-            <span className="text-xs font-bold text-foreground">{monthLabel(month)}</span>
-          </div>
-          <button onClick={() => changeMonth(1)} className="h-8 w-8 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Comisiones del equipo — <span className="text-[#ffde21]">{monthLabel(month)}</span></h3>
       </div>
 
       {/* Summary card */}

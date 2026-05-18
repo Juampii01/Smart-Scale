@@ -314,7 +314,7 @@ export function AdminSettingView() {
       </div>
 
       {/* Setter Commission Panel */}
-      {userId && <SetterCommissionPanel userRole={userRole} userId={userId} />}
+      {userId && <SetterCommissionPanel userRole={userRole} userId={userId} month={month} />}
 
       {loading ? (
         <div className="flex items-center justify-center py-24">
