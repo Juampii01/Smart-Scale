@@ -1,10 +1,11 @@
 "use client"
 
 import { useEffect, useMemo, useState, useCallback, useRef } from "react"
-import { Loader2, RefreshCw, Download, ChevronLeft, ChevronRight } from "lucide-react"
+import { Loader2, RefreshCw, Download, ChevronLeft, ChevronRight, PlusCircle } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 import { SetterCommissionPanel } from "@/components/admin/setter-commission-panel"
+import { EodFormDialogV2 } from "@/components/admin/eod-form-dialog-v2"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -167,6 +168,7 @@ export function AdminSettingView() {
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState<string | null>(null)
   const [userId, setUserId] = useState<string>("")
+  const [eodOpen, setEodOpen] = useState(false)
 
   // Cargar los logs del mes seleccionado
   const loadLogs = useCallback(async (ym: string) => {
@@ -310,11 +312,27 @@ export function AdminSettingView() {
             <Download className="h-3.5 w-3.5" />
             CSV
           </button>
+
+          <button
+            onClick={() => setEodOpen(true)}
+            className="h-9 px-3 flex items-center gap-1.5 rounded-lg bg-[#ffde21] hover:bg-[#ffe84d] text-black text-sm font-bold transition-colors"
+            title="Cargar datos diarios"
+          >
+            <PlusCircle className="h-3.5 w-3.5" />
+            EOD
+          </button>
         </div>
       </div>
 
       {/* Setter Commission Panel */}
       {userId && <SetterCommissionPanel userRole={userRole} userId={userId} month={month} />}
+
+      {/* EOD Form Dialog */}
+      <EodFormDialogV2
+        open={eodOpen}
+        onClose={() => setEodOpen(false)}
+        onSaved={() => { setEodOpen(false); loadLogs(month) }}
+      />
 
       {loading ? (
         <div className="flex items-center justify-center py-24">
