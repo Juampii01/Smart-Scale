@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase"
 import {
   UserPlus, Loader2, Check, Copy, X, ChevronRight,
-  Instagram, Phone, Calendar, DollarSign, User, Mail,
+  Phone, Calendar, DollarSign, User, Mail,
   RefreshCw, CheckCircle2, Clock, AlertCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -165,7 +165,6 @@ function OnboardingForm({
   const [fields, setFields] = useState({
     name:           "",
     email:          "",
-    instagram:      "",
     phone:          "",
     program:        "",
     total_amount:   "",
@@ -227,7 +226,6 @@ function OnboardingForm({
         body: JSON.stringify({
           name:         fields.name.trim(),
           email:        fields.email.trim(),
-          instagram:    fields.instagram.trim() || null,
           phone:        fields.phone.trim()     || null,
           program:      fields.program.trim()   || null,
           total_amount: fields.total_amount ? Number(fields.total_amount) : 0,
@@ -284,13 +282,6 @@ function OnboardingForm({
             <div>
               <label className={labelCls}>Email (acceso dashboard) *</label>
               <input className={inputCls} type="email" placeholder="juan@email.com" value={fields.email} onChange={set("email")} required />
-            </div>
-            <div>
-              <label className={labelCls}>Instagram</label>
-              <div className="relative">
-                <Instagram className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/30" />
-                <input className={cn(inputCls, "pl-8")} placeholder="@handle" value={fields.instagram} onChange={set("instagram")} />
-              </div>
             </div>
             <div>
               <label className={labelCls}>Teléfono</label>
