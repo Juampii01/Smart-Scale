@@ -1,48 +1,60 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import {
-  X, Loader2, Save, Check, AlertCircle, Calendar, Sunset,
-  MessageCircle, Send, MessageCircleReply, Star, FileText, ArrowDownToLine, Phone,
-} from "lucide-react"
+import { X, Loader2, Save, Check, AlertCircle } from "lucide-react"
 import { createClient } from "@/lib/supabase"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+// ─── Field groups ─────────────────────────────────────────────────────────────
+
+const FIELD_GROUPS = [
+  {
+    key: "inbound",
+    label: "Inbound",
+    color: "bg-blue-500",
+    fields: [
+      { key: "new_conversations_inbound", label: "Conversaciones inbound",  hint: "Total recibidas" },
+      { key: "inbound_applications",      label: "Aplicaciones inbound",    hint: "Formularios / apps" },
+      { key: "conversations_replied",     label: "Respondidas",             hint: "Total respondidas" },
+    ],
+  },
+  {
+    key: "outbound",
+    label: "Outbound",
+    color: "bg-violet-500",
+    fields: [
+      { key: "new_conversations_outbound", label: "Contactos outbound", hint: "Leads contactados" },
+      { key: "outbound_replies",           label: "Respuestas outbound", hint: "Respondieron" },
+    ],
+  },
+  {
+    key: "conversion",
+    label: "Conversión",
+    color: "bg-[#ffde21]",
+    fields: [
+      { key: "qualified_leads",    label: "Leads 4-5 estrellas",     hint: "Calificados" },
+      { key: "offer_docs_sent",    label: "Offer docs enviados",     hint: "Documentos enviados" },
+      { key: "offer_doc_responses",label: "Respuestas a offer doc",  hint: "Respondieron el doc" },
+      { key: "calls_done",         label: "Llamadas hechas",         hint: "Calls completadas" },
+    ],
+  },
+] as const
 
 type FieldKey =
   | "new_conversations_inbound"
-  | "new_conversations_outbound"
   | "inbound_applications"
   | "conversations_replied"
+  | "new_conversations_outbound"
+  | "outbound_replies"
   | "qualified_leads"
   | "offer_docs_sent"
   | "offer_doc_responses"
   | "calls_done"
 
-interface FormValues extends Record<FieldKey, number> {
-  new_conversations_inbound: number
-  new_conversations_outbound: number
-  inbound_applications: number
-  conversations_replied: number
-  qualified_leads: number
-  offer_docs_sent: number
-  offer_doc_responses: number
-  calls_done: number
-}
+type FormValues = Record<FieldKey, string>
 
 function todayISO(): string {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`
-}
-
-function fmtDate(iso: string): string {
-  const [y, m, d] = iso.split("-")
-  const date = new Date(Number(y), Number(m) - 1, Number(d))
-  return date.toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })
-}
-
-function pct(num: number, den: number): string {
-  if (!den) return "—"
-  return `${Math.round((num / den) * 100)}%`
 }
 
 interface EodFormDialogV2Props {
@@ -54,426 +66,215 @@ interface EodFormDialogV2Props {
 
 export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodFormDialogV2Props) {
   const [date, setDate] = useState(initialDate ?? todayISO())
-  const [values, setValues] = useState<FormValues>({
-    new_conversations_inbound: 0,
-    new_conversations_outbound: 0,
-    inbound_applications: 0,
-    conversations_replied: 0,
-    qualified_leads: 0,
-    offer_docs_sent: 0,
-    offer_doc_responses: 0,
-    calls_done: 0,
-  })
   const [notes, setNotes] = useState("")
-  const [saving, setSaving] = useState(false)
-  const [savedAt, setSavedAt] = useState<number | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [isExisting, setIsExisting] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState("inbound")
+  const [values, setValues] = useState<FormValues>({
+    new_conversations_inbound:  "",
+    inbound_applications:       "",
+    conversations_replied:      "",
+    new_conversations_outbound: "",
+    outbound_replies:           "",
+    qualified_leads:            "",
+    offer_docs_sent:            "",
+    offer_doc_responses:        "",
+    calls_done:                 "",
+  })
+  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle")
+  const [errorMsg, setErrorMsg] = useState("")
 
-  useEffect(() => {
-    if (open) {
-      setDate(initialDate ?? todayISO())
-      setError(null)
-      setSavedAt(null)
-    }
-  }, [open, initialDate])
-
+  // Load existing log for selected date
   useEffect(() => {
     if (!open) return
-    let alive = true
-    async function fetchLog() {
-      setLoading(true)
-      try {
-        const supabase = createClient()
-        const { data: { session } } = await supabase.auth.getSession()
-        if (!session) { setLoading(false); return }
-
-        const res = await fetch(`/api/admin/setting/log?since=${date}&until=${date}`, {
-          headers: { Authorization: `Bearer ${session.access_token}` },
+    const supabase = createClient()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) return
+      fetch(`/api/admin/setting/log?since=${date}&until=${date}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+        .then(r => r.json())
+        .then(json => {
+          const existing = (json.logs ?? []).find((l: any) => l.date === date)
+          if (existing) {
+            setValues({
+              new_conversations_inbound:  String(existing.new_conversations_inbound  ?? ""),
+              inbound_applications:       String(existing.inbound_applications       ?? ""),
+              conversations_replied:      String(existing.conversations_replied      ?? ""),
+              new_conversations_outbound: String(existing.new_conversations_outbound ?? ""),
+              outbound_replies:           String(existing.outbound_replies           ?? ""),
+              qualified_leads:            String(existing.qualified_leads            ?? ""),
+              offer_docs_sent:            String(existing.offer_docs_sent            ?? ""),
+              offer_doc_responses:        String(existing.offer_doc_responses        ?? ""),
+              calls_done:                 String(existing.calls_done                 ?? ""),
+            })
+            setNotes(existing.notes ?? "")
+          } else {
+            setValues({
+              new_conversations_inbound:  "",
+              inbound_applications:       "",
+              conversations_replied:      "",
+              new_conversations_outbound: "",
+              outbound_replies:           "",
+              qualified_leads:            "",
+              offer_docs_sent:            "",
+              offer_doc_responses:        "",
+              calls_done:                 "",
+            })
+            setNotes("")
+          }
         })
-        const json = await res.json()
-        if (!alive) return
-
-        const log = (json.logs ?? []).find((l: any) =>
-          l.date === date && l.setter_id === session.user.id
-        )
-        if (log) {
-          setIsExisting(true)
-          setValues({
-            new_conversations_inbound: log.new_conversations_inbound || 0,
-            new_conversations_outbound: log.new_conversations_outbound || 0,
-            inbound_applications: log.inbound_applications || 0,
-            conversations_replied: log.conversations_replied || 0,
-            qualified_leads: log.qualified_leads || 0,
-            offer_docs_sent: log.offer_docs_sent || 0,
-            offer_doc_responses: log.offer_doc_responses || 0,
-            calls_done: log.calls_done || 0,
-          })
-          setNotes(log.notes ?? "")
-        } else {
-          setIsExisting(false)
-          setValues({
-            new_conversations_inbound: 0,
-            new_conversations_outbound: 0,
-            inbound_applications: 0,
-            conversations_replied: 0,
-            qualified_leads: 0,
-            offer_docs_sent: 0,
-            offer_doc_responses: 0,
-            calls_done: 0,
-          })
-          setNotes("")
-        }
-      } finally {
-        if (alive) setLoading(false)
-      }
-    }
-    fetchLog()
-    return () => { alive = false }
+        .catch(() => {})
+    })
   }, [date, open])
 
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !saving) onClose()
-    }
-    window.addEventListener("keydown", onKey)
-    return () => window.removeEventListener("keydown", onKey)
-  }, [open, saving, onClose])
-
-  if (!open) return null
-
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
-    setSaving(true)
+    setStatus("saving")
+    setErrorMsg("")
     try {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { setError("No hay sesión activa"); setSaving(false); return }
+      if (!session) { setStatus("error"); setErrorMsg("Sin sesión"); return }
+
+      const body: Record<string, any> = { date, notes: notes || null }
+      for (const [k, v] of Object.entries(values)) {
+        body[k] = v !== "" ? Number(v) : 0
+      }
 
       const res = await fetch("/api/admin/setting/log", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ date, ...values, notes: notes || null }),
+        body: JSON.stringify(body),
       })
       const json = await res.json()
-      if (!res.ok) { setError(json?.error ?? "Error al guardar"); setSaving(false); return }
-      setSavedAt(Date.now())
-      setIsExisting(true)
-      onSaved?.()
-      setTimeout(() => onClose(), 800)
+      if (!res.ok) { setStatus("error"); setErrorMsg(json?.error ?? "Error al guardar"); return }
+
+      setStatus("saved")
+      setTimeout(() => {
+        setStatus("idle")
+        onSaved?.()
+      }, 1200)
     } catch (err: any) {
-      setError(err?.message ?? "Error inesperado")
-    } finally {
-      setSaving(false)
+      setStatus("error")
+      setErrorMsg(err?.message ?? "Error inesperado")
     }
   }
 
-  const totalLoaded = Object.values(values).reduce((a, b) => a + b, 0)
-
-  // Calculated rates
-  const totalNewConversations = values.new_conversations_inbound + values.new_conversations_outbound
-  const inboundReplyRate = values.new_conversations_inbound > 0
-    ? (values.conversations_replied / values.new_conversations_inbound) * 100
-    : 0
-  const outboundReplyRate = values.new_conversations_outbound > 0
-    ? (values.conversations_replied / values.new_conversations_outbound) * 100
-    : 0
-  const docResponseRate = values.offer_docs_sent > 0
-    ? (values.offer_doc_responses / values.offer_docs_sent) * 100
-    : 0
+  if (!open) return null
 
   return (
-    <>
-      <div
-        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
-        onClick={() => !saving && onClose()}
-      />
-      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-3xl -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 backdrop-blur-sm py-8 px-4">
+      <div className="relative w-full max-w-2xl rounded-2xl border border-foreground/[0.08] bg-card shadow-2xl">
 
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-border bg-popover px-6 py-4">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10">
-              <Sunset className="h-5 w-5 text-[#ffde21]" />
-            </span>
-            <div>
-              <h2 className="text-base font-bold text-foreground">
-                {isExisting ? "Editar día" : "Llenar formulario del día"}
-              </h2>
-              <p className="mt-0.5 text-[11px] text-foreground/55 capitalize">{fmtDate(date)}</p>
-            </div>
+        <div className="flex items-center justify-between border-b border-foreground/[0.06] px-6 py-4">
+          <div className="flex items-center gap-2.5">
+            <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">
+              Cargar datos del día
+            </h2>
           </div>
-          <button
-            onClick={onClose}
-            disabled={saving}
-            className="rounded-lg p-1 text-foreground/50 hover:bg-foreground/[0.06] hover:text-foreground transition-colors"
-            aria-label="Cerrar"
-          >
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:bg-foreground/[0.06] hover:text-foreground transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Body */}
-        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5 p-6">
 
-          {/* Selector de fecha */}
-          <div className="flex items-center gap-3 pb-4 border-b border-border">
-            <Calendar className="h-4 w-4 text-[#ffde21]" />
-            <input
-              type="date"
-              value={date}
-              max={todayISO()}
-              onChange={e => setDate(e.target.value)}
-              className="h-9 rounded-lg border border-border bg-foreground/[0.03] px-3 text-sm font-semibold text-foreground outline-none focus:border-[#ffde21]/50"
-            />
-            {isExisting && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-foreground/15 bg-foreground/[0.04] px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-foreground/55">
-                Ya cargado
-              </span>
-            )}
-          </div>
-
-          {loading ? (
-            <div className="py-12 flex items-center justify-center text-sm text-foreground/40">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" /> Cargando…
-            </div>
-          ) : (
-            <>
-              {/* Tabs */}
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="inbound" className="flex items-center gap-2">
-                    <MessageCircle className="h-4 w-4" />
-                    <span className="hidden sm:inline">Inbound</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="outbound" className="flex items-center gap-2">
-                    <Send className="h-4 w-4" />
-                    <span className="hidden sm:inline">Outbound</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="conversion" className="flex items-center gap-2">
-                    <Star className="h-4 w-4" />
-                    <span className="hidden sm:inline">Conversion</span>
-                  </TabsTrigger>
-                </TabsList>
-
-                {/* Tab: Inbound */}
-                <TabsContent value="inbound" className="space-y-4">
-                  <div className="space-y-3">
-                    <InputField
-                      label="Conversaciones inbound 📥"
-                      hint="Conversaciones nuevas que llegan"
-                      icon={MessageCircle}
-                      value={values.new_conversations_inbound}
-                      onChange={(v) => setValues(x => ({ ...x, new_conversations_inbound: v }))}
-                    />
-                    <InputField
-                      label="Aplicaciones inbound"
-                      hint="Cantidad de clientes que se postularon"
-                      icon={MessageCircle}
-                      value={values.inbound_applications}
-                      onChange={(v) => setValues(x => ({ ...x, inbound_applications: v }))}
-                    />
-                    <InputField
-                      label="Respuestas a inbound"
-                      hint="Cuántos respondieron a tus mensajes"
-                      icon={MessageCircleReply}
-                      value={values.conversations_replied}
-                      onChange={(v) => setValues(x => ({ ...x, conversations_replied: v }))}
-                    />
-                    <StatField
-                      label="Inbound Reply Rate"
-                      value={pct(values.conversations_replied, values.new_conversations_inbound)}
-                      hint="% de respuestas / inbound"
-                    />
-                  </div>
-                </TabsContent>
-
-                {/* Tab: Outbound */}
-                <TabsContent value="outbound" className="space-y-4">
-                  <div className="space-y-3">
-                    <InputField
-                      label="Conversaciones outbound 📤"
-                      hint="Conversaciones nuevas que sales tú"
-                      icon={Send}
-                      value={values.new_conversations_outbound}
-                      onChange={(v) => setValues(x => ({ ...x, new_conversations_outbound: v }))}
-                    />
-                    <InputField
-                      label="Respuestas a outbound"
-                      hint="Cuántos respondieron a tus contactos"
-                      icon={MessageCircleReply}
-                      value={values.conversations_replied}
-                      onChange={(v) => setValues(x => ({ ...x, conversations_replied: v }))}
-                    />
-                    <StatField
-                      label="Outbound Reply Rate"
-                      value={pct(values.conversations_replied, values.new_conversations_outbound)}
-                      hint="% de respuestas / outbound"
-                    />
-                    <StatField
-                      label="Total nuevas conversaciones"
-                      value={String(totalNewConversations)}
-                      hint="inbound + outbound"
-                    />
-                  </div>
-                </TabsContent>
-
-                {/* Tab: Conversion */}
-                <TabsContent value="conversion" className="space-y-4">
-                  <div className="space-y-3">
-                    <InputField
-                      label="Leads 4-5 estrellas"
-                      hint="Leads calificados como prospect"
-                      icon={Star}
-                      value={values.qualified_leads}
-                      onChange={(v) => setValues(x => ({ ...x, qualified_leads: v }))}
-                    />
-                    <InputField
-                      label="Offer docs enviados"
-                      hint="Documentos de propuesta enviados"
-                      icon={FileText}
-                      value={values.offer_docs_sent}
-                      onChange={(v) => setValues(x => ({ ...x, offer_docs_sent: v }))}
-                    />
-                    <InputField
-                      label="Respuestas a offer doc"
-                      hint="Cuántos respondieron al documento"
-                      icon={ArrowDownToLine}
-                      value={values.offer_doc_responses}
-                      onChange={(v) => setValues(x => ({ ...x, offer_doc_responses: v }))}
-                    />
-                    <StatField
-                      label="Doc Response Rate"
-                      value={pct(values.offer_doc_responses, values.offer_docs_sent)}
-                      hint="% de respuestas / docs enviados"
-                    />
-                    <InputField
-                      label="Llamadas hechas"
-                      hint="Calls para aclarar dudas"
-                      icon={Phone}
-                      value={values.calls_done}
-                      onChange={(v) => setValues(x => ({ ...x, calls_done: v }))}
-                    />
-                  </div>
-                </TabsContent>
-              </Tabs>
-
-              {/* Notas */}
+          {/* Date selector */}
+          <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] p-4">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
+            <div className="relative flex items-center justify-between gap-4">
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-widest text-foreground/55 mb-1.5">
-                  Notas <span className="text-foreground/30 normal-case">(opcional)</span>
-                </label>
-                <textarea
-                  value={notes}
-                  onChange={e => setNotes(e.target.value)}
-                  rows={2}
-                  placeholder="Algo relevante: nichos, copies, observaciones…"
-                  className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-[#ffde21]/50 resize-none"
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1.5">Fecha</p>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={e => setDate(e.target.value)}
+                  className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2 text-sm font-semibold text-foreground focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20 [color-scheme:dark]"
                 />
               </div>
-            </>
-          )}
-
-          {error && (
-            <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/[0.06] px-4 py-2.5 text-xs text-foreground">
-              <AlertCircle className="h-4 w-4 shrink-0 text-red-500 mt-0.5" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          {savedAt && (
-            <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/[0.08] px-4 py-2.5 text-xs font-semibold text-emerald-500">
-              <Check className="h-3.5 w-3.5" /> Guardado correctamente
-            </div>
-          )}
-
-          {/* Footer */}
-          <div className="flex items-center justify-between gap-4 pt-2 border-t border-border">
-            <p className="text-[11px] text-foreground/45">
-              {totalLoaded === 0
-                ? "Cargá al menos un valor"
-                : `Total: ${totalLoaded} eventos`}
-            </p>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={saving}
-                className="rounded-xl border border-border bg-foreground/[0.04] px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-foreground/[0.08] transition-colors disabled:opacity-50"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                disabled={saving || loading || totalLoaded === 0}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-5 py-2.5 text-sm font-bold text-black hover:bg-[#ffe84d] disabled:opacity-50 transition-colors"
-              >
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                {saving ? "Guardando…" : (isExisting ? "Actualizar" : "Guardar día")}
-              </button>
             </div>
           </div>
+
+          {/* Field groups */}
+          {FIELD_GROUPS.map((group) => (
+            <div key={group.key} className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+              <div className="flex items-center justify-between border-b border-foreground/[0.05] px-5 py-3">
+                <div className="flex items-center gap-2">
+                  <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
+                  <span className="text-sm font-semibold uppercase tracking-widest text-foreground/75">{group.label}</span>
+                </div>
+              </div>
+              <div className="grid gap-4 p-5 sm:grid-cols-2">
+                {group.fields.map((field) => (
+                  <div key={field.key}>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1.5">
+                      {field.label}
+                    </p>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                      value={(values as any)[field.key]}
+                      onChange={e => setValues(prev => ({ ...prev, [field.key]: e.target.value }))}
+                      className="h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm font-semibold text-foreground placeholder:text-foreground/20 focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20"
+                    />
+                    <p className="mt-1 text-[10px] text-foreground/25">{field.hint}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* Notas */}
+          <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+            <div className="flex items-center border-b border-foreground/[0.05] px-5 py-3">
+              <div className="flex items-center gap-2">
+                <span className="h-3 w-[2px] rounded-full bg-foreground/30" />
+                <span className="text-sm font-semibold uppercase tracking-widest text-foreground/75">Notas</span>
+              </div>
+            </div>
+            <div className="p-5">
+              <textarea
+                rows={3}
+                placeholder="Observaciones del día, contexto, bloqueos..."
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-sm text-foreground placeholder:text-foreground/20 focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20 resize-none"
+              />
+            </div>
+          </div>
+
+          {/* Error */}
+          {status === "error" && (
+            <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-4 py-3 text-sm text-red-700 dark:text-red-400">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              {errorMsg}
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-3 border-t border-foreground/[0.05] pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-sm font-medium text-foreground/70 transition hover:bg-foreground/[0.08] hover:text-foreground"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={status === "saving" || status === "saved"}
+              className="flex items-center gap-2 rounded-xl bg-[#ffde21] px-5 py-2 text-sm font-bold text-black transition hover:bg-[#ffe84d] disabled:opacity-60"
+            >
+              {status === "saving" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              {status === "saved"  && <Check   className="h-3.5 w-3.5" />}
+              {status === "idle"   && <Save    className="h-3.5 w-3.5" />}
+              {status === "saving" ? "Guardando…" : status === "saved" ? "Guardado ✓" : "Guardar"}
+            </button>
+          </div>
+
         </form>
       </div>
-    </>
-  )
-}
-
-function InputField({
-  label,
-  hint,
-  icon: Icon,
-  value,
-  onChange,
-}: {
-  label: string
-  hint: string
-  icon: any
-  value: number
-  onChange: (v: number) => void
-}) {
-  return (
-    <label className="rounded-xl border border-border bg-foreground/[0.02] px-4 py-3 hover:border-[#ffde21]/30 transition-colors cursor-text block">
-      <div className="flex items-center gap-2 mb-1.5">
-        <Icon className="h-3.5 w-3.5 text-[#ffde21]" />
-        <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/65">
-          {label}
-        </span>
-      </div>
-      <input
-        type="number"
-        min={0}
-        step={1}
-        value={value || ""}
-        onChange={e => onChange(Number(e.target.value) || 0)}
-        placeholder="0"
-        className="w-full h-9 rounded-lg border border-transparent bg-transparent px-1 text-2xl font-bold text-foreground tabular-nums outline-none focus:bg-foreground/[0.03]"
-      />
-      <p className="mt-0.5 text-[10px] text-foreground/40">{hint}</p>
-    </label>
-  )
-}
-
-function StatField({
-  label,
-  value,
-  hint,
-}: {
-  label: string
-  value: string
-  hint: string
-}) {
-  return (
-    <div className="rounded-xl border border-border/50 bg-foreground/[0.02] px-4 py-3">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/65 mb-1.5">
-        {label}
-      </p>
-      <p className="text-2xl font-bold text-[#ffde21] tabular-nums">{value}</p>
-      <p className="mt-0.5 text-[10px] text-foreground/40">{hint}</p>
     </div>
   )
 }
