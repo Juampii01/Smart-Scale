@@ -199,6 +199,15 @@ function OnboardingForm({
     })
   }, [])
 
+  // Auto-seleccionar Fabri cuando carguen los setters
+  useEffect(() => {
+    if (setters.length === 0) return
+    const fabri = setters.find(s => s.name?.toLowerCase().includes("fabri"))
+    if (fabri) {
+      setFields(prev => ({ ...prev, setter_id: prev.setter_id || fabri.id }))
+    }
+  }, [setters])
+
   function set(key: keyof typeof fields) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
       setFields(prev => ({ ...prev, [key]: e.target.value }))
