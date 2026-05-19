@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback, useRef } from "react"
 import { createClient } from "@/lib/supabase"
 import { Loader2, RefreshCw, Download } from "lucide-react"
-import { useActiveClient, useActiveClientName } from "@/components/layout/dashboard-layout"
+// Adquisition Stats siempre muestra los datos de Ann (la coach principal)
+const ANN_CLIENT_ID = "9d2aebb4-93a7-490c-8ac9-afe1d1a42d57"
 
 // ─── Metrics — all fields Ann actually fills ──────────────────────────────────
 
@@ -171,9 +172,7 @@ function EditableCell({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function AdminDataView() {
-  // Filtramos por el cliente activo del header (admin puede cambiar entre perfiles).
-  const clientId       = useActiveClient() ?? ""
-  const activeClientName = useActiveClientName()
+  const clientId = ANN_CLIENT_ID
   const [months,  setMonths]  = useState<string[]>([])
   const [pivot,   setPivot]   = useState<Record<string, Record<string, number | null>>>({})
   const [loading, setLoading] = useState(true)
@@ -232,7 +231,7 @@ export function AdminDataView() {
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Adquisition Stats</h1>
           <p className="text-sm text-foreground/40 mt-0.5">
-            {activeClientName ? `Datos de ${activeClientName}` : "Sin cliente activo"} · {months.length
+            {`Datos de Ann`} · {months.length
               ? `${months.length} ${months.length === 1 ? "mes" : "meses"} · click en cualquier celda para editar`
               : "métricas mensuales"}
           </p>
