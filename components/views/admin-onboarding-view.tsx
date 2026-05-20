@@ -79,7 +79,7 @@ function SuccessModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] grid place-items-center">
       {/* Backdrop — no cierra al click */}
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
 
