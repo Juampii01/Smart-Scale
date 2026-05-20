@@ -130,14 +130,14 @@ export async function POST(req: NextRequest) {
     if (programStart < today)
       return NextResponse.json({ error: "La fecha de inicio no puede ser en el pasado" }, { status: 400 })
 
-    // setter_id validation (if provided)
+    // setter_id validation (if provided) — acepta setter, admin o team
     let finalSetterId: string | null = requestedSetterId
     if (requestedSetterId) {
       const { data: setterProfile } = await supabase
         .from("profiles")
         .select("id")
         .eq("id", requestedSetterId)
-        .eq("role", "setter")
+        .in("role", ["setter", "admin", "team"])
         .maybeSingle()
       if (!setterProfile)
         return NextResponse.json({ error: "El setter_id no es válido" }, { status: 400 })
@@ -174,6 +174,7 @@ export async function POST(req: NextRequest) {
         installment_amount: totalAmount,
         num_installments:   numInstallments,
         total_amount:       totalAmount,
+        programa:           program || null,
         status:             "activo",
         notes:              notesLines.join(" | ") || null,
         forma_pago:         formaPago,
