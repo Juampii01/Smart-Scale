@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import { createClient } from "@/lib/supabase"
 import {
   UserPlus, Loader2, Check, Copy, X, ChevronRight,
@@ -78,10 +79,12 @@ function SuccessModal({
     })
   }
 
-  return (
-    <div className="fixed inset-0 z-[9999] grid place-items-center">
+  if (typeof document === "undefined") return null
+
+  return createPortal(
+    <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "grid", placeItems: "center" }}>
       {/* Backdrop — no cierra al click */}
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
+      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)" }} />
 
       <div className="relative z-10 w-full max-w-sm mx-4 flex flex-col items-center gap-6">
 
@@ -122,7 +125,8 @@ function SuccessModal({
           Listo
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
