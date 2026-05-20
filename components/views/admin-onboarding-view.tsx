@@ -615,18 +615,24 @@ function PaymentLinkSection() {
   const labelCls = "block text-[10px] font-semibold uppercase tracking-widest text-foreground/40 mb-1.5"
 
   return (
+    <div className="space-y-4">
     <div className="rounded-2xl border border-foreground/[0.08] bg-card p-6">
-      <div className="mb-5 flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ffde21]/10 border border-[#ffde21]/20">
-          <CreditCard className="h-4 w-4 text-[#ffde21]" />
-        </span>
-        <div>
-          <h2 className="font-bold text-foreground">Crear link de pago</h2>
-          <p className="text-[12px] text-foreground/45">Genera un link de Stripe para enviarle al cliente.</p>
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ffde21]/10 border border-[#ffde21]/20">
+            <CreditCard className="h-4 w-4 text-[#ffde21]" />
+          </span>
+          <div>
+            <h2 className="font-bold text-foreground">Crear link de pago</h2>
+            <p className="text-[12px] text-foreground/45">Genera un link de Stripe para enviarle al cliente.</p>
+          </div>
         </div>
+        <span className="rounded-full border border-[#ffde21]/30 bg-[#ffde21]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#ffde21]/70">
+          Próximamente
+        </span>
       </div>
 
-      <form onSubmit={handleGenerate} className="space-y-5">
+      <form onSubmit={handleGenerate} className="space-y-5 pointer-events-none opacity-40 select-none">
 
         {/* Tipo de pago */}
         <div className="flex gap-2">
@@ -726,6 +732,42 @@ function PaymentLinkSection() {
           </button>
         </div>
       </form>
+    </div>
+
+    {/* Links manuales */}
+    <div className="rounded-2xl border border-foreground/[0.08] bg-card p-5">
+      <div className="mb-4 flex items-center gap-3">
+        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-foreground/[0.06] border border-foreground/[0.08]">
+          <Link2 className="h-3.5 w-3.5 text-foreground/50" />
+        </span>
+        <div>
+          <h3 className="text-[13px] font-bold text-foreground">Links de pagos manuales</h3>
+          <p className="text-[11px] text-foreground/40">Creá y gestioná los links directamente en GHL.</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <a
+          href="https://app.mazefunnels.com/location/E1oNhkzQzo6coEkINu7k/payments/links"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 py-2 text-[13px] font-medium text-foreground/70 hover:bg-foreground/[0.07] hover:text-foreground transition-colors"
+        >
+          <CreditCard className="h-3.5 w-3.5" />
+          Ver payment links en GHL
+          <ChevronRight className="h-3 w-3 opacity-40" />
+        </a>
+        <a
+          href="https://app.mazefunnels.com/location/E1oNhkzQzo6coEkINu7k/payments/invoices"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 py-2 text-[13px] font-medium text-foreground/70 hover:bg-foreground/[0.07] hover:text-foreground transition-colors"
+        >
+          <DollarSign className="h-3.5 w-3.5" />
+          Ver invoices en GHL
+          <ChevronRight className="h-3 w-3 opacity-40" />
+        </a>
+      </div>
+    </div>
     </div>
   )
 }
