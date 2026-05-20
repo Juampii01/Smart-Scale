@@ -194,9 +194,11 @@ export async function POST(req: NextRequest) {
     if (cuotasWithValues.length > 0) {
       const todayIso = new Date().toISOString()
       const installmentsToInsert = cuotasWithValues.map(([cuotaName, amount], idx) => {
-        // Due date: cuota 1 = program_start, cuota 2 = +1 mes, cuota 3 = +2 meses, etc.
+        // El número de cuota determina el mes: cuota_1 = mes 0, cuota_3 = mes 2, etc.
+        // Así, si cuota_2 está vacía y cuota_3 tiene valor → pago en mes 3 (julio si empieza en mayo)
+        const cuotaNum = parseInt(cuotaName.replace("cuota_", ""), 10) || (idx + 1)
         const dueDate = new Date(programStart + "T00:00:00")
-        dueDate.setMonth(dueDate.getMonth() + idx)
+        dueDate.setMonth(dueDate.getMonth() + (cuotaNum - 1))
         return {
           client_id:          clientId,
           installment_number: idx + 1,
