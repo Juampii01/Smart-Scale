@@ -66,13 +66,11 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
     const result = await response.json()
 
     if (!response.ok) {
-      console.error("GHL contact creation failed:", {
-        status: response.status,
-        error: (result as any).error || (result as any).message,
-      })
+      const errMsg = (result as any).message || (result as any).error || JSON.stringify(result)
+      console.error("GHL contact creation failed:", { status: response.status, body: result })
       return {
         success: false,
-        error: (result as any).error || "Unknown error",
+        error: `${response.status}: ${errMsg}`,
       }
     }
 
