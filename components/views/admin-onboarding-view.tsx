@@ -20,6 +20,8 @@ interface OnboardingClient {
   program_start:      string
   installment_amount: number
   num_installments:   number
+  total_amount:       number | null
+  programa:           string | null
   status:             string
   notes:              string | null
   created_at:         string
@@ -401,7 +403,11 @@ function OnboardingForm({
 // ─── Client card ──────────────────────────────────────────────────────────────
 
 function ClientCard({ client }: { client: OnboardingClient }) {
-  const mrr = client.installment_amount * client.num_installments
+  const total        = client.total_amount ?? client.installment_amount
+  const cuotaAmount  = client.num_installments > 1
+    ? total / client.num_installments
+    : total
+
   return (
     <div className="rounded-2xl border border-border bg-card p-4 transition hover:border-foreground/[0.12]">
       <div className="flex items-start justify-between gap-3">
@@ -418,10 +424,10 @@ function ClientCard({ client }: { client: OnboardingClient }) {
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border/60 pt-3 sm:grid-cols-4">
-        {client.instagram && (
+        {client.programa && (
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Instagram</p>
-            <p className="mt-0.5 text-[12px] text-foreground/70">{client.instagram}</p>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Programa</p>
+            <p className="mt-0.5 text-[12px] text-foreground/70">{client.programa}</p>
           </div>
         )}
         <div>
@@ -429,21 +435,17 @@ function ClientCard({ client }: { client: OnboardingClient }) {
           <p className="mt-0.5 text-[12px] text-foreground/70">{fmtDate(client.program_start)}</p>
         </div>
         <div>
-          <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Plan</p>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Cuotas</p>
           <p className="mt-0.5 text-[12px] text-foreground/70">
-            {fmtCurrency(client.installment_amount)} × {client.num_installments}
+            {client.num_installments > 1
+              ? `${fmtCurrency(cuotaAmount)} × ${client.num_installments}`
+              : "Pago único"}
           </p>
         </div>
         <div>
           <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Total</p>
-          <p className="mt-0.5 text-[12px] font-semibold text-foreground">{fmtCurrency(mrr)}</p>
+          <p className="mt-0.5 text-[12px] font-semibold text-foreground">{fmtCurrency(total)}</p>
         </div>
-        {client.notes && (
-          <div className="col-span-2 sm:col-span-4">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Notas</p>
-            <p className="mt-0.5 text-[11px] text-foreground/55 line-clamp-1">{client.notes}</p>
-          </div>
-        )}
       </div>
 
       <p className="mt-2 text-[10px] text-foreground/25">{fmtDate(client.created_at)}</p>

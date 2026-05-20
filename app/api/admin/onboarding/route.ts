@@ -407,7 +407,7 @@ export async function GET(req: NextRequest) {
   const supabase = createServiceClient()
   const { data, error } = await supabase
     .from("crm_clients")
-    .select("id, name, email, instagram, phone, program_start, installment_amount, num_installments, status, notes, created_at, setter_id")
+    .select("id, name, email, instagram, phone, program_start, installment_amount, num_installments, total_amount, programa, status, notes, created_at, setter_id")
     .order("created_at", { ascending: false })
     .limit(50)
 
