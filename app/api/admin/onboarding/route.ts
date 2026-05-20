@@ -192,12 +192,20 @@ export async function POST(req: NextRequest) {
 
     // ── 5. Create individual installments ──────────────────────────────────
     if (cuotasWithValues.length > 0) {
-      const installmentsToInsert = cuotasWithValues.map(([cuotaName, amount], idx) => ({
-        client_id: clientId,
-        installment_number: idx + 1,
-        due_date: programStart, // Due date = program start (can be adjusted per business logic)
-        amount: Number(amount),
-      }))
+      const todayIso = new Date().toISOString()
+      const installmentsToInsert = cuotasWithValues.map(([cuotaName, amount], idx) => {
+        // Due date: cuota 1 = program_start, cuota 2 = +1 mes, cuota 3 = +2 meses, etc.
+        const dueDate = new Date(programStart + "T00:00:00")
+        dueDate.setMonth(dueDate.getMonth() + idx)
+        return {
+          client_id:          clientId,
+          installment_number: idx + 1,
+          due_date:           dueDate.toISOString().slice(0, 10),
+          amount:             Number(amount),
+          // Primera cuota: auto-pagada (el cliente paga antes del onboarding)
+          ...(idx === 0 ? { paid_at: todayIso } : {}),
+        }
+      })
 
       const { error: instErr } = await supabase
         .from("crm_installments")
