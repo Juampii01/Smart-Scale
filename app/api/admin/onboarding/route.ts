@@ -4,6 +4,7 @@ import { requireInternal } from "@/lib/auth/api-guards"
 import { notifyClientOnboarded } from "@/lib/slack"
 import { sendWelcomeEmail, sendCredentialsToAdmin } from "@/lib/email"
 import { createGHLContact, parseFullName, formatPhoneForGHL } from "@/lib/ghl"
+import { zapierClientOnboarded } from "@/lib/zapier"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -362,6 +363,22 @@ export async function POST(req: NextRequest) {
       setter_name:   setterName,
       temp_password: tempPassword,
     }).catch(() => {/* no bloquear si Slack falla */})
+
+    // ── 14. Zapier webhook (fire-and-forget) ───────────────────────────────
+    zapierClientOnboarded({
+      event_type:    "client.onboarded",
+      client_id:     clientId,
+      name,
+      email,
+      phone,
+      program,
+      total_amount:  totalAmount,
+      cuotas,
+      program_start: programStart,
+      setter_name:   setterName,
+      temp_password: tempPassword,
+      magic_link:    magicLink,
+    }).catch(() => {/* no bloquear si Zapier falla */})
 
     // ── Success response ────────────────────────────────────────────────────
     return NextResponse.json({

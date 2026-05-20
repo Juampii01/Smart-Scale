@@ -59,6 +59,28 @@ export async function zapierReportCompleted(payload: {
   return postWebhook(url, payload)
 }
 
+// ─── Fire: client onboarded ──────────────────────────────────────────────────
+
+export async function zapierClientOnboarded(payload: {
+  event_type:     "client.onboarded"
+  client_id:      string
+  name:           string
+  email:          string
+  phone?:         string | null
+  program?:       string | null
+  total_amount:   number
+  cuotas?:        Record<string, number | null>
+  program_start:  string
+  setter_name?:   string | null
+  temp_password?: string | null
+  magic_link?:    string | null
+  [key: string]:  unknown
+}): Promise<ZapierResult> {
+  const url = process.env.ZAPIER_WEBHOOK_ONBOARDING
+  if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_ONBOARDING not configured" }
+  return postWebhook(url, payload)
+}
+
 // ─── Fire: sale registered ────────────────────────────────────────────────────
 
 export async function zapierSaleRegistered(payload: {
