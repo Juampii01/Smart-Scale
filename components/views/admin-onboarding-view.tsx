@@ -831,9 +831,9 @@ export function AdminOnboardingView() {
   useEffect(() => { loadClients() }, [loadClients])
 
   function handleSuccess(data: { name: string; email: string; tempPassword: string | null; magicLink: string | null }) {
-    setSuccess(data)
     setView("list")
-    loadClients()
+    setSuccess(data)
+    // loadClients se llama al cerrar el modal para no interrumpir la pantalla de éxito
   }
 
   return (
@@ -954,7 +954,7 @@ export function AdminOnboardingView() {
           email={success.email}
           tempPassword={success.tempPassword}
           magicLink={success.magicLink}
-          onClose={() => setSuccess(null)}
+          onClose={() => { setSuccess(null); loadClients() }}
         />
       )}
     </div>
