@@ -323,7 +323,8 @@ export async function POST(req: NextRequest) {
       if (cuotas[k] != null) ghlCustomFields[ghlCuotaFields[i]] = String(cuotas[k])
     })
 
-    createGHLContact({
+    // DEBUG: await para ver el resultado en la respuesta (sacar después)
+    const ghlResult = await createGHLContact({
       firstName,
       lastName,
       email,
@@ -332,7 +333,8 @@ export async function POST(req: NextRequest) {
       customFields: ghlCustomFields,
       tags: ["smart-scale", "onboarded"],
     }).catch(err => {
-      console.error("GHL sync failed (non-blocking):", err)
+      console.error("GHL sync failed:", err)
+      return { success: false, error: err?.message }
     })
 
     // ── 12. Send credentials to admin (fire-and-forget) ────────────────────
@@ -368,6 +370,7 @@ export async function POST(req: NextRequest) {
       user:   { id: userId, email },
       tempPassword,
       magicLink,
+      _ghl_debug: ghlResult, // DEBUG: sacar después
     })
   } catch (err: any) {
     console.error("Onboarding error:", err)
