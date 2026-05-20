@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase"
 import {
   UserPlus, Loader2, Check, Copy, X, ChevronRight,
   Phone, Calendar, DollarSign, User, Mail,
-  RefreshCw, CheckCircle2, Clock, AlertCircle,
+  RefreshCw, CheckCircle2, Clock, AlertCircle, Link2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -451,6 +451,108 @@ function ClientCard({ client }: { client: OnboardingClient }) {
   )
 }
 
+// ─── Link Generator Section ───────────────────────────────────────────────────
+
+function LinkGeneratorSection() {
+  const supabase = createClient()
+  const [email,     setEmail]     = useState("")
+  const [loading,   setLoading]   = useState(false)
+  const [magicLink, setMagicLink] = useState<string | null>(null)
+  const [error,     setError]     = useState<string | null>(null)
+  const [copied,    setCopied]    = useState(false)
+
+  async function handleGenerate(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+    setMagicLink(null)
+    setLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { setError("Sin sesión"); return }
+
+      const res = await fetch("/api/admin/magic-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ email: email.trim() }),
+      })
+      const json = await res.json()
+      if (!res.ok) { setError(json?.error ?? "Error al generar link"); return }
+      setMagicLink(json.magicLink)
+    } catch (err: any) {
+      setError(err?.message ?? "Error inesperado")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function copy() {
+    if (!magicLink) return
+    navigator.clipboard.writeText(magicLink).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
+  const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 text-[13px] text-foreground placeholder:text-foreground/25 outline-none transition-all focus:border-[#ffde21]/40 focus:bg-foreground/[0.05] focus:ring-2 focus:ring-[#ffde21]/10"
+
+  return (
+    <div className="rounded-2xl border border-foreground/[0.08] bg-card p-5">
+      <div className="mb-4 flex items-center gap-3">
+        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-foreground/[0.06] border border-foreground/[0.08]">
+          <Link2 className="h-3.5 w-3.5 text-foreground/50" />
+        </span>
+        <div>
+          <h3 className="text-[13px] font-bold text-foreground">Crear link de acceso</h3>
+          <p className="text-[11px] text-foreground/40">Genera un magic link de 24hs para un cliente existente.</p>
+        </div>
+      </div>
+
+      <form onSubmit={handleGenerate} className="flex items-start gap-2">
+        <div className="flex-1">
+          <input
+            className={inputCls}
+            type="email"
+            placeholder="email@cliente.com"
+            value={email}
+            onChange={e => { setEmail(e.target.value); setMagicLink(null); setError(null) }}
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={loading || !email}
+          className="flex h-10 items-center gap-2 rounded-xl bg-foreground/[0.07] border border-foreground/[0.08] px-4 text-[13px] font-medium text-foreground/70 hover:bg-foreground/[0.10] hover:text-foreground transition-colors disabled:opacity-40 shrink-0"
+        >
+          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Link2 className="h-3.5 w-3.5" />}
+          Generar
+        </button>
+      </form>
+
+      {error && (
+        <div className="mt-3 flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-3 py-2 text-[12px] text-red-700 dark:text-red-400">
+          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+          {error}
+        </div>
+      )}
+
+      {magicLink && (
+        <div className="mt-3 rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.04] p-3">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/60">Link generado · válido 24hs</p>
+          <div className="flex items-start gap-2">
+            <p className="flex-1 break-all text-[11px] text-foreground/70 line-clamp-2">{magicLink}</p>
+            <button
+              onClick={copy}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#ffde21]/30 bg-[#ffde21]/10 text-[#ffde21] hover:bg-[#ffde21]/20 transition-colors"
+            >
+              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Main view ────────────────────────────────────────────────────────────────
 
 export function AdminOnboardingView() {
@@ -533,6 +635,9 @@ export function AdminOnboardingView() {
           )}
         </div>
       </div>
+
+      {/* Link generator */}
+      {view === "list" && <LinkGeneratorSection />}
 
       {/* Form */}
       {view === "form" && (
