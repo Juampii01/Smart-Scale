@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase"
 import {
   UserPlus, Loader2, Check, Copy, X, ChevronRight,
-  Phone, Calendar, DollarSign, User, Mail,
+  Phone, Calendar, DollarSign, User,
   RefreshCw, CheckCircle2, Clock, AlertCircle, Link2, CreditCard,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -98,42 +98,21 @@ function SuccessModal({
           <p className="mt-2 text-[13px] text-white/40">{name}</p>
         </div>
 
-        {/* Credenciales */}
-        <div className="w-full space-y-2">
-          {/* Email */}
-          <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3">
-            <Mail className="h-3.5 w-3.5 shrink-0 text-white/30" />
-            <span className="flex-1 text-[13px] text-white/70 truncate">{email}</span>
-          </div>
-
-          {/* Magic link */}
-          {magicLink && (
+        {/* Contraseña */}
+        {tempPassword && (
+          <div className="w-full">
+            <p className="mb-2 text-center text-[10px] font-semibold uppercase tracking-widest text-white/30">Contraseña del cliente</p>
             <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3">
-              <Link2 className="h-3.5 w-3.5 shrink-0 text-white/30" />
-              <span className="flex-1 text-[12px] text-white/50 truncate">Magic link generado</span>
-              <button
-                onClick={() => copy(magicLink, "magic")}
-                className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[11px] font-semibold text-white/60 hover:bg-white/[0.1] hover:text-white transition-colors shrink-0"
-              >
-                {copied === "magic" ? <><Check className="h-3 w-3 text-[#ffde21]" /> Copiado</> : <><Copy className="h-3 w-3" /> Copiar</>}
-              </button>
-            </div>
-          )}
-
-          {/* Password */}
-          {tempPassword && (
-            <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3">
-              <User className="h-3.5 w-3.5 shrink-0 text-white/30" />
-              <code className="flex-1 font-mono text-[13px] text-white/80 tracking-wide">{tempPassword}</code>
+              <code className="flex-1 font-mono text-[15px] text-white tracking-widest">{tempPassword}</code>
               <button
                 onClick={() => copy(tempPassword, "password")}
-                className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[11px] font-semibold text-white/60 hover:bg-white/[0.1] hover:text-white transition-colors shrink-0"
+                className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[11px] font-semibold text-white/60 hover:bg-white/[0.1] hover:text-white transition-colors shrink-0"
               >
                 {copied === "password" ? <><Check className="h-3 w-3 text-[#ffde21]" /> Copiado</> : <><Copy className="h-3 w-3" /> Copiar</>}
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* CTA */}
         <button
