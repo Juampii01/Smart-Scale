@@ -557,31 +557,46 @@ function LinkGeneratorSection() {
 
 function PaymentLinkSection() {
   const supabase = createClient()
-  const [email,       setEmail]       = useState("")
-  const [amount,      setAmount]      = useState("")
-  const [description, setDescription] = useState("")
-  const [loading,     setLoading]     = useState(false)
-  const [paymentUrl,  setPaymentUrl]  = useState<string | null>(null)
-  const [error,       setError]       = useState<string | null>(null)
-  const [copied,      setCopied]      = useState(false)
+  const [type,         setType]         = useState<"once" | "recurring">("once")
+  const [amount,       setAmount]       = useState("")
+  const [amountPer,    setAmountPer]    = useState("")
+  const [installments, setInstallments] = useState("")
+  const [description,  setDescription]  = useState("")
+  const [loading,      setLoading]      = useState(false)
+  const [paymentUrl,   setPaymentUrl]   = useState<string | null>(null)
+  const [summary,      setSummary]      = useState<string | null>(null)
+  const [error,        setError]        = useState<string | null>(null)
+  const [copied,       setCopied]       = useState(false)
+
+  const totalRecurring = amountPer && installments
+    ? Number(amountPer) * Number(installments)
+    : null
 
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault()
-    setError(null)
-    setPaymentUrl(null)
+    setError(null); setPaymentUrl(null); setSummary(null)
     setLoading(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { setError("Sin sesión"); return }
 
+      const bodyPayload = type === "once"
+        ? { type, amount: Number(amount), description: description || null }
+        : { type, amount_per_installment: Number(amountPer), installments: Number(installments), description: description || null }
+
       const res = await fetch("/api/admin/payment-link", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ email: email.trim(), amount: Number(amount), description: description.trim() || null }),
+        body: JSON.stringify(bodyPayload),
       })
       const json = await res.json()
       if (!res.ok) { setError(json?.error ?? "Error al generar link"); return }
+
       setPaymentUrl(json.paymentUrl)
+      setSummary(type === "once"
+        ? `Pago único — $${json.amount}`
+        : `${json.installments} cuotas de $${json.amount_per_installment} — Total $${json.total}`
+      )
     } catch (err: any) {
       setError(err?.message ?? "Error inesperado")
     } finally {
@@ -592,8 +607,7 @@ function PaymentLinkSection() {
   function copy() {
     if (!paymentUrl) return
     navigator.clipboard.writeText(paymentUrl).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      setCopied(true); setTimeout(() => setCopied(false), 2000)
     })
   }
 
@@ -601,103 +615,117 @@ function PaymentLinkSection() {
   const labelCls = "block text-[10px] font-semibold uppercase tracking-widest text-foreground/40 mb-1.5"
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-2xl border border-foreground/[0.08] bg-card p-6">
-        <div className="mb-5 flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ffde21]/10 border border-[#ffde21]/20">
-            <CreditCard className="h-4 w-4 text-[#ffde21]" />
-          </span>
-          <div>
-            <h2 className="font-bold text-foreground">Crear link de pago</h2>
-            <p className="text-[12px] text-foreground/45">Genera una invoice en GHL con link de pago via Stripe.</p>
-          </div>
+    <div className="rounded-2xl border border-foreground/[0.08] bg-card p-6">
+      <div className="mb-5 flex items-center gap-3">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ffde21]/10 border border-[#ffde21]/20">
+          <CreditCard className="h-4 w-4 text-[#ffde21]" />
+        </span>
+        <div>
+          <h2 className="font-bold text-foreground">Crear link de pago</h2>
+          <p className="text-[12px] text-foreground/45">Genera un link de Stripe para enviarle al cliente.</p>
+        </div>
+      </div>
+
+      <form onSubmit={handleGenerate} className="space-y-5">
+
+        {/* Tipo de pago */}
+        <div className="flex gap-2">
+          {([
+            { key: "once",      label: "Pago único"  },
+            { key: "recurring", label: "En cuotas"   },
+          ] as const).map(t => (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => { setType(t.key); setPaymentUrl(null); setError(null) }}
+              className={cn(
+                "flex-1 rounded-xl border py-2 text-[13px] font-medium transition-all",
+                type === t.key
+                  ? "border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21]"
+                  : "border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:text-foreground"
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
-        <form onSubmit={handleGenerate} className="space-y-4">
+        {/* Campos según tipo */}
+        {type === "once" ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <label className={labelCls}>Email del cliente *</label>
-              <input
-                className={inputCls}
-                type="email"
-                placeholder="cliente@email.com"
-                value={email}
-                onChange={e => { setEmail(e.target.value); setPaymentUrl(null); setError(null) }}
-                required
-              />
-              <p className="mt-1 text-[10px] text-foreground/30">Debe tener contacto en GHL (onboarding previo)</p>
-            </div>
             <div>
               <label className={labelCls}>Monto (USD) *</label>
               <div className="relative">
                 <DollarSign className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/30" />
-                <input
-                  className={cn(inputCls, "pl-8")}
-                  type="number"
-                  min="1"
-                  step="0.01"
-                  placeholder="1500"
-                  value={amount}
-                  onChange={e => { setAmount(e.target.value); setPaymentUrl(null); setError(null) }}
-                  required
-                />
+                <input className={cn(inputCls, "pl-8")} type="number" min="1" placeholder="1500"
+                  value={amount} onChange={e => { setAmount(e.target.value); setPaymentUrl(null) }} required />
               </div>
             </div>
-            <div className="sm:col-span-2">
+            <div>
               <label className={labelCls}>Descripción</label>
-              <input
-                className={inputCls}
-                placeholder="Ej: Cuota 1 — Smart Scale Grupal"
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-              />
+              <input className={inputCls} placeholder="Ej: Smart Scale Grupal" value={description} onChange={e => setDescription(e.target.value)} />
             </div>
           </div>
-
-          {error && (
-            <div className="flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-4 py-3 text-[12px] text-red-700 dark:text-red-400">
-              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              {error}
-            </div>
-          )}
-
-          {paymentUrl && (
-            <div className="rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.04] p-4">
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/60">Link de pago generado</p>
-              <div className="flex items-start gap-2">
-                <a
-                  href={paymentUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 break-all text-[12px] text-[#ffde21] hover:text-[#ffe84d] underline line-clamp-2"
-                >
-                  {paymentUrl}
-                </a>
-                <button
-                  type="button"
-                  onClick={copy}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#ffde21]/30 bg-[#ffde21]/10 text-[#ffde21] hover:bg-[#ffde21]/20 transition-colors"
-                >
-                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                </button>
+        ) : (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div>
+              <label className={labelCls}>Monto por cuota (USD) *</label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/30" />
+                <input className={cn(inputCls, "pl-8")} type="number" min="1" placeholder="1500"
+                  value={amountPer} onChange={e => { setAmountPer(e.target.value); setPaymentUrl(null) }} required />
               </div>
             </div>
-          )}
-
-          <div className="flex justify-end border-t border-foreground/[0.05] pt-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex items-center gap-2 rounded-xl bg-[#ffde21] px-5 py-2 text-[13px] font-bold text-black transition hover:bg-[#ffe84d] disabled:opacity-50"
-            >
-              {loading
-                ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generando…</>
-                : <><CreditCard className="h-3.5 w-3.5" /> Generar link de pago</>
-              }
-            </button>
+            <div>
+              <label className={labelCls}>Cantidad de cuotas *</label>
+              <input className={inputCls} type="number" min="1" max="24" placeholder="6"
+                value={installments} onChange={e => { setInstallments(e.target.value); setPaymentUrl(null) }} required />
+            </div>
+            <div>
+              <label className={labelCls}>Descripción</label>
+              <input className={inputCls} placeholder="Smart Scale Grupal" value={description} onChange={e => setDescription(e.target.value)} />
+            </div>
+            {totalRecurring && (
+              <div className="sm:col-span-3 rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-4 py-2.5 text-[12px] text-foreground/50">
+                Total: <span className="font-bold text-foreground">${totalRecurring.toLocaleString()}</span>
+                {" "}({installments} cuotas de ${Number(amountPer).toLocaleString()}/mes)
+              </div>
+            )}
           </div>
-        </form>
-      </div>
+        )}
+
+        {error && (
+          <div className="flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-4 py-3 text-[12px] text-red-700 dark:text-red-400">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />{error}
+          </div>
+        )}
+
+        {paymentUrl && (
+          <div className="rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.04] p-4">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/60">Link generado</p>
+            {summary && <p className="mb-2 text-[11px] text-foreground/50">{summary}</p>}
+            <div className="flex items-start gap-2">
+              <a href={paymentUrl} target="_blank" rel="noopener noreferrer"
+                className="flex-1 break-all text-[12px] text-[#ffde21] hover:text-[#ffe84d] underline line-clamp-2">
+                {paymentUrl}
+              </a>
+              <button type="button" onClick={copy}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#ffde21]/30 bg-[#ffde21]/10 text-[#ffde21] hover:bg-[#ffde21]/20 transition-colors">
+                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="flex justify-end border-t border-foreground/[0.05] pt-4">
+          <button type="submit" disabled={loading}
+            className="flex items-center gap-2 rounded-xl bg-[#ffde21] px-5 py-2 text-[13px] font-bold text-black transition hover:bg-[#ffe84d] disabled:opacity-50">
+            {loading
+              ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generando…</>
+              : <><CreditCard className="h-3.5 w-3.5" /> Generar link de pago</>}
+          </button>
+        </div>
+      </form>
     </div>
   )
 }
