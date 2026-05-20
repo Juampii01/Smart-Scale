@@ -815,9 +815,6 @@ export function AdminOnboardingView() {
       {/* Tab: Onboarding */}
       {tab === "onboarding" && (
         <>
-          {/* Link generator */}
-          {view === "list" && <LinkGeneratorSection />}
-
           {/* Form */}
           {view === "form" && (
             <OnboardingForm
