@@ -5,7 +5,8 @@
 
 const GHL_API_KEY = process.env.GHL_API_KEY
 const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID
-const GHL_API_BASE = "https://rest.gohighlevel.com/v1"
+// pit- tokens son Private Integration tokens → API v2
+const GHL_API_BASE = "https://services.leadconnectorhq.com"
 
 interface GHLContactData {
   firstName: string
@@ -37,14 +38,19 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
   }
 
   try {
-    const payload = {
-      firstName: data.firstName,
-      lastName: data.lastName || "",
-      email: data.email,
-      phone: data.phone || "",
-      source: data.source || "Smart Scale",
-      customFields: data.customFields || {},
-      tags: data.tags || ["smart-scale"],
+    const payload: Record<string, any> = {
+      locationId: GHL_LOCATION_ID,
+      firstName:  data.firstName,
+      lastName:   data.lastName || "",
+      email:      data.email,
+      phone:      data.phone || "",
+      source:     data.source || "Smart Scale",
+      tags:       data.tags || ["smart-scale"],
+    }
+
+    // customFields como array de { key, value } para v2
+    if (data.customFields && Object.keys(data.customFields).length > 0) {
+      payload.customFields = Object.entries(data.customFields).map(([key, value]) => ({ key, value }))
     }
 
     const response = await fetch(`${GHL_API_BASE}/contacts/`, {
@@ -52,7 +58,7 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
       headers: {
         "Authorization": `Bearer ${GHL_API_KEY}`,
         "Content-Type": "application/json",
-        "Version": "2021-04-15",
+        "Version": "2021-07-28",
       },
       body: JSON.stringify(payload),
     })
