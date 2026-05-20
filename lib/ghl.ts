@@ -89,6 +89,77 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
 }
 
 /**
+ * Search a contact in GHL by email, returns contact id or null
+ */
+export async function findGHLContactByEmail(email: string): Promise<string | null> {
+  if (!GHL_API_KEY || !GHL_LOCATION_ID) return null
+  try {
+    const res = await fetch(
+      `${GHL_API_BASE}/contacts/search/duplicate?locationId=${GHL_LOCATION_ID}&email=${encodeURIComponent(email)}`,
+      { headers: { "Authorization": `Bearer ${GHL_API_KEY}`, "Version": "2021-07-28" } }
+    )
+    const data = await res.json()
+    return (data as any)?.contact?.id ?? null
+  } catch { return null }
+}
+
+/**
+ * Create a GHL Invoice and return its payment URL
+ */
+export async function createGHLInvoice(opts: {
+  contactId: string
+  name:       string
+  amount:     number        // in USD
+  description?: string
+}): Promise<{ success: boolean; paymentUrl?: string; invoiceId?: string; error?: string }> {
+  if (!GHL_API_KEY || !GHL_LOCATION_ID) return { success: false, error: "GHL not configured" }
+
+  try {
+    const payload = {
+      altId:   GHL_LOCATION_ID,
+      altType: "location",
+      name:    opts.name,
+      status:  "sent",
+      currency: "USD",
+      contactDetails: { id: opts.contactId },
+      invoiceItems: [{
+        name:      opts.description || opts.name,
+        qty:       1,
+        unitPrice: opts.amount,
+      }],
+    }
+
+    const res = await fetch(`${GHL_API_BASE}/invoices/`, {
+      method: "POST",
+      headers: {
+        "Authorization":  `Bearer ${GHL_API_KEY}`,
+        "Content-Type":   "application/json",
+        "Version":        "2021-07-28",
+      },
+      body: JSON.stringify(payload),
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      const msg = (data as any).message || (data as any).error || JSON.stringify(data)
+      return { success: false, error: `${res.status}: ${msg}` }
+    }
+
+    const invoice = (data as any).invoice ?? data
+    return {
+      success:    true,
+      invoiceId:  invoice.id,
+      paymentUrl: invoice.paymentLink ?? invoice._id
+        ? `https://invoice.gohighlevel.com/invoice/${invoice.id}`
+        : undefined,
+    }
+  } catch (err: any) {
+    return { success: false, error: err?.message || "Network error" }
+  }
+}
+
+/**
  * Parse name into firstName and lastName
  */
 export function parseFullName(fullName: string): { firstName: string; lastName: string } {
