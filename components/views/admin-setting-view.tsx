@@ -12,7 +12,7 @@ import { EodFormDialogV2 } from "@/components/admin/eod-form-dialog-v2"
 type FieldKey =
   | "new_conversations_inbound"
   | "new_conversations_outbound"
-  | "conversations_replied"
+  | "outbound_replies"
   | "qualified_leads"
   | "offer_docs_sent"
   | "offer_doc_responses"
@@ -25,7 +25,7 @@ interface LogEntry {
   setter_name?: string | null
   new_conversations_inbound?: number | null
   new_conversations_outbound?: number | null
-  conversations_replied: number | null
+  outbound_replies: number | null
   qualified_leads: number | null
   offer_docs_sent: number | null
   offer_doc_responses: number | null
@@ -33,13 +33,13 @@ interface LogEntry {
 }
 
 const COLUMNS: { key: FieldKey; label: string; short: string }[] = [
-  { key: "new_conversations_inbound",   label: "Inbound",     short: "INBOUND" },
-  { key: "new_conversations_outbound",  label: "Outbound",    short: "OUTBOUND" },
-  { key: "conversations_replied",       label: "Respondidas", short: "RESPONDIDAS" },
-  { key: "qualified_leads",             label: "Leads 4-5",   short: "LEADS" },
-  { key: "offer_docs_sent",             label: "Docs Sent",   short: "DOCS" },
-  { key: "offer_doc_responses",         label: "Doc Resp.",   short: "DOC RESP" },
-  { key: "calls_done",                  label: "Llamadas",    short: "LLAMADAS" },
+  { key: "new_conversations_inbound",  label: "Inbound",        short: "INBOUND" },
+  { key: "new_conversations_outbound", label: "Outbound",       short: "OUTBOUND" },
+  { key: "outbound_replies",           label: "Resp. Outbound", short: "RESP OUT" },
+  { key: "qualified_leads",            label: "Leads 4-5",      short: "LEADS" },
+  { key: "offer_docs_sent",            label: "Docs Sent",      short: "DOCS" },
+  { key: "offer_doc_responses",        label: "Doc Resp.",       short: "DOC RESP" },
+  { key: "calls_done",                 label: "Llamadas",       short: "LLAMADAS" },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -217,7 +217,7 @@ export function AdminSettingView() {
     const totals: Record<FieldKey, number> = {
       new_conversations_inbound: 0,
       new_conversations_outbound: 0,
-      conversations_replied: 0,
+      outbound_replies: 0,
       qualified_leads: 0,
       offer_docs_sent: 0,
       offer_doc_responses: 0,
@@ -236,16 +236,16 @@ export function AdminSettingView() {
   const rates = useMemo(() => {
     const inbound = monthTotals.new_conversations_inbound
     const outbound = monthTotals.new_conversations_outbound
-    const replied = monthTotals.conversations_replied
+    const outboundReplies = monthTotals.outbound_replies
     const leads = monthTotals.qualified_leads
     const docs = monthTotals.offer_docs_sent
     const docResp = monthTotals.offer_doc_responses
     const calls = monthTotals.calls_done
 
     return {
-      responseRate: pct(replied, inbound + outbound),
-      outboundRate: pct(replied, outbound),
-      qualification: pct(leads, replied),
+      responseRate: pct(outboundReplies, inbound + outbound),
+      outboundRate: pct(outboundReplies, outbound),
+      qualification: pct(leads, outboundReplies),
       docRate: pct(docs, leads),
       docResponseRate: pct(docResp, docs),
       callRate: pct(calls, docResp),
@@ -354,7 +354,7 @@ export function AdminSettingView() {
                 {[
                   { label: "Inbound", value: monthTotals.new_conversations_inbound },
                   { label: "Outbound", value: monthTotals.new_conversations_outbound },
-                  { label: "Respondidas", value: monthTotals.conversations_replied },
+                  { label: "Resp. Out", value: monthTotals.outbound_replies },
                   { label: "Leads", value: monthTotals.qualified_leads },
                   { label: "Docs", value: monthTotals.offer_docs_sent },
                   { label: "Doc Resp.", value: monthTotals.offer_doc_responses },
