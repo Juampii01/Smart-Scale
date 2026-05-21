@@ -194,32 +194,25 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
         {/* Footer */}
         <div className={cn("flex-shrink-0 border-t border-foreground/[0.07] space-y-3", collapsed ? "lg:p-2 p-4" : "p-4")}>
           {isAdmin && (
-            <Link href="/admin/clients" onClick={onClose} title={collapsed ? "Smart Scale Internal" : undefined}>
+            <Link href="/admin/clients" onClick={onClose} title={collapsed ? "Admin" : undefined}>
               <div className={cn(
-                "group flex items-center rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.05] py-2.5 transition-all hover:border-[#ffde21]/40 hover:bg-[#ffde21]/[0.10]",
-                collapsed ? "lg:justify-center lg:px-2 px-3 gap-2.5" : "px-3 gap-2.5"
+                "group flex items-center rounded-lg py-2 transition-all hover:bg-foreground/[0.05]",
+                collapsed ? "lg:justify-center lg:px-2 px-3 gap-2" : "px-2 gap-2.5"
               )}>
-                <ShieldCheck className="h-4 w-4 text-[#ffde21] flex-shrink-0" />
+                <ShieldCheck className="h-3.5 w-3.5 text-[#ffde21]/70 flex-shrink-0 group-hover:text-[#ffde21] transition-colors" />
                 {!collapsed && (
-                  <>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-bold text-[#ffde21] tracking-wide">Smart Scale Internal</p>
-                      <p className="text-[10px] text-foreground/40 mt-0.5">Dashboard de admin</p>
-                    </div>
-                    <ArrowRight className="h-3.5 w-3.5 text-[#ffde21]/60 group-hover:text-[#ffde21] group-hover:translate-x-0.5 transition-all flex-shrink-0" />
-                  </>
+                  <span className="text-[12px] font-medium text-foreground/50 group-hover:text-foreground/80 transition-colors">
+                    Smart Scale Internal
+                  </span>
                 )}
               </div>
             </Link>
           )}
 
           {!collapsed && (
-            <div className="flex items-center gap-2.5 rounded-xl bg-foreground/[0.03] px-3 py-2.5 border border-foreground/[0.07]">
-              <span className="flex h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse flex-shrink-0" />
-              <div>
-                <p className="text-[10px] font-bold text-foreground/60 tracking-widest uppercase">Client Analytics</p>
-                <p className="text-[10px] text-foreground/30 mt-0.5">Portal 2.0</p>
-              </div>
+            <div className="flex items-center gap-2 px-2 py-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#ffde21]/50 flex-shrink-0" />
+              <p className="text-[10px] text-foreground/25 tracking-widest uppercase">Portal 2.0</p>
             </div>
           )}
         </div>
