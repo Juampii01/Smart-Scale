@@ -13,6 +13,7 @@ const FIELD_GROUPS = [
     color: "bg-blue-500",
     fields: [
       { key: "new_conversations_inbound", label: "Conversaciones inbound", hint: "Total recibidas" },
+      { key: "conversations_replied",     label: "Respondidas",            hint: "Total respondidas (inbound + outbound)" },
     ],
   },
   {
