@@ -537,38 +537,37 @@ export function AdminSettingView() {
                 </h2>
               </div>
 
-              {/* Totales */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 mb-4">
+              {/* Funnel rates — arriba */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-3">
                 {[
-                  { label: "Inbound", value: monthTotals.new_conversations_inbound },
-                  { label: "Outbound", value: monthTotals.new_conversations_outbound },
-                  { label: "Resp. Out", value: monthTotals.outbound_replies },
-                  { label: "Leads", value: monthTotals.qualified_leads },
-                  { label: "Docs", value: monthTotals.offer_docs_sent },
-                  { label: "Doc Resp.", value: monthTotals.offer_doc_responses },
-                  { label: "Calls", value: monthTotals.calls_done },
+                  { label: "Resp. Outbound", value: rates.outboundRate,    hint: "resp / outbound" },
+                  { label: "Qualification",  value: rates.qualification,   hint: "leads / resp" },
+                  { label: "Doc Rate",       value: rates.docRate,         hint: "docs / leads" },
+                  { label: "Doc Response",   value: rates.docResponseRate, hint: "doc resp / docs" },
+                  { label: "Call Rate",      value: rates.callRate,        hint: "calls / doc resp" },
                 ].map(m => (
-                  <div key={m.label} className="rounded-xl border border-foreground/10 bg-card px-3 py-2.5">
-                    <p className="text-[10px] uppercase tracking-wider text-foreground/40 mb-1">{m.label}</p>
-                    <p className="text-2xl font-bold text-foreground tabular-nums">{m.value}</p>
+                  <div key={m.label} className="rounded-xl border border-foreground/10 bg-foreground/[0.02] px-3 py-2.5">
+                    <p className="text-[10px] uppercase tracking-wider text-foreground/40">{m.label}</p>
+                    <p className="text-xl font-bold text-foreground mt-1 tabular-nums">{m.value}</p>
+                    <p className="text-[9px] text-foreground/30 mt-0.5">{m.hint}</p>
                   </div>
                 ))}
               </div>
 
-              {/* Funnel rates */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+              {/* Totales en números — abajo */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
                 {[
-                  { label: "Response Rate", value: rates.responseRate, hint: "respuestas / (inbound + outbound)" },
-                  { label: "Outbound Resp", value: rates.outboundRate, hint: "respuestas / outbound" },
-                  { label: "Qualification", value: rates.qualification, hint: "leads / respuestas" },
-                  { label: "Doc Rate", value: rates.docRate, hint: "docs / leads" },
-                  { label: "Doc Response", value: rates.docResponseRate, hint: "doc resp / docs" },
-                  { label: "Call Rate", value: rates.callRate, hint: "calls / doc resp" },
+                  { label: "Inbound",   value: monthTotals.new_conversations_inbound },
+                  { label: "Outbound",  value: monthTotals.new_conversations_outbound },
+                  { label: "Resp. Out", value: monthTotals.outbound_replies },
+                  { label: "Leads",     value: monthTotals.qualified_leads },
+                  { label: "Docs",      value: monthTotals.offer_docs_sent },
+                  { label: "Doc Resp.", value: monthTotals.offer_doc_responses },
+                  { label: "Calls",     value: monthTotals.calls_done },
                 ].map(m => (
-                  <div key={m.label} className="rounded-xl border border-foreground/10 bg-foreground/[0.02] px-3 py-2.5">
-                    <p className="text-[10px] uppercase tracking-wider text-foreground/40">{m.label}</p>
-                    <p className="text-lg font-bold text-foreground mt-1 tabular-nums">{m.value}</p>
-                    <p className="text-[9px] text-foreground/30 mt-0.5">{m.hint}</p>
+                  <div key={m.label} className="rounded-xl border border-foreground/10 bg-card px-3 py-2.5">
+                    <p className="text-[10px] uppercase tracking-wider text-foreground/40 mb-1">{m.label}</p>
+                    <p className="text-2xl font-bold text-foreground tabular-nums">{m.value}</p>
                   </div>
                 ))}
               </div>
