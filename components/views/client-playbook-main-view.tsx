@@ -12,7 +12,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Loader2, Sparkles, FileText } from "lucide-react"
+import { Loader2, Sparkles, FileText, Copy, Check } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { useActiveClient } from "@/components/layout/dashboard-layout"
 import { useCreateBlockNote } from "@blocknote/react"
@@ -55,6 +55,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   const [creating, setCreating] = useState(false)
   const [revealing, setRevealing] = useState(false)
   const [savingState, setSavingState] = useState<"idle" | "saving" | "saved" | "error">("idle")
+  const [copied, setCopied] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const saveTimer = useRef<NodeJS.Timeout | null>(null)
   // Última versión confirmada (lo que está en DB). Para revertir cuando el
@@ -186,6 +187,30 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
     }
   }, [editor, playbook, activeClientId, canManage, load])
 
+  // ── Copy to clipboard ───────────────────────────────────────────────────────
+  const handleCopy = useCallback(async () => {
+    if (!editor) return
+    // Extract plain text from all blocks recursively
+    function extractText(blocks: any[]): string {
+      return blocks.map(block => {
+        const inline = (block.content ?? [])
+          .map((c: any) => c.text ?? "")
+          .join("")
+        const children = block.children?.length
+          ? extractText(block.children)
+          : ""
+        if (block.type === "checkListItem") {
+          return `[${block.props?.checked ? "x" : " "}] ${inline}${children ? "\n" + children : ""}`
+        }
+        return [inline, children].filter(Boolean).join("\n")
+      }).filter(Boolean).join("\n")
+    }
+    const text = extractText(editor.document as any[])
+    await navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }, [editor])
+
   // ── Render ──────────────────────────────────────────────────────────────────
 
   if (!activeClientId) {
@@ -274,6 +299,18 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
             </span>
           )}
         </div>
+        <div className="flex items-center gap-3">
+          {/* Copy button */}
+          <button
+            onClick={handleCopy}
+            className="inline-flex items-center gap-1.5 h-7 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[11px] font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all"
+            title="Copiar contenido del playbook"
+          >
+            {copied
+              ? <><Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" /><span className="text-emerald-600 dark:text-emerald-400">Copiado</span></>
+              : <><Copy className="h-3 w-3" />Copiar</>
+            }
+          </button>
         <div className="flex items-center gap-1.5 text-[11px] min-w-[140px] justify-end">
           {savingState === "saving" && <span className="text-foreground/40 inline-flex items-center gap-1.5"><Loader2 className="h-3 w-3 animate-spin" />Guardando…</span>}
           {savingState === "saved"  && <span className="text-emerald-700 dark:text-emerald-400">✓ Guardado</span>}
@@ -282,6 +319,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
               {errorMsg ?? "Error"}
             </span>
           )}
+        </div>
         </div>
       </div>
 
