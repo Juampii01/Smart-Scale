@@ -93,12 +93,14 @@ export async function POST(req: NextRequest) {
     }
 
     // ── 4. Fetch client name + previous state ─────────────────────────────────
-    const [{ data: clientRow }, { data: existingRow }] = await Promise.all([
+    const [{ data: clientRow }, { data: existingRow }, { data: profileRow }] = await Promise.all([
       supabase.from("clients").select("nombre").eq("id", clientId).maybeSingle(),
       supabase.from("monthly_reports").select("new_clients").eq("client_id", clientId).eq("month", monthValue).maybeSingle(),
+      supabase.from("profiles").select("name").eq("client_id", clientId).maybeSingle(),
     ])
 
-    const clientName: string | undefined = clientRow?.nombre ?? undefined
+    // Use clients.nombre first, then profiles.name as fallback — never show a UUID
+    const clientName: string = clientRow?.nombre ?? (profileRow as any)?.name ?? "Cliente"
 
     const prevNewClients = Number(existingRow?.new_clients ?? 0) || 0
     const nextNewClients = Number(reportRow.new_clients ?? 0) || 0
@@ -154,7 +156,7 @@ export async function POST(req: NextRequest) {
     // ── 7. Fire Zapier webhooks (fire-and-forget, non-blocking) ───────────────
     const zapierBase = {
       client_id: clientId,
-      client_name: clientName ?? clientId,
+      client_name: clientName,
       month: rawMonth,
       triggered_by: userEmail ?? "sistema",
       total_revenue: Number(reportRow.total_revenue ?? 0) || undefined,
