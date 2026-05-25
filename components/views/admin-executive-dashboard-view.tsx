@@ -35,15 +35,19 @@ interface OldCashInstallment {
 }
 
 interface SetterRow {
-  setter_id: string
-  setter_name: string
-  new_conversations: number
-  qualified_leads: number
-  offer_docs_sent: number
-  calls_done: number
-  cash_collected: number
-  cierres: number
-  cierre_amount: number
+  setter_id:                  string
+  setter_name:                string
+  new_conversations_inbound:  number
+  new_conversations_outbound: number
+  outbound_replies:           number
+  total_conversations:        number
+  qualified_leads:            number
+  offer_docs_sent:            number
+  offer_doc_responses:        number
+  calls_done:                 number
+  cash_collected:             number
+  cierres:                    number
+  cierre_amount:              number
 }
 
 interface QuotaItem {
@@ -312,13 +316,18 @@ function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
 // ─── Block: Setting ───────────────────────────────────────────────────────────
 
 function SettingBlock({ data }: { data: DashboardData["setting"] }) {
-  const cols: { key: keyof SetterRow; label: string }[] = [
-    { key: "new_conversations", label: "Convs" },
-    { key: "qualified_leads",   label: "Leads" },
-    { key: "offer_docs_sent",   label: "Docs"  },
-    { key: "calls_done",        label: "Calls" },
-    { key: "cierres",           label: "Cierres" },
-    { key: "cierre_amount",     label: "Monto cerrado" },
+  type Col = { key: keyof SetterRow; label: string; highlight?: boolean }
+  const cols: Col[] = [
+    { key: "new_conversations_inbound",  label: "Inbound"     },
+    { key: "new_conversations_outbound", label: "Outbound"    },
+    { key: "outbound_replies",           label: "Resp. OB"    },
+    { key: "total_conversations",        label: "Total Conv.", highlight: true },
+    { key: "qualified_leads",            label: "Leads"       },
+    { key: "offer_docs_sent",            label: "Docs"        },
+    { key: "offer_doc_responses",        label: "Doc Resp."   },
+    { key: "calls_done",                 label: "Calls"       },
+    { key: "cierres",                    label: "Cierres",    highlight: true },
+    { key: "cierre_amount",              label: "Monto"       },
   ]
 
   return (
@@ -330,7 +339,11 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
           title="Setting / Equipo"
           subtitle="performance del período"
           badge={
-            <div className="flex gap-4 text-right">
+            <div className="flex gap-6 text-right">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#ffde21]/70">total conv.</p>
+                <p className="text-[22px] font-bold text-[#ffde21] tabular-nums">{data.totals.total_conversations}</p>
+              </div>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">cierres</p>
                 <p className="text-[22px] font-bold text-foreground tabular-nums">{data.totals.cierres}</p>
@@ -354,7 +367,13 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
                 <tr className="border-b border-foreground/[0.06]">
                   <th className="pb-2 text-left font-semibold text-foreground/40 pr-4 min-w-[120px]">Setter</th>
                   {cols.map(c => (
-                    <th key={c.key} className="pb-2 text-right font-semibold text-foreground/40 px-2 whitespace-nowrap">
+                    <th
+                      key={c.key}
+                      className={cn(
+                        "pb-2 text-right font-semibold px-2 whitespace-nowrap",
+                        c.highlight ? "text-[#ffde21]/70" : "text-foreground/40",
+                      )}
+                    >
                       {c.label}
                     </th>
                   ))}
@@ -364,14 +383,20 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
                 {data.by_setter.map(s => (
                   <tr key={s.setter_id} className="group hover:bg-foreground/[0.02] transition-colors">
                     <td className="py-2.5 pr-4 font-medium text-foreground">{s.setter_name}</td>
-                    <td className="py-2.5 px-2 text-right tabular-nums text-foreground/80">{s.new_conversations}</td>
-                    <td className="py-2.5 px-2 text-right tabular-nums text-foreground/80">{s.qualified_leads}</td>
-                    <td className="py-2.5 px-2 text-right tabular-nums text-foreground/80">{s.offer_docs_sent}</td>
-                    <td className="py-2.5 px-2 text-right tabular-nums text-foreground/80">{s.calls_done}</td>
-                    <td className="py-2.5 px-2 text-right tabular-nums font-bold text-[#ffde21]">{s.cierres}</td>
-                    <td className="py-2.5 px-2 text-right tabular-nums font-semibold text-foreground">
-                      {s.cierre_amount > 0 ? fmt(s.cierre_amount) : "—"}
-                    </td>
+                    {cols.map(c => (
+                      <td
+                        key={c.key}
+                        className={cn(
+                          "py-2.5 px-2 text-right tabular-nums",
+                          c.highlight ? "font-bold text-[#ffde21]" : "text-foreground/80",
+                          c.key === "cierre_amount" && "font-semibold text-foreground",
+                        )}
+                      >
+                        {c.key === "cierre_amount"
+                          ? (s.cierre_amount > 0 ? fmt(s.cierre_amount) : "—")
+                          : String(s[c.key])}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
@@ -379,14 +404,19 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
               <tfoot>
                 <tr className="border-t-2 border-foreground/[0.1] bg-foreground/[0.02]">
                   <td className="py-2.5 pr-4 text-[11px] font-bold uppercase tracking-wider text-foreground/50">Total</td>
-                  <td className="py-2.5 px-2 text-right tabular-nums font-bold text-foreground">{data.totals.new_conversations}</td>
-                  <td className="py-2.5 px-2 text-right tabular-nums font-bold text-foreground">{data.totals.qualified_leads}</td>
-                  <td className="py-2.5 px-2 text-right tabular-nums font-bold text-foreground">{data.totals.offer_docs_sent}</td>
-                  <td className="py-2.5 px-2 text-right tabular-nums font-bold text-foreground">{data.totals.calls_done}</td>
-                  <td className="py-2.5 px-2 text-right tabular-nums font-bold text-[#ffde21]">{data.totals.cierres}</td>
-                  <td className="py-2.5 px-2 text-right tabular-nums font-bold text-foreground">
-                    {data.totals.cierre_amount > 0 ? fmt(data.totals.cierre_amount) : "—"}
-                  </td>
+                  {cols.map(c => (
+                    <td
+                      key={c.key}
+                      className={cn(
+                        "py-2.5 px-2 text-right tabular-nums font-bold",
+                        c.highlight ? "text-[#ffde21]" : "text-foreground",
+                      )}
+                    >
+                      {c.key === "cierre_amount"
+                        ? (data.totals.cierre_amount > 0 ? fmt(data.totals.cierre_amount) : "—")
+                        : String((data.totals as any)[c.key])}
+                    </td>
+                  ))}
                 </tr>
               </tfoot>
             </table>

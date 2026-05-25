@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
       // 3. Logs de setting en el período
       supabase
         .from("setting_daily_logs")
-        .select("setter_id, new_conversations, qualified_leads, offer_docs_sent, calls_done, cash_collected")
+        .select("setter_id, new_conversations_inbound, new_conversations_outbound, outbound_replies, qualified_leads, offer_docs_sent, offer_doc_responses, calls_done, cash_collected")
         .gte("date", periodStartDate),
 
       // 4. Perfiles de setters
@@ -174,35 +174,55 @@ export async function GET(req: NextRequest) {
     for (const p of setterProfiles) setterNameMap[p.id] = p.name ?? "Sin nombre"
 
     type SetterAgg = {
-      setter_id:         string
-      setter_name:       string
-      new_conversations: number
-      qualified_leads:   number
-      offer_docs_sent:   number
-      calls_done:        number
-      cash_collected:    number
-      cierres:           number
-      cierre_amount:     number
+      setter_id:                  string
+      setter_name:                string
+      new_conversations_inbound:  number
+      new_conversations_outbound: number
+      outbound_replies:           number
+      total_conversations:        number   // inbound + outbound_replies
+      qualified_leads:            number
+      offer_docs_sent:            number
+      offer_doc_responses:        number
+      calls_done:                 number
+      cash_collected:             number
+      cierres:                    number
+      cierre_amount:              number
     }
     const setterAgg: Record<string, SetterAgg> = {}
 
     const ensureSetter = (id: string) => {
       if (!setterAgg[id]) setterAgg[id] = {
         setter_id: id, setter_name: setterNameMap[id] ?? "Setter",
-        new_conversations: 0, qualified_leads: 0,
-        offer_docs_sent: 0,   calls_done: 0,
-        cash_collected: 0,    cierres: 0, cierre_amount: 0,
+        new_conversations_inbound:  0,
+        new_conversations_outbound: 0,
+        outbound_replies:           0,
+        total_conversations:        0,
+        qualified_leads:            0,
+        offer_docs_sent:            0,
+        offer_doc_responses:        0,
+        calls_done:                 0,
+        cash_collected:             0,
+        cierres:                    0,
+        cierre_amount:              0,
       }
     }
 
     for (const log of settingLogs) {
       ensureSetter(log.setter_id)
       const a = setterAgg[log.setter_id]
-      a.new_conversations += log.new_conversations ?? 0
-      a.qualified_leads   += log.qualified_leads   ?? 0
-      a.offer_docs_sent   += log.offer_docs_sent   ?? 0
-      a.calls_done        += log.calls_done        ?? 0
-      a.cash_collected    += Number(log.cash_collected ?? 0)
+      a.new_conversations_inbound  += log.new_conversations_inbound  ?? 0
+      a.new_conversations_outbound += log.new_conversations_outbound ?? 0
+      a.outbound_replies           += log.outbound_replies           ?? 0
+      a.qualified_leads            += log.qualified_leads            ?? 0
+      a.offer_docs_sent            += log.offer_docs_sent            ?? 0
+      a.offer_doc_responses        += log.offer_doc_responses        ?? 0
+      a.calls_done                 += log.calls_done                 ?? 0
+      a.cash_collected             += Number(log.cash_collected ?? 0)
+    }
+
+    // Recompute total_conversations after aggregation
+    for (const a of Object.values(setterAgg)) {
+      a.total_conversations = a.new_conversations_inbound + a.outbound_replies
     }
 
     for (const c of cierresRaw) {
@@ -213,18 +233,34 @@ export async function GET(req: NextRequest) {
     }
 
     const settingBySetter = Object.values(setterAgg).sort(
-      (a, b) => b.cierres - a.cierres || b.new_conversations - a.new_conversations,
+      (a, b) => b.cierres - a.cierres || b.total_conversations - a.total_conversations,
     )
 
-    const zero = { new_conversations: 0, qualified_leads: 0, offer_docs_sent: 0, calls_done: 0, cash_collected: 0, cierres: 0, cierre_amount: 0 }
+    const zero: Omit<SetterAgg, "setter_id" | "setter_name"> = {
+      new_conversations_inbound:  0,
+      new_conversations_outbound: 0,
+      outbound_replies:           0,
+      total_conversations:        0,
+      qualified_leads:            0,
+      offer_docs_sent:            0,
+      offer_doc_responses:        0,
+      calls_done:                 0,
+      cash_collected:             0,
+      cierres:                    0,
+      cierre_amount:              0,
+    }
     const settingTotals = settingBySetter.reduce((t, s) => ({
-      new_conversations: t.new_conversations + s.new_conversations,
-      qualified_leads:   t.qualified_leads   + s.qualified_leads,
-      offer_docs_sent:   t.offer_docs_sent   + s.offer_docs_sent,
-      calls_done:        t.calls_done        + s.calls_done,
-      cash_collected:    t.cash_collected    + s.cash_collected,
-      cierres:           t.cierres           + s.cierres,
-      cierre_amount:     t.cierre_amount     + s.cierre_amount,
+      new_conversations_inbound:  t.new_conversations_inbound  + s.new_conversations_inbound,
+      new_conversations_outbound: t.new_conversations_outbound + s.new_conversations_outbound,
+      outbound_replies:           t.outbound_replies           + s.outbound_replies,
+      total_conversations:        t.total_conversations        + s.total_conversations,
+      qualified_leads:            t.qualified_leads            + s.qualified_leads,
+      offer_docs_sent:            t.offer_docs_sent            + s.offer_docs_sent,
+      offer_doc_responses:        t.offer_doc_responses        + s.offer_doc_responses,
+      calls_done:                 t.calls_done                 + s.calls_done,
+      cash_collected:             t.cash_collected             + s.cash_collected,
+      cierres:                    t.cierres                    + s.cierres,
+      cierre_amount:              t.cierre_amount              + s.cierre_amount,
     }), zero)
 
     // ── Bloque 4: Cuotas próximas ────────────────────────────────────────────
