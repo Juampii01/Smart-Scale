@@ -463,6 +463,13 @@ async function getTopInstagramPosts(username: string, timeframeDays: number) {
       if (!item.timestamp) return true
       return new Date(item.timestamp) >= new Date(new Date(Date.now() - timeframeDays * 86_400_000).toISOString().split("T")[0])
     })
+    .filter((item: any) => {
+      // Descartamos posts sin ningún dato útil: 0 vistas/likes Y sin caption
+      const views    = item.videoPlayCount ?? item.videoViewCount ?? item.likesCount ?? 0
+      const likes    = item.likesCount ?? 0
+      const caption  = (item.caption ?? "").trim()
+      return views > 0 || likes > 0 || caption.length > 0
+    })
     .map((item: any) => {
       const views     = item.videoPlayCount ?? item.videoViewCount ?? item.likesCount ?? 0
       const shortCode = item.shortCode ?? item.shortcode ?? null
@@ -610,7 +617,7 @@ export async function GET(req: NextRequest) {
 
 // ─── POST: nueva investigación ────────────────────────────────────────────────
 
-const MONTHLY_LIMIT = 5
+const WEEKLY_LIMIT = 3
 
 export async function POST(req: NextRequest) {
   try {
@@ -691,25 +698,27 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // ── Paso 3: límite mensual — máx 5 análisis nuevos por mes ───────────
-    const monthStart = startOfCurrentMonthUTC()
-
-    const { count: monthCount, error: countErr } = await supabase
+    // ── Paso 3: límite semanal — máx 3 análisis nuevos por semana ────────
+    const { count: weekCount, error: countErr } = await supabase
       .from("content_research_history")
       .select("id", { count: "exact", head: true })
       .eq("client_id", scope.clientId)
-      .gte("created_at", monthStart.toISOString())
+      .gte("created_at", weekStart.toISOString())
 
     if (countErr) {
-      console.warn("[content-research][month count] error:", countErr.message)
+      console.warn("[content-research][week count] error:", countErr.message)
     }
 
-    if ((monthCount ?? 0) >= MONTHLY_LIMIT) {
+    // Próximo lunes UTC
+    const nextMonday = new Date(weekStart)
+    nextMonday.setUTCDate(nextMonday.getUTCDate() + 7)
+
+    if ((weekCount ?? 0) >= WEEKLY_LIMIT) {
       return NextResponse.json({
-        error:       `Límite mensual alcanzado. Podés realizar hasta ${MONTHLY_LIMIT} análisis nuevos por mes. Los análisis ya realizados seguirán disponibles en tu historial.`,
-        limit:        MONTHLY_LIMIT,
-        used:         monthCount ?? MONTHLY_LIMIT,
-        resets_at:    new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 1)).toISOString(),
+        error:       `Límite semanal alcanzado. Podés realizar hasta ${WEEKLY_LIMIT} análisis nuevos por semana. Los análisis ya realizados seguirán disponibles en tu historial.`,
+        limit:        WEEKLY_LIMIT,
+        used:         weekCount ?? WEEKLY_LIMIT,
+        resets_at:    nextMonday.toISOString(),
         limit_reached: true,
       }, { status: 429 })
     }
@@ -761,10 +770,23 @@ export async function POST(req: NextRequest) {
     }))
 
     // ── Paso 6: guardar en historial ──────────────────────────────────────
+    // Cuando el admin actúa para un cliente, guardamos el user_id del cliente
+    // (no del admin) para que las políticas RLS de lectura directa funcionen.
+    let saveUserId = user.id
+    if (scope.role === "admin" && scope.clientId && scope.clientId !== scope.ownClientId) {
+      const { data: clientProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("client_id", scope.clientId)
+        .eq("role", "client")
+        .maybeSingle()
+      if (clientProfile?.id) saveUserId = clientProfile.id
+    }
+
     const { data: inserted, error: insertErr } = await supabase
       .from("content_research_history")
       .insert({
-        user_id:        user.id,
+        user_id:        saveUserId,
         client_id:      scope.clientId,
         platform:       isInstagram ? "instagram" : "youtube",
         channel_url:    canonicalUrl,
@@ -787,8 +809,8 @@ export async function POST(req: NextRequest) {
       timeframe_days,
       videos:        videosWithAnalysis,
       cached:        false,
-      used:          (monthCount ?? 0) + 1,
-      limit:         MONTHLY_LIMIT,
+      used:          (weekCount ?? 0) + 1,
+      limit:         WEEKLY_LIMIT,
     })
   } catch (err: any) {
     console.error("[content-research][POST] error:", err)

@@ -175,13 +175,13 @@ export function ToolsView() {
             name: "Monday Wins",
             description:
               "Formulario semanal para completar todos los lunes con wins, avances y foco de la semana.",
-            href: "https://airtable.com/appRJNO1KYgg2A5NZ/pagj4KV5jDXvwA0jx/form",
+            href: "/monday-win",
           },
           {
             name: "Monthly Report",
             description:
               "Formulario mensual para completar una vez al mes con el reporte del mes anterior.",
-            href: "https://airtable.com/appRJNO1KYgg2A5NZ/pagcUJ9vMsfMNBZBh/form",
+            href: "/report-input",
           },
         ]}
       />

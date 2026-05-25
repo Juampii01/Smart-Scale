@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { requireInternal } from "@/lib/auth/api-guards"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-// GET — list all resources
-export async function GET() {
+// GET — list all resources (cualquier usuario autenticado puede leer)
+export async function GET(req: NextRequest) {
+  const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+  if (!jwt) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
   const supabase = createServiceClient()
+  const { data: { user } } = await supabase.auth.getUser(jwt)
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
   const { data, error } = await supabase
     .from("resources")
     .select("*")
@@ -16,8 +23,12 @@ export async function GET() {
   return NextResponse.json({ resources: data ?? [] })
 }
 
-// POST — create a resource
+// POST — create a resource (solo admin/team/setter)
 export async function POST(req: NextRequest) {
+  const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+  const caller = await requireInternal(jwt)
+  if (!caller) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
   try {
     const body = await req.json()
     const { title, url, description, category, type } = body
@@ -46,8 +57,12 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// PATCH — update content (and optionally other fields) by id
+// PATCH — update content (solo admin/team/setter)
 export async function PATCH(req: NextRequest) {
+  const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+  const caller = await requireInternal(jwt)
+  if (!caller) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
   try {
     const body = await req.json()
     const { id, title, url, description, content, category, type } = body
@@ -76,8 +91,12 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-// DELETE — delete by id (?id=...)
+// DELETE — delete by id (?id=...) (solo admin/team/setter)
 export async function DELETE(req: NextRequest) {
+  const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+  const caller = await requireInternal(jwt)
+  if (!caller) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
   const id = req.nextUrl.searchParams.get("id")
   if (!id) return NextResponse.json({ error: "id requerido" }, { status: 400 })
 

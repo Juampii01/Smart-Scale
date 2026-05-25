@@ -23,34 +23,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Faltan campos obligatorios." }, { status: 400 })
     }
 
-    // Resolve client name — try clients.nombre first, then profiles.name as fallback
-    let clientName: string | null = null
+    // Resolve client name
+    let clientName = client_id
     const { data: clientRow } = await supabase
       .from("clients")
       .select("nombre")
       .eq("id", client_id)
       .maybeSingle()
-    clientName = clientRow?.nombre ?? null
 
-    if (!clientName) {
-      // Fallback: look up profiles.name where client_id matches
-      const { data: profileRow } = await supabase
-        .from("profiles")
-        .select("name")
-        .eq("client_id", client_id)
-        .maybeSingle()
-      clientName = (profileRow as any)?.name ?? null
-    }
-    if (!clientName) clientName = "Cliente"
-
-    // Resolve submitter name from profiles
-    let submitterName = user.email ?? "Usuario"
-    const { data: submitterProfile } = await supabase
-      .from("profiles")
-      .select("name")
-      .eq("id", user.id)
-      .maybeSingle()
-    if ((submitterProfile as any)?.name) submitterName = (submitterProfile as any).name
+    if (clientRow?.nombre) clientName = clientRow.nombre
 
     const nivelEmojiMap: Record<string, string> = {
       "$5K":   "🔴",
@@ -68,7 +49,7 @@ export async function POST(req: NextRequest) {
       event_type:              "chi_chang.new_deal",
       client_id,
       client_name:             clientName,
-      submitted_by:            submitterName,
+      submitted_by:            user.email,
       fecha,
       valor_trato:             Number(valor_trato),
       cash_collected:          Number(cash_collected),

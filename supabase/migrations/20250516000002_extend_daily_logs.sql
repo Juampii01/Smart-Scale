@@ -12,6 +12,6 @@ ADD COLUMN IF NOT EXISTS mrr_calculated       NUMERIC(12,2) DEFAULT 0;
 CREATE INDEX IF NOT EXISTS idx_setting_daily_logs_setter_date
   ON setting_daily_logs(setter_id, date DESC);
 
--- Index for monthly aggregations
+-- Note: date_trunc is not immutable so we use a simple date index instead
 CREATE INDEX IF NOT EXISTS idx_setting_daily_logs_month
-  ON setting_daily_logs(setter_id, date_trunc('month', date::timestamp)::date);
+  ON setting_daily_logs(setter_id, date);

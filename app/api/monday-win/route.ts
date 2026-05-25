@@ -23,38 +23,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Faltan campos obligatorios." }, { status: 400 })
     }
 
-    // Resolve client name — clients.nombre first, then profiles.name, never UUID
+    // Resolve client name from clients.nombre
+    let clientName = client_id
     const { data: clientRow } = await supabase
       .from("clients")
       .select("nombre")
       .eq("id", client_id)
       .maybeSingle()
 
-    let clientName: string = clientRow?.nombre ?? ""
-    if (!clientName) {
-      const { data: profileRow } = await supabase
-        .from("profiles")
-        .select("name")
-        .eq("client_id", client_id)
-        .maybeSingle()
-      clientName = (profileRow as any)?.name ?? "Cliente"
-    }
-
-    // Resolve submitter name from profiles
-    let submitterName = user.email ?? "Usuario"
-    const { data: submitterProfile } = await supabase
-      .from("profiles")
-      .select("name")
-      .eq("id", user.id)
-      .maybeSingle()
-    if ((submitterProfile as any)?.name) submitterName = (submitterProfile as any).name
+    if (clientRow?.nombre) clientName = clientRow.nombre
 
     // Build Zapier payload
     const payload = {
       event_type:       "monday_win.submitted",
       client_id,
       client_name:      clientName,
-      submitted_by:     submitterName,
+      submitted_by:     user.email,
       fecha,
       logro_1,
       logro_2:          logro_2 || null,

@@ -1,12 +1,11 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { createPortal } from "react-dom"
 import { createClient } from "@/lib/supabase"
 import {
   UserPlus, Loader2, Check, Copy, X, ChevronRight,
-  Phone, Calendar, DollarSign, User,
-  RefreshCw, CheckCircle2, Clock, AlertCircle, Link2, CreditCard,
+  Phone, Calendar, DollarSign, User, Mail,
+  RefreshCw, CheckCircle2, Clock, AlertCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -21,8 +20,6 @@ interface OnboardingClient {
   program_start:      string
   installment_amount: number
   num_installments:   number
-  total_amount:       number | null
-  programa:           string | null
   status:             string
   notes:              string | null
   created_at:         string
@@ -75,58 +72,82 @@ function SuccessModal({
   function copy(text: string, type: "password" | "magic") {
     navigator.clipboard.writeText(text).then(() => {
       setCopied(type)
-      setTimeout(() => setCopied(null), 2500)
+      setTimeout(() => setCopied(null), 2000)
     })
   }
 
-  if (typeof document === "undefined") return null
-
-  return createPortal(
-    <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "grid", placeItems: "center" }}>
-      {/* Backdrop — no cierra al click */}
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)" }} />
-
-      <div className="relative z-10 w-full max-w-sm mx-4 flex flex-col items-center gap-6">
-
-        {/* Ícono animado */}
-        <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-[#ffde21]/40 bg-[#ffde21]/10 shadow-[0_0_40px_rgba(255,222,33,0.25)]">
-          <Check className="h-9 w-9 text-[#ffde21]" strokeWidth={2.5} />
-        </div>
-
-        {/* Título */}
-        <div className="text-center">
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#ffde21]/60 mb-1">Smart Scale</p>
-          <h2 className="text-3xl font-black tracking-tight text-white">ONBOARDING</h2>
-          <h2 className="text-3xl font-black tracking-tight text-[#ffde21]">REALIZADO</h2>
-          <p className="mt-2 text-[13px] text-white/40">{name}</p>
-        </div>
-
-        {/* Contraseña */}
-        {tempPassword && (
-          <div className="w-full">
-            <p className="mb-2 text-center text-[10px] font-semibold uppercase tracking-widest text-white/30">Contraseña del cliente</p>
-            <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3">
-              <code className="flex-1 font-mono text-[15px] text-white tracking-widest">{tempPassword}</code>
-              <button
-                onClick={() => copy(tempPassword, "password")}
-                className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[11px] font-semibold text-white/60 hover:bg-white/[0.1] hover:text-white transition-colors shrink-0"
-              >
-                {copied === "password" ? <><Check className="h-3 w-3 text-[#ffde21]" /> Copiado</> : <><Copy className="h-3 w-3" /> Copiar</>}
-              </button>
-            </div>
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="mb-5 flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20">
+            <Check className="h-5 w-5 text-emerald-500" />
+          </span>
+          <div>
+            <h3 className="font-bold text-foreground">Onboarding creado</h3>
+            <p className="text-[12px] text-foreground/50">El cliente ya tiene acceso al dashboard.</p>
           </div>
-        )}
+        </div>
 
-        {/* CTA */}
+        <div className="space-y-3 rounded-xl border border-border bg-foreground/[0.02] p-4">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">Cliente</p>
+            <p className="mt-0.5 font-semibold text-foreground">{name}</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">Email</p>
+            <p className="mt-0.5 text-[13px] text-foreground">{email}</p>
+          </div>
+          {magicLink && (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">Magic Link (acceso inmediato)</p>
+              <div className="mt-1.5 flex items-start gap-2">
+                <a
+                  href={magicLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 text-[12px] text-[#ffde21] hover:text-[#ffe84d] break-all line-clamp-2 underline"
+                >
+                  {magicLink}
+                </a>
+                <button
+                  onClick={() => copy(magicLink, "magic")}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-foreground/50 hover:text-foreground transition-colors"
+                >
+                  {copied === "magic" ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                </button>
+              </div>
+              <p className="mt-1.5 text-[10px] text-foreground/35">El cliente puede usar este link para acceder sin contraseña. Válido por 24 horas.</p>
+            </div>
+          )}
+          {tempPassword && (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">Contraseña temporal</p>
+              <div className="mt-1.5 flex items-center gap-2">
+                <code className="flex-1 rounded-lg border border-border bg-background px-3 py-2 font-mono text-[13px] text-foreground">
+                  {tempPassword}
+                </code>
+                <button
+                  onClick={() => copy(tempPassword, "password")}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-foreground/50 hover:text-foreground transition-colors"
+                >
+                  {copied === "password" ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                </button>
+              </div>
+              <p className="mt-1.5 text-[10px] text-foreground/35">Alternativa si no usa magic link. Puede cambiarla desde su perfil.</p>
+            </div>
+          )}
+        </div>
+
         <button
           onClick={onClose}
-          className="w-full rounded-2xl bg-[#ffde21] py-3.5 text-[15px] font-black text-black tracking-wide transition hover:bg-[#ffe84d] active:scale-[0.98]"
+          className="mt-4 w-full rounded-xl bg-[#ffde21] py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe84d]"
         >
           Listo
         </button>
       </div>
-    </div>,
-    document.body
+    </div>
   )
 }
 
@@ -380,11 +401,7 @@ function OnboardingForm({
 // ─── Client card ──────────────────────────────────────────────────────────────
 
 function ClientCard({ client }: { client: OnboardingClient }) {
-  const total        = client.total_amount ?? client.installment_amount
-  const cuotaAmount  = client.num_installments > 1
-    ? total / client.num_installments
-    : total
-
+  const mrr = client.installment_amount * client.num_installments
   return (
     <div className="rounded-2xl border border-border bg-card p-4 transition hover:border-foreground/[0.12]">
       <div className="flex items-start justify-between gap-3">
@@ -401,10 +418,10 @@ function ClientCard({ client }: { client: OnboardingClient }) {
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border/60 pt-3 sm:grid-cols-4">
-        {client.programa && (
+        {client.instagram && (
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Programa</p>
-            <p className="mt-0.5 text-[12px] text-foreground/70">{client.programa}</p>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Instagram</p>
+            <p className="mt-0.5 text-[12px] text-foreground/70">{client.instagram}</p>
           </div>
         )}
         <div>
@@ -412,365 +429,24 @@ function ClientCard({ client }: { client: OnboardingClient }) {
           <p className="mt-0.5 text-[12px] text-foreground/70">{fmtDate(client.program_start)}</p>
         </div>
         <div>
-          <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Cuotas</p>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Plan</p>
           <p className="mt-0.5 text-[12px] text-foreground/70">
-            {client.num_installments > 1
-              ? `${fmtCurrency(cuotaAmount)} × ${client.num_installments}`
-              : "Pago único"}
+            {fmtCurrency(client.installment_amount)} × {client.num_installments}
           </p>
         </div>
         <div>
           <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Total</p>
-          <p className="mt-0.5 text-[12px] font-semibold text-foreground">{fmtCurrency(total)}</p>
+          <p className="mt-0.5 text-[12px] font-semibold text-foreground">{fmtCurrency(mrr)}</p>
         </div>
+        {client.notes && (
+          <div className="col-span-2 sm:col-span-4">
+            <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Notas</p>
+            <p className="mt-0.5 text-[11px] text-foreground/55 line-clamp-1">{client.notes}</p>
+          </div>
+        )}
       </div>
 
       <p className="mt-2 text-[10px] text-foreground/25">{fmtDate(client.created_at)}</p>
-    </div>
-  )
-}
-
-// ─── Link Generator Section ───────────────────────────────────────────────────
-
-function LinkGeneratorSection() {
-  const supabase = createClient()
-  const [email,     setEmail]     = useState("")
-  const [loading,   setLoading]   = useState(false)
-  const [magicLink, setMagicLink] = useState<string | null>(null)
-  const [error,     setError]     = useState<string | null>(null)
-  const [copied,    setCopied]    = useState(false)
-
-  async function handleGenerate(e: React.FormEvent) {
-    e.preventDefault()
-    setError(null)
-    setMagicLink(null)
-    setLoading(true)
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { setError("Sin sesión"); return }
-
-      const res = await fetch("/api/admin/magic-link", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ email: email.trim() }),
-      })
-      const json = await res.json()
-      if (!res.ok) { setError(json?.error ?? "Error al generar link"); return }
-      setMagicLink(json.magicLink)
-    } catch (err: any) {
-      setError(err?.message ?? "Error inesperado")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  function copy() {
-    if (!magicLink) return
-    navigator.clipboard.writeText(magicLink).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    })
-  }
-
-  const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 text-[13px] text-foreground placeholder:text-foreground/25 outline-none transition-all focus:border-[#ffde21]/40 focus:bg-foreground/[0.05] focus:ring-2 focus:ring-[#ffde21]/10"
-
-  return (
-    <div className="rounded-2xl border border-foreground/[0.08] bg-card p-5">
-      <div className="mb-4 flex items-center gap-3">
-        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-foreground/[0.06] border border-foreground/[0.08]">
-          <Link2 className="h-3.5 w-3.5 text-foreground/50" />
-        </span>
-        <div>
-          <h3 className="text-[13px] font-bold text-foreground">Crear link de acceso</h3>
-          <p className="text-[11px] text-foreground/40">Genera un magic link de 24hs para un cliente existente.</p>
-        </div>
-      </div>
-
-      <form onSubmit={handleGenerate} className="flex items-start gap-2">
-        <div className="flex-1">
-          <input
-            className={inputCls}
-            type="email"
-            placeholder="email@cliente.com"
-            value={email}
-            onChange={e => { setEmail(e.target.value); setMagicLink(null); setError(null) }}
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading || !email}
-          className="flex h-10 items-center gap-2 rounded-xl bg-foreground/[0.07] border border-foreground/[0.08] px-4 text-[13px] font-medium text-foreground/70 hover:bg-foreground/[0.10] hover:text-foreground transition-colors disabled:opacity-40 shrink-0"
-        >
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Link2 className="h-3.5 w-3.5" />}
-          Generar
-        </button>
-      </form>
-
-      {error && (
-        <div className="mt-3 flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-3 py-2 text-[12px] text-red-700 dark:text-red-400">
-          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-          {error}
-        </div>
-      )}
-
-      {magicLink && (
-        <div className="mt-3 rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.04] p-3">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/60">Link generado · válido 24hs</p>
-          <div className="flex items-start gap-2">
-            <p className="flex-1 break-all text-[11px] text-foreground/70 line-clamp-2">{magicLink}</p>
-            <button
-              onClick={copy}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#ffde21]/30 bg-[#ffde21]/10 text-[#ffde21] hover:bg-[#ffde21]/20 transition-colors"
-            >
-              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── Payment Link Row ─────────────────────────────────────────────────────────
-
-function PaymentLinkRow({ label, detail, url }: { label: string; detail: string; url: string }) {
-  const [copied, setCopied] = useState(false)
-  function copy() {
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true); setTimeout(() => setCopied(false), 2000)
-    })
-  }
-  return (
-    <div className="flex items-center gap-3 rounded-xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-3">
-      <CreditCard className="h-4 w-4 shrink-0 text-foreground/30" />
-      <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-semibold text-foreground">{label}</p>
-        <p className="text-[11px] text-foreground/45">{detail}</p>
-      </div>
-      <button
-        onClick={copy}
-        className="flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-[12px] font-medium text-foreground/60 hover:bg-foreground/[0.08] hover:text-foreground transition-colors shrink-0"
-      >
-        {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
-        {copied ? "Copiado" : "Copiar"}
-      </button>
-    </div>
-  )
-}
-
-// ─── Payment Link Section ─────────────────────────────────────────────────────
-
-function PaymentLinkSection() {
-  const supabase = createClient()
-  const [type,         setType]         = useState<"once" | "recurring">("once")
-  const [amount,       setAmount]       = useState("")
-  const [amountPer,    setAmountPer]    = useState("")
-  const [installments, setInstallments] = useState("")
-  const [description,  setDescription]  = useState("")
-  const [loading,      setLoading]      = useState(false)
-  const [paymentUrl,   setPaymentUrl]   = useState<string | null>(null)
-  const [summary,      setSummary]      = useState<string | null>(null)
-  const [error,        setError]        = useState<string | null>(null)
-  const [copied,       setCopied]       = useState(false)
-
-  const totalRecurring = amountPer && installments
-    ? Number(amountPer) * Number(installments)
-    : null
-
-  async function handleGenerate(e: React.FormEvent) {
-    e.preventDefault()
-    setError(null); setPaymentUrl(null); setSummary(null)
-    setLoading(true)
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { setError("Sin sesión"); return }
-
-      const bodyPayload = type === "once"
-        ? { type, amount: Number(amount), description: description || null }
-        : { type, amount_per_installment: Number(amountPer), installments: Number(installments), description: description || null }
-
-      const res = await fetch("/api/admin/payment-link", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify(bodyPayload),
-      })
-      const json = await res.json()
-      if (!res.ok) { setError(json?.error ?? "Error al generar link"); return }
-
-      setPaymentUrl(json.paymentUrl)
-      setSummary(type === "once"
-        ? `Pago único — $${json.amount}`
-        : `${json.installments} cuotas de $${json.amount_per_installment} — Total $${json.total}`
-      )
-    } catch (err: any) {
-      setError(err?.message ?? "Error inesperado")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  function copy() {
-    if (!paymentUrl) return
-    navigator.clipboard.writeText(paymentUrl).then(() => {
-      setCopied(true); setTimeout(() => setCopied(false), 2000)
-    })
-  }
-
-  const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 text-[13px] text-foreground placeholder:text-foreground/25 outline-none transition-all focus:border-[#ffde21]/40 focus:bg-foreground/[0.05] focus:ring-2 focus:ring-[#ffde21]/10"
-  const labelCls = "block text-[10px] font-semibold uppercase tracking-widest text-foreground/40 mb-1.5"
-
-  return (
-    <div className="space-y-4">
-    <div className="rounded-2xl border border-foreground/[0.08] bg-card p-6">
-      <div className="mb-5 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ffde21]/10 border border-[#ffde21]/20">
-            <CreditCard className="h-4 w-4 text-[#ffde21]" />
-          </span>
-          <div>
-            <h2 className="font-bold text-foreground">Crear link de pago</h2>
-            <p className="text-[12px] text-foreground/45">Genera un link de Stripe para enviarle al cliente.</p>
-          </div>
-        </div>
-        <span className="rounded-full border border-[#ffde21]/30 bg-[#ffde21]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#ffde21]/70">
-          Próximamente
-        </span>
-      </div>
-
-      <form onSubmit={handleGenerate} className="space-y-5 pointer-events-none opacity-40 select-none">
-
-        {/* Tipo de pago */}
-        <div className="flex gap-2">
-          {([
-            { key: "once",      label: "Pago único"  },
-            { key: "recurring", label: "En cuotas"   },
-          ] as const).map(t => (
-            <button
-              key={t.key}
-              type="button"
-              onClick={() => { setType(t.key); setPaymentUrl(null); setError(null) }}
-              className={cn(
-                "flex-1 rounded-xl border py-2 text-[13px] font-medium transition-all",
-                type === t.key
-                  ? "border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21]"
-                  : "border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:text-foreground"
-              )}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Campos según tipo */}
-        {type === "once" ? (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <label className={labelCls}>Monto (USD) *</label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/30" />
-                <input className={cn(inputCls, "pl-8")} type="number" min="1" placeholder="1500"
-                  value={amount} onChange={e => { setAmount(e.target.value); setPaymentUrl(null) }} required />
-              </div>
-            </div>
-            <div>
-              <label className={labelCls}>Descripción</label>
-              <input className={inputCls} placeholder="Ej: Smart Scale Grupal" value={description} onChange={e => setDescription(e.target.value)} />
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div>
-              <label className={labelCls}>Monto por cuota (USD) *</label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/30" />
-                <input className={cn(inputCls, "pl-8")} type="number" min="1" placeholder="1500"
-                  value={amountPer} onChange={e => { setAmountPer(e.target.value); setPaymentUrl(null) }} required />
-              </div>
-            </div>
-            <div>
-              <label className={labelCls}>Cantidad de cuotas *</label>
-              <input className={inputCls} type="number" min="1" max="24" placeholder="6"
-                value={installments} onChange={e => { setInstallments(e.target.value); setPaymentUrl(null) }} required />
-            </div>
-            <div>
-              <label className={labelCls}>Descripción</label>
-              <input className={inputCls} placeholder="Smart Scale Grupal" value={description} onChange={e => setDescription(e.target.value)} />
-            </div>
-            {totalRecurring && (
-              <div className="sm:col-span-3 rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-4 py-2.5 text-[12px] text-foreground/50">
-                Total: <span className="font-bold text-foreground">${totalRecurring.toLocaleString()}</span>
-                {" "}({installments} cuotas de ${Number(amountPer).toLocaleString()}/mes)
-              </div>
-            )}
-          </div>
-        )}
-
-        {error && (
-          <div className="flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-4 py-3 text-[12px] text-red-700 dark:text-red-400">
-            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />{error}
-          </div>
-        )}
-
-        {paymentUrl && (
-          <div className="rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.04] p-4">
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/60">Link generado</p>
-            {summary && <p className="mb-2 text-[11px] text-foreground/50">{summary}</p>}
-            <div className="flex items-start gap-2">
-              <a href={paymentUrl} target="_blank" rel="noopener noreferrer"
-                className="flex-1 break-all text-[12px] text-[#ffde21] hover:text-[#ffe84d] underline line-clamp-2">
-                {paymentUrl}
-              </a>
-              <button type="button" onClick={copy}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#ffde21]/30 bg-[#ffde21]/10 text-[#ffde21] hover:bg-[#ffde21]/20 transition-colors">
-                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="flex justify-end border-t border-foreground/[0.05] pt-4">
-          <button type="submit" disabled={loading}
-            className="flex items-center gap-2 rounded-xl bg-[#ffde21] px-5 py-2 text-[13px] font-bold text-black transition hover:bg-[#ffe84d] disabled:opacity-50">
-            {loading
-              ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generando…</>
-              : <><CreditCard className="h-3.5 w-3.5" /> Generar link de pago</>}
-          </button>
-        </div>
-      </form>
-    </div>
-
-    {/* Links manuales */}
-    <div className="rounded-2xl border border-foreground/[0.08] bg-card p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-foreground/[0.06] border border-foreground/[0.08]">
-            <Link2 className="h-3.5 w-3.5 text-foreground/50" />
-          </span>
-          <div>
-            <h3 className="text-[13px] font-bold text-foreground">Links de pagos</h3>
-            <p className="text-[11px] text-foreground/40">Copiá el link y enviáselo al cliente.</p>
-          </div>
-        </div>
-        <a
-          href="https://app.mazefunnels.com/location/E1oNhkzQzo6coEkINu7k/payments/links"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[11px] text-foreground/30 hover:text-foreground/60 transition-colors"
-        >
-          Gestionar en GHL →
-        </a>
-      </div>
-      <div className="space-y-2">
-        {[
-          { label: "Pago único",              detail: "$6.000",                        url: "https://os.strategycoach.us/payment-link/6a0cc4bedf34fbd99ba7a380" },
-          { label: "Recurrente 6 cuotas",     detail: "$1.250 / mes · Total $7.500",   url: "https://os.strategycoach.us/payment-link/6a0c8c50ee2395af2c17f43e" },
-          { label: "Recurrente 6 cuotas",     detail: "$1.500 / mes · Total $9.000",   url: "https://os.strategycoach.us/payment-link/69f0b86dc970abb4095aff64" },
-        ].map((link) => (
-          <PaymentLinkRow key={link.url} {...link} />
-        ))}
-      </div>
-    </div>
     </div>
   )
 }
@@ -780,7 +456,6 @@ function PaymentLinkSection() {
 export function AdminOnboardingView() {
   const supabase = createClient()
 
-  const [tab,      setTab]      = useState<"onboarding" | "payment">("onboarding")
   const [view,     setView]     = useState<"list" | "form">("list")
   const [clients,  setClients]  = useState<OnboardingClient[]>([])
   const [setters,  setSetters]  = useState<SetterProfile[]>([])
@@ -814,9 +489,9 @@ export function AdminOnboardingView() {
   useEffect(() => { loadClients() }, [loadClients])
 
   function handleSuccess(data: { name: string; email: string; tempPassword: string | null; magicLink: string | null }) {
-    setView("list")
     setSuccess(data)
-    // loadClients se llama al cerrar el modal para no interrumpir la pantalla de éxito
+    setView("list")
+    loadClients()
   }
 
   return (
@@ -831,79 +506,45 @@ export function AdminOnboardingView() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {tab === "onboarding" && (
-            <>
-              <button
-                onClick={loadClients}
-                disabled={loading}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-foreground/50 hover:text-foreground hover:bg-foreground/[0.04] transition-colors"
-                title="Recargar"
-              >
-                <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
-              </button>
-              {view === "list" ? (
-                <button
-                  onClick={() => setView("form")}
-                  className="flex items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2 text-[13px] font-bold text-black transition hover:bg-[#ffe84d]"
-                >
-                  <UserPlus className="h-3.5 w-3.5" />
-                  Nuevo onboarding
-                </button>
-              ) : (
-                <button
-                  onClick={() => setView("list")}
-                  className="flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-[13px] font-medium text-foreground/70 hover:bg-foreground/[0.04] transition-colors"
-                >
-                  <X className="h-3.5 w-3.5" />
-                  Cancelar
-                </button>
-              )}
-            </>
+          <button
+            onClick={loadClients}
+            disabled={loading}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-foreground/50 hover:text-foreground hover:bg-foreground/[0.04] transition-colors"
+            title="Recargar"
+          >
+            <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
+          </button>
+          {view === "list" ? (
+            <button
+              onClick={() => setView("form")}
+              className="flex items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2 text-[13px] font-bold text-black transition hover:bg-[#ffe84d]"
+            >
+              <UserPlus className="h-3.5 w-3.5" />
+              Nuevo onboarding
+            </button>
+          ) : (
+            <button
+              onClick={() => setView("list")}
+              className="flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-[13px] font-medium text-foreground/70 hover:bg-foreground/[0.04] transition-colors"
+            >
+              <X className="h-3.5 w-3.5" />
+              Cancelar
+            </button>
           )}
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 rounded-xl border border-foreground/[0.07] bg-foreground/[0.02] p-1 w-fit">
-        {([
-          { key: "onboarding", label: "Onboarding",      icon: UserPlus  },
-          { key: "payment",    label: "Link de Pago",    icon: CreditCard },
-        ] as const).map(t => (
-          <button
-            key={t.key}
-            onClick={() => { setTab(t.key); if (t.key === "onboarding") setView("list") }}
-            className={cn(
-              "flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium transition-all",
-              tab === t.key
-                ? "bg-card border border-foreground/[0.08] text-foreground shadow-sm"
-                : "text-foreground/50 hover:text-foreground"
-            )}
-          >
-            <t.icon className="h-3.5 w-3.5" />
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab: Onboarding */}
-      {tab === "onboarding" && (
-        <>
-          {/* Form */}
-          {view === "form" && (
-            <OnboardingForm
-              setters={setters}
-              onSuccess={handleSuccess}
-              onCancel={() => setView("list")}
-            />
-          )}
-        </>
+      {/* Form */}
+      {view === "form" && (
+        <OnboardingForm
+          setters={setters}
+          onSuccess={handleSuccess}
+          onCancel={() => setView("list")}
+        />
       )}
 
-      {/* Tab: Link de Pago */}
-      {tab === "payment" && <PaymentLinkSection />}
-
-      {/* List — solo en tab onboarding */}
-      {tab === "onboarding" && view === "list" && (
+      {/* List */}
+      {view === "list" && (
         <>
           {loading ? (
             <div className="flex items-center justify-center py-16">
@@ -937,7 +578,7 @@ export function AdminOnboardingView() {
           email={success.email}
           tempPassword={success.tempPassword}
           magicLink={success.magicLink}
-          onClose={() => { setSuccess(null); loadClients() }}
+          onClose={() => setSuccess(null)}
         />
       )}
     </div>

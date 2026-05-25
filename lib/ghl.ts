@@ -5,8 +5,7 @@
 
 const GHL_API_KEY = process.env.GHL_API_KEY
 const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID
-// pit- tokens son Private Integration tokens → API v2
-const GHL_API_BASE = "https://services.leadconnectorhq.com"
+const GHL_API_BASE = "https://rest.gohighlevel.com/v1"
 
 interface GHLContactData {
   firstName: string
@@ -38,19 +37,14 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
   }
 
   try {
-    const payload: Record<string, any> = {
-      locationId: GHL_LOCATION_ID,
-      firstName:  data.firstName,
-      lastName:   data.lastName || "",
-      email:      data.email,
-      phone:      data.phone || "",
-      source:     data.source || "Smart Scale",
-      tags:       data.tags || ["smart-scale"],
-    }
-
-    // customFields como array de { key, value } para v2
-    if (data.customFields && Object.keys(data.customFields).length > 0) {
-      payload.customFields = Object.entries(data.customFields).map(([key, value]) => ({ key, value }))
+    const payload = {
+      firstName: data.firstName,
+      lastName: data.lastName || "",
+      email: data.email,
+      phone: data.phone || "",
+      source: data.source || "Smart Scale",
+      customFields: data.customFields || {},
+      tags: data.tags || ["smart-scale"],
     }
 
     const response = await fetch(`${GHL_API_BASE}/contacts/`, {
@@ -58,7 +52,7 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
       headers: {
         "Authorization": `Bearer ${GHL_API_KEY}`,
         "Content-Type": "application/json",
-        "Version": "2021-07-28",
+        "Version": "2021-04-15",
       },
       body: JSON.stringify(payload),
     })
@@ -66,11 +60,13 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
     const result = await response.json()
 
     if (!response.ok) {
-      const errMsg = (result as any).message || (result as any).error || JSON.stringify(result)
-      console.error("GHL contact creation failed:", { status: response.status, body: result })
+      console.error("GHL contact creation failed:", {
+        status: response.status,
+        error: (result as any).error || (result as any).message,
+      })
       return {
         success: false,
-        error: `${response.status}: ${errMsg}`,
+        error: (result as any).error || "Unknown error",
       }
     }
 
@@ -85,77 +81,6 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
       success: false,
       error: (err as any).message || "Network error",
     }
-  }
-}
-
-/**
- * Search a contact in GHL by email, returns contact id or null
- */
-export async function findGHLContactByEmail(email: string): Promise<string | null> {
-  if (!GHL_API_KEY || !GHL_LOCATION_ID) return null
-  try {
-    const res = await fetch(
-      `${GHL_API_BASE}/contacts/search/duplicate?locationId=${GHL_LOCATION_ID}&email=${encodeURIComponent(email)}`,
-      { headers: { "Authorization": `Bearer ${GHL_API_KEY}`, "Version": "2021-07-28" } }
-    )
-    const data = await res.json()
-    return (data as any)?.contact?.id ?? null
-  } catch { return null }
-}
-
-/**
- * Create a GHL Invoice and return its payment URL
- */
-export async function createGHLInvoice(opts: {
-  contactId: string
-  name:       string
-  amount:     number        // in USD
-  description?: string
-}): Promise<{ success: boolean; paymentUrl?: string; invoiceId?: string; error?: string }> {
-  if (!GHL_API_KEY || !GHL_LOCATION_ID) return { success: false, error: "GHL not configured" }
-
-  try {
-    const payload = {
-      altId:   GHL_LOCATION_ID,
-      altType: "location",
-      name:    opts.name,
-      status:  "sent",
-      currency: "USD",
-      contactDetails: { id: opts.contactId },
-      invoiceItems: [{
-        name:      opts.description || opts.name,
-        qty:       1,
-        unitPrice: opts.amount,
-      }],
-    }
-
-    const res = await fetch(`${GHL_API_BASE}/invoices/`, {
-      method: "POST",
-      headers: {
-        "Authorization":  `Bearer ${GHL_API_KEY}`,
-        "Content-Type":   "application/json",
-        "Version":        "2021-07-28",
-      },
-      body: JSON.stringify(payload),
-    })
-
-    const data = await res.json()
-
-    if (!res.ok) {
-      const msg = (data as any).message || (data as any).error || JSON.stringify(data)
-      return { success: false, error: `${res.status}: ${msg}` }
-    }
-
-    const invoice = (data as any).invoice ?? data
-    return {
-      success:    true,
-      invoiceId:  invoice.id,
-      paymentUrl: invoice.paymentLink ?? invoice._id
-        ? `https://invoice.gohighlevel.com/invoice/${invoice.id}`
-        : undefined,
-    }
-  } catch (err: any) {
-    return { success: false, error: err?.message || "Network error" }
   }
 }
 

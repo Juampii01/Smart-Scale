@@ -220,8 +220,8 @@ function AnalysisCard({ item, onDelete, deletingId }: {
             <span className="text-[15px] font-semibold text-foreground">
               {isInstagram ? "Instagram" : "Youtube"}
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 inline-block" />
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-100 dark:bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 inline-block" />
               Completado
             </span>
           </div>
@@ -243,7 +243,7 @@ function AnalysisCard({ item, onDelete, deletingId }: {
           <button
             onClick={() => onDelete(item.id)}
             disabled={deletingId === item.id}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/25 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/25 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
@@ -285,7 +285,7 @@ function CompetitorResearchContent() {
   const [error, setError] = useState<string | null>(null)
   const [limitReached, setLimitReached] = useState<{ used: number; limit: number; resets_at: string } | null>(null)
   const [cachedNotice, setCachedNotice] = useState(false)
-  const [monthUsage, setMonthUsage] = useState<{ used: number; limit: number } | null>(null)
+  const [weekUsage, setWeekUsage] = useState<{ used: number; limit: number } | null>(null)
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [historyLoading, setHistoryLoading] = useState(true)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -308,7 +308,7 @@ function CompetitorResearchContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!channelUrl.trim() || loading) return
+    if (!channelUrl.trim() || !activeClientId || loading) return
     setLoading(true)
     setError(null)
     setLimitReached(null)
@@ -333,7 +333,7 @@ function CompetitorResearchContent() {
 
       // Update monthly usage counter
       if (data.used != null && data.limit != null) {
-        setMonthUsage({ used: data.used, limit: data.limit })
+        setWeekUsage({ used: data.used, limit: data.limit })
       }
 
       // If result came from cache, show a notice
@@ -456,43 +456,43 @@ function CompetitorResearchContent() {
           </form>
 
           {/* Usage counter */}
-          {monthUsage && !limitReached && (
+          {weekUsage && !limitReached && (
             <div className="flex items-center gap-2 rounded-xl border border-foreground/[0.06] bg-foreground/[0.03] px-4 py-2.5">
               <Zap className="h-3.5 w-3.5 text-[#ffde21]/60 shrink-0" />
               <span className="text-xs text-foreground/40">
-                Análisis este mes: <span className={`font-semibold ${monthUsage.used >= monthUsage.limit ? "text-red-400" : "text-foreground/70"}`}>{monthUsage.used}</span>
-                <span className="text-foreground/25"> / {monthUsage.limit}</span>
+                Análisis esta semana: <span className={`font-semibold ${weekUsage.used >= weekUsage.limit ? "text-red-700 dark:text-red-400" : "text-foreground/70"}`}>{weekUsage.used}</span>
+                <span className="text-foreground/25"> / {weekUsage.limit}</span>
               </span>
             </div>
           )}
 
           {/* Cache notice */}
           {cachedNotice && (
-            <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5">
-              <Zap className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-              <span className="text-xs text-emerald-300">Resultado del caché — ya analizaste este canal esta semana. No se usaron tokens.</span>
+            <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-100 dark:bg-emerald-500/10 px-4 py-2.5">
+              <Zap className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className="text-xs text-emerald-700 dark:text-emerald-300">Resultado del caché — ya analizaste este canal esta semana. No se usaron tokens.</span>
             </div>
           )}
 
           {/* Limit reached */}
           {limitReached && (
-            <div className="flex items-start gap-3 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3">
-              <AlertTriangle className="h-4 w-4 text-amber-400 mt-0.5 shrink-0" />
+            <div className="flex items-start gap-3 rounded-xl border border-amber-500/25 bg-amber-100 dark:bg-amber-500/10 px-4 py-3">
+              <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-amber-300">Límite mensual alcanzado</p>
-                <p className="text-xs text-amber-200/60 mt-0.5">
-                  Usaste {limitReached.used} de {limitReached.limit} análisis disponibles este mes.
+                <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">Límite semanal alcanzado</p>
+                <p className="text-xs text-amber-700/70 dark:text-amber-200/60 mt-0.5">
+                  Usaste {limitReached.used} de {limitReached.limit} análisis disponibles esta semana.
                   Los análisis se renuevan el{" "}
                   {new Date(limitReached.resets_at).toLocaleDateString("es-AR", { day: "numeric", month: "long" })}.
                 </p>
-                <p className="text-xs text-amber-200/40 mt-1">Tus análisis anteriores siguen disponibles en el historial.</p>
+                <p className="text-xs text-amber-700/50 dark:text-amber-200/40 mt-1">Tus análisis anteriores siguen disponibles en el historial.</p>
               </div>
             </div>
           )}
 
           {/* Generic error */}
           {error && (
-            <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            <div className="rounded-xl border border-red-500/20 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
               {error}
             </div>
           )}

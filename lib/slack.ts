@@ -169,7 +169,7 @@ export async function notifyMonthlyReportCompleted(payload: {
   triggered_by?: string
 }): Promise<SlackResult> {
   const month = payload.month ?? "—"
-  const clientName = payload.client_name ?? "Cliente"
+  const clientName = payload.client_name ?? payload.client_id ?? "Cliente"
   const revenue = payload.total_revenue != null
     ? `$${Number(payload.total_revenue).toLocaleString()}`
     : "—"
@@ -216,7 +216,7 @@ export async function notifySaleRegistered(payload: {
   triggered_by?: string
 }): Promise<SlackResult> {
   const month = payload.month ?? "—"
-  const clientName = payload.client_name ?? "Cliente"
+  const clientName = payload.client_name ?? payload.client_id ?? "Cliente"
   const count = payload.new_clients
   const revenue = payload.total_revenue != null
     ? `$${Number(payload.total_revenue).toLocaleString()}`

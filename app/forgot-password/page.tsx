@@ -21,27 +21,17 @@ export default function ForgotPasswordPage() {
     const cleanEmail = email.trim().toLowerCase();
 
     try {
+      const redirectTo = `${window.location.origin}/reset-password`
+
       const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-        redirectTo: "https://smartscalestrategy.netlify.app/reset-password",
-    })
+        redirectTo,
+      })
 
       if (error) {
-        const anyErr = error as any;
-        const status = anyErr?.status;
-        const code = anyErr?.code;
-        const message = anyErr?.message || "Error sending recovery email";
-
-    // Mostramos TODO para debug (en la UI)
-        setErr(
-            `Error enviando email.\n` +
-            `status: ${status ?? "?"}\n` +
-            `code: ${code ?? "?"}\n` +
-            `message: ${message}`
-        );
-
-        setLoading(false);
-        return;
-}
+        setErr(error.message || "No pudimos enviar el email. Intentá de nuevo en unos minutos.")
+        setLoading(false)
+        return
+      }
 
       setMsg(
         "Listo. Te envié un email con el link para resetear tu contraseña. Abrilo directamente desde el email."

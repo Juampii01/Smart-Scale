@@ -99,7 +99,7 @@ export default function SignupPage() {
       error: errInfo(error),
     };
 
-    setDebug(debugPayload);
+    if (process.env.NODE_ENV === "development") setDebug(debugPayload);
 
     if (error) {
       if (isAlreadyRegisteredError(error)) {
@@ -283,8 +283,8 @@ export default function SignupPage() {
                 </a>
               </div>
 
-              {/* Debug panel (dev only) */}
-              {debug ? (
+              {/* Debug panel — development only, never shows in production */}
+              {process.env.NODE_ENV === "development" && debug ? (
                 <details className="rounded-xl border border-foreground/10 bg-foreground/[0.03] p-3 text-xs text-foreground/70">
                   <summary className="cursor-pointer select-none text-foreground/70">Debug</summary>
                   <pre className="mt-2 overflow-auto whitespace-pre-wrap break-words">

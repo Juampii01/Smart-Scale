@@ -174,26 +174,6 @@ export function AdminPaymentsView() {
   const filtered = filterStatus === "todos" ? payments : payments.filter(p => p.status === filterStatus)
   const totalAceptado = payments.filter(p => p.status === "aceptado").reduce((s, p) => s + p.amount, 0)
 
-  // Monthly breakdown (accepted only, sorted newest first)
-  const monthlyBreakdown = (() => {
-    const map = new Map<string, { total: number; count: number }>()
-    for (const p of payments) {
-      if (p.status !== "aceptado") continue
-      const d = new Date(p.created_at)
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
-      const existing = map.get(key) ?? { total: 0, count: 0 }
-      map.set(key, { total: existing.total + p.amount, count: existing.count + 1 })
-    }
-    return Array.from(map.entries())
-      .sort((a, b) => b[0].localeCompare(a[0]))
-      .map(([key, val]) => {
-        const [year, month] = key.split("-")
-        const label = new Date(Number(year), Number(month) - 1, 1)
-          .toLocaleDateString("es-AR", { month: "long", year: "numeric" })
-        return { key, label, ...val }
-      })
-  })()
-
   return (
     <div className="space-y-6">
 
@@ -234,42 +214,6 @@ export function AdminPaymentsView() {
           </div>
         ))}
       </div>
-
-      {/* Monthly breakdown */}
-      {monthlyBreakdown.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25 px-0.5">Cobrado por mes</p>
-          <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-0.5 px-0.5">
-            {monthlyBreakdown.map((m, i) => {
-              const pct = totalAceptado > 0 ? (m.total / totalAceptado) * 100 : 0
-              const isTop = i === 0
-              return (
-                <div
-                  key={m.key}
-                  className={`flex-shrink-0 rounded-2xl border px-4 py-3 min-w-[150px] relative overflow-hidden transition-all ${
-                    isTop
-                      ? "border-[#ffde21]/30 bg-[#ffde21]/[0.05]"
-                      : "border-foreground/[0.07] bg-card"
-                  }`}
-                >
-                  {/* bar background */}
-                  <div
-                    className={`pointer-events-none absolute bottom-0 left-0 h-[3px] rounded-full transition-all ${isTop ? "bg-[#ffde21]/60" : "bg-foreground/10"}`}
-                    style={{ width: `${pct}%` }}
-                  />
-                  <p className={`text-[10px] font-semibold uppercase tracking-wider capitalize mb-1.5 ${isTop ? "text-[#ffde21]/70" : "text-foreground/30"}`}>
-                    {m.label}
-                  </p>
-                  <p className={`text-lg font-bold tabular-nums leading-none ${isTop ? "text-[#ffde21]" : "text-foreground/80"}`}>
-                    {fmtMoney(m.total)}
-                  </p>
-                  <p className="text-[10px] text-foreground/25 mt-1">{m.count} pago{m.count !== 1 ? "s" : ""}</p>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
 
       {/* Filters */}
       <div className="flex items-center gap-2 flex-wrap">

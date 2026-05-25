@@ -4,7 +4,6 @@ import { requireInternal } from "@/lib/auth/api-guards"
 import { notifyClientOnboarded } from "@/lib/slack"
 import { sendWelcomeEmail, sendCredentialsToAdmin } from "@/lib/email"
 import { createGHLContact, parseFullName, formatPhoneForGHL } from "@/lib/ghl"
-import { zapierClientOnboarded } from "@/lib/zapier"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -92,6 +91,9 @@ export async function POST(req: NextRequest) {
     // Name required
     if (!name) return NextResponse.json({ error: "El nombre es requerido" }, { status: 400 })
 
+    // Program required — sin programa no se dispara el contrato downstream
+    if (!program) return NextResponse.json({ error: "El programa es requerido" }, { status: 400 })
+
     // Email format
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return NextResponse.json({ error: "Email inválido" }, { status: 400 })
@@ -131,14 +133,14 @@ export async function POST(req: NextRequest) {
     if (programStart < today)
       return NextResponse.json({ error: "La fecha de inicio no puede ser en el pasado" }, { status: 400 })
 
-    // setter_id validation (if provided) — acepta setter, admin o team
+    // setter_id validation (if provided)
     let finalSetterId: string | null = requestedSetterId
     if (requestedSetterId) {
       const { data: setterProfile } = await supabase
         .from("profiles")
         .select("id")
         .eq("id", requestedSetterId)
-        .in("role", ["setter", "admin", "team"])
+        .eq("role", "setter")
         .maybeSingle()
       if (!setterProfile)
         return NextResponse.json({ error: "El setter_id no es válido" }, { status: 400 })
@@ -164,6 +166,11 @@ export async function POST(req: NextRequest) {
       notesLines.push(`Cuotas: ${cuotasWithValues.map(([k, v]) => `${k}=$${v}`).join(", ")}`)
     }
 
+    // Per-installment amount: use first cuota value if available, else divide total
+    const perInstallmentAmount = cuotasWithValues.length > 0
+      ? Number(cuotasWithValues[0][1])
+      : (numInstallments > 0 ? totalAmount / numInstallments : totalAmount)
+
     const { data: crmClient, error: crmErr } = await supabase
       .from("crm_clients")
       .insert({
@@ -171,11 +178,12 @@ export async function POST(req: NextRequest) {
         email,
         instagram,
         phone,
+        programa:           program,
         program_start:      programStart,
-        installment_amount: totalAmount,
+        installment_amount: perInstallmentAmount,
         num_installments:   numInstallments,
+        program_duration:   6,
         total_amount:       totalAmount,
-        programa:           program || null,
         status:             "activo",
         notes:              notesLines.join(" | ") || null,
         forma_pago:         formaPago,
@@ -192,22 +200,12 @@ export async function POST(req: NextRequest) {
 
     // ── 5. Create individual installments ──────────────────────────────────
     if (cuotasWithValues.length > 0) {
-      const todayIso = new Date().toISOString()
-      const installmentsToInsert = cuotasWithValues.map(([cuotaName, amount], idx) => {
-        // El número de cuota determina el mes: cuota_1 = mes 0, cuota_3 = mes 2, etc.
-        // Así, si cuota_2 está vacía y cuota_3 tiene valor → pago en mes 3 (julio si empieza en mayo)
-        const cuotaNum = parseInt(cuotaName.replace("cuota_", ""), 10) || (idx + 1)
-        const dueDate = new Date(programStart + "T00:00:00")
-        dueDate.setMonth(dueDate.getMonth() + (cuotaNum - 1))
-        return {
-          client_id:          clientId,
-          installment_number: idx + 1,
-          due_date:           dueDate.toISOString().slice(0, 10),
-          amount:             Number(amount),
-          // Primera cuota: auto-pagada (el cliente paga antes del onboarding)
-          ...(idx === 0 ? { paid_at: todayIso } : {}),
-        }
-      })
+      const installmentsToInsert = cuotasWithValues.map(([cuotaName, amount], idx) => ({
+        client_id: clientId,
+        installment_number: idx + 1,
+        due_date: programStart, // Due date = program start (can be adjusted per business logic)
+        amount: Number(amount),
+      }))
 
       const { error: instErr } = await supabase
         .from("crm_installments")
@@ -322,29 +320,20 @@ export async function POST(req: NextRequest) {
 
     // ── 11. Create contact in GHL (fire-and-forget) ────────────────────────
     const { firstName, lastName } = parseFullName(name)
-    const ghlCustomFields: Record<string, string> = {
-      programa:     program || "",
-      pago_total:   String(totalAmount),
-      setter:       setterName || "",
-    }
-    // Primer pago → pago_entrada, resto → mes_2..mes_6
-    const cuotaKeys = ["cuota_1","cuota_2","cuota_3","cuota_4","cuota_5","cuota_6"]
-    const ghlCuotaFields = ["pago_entrada","mes_2","mes_3","mes_4","mes_5","mes_6"]
-    cuotaKeys.forEach((k, i) => {
-      if (cuotas[k] != null) ghlCustomFields[ghlCuotaFields[i]] = String(cuotas[k])
-    })
-
-    // Fire-and-forget: GHL sync (no bloquear si falla)
     createGHLContact({
       firstName,
       lastName,
       email,
       phone: formatPhoneForGHL(phone),
       source: "Smart Scale",
-      customFields: ghlCustomFields,
+      customFields: {
+        programa: program || "",
+        monto_total: String(totalAmount),
+        fecha_inicio: programStart,
+      },
       tags: ["smart-scale", "onboarded"],
     }).catch(err => {
-      console.error("GHL sync failed:", err)
+      console.error("GHL sync failed (non-blocking):", err)
     })
 
     // ── 12. Send credentials to admin (fire-and-forget) ────────────────────
@@ -373,22 +362,6 @@ export async function POST(req: NextRequest) {
       temp_password: tempPassword,
     }).catch(() => {/* no bloquear si Slack falla */})
 
-    // ── 14. Zapier webhook (fire-and-forget) ───────────────────────────────
-    zapierClientOnboarded({
-      event_type:    "client.onboarded",
-      client_id:     clientId,
-      name,
-      email,
-      phone,
-      program,
-      total_amount:  totalAmount,
-      cuotas,
-      program_start: programStart,
-      setter_name:   setterName,
-      temp_password: tempPassword,
-      magic_link:    magicLink,
-    }).catch(() => {/* no bloquear si Zapier falla */})
-
     // ── Success response ────────────────────────────────────────────────────
     return NextResponse.json({
       ok: true,
@@ -415,7 +388,7 @@ export async function GET(req: NextRequest) {
   const supabase = createServiceClient()
   const { data, error } = await supabase
     .from("crm_clients")
-    .select("id, name, email, instagram, phone, program_start, installment_amount, num_installments, total_amount, programa, status, notes, created_at, setter_id")
+    .select("id, name, email, instagram, phone, program_start, installment_amount, num_installments, status, notes, created_at, setter_id")
     .order("created_at", { ascending: false })
     .limit(50)
 

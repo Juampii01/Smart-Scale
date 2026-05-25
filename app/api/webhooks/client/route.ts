@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
 
     // Program duration in months (how long the program lasts)
     const rawDuracion = pick(body, "cantidad_meses", "cantidad de meses de programa", "meses_de_programa", "program_duration", "duracion")
-    const programDuration = Math.min(24, Math.max(1, parseInt(String(rawDuracion ?? "1")) || 1))
+    const programDuration = Math.min(24, Math.max(1, parseInt(String(rawDuracion ?? "6")) || 6))
 
     // Number of payment installments (how many payments, can differ from duration)
     const rawCuotas = pick(body, "cantidad_pagos", "cantidad de pagos", "num_installments", "cuotas", "num_cuotas")

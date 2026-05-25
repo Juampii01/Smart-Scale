@@ -44,11 +44,7 @@ function isBlockOnlyCheckboxToggleDiff(a: any, b: any): boolean {
   const allKeys = new Set([...Object.keys(ap), ...Object.keys(bp)])
   for (const k of allKeys) {
     if (deepEqual(ap[k], bp[k])) continue
-    // Checkbox toggle (tildar/destildar)
     if (k === "checked" && a.type === "checkListItem"
-        && typeof ap[k] === "boolean" && typeof bp[k] === "boolean") continue
-    // Toggle/collapse de bloques (flechita en Notion-style)
-    if ((k === "isCollapsed" || k === "collapsed" || k === "isOpen")
         && typeof ap[k] === "boolean" && typeof bp[k] === "boolean") continue
     return false
   }

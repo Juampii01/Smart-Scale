@@ -36,8 +36,6 @@ const PAGE_TITLES: Record<string, string> = {
   "/metrics": "All Metrics",
   "/audit": "Audit",
   "/program-checklist": "Program Journey Checklist",
-  "/market-intelligence": "Competitor Research",
-  "/content-research": "Competitor Research",
   "/competitor-research": "Competitor Research",
   "/video-feed": "Video Feed",
   "/tools": "Tools",

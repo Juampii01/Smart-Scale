@@ -3,6 +3,15 @@ import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import Anthropic from "@anthropic-ai/sdk"
 
+// Helper: extrae el usuario autenticado del JWT (cualquier rol sirve)
+async function getAuthedUser(req: NextRequest) {
+  const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
+  if (!jwt) return null
+  const supabase = createServiceClient()
+  const { data: { user } } = await supabase.auth.getUser(jwt)
+  return user ?? null
+}
+
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 export const maxDuration = 60
@@ -256,6 +265,9 @@ function getAdminSupabase() {
 }
 
 export async function GET(req: NextRequest) {
+  const user = await getAuthedUser(req)
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
   try {
     const { searchParams } = new URL(req.url)
     const requestId = searchParams.get("request_id")
@@ -313,13 +325,20 @@ export async function GET(req: NextRequest) {
 // ─── POST: build diagnóstico (IA + determinístico) ────────────────────────────
 
 export async function POST(req: NextRequest) {
+  // Auth: cualquier usuario autenticado puede generar diagnósticos propios
+  const user = await getAuthedUser(req)
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
   try {
     const body = await req.json()
-    const { prompt, auditType, annualRevenue, selectedMonth, clientId, userId } = body ?? {}
+    const { prompt, auditType, annualRevenue, selectedMonth, clientId } = body ?? {}
 
-    if (!prompt || typeof prompt !== "string" || !userId) {
-      return NextResponse.json({ error: "Missing prompt or userId" }, { status: 400 })
+    if (!prompt || typeof prompt !== "string") {
+      return NextResponse.json({ error: "Missing prompt" }, { status: 400 })
     }
+
+    // userId SIEMPRE viene del JWT, no del body (previene forjar user_id ajeno)
+    const userId = user.id
 
     const supabase = getAdminSupabase()
 
@@ -376,10 +395,14 @@ export async function POST(req: NextRequest) {
 // ─── DELETE: eliminar auditoría ───────────────────────────────────────────────
 
 export async function DELETE(req: NextRequest) {
+  // user_id viene del JWT — no se acepta del body para evitar borrar datos ajenos
+  const user = await getAuthedUser(req)
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
   try {
-    const { request_id, user_id } = await req.json()
-    if (!request_id || !user_id) {
-      return NextResponse.json({ error: "Missing request_id or user_id" }, { status: 400 })
+    const { request_id } = await req.json()
+    if (!request_id) {
+      return NextResponse.json({ error: "Missing request_id" }, { status: 400 })
     }
 
     const supabase = getAdminSupabase()
@@ -393,7 +416,7 @@ export async function DELETE(req: NextRequest) {
       .from("ai_diagnosis_requests")
       .delete()
       .eq("id", request_id)
-      .eq("user_id", user_id)
+      .eq("user_id", user.id) // solo puede borrar sus propios registros
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })

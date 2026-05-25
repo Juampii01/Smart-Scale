@@ -12,7 +12,9 @@ const FIELD_GROUPS = [
     label: "Inbound",
     color: "bg-blue-500",
     fields: [
-      { key: "new_conversations_inbound", label: "Conversaciones inbound", hint: "Total recibidas" },
+      { key: "new_conversations_inbound", label: "Conversaciones inbound",  hint: "Total recibidas" },
+      { key: "inbound_applications",      label: "Aplicaciones inbound",    hint: "Formularios / apps" },
+      { key: "conversations_replied",     label: "Respondidas",             hint: "Total respondidas" },
     ],
   },
   {
@@ -29,11 +31,10 @@ const FIELD_GROUPS = [
     label: "Conversión",
     color: "bg-[#ffde21]",
     fields: [
-      { key: "inbound_applications", label: "Aplicaciones hechas",    hint: "Formularios / apps" },
       { key: "qualified_leads",    label: "Leads 4-5 estrellas",     hint: "Calificados" },
       { key: "offer_docs_sent",    label: "Offer docs enviados",     hint: "Documentos enviados" },
       { key: "offer_doc_responses",label: "Respuestas a offer doc",  hint: "Respondieron el doc" },
-      { key: "calls_done",         label: "Llamadas agendadas",      hint: "Calls agendadas" },
+      { key: "calls_done",         label: "Llamadas hechas",         hint: "Calls completadas" },
     ],
   },
 ] as const
