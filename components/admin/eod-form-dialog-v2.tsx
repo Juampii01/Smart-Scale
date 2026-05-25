@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 import { X, Loader2, Save, Check, AlertCircle } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 
@@ -12,9 +12,7 @@ const FIELD_GROUPS = [
     label: "Inbound",
     color: "bg-blue-500",
     fields: [
-      { key: "new_conversations_inbound", label: "Conversaciones inbound",  hint: "Total recibidas" },
-      { key: "inbound_applications",      label: "Aplicaciones inbound",    hint: "Formularios / apps" },
-      { key: "conversations_replied",     label: "Respondidas",             hint: "Total respondidas" },
+      { key: "new_conversations_inbound", label: "Conversaciones inbound", hint: "Total recibidas" },
     ],
   },
   {
@@ -22,7 +20,7 @@ const FIELD_GROUPS = [
     label: "Outbound",
     color: "bg-violet-500",
     fields: [
-      { key: "new_conversations_outbound", label: "Contactos outbound", hint: "Leads contactados" },
+      { key: "new_conversations_outbound", label: "Contactos outbound",  hint: "Leads contactados" },
       { key: "outbound_replies",           label: "Respuestas outbound", hint: "Respondieron" },
     ],
   },
@@ -31,10 +29,11 @@ const FIELD_GROUPS = [
     label: "Conversión",
     color: "bg-[#ffde21]",
     fields: [
-      { key: "qualified_leads",    label: "Leads 4-5 estrellas",     hint: "Calificados" },
-      { key: "offer_docs_sent",    label: "Offer docs enviados",     hint: "Documentos enviados" },
-      { key: "offer_doc_responses",label: "Respuestas a offer doc",  hint: "Respondieron el doc" },
-      { key: "calls_done",         label: "Llamadas hechas",         hint: "Calls completadas" },
+      { key: "inbound_applications",  label: "Aplicaciones inbound",    hint: "Formularios / apps" },
+      { key: "qualified_leads",       label: "Leads 4-5 estrellas",     hint: "Calificados" },
+      { key: "offer_docs_sent",       label: "Offer docs enviados",     hint: "Documentos enviados" },
+      { key: "offer_doc_responses",   label: "Respuestas a offer doc",  hint: "Respondieron el doc" },
+      { key: "calls_done",            label: "Llamadas hechas",         hint: "Calls completadas" },
     ],
   },
 ] as const
@@ -42,7 +41,6 @@ const FIELD_GROUPS = [
 type FieldKey =
   | "new_conversations_inbound"
   | "inbound_applications"
-  | "conversations_replied"
   | "new_conversations_outbound"
   | "outbound_replies"
   | "qualified_leads"
@@ -70,7 +68,6 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
   const [values, setValues] = useState<FormValues>({
     new_conversations_inbound:  "",
     inbound_applications:       "",
-    conversations_replied:      "",
     new_conversations_outbound: "",
     outbound_replies:           "",
     qualified_leads:            "",
@@ -97,7 +94,6 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
             setValues({
               new_conversations_inbound:  String(existing.new_conversations_inbound  ?? ""),
               inbound_applications:       String(existing.inbound_applications       ?? ""),
-              conversations_replied:      String(existing.conversations_replied      ?? ""),
               new_conversations_outbound: String(existing.new_conversations_outbound ?? ""),
               outbound_replies:           String(existing.outbound_replies           ?? ""),
               qualified_leads:            String(existing.qualified_leads            ?? ""),
@@ -110,7 +106,6 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
             setValues({
               new_conversations_inbound:  "",
               inbound_applications:       "",
-              conversations_replied:      "",
               new_conversations_outbound: "",
               outbound_replies:           "",
               qualified_leads:            "",
@@ -160,6 +155,10 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
 
   if (!open) return null
 
+  const totalConversaciones =
+    (Number(values.new_conversations_inbound) || 0) +
+    (Number(values.outbound_replies) || 0)
+
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 backdrop-blur-sm py-8 px-4">
       <div className="relative w-full max-w-2xl rounded-2xl border border-foreground/[0.08] bg-card shadow-2xl">
@@ -195,34 +194,62 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
             </div>
           </div>
 
-          {/* Field groups */}
+          {/* Field groups + computed total */}
           {FIELD_GROUPS.map((group) => (
-            <div key={group.key} className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
-              <div className="flex items-center justify-between border-b border-foreground/[0.05] px-5 py-3">
-                <div className="flex items-center gap-2">
-                  <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
-                  <span className="text-sm font-semibold uppercase tracking-widest text-foreground/75">{group.label}</span>
+            <Fragment key={group.key}>
+              <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+                <div className="flex items-center justify-between border-b border-foreground/[0.05] px-5 py-3">
+                  <div className="flex items-center gap-2">
+                    <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
+                    <span className="text-sm font-semibold uppercase tracking-widest text-foreground/75">{group.label}</span>
+                  </div>
+                </div>
+                <div className="grid gap-4 p-5 sm:grid-cols-2">
+                  {group.fields.map((field) => (
+                    <div key={field.key}>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1.5">
+                        {field.label}
+                      </p>
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={(values as any)[field.key]}
+                        onChange={e => setValues(prev => ({ ...prev, [field.key]: e.target.value }))}
+                        className="h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm font-semibold text-foreground placeholder:text-foreground/20 focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20"
+                      />
+                      <p className="mt-1 text-[10px] text-foreground/25">{field.hint}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="grid gap-4 p-5 sm:grid-cols-2">
-                {group.fields.map((field) => (
-                  <div key={field.key}>
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1.5">
-                      {field.label}
-                    </p>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="0"
-                      value={(values as any)[field.key]}
-                      onChange={e => setValues(prev => ({ ...prev, [field.key]: e.target.value }))}
-                      className="h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm font-semibold text-foreground placeholder:text-foreground/20 focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20"
-                    />
-                    <p className="mt-1 text-[10px] text-foreground/25">{field.hint}</p>
+
+              {/* Total Conversaciones — after outbound, before conversión */}
+              {group.key === "outbound" && (
+                <div className="relative overflow-hidden rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.03]">
+                  <div className="flex items-center justify-between border-b border-[#ffde21]/15 px-5 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3 w-[2px] rounded-full bg-[#ffde21]" />
+                      <span className="text-sm font-semibold uppercase tracking-widest text-foreground/75">Total Conversaciones</span>
+                    </div>
+                    <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30">automático</span>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div className="flex items-end gap-4 px-5 py-4">
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1.5">
+                        Inbound + Resp. outbound
+                      </p>
+                      <p className="text-4xl font-bold text-[#ffde21] tabular-nums">
+                        {totalConversaciones}
+                      </p>
+                    </div>
+                    <p className="pb-1 text-[11px] text-foreground/30">
+                      {values.new_conversations_inbound || "0"} inbound · {values.outbound_replies || "0"} resp. outbound
+                    </p>
+                  </div>
+                </div>
+              )}
+            </Fragment>
           ))}
 
           {/* Notas */}

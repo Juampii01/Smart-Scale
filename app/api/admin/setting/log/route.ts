@@ -30,14 +30,16 @@ export const dynamic = "force-dynamic"
 
 const ALL_FIELDS = [
   "id", "setter_id", "date",
-  "new_conversations_inbound", "new_conversations_outbound", "conversations_replied", "qualified_leads",
+  "new_conversations_inbound", "new_conversations_outbound", "outbound_replies",
+  "conversations_replied", "qualified_leads",
   "offer_docs_sent", "offer_doc_responses", "calls_done",
   "inbound_applications",
   "notes", "created_at", "updated_at",
 ].join(", ")
 
 const NUMERIC_FIELDS = [
-  "new_conversations_inbound", "new_conversations_outbound", "conversations_replied", "qualified_leads",
+  "new_conversations_inbound", "new_conversations_outbound", "outbound_replies",
+  "conversations_replied", "qualified_leads",
   "offer_docs_sent", "offer_doc_responses", "calls_done",
   "inbound_applications",
 ] as const

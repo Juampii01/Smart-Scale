@@ -12,7 +12,8 @@ import { EodFormDialogV2 } from "@/components/admin/eod-form-dialog-v2"
 type FieldKey =
   | "new_conversations_inbound"
   | "new_conversations_outbound"
-  | "conversations_replied"
+  | "outbound_replies"
+  | "inbound_applications"
   | "qualified_leads"
   | "offer_docs_sent"
   | "offer_doc_responses"
@@ -25,7 +26,8 @@ interface LogEntry {
   setter_name?: string | null
   new_conversations_inbound?: number | null
   new_conversations_outbound?: number | null
-  conversations_replied: number | null
+  outbound_replies?: number | null
+  inbound_applications?: number | null
   qualified_leads: number | null
   offer_docs_sent: number | null
   offer_doc_responses: number | null
@@ -33,13 +35,13 @@ interface LogEntry {
 }
 
 const COLUMNS: { key: FieldKey; label: string; short: string }[] = [
-  { key: "new_conversations_inbound",   label: "Inbound",     short: "INBOUND" },
-  { key: "new_conversations_outbound",  label: "Outbound",    short: "OUTBOUND" },
-  { key: "conversations_replied",       label: "Respondidas", short: "RESPONDIDAS" },
-  { key: "qualified_leads",             label: "Leads 4-5",   short: "LEADS" },
-  { key: "offer_docs_sent",             label: "Docs Sent",   short: "DOCS" },
-  { key: "offer_doc_responses",         label: "Doc Resp.",   short: "DOC RESP" },
-  { key: "calls_done",                  label: "Llamadas",    short: "LLAMADAS" },
+  { key: "new_conversations_inbound",  label: "Inbound",      short: "INBOUND" },
+  { key: "new_conversations_outbound", label: "Outbound",     short: "OUTBOUND" },
+  { key: "outbound_replies",           label: "Resp. OB",     short: "RESP OB" },
+  { key: "qualified_leads",            label: "Leads 4-5",    short: "LEADS" },
+  { key: "offer_docs_sent",            label: "Docs Sent",    short: "DOCS" },
+  { key: "offer_doc_responses",        label: "Doc Resp.",    short: "DOC RESP" },
+  { key: "calls_done",                 label: "Llamadas",     short: "LLAMADAS" },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -215,13 +217,14 @@ export function AdminSettingView() {
   // Calcular totales mensuales
   const monthTotals = useMemo(() => {
     const totals: Record<FieldKey, number> = {
-      new_conversations_inbound: 0,
+      new_conversations_inbound:  0,
       new_conversations_outbound: 0,
-      conversations_replied: 0,
-      qualified_leads: 0,
-      offer_docs_sent: 0,
-      offer_doc_responses: 0,
-      calls_done: 0,
+      outbound_replies:           0,
+      inbound_applications:       0,
+      qualified_leads:            0,
+      offer_docs_sent:            0,
+      offer_doc_responses:        0,
+      calls_done:                 0,
     }
     for (const log of logs) {
       for (const col of COLUMNS) {
@@ -234,21 +237,20 @@ export function AdminSettingView() {
 
   // Calcular rates
   const rates = useMemo(() => {
-    const inbound = monthTotals.new_conversations_inbound
-    const outbound = monthTotals.new_conversations_outbound
-    const replied = monthTotals.conversations_replied
-    const leads = monthTotals.qualified_leads
-    const docs = monthTotals.offer_docs_sent
-    const docResp = monthTotals.offer_doc_responses
-    const calls = monthTotals.calls_done
+    const inbound        = monthTotals.new_conversations_inbound
+    const outbound       = monthTotals.new_conversations_outbound
+    const outboundReplies = monthTotals.outbound_replies
+    const totalConv      = inbound + outboundReplies
+    const leads          = monthTotals.qualified_leads
+    const docs           = monthTotals.offer_docs_sent
+    const docResp        = monthTotals.offer_doc_responses
+    const calls          = monthTotals.calls_done
 
     return {
-      responseRate: pct(replied, inbound + outbound),
-      outboundRate: pct(replied, outbound),
-      qualification: pct(leads, replied),
-
-      docResponseRate: pct(docResp, docs),
-      callRate: pct(calls, docResp),
+      outboundResponseRate: pct(outboundReplies, outbound),
+      qualification:        pct(leads, totalConv),
+      docResponseRate:      pct(docResp, docs),
+      callRate:             pct(calls, docResp),
     }
   }, [monthTotals])
 
@@ -352,30 +354,38 @@ export function AdminSettingView() {
               {/* Totales */}
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 mb-4">
                 {[
-                  { label: "Inbound", value: monthTotals.new_conversations_inbound },
-                  { label: "Outbound", value: monthTotals.new_conversations_outbound },
-                  { label: "Respondidas", value: monthTotals.conversations_replied },
-                  { label: "Leads", value: monthTotals.qualified_leads },
-                  { label: "Docs", value: monthTotals.offer_docs_sent },
-                  { label: "Doc Resp.", value: monthTotals.offer_doc_responses },
-                  { label: "Calls", value: monthTotals.calls_done },
+                  { label: "Inbound",     value: monthTotals.new_conversations_inbound },
+                  { label: "Outbound",    value: monthTotals.new_conversations_outbound },
+                  { label: "Total Conv.", value: monthTotals.new_conversations_inbound + monthTotals.outbound_replies, highlight: true },
+                  { label: "Leads",       value: monthTotals.qualified_leads },
+                  { label: "Docs",        value: monthTotals.offer_docs_sent },
+                  { label: "Doc Resp.",   value: monthTotals.offer_doc_responses },
+                  { label: "Calls",       value: monthTotals.calls_done },
                 ].map(m => (
-                  <div key={m.label} className="rounded-xl border border-foreground/10 bg-card px-3 py-2.5">
-                    <p className="text-[10px] uppercase tracking-wider text-foreground/40 mb-1">{m.label}</p>
-                    <p className="text-2xl font-bold text-foreground tabular-nums">{m.value}</p>
+                  <div
+                    key={m.label}
+                    className={`rounded-xl border px-3 py-2.5 ${"highlight" in m && m.highlight
+                      ? "border-[#ffde21]/30 bg-[#ffde21]/[0.06]"
+                      : "border-foreground/10 bg-card"
+                    }`}
+                  >
+                    <p className={`text-[10px] uppercase tracking-wider mb-1 ${"highlight" in m && m.highlight ? "text-[#ffde21]/70" : "text-foreground/40"}`}>
+                      {m.label}
+                    </p>
+                    <p className={`text-2xl font-bold tabular-nums ${"highlight" in m && m.highlight ? "text-[#ffde21]" : "text-foreground"}`}>
+                      {m.value}
+                    </p>
                   </div>
                 ))}
               </div>
 
               {/* Funnel rates */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                 {[
-                  { label: "Response Rate", value: rates.responseRate, hint: "respuestas / (inbound + outbound)" },
-                  { label: "Outbound Resp", value: rates.outboundRate, hint: "respuestas / outbound" },
-                  { label: "Qualification", value: rates.qualification, hint: "leads / respuestas" },
-
-                  { label: "Doc Response", value: rates.docResponseRate, hint: "doc resp / docs" },
-                  { label: "Call Rate", value: rates.callRate, hint: "calls / doc resp" },
+                  { label: "Outbound Response", value: rates.outboundResponseRate, hint: "resp. outbound / contactos outbound" },
+                  { label: "Qualification",     value: rates.qualification,        hint: "leads / total conversaciones" },
+                  { label: "Doc Response",      value: rates.docResponseRate,      hint: "doc resp / docs" },
+                  { label: "Call Rate",         value: rates.callRate,             hint: "calls / doc resp" },
                 ].map(m => (
                   <div key={m.label} className="rounded-xl border border-foreground/10 bg-foreground/[0.02] px-3 py-2.5">
                     <p className="text-[10px] uppercase tracking-wider text-foreground/40">{m.label}</p>
