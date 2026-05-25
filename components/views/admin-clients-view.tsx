@@ -1302,10 +1302,16 @@ export function AdminClientsView() {
                               const nextInst = client.installments
                                 ?.filter(i => i.paid_at === null)
                                 ?.sort((a, b) => a.installment_number - b.installment_number)[0]
-                              const amount = nextInst?.amount ?? client.installment_amount
+                              if (!nextInst) {
+                                return (
+                                  <span className="inline-flex items-center rounded-full border border-sky-300 bg-sky-100 px-2.5 py-0.5 text-[11px] font-semibold text-sky-800 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-300">
+                                    Pago completado
+                                  </span>
+                                )
+                              }
                               return (
                                 <span className="text-[13px] font-semibold tabular-nums text-foreground/80">
-                                  {fmtMoney(amount)}
+                                  {fmtMoney(nextInst.amount)}
                                 </span>
                               )
                             })()}
