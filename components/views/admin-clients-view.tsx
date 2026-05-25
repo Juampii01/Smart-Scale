@@ -1193,7 +1193,7 @@ export function AdminClientsView() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-                    {["Cliente", "Inicio", "Fin", "Cuotas", "Monto/cuota", "Estado", "Alertas", "Próx. follow-up", ""].map(h => (
+                    {["Ingreso", "Cliente", "Inicio", "Fin", "Cuotas", "Próx. cuota", "Estado", "Alertas", "Próx. follow-up", ""].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
@@ -1221,7 +1221,7 @@ export function AdminClientsView() {
                     <SortableTh label="Inicio"       sortKey="start"     currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("start")} />
                     <SortableTh label="Fin"          sortKey="end"       currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("end")} />
                     <SortableTh label="Cuotas"       sortKey="remaining" currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("remaining")} />
-                    <SortableTh label="Monto/cuota"  sortKey="amount"    currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("amount")} />
+                    <SortableTh label="Próx. cuota"  sortKey="amount"    currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("amount")} />
                     <SortableTh label="Estado"       sortKey="status"    currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("status")} />
                     {["Alertas", "Próx. follow-up", ""].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap">
@@ -1296,11 +1296,19 @@ export function AdminClientsView() {
                             <InstallmentProgress client={client} />
                           </td>
 
-                          {/* Monto/cuota */}
+                          {/* Próx. cuota */}
                           <td className="px-4 py-3.5 whitespace-nowrap">
-                            <span className="text-[13px] font-semibold tabular-nums text-foreground/80">
-                              {fmtMoney(client.installment_amount)}
-                            </span>
+                            {(() => {
+                              const nextInst = client.installments
+                                ?.filter(i => i.paid_at === null)
+                                ?.sort((a, b) => a.installment_number - b.installment_number)[0]
+                              const amount = nextInst?.amount ?? client.installment_amount
+                              return (
+                                <span className="text-[13px] font-semibold tabular-nums text-foreground/80">
+                                  {fmtMoney(amount)}
+                                </span>
+                              )
+                            })()}
                           </td>
 
                           {/* Estado */}
