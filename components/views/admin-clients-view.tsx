@@ -76,6 +76,12 @@ function fmtDate(iso: string) {
   })
 }
 
+function fmtDateShort(iso: string) {
+  const d = new Date(iso + (iso.length === 10 ? "T12:00:00" : ""))
+  const months = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"]
+  return `${d.getDate()} ${months[d.getMonth()]} '${d.getFullYear().toString().slice(2)}`
+}
+
 function addMonths(dateStr: string, months: number): string {
   const d = new Date(dateStr + "T12:00:00")
   d.setMonth(d.getMonth() + months)
@@ -894,18 +900,17 @@ function SortableTh({
   onClick: () => void
 }) {
   const active = currentKey === key
-  const sortHint = active
-    ? `Ordenado ${dir === "asc" ? "ascendente" : "descendente"} · click para invertir`
-    : "Click para ordenar"
   return (
     <th
       onClick={onClick}
-      title={sortHint}
-      className={`px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap cursor-pointer select-none transition-colors ${
-        active ? "text-[#ffde21]" : "text-foreground/25 hover:text-foreground/55"
-      }`}
+      title={active ? `Ordenado ${dir === "asc" ? "↑ ascendente" : "↓ descendente"} · click para invertir` : "Click para ordenar"}
+      className="px-2 py-2.5 text-left whitespace-nowrap cursor-pointer select-none"
     >
-      <span className="inline-flex items-center gap-1.5">
+      <span className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
+        active
+          ? "bg-[#ffde21]/15 text-[#ffde21] ring-1 ring-[#ffde21]/25"
+          : "text-foreground/40 hover:bg-foreground/[0.06] hover:text-foreground/75"
+      }`}>
         {label}
         {active
           ? (dir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />)
@@ -1193,16 +1198,16 @@ export function AdminClientsView() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-                    {["Ingreso", "Cliente", "Inicio", "Fin", "Cuotas", "Próx. cuota", "Estado", "Alertas", "Próx. follow-up", ""].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap">{h}</th>
+                    {["Cliente", "Inicio", "Fin", "Cuotas", "Próx. cuota", "Estado", "Alertas", "Próx. follow-up", ""].map(h => (
+                      <th key={h} className="px-2 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-foreground/25 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {Array.from({ length: 6 }).map((_, i) => (
                     <tr key={i} className="border-b border-foreground/[0.04]">
-                      {Array.from({ length: 10 }).map((_, j) => (
-                        <td key={j} className="px-4 py-4">
+                      {Array.from({ length: 9 }).map((_, j) => (
+                        <td key={j} className="px-2 py-3">
                           <div className="h-3 skeleton rounded" style={{ width: `${50 + (i * 7 + j * 11) % 40}%` }} />
                         </td>
                       ))}
@@ -1216,7 +1221,6 @@ export function AdminClientsView() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-                    <SortableTh label="Ingreso"      sortKey="created_at" currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("created_at")} />
                     <SortableTh label="Cliente"      sortKey="name"      currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("name")} />
                     <SortableTh label="Inicio"       sortKey="start"     currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("start")} />
                     <SortableTh label="Fin"          sortKey="end"       currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("end")} />
@@ -1224,7 +1228,7 @@ export function AdminClientsView() {
                     <SortableTh label="Próx. cuota"  sortKey="amount"    currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("amount")} />
                     <SortableTh label="Estado"       sortKey="status"    currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("status")} />
                     {["Alertas", "Próx. follow-up", ""].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap">
+                      <th key={h} className="px-2 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-foreground/25 whitespace-nowrap">
                         {h}
                       </th>
                     ))}
@@ -1233,7 +1237,7 @@ export function AdminClientsView() {
                 <tbody>
                   {!sorted.length ? (
                     <tr>
-                      <td colSpan={10} className="py-16 text-center text-sm text-foreground/25">
+                      <td colSpan={9} className="py-16 text-center text-sm text-foreground/25">
                         {clients.length ? "No hay clientes con ese filtro." : "Todavía no hay clientes registrados."}
                       </td>
                     </tr>
@@ -1256,13 +1260,8 @@ export function AdminClientsView() {
                           onClick={() => setSelected(client)}
                           className={`border-b border-foreground/[0.04] cursor-pointer transition-colors group bg-card hover:bg-muted ${rowBorder}`}
                         >
-                          {/* Ingreso */}
-                          <td className="px-4 py-3.5 whitespace-nowrap">
-                            <span className="text-[11px] text-foreground/40">{fmtDate(client.created_at)}</span>
-                          </td>
-
                           {/* Cliente */}
-                          <td className="px-4 py-3.5 whitespace-nowrap">
+                          <td className="px-3 py-2.5 whitespace-nowrap">
                             <div>
                               <div className="flex items-center gap-2">
                                 <p className="text-[13px] font-semibold text-foreground">{client.name}</p>
@@ -1275,29 +1274,31 @@ export function AdminClientsView() {
                                   </span>
                                 )}
                               </div>
-                              {client.instagram && (
-                                <p className="text-[11px] text-pink-300/60 mt-0.5">{client.instagram}</p>
-                              )}
+                              <p className="text-[10px] text-foreground/30 mt-0.5">
+                                {client.instagram
+                                  ? <span className="text-pink-400/50">{client.instagram}</span>
+                                  : fmtDateShort(client.created_at)}
+                              </p>
                             </div>
                           </td>
 
                           {/* Inicio */}
-                          <td className="px-4 py-3.5 whitespace-nowrap">
-                            <span className="text-[12px] text-foreground/55">{fmtDate(client.program_start)}</span>
+                          <td className="px-3 py-2.5 whitespace-nowrap">
+                            <span className="text-[12px] text-foreground/55">{fmtDateShort(client.program_start)}</span>
                           </td>
 
                           {/* Fin */}
-                          <td className="px-4 py-3.5 whitespace-nowrap">
-                            <span className="text-[12px] text-foreground/55">{fmtDate(endDate)}</span>
+                          <td className="px-3 py-2.5 whitespace-nowrap">
+                            <span className="text-[12px] text-foreground/55">{fmtDateShort(endDate)}</span>
                           </td>
 
                           {/* Cuotas */}
-                          <td className="px-4 py-3.5 whitespace-nowrap min-w-[130px]" onClick={e => e.stopPropagation()}>
+                          <td className="px-3 py-2.5 whitespace-nowrap min-w-[110px]" onClick={e => e.stopPropagation()}>
                             <InstallmentProgress client={client} />
                           </td>
 
                           {/* Próx. cuota */}
-                          <td className="px-4 py-3.5 whitespace-nowrap">
+                          <td className="px-3 py-2.5 whitespace-nowrap">
                             {(() => {
                               const nextInst = client.installments
                                 ?.filter(i => i.paid_at === null)
@@ -1318,14 +1319,14 @@ export function AdminClientsView() {
                           </td>
 
                           {/* Estado */}
-                          <td className="px-4 py-3.5 whitespace-nowrap">
+                          <td className="px-3 py-2.5 whitespace-nowrap">
                             <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${CLIENT_STATUS_STYLE[client.status] ?? ""}`}>
                               {CLIENT_STATUS_LABEL[client.status] ?? client.status}
                             </span>
                           </td>
 
                           {/* Alertas */}
-                          <td className="px-4 py-3.5 whitespace-nowrap">
+                          <td className="px-3 py-2.5 whitespace-nowrap">
                             <div className="flex items-center gap-1.5">
                               {overdue && (
                                 <span className="h-2 w-2 rounded-full bg-red-500" title="Cuota vencida" />
@@ -1340,12 +1341,12 @@ export function AdminClientsView() {
                           </td>
 
                           {/* Próx. follow-up */}
-                          <td className="px-4 py-3.5 whitespace-nowrap">
+                          <td className="px-3 py-2.5 whitespace-nowrap">
                             {nextFu ? (
                               <div className="flex items-center gap-1.5">
                                 <span className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${FOLLOWUP_TYPE_STYLE[nextFu.type]}`}>
                                   {FOLLOWUP_TYPE_ICON[nextFu.type]}
-                                  {fmtDate(nextFu.scheduled_date)}
+                                  {fmtDateShort(nextFu.scheduled_date)}
                                 </span>
                                 {nextFu.scheduled_date === today && (
                                   <span className="h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse" />
@@ -1357,7 +1358,7 @@ export function AdminClientsView() {
                           </td>
 
                           {/* Chevron */}
-                          <td className="px-4 py-3.5 whitespace-nowrap">
+                          <td className="px-3 py-2.5 whitespace-nowrap">
                             <ChevronRight className="h-4 w-4 text-foreground/25 group-hover:text-foreground/60 transition-colors" />
                           </td>
                         </tr>
