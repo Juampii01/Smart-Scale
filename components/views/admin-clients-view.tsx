@@ -457,15 +457,26 @@ function DetailDrawer({
           {/* Section 2: Installments */}
           <div className="px-6 py-5 space-y-3 border-b border-foreground/[0.06]">
             <div className="flex items-center justify-between">
-              <div>
+              <div className="space-y-2">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Cuotas de pago</p>
-                <p className="text-[11px] text-foreground/35 mt-0.5">
-                  Programa: <span className="text-foreground/60 font-semibold">{client.program_duration ?? client.num_installments} meses</span>
-                  {" · "}
-                  Pagos: <span className="text-foreground/60 font-semibold">{client.num_installments} cuota{client.num_installments !== 1 ? "s" : ""}</span>
-                </p>
+                {/* Duración del programa — editable */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[11px] text-foreground/35">Duración del programa:</span>
+                  <select
+                    value={client.program_duration ?? client.num_installments}
+                    onChange={e => onPatchClient(client.id, { program_duration: Number(e.target.value) } as any)}
+                    className="h-6 rounded-lg border border-foreground/[0.1] bg-foreground/[0.04] px-2 text-[11px] font-semibold text-foreground focus:border-[#ffde21]/40 focus:outline-none"
+                  >
+                    {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => (
+                      <option key={m} value={m}>{m} {m === 1 ? "mes" : "meses"}</option>
+                    ))}
+                  </select>
+                  <span className="text-[11px] text-foreground/30">
+                    · {client.num_installments} cuota{client.num_installments !== 1 ? "s" : ""}
+                  </span>
+                </div>
               </div>
-              <span className="rounded-full bg-foreground/[0.05] px-2.5 py-0.5 text-[11px] font-bold text-foreground/50">
+              <span className="rounded-full bg-foreground/[0.05] px-2.5 py-0.5 text-[11px] font-bold text-foreground/50 shrink-0">
                 {paidCount}/{client.num_installments} pagadas
               </span>
             </div>
