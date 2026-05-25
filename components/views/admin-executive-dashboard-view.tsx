@@ -400,25 +400,27 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
                   </tr>
                 ))}
               </tbody>
-              {/* Totals row */}
-              <tfoot>
-                <tr className="border-t-2 border-foreground/[0.1] bg-foreground/[0.02]">
-                  <td className="py-2.5 pr-4 text-[11px] font-bold uppercase tracking-wider text-foreground/50">Total</td>
-                  {cols.map(c => (
-                    <td
-                      key={c.key}
-                      className={cn(
-                        "py-2.5 px-2 text-right tabular-nums font-bold",
-                        c.highlight ? "text-[#ffde21]" : "text-foreground",
-                      )}
-                    >
-                      {c.key === "cierre_amount"
-                        ? (data.totals.cierre_amount > 0 ? fmt(data.totals.cierre_amount) : "—")
-                        : String((data.totals as any)[c.key])}
-                    </td>
-                  ))}
-                </tr>
-              </tfoot>
+              {/* Totals row — solo si hay más de un setter */}
+              {data.by_setter.length > 1 && (
+                <tfoot>
+                  <tr className="border-t-2 border-foreground/[0.1] bg-foreground/[0.02]">
+                    <td className="py-2.5 pr-4 text-[11px] font-bold uppercase tracking-wider text-foreground/50">Total</td>
+                    {cols.map(c => (
+                      <td
+                        key={c.key}
+                        className={cn(
+                          "py-2.5 px-2 text-right tabular-nums font-bold",
+                          c.highlight ? "text-[#ffde21]" : "text-foreground",
+                        )}
+                      >
+                        {c.key === "cierre_amount"
+                          ? (data.totals.cierre_amount > 0 ? fmt(data.totals.cierre_amount) : "—")
+                          : String((data.totals as any)[c.key])}
+                      </td>
+                    ))}
+                  </tr>
+                </tfoot>
+              )}
             </table>
           </div>
         )}
