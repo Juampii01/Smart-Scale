@@ -855,7 +855,7 @@ function InstallmentProgress({ client }: { client: Client }) {
 
 // ─── Sortable column types ────────────────────────────────────────────────────
 
-type SortKey = "name" | "start" | "end" | "remaining" | "amount" | "status"
+type SortKey = "name" | "start" | "end" | "remaining" | "amount" | "status" | "created_at"
 
 const STATUS_ORDER: Record<string, number> = {
   activo:     0,
@@ -879,7 +879,8 @@ function compareClients(a: Client, b: Client, key: SortKey): number {
     case "end":       return endDateOf(a).localeCompare(endDateOf(b))
     case "remaining": return (a.num_installments - paidCountOf(a)) - (b.num_installments - paidCountOf(b))
     case "amount":    return (a.installment_amount ?? 0) - (b.installment_amount ?? 0)
-    case "status":    return (STATUS_ORDER[a.status] ?? 99) - (STATUS_ORDER[b.status] ?? 99)
+    case "status":     return (STATUS_ORDER[a.status] ?? 99) - (STATUS_ORDER[b.status] ?? 99)
+    case "created_at": return a.created_at.localeCompare(b.created_at)
   }
 }
 
@@ -924,8 +925,8 @@ export function AdminClientsView() {
   const [deletingId,   setDeletingId]   = useState<string | null>(null)
   const [filterStatus, setFilterStatus] = useState<string>("todos")
   const [search,       setSearch]       = useState("")
-  const [sortKey,      setSortKey]      = useState<SortKey>("name")
-  const [sortDir,      setSortDir]      = useState<"asc" | "desc">("asc")
+  const [sortKey,      setSortKey]      = useState<SortKey>("created_at")
+  const [sortDir,      setSortDir]      = useState<"asc" | "desc">("desc")
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -1200,7 +1201,7 @@ export function AdminClientsView() {
                 <tbody>
                   {Array.from({ length: 6 }).map((_, i) => (
                     <tr key={i} className="border-b border-foreground/[0.04]">
-                      {Array.from({ length: 9 }).map((_, j) => (
+                      {Array.from({ length: 10 }).map((_, j) => (
                         <td key={j} className="px-4 py-4">
                           <div className="h-3 skeleton rounded" style={{ width: `${50 + (i * 7 + j * 11) % 40}%` }} />
                         </td>
@@ -1215,6 +1216,7 @@ export function AdminClientsView() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                    <SortableTh label="Ingreso"      sortKey="created_at" currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("created_at")} />
                     <SortableTh label="Cliente"      sortKey="name"      currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("name")} />
                     <SortableTh label="Inicio"       sortKey="start"     currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("start")} />
                     <SortableTh label="Fin"          sortKey="end"       currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("end")} />
@@ -1231,7 +1233,7 @@ export function AdminClientsView() {
                 <tbody>
                   {!sorted.length ? (
                     <tr>
-                      <td colSpan={9} className="py-16 text-center text-sm text-foreground/25">
+                      <td colSpan={10} className="py-16 text-center text-sm text-foreground/25">
                         {clients.length ? "No hay clientes con ese filtro." : "Todavía no hay clientes registrados."}
                       </td>
                     </tr>
@@ -1254,6 +1256,11 @@ export function AdminClientsView() {
                           onClick={() => setSelected(client)}
                           className={`border-b border-foreground/[0.04] cursor-pointer transition-colors group bg-card hover:bg-muted ${rowBorder}`}
                         >
+                          {/* Ingreso */}
+                          <td className="px-4 py-3.5 whitespace-nowrap">
+                            <span className="text-[11px] text-foreground/40">{fmtDate(client.created_at)}</span>
+                          </td>
+
                           {/* Cliente */}
                           <td className="px-4 py-3.5 whitespace-nowrap">
                             <div>
