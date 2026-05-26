@@ -207,11 +207,13 @@ export async function POST(req: NextRequest) {
         d.setUTCMonth(d.getUTCMonth() + months)
         return d.toISOString().slice(0, 10)
       }
+      const nowIso = new Date().toISOString()
       const installmentsToInsert = cuotasWithValues.map(([cuotaName, amount], idx) => ({
         client_id:          clientId,
         installment_number: idx + 1,
         due_date:           addMonthsToDate(programStart, idx), // cuota 1 = start, cuota 2 = start+1m, etc.
         amount:             Number(amount),
+        paid_at:            idx === 0 ? nowIso : null,           // primera cuota marcada como pagada
       }))
 
       const { error: instErr } = await supabase
