@@ -76,15 +76,19 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
     const result = await response.json()
 
     if (!response.ok) {
+      const msg: string = (result as any).message ?? (result as any).error ?? ""
+      // GHL rejects duplicate contacts — treat as soft success (contact already exists)
+      if (response.status === 400 && msg.toLowerCase().includes("duplicated")) {
+        const existingId = (result as any).meta?.contactId ?? "unknown"
+        console.log("GHL contact already exists, skipping creation:", existingId)
+        return { success: true, contact: { id: existingId } }
+      }
       console.error("GHL contact creation failed:", {
         status: response.status,
-        error: (result as any).error || (result as any).message,
+        error: msg,
         detail: JSON.stringify(result).slice(0, 500),
       })
-      return {
-        success: false,
-        error: (result as any).error || "Unknown error",
-      }
+      return { success: false, error: msg || "Unknown error" }
     }
 
     console.log("GHL contact created successfully:", (result as any).contact?.id)
