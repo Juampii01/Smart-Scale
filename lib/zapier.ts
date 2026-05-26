@@ -62,25 +62,52 @@ export async function zapierReportCompleted(payload: {
 // ─── Fire: client onboarded ──────────────────────────────────────────────────
 
 export async function zapierClientOnboarded(payload: {
-  event_type: "client.onboarded"
-  client_id:      string
-  client_name:    string
-  email:          string
-  phone?:         string | null
-  instagram?:     string | null
-  program?:       string | null
-  total_amount:   number
-  cuotas?:        Record<string, number | null>
-  program_start:  string
+  event_type:       string
+  client_id:        string
+  client_name:      string
+  email:            string
+  phone?:           string | null
+  instagram?:       string | null
+  program?:         string | null
+  total_amount:     number
+  cuotas?:          Record<string, number | null>
+  program_start:    string
   program_duration?: number
-  setter_name?:   string | null
-  temp_password?: string | null
-  magic_link?:    string | null
-  [key: string]: unknown
+  setter_name?:     string | null
+  temp_password?:   string | null
+  magic_link?:      string | null
 }): Promise<ZapierResult> {
   const url = process.env.ZAPIER_WEBHOOK_ONBOARDING
   if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_ONBOARDING not configured" }
-  return postWebhook(url, payload)
+
+  // Aplanar cuotas como campos top-level (cuota_1, cuota_2, ...)
+  // Zapier no procesa bien objetos anidados — los convierte a "cuotas__cuota_1"
+  const cuotasFlat: Record<string, number | string> = {}
+  if (payload.cuotas) {
+    for (const [k, v] of Object.entries(payload.cuotas)) {
+      if (v != null) cuotasFlat[k] = v
+    }
+  }
+
+  const flat = {
+    event_type:       payload.event_type,
+    client_id:        payload.client_id,
+    client_name:      payload.client_name,
+    email:            payload.email,
+    phone:            payload.phone            ?? "",
+    instagram:        payload.instagram        ?? "",
+    program:          payload.program          ?? "",
+    total_amount:     payload.total_amount,
+    program_start:    payload.program_start,
+    program_duration: payload.program_duration ?? "",
+    setter_name:      payload.setter_name      ?? "",
+    temp_password:    payload.temp_password    ?? "",
+    magic_link:       payload.magic_link       ?? "",
+    ...cuotasFlat,   // cuota_1, cuota_2, ... como campos raíz
+  }
+
+  console.log("Zapier onboarding payload:", JSON.stringify(flat))
+  return postWebhook(url, flat)
 }
 
 // ─── Fire: sale registered ────────────────────────────────────────────────────
