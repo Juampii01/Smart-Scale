@@ -42,6 +42,7 @@ export async function GET(req: NextRequest) {
       .select(`
         setter_id,
         id,
+        total_amount,
         installment_amount,
         num_installments,
         crm_installments(client_id, amount, paid_at)
@@ -105,8 +106,9 @@ export async function GET(req: NextRequest) {
       if (!sid) continue
 
       const setterName = setterProfiles.get(sid) ?? null
-      // MRR = cuota mensual del cliente (installment_amount), NO el total del contrato
-      const mrrValue = (client as any).installment_amount ?? 0
+      // Revenue = valor total del contrato (total_amount)
+      const mrrValue = Number((client as any).total_amount ?? 0) ||
+        ((client as any).installment_amount ?? 0) * ((client as any).num_installments ?? 1)
       const installments = (client as any).crm_installments ?? []
 
       // Filter installments paid in the target month
