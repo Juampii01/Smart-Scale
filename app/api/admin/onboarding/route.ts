@@ -130,10 +130,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // program_start not in past
+    // program_start: allow up to 30 days in the past (retroactive onboarding + timezone tolerance)
     const today = new Date().toISOString().slice(0, 10)
-    if (programStart < today)
-      return NextResponse.json({ error: "La fecha de inicio no puede ser en el pasado" }, { status: 400 })
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
+    if (programStart < thirtyDaysAgo)
+      return NextResponse.json({ error: "La fecha de inicio no puede ser mayor a 30 días en el pasado" }, { status: 400 })
 
     // setter_id validation (if provided)
     let finalSetterId: string | null = requestedSetterId
