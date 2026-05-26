@@ -117,6 +117,7 @@ export function AdminPaymentsView() {
   const [adding,        setAdding]        = useState(false)
   const [deletingId,    setDeletingId]    = useState<string | null>(null)
   const [filterStatus,  setFilterStatus]  = useState<string>("todos")
+  const [filterMonth,   setFilterMonth]   = useState<string>("todos")
   const [viewMode,      setViewMode]      = useState<"tabla" | "mes">("mes")
 
   const getSession = async () => {
@@ -197,8 +198,16 @@ export function AdminPaymentsView() {
     URL.revokeObjectURL(url)
   }
 
-  const filtered = filterStatus === "todos" ? payments : payments.filter(p => p.status === filterStatus)
+  const filtered = payments
+    .filter(p => filterStatus === "todos" || p.status === filterStatus)
+    .filter(p => filterMonth  === "todos" || monthKey(p.created_at) === filterMonth)
+
   const totalAceptado = payments.filter(p => p.status === "aceptado").reduce((s, p) => s + p.amount, 0)
+
+  // Unique months present in ALL payments (not filtered), newest first
+  const availableMonths = Array.from(new Set(payments.map(p => monthKey(p.created_at))))
+    .sort((a, b) => b.localeCompare(a))
+
   const monthGroups = groupByMonth(filtered)
 
   // Shared payment row renderer
@@ -304,7 +313,7 @@ export function AdminPaymentsView() {
         ))}
       </div>
 
-      {/* Filters */}
+      {/* Status filters */}
       <div className="flex items-center gap-2 flex-wrap">
         {["todos","aceptado","rechazado","pendiente"].map(s => (
           <button key={s} onClick={() => setFilterStatus(s)}
@@ -318,6 +327,32 @@ export function AdminPaymentsView() {
           </button>
         ))}
       </div>
+
+      {/* Month filters */}
+      {availableMonths.length > 1 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/20 mr-1">Mes</span>
+          <button
+            onClick={() => setFilterMonth("todos")}
+            className={`h-7 rounded-lg border px-3 text-[11px] font-medium transition-all ${
+              filterMonth === "todos"
+                ? "border-foreground/20 bg-foreground/[0.06] text-foreground/70"
+                : "border-foreground/[0.07] text-foreground/30 hover:text-foreground/60 hover:border-foreground/15"
+            }`}>
+            Todos
+          </button>
+          {availableMonths.map(m => (
+            <button key={m} onClick={() => setFilterMonth(m)}
+              className={`h-7 rounded-lg border px-3 text-[11px] font-medium capitalize transition-all ${
+                filterMonth === m
+                  ? "border-foreground/20 bg-foreground/[0.06] text-foreground/70"
+                  : "border-foreground/[0.07] text-foreground/30 hover:text-foreground/60 hover:border-foreground/15"
+              }`}>
+              {fmtMonthLabel(m)}
+            </button>
+          ))}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" /></div>
