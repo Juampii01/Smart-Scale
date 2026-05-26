@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
 import { isAdmin } from "@/lib/auth/permissions"
+import { zapierEODSubmitted } from "@/lib/zapier"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -150,6 +151,34 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    // Fire Zapier webhook (fire-and-forget — no bloquea la respuesta)
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("name")
+      .eq("id", user.id)
+      .maybeSingle()
+    const setterName = (profile as any)?.name ?? "Setter"
+
+    zapierEODSubmitted({
+      event_type:                 "eod.submitted",
+      setter_id:                  user.id,
+      setter_name:                setterName,
+      date:                       body.date,
+      new_conversations_inbound:  row.new_conversations_inbound  ?? 0,
+      new_conversations_outbound: row.new_conversations_outbound ?? 0,
+      outbound_replies:           row.outbound_replies           ?? 0,
+      qualified_leads:            row.qualified_leads            ?? 0,
+      offer_docs_sent:            row.offer_docs_sent            ?? 0,
+      offer_doc_responses:        row.offer_doc_responses        ?? 0,
+      calls_done:                 row.calls_done                 ?? 0,
+      inbound_applications:       row.inbound_applications       ?? 0,
+      notes:                      row.notes                      ?? "",
+    }).then(result => {
+      if (!result.ok) console.error("Zapier EOD webhook failed:", result.error)
+      else console.log("Zapier EOD webhook sent OK — setter:", setterName, "date:", body.date)
+    }).catch((err: any) => console.error("Zapier EOD webhook error:", err))
+
     return NextResponse.json({ log: data })
   } catch (err: any) {
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })

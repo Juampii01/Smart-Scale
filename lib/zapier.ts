@@ -5,6 +5,7 @@
 // Required env vars:
 //   ZAPIER_WEBHOOK_REPORT   → fires when a monthly report is saved
 //   ZAPIER_WEBHOOK_SALE     → fires when new_clients increases (optional — falls back to ZAPIER_WEBHOOK_REPORT)
+//   ZAPIER_WEBHOOK_EOD      → fires when a setter submits an EOD
 //
 // Zapier Zap setup:
 //   Trigger: "Webhooks by Zapier → Catch Hook"
@@ -125,5 +126,27 @@ export async function zapierSaleRegistered(payload: {
   // Use dedicated sale webhook if set, otherwise fall back to report webhook
   const url = process.env.ZAPIER_WEBHOOK_SALE ?? process.env.ZAPIER_WEBHOOK_REPORT
   if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_SALE not configured" }
+  return postWebhook(url, payload)
+}
+
+// ─── Fire: EOD submitted ──────────────────────────────────────────────────────
+
+export async function zapierEODSubmitted(payload: {
+  event_type:                  "eod.submitted"
+  setter_id:                   string
+  setter_name:                 string
+  date:                        string          // YYYY-MM-DD
+  new_conversations_inbound:   number
+  new_conversations_outbound:  number
+  outbound_replies:            number
+  qualified_leads:             number
+  offer_docs_sent:             number
+  offer_doc_responses:         number
+  calls_done:                  number
+  inbound_applications:        number
+  notes:                       string
+}): Promise<ZapierResult> {
+  const url = process.env.ZAPIER_WEBHOOK_EOD
+  if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_EOD not configured" }
   return postWebhook(url, payload)
 }
