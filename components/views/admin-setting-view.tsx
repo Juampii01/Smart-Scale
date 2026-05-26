@@ -151,7 +151,7 @@ function EditableCell({
 
   return (
     <td
-      onClick={startEdit}
+      onClick={e => { e.stopPropagation(); startEdit() }}
       title="Click para editar"
       className="group cursor-pointer whitespace-nowrap px-3 py-2.5 text-center transition-colors hover:bg-foreground/[0.04]"
     >
@@ -449,8 +449,8 @@ export function AdminSettingView() {
                     </thead>
                     <tbody>
                       {logs.map(log => (
-                        <tr key={log.id} className="border-b border-foreground/[0.04] hover:bg-foreground/[0.01] transition-colors">
-                          <td className="sticky left-0 z-10 bg-card px-4 py-2.5 font-medium text-[12px] text-foreground/80">
+                        <tr key={log.id} onClick={() => setEditingLog(log)} className="border-b border-foreground/[0.04] hover:bg-foreground/[0.04] cursor-pointer transition-colors group">
+                          <td className="sticky left-0 z-10 bg-card group-hover:bg-foreground/[0.04] px-4 py-2.5 font-medium text-[12px] text-foreground/80">
                             {dateLabel(log.date)}
                           </td>
                           <td className="px-4 py-2.5 text-[12px] text-foreground/70">
