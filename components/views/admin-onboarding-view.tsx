@@ -163,20 +163,21 @@ function OnboardingForm({
   const supabase = createClient()
 
   const [fields, setFields] = useState({
-    name:           "",
-    email:          "",
-    phone:          "",
-    program:        "",
-    total_amount:   "",
-    cuota_1:        "",
-    cuota_2:        "",
-    cuota_3:        "",
-    cuota_4:        "",
-    cuota_5:        "",
-    cuota_6:        "",
-    program_start:  new Date().toISOString().slice(0, 10),
-    setter_id:      "",
-    forma_pago:     "",
+    name:              "",
+    email:             "",
+    phone:             "",
+    program:           "",
+    total_amount:      "",
+    cuota_1:           "",
+    cuota_2:           "",
+    cuota_3:           "",
+    cuota_4:           "",
+    cuota_5:           "",
+    cuota_6:           "",
+    program_start:     new Date().toISOString().slice(0, 10),
+    program_duration:  "6",
+    setter_id:         "",
+    forma_pago:        "",
   })
   const [saving,  setSaving]  = useState(false)
   const [error,   setError]   = useState<string | null>(null)
@@ -237,9 +238,10 @@ function OnboardingForm({
             cuota_5: fields.cuota_5 ? Number(fields.cuota_5) : null,
             cuota_6: fields.cuota_6 ? Number(fields.cuota_6) : null,
           },
-          program_start: fields.program_start,
-          setter_id:     fields.setter_id || null,
-          forma_pago:    fields.forma_pago.trim() || null,
+          program_start:    fields.program_start,
+          program_duration: Number(fields.program_duration) || 6,
+          setter_id:        fields.setter_id || null,
+          forma_pago:       fields.forma_pago.trim() || null,
         }),
       })
 
@@ -318,6 +320,14 @@ function OnboardingForm({
                 <Calendar className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/30" />
                 <input className={cn(inputCls, "pl-8")} type="date" value={fields.program_start} onChange={set("program_start")} />
               </div>
+            </div>
+            <div>
+              <label className={labelCls}>Duración del programa</label>
+              <select className={cn(inputCls, "cursor-pointer")} value={fields.program_duration} onChange={set("program_duration")}>
+                {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => (
+                  <option key={m} value={m}>{m} {m === 1 ? "mes" : "meses"}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className={labelCls}>Setter que cerró</label>

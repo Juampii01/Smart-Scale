@@ -86,6 +86,7 @@ export async function POST(req: NextRequest) {
     const programStart    = body.program_start       ? String(body.program_start)               : new Date().toISOString().slice(0, 10)
     const requestedSetterId = body.setter_id           ? String(body.setter_id)                   : null
     const formaPago       = body.forma_pago          ? String(body.forma_pago).trim()           : null
+    const programDuration = body.program_duration != null ? Math.max(1, Math.min(24, Number(body.program_duration))) : null
 
     // ── 1. Enhanced validations ────────────────────────────────────────────
     // Name required
@@ -182,7 +183,7 @@ export async function POST(req: NextRequest) {
         program_start:      programStart,
         installment_amount: perInstallmentAmount,
         num_installments:   numInstallments,
-        program_duration:   6,
+        program_duration:   programDuration ?? numInstallments,
         total_amount:       totalAmount,
         status:             "activo",
         notes:              notesLines.join(" | ") || null,
@@ -200,11 +201,17 @@ export async function POST(req: NextRequest) {
 
     // ── 5. Create individual installments ──────────────────────────────────
     if (cuotasWithValues.length > 0) {
+      // Generate sequential monthly due dates starting from program_start
+      function addMonthsToDate(dateStr: string, months: number): string {
+        const d = new Date(dateStr + "T12:00:00Z")
+        d.setUTCMonth(d.getUTCMonth() + months)
+        return d.toISOString().slice(0, 10)
+      }
       const installmentsToInsert = cuotasWithValues.map(([cuotaName, amount], idx) => ({
-        client_id: clientId,
+        client_id:          clientId,
         installment_number: idx + 1,
-        due_date: programStart, // Due date = program start (can be adjusted per business logic)
-        amount: Number(amount),
+        due_date:           addMonthsToDate(programStart, idx), // cuota 1 = start, cuota 2 = start+1m, etc.
+        amount:             Number(amount),
       }))
 
       const { error: instErr } = await supabase
