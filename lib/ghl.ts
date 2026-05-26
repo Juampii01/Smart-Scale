@@ -8,13 +8,19 @@ const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID
 // v2 API — required for Private Integration Tokens (pit-...)
 const GHL_API_BASE = "https://services.leadconnectorhq.com"
 
+// GHL v2 custom field format
+interface GHLCustomField {
+  id: string
+  field_value: string
+}
+
 interface GHLContactData {
   firstName: string
   lastName?: string
   email: string
   phone?: string
   source?: string
-  customFields?: Record<string, string>
+  customFields?: GHLCustomField[]
   tags?: string[]
 }
 
@@ -38,15 +44,23 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
   }
 
   try {
-    const payload = {
+    const payload: Record<string, any> = {
       firstName:  data.firstName,
       lastName:   data.lastName || "",
       email:      data.email,
-      phone:      data.phone || "",
-      locationId: GHL_LOCATION_ID,           // required by v2 API
+      locationId: GHL_LOCATION_ID,
       source:     data.source || "Smart Scale",
-      customFields: data.customFields || {},
       tags:       data.tags || ["smart-scale"],
+    }
+
+    // Phone: GHL v2 requires E.164 format (+prefix)
+    if (data.phone) {
+      payload.phone = data.phone.startsWith("+") ? data.phone : `+${data.phone}`
+    }
+
+    // customFields: GHL v2 uses array of {id, field_value}, omit if empty
+    if (data.customFields && data.customFields.length > 0) {
+      payload.customFields = data.customFields
     }
 
     const response = await fetch(`${GHL_API_BASE}/contacts/`, {
@@ -65,6 +79,7 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
       console.error("GHL contact creation failed:", {
         status: response.status,
         error: (result as any).error || (result as any).message,
+        detail: JSON.stringify(result).slice(0, 500),
       })
       return {
         success: false,

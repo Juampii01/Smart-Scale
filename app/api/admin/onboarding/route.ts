@@ -326,11 +326,7 @@ export async function POST(req: NextRequest) {
       email,
       phone: formatPhoneForGHL(phone),
       source: "Smart Scale",
-      customFields: {
-        programa: program || "",
-        monto_total: String(totalAmount),
-        fecha_inicio: programStart,
-      },
+      // customFields omitted — GHL v2 requires field IDs from the account
       tags: ["smart-scale", "onboarded"],
     }).catch(err => {
       console.error("GHL sync failed (non-blocking):", err)
