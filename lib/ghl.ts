@@ -5,7 +5,8 @@
 
 const GHL_API_KEY = process.env.GHL_API_KEY
 const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID
-const GHL_API_BASE = "https://rest.gohighlevel.com/v1"
+// v2 API — required for Private Integration Tokens (pit-...)
+const GHL_API_BASE = "https://services.leadconnectorhq.com"
 
 interface GHLContactData {
   firstName: string
@@ -38,13 +39,14 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
 
   try {
     const payload = {
-      firstName: data.firstName,
-      lastName: data.lastName || "",
-      email: data.email,
-      phone: data.phone || "",
-      source: data.source || "Smart Scale",
+      firstName:  data.firstName,
+      lastName:   data.lastName || "",
+      email:      data.email,
+      phone:      data.phone || "",
+      locationId: GHL_LOCATION_ID,           // required by v2 API
+      source:     data.source || "Smart Scale",
       customFields: data.customFields || {},
-      tags: data.tags || ["smart-scale"],
+      tags:       data.tags || ["smart-scale"],
     }
 
     const response = await fetch(`${GHL_API_BASE}/contacts/`, {
@@ -52,7 +54,7 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
       headers: {
         "Authorization": `Bearer ${GHL_API_KEY}`,
         "Content-Type": "application/json",
-        "Version": "2021-04-15",
+        "Version": "2021-07-28",             // v2 version header
       },
       body: JSON.stringify(payload),
     })
