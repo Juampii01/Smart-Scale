@@ -200,6 +200,11 @@ export async function POST(req: NextRequest) {
     const clientId = crmClient.id
 
     // ── 5. Create individual installments ──────────────────────────────────
+    // Fallback para pago único: si no se llenaron cuotas pero hay total_amount
+    if (cuotasWithValues.length === 0 && totalAmount > 0) {
+      cuotasWithValues.push(["cuota_1", totalAmount])
+    }
+
     if (cuotasWithValues.length > 0) {
       // Generate sequential monthly due dates starting from program_start
       function addMonthsToDate(dateStr: string, months: number): string {
@@ -353,6 +358,12 @@ export async function POST(req: NextRequest) {
     }
 
     // ── 13. Slack notification (fire-and-forget) ───────────────────────────
+    // Para pago único: si no se llenaron cuotas individuales pero hay total_amount,
+    // construir cuotas con cuota_1 = total_amount para que el contrato tenga datos
+    const cuotasForSlack = cuotasWithValues.length > 0
+      ? cuotas
+      : (totalAmount > 0 ? { cuota_1: totalAmount } : cuotas)
+
     notifyClientOnboarded({
       client_id:     clientId,
       name,
@@ -361,11 +372,15 @@ export async function POST(req: NextRequest) {
       phone,
       program,
       total_amount:  totalAmount,
-      cuotas,
+      cuotas:        cuotasForSlack,
       program_start: programStart,
       setter_name:   setterName,
       temp_password: tempPassword,
-    }).catch(() => {/* no bloquear si Slack falla */})
+      magic_link:    magicLink ?? undefined,
+    }).then(result => {
+      if (!result.ok) console.error("Slack notification failed:", result.error)
+      else console.log("Slack notification sent, channel:", result.channel_id)
+    }).catch(err => console.error("Slack notification error:", err?.message))
 
     // ── Success response ────────────────────────────────────────────────────
     return NextResponse.json({
