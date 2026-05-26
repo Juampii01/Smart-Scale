@@ -22,6 +22,12 @@ interface GHLContactData {
   source?: string
   customFields?: GHLCustomField[]
   tags?: string[]
+  // Extra data stored in GHL notes until custom field IDs are configured
+  program?: string | null
+  totalAmount?: number
+  cuotasStr?: string
+  programStart?: string
+  setterName?: string | null
 }
 
 interface GHLResponse {
@@ -62,6 +68,16 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
     if (data.customFields && data.customFields.length > 0) {
       payload.customFields = data.customFields
     }
+
+    // Pack program data into the GHL notes field so it's visible in the contact
+    // and usable by GHL workflows until custom field IDs are properly configured
+    const noteParts: string[] = []
+    if (data.program)      noteParts.push(`Programa: ${data.program}`)
+    if (data.totalAmount)  noteParts.push(`Total: $${data.totalAmount.toLocaleString("es-AR")}`)
+    if (data.cuotasStr)    noteParts.push(`Cuotas: ${data.cuotasStr}`)
+    if (data.programStart) noteParts.push(`Inicio: ${data.programStart}`)
+    if (data.setterName)   noteParts.push(`Setter: ${data.setterName}`)
+    if (noteParts.length)  payload.notes = noteParts.join(" | ")
 
     const response = await fetch(`${GHL_API_BASE}/contacts/`, {
       method: "POST",

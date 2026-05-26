@@ -336,14 +336,21 @@ export async function POST(req: NextRequest) {
 
     // ── 11. Create contact in GHL (fire-and-forget) ────────────────────────
     const { firstName, lastName } = parseFullName(name)
+    const cuotasForGHL = cuotasWithValues.length > 0
+      ? cuotasWithValues.filter(([_, v]) => v != null).map(([k, v]) => `${k}: $${v}`).join(" | ")
+      : (totalAmount > 0 ? `cuota_1: $${totalAmount}` : "")
     createGHLContact({
       firstName,
       lastName,
       email,
-      phone: formatPhoneForGHL(phone),
-      source: "Smart Scale",
-      // customFields omitted — GHL v2 requires field IDs from the account
-      tags: ["smart-scale", "onboarded"],
+      phone:        formatPhoneForGHL(phone),
+      source:       "Smart Scale",
+      tags:         ["smart-scale", "onboarded"],
+      program:      program,
+      totalAmount:  totalAmount,
+      cuotasStr:    cuotasForGHL,
+      programStart: programStart,
+      setterName:   setterName,
     }).catch(err => {
       console.error("GHL sync failed (non-blocking):", err)
     })
