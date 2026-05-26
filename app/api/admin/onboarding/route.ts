@@ -336,21 +336,31 @@ export async function POST(req: NextRequest) {
 
     // ── 11. Create contact in GHL (fire-and-forget) ────────────────────────
     const { firstName, lastName } = parseFullName(name)
+
+    // Para pago único (solo total_amount sin cuotas individuales),
+    // armar cuota_1 = total_amount para que mes_1 se llene en GHL
     const cuotasForGHL = cuotasWithValues.length > 0
-      ? cuotasWithValues.filter(([_, v]) => v != null).map(([k, v]) => `${k}: $${v}`).join(" | ")
-      : (totalAmount > 0 ? `cuota_1: $${totalAmount}` : "")
+      ? Object.fromEntries(cuotasWithValues) as Record<string, number>
+      : (totalAmount > 0 ? { cuota_1: totalAmount } : {})
+
+    const primerPago = cuotasWithValues.length > 0
+      ? Number(cuotasWithValues[0][1])
+      : totalAmount
+
     createGHLContact({
       firstName,
       lastName,
       email,
-      phone:        formatPhoneForGHL(phone),
-      source:       "Smart Scale",
-      tags:         ["smart-scale", "onboarded"],
-      program:      program,
-      totalAmount:  totalAmount,
-      cuotasStr:    cuotasForGHL,
-      programStart: programStart,
-      setterName:   setterName,
+      phone:          formatPhoneForGHL(phone),
+      source:         "Smart Scale",
+      tags:           ["smart-scale", "onboarded"],
+      program,
+      totalAmount,
+      primerPago,
+      cuotas:         cuotasForGHL,
+      cantidadPagos:  numInstallments,
+      cantidadMeses:  programDuration ?? numInstallments,
+      setterName,
     }).catch(err => {
       console.error("GHL sync failed (non-blocking):", err)
     })

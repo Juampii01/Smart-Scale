@@ -8,26 +8,27 @@ const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID
 // v2 API — required for Private Integration Tokens (pit-...)
 const GHL_API_BASE = "https://services.leadconnectorhq.com"
 
-// GHL v2 custom field format
+// GHL v2 custom field format — accepts key (field key) or id (field UUID)
 interface GHLCustomField {
-  id: string
-  field_value: string
+  key: string
+  field_value: string | number
 }
 
 interface GHLContactData {
-  firstName: string
-  lastName?: string
-  email: string
-  phone?: string
-  source?: string
-  customFields?: GHLCustomField[]
-  tags?: string[]
-  // Extra data stored in GHL notes until custom field IDs are configured
-  program?: string | null
-  totalAmount?: number
-  cuotasStr?: string
-  programStart?: string
-  setterName?: string | null
+  firstName:       string
+  lastName?:       string
+  email:           string
+  phone?:          string
+  source?:         string
+  tags?:           string[]
+  // Program data → mapped to GHL custom fields
+  program?:        string | null    // → contact.programa (Dropdown)
+  totalAmount?:    number           // → contact.pago_total
+  primerPago?:     number           // → contact.pago_entrada
+  cuotas?:         Record<string, number | null>  // mes_1…mes_6
+  cantidadMeses?:  number           // → contact.cantidad_de_meses
+  cantidadPagos?:  number           // → contact.cantidad_de_pagos
+  setterName?:     string | null    // → contact.setter
 }
 
 interface GHLResponse {
@@ -64,20 +65,27 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
       payload.phone = data.phone.startsWith("+") ? data.phone : `+${data.phone}`
     }
 
-    // customFields: GHL v2 uses array of {id, field_value}, omit if empty
-    if (data.customFields && data.customFields.length > 0) {
-      payload.customFields = data.customFields
+    // Build customFields array from program data using GHL field keys
+    const customFields: GHLCustomField[] = []
+
+    if (data.program)     customFields.push({ key: "programa",           field_value: data.program })
+    if (data.totalAmount) customFields.push({ key: "pago_total",         field_value: data.totalAmount })
+    if (data.primerPago)  customFields.push({ key: "pago_entrada",       field_value: data.primerPago })
+    if (data.setterName)  customFields.push({ key: "setter",             field_value: data.setterName })
+    if (data.cantidadPagos)  customFields.push({ key: "cantidad_de_pagos",  field_value: data.cantidadPagos })
+    if (data.cantidadMeses)  customFields.push({ key: "cantidad_de_meses",  field_value: data.cantidadMeses })
+
+    // mes_1 … mes_6
+    if (data.cuotas) {
+      for (let i = 1; i <= 6; i++) {
+        const val = data.cuotas[`cuota_${i}`]
+        if (val != null && val > 0) {
+          customFields.push({ key: `mes_${i}`, field_value: val })
+        }
+      }
     }
 
-    // Pack program data into the GHL notes field so it's visible in the contact
-    // and usable by GHL workflows until custom field IDs are properly configured
-    const noteParts: string[] = []
-    if (data.program)      noteParts.push(`Programa: ${data.program}`)
-    if (data.totalAmount)  noteParts.push(`Total: $${data.totalAmount.toLocaleString("es-AR")}`)
-    if (data.cuotasStr)    noteParts.push(`Cuotas: ${data.cuotasStr}`)
-    if (data.programStart) noteParts.push(`Inicio: ${data.programStart}`)
-    if (data.setterName)   noteParts.push(`Setter: ${data.setterName}`)
-    if (noteParts.length)  payload.notes = noteParts.join(" | ")
+    if (customFields.length) payload.customFields = customFields
 
     const response = await fetch(`${GHL_API_BASE}/contacts/`, {
       method: "POST",
