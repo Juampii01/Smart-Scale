@@ -4,6 +4,7 @@ import { requireInternal } from "@/lib/auth/api-guards"
 import { notifyClientOnboarded } from "@/lib/slack"
 import { sendWelcomeEmail, sendCredentialsToAdmin } from "@/lib/email"
 import { createGHLContact, parseFullName, formatPhoneForGHL } from "@/lib/ghl"
+import { zapierClientOnboarded } from "@/lib/zapier"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -357,30 +358,32 @@ export async function POST(req: NextRequest) {
       }).catch(() => {/* no bloquear si Resend falla */})
     }
 
-    // ── 13. Slack notification (fire-and-forget) ───────────────────────────
+    // ── 13. Zapier → Slack notification (fire-and-forget) ─────────────────
     // Para pago único: si no se llenaron cuotas individuales pero hay total_amount,
     // construir cuotas con cuota_1 = total_amount para que el contrato tenga datos
-    const cuotasForSlack = cuotasWithValues.length > 0
+    const cuotasForNotification = cuotasWithValues.length > 0
       ? cuotas
       : (totalAmount > 0 ? { cuota_1: totalAmount } : cuotas)
 
-    notifyClientOnboarded({
-      client_id:     clientId,
-      name,
+    zapierClientOnboarded({
+      event_type:       "client.onboarded",
+      client_id:        clientId,
+      client_name:      name,
       email,
-      instagram,
       phone,
+      instagram,
       program,
-      total_amount:  totalAmount,
-      cuotas:        cuotasForSlack,
-      program_start: programStart,
-      setter_name:   setterName,
-      temp_password: tempPassword,
-      magic_link:    magicLink ?? undefined,
+      total_amount:     totalAmount,
+      cuotas:           cuotasForNotification,
+      program_start:    programStart,
+      program_duration: programDuration ?? numInstallments,
+      setter_name:      setterName,
+      temp_password:    tempPassword,
+      magic_link:       magicLink,
     }).then(result => {
-      if (!result.ok) console.error("Slack notification failed:", result.error)
-      else console.log("Slack notification sent, channel:", result.channel_id)
-    }).catch(err => console.error("Slack notification error:", err?.message))
+      if (!result.ok) console.error("Zapier onboarding webhook failed:", result.error)
+      else console.log("Zapier onboarding webhook sent OK")
+    }).catch(err => console.error("Zapier onboarding webhook error:", err?.message))
 
     // ── Success response ────────────────────────────────────────────────────
     return NextResponse.json({
