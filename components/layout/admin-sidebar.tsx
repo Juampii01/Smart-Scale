@@ -5,7 +5,7 @@ import {
   X, DollarSign, ClipboardList, Table2, Users2,
   UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
   ChevronLeft, ChevronRight, MessageSquareText, UserPlus,
-  LayoutDashboard,
+  LayoutDashboard, CalendarDays,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -28,6 +28,7 @@ const ADMIN_NAV_ITEMS = [
   { name: "Setting",          href: "/admin/setting",           icon: MessageSquareText },
   { name: "Onboarding",       href: "/admin/onboarding",        icon: UserPlus },
   { name: "Pagos",            href: "/admin/payments",          icon: DollarSign },
+  { name: "Agenda",           href: "/admin/agenda",            icon: CalendarDays },
   { name: "Clientes",         href: "/admin/clients",           icon: UserCheck },
   { name: "Aplicaciones",     href: "/admin/applications",      icon: ClipboardList },
   { name: "Contratación",     href: "/admin/team-applications", icon: Briefcase },
