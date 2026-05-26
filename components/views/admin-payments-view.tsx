@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase"
 import {
-  Loader2, Plus, Trash2, RefreshCw, Download, Check, X,
+  Loader2, Plus, Trash2, RefreshCw, Download, Check, X, LayoutList, CalendarDays,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -26,6 +26,31 @@ function fmtMoney(n: number) {
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })
+}
+
+function monthKey(iso: string) {
+  // Returns "YYYY-MM" for grouping
+  return iso.slice(0, 7)
+}
+
+function fmtMonthLabel(key: string) {
+  // "2026-05" → "Mayo 2026"
+  const [year, month] = key.split("-")
+  const d = new Date(Number(year), Number(month) - 1, 1)
+  return d.toLocaleDateString("es-AR", { month: "long", year: "numeric" })
+    .replace(/^\w/, c => c.toUpperCase())
+}
+
+function groupByMonth(payments: Payment[]): { key: string; label: string; items: Payment[] }[] {
+  const map = new Map<string, Payment[]>()
+  for (const p of payments) {
+    const k = monthKey(p.created_at)
+    if (!map.has(k)) map.set(k, [])
+    map.get(k)!.push(p)
+  }
+  return Array.from(map.entries())
+    .sort((a, b) => b[0].localeCompare(a[0]))        // newest first
+    .map(([key, items]) => ({ key, label: fmtMonthLabel(key), items }))
 }
 
 const STATUS_STYLE: Record<string, string> = {
@@ -92,6 +117,7 @@ export function AdminPaymentsView() {
   const [adding,        setAdding]        = useState(false)
   const [deletingId,    setDeletingId]    = useState<string | null>(null)
   const [filterStatus,  setFilterStatus]  = useState<string>("todos")
+  const [viewMode,      setViewMode]      = useState<"tabla" | "mes">("mes")
 
   const getSession = async () => {
     const supabase = createClient()
@@ -173,6 +199,53 @@ export function AdminPaymentsView() {
 
   const filtered = filterStatus === "todos" ? payments : payments.filter(p => p.status === filterStatus)
   const totalAceptado = payments.filter(p => p.status === "aceptado").reduce((s, p) => s + p.amount, 0)
+  const monthGroups = groupByMonth(filtered)
+
+  // Shared payment row renderer
+  const PaymentRow = (p: Payment) => (
+    <tr key={p.id} className="border-b border-foreground/[0.04] hover:bg-foreground/[0.02] transition-colors group">
+      <td className="px-4 py-3 text-[13px] font-semibold text-foreground whitespace-nowrap">{p.name}</td>
+      <td className="px-4 py-3 text-[13px] text-foreground/55 whitespace-nowrap">
+        {p.email ?? <span className="text-foreground/20">—</span>}
+      </td>
+      <td className="px-4 py-3 text-right">
+        <span className="text-[13px] font-bold tabular-nums text-foreground/80">{fmtMoney(p.amount)}</span>
+      </td>
+      <td className="px-4 py-3 whitespace-nowrap">
+        <select
+          value={p.status}
+          onChange={e => handleStatusChange(p.id, e.target.value)}
+          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[11px] font-semibold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[p.status]}`}
+        >
+          <option value="aceptado">Aceptado</option>
+          <option value="rechazado">Rechazado</option>
+          <option value="pendiente">Pendiente</option>
+        </select>
+      </td>
+      <td className="px-4 py-3 text-[13px] text-foreground/45 max-w-[260px] truncate">
+        {p.description ?? <span className="text-foreground/20">—</span>}
+      </td>
+      <td className="px-4 py-3 whitespace-nowrap text-[12px] text-foreground/25">
+        <div className="flex items-center gap-3">
+          <span>{fmtDate(p.created_at)}</span>
+          <button onClick={() => handleDelete(p.id)} disabled={deletingId === p.id}
+            className="opacity-0 group-hover:opacity-100 flex h-7 w-7 items-center justify-center rounded-lg text-foreground/15 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
+            {deletingId === p.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+          </button>
+        </div>
+      </td>
+    </tr>
+  )
+
+  const TableHead = () => (
+    <thead>
+      <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+        {["Nombre","Email","Monto","Estado","Descripción",""].map(h => (
+          <th key={h} className={`px-4 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap ${h === "Monto" ? "text-right" : "text-left"}`}>{h}</th>
+        ))}
+      </tr>
+    </thead>
+  )
 
   return (
     <div className="space-y-6">
@@ -184,6 +257,22 @@ export function AdminPaymentsView() {
           <p className="text-sm text-foreground/40 mt-0.5">{payments.length} registros</p>
         </div>
         <div className="flex items-center gap-2">
+          {/* View toggle */}
+          <div className="flex items-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] p-1 gap-1">
+            <button
+              onClick={() => setViewMode("mes")}
+              title="Vista por mes"
+              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${viewMode === "mes" ? "bg-[#ffde21] text-black" : "text-foreground/40 hover:text-foreground"}`}>
+              <CalendarDays className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={() => setViewMode("tabla")}
+              title="Vista tabla"
+              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${viewMode === "tabla" ? "bg-[#ffde21] text-black" : "text-foreground/40 hover:text-foreground"}`}>
+              <LayoutList className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
           <button onClick={() => fetchPayments()} disabled={loading}
             className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
@@ -201,12 +290,12 @@ export function AdminPaymentsView() {
         </div>
       </div>
 
-      {/* Summary card */}
+      {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
-          { label: "Total cobrado",   value: fmtMoney(totalAceptado),                               color: "text-emerald-700 dark:text-emerald-300" },
-          { label: "Pagos aceptados", value: String(payments.filter(p => p.status === "aceptado").length),  color: "text-emerald-700 dark:text-emerald-300" },
-          { label: "Pagos rechazados",value: String(payments.filter(p => p.status === "rechazado").length), color: "text-red-700 dark:text-red-300"     },
+          { label: "Total cobrado",    value: fmtMoney(totalAceptado),                                              color: "text-emerald-700 dark:text-emerald-300" },
+          { label: "Pagos aceptados",  value: String(payments.filter(p => p.status === "aceptado").length),         color: "text-emerald-700 dark:text-emerald-300" },
+          { label: "Pagos rechazados", value: String(payments.filter(p => p.status === "rechazado").length),        color: "text-red-700 dark:text-red-300" },
         ].map(card => (
           <div key={card.label} className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-4">
             <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30">{card.label}</p>
@@ -230,20 +319,77 @@ export function AdminPaymentsView() {
         ))}
       </div>
 
-      {/* Table */}
-      <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
-        {loading ? (
-          <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" /></div>
-        ) : (
+      {loading ? (
+        <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" /></div>
+      ) : viewMode === "mes" ? (
+
+        /* ── Vista por mes ─────────────────────────────────────────────── */
+        <div className="space-y-8">
+          {adding && (
+            <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <TableHead />
+                  <tbody>
+                    <NewPaymentRow onSave={handleAdd} onCancel={() => setAdding(false)} />
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {monthGroups.length === 0 && !adding ? (
+            <div className="flex items-center justify-center py-20 text-sm text-foreground/25">
+              {payments.length ? "No hay pagos con ese estado." : "Todavía no hay pagos registrados."}
+            </div>
+          ) : (
+            monthGroups.map(({ key, label, items }) => {
+              const monthAceptado  = items.filter(p => p.status === "aceptado").reduce((s, p) => s + p.amount, 0)
+              const monthCount     = items.length
+              return (
+                <div key={key} className="space-y-3">
+                  {/* Month header */}
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-[13px] font-bold uppercase tracking-[0.14em] text-foreground/50">{label}</h2>
+                    <div className="flex-1 h-px bg-foreground/[0.06]" />
+                  </div>
+
+                  {/* Two stat cards per month */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-xl border border-foreground/[0.07] bg-card px-4 py-3">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Cobrado</p>
+                      <p className="mt-1 text-xl font-bold tabular-nums text-emerald-700 dark:text-emerald-300">{fmtMoney(monthAceptado)}</p>
+                    </div>
+                    <div className="rounded-xl border border-foreground/[0.07] bg-card px-4 py-3">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Pagos</p>
+                      <p className="mt-1 text-xl font-bold tabular-nums text-foreground/70">{monthCount}</p>
+                    </div>
+                  </div>
+
+                  {/* Payment rows */}
+                  <div className="overflow-hidden rounded-xl border border-foreground/[0.08] bg-card">
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse">
+                        <TableHead />
+                        <tbody>
+                          {items.map(p => <PaymentRow key={p.id} {...p} />)}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+
+      ) : (
+
+        /* ── Vista tabla plana ─────────────────────────────────────────── */
+        <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-                  {["Nombre","Email","Monto","Estado","Descripción",""].map(h => (
-                    <th key={h} className={`px-4 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap ${h === "Monto" ? "text-right" : "text-left"}`}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
+              <TableHead />
               <tbody>
                 {adding && (
                   <NewPaymentRow onSave={handleAdd} onCancel={() => setAdding(false)} />
@@ -253,58 +399,14 @@ export function AdminPaymentsView() {
                     {payments.length ? "No hay pagos con ese estado." : "Todavía no hay pagos registrados."}
                   </td></tr>
                 ) : (
-                  filtered.map(p => (
-                    <tr key={p.id} className="border-b border-foreground/[0.04] hover:bg-foreground/[0.02] transition-colors group">
-
-                      {/* Nombre */}
-                      <td className="px-4 py-3 text-[13px] font-semibold text-foreground whitespace-nowrap">{p.name}</td>
-
-                      {/* Email */}
-                      <td className="px-4 py-3 text-[13px] text-foreground/55 whitespace-nowrap">
-                        {p.email ?? <span className="text-foreground/20">—</span>}
-                      </td>
-
-                      {/* Monto */}
-                      <td className="px-4 py-3 text-right">
-                        <span className="text-[13px] font-bold tabular-nums text-foreground/80">{fmtMoney(p.amount)}</span>
-                      </td>
-
-                      {/* Status */}
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <select
-                          value={p.status}
-                          onChange={e => handleStatusChange(p.id, e.target.value)}
-                          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[11px] font-semibold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[p.status]}`}
-                        >
-                          <option value="aceptado">Aceptado</option>
-                          <option value="rechazado">Rechazado</option>
-                          <option value="pendiente">Pendiente</option>
-                        </select>
-                      </td>
-
-                      {/* Descripción */}
-                      <td className="px-4 py-3 text-[13px] text-foreground/45 max-w-[260px] truncate">
-                        {p.description ?? <span className="text-foreground/20">—</span>}
-                      </td>
-
-                      {/* Delete */}
-                      <td className="px-4 py-3 whitespace-nowrap text-[12px] text-foreground/25">
-                        <div className="flex items-center gap-3">
-                          <span>{fmtDate(p.created_at)}</span>
-                          <button onClick={() => handleDelete(p.id)} disabled={deletingId === p.id}
-                            className="opacity-0 group-hover:opacity-100 flex h-7 w-7 items-center justify-center rounded-lg text-foreground/15 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
-                            {deletingId === p.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                  filtered.map(p => <PaymentRow key={p.id} {...p} />)
                 )}
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        </div>
+
+      )}
     </div>
   )
 }
