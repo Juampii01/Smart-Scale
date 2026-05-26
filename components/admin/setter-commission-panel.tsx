@@ -110,7 +110,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           <CommissionCard label="Clientes" value={String(c.client_count)} />
-          <CommissionCard label="MRR" value={formatCurrency(c.mrr_total)} />
+          <CommissionCard label="Revenue" value={formatCurrency(c.mrr_total)} />
           <CommissionCard label="Cash Cobrado" value={formatCurrency(c.cash_collected)} />
           <CommissionCard label="Old Cash" value={formatCurrency(c.old_cash)} small />
           <CommissionCard label="Comisión (5%)" value={formatCurrency(c.commission_earned)} highlight />
@@ -145,7 +145,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
             <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
               <th className="px-4 py-2.5 text-left font-semibold text-foreground/80">Setter</th>
               <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Clientes</th>
-              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">MRR</th>
+              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Revenue</th>
               <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Cash</th>
               <th className="px-4 py-2.5 text-right font-semibold text-foreground/80 text-[#ffde21]/70">Old</th>
               <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Comisión</th>

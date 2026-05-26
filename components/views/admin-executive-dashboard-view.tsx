@@ -327,7 +327,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
     { key: "offer_doc_responses",        label: "Doc Resp."   },
     { key: "calls_done",                 label: "Calls"       },
     { key: "cierres",                    label: "Cierres",    highlight: true },
-    { key: "cierre_amount",              label: "Monto"       },
+    { key: "cierre_amount",              label: "Revenue"     },
   ]
 
   return (
