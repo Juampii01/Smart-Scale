@@ -171,6 +171,7 @@ export function AdminSettingView() {
   const [userRole, setUserRole] = useState<string | null>(null)
   const [userId, setUserId] = useState<string>("")
   const [eodOpen, setEodOpen] = useState(false)
+  const [editingLog, setEditingLog] = useState<LogEntry | null>(null)
 
   // Cargar los logs del mes seleccionado
   const loadLogs = useCallback(async (ym: string) => {
@@ -329,11 +330,24 @@ export function AdminSettingView() {
       {/* Setter Commission Panel */}
       {userId && <SetterCommissionPanel userRole={userRole} userId={userId} month={month} />}
 
-      {/* EOD Form Dialog */}
+      {/* EOD Form Dialog — nuevo registro */}
       <EodFormDialogV2
         open={eodOpen}
         onClose={() => setEodOpen(false)}
         onSaved={() => { setEodOpen(false); loadLogs(month) }}
+      />
+
+      {/* EOD Form Dialog — editar registro existente */}
+      <EodFormDialogV2
+        open={editingLog !== null}
+        onClose={() => setEditingLog(null)}
+        initialDate={editingLog?.date}
+        logId={editingLog?.id}
+        onSaved={() => { setEditingLog(null); loadLogs(month) }}
+        onDeleted={() => {
+          setLogs(prev => prev.filter(l => l.id !== editingLog?.id))
+          setEditingLog(null)
+        }}
       />
 
       {loading ? (

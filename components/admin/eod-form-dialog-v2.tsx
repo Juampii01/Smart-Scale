@@ -1,7 +1,7 @@
 "use client"
 
 import { Fragment, useEffect, useState } from "react"
-import { X, Loader2, Save, Check, AlertCircle } from "lucide-react"
+import { X, Loader2, Save, Check, AlertCircle, Trash2 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 
 // ─── Field groups ─────────────────────────────────────────────────────────────
@@ -59,10 +59,12 @@ interface EodFormDialogV2Props {
   open: boolean
   onClose: () => void
   initialDate?: string
+  logId?: string        // si se pasa → modo edición (muestra botón eliminar)
   onSaved?: () => void
+  onDeleted?: () => void
 }
 
-export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodFormDialogV2Props) {
+export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, onDeleted }: EodFormDialogV2Props) {
   const [date, setDate] = useState(initialDate ?? todayISO())
   const [notes, setNotes] = useState("")
   const [values, setValues] = useState<FormValues>({
@@ -75,8 +77,14 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
     offer_doc_responses:        "",
     calls_done:                 "",
   })
-  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle")
+  const [status,   setStatus]   = useState<"idle" | "saving" | "saved" | "error">("idle")
   const [errorMsg, setErrorMsg] = useState("")
+  const [deleting, setDeleting] = useState(false)
+
+  // Sync date when dialog opens with a specific initialDate (edit mode)
+  useEffect(() => {
+    if (open && initialDate) setDate(initialDate)
+  }, [open, initialDate])
 
   // Load existing log for selected date
   useEffect(() => {
@@ -119,6 +127,27 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
         .catch(() => {})
     })
   }, [date, open])
+
+  const handleDelete = async () => {
+    if (!logId) return
+    if (!window.confirm("¿Eliminar este registro EOD? Esta acción no se puede deshacer.")) return
+    setDeleting(true)
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      await fetch("/api/admin/setting/log", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ id: logId }),
+      })
+      onDeleted?.()
+    } catch (err: any) {
+      console.error("Error eliminando EOD:", err)
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -168,7 +197,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
           <div className="flex items-center gap-2.5">
             <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
             <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">
-              Cargar datos del día
+              {logId ? "Editar EOD" : "Cargar datos del día"}
             </h2>
           </div>
           <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:bg-foreground/[0.06] hover:text-foreground transition-colors">
@@ -280,24 +309,39 @@ export function EodFormDialogV2({ open, onClose, initialDate, onSaved }: EodForm
           )}
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 border-t border-foreground/[0.05] pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-sm font-medium text-foreground/70 transition hover:bg-foreground/[0.08] hover:text-foreground"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={status === "saving" || status === "saved"}
-              className="flex items-center gap-2 rounded-xl bg-[#ffde21] px-5 py-2 text-sm font-bold text-black transition hover:bg-[#ffe84d] disabled:opacity-60"
-            >
-              {status === "saving" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              {status === "saved"  && <Check   className="h-3.5 w-3.5" />}
-              {status === "idle"   && <Save    className="h-3.5 w-3.5" />}
-              {status === "saving" ? "Guardando…" : status === "saved" ? "Guardado ✓" : "Guardar"}
-            </button>
+          <div className="flex items-center justify-between gap-3 border-t border-foreground/[0.05] pt-4">
+            {/* Delete — solo en modo edición */}
+            {logId ? (
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex items-center gap-2 rounded-xl border border-red-500/20 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
+              >
+                {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                Eliminar
+              </button>
+            ) : <span />}
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-sm font-medium text-foreground/70 transition hover:bg-foreground/[0.08] hover:text-foreground"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={status === "saving" || status === "saved"}
+                className="flex items-center gap-2 rounded-xl bg-[#ffde21] px-5 py-2 text-sm font-bold text-black transition hover:bg-[#ffe84d] disabled:opacity-60"
+              >
+                {status === "saving" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {status === "saved"  && <Check   className="h-3.5 w-3.5" />}
+                {status === "idle"   && <Save    className="h-3.5 w-3.5" />}
+                {status === "saving" ? "Guardando…" : status === "saved" ? "Guardado ✓" : "Guardar"}
+              </button>
+            </div>
           </div>
 
         </form>
