@@ -166,6 +166,25 @@ export async function PATCH(req: NextRequest) {
 
     const supabase = createServiceClient()
 
+    // Offboard: mark client inactive + delete unpaid installments
+    if (body.type === "offboard") {
+      if (!body.id) return NextResponse.json({ error: "id is required" }, { status: 400 })
+      const [updateRes, deleteRes] = await Promise.all([
+        supabase
+          .from("crm_clients")
+          .update({ status: "inactivo", updated_at: new Date().toISOString() })
+          .eq("id", body.id),
+        supabase
+          .from("crm_installments")
+          .delete()
+          .eq("client_id", body.id)
+          .is("paid_at", null),
+      ])
+      if (updateRes.error) return NextResponse.json({ error: updateRes.error.message }, { status: 500 })
+      if (deleteRes.error) return NextResponse.json({ error: deleteRes.error.message }, { status: 500 })
+      return NextResponse.json({ success: true })
+    }
+
     // Toggle installment paid
     if (body.installment_id) {
       const { data: existing, error: fetchErr } = await supabase

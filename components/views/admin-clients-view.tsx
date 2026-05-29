@@ -7,7 +7,7 @@ import {
   CheckCircle2, Circle, AlertCircle, Clock, Users,
   DollarSign, Calendar, Mail,
   MessageCircle, PhoneCall, MoreHorizontal,
-  Check, ChevronUp, ChevronDown, ChevronsUpDown,
+  Check, ChevronUp, ChevronDown, ChevronsUpDown, UserX,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -209,7 +209,9 @@ function DetailDrawer({
   onToggleFollowup,
   onDeleteFollowup,
   onDeleteClient,
+  onOffboard,
   deleting,
+  offboarding,
 }: {
   client:              Client
   onClose:             () => void
@@ -219,7 +221,9 @@ function DetailDrawer({
   onToggleFollowup:    (followupId: string) => Promise<void>
   onDeleteFollowup:    (followupId: string) => Promise<void>
   onDeleteClient:      (id: string) => Promise<void>
+  onOffboard:          (id: string) => Promise<void>
   deleting:            boolean
+  offboarding:         boolean
 }) {
   const [showFollowupForm, setShowFollowupForm]   = useState(false)
   const [fuDate,           setFuDate]             = useState(todayStr())
@@ -286,7 +290,20 @@ function DetailDrawer({
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button onClick={() => onDeleteClient(client.id)} disabled={deleting} aria-label="Eliminar cliente"
+            {/* Dar de baja — solo visible si está activo/en_pausa */}
+            {client.status !== "inactivo" && (
+              <button
+                onClick={() => onOffboard(client.id)}
+                disabled={offboarding || deleting}
+                aria-label="Dar de baja"
+                title="Dar de baja: marca inactivo y elimina cuotas pendientes"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-amber-300/40 px-2.5 text-[11px] font-semibold text-amber-700 hover:bg-amber-100/60 dark:border-amber-500/25 dark:text-amber-400 dark:hover:bg-amber-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40"
+              >
+                {offboarding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserX className="h-3.5 w-3.5" />}
+                {!offboarding && <span>Dar de baja</span>}
+              </button>
+            )}
+            <button onClick={() => onDeleteClient(client.id)} disabled={deleting || offboarding} aria-label="Eliminar cliente"
               className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
@@ -746,8 +763,11 @@ function CashSection({ clients }: { clients: Client[] }) {
   const currentMonth = now.getMonth()
   const currentYear  = now.getFullYear()
 
+  // Exclude churned/inactive clients from all cash calculations
+  const activeClients = clients.filter(c => c.status !== "inactivo")
+
   // New Cash: clients whose created_at is this month
-  const newClients = clients.filter(c => {
+  const newClients = activeClients.filter(c => {
     const d = new Date(c.created_at)
     return d.getMonth() === currentMonth && d.getFullYear() === currentYear
   })
@@ -759,7 +779,7 @@ function CashSection({ clients }: { clients: Client[] }) {
   }, 0)
 
   // Old Cash: installments due this month from pre-existing clients
-  const oldClients = clients.filter(c => {
+  const oldClients = activeClients.filter(c => {
     const d = new Date(c.created_at)
     return !(d.getMonth() === currentMonth && d.getFullYear() === currentYear)
   })
@@ -923,15 +943,16 @@ function SortableTh({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function AdminClientsView() {
-  const [clients,      setClients]      = useState<Client[]>([])
-  const [loading,      setLoading]      = useState(true)
-  const [error,        setError]        = useState<string | null>(null)
-  const [selected,     setSelected]     = useState<Client | null>(null)
-  const [deletingId,   setDeletingId]   = useState<string | null>(null)
-  const [filterStatus, setFilterStatus] = useState<string>("todos")
-  const [search,       setSearch]       = useState("")
-  const [sortKey,      setSortKey]      = useState<SortKey>("created_at")
-  const [sortDir,      setSortDir]      = useState<"asc" | "desc">("desc")
+  const [clients,       setClients]      = useState<Client[]>([])
+  const [loading,       setLoading]      = useState(true)
+  const [error,         setError]        = useState<string | null>(null)
+  const [selected,      setSelected]     = useState<Client | null>(null)
+  const [deletingId,    setDeletingId]   = useState<string | null>(null)
+  const [offboardingId, setOffboardingId] = useState<string | null>(null)
+  const [filterStatus,  setFilterStatus] = useState<string>("todos")
+  const [search,        setSearch]       = useState("")
+  const [sortKey,       setSortKey]      = useState<SortKey>("created_at")
+  const [sortDir,       setSortDir]      = useState<"asc" | "desc">("desc")
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -1070,6 +1091,35 @@ export function AdminClientsView() {
     }
   }
 
+  const handleOffboardClient = async (id: string) => {
+    const client = clients.find(c => c.id === id)
+    const name = client?.name ?? "este cliente"
+    if (!window.confirm(`¿Dar de baja a ${name}?\n\nEsto va a:\n• Marcar al cliente como Inactivo\n• Eliminar todas sus cuotas pendientes (no pagadas)\n\nLas cuotas ya cobradas se conservan. Esta acción no se puede deshacer.`)) return
+    setOffboardingId(id)
+    const session = await getSession()
+    if (!session) { setOffboardingId(null); return }
+    const res = await fetch("/api/admin/clients", {
+      method:  "PATCH",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+      body:    JSON.stringify({ type: "offboard", id }),
+    })
+    if (res.ok) {
+      // Optimistic: mark inactivo + remove unpaid installments in state
+      setClients(prev => prev.map(c =>
+        c.id === id
+          ? { ...c, status: "inactivo", installments: c.installments.filter(i => i.paid_at !== null) }
+          : c
+      ))
+      if (selected?.id === id) {
+        setSelected(prev => prev
+          ? { ...prev, status: "inactivo", installments: prev.installments.filter(i => i.paid_at !== null) }
+          : null
+        )
+      }
+    }
+    setOffboardingId(null)
+  }
+
   const handleDeleteClient = async (id: string) => {
     const client = clients.find(c => c.id === id)
     const name = client?.name ?? "este cliente"
@@ -1120,7 +1170,9 @@ export function AdminClientsView() {
           onToggleFollowup={handleToggleFollowup}
           onDeleteFollowup={handleDeleteFollowup}
           onDeleteClient={handleDeleteClient}
+          onOffboard={handleOffboardClient}
           deleting={deletingId === selected.id}
+          offboarding={offboardingId === selected.id}
         />
       )}
 

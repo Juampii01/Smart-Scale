@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
 
     const supabase = createServiceClient()
 
-    // Query: get all clients with their installments (no join needed yet)
+    // Query: get all active clients with their installments (exclude inactive/churned)
     let query = supabase
       .from("crm_clients")
       .select(`
@@ -45,8 +45,10 @@ export async function GET(req: NextRequest) {
         total_amount,
         installment_amount,
         num_installments,
+        status,
         crm_installments(client_id, amount, paid_at)
       `)
+      .neq("status", "inactivo")
 
     if (setterId) {
       query = query.eq("setter_id", setterId)
@@ -126,7 +128,7 @@ export async function GET(req: NextRequest) {
       )
 
       // Determine if this is old_cash (client closed in previous month)
-      const clientCreatedMonth = clientCreationMonths.get((client as any).id) ?? month
+      const clientCreatedMonth: string = clientCreationMonths.get((client as any).id) ?? month
       const isOldCash = clientCreatedMonth !== month
 
       if (!setterMap.has(sid)) {
