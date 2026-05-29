@@ -201,9 +201,10 @@ export async function PATCH(req: NextRequest) {
 
     // Toggle installment paid
     if (body.installment_id) {
+      // Fetch installment + parent client info (for monthly subscription logic)
       const { data: existing, error: fetchErr } = await supabase
         .from("crm_installments")
-        .select("paid_at")
+        .select("paid_at, due_date, installment_number, amount, client_id")
         .eq("id", body.installment_id)
         .maybeSingle()
       if (fetchErr) return NextResponse.json({ error: fetchErr.message }, { status: 500 })
@@ -214,7 +215,50 @@ export async function PATCH(req: NextRequest) {
         .update({ paid_at: newPaidAt, notes: body.notes !== undefined ? body.notes : undefined })
         .eq("id", body.installment_id)
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-      return NextResponse.json({ success: true, paid_at: newPaidAt })
+
+      // Auto-renew: if marking as PAID (not unpaying) on a monthly subscription client,
+      // generate next installment if one doesn't already exist
+      let newInstallment: any = null
+      if (newPaidAt && existing?.client_id) {
+        const { data: client } = await supabase
+          .from("crm_clients")
+          .select("is_monthly_subscription, installment_amount")
+          .eq("id", existing.client_id)
+          .maybeSingle()
+
+        if (client?.is_monthly_subscription) {
+          // Check if a future unpaid installment already exists
+          const { data: futurePending } = await supabase
+            .from("crm_installments")
+            .select("id")
+            .eq("client_id", existing.client_id)
+            .is("paid_at", null)
+            .limit(1)
+
+          if (!futurePending || futurePending.length === 0) {
+            // Compute next due date = paid installment's due_date + 1 month
+            const lastDue = new Date(existing.due_date + "T12:00:00")
+            lastDue.setMonth(lastDue.getMonth() + 1)
+            const nextDueStr = lastDue.toISOString().split("T")[0]
+            const nextNumber = (existing.installment_number ?? 1) + 1
+
+            const { data: created } = await supabase
+              .from("crm_installments")
+              .insert({
+                client_id:          existing.client_id,
+                installment_number: nextNumber,
+                due_date:           nextDueStr,
+                amount:             client.installment_amount ?? existing.amount,
+              })
+              .select()
+              .maybeSingle()
+
+            newInstallment = created ?? null
+          }
+        }
+      }
+
+      return NextResponse.json({ success: true, paid_at: newPaidAt, new_installment: newInstallment })
     }
 
     // Toggle followup completed

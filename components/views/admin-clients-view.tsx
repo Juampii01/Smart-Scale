@@ -1121,21 +1121,36 @@ export function AdminClientsView() {
     })
     const json = await res.json()
     if (res.ok) {
-      const newPaidAt = json.paid_at
-      setClients(prev => prev.map(c => ({
-        ...c,
-        installments: c.installments.map(i => {
+      const newPaidAt   = json.paid_at
+      const newInst     = json.new_installment ?? null   // auto-renewed installment (monthly subs)
+      setClients(prev => prev.map(c => {
+        // Find which client owns this installment
+        const ownsIt = c.installments.some(i => i.id === installmentId)
+        if (!ownsIt) return c
+
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        const updatedInstallments = c.installments.map(i => {
           if (i.id !== installmentId) return i
-          const today = new Date()
-          today.setHours(0, 0, 0, 0)
           const due = new Date(i.due_date + "T12:00:00")
           due.setHours(0, 0, 0, 0)
           const status: Installment["status"] = newPaidAt
             ? "pagado"
             : due < today ? "vencido" : "pendiente"
           return { ...i, paid_at: newPaidAt, status }
-        }),
-      })))
+        })
+
+        // Append auto-generated next installment if present
+        if (newInst && newPaidAt) {
+          const due = new Date(newInst.due_date + "T12:00:00")
+          due.setHours(0, 0, 0, 0)
+          const status: Installment["status"] = due < today ? "vencido" : "pendiente"
+          updatedInstallments.push({ ...newInst, status })
+        }
+
+        return { ...c, installments: updatedInstallments }
+      }))
     }
   }
 
