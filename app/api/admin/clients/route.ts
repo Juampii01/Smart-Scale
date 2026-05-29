@@ -185,6 +185,20 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: true })
     }
 
+    // Update installment amount (only amount — does NOT toggle paid_at)
+    if (body.installment_id && body.amount !== undefined) {
+      const newAmount = Number(body.amount)
+      if (isNaN(newAmount) || newAmount < 0) {
+        return NextResponse.json({ error: "amount must be a non-negative number" }, { status: 400 })
+      }
+      const { error } = await supabase
+        .from("crm_installments")
+        .update({ amount: newAmount })
+        .eq("id", body.installment_id)
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ success: true, amount: newAmount })
+    }
+
     // Toggle installment paid
     if (body.installment_id) {
       const { data: existing, error: fetchErr } = await supabase

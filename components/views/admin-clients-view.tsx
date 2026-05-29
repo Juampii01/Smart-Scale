@@ -198,6 +198,108 @@ function WebhookCard() {
   )
 }
 
+// ─── Installment Row (amount editable inline) ─────────────────────────────────
+
+function InstallmentRow({
+  inst,
+  togglingInst,
+  onToggle,
+  onPatchAmount,
+}: {
+  inst:          Installment
+  togglingInst:  string | null
+  onToggle:      () => void
+  onPatchAmount: (amount: number) => Promise<void>
+}) {
+  const [editing,  setEditing]  = useState(false)
+  const [rawValue, setRawValue] = useState(String(inst.amount))
+  const [saving,   setSaving]   = useState(false)
+
+  // Sync if parent updates the amount (e.g. after optimistic rollback)
+  useEffect(() => {
+    if (!editing) setRawValue(String(inst.amount))
+  }, [inst.amount, editing])
+
+  const handleBlur = async () => {
+    const parsed = parseFloat(rawValue.replace(/[^0-9.]/g, ""))
+    if (isNaN(parsed) || parsed === inst.amount) {
+      setRawValue(String(inst.amount))
+      setEditing(false)
+      return
+    }
+    setSaving(true)
+    await onPatchAmount(parsed)
+    setSaving(false)
+    setEditing(false)
+  }
+
+  return (
+    <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] p-3 space-y-2">
+      <div className="flex items-center gap-3">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground/[0.06] text-[11px] font-bold text-foreground/60 shrink-0">
+          {inst.installment_number}
+        </span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Monto editable — click o Tab para activar */}
+            {editing ? (
+              <div className="flex items-center gap-1">
+                <span className="text-[12px] text-foreground/40">$</span>
+                <input
+                  autoFocus
+                  type="text"
+                  inputMode="decimal"
+                  value={rawValue}
+                  onChange={e => setRawValue(e.target.value)}
+                  onBlur={handleBlur}
+                  onKeyDown={e => {
+                    if (e.key === "Enter") (e.target as HTMLInputElement).blur()
+                    if (e.key === "Escape") { setRawValue(String(inst.amount)); setEditing(false) }
+                  }}
+                  disabled={saving}
+                  className="w-24 rounded-lg border border-[#ffde21]/40 bg-[#ffde21]/[0.05] px-2 py-0.5 text-[13px] font-semibold text-foreground focus:outline-none focus:border-[#ffde21]/70 disabled:opacity-50"
+                />
+                {saving && <Loader2 className="h-3 w-3 animate-spin text-foreground/40" />}
+              </div>
+            ) : (
+              <button
+                onClick={() => { if (inst.status !== "pagado") setEditing(true) }}
+                title={inst.status === "pagado" ? "No se puede editar una cuota ya pagada" : "Click para editar el monto"}
+                className={`text-[13px] font-semibold text-foreground rounded px-1 -mx-1 transition-all ${
+                  inst.status !== "pagado"
+                    ? "hover:bg-[#ffde21]/10 hover:text-[#ffde21] cursor-pointer"
+                    : "cursor-default"
+                }`}
+              >
+                {fmtMoney(inst.amount)}
+              </button>
+            )}
+            <span className="text-[12px] text-foreground/40">{fmtDate(inst.due_date)}</span>
+            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${INST_STATUS_STYLE[inst.status]}`}>
+              {inst.status}
+            </span>
+          </div>
+        </div>
+        <button
+          onClick={onToggle}
+          disabled={togglingInst === inst.id || saving || editing}
+          className={`shrink-0 h-7 rounded-lg border px-2.5 text-[11px] font-semibold transition-all disabled:opacity-40 ${
+            inst.status === "pagado"
+              ? "border-red-300 text-red-700 hover:bg-red-100 dark:border-red-500/25 dark:text-red-300 dark:hover:bg-red-500/10"
+              : "border-emerald-300 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+          }`}>
+          {togglingInst === inst.id
+            ? <Loader2 className="h-3 w-3 animate-spin" />
+            : inst.status === "pagado" ? "Desmarcar" : "Marcar pagado"}
+        </button>
+      </div>
+      {inst.paid_at && (
+        <p className="text-[11px] text-foreground/35 pl-9">Pagado el {fmtDate(inst.paid_at)}</p>
+      )}
+    </div>
+  )
+}
+
 // ─── Detail Drawer ────────────────────────────────────────────────────────────
 
 function DetailDrawer({
@@ -205,6 +307,7 @@ function DetailDrawer({
   onClose,
   onPatchClient,
   onToggleInstallment,
+  onPatchInstallmentAmount,
   onAddFollowup,
   onToggleFollowup,
   onDeleteFollowup,
@@ -216,8 +319,9 @@ function DetailDrawer({
   client:              Client
   onClose:             () => void
   onPatchClient:       (id: string, updates: Partial<Client>) => Promise<void>
-  onToggleInstallment: (installmentId: string, currentPaidAt: string | null) => Promise<void>
-  onAddFollowup:       (clientId: string, data: any) => Promise<void>
+  onToggleInstallment:       (installmentId: string, currentPaidAt: string | null) => Promise<void>
+  onPatchInstallmentAmount:  (installmentId: string, amount: number) => Promise<void>
+  onAddFollowup:             (clientId: string, data: any) => Promise<void>
   onToggleFollowup:    (followupId: string) => Promise<void>
   onDeleteFollowup:    (followupId: string) => Promise<void>
   onDeleteClient:      (id: string) => Promise<void>
@@ -514,37 +618,15 @@ function DetailDrawer({
 
             <div className="space-y-2">
               {client.installments.map(inst => (
-                <div key={inst.id} className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] p-3 space-y-2">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground/[0.06] text-[11px] font-bold text-foreground/60 shrink-0">
-                      {inst.installment_number}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[13px] font-semibold text-foreground">{fmtMoney(inst.amount)}</span>
-                        <span className="text-[12px] text-foreground/40">{fmtDate(inst.due_date)}</span>
-                        <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${INST_STATUS_STYLE[inst.status]}`}>
-                          {inst.status}
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleToggleInst(inst)}
-                      disabled={togglingInst === inst.id}
-                      className={`shrink-0 h-7 rounded-lg border px-2.5 text-[11px] font-semibold transition-all disabled:opacity-40 ${
-                        inst.status === "pagado"
-                          ? "border-red-300 text-red-700 hover:bg-red-100 dark:border-red-500/25 dark:text-red-300 dark:hover:bg-red-500/10"
-                          : "border-emerald-300 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
-                      }`}>
-                      {togglingInst === inst.id
-                        ? <Loader2 className="h-3 w-3 animate-spin" />
-                        : inst.status === "pagado" ? "Desmarcar" : "Marcar pagado"}
-                    </button>
-                  </div>
-                  {inst.paid_at && (
-                    <p className="text-[11px] text-foreground/35 pl-9">Pagado el {fmtDate(inst.paid_at)}</p>
-                  )}
-                </div>
+                <InstallmentRow
+                  key={inst.id}
+                  inst={inst}
+                  togglingInst={togglingInst}
+                  onToggle={() => handleToggleInst(inst)}
+                  onPatchAmount={async (newAmt) => {
+                    await onPatchInstallmentAmount(inst.id, newAmt)
+                  }}
+                />
               ))}
 
               {client.installments.length === 0 && (
@@ -1010,6 +1092,25 @@ export function AdminClientsView() {
     })
   }
 
+  const handlePatchInstallmentAmount = async (installmentId: string, amount: number) => {
+    const session = await getSession()
+    if (!session) return
+    const res = await fetch("/api/admin/clients", {
+      method:  "PATCH",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+      body:    JSON.stringify({ installment_id: installmentId, amount }),
+    })
+    if (res.ok) {
+      // Optimistic: update amount in state
+      setClients(prev => prev.map(c => ({
+        ...c,
+        installments: c.installments.map(i =>
+          i.id === installmentId ? { ...i, amount } : i
+        ),
+      })))
+    }
+  }
+
   const handleToggleInstallment = async (installmentId: string, _currentPaidAt: string | null) => {
     const session = await getSession()
     if (!session) return
@@ -1166,6 +1267,7 @@ export function AdminClientsView() {
           onClose={() => setSelected(null)}
           onPatchClient={handlePatchClient}
           onToggleInstallment={handleToggleInstallment}
+          onPatchInstallmentAmount={handlePatchInstallmentAmount}
           onAddFollowup={handleAddFollowup}
           onToggleFollowup={handleToggleFollowup}
           onDeleteFollowup={handleDeleteFollowup}
