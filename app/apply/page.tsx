@@ -203,13 +203,13 @@ export default function ApplyPage() {
         style={{ backgroundColor: "color-mix(in srgb, var(--background) 96%, transparent)" }}
       >
         <div className="mx-auto max-w-2xl px-5 py-3.5 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+          <div className="flex items-center gap-2.5">
             <span className="text-foreground text-[17px] font-bold tracking-tight">Smart</span>
             <span className="rounded-md bg-foreground px-2 py-0.5 text-[14px] font-bold tracking-tight text-background shadow-sm">
               Scale
             </span>
             <span className="text-[9px] font-semibold text-foreground/25 tracking-widest uppercase ml-0.5">v2.0</span>
-          </a>
+          </div>
           <span className="text-[11px] font-bold text-foreground/25 uppercase tracking-[0.18em]">Application</span>
         </div>
       </div>

@@ -15,8 +15,14 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
   const [installments,setInstallments]= useState("6")
   const [description, setDescription] = useState("")
   const [calendlyUrl, setCalendlyUrl] = useState("")
+
+  // When a Calendly URL is entered, the after_completion redirect becomes
+  // /booking/confirmed?calendly=ENCODED_URL so the confirmation page embeds it.
+  const confirmedRedirectUrl = calendlyUrl.trim()
+    ? `${typeof window !== "undefined" ? window.location.origin : "https://smartscale.space"}/booking/confirmed?calendly=${encodeURIComponent(calendlyUrl.trim())}`
+    : calendlyUrl.trim()
   const [loading,     setLoading]     = useState(false)
-  const [result,      setResult]      = useState<{ paymentUrl: string; calendly_url: string | null } | null>(null)
+  const [result,      setResult]      = useState<{ paymentUrl: string; calendly_url: string | null; raw_calendly: string | null } | null>(null)
   const [error,       setError]       = useState<string | null>(null)
   const [copied,      setCopied]      = useState(false)
 
@@ -44,7 +50,8 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
       const body: Record<string, any> = {
         type,
         description: description.trim() || "Smart Scale",
-        calendly_url: calendlyUrl.trim() || null,
+        // Use the /booking/confirmed redirect so Calendly appears embedded after payment
+        calendly_url: confirmedRedirectUrl || null,
       }
       if (type === "once") {
         body.amount = amt
@@ -60,7 +67,11 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
       })
       const json = await res.json()
       if (!res.ok) { setError(json.error ?? "Error al crear link"); return }
-      setResult({ paymentUrl: json.paymentUrl, calendly_url: json.calendly_url ?? null })
+      setResult({
+        paymentUrl:   json.paymentUrl,
+        calendly_url: json.calendly_url ?? null,
+        raw_calendly: calendlyUrl.trim() || null,
+      })
     } catch (err: any) {
       setError(err?.message ?? "Error de conexión")
     } finally {
@@ -124,14 +135,17 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                 </a>
               </div>
 
-              {result.calendly_url && (
+              {result.raw_calendly && (
                 <div className="rounded-xl border border-blue-400/20 bg-blue-500/[0.05] p-3 flex items-start gap-2.5">
                   <CalendarDays className="h-4 w-4 text-blue-400/70 shrink-0 mt-0.5" />
-                  <div>
+                  <div className="space-y-1">
                     <p className="text-[11px] font-semibold text-blue-400/80">
-                      Después del pago → Calendly
+                      Después del pago → Calendly embebido
                     </p>
-                    <p className="text-[11px] text-foreground/35 mt-0.5 break-all">{result.calendly_url}</p>
+                    <p className="text-[11px] text-foreground/35 break-all">{result.raw_calendly}</p>
+                    <p className="text-[10px] text-foreground/20">
+                      El cliente es redirigido a <code className="text-foreground/35">/booking/confirmed</code> donde ve el calendario inline
+                    </p>
                   </div>
                 </div>
               )}
