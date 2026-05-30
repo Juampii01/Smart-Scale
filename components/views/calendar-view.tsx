@@ -290,35 +290,48 @@ export function CalendarView() {
         </div>
       )}
 
-      {/* Monthly call note */}
-      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card p-5">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,222,33,0.03),transparent_60%)]" />
-        <div className="relative">
-          <p className="text-xs font-semibold uppercase tracking-widest text-foreground/35 mb-3">Llamada mensual con Ann</p>
-          <p className="text-sm text-foreground/55 mb-3">
-            Agendá tu llamada:{" "}
+      {/* Monthly call — Ann */}
+      <div className="relative overflow-hidden rounded-2xl border border-[#ffde21]/15 bg-card">
+        <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/30 via-[#ffde21]/60 to-[#ffde21]/30" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,222,33,0.06),transparent_55%)]" />
+
+        <div className="relative p-5 space-y-4">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="inline-flex items-center rounded-full border border-[#ffde21]/25 bg-[#ffde21]/[0.08] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-[#ffde21]">
+                  Mensual · 1:1
+                </span>
+              </div>
+              <h3 className="text-[15px] font-bold text-foreground leading-tight">Llamada con Ann</h3>
+              <p className="text-[12px] text-foreground/40 mt-0.5">Sesión privada mensual · 1 llamada por mes</p>
+            </div>
             <a
               href="https://calendly.com/strategystudio-mkt/ann-s-privat-link"
               target="_blank"
               rel="noreferrer"
-              className="text-[#ffde21]/70 hover:text-[#ffde21] underline underline-offset-2 transition-colors"
+              className="shrink-0 flex items-center gap-1.5 rounded-xl bg-[#ffde21] px-4 py-2 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all shadow-md shadow-[#ffde21]/15 hover:shadow-[#ffde21]/25"
             >
-              calendly.com/strategystudio-mkt
+              <Calendar className="h-3.5 w-3.5" />
+              Agendar llamada
             </a>
-          </p>
-          <ul className="space-y-1 text-xs text-foreground/35 list-none">
+          </div>
+
+          {/* Rules */}
+          <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-4 py-3 space-y-2">
             {[
               "Las llamadas son mensuales y no acumulables.",
               "Cada mes tenés disponible una (1) llamada.",
               "La llamada debe realizarse dentro del mes correspondiente.",
               "Si no se agenda en ese período, no se traslada al mes siguiente.",
             ].map((t) => (
-              <li key={t} className="flex items-start gap-2">
-                <span className="mt-1 h-1 w-1 rounded-full bg-[#ffde21]/40 shrink-0" />
+              <li key={t} className="flex items-start gap-2 list-none text-[11px] text-foreground/35">
+                <span className="mt-1.5 h-1 w-1 rounded-full bg-[#ffde21]/40 shrink-0" />
                 {t}
               </li>
             ))}
-          </ul>
+          </div>
         </div>
       </div>
     </section>
