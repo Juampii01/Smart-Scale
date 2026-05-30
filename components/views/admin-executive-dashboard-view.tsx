@@ -259,7 +259,42 @@ function NewCashBlock({ data }: { data: DashboardData["new_cash"] }) {
 
 // ─── Block: Old Cash ──────────────────────────────────────────────────────────
 
+// Agrupa cuotas del mismo cliente cobradas el mismo día en una sola fila
+function groupOldCashInstallments(installments: OldCashInstallment[]) {
+  const map = new Map<string, {
+    key: string
+    client_name: string
+    numbers: number[]
+    total: number
+    paid_at: string
+  }>()
+  for (const inst of installments) {
+    const dateKey = inst.paid_at?.slice(0, 10) ?? ""
+    const groupKey = `${inst.client_id}__${dateKey}`
+    if (!map.has(groupKey)) {
+      map.set(groupKey, {
+        key: groupKey,
+        client_name: inst.client_name,
+        numbers: [],
+        total: 0,
+        paid_at: inst.paid_at,
+      })
+    }
+    const g = map.get(groupKey)!
+    g.numbers.push(inst.installment_number)
+    g.total += inst.amount
+  }
+  return Array.from(map.values()).map(g => ({
+    ...g,
+    numbers: [...g.numbers].sort((a, b) => a - b),
+    label: g.numbers.length === 1
+      ? `#${g.numbers[0]}`
+      : `#${[...g.numbers].sort((a, b) => a - b).join(" y #")}`,
+  }))
+}
+
 function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
+  const grouped = groupOldCashInstallments(data.installments)
   return (
     <div className="rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden">
       <div className="h-[2px] w-full bg-gradient-to-r from-blue-500/50 to-blue-500/10" />
@@ -276,7 +311,7 @@ function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
           }
         />
 
-        {data.installments.length === 0 ? (
+        {grouped.length === 0 ? (
           <p className="py-6 text-center text-[13px] text-foreground/40">
             Sin cuotas recurrentes cobradas en este período
           </p>
@@ -292,15 +327,15 @@ function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-foreground/[0.04]">
-                {data.installments.map(i => (
-                  <tr key={i.id} className="group hover:bg-foreground/[0.02] transition-colors">
-                    <td className="py-2 pr-3 font-medium text-foreground">{i.client_name}</td>
-                    <td className="py-2 pr-3 text-center text-foreground/60">#{i.installment_number}</td>
+                {grouped.map(g => (
+                  <tr key={g.key} className="group hover:bg-foreground/[0.02] transition-colors">
+                    <td className="py-2 pr-3 font-medium text-foreground">{g.client_name}</td>
+                    <td className="py-2 pr-3 text-center text-foreground/60">{g.label}</td>
                     <td className="py-2 pr-3 text-right font-semibold text-foreground tabular-nums">
-                      {fmt(i.amount)}
+                      {fmt(g.total)}
                     </td>
                     <td className="py-2 text-right text-foreground/50 text-[11px]">
-                      {fmtDate(i.paid_at)}
+                      {fmtDate(g.paid_at)}
                     </td>
                   </tr>
                 ))}
