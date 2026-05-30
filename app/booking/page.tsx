@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation"
 import { Suspense } from "react"
-import { ArrowRight, Check, Shield, Clock, Star, Zap } from "lucide-react"
+import { ArrowRight, Check, Shield, Clock, Star, Zap, Calendar } from "lucide-react"
 
 // ─── Reading config from query params + env vars ──────────────────────────────
 // Admin generates a link from /admin/payments → "Link de pago"
@@ -31,6 +31,8 @@ const DEFAULT_CONFIG = {
   note:     "Una vez que completás el pago, elegís el día y horario que más te convenga.",
 }
 
+const CALENDLY_URL = "https://calendly.com/strategystudio-mkt/ann-s-privat-link"
+
 function BookingContent() {
   const params  = useSearchParams()
 
@@ -41,6 +43,9 @@ function BookingContent() {
   const stripeUrl = params.get("stripe")
     || process.env.NEXT_PUBLIC_BOOKING_STRIPE_URL
     || "https://os.strategycoach.us/payment-link/6a1b666303b17c94f5713bbd"
+  const calendlyUrl = params.get("calendly")
+    || process.env.NEXT_PUBLIC_BOOKING_CALENDLY_URL
+    || CALENDLY_URL
   const rawFeatures = params.get("features")
   const features = rawFeatures
     ? rawFeatures.split(",").map(f => f.trim()).filter(Boolean)
@@ -148,29 +153,53 @@ function BookingContent() {
                   ))}
                 </div>
 
-                {/* CTA */}
-                {stripeUrl ? (
-                  <a
-                    href={stripeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-[#ffde21] py-4 text-[15px] font-black text-black hover:bg-[#ffe84d] transition-all duration-200 shadow-lg shadow-[#ffde21]/20 hover:shadow-[#ffde21]/30 hover:scale-[1.01]"
-                  >
-                    {cta}
-                    <ArrowRight className="h-4 w-4" />
-                  </a>
-                ) : (
-                  <div className="rounded-2xl border border-amber-400/25 bg-amber-500/[0.07] p-4 text-center">
-                    <p className="text-[12px] text-amber-400/80">
-                      Link de pago no configurado todavía.
+                {/* 2-step flow */}
+                <div className="space-y-3">
+                  {/* Step 1: Pay */}
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/30">
+                      Paso 1 — Completá el pago
                     </p>
+                    {stripeUrl ? (
+                      <a
+                        href={stripeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-[#ffde21] py-4 text-[15px] font-black text-black hover:bg-[#ffe84d] transition-all duration-200 shadow-lg shadow-[#ffde21]/20 hover:shadow-[#ffde21]/30 hover:scale-[1.01]"
+                      >
+                        {cta}
+                        <ArrowRight className="h-4 w-4" />
+                      </a>
+                    ) : (
+                      <div className="rounded-2xl border border-amber-400/25 bg-amber-500/[0.07] p-4 text-center">
+                        <p className="text-[12px] text-amber-400/80">Link de pago no configurado.</p>
+                      </div>
+                    )}
                   </div>
-                )}
 
-                {/* Note */}
-                <p className="text-center text-[11px] text-foreground/25 leading-relaxed px-2">
-                  {DEFAULT_CONFIG.note}
-                </p>
+                  {/* Divider */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-px bg-foreground/[0.06]" />
+                    <span className="text-[10px] text-foreground/20 font-semibold tracking-widest uppercase">luego</span>
+                    <div className="flex-1 h-px bg-foreground/[0.06]" />
+                  </div>
+
+                  {/* Step 2: Book */}
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/30">
+                      Paso 2 — Elegí tu horario
+                    </p>
+                    <a
+                      href={calendlyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex w-full items-center justify-center gap-2 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] py-3.5 text-[13px] font-semibold text-foreground/60 hover:text-foreground hover:border-foreground/20 transition-all"
+                    >
+                      <Calendar className="h-4 w-4" />
+                      Agendar en el calendario de Ann
+                    </a>
+                  </div>
+                </div>
 
                 {/* Stripe badge */}
                 <div className="flex items-center justify-center gap-2 pt-1">

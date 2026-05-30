@@ -15,7 +15,9 @@ function ConfirmedContent() {
   const params = useSearchParams()
   const [visible, setVisible] = useState(false)
 
-  const rawCalendly = params.get("calendly") || process.env.NEXT_PUBLIC_BOOKING_CALENDLY_URL || ""
+  const rawCalendly = params.get("calendly")
+    || process.env.NEXT_PUBLIC_BOOKING_CALENDLY_URL
+    || "https://calendly.com/strategystudio-mkt/ann-s-privat-link"
   const calendlyUrl = rawCalendly.startsWith("https://") ? rawCalendly : ""
 
   useEffect(() => {
