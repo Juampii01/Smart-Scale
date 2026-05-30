@@ -866,6 +866,32 @@ function CashSection({ clients }: { clients: Client[] }) {
     return !(d.getMonth() === currentMonth && d.getFullYear() === currentYear)
   })
 
+  // Cobrado: todo lo que ENTRÓ en este mes de clientes viejos (cualquier due_date)
+  // → incluye pagos atrasados de meses anteriores (ej: Pablo pagando cuotas de marzo/abril en mayo)
+  // → es el cash real recibido este mes de clientes pre-existentes
+  const oldCashCobrado = oldClients.reduce((sum, c) =>
+    sum + c.installments
+      .filter(i => {
+        if (!i.paid_at) return false
+        const d = new Date(i.paid_at)
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+      })
+      .reduce((s, i) => s + i.amount, 0)
+  , 0)
+
+  // Pendiente: cuotas con vencimiento en ESTE mes que todavía no se pagaron
+  // → criterio independiente: no es expected - cobrado (serían métricas mezcladas)
+  const oldCashPendiente = oldClients.reduce((sum, c) =>
+    sum + c.installments
+      .filter(i => {
+        if (i.paid_at) return false   // ya pagada → no es pendiente
+        const d = new Date(i.due_date + "T12:00:00")
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+      })
+      .reduce((s, i) => s + i.amount, 0)
+  , 0)
+
+  // Expected = lo que vence este mes (referencia para el % de cobranza)
   const oldCashExpected = oldClients.reduce((sum, c) =>
     sum + c.installments
       .filter(i => {
@@ -874,21 +900,9 @@ function CashSection({ clients }: { clients: Client[] }) {
       })
       .reduce((s, i) => s + i.amount, 0)
   , 0)
-
-  // Cobrado: misma base que expected (due_date en este mes) pero solo las ya pagadas
-  // Así pendiente = lo que vence este mes y todavía no cobró (consistente con expected)
-  const oldCashCobrado = oldClients.reduce((sum, c) =>
-    sum + c.installments
-      .filter(i => {
-        if (!i.paid_at) return false
-        const d = new Date(i.due_date + "T12:00:00")
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear
-      })
-      .reduce((s, i) => s + i.amount, 0)
-  , 0)
-
-  const oldCashPendiente = oldCashExpected - oldCashCobrado
-  const pct = oldCashExpected > 0 ? Math.min(100, (oldCashCobrado / oldCashExpected) * 100) : 0
+  // Cuotas de mayo ya cobradas (para progress bar coherente)
+  const oldCashCobradoDeMayo = oldCashExpected - oldCashPendiente
+  const pct = oldCashExpected > 0 ? Math.min(100, (oldCashCobradoDeMayo / oldCashExpected) * 100) : 0
 
   const monthName = now.toLocaleDateString("es-AR", { month: "long", year: "numeric" })
 
@@ -913,28 +927,32 @@ function CashSection({ clients }: { clients: Client[] }) {
         {/* Old Cash */}
         <div>
           <p className="text-[11px] text-foreground/35 mb-1 font-semibold uppercase tracking-wider">Old Cash</p>
-          <p className="text-3xl font-bold text-foreground tabular-nums">{fmtMoney(oldCashExpected)}</p>
-          <div className="mt-2 space-y-1.5">
-            {/* Progress bar */}
-            <div className="flex items-center gap-2">
-              <div className="flex-1 h-1.5 rounded-full bg-foreground/[0.06] overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-                  style={{ width: `${pct}%` }}
-                />
-              </div>
-              <span className="text-[11px] text-foreground/40 shrink-0 tabular-nums">{Math.round(pct)}%</span>
-            </div>
-            <div className="flex gap-4 text-[12px]">
-              <span className="text-emerald-700 dark:text-emerald-300 tabular-nums">
-                {fmtMoney(oldCashCobrado)} cobrado
-              </span>
-              {oldCashPendiente > 0 && (
-                <span className="text-amber-700/80 dark:text-amber-300/70 tabular-nums">
-                  {fmtMoney(oldCashPendiente)} pendiente
+          <p className="text-3xl font-bold text-foreground tabular-nums">{fmtMoney(oldCashCobrado)}</p>
+          <p className="text-[11px] text-foreground/30 mt-0.5">recibido de clientes anteriores</p>
+          <div className="mt-2.5 space-y-2">
+            {/* Pendiente: cuotas de este mes sin pagar */}
+            {oldCashPendiente > 0 && (
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] text-foreground/35 uppercase tracking-wider font-semibold">
+                  Pendiente ({monthName.split(" ")[0]})
                 </span>
-              )}
-            </div>
+                <span className="text-[13px] font-semibold text-amber-700 dark:text-amber-300 tabular-nums">
+                  {fmtMoney(oldCashPendiente)}
+                </span>
+              </div>
+            )}
+            {/* Progress bar: % de cuotas de este mes cobradas */}
+            {oldCashExpected > 0 && (
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-1.5 rounded-full bg-foreground/[0.06] overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                <span className="text-[10px] text-foreground/35 shrink-0 tabular-nums">{Math.round(pct)}% del mes</span>
+              </div>
+            )}
           </div>
         </div>
 
