@@ -1,22 +1,36 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
 import { Sparkles, X, Send, Loader2, RotateCcw } from "lucide-react"
 
 type Message = { role: "user" | "assistant"; content: string }
 
-const STARTER_QUESTIONS = [
+const STARTER_QUESTIONS_CLIENT = [
   "¿Cómo cargo mi reporte mensual?",
   "¿Qué hace el Audit?",
   "¿Cómo veo mi avance del programa?",
   "¿Diferencia entre valor del trato y cash collected?",
 ]
 
-const WELCOME: Message = {
+const STARTER_QUESTIONS_ADMIN = [
+  "¿Qué se cobró este mes?",
+  "¿Qué falta cobrar en mayo?",
+  "¿Cuánto cobra Fabri de comisión este mes?",
+  "Mostrame las cuotas de Pablo Munizaga",
+]
+
+const WELCOME_CLIENT: Message = {
   role: "assistant",
   content:
     "Hola — soy el asistente del dashboard de Smart Scale 👋\n\nPodés preguntarme sobre cómo usar cualquier sección, qué significa cada métrica, o pedirme un workflow paso a paso. ¿En qué te ayudo?",
+}
+
+const WELCOME_ADMIN: Message = {
+  role: "assistant",
+  content:
+    "Hola — soy el asistente interno del CRM 🔐\n\nTengo acceso directo a la base de datos. Podés preguntarme sobre cobros, pagos pendientes, cuotas de clientes, comisiones del setter, o cualquier dato del CRM. ¿Qué necesitás?",
 }
 
 // ─── Markdown render mínimo (sin dependencia externa) ────────────────────────
@@ -62,6 +76,12 @@ function renderInline(text: string): React.ReactNode[] {
 // ─── HelpChat ─────────────────────────────────────────────────────────────────
 
 export function HelpChat() {
+  const pathname   = usePathname()
+  const isAdmin    = pathname?.startsWith("/admin") ?? false
+  const WELCOME    = isAdmin ? WELCOME_ADMIN    : WELCOME_CLIENT
+  const STARTERS   = isAdmin ? STARTER_QUESTIONS_ADMIN : STARTER_QUESTIONS_CLIENT
+  const API_ROUTE  = isAdmin ? "/api/admin/assistant" : "/api/help-chat"
+
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([WELCOME])
   const [input, setInput] = useState("")
@@ -69,6 +89,13 @@ export function HelpChat() {
   const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  // Reset chat when switching between admin and client context
+  useEffect(() => {
+    setMessages([WELCOME])
+    setInput("")
+    setError(null)
+  }, [isAdmin]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 80)
@@ -109,7 +136,7 @@ export function HelpChat() {
       // Excluir el welcome message del contexto que mandamos a la API
       const apiMessages = next.filter(m => m !== WELCOME)
 
-      const res = await fetch("/api/help-chat", {
+      const res = await fetch(API_ROUTE, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -243,7 +270,7 @@ export function HelpChat() {
               <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30 px-1">
                 Probá con
               </p>
-              {STARTER_QUESTIONS.map(q => (
+              {STARTERS.map(q => (
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
