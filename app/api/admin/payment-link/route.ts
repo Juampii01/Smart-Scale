@@ -28,10 +28,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
   }
 
-  const type        = body.type === "recurring" ? "recurring" : "once"
-  const description = body.description ? String(body.description).trim() : "Smart Scale"
+  const type         = body.type === "recurring" ? "recurring" : "once"
+  const description  = body.description ? String(body.description).trim() : "Smart Scale"
+  const calendlyUrl  = body.calendly_url ? String(body.calendly_url).trim() : null
+
+  // Validate Calendly URL if provided
+  if (calendlyUrl && !calendlyUrl.startsWith("https://")) {
+    return NextResponse.json({ error: "calendly_url debe empezar con https://" }, { status: 400 })
+  }
 
   const stripe = new Stripe(stripeKey, { apiVersion: "2024-06-20" as any })
+
+  // after_completion: redirect to Calendly (or default Stripe confirmation page)
+  const afterCompletion: Stripe.PaymentLinkCreateParams["after_completion"] = calendlyUrl
+    ? { type: "redirect", redirect: { url: calendlyUrl } }
+    : { type: "hosted_confirmation" }
 
   try {
     if (type === "once") {
@@ -39,7 +50,6 @@ export async function POST(req: NextRequest) {
       if (!amount || amount <= 0)
         return NextResponse.json({ error: "Monto inválido" }, { status: 400 })
 
-      // Crear price one-time + payment link
       const price = await stripe.prices.create({
         currency:    "usd",
         unit_amount: Math.round(amount * 100),
@@ -47,10 +57,11 @@ export async function POST(req: NextRequest) {
       })
 
       const link = await stripe.paymentLinks.create({
-        line_items: [{ price: price.id, quantity: 1 }],
+        line_items:       [{ price: price.id, quantity: 1 }],
+        after_completion: afterCompletion,
       })
 
-      return NextResponse.json({ ok: true, paymentUrl: link.url, type: "once", amount })
+      return NextResponse.json({ ok: true, paymentUrl: link.url, type: "once", amount, calendly_url: calendlyUrl })
 
     } else {
       const amountPerInstallment = Number(body.amount_per_installment)
@@ -63,7 +74,6 @@ export async function POST(req: NextRequest) {
 
       const total = amountPerInstallment * installments
 
-      // Crear price recurrente mensual
       const price = await stripe.prices.create({
         currency:    "usd",
         unit_amount: Math.round(amountPerInstallment * 100),
@@ -72,17 +82,19 @@ export async function POST(req: NextRequest) {
       })
 
       const link = await stripe.paymentLinks.create({
-        line_items:          [{ price: price.id, quantity: 1 }],
-        subscription_data:   { description: `${installments} cuotas — Total $${total}` },
+        line_items:        [{ price: price.id, quantity: 1 }],
+        subscription_data: { description: `${installments} cuotas — Total $${total}` },
+        after_completion:  afterCompletion,
       })
 
       return NextResponse.json({
-        ok:                    true,
-        paymentUrl:            link.url,
-        type:                  "recurring",
+        ok:                     true,
+        paymentUrl:             link.url,
+        type:                   "recurring",
         amount_per_installment: amountPerInstallment,
         installments,
         total,
+        calendly_url:           calendlyUrl,
       })
     }
   } catch (err: any) {

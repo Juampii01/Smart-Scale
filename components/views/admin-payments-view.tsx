@@ -3,8 +3,9 @@
 import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase"
 import {
-  Loader2, Plus, Trash2, RefreshCw, Download, Check, X, LayoutList, CalendarDays,
+  Loader2, Plus, Trash2, RefreshCw, Download, Check, X, LayoutList, CalendarDays, Link2,
 } from "lucide-react"
+import { PaymentLinkDialog } from "@/components/admin/payment-link-dialog"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -132,13 +133,14 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function AdminPaymentsView() {
-  const [payments,      setPayments]      = useState<Payment[]>([])
-  const [loading,       setLoading]       = useState(true)
-  const [adding,        setAdding]        = useState(false)
-  const [deletingId,    setDeletingId]    = useState<string | null>(null)
-  const [filterStatus,  setFilterStatus]  = useState<string>("todos")
-  const [filterMonth,   setFilterMonth]   = useState<string>("todos")
-  const [viewMode,      setViewMode]      = useState<"tabla" | "mes">("mes")
+  const [payments,         setPayments]         = useState<Payment[]>([])
+  const [loading,          setLoading]          = useState(true)
+  const [adding,           setAdding]           = useState(false)
+  const [deletingId,       setDeletingId]       = useState<string | null>(null)
+  const [filterStatus,     setFilterStatus]     = useState<string>("todos")
+  const [filterMonth,      setFilterMonth]      = useState<string>("todos")
+  const [viewMode,         setViewMode]         = useState<"tabla" | "mes">("mes")
+  const [showLinkDialog,   setShowLinkDialog]   = useState(false)
 
   const getSession = async () => {
     const supabase = createClient()
@@ -279,6 +281,8 @@ export function AdminPaymentsView() {
   return (
     <div className="space-y-6">
 
+      <PaymentLinkDialog open={showLinkDialog} onClose={() => setShowLinkDialog(false)} />
+
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
@@ -310,6 +314,11 @@ export function AdminPaymentsView() {
             className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
             <Download className="h-3.5 w-3.5" />
             CSV
+          </button>
+          <button onClick={() => setShowLinkDialog(true)}
+            className="flex items-center gap-2 h-9 rounded-xl border border-[#ffde21]/30 bg-[#ffde21]/[0.08] px-4 text-sm font-semibold text-[#ffde21] hover:bg-[#ffde21]/15 transition-all">
+            <Link2 className="h-3.5 w-3.5" />
+            Link de pago
           </button>
           <button onClick={() => setAdding(true)} disabled={adding}
             className="flex items-center gap-2 h-9 rounded-xl bg-[#ffde21] px-4 text-sm font-bold text-black hover:bg-[#ffe84d] disabled:opacity-50 transition-all">
