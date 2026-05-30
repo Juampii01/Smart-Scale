@@ -17,15 +17,18 @@ interface CalendarEvent {
   passcode:    string | null
   status:      string
   recurrence:  string
+  next_date:   string | null   // ISO YYYY-MM-DD
   sort_order:  number
 }
 
 const DAYS    = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
 const STATUS  = ["active", "cancelled", "tbd"]
-const RECURR  = ["weekly", "monthly_last", "once"]
+const RECURR  = ["weekly", "biweekly", "monthly", "monthly_last", "once"]
 
 const RECURR_LABEL: Record<string, string> = {
   weekly:       "Semanal",
+  biweekly:     "Cada 2 semanas",
+  monthly:      "Mensual",
   monthly_last: "Último viernes del mes",
   once:         "Evento único",
 }
@@ -39,7 +42,7 @@ const STATUS_STYLE: Record<string, string> = {
 const EMPTY: Omit<CalendarEvent, "id"> = {
   title: "", description: "", day_of_week: "Lunes", time: "3:00 PM",
   tz_label: "Miami", zoom_url: "", passcode: "",
-  status: "active", recurrence: "weekly", sort_order: 0,
+  status: "active", recurrence: "weekly", next_date: null, sort_order: 0,
 }
 
 // ─── Event Modal ──────────────────────────────────────────────────────────────
@@ -60,7 +63,7 @@ function EventModal({
   const [saving, setSaving] = useState(false)
   const [saved,  setSaved]  = useState(false)
 
-  const set = (k: keyof typeof EMPTY, v: string | number) =>
+  const set = (k: keyof typeof EMPTY, v: string | number | null) =>
     setForm(prev => ({ ...prev, [k]: v }))
 
   const handleSave = async () => {
@@ -132,6 +135,31 @@ function EventModal({
                 {STATUS.map(s => <option key={s} value={s}>{s === "active" ? "Activo" : s === "cancelled" ? "Cancelado" : "Próximamente"}</option>)}
               </select>
             </div>
+          </div>
+
+          {/* Próxima fecha específica — útil para biweekly/monthly */}
+          <div>
+            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-foreground/35">
+              Próxima fecha específica
+              <span className="ml-2 text-foreground/20 normal-case font-normal tracking-normal">
+                (opcional · biweekly / mensual)
+              </span>
+            </p>
+            <input
+              type="date"
+              value={form.next_date ?? ""}
+              onChange={e => set("next_date", e.target.value || null)}
+              className={`${inputCls} [color-scheme:dark]`}
+            />
+            {form.next_date && (
+              <button
+                type="button"
+                onClick={() => set("next_date", null)}
+                className="mt-1 text-[11px] text-foreground/30 hover:text-foreground/60 transition-colors"
+              >
+                × Borrar fecha
+              </button>
+            )}
           </div>
 
           <div>

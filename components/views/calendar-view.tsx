@@ -18,7 +18,8 @@ interface CalendarEvent {
   zoom_url:    string | null
   passcode:    string | null
   status:      "active" | "cancelled" | "tbd"
-  recurrence:  "weekly" | "monthly_last" | "once"
+  recurrence:  "weekly" | "biweekly" | "monthly" | "monthly_last" | "once"
+  next_date:   string | null   // ISO date YYYY-MM-DD — próxima ocurrencia específica
   sort_order:  number
 }
 
@@ -53,9 +54,17 @@ function toUserLocalTime(timeStr: string): string | null {
 }
 
 function recurrenceLabel(r: CalendarEvent["recurrence"]): string {
+  if (r === "biweekly")     return "Cada 2 semanas"
+  if (r === "monthly")      return "Mensual"
   if (r === "monthly_last") return "Último viernes del mes"
   if (r === "once")         return "Evento único"
   return "Semanal"
+}
+
+function fmtNextDate(iso: string): string {
+  const d = new Date(iso + "T12:00:00")
+  return d.toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })
+    .replace(/^\w/, c => c.toUpperCase())
 }
 
 function CopyPasscodeButton({ value }: { value: string }) {
@@ -195,7 +204,17 @@ export function CalendarView() {
 
                   {/* Time info */}
                   <div className="space-y-1.5">
-                    {item.day_of_week && (
+                    {/* Próxima fecha específica (biweekly / monthly) */}
+                    {!cancelled && item.next_date && (
+                      <div className="flex items-center gap-2 text-xs">
+                        <Calendar className="h-3.5 w-3.5 shrink-0 text-[#ffde21]/60" />
+                        <span className="text-[#ffde21]/80 font-semibold">
+                          Próxima: {fmtNextDate(item.next_date)}
+                        </span>
+                      </div>
+                    )}
+                    {/* Día de la semana (cuando no hay next_date, o como referencia) */}
+                    {item.day_of_week && !item.next_date && (
                       <div className="flex items-center gap-2 text-xs text-foreground/40">
                         <Calendar className="h-3.5 w-3.5 shrink-0" />
                         <span className={cancelled ? "line-through" : ""}>
@@ -204,6 +223,13 @@ export function CalendarView() {
                             <span className="ml-1.5 text-foreground/25">· último del mes</span>
                           )}
                         </span>
+                      </div>
+                    )}
+                    {/* Frecuencia (biweekly / monthly muestra el tipo) */}
+                    {!cancelled && (item.recurrence === "biweekly" || item.recurrence === "monthly") && (
+                      <div className="flex items-center gap-2 text-xs text-foreground/35">
+                        <span className="h-3.5 w-3.5 shrink-0" />
+                        <span>{recurrenceLabel(item.recurrence)}</span>
                       </div>
                     )}
                     {item.time && (
