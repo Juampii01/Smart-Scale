@@ -38,7 +38,9 @@ function BookingContent() {
   const subtitle = params.get("subtitle") || DEFAULT_CONFIG.subtitle
   const price    = params.get("price")    || DEFAULT_CONFIG.price
   const cta      = params.get("cta")      || DEFAULT_CONFIG.cta
-  const stripeUrl = params.get("stripe")  || process.env.NEXT_PUBLIC_BOOKING_STRIPE_URL || ""
+  const stripeUrl = params.get("stripe")
+    || process.env.NEXT_PUBLIC_BOOKING_STRIPE_URL
+    || "https://os.strategycoach.us/payment-link/6a1b666303b17c94f5713bbd"
   const rawFeatures = params.get("features")
   const features = rawFeatures
     ? rawFeatures.split(",").map(f => f.trim()).filter(Boolean)
