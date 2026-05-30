@@ -17,18 +17,18 @@ import { ArrowRight, Check, Shield, Clock, Star, Zap } from "lucide-react"
 //   ?features=... comma-separated feature list
 
 const DEFAULT_CONFIG = {
-  title:    "Sesión Estratégica con Ann",
-  subtitle: "Una llamada 1:1 para identificar los bloqueantes que están frenando tu crecimiento y definir el siguiente paso con claridad.",
+  title:    "Auditoría de Ecosistema Circular",
+  subtitle: "Una llamada de 45 minutos con Ann para revisar juntos dónde ajustar tu ecosistema y qué inputs trabajar en la próxima etapa.",
   price:    "400",
   currency: "USD",
-  cta:      "Reservar mi sesión",
+  cta:      "Reservar llamada",
   features: [
-    "90 minutos 1:1 con Ann Sahakyan",
-    "Diagnóstico de tu Ecosistema Circular",
-    "Plan de acción para los próximos 90 días",
+    "45 minutos 1:1 con Ann Sahakyan",
+    "Revisión personalizada de tu Ecosistema Circular",
+    "Identificación de los ajustes clave para tu próxima etapa",
     "Grabación de la sesión incluida",
   ],
-  note:     "Después del pago agendás tu horario directamente en el calendario.",
+  note:     "Una vez que completás el pago, elegís el día y horario que más te convenga.",
 }
 
 function BookingContent() {
@@ -71,9 +71,9 @@ function BookingContent() {
           <div className="space-y-8">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 rounded-full border border-[#ffde21]/25 bg-[#ffde21]/[0.07] px-4 py-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[#ffde21]/70 shrink-0" />
               <span className="text-[11px] font-bold text-[#ffde21] uppercase tracking-[0.18em]">
-                Disponibilidad limitada
+                Smart Scale · Opción Sync
               </span>
             </div>
 
@@ -133,7 +133,7 @@ function BookingContent() {
                     </span>
                     <span className="text-[16px] text-foreground/40 font-semibold mb-1.5">USD</span>
                   </div>
-                  <p className="text-[12px] text-foreground/30 mt-1">Pago único · sin cuotas</p>
+                  <p className="text-[12px] text-foreground/30 mt-1">Sesión Sync · 45 minutos</p>
                 </div>
 
                 {/* What's included mini-list */}
