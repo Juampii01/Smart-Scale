@@ -61,18 +61,30 @@ const STATUS_STYLE: Record<string, string> = {
 
 // ─── New Payment Row ──────────────────────────────────────────────────────────
 
-function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | "created_at">) => Promise<void>; onCancel: () => void }) {
+function todayDateStr() {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | "created_at"> & { created_at?: string }) => Promise<void>; onCancel: () => void }) {
   const [name,        setName]        = useState("")
   const [email,       setEmail]       = useState("")
   const [amount,      setAmount]      = useState("")
   const [status,      setStatus]      = useState<Payment["status"]>("aceptado")
   const [description, setDescription] = useState("")
+  const [date,        setDate]        = useState(todayDateStr())
   const [saving,      setSaving]      = useState(false)
 
   const handleSave = async () => {
     if (!name.trim() || !amount.trim()) return
     setSaving(true)
-    await onSave({ name: name.trim(), email: email.trim() || null, amount: Number(amount), status, description: description.trim() || null })
+    await onSave({
+      name:        name.trim(),
+      email:       email.trim() || null,
+      amount:      Number(amount),
+      status,
+      description: description.trim() || null,
+      created_at:  date || todayDateStr(),
+    })
     setSaving(false)
   }
 
@@ -94,6 +106,14 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
         </select>
       </td>
       <td className="px-4 py-2.5"><input value={description} onChange={e => setDescription(e.target.value)} placeholder="Descripción..." className={inputCls} /></td>
+      <td className="px-4 py-2.5">
+        <input
+          type="date"
+          value={date}
+          onChange={e => setDate(e.target.value)}
+          className="h-8 rounded-lg border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none w-full [color-scheme:dark]"
+        />
+      </td>
       <td className="px-4 py-2.5 whitespace-nowrap">
         <div className="flex items-center gap-1.5">
           <button onClick={handleSave} disabled={saving || !name.trim() || !amount.trim()} aria-label="Guardar"
@@ -142,7 +162,7 @@ export function AdminPaymentsView() {
 
   useEffect(() => { fetchPayments() }, [fetchPayments])
 
-  const handleAdd = async (p: Omit<Payment, "id" | "created_at">) => {
+  const handleAdd = async (p: Omit<Payment, "id" | "created_at"> & { created_at?: string }) => {
     const session = await getSession()
     if (!session) return
     const res = await fetch("/api/admin/payments", {
@@ -249,7 +269,7 @@ export function AdminPaymentsView() {
   const TableHead = () => (
     <thead>
       <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-        {["Nombre","Email","Monto","Estado","Descripción",""].map(h => (
+        {["Nombre","Email","Monto","Estado","Descripción","Fecha",""].map(h => (
           <th key={h} className={`px-4 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap ${h === "Monto" ? "text-right" : "text-left"}`}>{h}</th>
         ))}
       </tr>

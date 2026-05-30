@@ -63,13 +63,26 @@ export async function POST(req: NextRequest) {
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
 
-    const { name, email, amount, status, description } = body
+    const { name, email, amount, status, description, created_at } = body
     if (!name || amount == null) return NextResponse.json({ error: "name and amount are required" }, { status: 400 })
+
+    // Validate custom date if provided (YYYY-MM-DD or ISO)
+    const insertRow: Record<string, any> = {
+      name,
+      email:       email       || null,
+      amount:      Number(amount),
+      status:      status      ?? "pendiente",
+      description: description || null,
+    }
+    if (created_at) {
+      const parsed = new Date(created_at)
+      if (!isNaN(parsed.getTime())) insertRow.created_at = parsed.toISOString()
+    }
 
     const supabase = createServiceClient()
     const { data, error } = await supabase
       .from("payments")
-      .insert({ name, email: email || null, amount: Number(amount), status: status ?? "pendiente", description: description || null })
+      .insert(insertRow)
       .select()
       .single()
 
