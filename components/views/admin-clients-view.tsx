@@ -875,11 +875,13 @@ function CashSection({ clients }: { clients: Client[] }) {
       .reduce((s, i) => s + i.amount, 0)
   , 0)
 
+  // Cobrado: misma base que expected (due_date en este mes) pero solo las ya pagadas
+  // Así pendiente = lo que vence este mes y todavía no cobró (consistente con expected)
   const oldCashCobrado = oldClients.reduce((sum, c) =>
     sum + c.installments
       .filter(i => {
         if (!i.paid_at) return false
-        const d = new Date(i.paid_at)
+        const d = new Date(i.due_date + "T12:00:00")
         return d.getMonth() === currentMonth && d.getFullYear() === currentYear
       })
       .reduce((s, i) => s + i.amount, 0)

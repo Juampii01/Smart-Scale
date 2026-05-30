@@ -148,5 +148,35 @@ export async function zapierEODSubmitted(payload: {
 }): Promise<ZapierResult> {
   const url = process.env.ZAPIER_WEBHOOK_EOD
   if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_EOD not configured" }
-  return postWebhook(url, payload)
+
+  // Pre-format a Slack-ready message so the Zap just uses {{message}}
+  // without needing to map individual numeric fields.
+  const [year, month, day] = payload.date.split("-")
+  const dateLabel = `${day}/${month}/${year}`
+
+  const lines = [
+    `📊 *EOD de ${payload.setter_name}* — ${dateLabel}`,
+    ``,
+    `🔵 *Inbound*`,
+    `  • Conversaciones recibidas: *${payload.new_conversations_inbound}*`,
+    `  • Aplicaciones inbound: *${payload.inbound_applications}*`,
+    ``,
+    `🟣 *Outbound*`,
+    `  • Leads contactados: *${payload.new_conversations_outbound}*`,
+    `  • Respuestas obtenidas: *${payload.outbound_replies}*`,
+    ``,
+    `🟡 *Conversión*`,
+    `  • Leads 4-5 ⭐: *${payload.qualified_leads}*`,
+    `  • Offer docs enviados: *${payload.offer_docs_sent}*`,
+    `  • Respuestas a offer doc: *${payload.offer_doc_responses}*`,
+    `  • Llamadas completadas: *${payload.calls_done}*`,
+  ]
+
+  if (payload.notes) {
+    lines.push(``, `📝 *Notas:* ${payload.notes}`)
+  }
+
+  const message = lines.join("\n")
+
+  return postWebhook(url, { ...payload, message })
 }
