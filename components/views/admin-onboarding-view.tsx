@@ -199,14 +199,9 @@ function OnboardingForm({
     })
   }, [])
 
-  // Auto-seleccionar Fabri cuando carguen los setters
-  useEffect(() => {
-    if (setters.length === 0) return
-    const fabri = setters.find(s => s.name?.toLowerCase().includes("fabri"))
-    if (fabri) {
-      setFields(prev => ({ ...prev, setter_id: prev.setter_id || fabri.id }))
-    }
-  }, [setters])
+  // No auto-seleccionar setter — dejar el campo vacío para que el admin elija
+  // (el hardcode anterior seleccionaba "Fabri" por nombre, lo que rompía con
+  // otros setters o cuando ese setter no estaba en la lista)
 
   function set(key: keyof typeof fields) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>

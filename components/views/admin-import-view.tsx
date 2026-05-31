@@ -25,20 +25,24 @@ interface MonthRow {
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const MONTHS_2024: { month: string; label: string }[] = [
-  { month: "2024-01", label: "Enero 2024"      },
-  { month: "2024-02", label: "Febrero 2024"    },
-  { month: "2024-03", label: "Marzo 2024"      },
-  { month: "2024-04", label: "Abril 2024"      },
-  { month: "2024-05", label: "Mayo 2024"       },
-  { month: "2024-06", label: "Junio 2024"      },
-  { month: "2024-07", label: "Julio 2024"      },
-  { month: "2024-08", label: "Agosto 2024"     },
-  { month: "2024-09", label: "Septiembre 2024" },
-  { month: "2024-10", label: "Octubre 2024"    },
-  { month: "2024-11", label: "Noviembre 2024"  },
-  { month: "2024-12", label: "Diciembre 2024"  },
+const MONTH_NAMES = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ]
+
+/** Genera 12 filas de meses para el año dado */
+function monthsForYear(y: number): { month: string; label: string }[] {
+  return MONTH_NAMES.map((name, i) => ({
+    month: `${y}-${String(i + 1).padStart(2, "0")}`,
+    label: `${name} ${y}`,
+  }))
+}
+
+/** Años disponibles: desde el año actual hacia atrás 4 años (ej: 2026 → 2022) */
+const AVAILABLE_YEARS: string[] = Array.from(
+  { length: 5 },
+  (_, i) => String(new Date().getFullYear() - i)
+)
 
 const COLUMNS: { key: keyof Omit<MonthRow, "month" | "label">; label: string; fmt: "money" | "number" }[] = [
   { key: "ad_spend",        label: "Ad Spend",        fmt: "money"  },
@@ -69,13 +73,9 @@ function emptyRow(month: string, label: string): MonthRow {
 export function AdminImportView() {
   const activeClient = useActiveClient()
 
-  const [year, setYear] = useState<"2024" | "2023">("2024")
+  const [year, setYear] = useState<string>(AVAILABLE_YEARS[0])
 
-  const months = MONTHS_2024.map(m => ({
-    ...m,
-    month: m.month.replace("2024", year),
-    label: m.label.replace("2024", year),
-  }))
+  const months = monthsForYear(Number(year))
 
   const [rows,     setRows]     = useState<MonthRow[]>(() =>
     months.map(m => emptyRow(m.month, m.label))
@@ -178,12 +178,12 @@ export function AdminImportView() {
         <div className="flex items-center gap-3">
           {/* Year selector */}
           <div className="flex items-center gap-1 rounded-xl border border-foreground/[0.08] bg-card p-1">
-            {(["2024", "2023"] as const).map(y => (
+            {AVAILABLE_YEARS.map(y => (
               <button
                 key={y}
                 onClick={() => {
                   setYear(y)
-                  setRows(MONTHS_2024.map(m => emptyRow(m.month.replace("2024", y), m.label.replace("2024", y))))
+                  setRows(monthsForYear(Number(y)).map(m => emptyRow(m.month, m.label)))
                   setSaved([])
                   setErrors({})
                   setDone(false)
