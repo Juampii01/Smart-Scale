@@ -1,13 +1,14 @@
 "use client"
 
 import { useEffect, useState, useMemo } from "react"
+import Link from "next/link"
 import { createClient } from "@/lib/supabase"
 import {
   Area, AreaChart, Bar, BarChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
 } from "recharts"
 import { useActiveClient, useOwnClient } from "@/components/layout/dashboard-layout"
-import { TrendingUp, TrendingDown } from "lucide-react"
+import { TrendingUp, TrendingDown, BarChart3 } from "lucide-react"
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -300,12 +301,18 @@ export function TrendCharts() {
 
   if (!rows.length) {
     return (
-      <section>
-        <p className="text-foreground/40 text-sm">
-          {isOwn
-            ? "Todavía no tenés reportes cargados."
-            : "Este cliente todavía no tiene reportes cargados."}
+      <section className="flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-14 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
+          <BarChart3 className="h-5 w-5 text-foreground/20" />
+        </div>
+        <p className="text-sm text-foreground/40">
+          {isOwn ? "Todavía no tenés reportes cargados." : "Este cliente todavía no tiene reportes cargados."}
         </p>
+        {isOwn && (
+          <Link href="/report-input" className="text-sm font-medium text-[#ffde21] transition-colors hover:text-[#ffe84d]">
+            Cargar primer reporte →
+          </Link>
+        )}
       </section>
     )
   }

@@ -1,13 +1,14 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import Link from "next/link"
 import { createClient } from "@/lib/supabase"
-import { useSelectedMonth, useActiveClient } from "@/components/layout/dashboard-layout"
+import { useSelectedMonth, useActiveClient, useOwnClient } from "@/components/layout/dashboard-layout"
 import { useMarkPageReady } from "@/hooks/use-mark-page-ready"
 import { useMinLoading } from "@/hooks/use-min-loading"
 import { useMonthlyReports } from "@/hooks/use-monthly-reports"
 import { ChannelBlockSkeleton, SectionHeaderSkeleton } from "@/components/ui/skeleton"
-import { TrendingUp, TrendingDown, Eye, FileText, Instagram, Youtube, Mail } from "lucide-react"
+import { TrendingUp, TrendingDown, Eye, FileText, Instagram, Youtube, Mail, BarChart3 } from "lucide-react"
 import {
   ResponsiveContainer, AreaChart, Area, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ComposedChart, Bar,
@@ -357,6 +358,8 @@ function YouTubeTrend({ reports }: { reports: any[] }) {
 export function ChannelsView() {
   const ctxMonth       = useSelectedMonth()
   const activeClientId = useActiveClient()
+  const ownClientId    = useOwnClient()
+  const isOwn          = !ownClientId || !activeClientId || ownClientId === activeClientId
   const selectedMonth  = ctxMonth ?? "2025-12"
   const { reports }    = useMonthlyReports()
 
@@ -437,9 +440,21 @@ export function ChannelsView() {
         <p className="text-[13px] text-foreground/40 mt-0.5">Señales de cada canal · {monthYYYYMM}</p>
       </div>
 
-      {error    && <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>}
-      {!loading && !error && !current && (
-        <p className="text-foreground/40 text-sm">No hay reporte para este mes.</p>
+      {error && <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>}
+      {!showSkeleton && !error && !current && (
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-14 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
+            <BarChart3 className="h-5 w-5 text-foreground/20" />
+          </div>
+          <p className="text-sm text-foreground/40">
+            {isOwn ? "No hay reporte para este mes." : "Este cliente no tiene reporte para este mes."}
+          </p>
+          {isOwn && (
+            <Link href="/report-input" className="text-sm font-medium text-[#ffde21] transition-colors hover:text-[#ffe84d]">
+              Cargar reporte mensual →
+            </Link>
+          )}
+        </div>
       )}
 
       {/* ── Channel cards ── */}

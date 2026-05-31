@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import Link from "next/link"
 import { createClient } from "@/lib/supabase"
-import { useSelectedMonth, useActiveClient } from "@/components/layout/dashboard-layout"
+import { useSelectedMonth, useActiveClient, useOwnClient } from "@/components/layout/dashboard-layout"
 import { useMarkPageReady } from "@/hooks/use-mark-page-ready"
 import { useMinLoading } from "@/hooks/use-min-loading"
 import { FunnelRowSkeleton, SectionHeaderSkeleton } from "@/components/ui/skeleton"
-import { ArrowDown } from "lucide-react"
+import { ArrowDown, TrendingUp } from "lucide-react"
 import {
   ResponsiveContainer, ComposedChart, Bar, Line,
   XAxis, YAxis, CartesianGrid, Tooltip,
@@ -101,8 +102,10 @@ function MiniStat({ label, value, sub, color = "#ffde21" }: { label: string; val
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function SalesView() {
-  const ctxMonth      = useSelectedMonth()
+  const ctxMonth       = useSelectedMonth()
   const activeClientId = useActiveClient()
+  const ownClientId    = useOwnClient()
+  const isOwn          = !ownClientId || !activeClientId || ownClientId === activeClientId
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
   const selectedMonth = mounted ? (ctxMonth ?? "2025-12") : "2025-12"
@@ -202,7 +205,21 @@ export function SalesView() {
       </div>
 
       {error && <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>}
-      {!loading && !error && !data && <p className="text-foreground/40 text-sm">No hay reporte para este mes.</p>}
+      {!showSkeleton && !error && !data && (
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-14 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
+            <TrendingUp className="h-5 w-5 text-foreground/20" />
+          </div>
+          <p className="text-sm text-foreground/40">
+            {isOwn ? "No hay reporte para este mes." : "Este cliente no tiene reporte para este mes."}
+          </p>
+          {isOwn && (
+            <Link href="/report-input" className="text-sm font-medium text-[#ffde21] transition-colors hover:text-[#ffe84d]">
+              Cargar reporte mensual →
+            </Link>
+          )}
+        </div>
+      )}
 
       <div className="grid gap-10 lg:grid-cols-2">
         {/* ── Funnel visual ── */}
