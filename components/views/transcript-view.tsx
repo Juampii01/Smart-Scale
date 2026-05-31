@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { createPortal } from "react-dom"
 import {
   Youtube, Instagram, Copy, Check, ChevronDown,
@@ -317,6 +317,8 @@ export function TranscriptView() {
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [historyLoading, setHistoryLoading] = useState(true)
   const [detailModal, setDetailModal] = useState<DetailModalData | null>(null)
+  // Tracks the last submitted URL so the retry button can re-trigger the same request
+  const lastUrlRef = useRef<string>("")
 
   const isIG = isInstagramUrl(url)
   const isIGReel = isInstagramReel(url)
@@ -338,40 +340,70 @@ export function TranscriptView() {
 
   useEffect(() => { fetchHistory() }, [fetchHistory])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!url.trim() || loading) return
-    const trimmedUrl = url.trim()
+  // Core transcription logic — called both from the form submit and the retry button
+  const doTranscribe = useCallback(async (targetUrl: string) => {
+    if (!targetUrl.trim() || loading) return
 
-    if (platform === "youtube" && !isYouTubeUrl(trimmedUrl)) {
+    if (platform === "youtube" && !isYouTubeUrl(targetUrl)) {
       setError("Ingresá una URL válida de YouTube.")
       return
     }
-
-    if (platform === "instagram" && !isInstagramUrl(trimmedUrl)) {
+    if (platform === "instagram" && !isInstagramUrl(targetUrl)) {
       setError("Ingresá una URL válida de Instagram.")
       return
     }
 
+    lastUrlRef.current = targetUrl
     setLoading(true); setError(null); setResult(null); setTranscriptModal(null)
     try {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { setError("Sesión expirada."); return }
+
       const res = await fetch("/api/transcript", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-        body: JSON.stringify({ url: trimmedUrl, platform, client_id: activeClientId }),
+        body: JSON.stringify({ url: targetUrl, platform, client_id: activeClientId }),
       })
-      const data = await res.json()
-      if (!res.ok) { setError(data.error ?? "Error al procesar el video."); return }
+
+      // Parse JSON safely — a Vercel timeout (504) returns an HTML body that fails json()
+      let data: any = {}
+      try {
+        data = await res.json()
+      } catch {
+        if (res.status === 504 || res.status === 524) {
+          setError("El servidor tardó demasiado en responder. Esto suele pasar con videos muy largos. Probá con un video más corto o intentá de nuevo.")
+        } else {
+          setError(`Error del servidor (${res.status}). Intentá de nuevo en unos instantes.`)
+        }
+        return
+      }
+
+      if (!res.ok) {
+        // 422 = sin transcript (video privado, sin subtítulos, etc.)
+        setError(data.error ?? "Error al procesar el video.")
+        return
+      }
+
       setResult(data)
       setUrl("")
       setPlatform("youtube")
       fetchHistory()
     } catch (err: any) {
-      setError(err?.message ?? "Error inesperado.")
-    } finally { setLoading(false) }
+      setError(err?.message ?? "Error inesperado. Intentá de nuevo.")
+    } finally {
+      setLoading(false)
+    }
+  }, [loading, platform, activeClientId, fetchHistory])
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    doTranscribe(url.trim())
+  }
+
+  const handleRetry = () => {
+    // Re-use the last attempted URL (preserved in state unless it was a success)
+    doTranscribe(url.trim() || lastUrlRef.current)
   }
 
   const wordCount = result ? result.transcript.split(/\s+/).filter(Boolean).length : 0
@@ -487,8 +519,16 @@ export function TranscriptView() {
           </form>
 
           {error && (
-            <div className="rounded-xl border border-red-300 bg-red-100 px-4 py-3 text-sm text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
-              {error}
+            <div className="flex items-start gap-3 rounded-xl border border-red-300 bg-red-100 px-4 py-3 dark:border-red-500/20 dark:bg-red-500/10">
+              <p className="flex-1 text-sm text-red-800 dark:text-red-300">{error}</p>
+              <button
+                type="button"
+                onClick={handleRetry}
+                disabled={loading}
+                className="shrink-0 rounded-lg border border-red-400/40 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-700 transition-all hover:bg-red-200 disabled:opacity-40 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
+              >
+                Reintentar
+              </button>
             </div>
           )}
         </div>
@@ -631,12 +671,13 @@ export function TranscriptView() {
           </div>
         ) : (
           <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
-          <div className="overflow-x-auto">
-            <div className="min-w-[1120px]">
-              <div className="grid grid-cols-[160px_180px_100px_130px_minmax(210px,1fr)_minmax(210px,1fr)] border-b border-foreground/[0.06] bg-foreground/[0.01] px-6 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25">
+          {/* Desktop table — hidden on mobile */}
+          <div className="hidden md:block overflow-x-auto">
+            <div className="min-w-[800px]">
+              <div className="grid grid-cols-[140px_160px_90px_130px_minmax(180px,1fr)_minmax(180px,1fr)] border-b border-foreground/[0.06] bg-foreground/[0.01] px-6 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25">
                 <div>Plataforma</div>
                 <div>Fecha</div>
-                <div>URL Fuente</div>
+                <div>URL</div>
                 <div>Estado</div>
                 <div>Transcripción</div>
                 <div>Análisis</div>
@@ -651,7 +692,7 @@ export function TranscriptView() {
                 return (
                   <div
                     key={item.id}
-                    className="grid grid-cols-[160px_180px_100px_130px_minmax(210px,1fr)_minmax(210px,1fr)] items-center border-b border-foreground/[0.05] px-6 py-4 hover:bg-foreground/[0.02] transition-colors"
+                    className="grid grid-cols-[140px_160px_90px_130px_minmax(180px,1fr)_minmax(180px,1fr)] items-center border-b border-foreground/[0.05] px-6 py-4 hover:bg-foreground/[0.02] transition-colors"
                   >
                     {/* Platform */}
                     <div className="flex items-center gap-2.5 pr-3">
@@ -747,6 +788,56 @@ export function TranscriptView() {
                 )
               })}
             </div>
+          </div>
+
+          {/* Mobile card list — shown only on small screens */}
+          <div className="md:hidden divide-y divide-foreground/[0.05]">
+            {history.map(item => {
+              const isYT = isYouTubeUrl(item.url)
+              const status = getHistoryStatus(item)
+              return (
+                <div key={item.id} className="px-4 py-4 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-foreground/[0.07] bg-card">
+                        {isYT ? <Youtube className="h-3.5 w-3.5 text-[#ffde21]" /> : <Instagram className="h-3.5 w-3.5 text-[#ffde21]" />}
+                      </div>
+                      <span className="text-sm font-semibold text-foreground">{isYT ? "YouTube" : "Instagram"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {status === "complete" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400">Completado</span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-[#ffde21]/20 bg-[#ffde21]/10 px-2 py-0.5 text-[11px] font-semibold text-[#ffde21]">Pendiente</span>
+                      )}
+                      <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-[#ffde21] hover:text-[#ffe46b]">
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-foreground/35">{formatDate(item.created_at)}</p>
+                  {item.title && <p className="text-[13px] font-medium text-foreground/70 line-clamp-2">{item.title}</p>}
+                  <div className="flex gap-2">
+                    {item.transcript && (
+                      <button
+                        onClick={() => setDetailModal({ title: item.title ?? "Transcripción", content: item.transcript!, kind: "transcript" })}
+                        className="flex-1 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-[12px] font-medium text-foreground/60 hover:text-foreground transition-colors text-center"
+                      >
+                        Ver transcript
+                      </button>
+                    )}
+                    {item.summary && (
+                      <button
+                        onClick={() => setDetailModal({ title: item.title ?? "Análisis", content: item.summary!, kind: "summary" })}
+                        className="flex-1 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-[12px] font-medium text-foreground/60 hover:text-foreground transition-colors text-center"
+                      >
+                        Ver análisis
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
           </div>
           </div>
         )}
