@@ -196,17 +196,21 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
           {isAdmin && (
             <Link href="/admin/clients" onClick={onClose} title={collapsed ? "Smart Scale Internal" : undefined}>
               <div className={cn(
-                "group flex items-center rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.05] py-2.5 transition-all hover:border-[#ffde21]/40 hover:bg-[#ffde21]/[0.10]",
-                collapsed ? "lg:justify-center lg:px-2 px-3 gap-2.5" : "px-3 gap-2.5"
+                "group relative flex items-center rounded-xl overflow-hidden transition-all duration-200",
+                "bg-[#ffde21] hover:bg-[#ffe84d]",
+                "shadow-[0_2px_14px_rgba(255,222,33,0.30)] hover:shadow-[0_4px_20px_rgba(255,222,33,0.45)]",
+                collapsed ? "lg:justify-center lg:px-0 lg:py-2.5 px-3 py-2.5 gap-0" : "px-3 py-2.5 gap-2.5"
               )}>
-                <ShieldCheck className="h-4 w-4 text-[#ffde21] flex-shrink-0" />
+                {/* subtle top-left shine */}
+                <span className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
+                <ShieldCheck className="relative h-4 w-4 text-black/70 flex-shrink-0" />
                 {!collapsed && (
                   <>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-bold text-[#ffde21] tracking-wide">Smart Scale Internal</p>
-                      <p className="text-[10px] text-foreground/40 mt-0.5">Dashboard de admin</p>
+                    <div className="relative flex-1 min-w-0">
+                      <p className="text-[11px] font-bold text-black tracking-wide leading-none">Smart Scale Internal</p>
+                      <p className="text-[10px] text-black/50 mt-1 leading-none">Panel de administración</p>
                     </div>
-                    <ArrowRight className="h-3.5 w-3.5 text-[#ffde21]/60 group-hover:text-[#ffde21] group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                    <ArrowRight className="relative h-3.5 w-3.5 text-black/40 group-hover:text-black/60 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
                   </>
                 )}
               </div>
