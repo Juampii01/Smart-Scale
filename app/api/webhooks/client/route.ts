@@ -51,9 +51,27 @@ function pick(obj: Record<string, any>, ...keys: string[]): any {
   return null
 }
 
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+
+function authorize(req: NextRequest): boolean {
+  const secret = process.env.CLIENT_WEBHOOK_SECRET
+  // Fail-closed: if the secret is not configured, reject all requests.
+  // Configure CLIENT_WEBHOOK_SECRET in Vercel before deploying this change.
+  if (!secret) return false
+  const incoming =
+    req.headers.get("x-webhook-secret") ??
+    req.headers.get("authorization")?.replace("Bearer ", "") ??
+    null
+  return incoming === secret
+}
+
 // ─── POST ─────────────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  if (!authorize(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
   try {
     let body: Record<string, any>
     try {

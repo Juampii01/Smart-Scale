@@ -70,10 +70,8 @@ export async function POST(req: NextRequest) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
     // ── Webhook a Zapier (fire-and-forget). Zap dedicado a aplicaciones de
-    //    equipo (uvp3wxx). Override con env var TEAM_APPLY_WEBHOOK_URL.
-    const webhookUrl =
-      process.env.TEAM_APPLY_WEBHOOK_URL ??
-      "https://hooks.zapier.com/hooks/catch/17540789/uvp3wxx/"
+    //    equipo. Configurar TEAM_APPLY_WEBHOOK_URL en Vercel — sin fallback.
+    const webhookUrl = process.env.TEAM_APPLY_WEBHOOK_URL
 
     if (webhookUrl) {
       const flatAnswers: Record<string, string> = {}

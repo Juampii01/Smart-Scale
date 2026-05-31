@@ -16,7 +16,7 @@ export const runtime = "nodejs"
     description → Description or Product Name
     status      → "aceptado" | "cancelado"   ← set manually or from Stripe event
 
-  Optional security: set PAYMENT_WEBHOOK_SECRET env var in Vercel.
+  Required: set PAYMENT_WEBHOOK_SECRET env var in Vercel.
   Add header  x-webhook-secret: <your_secret>  in Zapier.
 */
 
@@ -24,15 +24,17 @@ const VALID_STATUSES = ["aceptado", "cancelado", "rechazado", "pendiente"]
 
 export async function POST(req: NextRequest) {
   try {
-    // Optional secret check
+    // Secret check (fail-closed — rejects all requests if env var is not set)
     const secret = process.env.PAYMENT_WEBHOOK_SECRET
-    if (secret) {
-      const incoming =
-        req.headers.get("x-webhook-secret") ??
-        req.headers.get("authorization")?.replace("Bearer ", "")
-      if (incoming !== secret) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-      }
+    if (!secret) {
+      console.error("[webhook/payment] PAYMENT_WEBHOOK_SECRET not configured — rejecting request")
+      return NextResponse.json({ error: "Service unavailable" }, { status: 503 })
+    }
+    const incoming =
+      req.headers.get("x-webhook-secret") ??
+      req.headers.get("authorization")?.replace("Bearer ", "")
+    if (incoming !== secret) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     let body: any

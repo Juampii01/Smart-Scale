@@ -48,8 +48,8 @@ export async function POST(req: NextRequest) {
       timestamp:        new Date().toISOString(),
     }
 
-    // Send to Zapier
-    const webhookUrl = process.env.NEXT_PUBLIC_ZAPIER_WEBHOOK_MONDAY_WIN
+    // Send to Zapier — use server-only var (no NEXT_PUBLIC_ prefix)
+    const webhookUrl = process.env.ZAPIER_WEBHOOK_MONDAY_WIN
     if (!webhookUrl) {
       console.warn("[monday-win] No webhook URL configured")
       return NextResponse.json({ ok: true, warning: "Webhook no configurado" })
