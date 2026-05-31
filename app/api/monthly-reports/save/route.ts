@@ -65,6 +65,8 @@ export async function POST(req: NextRequest) {
       "yt_subscribers", "yt_monthly_audience", "yt_views",
       "yt_watch_time", "yt_new_subscribers", "yt_videos",
       "email_subscribers", "email_new_subscribers",
+      // NPS 1–10 — column added in migration 20260531000002
+      "nps_score",
     ] as const
 
     const TEXT_FIELDS = [
