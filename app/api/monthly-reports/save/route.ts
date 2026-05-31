@@ -9,33 +9,20 @@ export const dynamic = "force-dynamic"
 
 export async function POST(req: NextRequest) {
   try {
-    // ── 1. Auth: read JWT from Authorization header ───────────────────────────
-    // The client sends its session access_token as "Bearer <jwt>".
-    // We verify it via the service client (avoids the window.sessionStorage issue).
+    // ── 1. Auth ───────────────────────────────────────────────────────────────
     const authHeader = req.headers.get("authorization") ?? ""
     const jwt = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null
 
+    if (!jwt) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
     const supabase = createServiceClient()
-
-    let userId: string | null = null
-    let userEmail: string | null = null
-
-    if (jwt) {
-      // getUser(jwt) verifies the token server-side without browser storage
-      const { data: { user }, error } = await supabase.auth.getUser(jwt)
-      if (!error && user) {
-        userId = user.id
-        userEmail = user.email ?? null
-      }
-    }
-
-    // Also accept direct service-role calls (internal/cron)
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""
-    const isServiceCaller = serviceKey && jwt === serviceKey
-
-    if (!userId && !isServiceCaller) {
+    const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt)
+    if (authErr || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
+    const userId = user.id
+    const userEmail = user.email ?? null
 
     // ── 2. Parse body ─────────────────────────────────────────────────────────
     let body: Record<string, unknown>
@@ -51,9 +38,27 @@ export async function POST(req: NextRequest) {
     if (!clientId) return NextResponse.json({ error: "client_id is required" }, { status: 400 })
     if (!rawMonth) return NextResponse.json({ error: "month is required" }, { status: 400 })
 
+    // ── 3. Ownership check (A-02) ─────────────────────────────────────────────
+    // admin/team can write any client's report; clients can only write their own.
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("role, client_id")
+      .eq("id", userId)
+      .maybeSingle()
+
+    const callerRole = String(prof?.role ?? "").toLowerCase()
+    const isStaff = callerRole === "admin" || callerRole === "team"
+
+    if (!isStaff) {
+      const ownClientId = (prof as any)?.client_id ?? null
+      if (!ownClientId || ownClientId !== clientId) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      }
+    }
+
     const monthValue = /^\d{4}-\d{2}$/.test(rawMonth) ? `${rawMonth}-01` : rawMonth
 
-    // ── 3. Build upsert payload ───────────────────────────────────────────────
+    // ── 4. Build upsert payload ───────────────────────────────────────────────
     const NUMERIC_FIELDS = [
       "total_revenue", "cash_collected", "mrr", "ad_spend",
       "software_costs", "variable_costs",
@@ -92,7 +97,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── 4. Fetch client name + previous state ─────────────────────────────────
+    // ── 5. Fetch client name + previous state ─────────────────────────────────
     const [{ data: clientRow }, { data: existingRow }] = await Promise.all([
       supabase.from("clients").select("nombre").eq("id", clientId).maybeSingle(),
       supabase.from("monthly_reports").select("new_clients").eq("client_id", clientId).eq("month", monthValue).maybeSingle(),
@@ -103,7 +108,7 @@ export async function POST(req: NextRequest) {
     const prevNewClients = Number(existingRow?.new_clients ?? 0) || 0
     const nextNewClients = Number(reportRow.new_clients ?? 0) || 0
 
-    // ── 5. Upsert ─────────────────────────────────────────────────────────────
+    // ── 6. Upsert ─────────────────────────────────────────────────────────────
     const { data: saved, error: upsertErr } = await supabase
       .from("monthly_reports")
       .upsert(reportRow, { onConflict: "client_id,month" })
@@ -115,7 +120,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Database error: ${upsertErr.message}` }, { status: 500 })
     }
 
-    // ── 6. Enqueue events ─────────────────────────────────────────────────────
+    // ── 7. Enqueue events ─────────────────────────────────────────────────────
     const sharedPayload: EventPayload = {
       client_id: clientId,
       client_name: clientName,
@@ -151,7 +156,7 @@ export async function POST(req: NextRequest) {
 
     if (eventIds.length > 0) fireEventDispatcher()
 
-    // ── 7. Fire Zapier webhooks (fire-and-forget, non-blocking) ───────────────
+    // ── 8. Fire Zapier webhooks (fire-and-forget, non-blocking) ───────────────
     const zapierBase = {
       client_id: clientId,
       client_name: clientName ?? clientId,
