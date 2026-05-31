@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { enqueueEvents, fireEventDispatcher, EventPayload } from "@/lib/events"
-import { zapierReportCompleted, zapierSaleRegistered } from "@/lib/zapier"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -156,38 +155,10 @@ export async function POST(req: NextRequest) {
 
     if (eventIds.length > 0) fireEventDispatcher()
 
-    // ── 8. Fire Zapier webhooks (fire-and-forget, non-blocking) ───────────────
-    const zapierBase = {
-      client_id: clientId,
-      client_name: clientName ?? clientId,
-      month: rawMonth,
-      triggered_by: userEmail ?? "sistema",
-      total_revenue: Number(reportRow.total_revenue ?? 0) || undefined,
-      cash_collected: Number(reportRow.cash_collected ?? 0) || undefined,
-      mrr: Number(reportRow.mrr ?? 0) || undefined,
-      new_clients: nextNewClients || undefined,
-      ad_spend: Number(reportRow.ad_spend ?? 0) || undefined,
-      short_followers: Number(reportRow.short_followers ?? 0) || undefined,
-      yt_subscribers: Number(reportRow.yt_subscribers ?? 0) || undefined,
-      email_subscribers: Number(reportRow.email_subscribers ?? 0) || undefined,
-      scheduled_calls: Number(reportRow.scheduled_calls ?? 0) || undefined,
-      attended_calls: Number(reportRow.attended_calls ?? 0) || undefined,
-      biggest_win: reportRow.biggest_win as string | undefined,
-      next_focus: reportRow.next_focus as string | undefined,
-    }
-
-    // Always fire report webhook
-    zapierReportCompleted({ event_type: "monthly_report.completed", ...zapierBase }).catch(() => {})
-
-    // Fire Ann's CRM webhook ONLY when she is the one saving the report
-    const ANN_EMAIL = "ann@strategycoach.us"
-    if (userEmail?.toLowerCase() === ANN_EMAIL) {
-      zapierSaleRegistered({
-        event_type: "sale.registered",
-        ...zapierBase,
-        new_clients: nextNewClients,
-      }).catch(() => {})
-    }
+    // Nota: las notificaciones (Zapier + Slack) las maneja el event-dispatcher
+    // de Supabase a través de la cola de eventos encolada arriba.
+    // Se eliminó el disparo directo de Zapier desde acá para evitar duplicados
+    // (antes llegaban 3 mensajes: 1 directo + 2 desde el edge function).
 
     return NextResponse.json({ ok: true, report: saved, events_enqueued: eventIds.length, event_ids: eventIds })
   } catch (err: any) {
