@@ -23,15 +23,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Faltan campos obligatorios." }, { status: 400 })
     }
 
-    // Resolve client name from clients.nombre
-    let clientName = client_id
-    const { data: clientRow } = await supabase
-      .from("clients")
-      .select("nombre")
-      .eq("id", client_id)
-      .maybeSingle()
+    // Resolve display name. Chain: profiles.name → clients.nombre → user.email.
+    // Nunca caer al UUID crudo (eso es lo que aparecía en Slack como
+    // "e9291f64-43f6-... acaba de llenar su monday wins").
+    let clientName: string | null = null
 
-    if (clientRow?.nombre) clientName = clientRow.nombre
+    const { data: profileRow } = await supabase
+      .from("profiles")
+      .select("name")
+      .eq("id", user.id)
+      .maybeSingle()
+    if ((profileRow as any)?.name) clientName = (profileRow as any).name
+
+    if (!clientName) {
+      const { data: clientRow } = await supabase
+        .from("clients")
+        .select("nombre")
+        .eq("id", client_id)
+        .maybeSingle()
+      if ((clientRow as any)?.nombre) clientName = (clientRow as any).nombre
+    }
+
+    if (!clientName) clientName = user.email ?? "Anónimo"
 
     // Build Zapier payload
     const payload = {
