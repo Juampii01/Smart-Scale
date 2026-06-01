@@ -23,17 +23,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Faltan campos obligatorios." }, { status: 400 })
     }
 
-    // Resolve client name: clients.nombre → clients.name → profiles.name → user.email
+    // Resolve client name: clients.nombre → clients.name (si no es email) → profiles.name → user.email
+    const isEmail = (s: string) => s.includes("@")
     let clientName: string = client_id
+
     const { data: clientRow } = await supabase
       .from("clients")
       .select("nombre, name")
       .eq("id", client_id)
       .maybeSingle()
 
-    if (clientRow?.nombre) {
+    if (clientRow?.nombre && !isEmail(clientRow.nombre)) {
       clientName = clientRow.nombre
-    } else if (clientRow?.name) {
+    } else if (clientRow?.name && !isEmail(clientRow.name)) {
       clientName = clientRow.name
     } else {
       // Fallback: name from the authenticated user's profile
