@@ -23,15 +23,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Faltan campos obligatorios." }, { status: 400 })
     }
 
-    // Resolve client name from clients.nombre
-    let clientName = client_id
+    // Resolve client name: clients.nombre → clients.name → profiles.name → user.email
+    let clientName: string = client_id
     const { data: clientRow } = await supabase
       .from("clients")
-      .select("nombre")
+      .select("nombre, name")
       .eq("id", client_id)
       .maybeSingle()
 
-    if (clientRow?.nombre) clientName = clientRow.nombre
+    if (clientRow?.nombre) {
+      clientName = clientRow.nombre
+    } else if (clientRow?.name) {
+      clientName = clientRow.name
+    } else {
+      // Fallback: name from the authenticated user's profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("id", user.id)
+        .maybeSingle()
+      if ((profile as any)?.name) {
+        clientName = (profile as any).name
+      } else if (user.email) {
+        clientName = user.email
+      }
+    }
 
     // Build Zapier payload
     const payload = {
