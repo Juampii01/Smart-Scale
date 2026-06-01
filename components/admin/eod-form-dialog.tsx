@@ -3,9 +3,12 @@
 import { useEffect, useState } from "react"
 import {
   X, Loader2, Save, Check, AlertCircle, Calendar, Sunset,
-  MessageCircle, MessageCircleReply, Star, FileText, ArrowDownToLine, Phone,
+  MessageCircle, MessageCircleReply, Star, FileText, ArrowDownToLine, Phone, FlaskConical,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
+import { useUserRole } from "@/components/layout/dashboard-layout"
+import { isDeveloper } from "@/lib/auth/permissions"
+import { fakeEodLog } from "@/lib/dev-test-data"
 
 type FieldKey =
   | "new_conversations"
@@ -54,6 +57,7 @@ export function EodFormDialog({ open, onClose, initialDate, onSaved }: EodFormDi
   const [error, setError]     = useState<string | null>(null)
   const [isExisting, setIsExisting] = useState(false)
   const [loading, setLoading] = useState(false)
+  const canTest = isDeveloper(useUserRole())
 
   // Reset cuando se abre
   useEffect(() => {
@@ -122,18 +126,22 @@ export function EodFormDialog({ open, onClose, initialDate, onSaved }: EodFormDi
 
   if (!open) return null
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  // Envío real. Acepta un payload explícito (usado por el botón "Testear")
+  // o arma el body desde el estado del form.
+  async function saveLog(override?: { values: Record<FieldKey, number>; notes: string }) {
     setError(null); setSaving(true)
     try {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { setError("No hay sesión activa"); setSaving(false); return }
 
+      const payloadValues = override?.values ?? values
+      const payloadNotes  = override ? override.notes : notes
+
       const res = await fetch("/api/admin/setting/log", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ date, ...values, notes: notes || null }),
+        body: JSON.stringify({ date, ...payloadValues, notes: payloadNotes || null }),
       })
       const json = await res.json()
       if (!res.ok) { setError(json?.error ?? "Error al guardar"); setSaving(false); return }
@@ -147,6 +155,28 @@ export function EodFormDialog({ open, onClose, initialDate, onSaved }: EodFormDi
     } finally {
       setSaving(false)
     }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    await saveLog()
+  }
+
+  // Solo developer: llena el form con datos ficticios y guarda.
+  async function handleTest() {
+    if (saving || loading) return
+    const fake = fakeEodLog()
+    const fakeValues: Record<FieldKey, number> = {
+      new_conversations: fake.new_conversations,
+      conversations_replied: fake.conversations_replied,
+      qualified_leads: fake.qualified_leads,
+      offer_docs_sent: fake.offer_docs_sent,
+      offer_doc_responses: fake.offer_doc_responses,
+      calls_done: fake.calls_done,
+    }
+    setValues(fakeValues)
+    setNotes(fake.notes)
+    await saveLog({ values: fakeValues, notes: fake.notes })
   }
 
   const totalLoaded = Object.values(values).reduce((a, b) => a + b, 0)
@@ -272,6 +302,18 @@ export function EodFormDialog({ open, onClose, initialDate, onSaved }: EodFormDi
                 : `Total: ${totalLoaded} eventos`}
             </p>
             <div className="flex gap-2">
+              {canTest && (
+                <button
+                  type="button"
+                  onClick={handleTest}
+                  disabled={saving || loading}
+                  title="Solo developer: guarda el día con datos ficticios"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-foreground/[0.04] px-4 py-2.5 text-sm font-semibold text-foreground/70 hover:bg-foreground/[0.08] hover:text-foreground transition-colors disabled:opacity-50"
+                >
+                  <FlaskConical className="h-4 w-4" />
+                  Testear
+                </button>
+              )}
               <button
                 type="button"
                 onClick={onClose}

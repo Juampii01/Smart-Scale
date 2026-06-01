@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase"
-import { useOwnClient, useActiveClient, useActiveClientName, useSelectedMonth } from "@/components/layout/dashboard-layout"
-import { CheckCircle, AlertCircle, Loader2, AlertTriangle, History, FileText, Eye } from "lucide-react"
+import { useOwnClient, useActiveClient, useActiveClientName, useSelectedMonth, useUserRole } from "@/components/layout/dashboard-layout"
+import { isDeveloper } from "@/lib/auth/permissions"
+import { fakeMonthlyReport } from "@/lib/dev-test-data"
+import { CheckCircle, AlertCircle, Loader2, AlertTriangle, History, FileText, Eye, FlaskConical } from "lucide-react"
 import { ReportHistoryView } from "@/components/views/report-history-view"
 
 // ─── Field definitions ────────────────────────────────────────────────────────
@@ -147,6 +149,8 @@ export function ReportInputView() {
   const ownClientId    = useOwnClient()
   const activeClientId = useActiveClient()
   const activeName     = useActiveClientName()
+  const userRole       = useUserRole()
+  const canTest        = isDeveloper(userRole)
   const isViewingOther = !!ownClientId && !!activeClientId && ownClientId !== activeClientId
   const ctxMonth = useSelectedMonth()
   const [tab, setTab] = useState<"form" | "history">("form")
@@ -199,8 +203,9 @@ export function ReportInputView() {
     setValues((prev) => ({ ...prev, [key]: val }))
   }
 
-  // Called after confirmation (or directly if no existing data)
-  const doSave = async () => {
+  // Called after confirmation (or directly if no existing data).
+  // Acepta un set de valores explícito (usado por el botón "Testear").
+  const doSave = async (valuesOverride?: FormValues) => {
     setShowConfirm(false)
     setStatus("loading")
     setMessage("")
@@ -216,7 +221,7 @@ export function ReportInputView() {
       }
 
       const body: Record<string, unknown> = { client_id: ownClientId, month }
-      for (const [key, raw] of Object.entries(values)) {
+      for (const [key, raw] of Object.entries(valuesOverride ?? values)) {
         if (raw !== "" && raw !== null && raw !== undefined) body[key] = raw
       }
 
@@ -270,6 +275,15 @@ export function ReportInputView() {
     doSave()
   }
 
+  // Solo developer: llena el form con datos ficticios y guarda directo
+  // (sin pasar por el diálogo de confirmación de sobreescritura).
+  const handleTest = async () => {
+    if (!ownClientId || !month || status === "loading") return
+    const fake = fakeMonthlyReport()
+    setValues(fake)
+    await doSave(fake)
+  }
+
   const isUpdate = Boolean(existingData)
 
   return (
@@ -308,7 +322,7 @@ export function ReportInputView() {
       {showConfirm && (
         <ConfirmOverwriteDialog
           month={month}
-          onConfirm={doSave}
+          onConfirm={() => doSave()}
           onCancel={() => setShowConfirm(false)}
         />
       )}
@@ -493,6 +507,18 @@ export function ReportInputView() {
             {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
             {status === "loading" ? "Guardando…" : isUpdate ? "Actualizar reporte" : "Guardar reporte"}
           </button>
+          {canTest && (
+            <button
+              type="button"
+              onClick={handleTest}
+              disabled={status === "loading" || !ownClientId}
+              title="Solo developer: guarda un reporte con datos ficticios"
+              className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/[0.04] px-5 py-2.5 text-sm font-bold text-foreground/70 transition hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FlaskConical className="h-4 w-4" />
+              Testear
+            </button>
+          )}
           <p className="text-xs text-foreground/25">
             Los datos se guardan primero en Supabase. Las notificaciones van en segundo plano.
           </p>

@@ -84,6 +84,14 @@ export function useOwnClient() {
   return useContext(OwnClientContext)
 }
 
+const UserRoleContext = createContext<string | null>(null)
+
+/** El rol del usuario logueado ("admin" | "developer" | "team" | "setter" | "client").
+ *  Útil para gatear UI exclusiva de rol (ej: botón "Testear" solo para developer). */
+export function useUserRole() {
+  return useContext(UserRoleContext)
+}
+
 function getRoleFromAccessToken(token: string | null | undefined): string | null {
   if (!token) return null
   try {
@@ -714,17 +722,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <ActiveClientContext.Provider value={activeClientId}>
-          <ActiveClientNameContext.Provider value={activeClientName}>
-            <OwnClientContext.Provider value={ownClientId}>
-              <AnnualMetricsProvider>
-                <SelectedMonthContext.Provider value={selectedMonth}>
-                  <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-background">{children}</main>
-                </SelectedMonthContext.Provider>
-              </AnnualMetricsProvider>
-            </OwnClientContext.Provider>
-          </ActiveClientNameContext.Provider>
-        </ActiveClientContext.Provider>
+        <UserRoleContext.Provider value={userRole}>
+          <ActiveClientContext.Provider value={activeClientId}>
+            <ActiveClientNameContext.Provider value={activeClientName}>
+              <OwnClientContext.Provider value={ownClientId}>
+                <AnnualMetricsProvider>
+                  <SelectedMonthContext.Provider value={selectedMonth}>
+                    <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-background">{children}</main>
+                  </SelectedMonthContext.Provider>
+                </AnnualMetricsProvider>
+              </OwnClientContext.Provider>
+            </ActiveClientNameContext.Provider>
+          </ActiveClientContext.Provider>
+        </UserRoleContext.Provider>
       </div>
 
       {/* AI Help Chat — botón flotante visible en todas las páginas del dashboard */}

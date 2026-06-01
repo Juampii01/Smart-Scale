@@ -2,8 +2,10 @@
 
 import { useState } from "react"
 import { createClient } from "@/lib/supabase"
-import { useOwnClient, useActiveClient, useActiveClientName } from "@/components/layout/dashboard-layout"
-import { CheckCircle, AlertCircle, Loader2, Star, Eye } from "lucide-react"
+import { useOwnClient, useActiveClient, useActiveClientName, useUserRole } from "@/components/layout/dashboard-layout"
+import { isDeveloper } from "@/lib/auth/permissions"
+import { fakeMondayWin } from "@/lib/dev-test-data"
+import { CheckCircle, AlertCircle, Loader2, Star, Eye, FlaskConical } from "lucide-react"
 
 function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
   return (
@@ -28,6 +30,8 @@ export function MondayWinView() {
   const ownClientId    = useOwnClient()
   const activeClientId = useActiveClient()
   const activeName     = useActiveClientName()
+  const userRole       = useUserRole()
+  const canTest        = isDeveloper(userRole)
   const isViewingOther = !!ownClientId && !!activeClientId && ownClientId !== activeClientId
 
   const [fecha, setFecha] = useState(() => new Date().toISOString().slice(0, 10))
@@ -40,19 +44,12 @@ export function MondayWinView() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [message, setMessage] = useState("")
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!ownClientId) {
-      setStatus("error")
-      setMessage("No hay cliente seleccionado. Elegí un cliente en la barra superior.")
-      return
-    }
-    if (!fecha || !logro1 || !unaSolaCosa || !bloqueo) {
-      setStatus("error")
-      setMessage("Completá los campos obligatorios.")
-      return
-    }
-
+  // Envío real. Acepta un payload explícito (usado por el botón "Testear")
+  // o lee el estado del form cuando no se pasa nada.
+  const sendWin = async (override?: {
+    fecha: string; logro_1: string; logro_2: string | null
+    logro_3: string | null; una_sola_cosa: string; bloqueo: string
+  }) => {
     setStatus("loading")
     setMessage("")
 
@@ -61,21 +58,22 @@ export function MondayWinView() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) throw new Error("Sesión expirada.")
 
+      const payload = override ?? {
+        fecha,
+        logro_1: logro1,
+        logro_2: logro2 || null,
+        logro_3: logro3 || null,
+        una_sola_cosa: unaSolaCosa,
+        bloqueo,
+      }
+
       const res = await fetch("/api/monday-win", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({
-          client_id:    ownClientId,
-          fecha,
-          logro_1:      logro1,
-          logro_2:      logro2 || null,
-          logro_3:      logro3 || null,
-          una_sola_cosa: unaSolaCosa,
-          bloqueo,
-        }),
+        body: JSON.stringify({ client_id: ownClientId, ...payload }),
       })
 
       const data = await res.json()
@@ -93,6 +91,32 @@ export function MondayWinView() {
       setStatus("error")
       setMessage(err?.message ?? "Error inesperado.")
     }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!ownClientId) {
+      setStatus("error")
+      setMessage("No hay cliente seleccionado. Elegí un cliente en la barra superior.")
+      return
+    }
+    if (!fecha || !logro1 || !unaSolaCosa || !bloqueo) {
+      setStatus("error")
+      setMessage("Completá los campos obligatorios.")
+      return
+    }
+    await sendWin()
+  }
+
+  // Solo developer: llena los campos visibles con datos ficticios y envía.
+  const handleTest = async () => {
+    if (!ownClientId || status === "loading") return
+    const fake = fakeMondayWin()
+    const today = new Date().toISOString().slice(0, 10)
+    setFecha(today)
+    setLogro1(fake.logro_1); setLogro2(fake.logro_2); setLogro3(fake.logro_3)
+    setUnaSolaCosa(fake.una_sola_cosa); setBloqueo(fake.bloqueo)
+    await sendWin({ fecha: today, ...fake })
   }
 
   return (
@@ -233,6 +257,18 @@ export function MondayWinView() {
           {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
           {status === "loading" ? "Enviando…" : "Enviar Monday Win"}
         </button>
+        {canTest && (
+          <button
+            type="button"
+            onClick={handleTest}
+            disabled={status === "loading" || !ownClientId}
+            title="Solo developer: envía un Monday Win con datos ficticios"
+            className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/[0.04] px-5 py-2.5 text-sm font-bold text-foreground/70 transition hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FlaskConical className="h-4 w-4" />
+            Testear
+          </button>
+        )}
         {!ownClientId && (
           <p className="text-xs text-red-700 dark:text-red-400/70">Seleccioná un cliente primero.</p>
         )}

@@ -58,6 +58,13 @@ export function isAdmin(role: UserRole):  boolean { return normalizeRole(role) =
 export function isTeam(role: UserRole):   boolean { return normalizeRole(role) === "team" }
 export function isSetter(role: UserRole): boolean { return normalizeRole(role) === "setter" }
 
+/** Rol developer "crudo" (sin normalizar). `normalizeRole` colapsa developer en admin,
+ *  así que para gatear features exclusivas del equipo técnico (ej: botón "Testear" que
+ *  envía datos aleatorios) hay que mirar el string original. */
+export function isDeveloper(role: UserRole): boolean {
+  return String(role ?? "").toLowerCase() === "developer"
+}
+
 /** admin OR team OR setter — cualquier rol con acceso a la sección /admin */
 export function isInternal(role: UserRole): boolean {
   const r = normalizeRole(role)
