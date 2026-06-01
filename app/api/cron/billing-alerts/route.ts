@@ -112,14 +112,13 @@ async function runBillingAlerts() {
     errors: [] as string[],
   }
 
-  // 1. Cargar TODOS los clientes activos (no solo los de plan mensual).
+  // 1. Cargar TODOS los clientes (sin filtrar por estado ni tipo de plan).
   //    Las alertas de cuotas (próximas y vencidas) corren sobre todos.
-  //    La generación automática de la próxima cuota solo aplica a los de
-  //    plan mensual (is_monthly_subscription = true).
+  //    La generación automática de la próxima cuota solo aplica a clientes
+  //    ACTIVOS con plan mensual (no le inventamos cuotas a un cliente dado de baja).
   const { data: clients, error: clientsErr } = await supabase
     .from("crm_clients")
     .select("id, name, installment_amount, status, is_monthly_subscription, program_start")
-    .eq("status", "activo")
 
   if (clientsErr) {
     result.errors.push(`Error cargando clientes: ${clientsErr.message}`)
@@ -141,8 +140,8 @@ async function runBillingAlerts() {
       const latest = list[0] ?? null
       const amount = client.installment_amount ?? 0
 
-      // 3. Generar próxima cuota — SOLO para clientes de plan mensual.
-      if (client.is_monthly_subscription) {
+      // 3. Generar próxima cuota — SOLO para clientes ACTIVOS con plan mensual.
+      if (client.is_monthly_subscription && client.status === "activo") {
         if (latest && latest.paid_at) {
           const hasFuture = list.some(i => !i.paid_at && i.due_date >= todayStr)
           if (!hasFuture) {
