@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase"
 import { useActiveClient, useOwnClient } from "@/components/layout/dashboard-layout"
 import { useMarkPageReady } from "@/hooks/use-mark-page-ready"
+import { isAdmin as isAdminRole } from "@/lib/auth/permissions"
 import {
   Trash2, AlertTriangle, Loader2, FileText, ChevronDown, ChevronUp, X
 } from "lucide-react"
@@ -254,7 +255,7 @@ export function ReportHistoryView() {
         .eq("id", session.user.id)
         .maybeSingle()
 
-      setIsAdmin(((prof as any)?.role ?? "").toLowerCase() === "admin")
+      setIsAdmin(isAdminRole((prof as any)?.role))  // true para admin Y developer
     }
     init()
   }, [])
