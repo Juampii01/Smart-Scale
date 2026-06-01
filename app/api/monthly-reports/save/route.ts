@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { isAdmin } from "@/lib/auth/permissions"
-import { enqueueEvents, fireEventDispatcher, EventPayload } from "@/lib/events"
+import { enqueueEvents, EventPayload } from "@/lib/events"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -147,6 +147,7 @@ export async function POST(req: NextRequest) {
     // Airtable sync deshabilitado — ya no usamos Airtable.
     // (Si se reactiva en el futuro, descomentar el bloque y poner las env vars.)
 
+    // Encolar eventos (para auditoría y reintentos)
     let eventIds: string[] = []
     try {
       eventIds = await enqueueEvents(eventsToEnqueue)
@@ -154,12 +155,67 @@ export async function POST(req: NextRequest) {
       console.error("[monthly-reports/save] Event enqueue error:", e?.message)
     }
 
-    if (eventIds.length > 0) fireEventDispatcher()
+    // ── 8. Zapier directo (awaited) ───────────────────────────────────────────
+    // fireEventDispatcher() era fire-and-forget y Vercel lo cancelaba antes de
+    // que terminara. Llamamos a Zapier directamente con await para garantizar
+    // que se envíe dentro del lifetime de la función serverless.
+    const zapierReportUrl = process.env.ZAPIER_WEBHOOK_REPORT
+    if (zapierReportUrl) {
+      try {
+        await fetch(zapierReportUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            event_type:       "monthly_report.completed",
+            client_id:        clientId,
+            client_name:      clientName ?? clientId,
+            month:            rawMonth,
+            triggered_by:     userEmail ?? "sistema",
+            total_revenue:    Number(reportRow.total_revenue ?? 0) || undefined,
+            cash_collected:   Number(reportRow.cash_collected ?? 0) || undefined,
+            mrr:              Number(reportRow.mrr ?? 0) || undefined,
+            new_clients:      nextNewClients || undefined,
+            ad_spend:         Number(reportRow.ad_spend ?? 0) || undefined,
+            short_followers:  Number(reportRow.short_followers ?? 0) || undefined,
+            yt_subscribers:   Number(reportRow.yt_subscribers ?? 0) || undefined,
+            email_subscribers: Number(reportRow.email_subscribers ?? 0) || undefined,
+            scheduled_calls:  Number(reportRow.scheduled_calls ?? 0) || undefined,
+            attended_calls:   Number(reportRow.attended_calls ?? 0) || undefined,
+            biggest_win:      reportRow.biggest_win,
+            next_focus:       reportRow.next_focus,
+          }),
+          signal: AbortSignal.timeout(8_000),
+        })
+      } catch (e: any) {
+        console.error("[monthly-reports/save] Zapier report error:", e?.message)
+      }
+    }
 
-    // Nota: las notificaciones (Zapier + Slack) las maneja el event-dispatcher
-    // de Supabase a través de la cola de eventos encolada arriba.
-    // Se eliminó el disparo directo de Zapier desde acá para evitar duplicados
-    // (antes llegaban 3 mensajes: 1 directo + 2 desde el edge function).
+    // Si hubieron nuevos clientes, disparar también el Zap de venta
+    if (nextNewClients > 0 && nextNewClients > prevNewClients) {
+      const zapierSaleUrl = process.env.ZAPIER_WEBHOOK_SALE ?? zapierReportUrl
+      if (zapierSaleUrl && zapierSaleUrl !== zapierReportUrl) {
+        // Solo si hay un Zap de venta separado (para no duplicar el de reporte)
+        try {
+          await fetch(zapierSaleUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              event_type:   "sale.registered",
+              client_id:    clientId,
+              client_name:  clientName ?? clientId,
+              month:        rawMonth,
+              new_clients:  nextNewClients,
+              total_revenue: Number(reportRow.total_revenue ?? 0) || undefined,
+              triggered_by: userEmail ?? "sistema",
+            }),
+            signal: AbortSignal.timeout(8_000),
+          })
+        } catch (e: any) {
+          console.error("[monthly-reports/save] Zapier sale error:", e?.message)
+        }
+      }
+    }
 
     return NextResponse.json({ ok: true, report: saved, events_enqueued: eventIds.length, event_ids: eventIds })
   } catch (err: any) {
