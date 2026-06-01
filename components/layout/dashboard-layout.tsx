@@ -14,7 +14,7 @@ import { AnnualMetricsProvider } from "@/contexts/annual-metrics-context"
 import { NavigationProgress } from "@/components/ui/navigation-progress"
 import { HelpChat } from "@/components/ui/help-chat"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
-import { isSetter, isTeam, SETTER_DEFAULT_LANDING, TEAM_DEFAULT_LANDING } from "@/lib/auth/permissions"
+import { isSetter, isTeam, isAdmin as isAdminRole, SETTER_DEFAULT_LANDING, TEAM_DEFAULT_LANDING } from "@/lib/auth/permissions"
 import { useViewAsRole, setViewAsRole, type ViewAsRole } from "@/lib/auth/view-as"
 
 declare global {
@@ -158,7 +158,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [profilesList, setProfilesList] = useState<
     Array<{ id: string; client_id: string; role: string | null; client_name: string }>
   >([])
-  const isAdmin = (userRole ?? "").toLowerCase() === "admin"
+  const isAdmin = isAdminRole(userRole)  // true para "admin" Y "developer"
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const profileMenuRef = useRef<HTMLDivElement | null>(null)
   const router = useRouter()
@@ -282,7 +282,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         setUserRole(role ?? jwtRole ?? null)
 
         // For non-admin users, load their display name from clients.nombre
-        const isClientRole = String(role ?? "").toLowerCase() !== "admin"
+        const isClientRole = !isAdminRole(role)  // false para admin Y developer
         if (isClientRole && cid) {
           // Try profile name first, then fall back to clients.nombre
           if (profName) {
