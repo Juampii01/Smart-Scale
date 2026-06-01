@@ -1,5 +1,7 @@
 "use client"
 
+import { isAdmin as isAdminRole } from "@/lib/auth/permissions"
+
 /**
  * Playbook único del cliente — un solo documento BlockNote por cliente.
  *
@@ -48,7 +50,7 @@ async function authedFetch(path: string, init?: RequestInit) {
 export function ClientPlaybookMainView({ userRole }: { userRole: string | null }) {
   const activeClientId = useActiveClient()
   const role = String(userRole ?? "").toLowerCase()
-  const canManage = role === "admin" || role === "team"
+  const canManage = isAdminRole(role) || role === "team"
 
   const [playbook, setPlaybook] = useState<PlaybookRow | null>(null)
   const [loading,  setLoading]  = useState(true)

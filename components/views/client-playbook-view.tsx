@@ -1,5 +1,7 @@
 "use client"
 
+import { isAdmin as isAdminRole } from "@/lib/auth/permissions"
+
 /**
  * Documentos del cliente — vista tipo Notion con multi-página por cliente.
  *
@@ -360,7 +362,7 @@ function PageEditor({
 export function ClientPlaybookView({ userRole }: { userRole: string | null }) {
   const activeClientId = useActiveClient()
   const role = String(userRole ?? "").toLowerCase()
-  const canManage = role === "admin" || role === "team"
+  const canManage = isAdminRole(role) || role === "team"
   // canCreate: el cliente también puede crear nuevas páginas y reordenar.
   // Solo el delete sigue siendo admin/team (controlado por canManage en TreeRow).
   const canCreate = canManage || role === "client"

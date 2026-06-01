@@ -305,7 +305,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         const stored = typeof window !== "undefined" ? window.localStorage.getItem("activeClientId") : null
 
         let nextActive: string | null = null
-        if (normalizedRole === "admin") {
+        if (isAdminRole(normalizedRole)) {
           nextActive = stored ?? cid ?? null
         } else if (normalizedRole === "team" || normalizedRole === "setter") {
           // Setter/team siempre miran el CRM del admin (Ann). Si no tienen client_id propio,
@@ -316,7 +316,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             const { data: adminProfile } = await supabase
               .from("profiles")
               .select("client_id")
-              .eq("role", "admin")
+              .in("role", ["admin", "developer"])
               .not("client_id", "is", null)
               .limit(1)
               .maybeSingle()
