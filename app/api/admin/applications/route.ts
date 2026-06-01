@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
+import { isAdmin } from "@/lib/auth/permissions"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -62,7 +63,7 @@ async function requireAdmin(jwt: string | null) {
   if (error || !user) return null
   const { data: profile } = await supabase
     .from("profiles").select("role").eq("id", user.id).maybeSingle()
-  if (String(profile?.role ?? "").toLowerCase() !== "admin") return null
+  if (!isAdmin(profile?.role)) return null
   return user
 }
 

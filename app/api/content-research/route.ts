@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { isAdmin } from "@/lib/auth/permissions"
 import Anthropic from "@anthropic-ai/sdk"
 import { getInstagramTranscript } from "@/lib/instagram-transcript"
 
@@ -19,7 +20,7 @@ async function resolveClientScope(supabase: ReturnType<typeof createServiceClien
   const role = String((profile as any)?.role ?? "").toLowerCase()
   const ownClientId = (profile as any)?.client_id ?? null
 
-  if (role === "admin") {
+  if (isAdmin(role)) {
     return { clientId: requestedClientId ?? ownClientId, ok: true as const, role, ownClientId }
   }
   if (!ownClientId) return { ok: false as const, status: 403, message: "Forbidden" }
@@ -773,7 +774,7 @@ export async function POST(req: NextRequest) {
     // Cuando el admin actúa para un cliente, guardamos el user_id del cliente
     // (no del admin) para que las políticas RLS de lectura directa funcionen.
     let saveUserId = user.id
-    if (scope.role === "admin" && scope.clientId && scope.clientId !== scope.ownClientId) {
+    if (isAdmin(scope.role) && scope.clientId && scope.clientId !== scope.ownClientId) {
       const { data: clientProfile } = await supabase
         .from("profiles")
         .select("id")

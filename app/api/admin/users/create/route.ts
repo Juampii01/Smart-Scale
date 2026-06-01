@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic"
  * el admin se la comparta al usuario.
  */
 
-const VALID_ROLES = new Set(["admin", "team", "setter", "client"])
+const VALID_ROLES = new Set(["admin", "developer", "team", "setter", "client"])
 
 function generateTempPassword(length = 14): string {
   const chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"

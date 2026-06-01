@@ -2,22 +2,24 @@
  * Sistema de permisos por rol.
  *
  * Roles posibles en `profiles.role`:
- *   - "admin"  → acceso total (todas las páginas /admin/*, override de cliente activo, crear usuarios)
- *   - "team"   → acceso parcial al CRM (applications, leads, centro-operativo, data)
- *   - "setter" → solo Setting CRM (carga su daily log) + leads
- *   - null     → cliente final (portal coach, sin acceso /admin/*)
+ *   - "admin"     → acceso total (todas las páginas /admin/*, override de cliente activo, crear usuarios)
+ *   - "developer" → idéntico a admin (equipo técnico — mismo acceso completo)
+ *   - "team"      → acceso parcial al CRM (applications, leads, centro-operativo, data)
+ *   - "setter"    → solo Setting CRM (carga su daily log) + leads
+ *   - "client"    → portal del cliente (dashboard, métricas, recursos)
  *
  * Los roles internos se crean desde el Centro Operativo (form de "Nuevo usuario") por un admin.
  * Los clientes finales se crean por flujo separado (signup / aplicación).
  */
 
-export type UserRole = "admin" | "team" | "setter" | string | null | undefined
+export type UserRole = "admin" | "developer" | "team" | "setter" | string | null | undefined
 
 export const ROLE_OPTIONS = [
-  { value: "admin",  label: "Admin",   description: "Acceso total al CRM y gestión de usuarios" },
-  { value: "team",   label: "Team",    description: "Applications, leads, centro operativo y datos" },
-  { value: "setter", label: "Setter",  description: "Solo Setting CRM (carga métricas diarias)" },
-  { value: "client", label: "Cliente", description: "Acceso al portal del cliente (dashboard, métricas, recursos)" },
+  { value: "admin",     label: "Admin",     description: "Acceso total al CRM y gestión de usuarios" },
+  { value: "developer", label: "Developer", description: "Acceso total igual que admin (equipo técnico)" },
+  { value: "team",      label: "Team",      description: "Applications, leads, centro operativo y datos" },
+  { value: "setter",    label: "Setter",    description: "Solo Setting CRM (carga métricas diarias)" },
+  { value: "client",    label: "Cliente",   description: "Acceso al portal del cliente (dashboard, métricas, recursos)" },
 ] as const
 
 export const TEAM_ALLOWED_ADMIN_PATHS = [
@@ -46,7 +48,7 @@ export const SETTER_DEFAULT_LANDING = "/admin/setting"
 
 export function normalizeRole(role: UserRole): "admin" | "team" | "setter" | "client" {
   const r = String(role ?? "").toLowerCase()
-  if (r === "admin")  return "admin"
+  if (r === "admin" || r === "developer") return "admin"  // developer = acceso total
   if (r === "team")   return "team"
   if (r === "setter") return "setter"
   return "client"

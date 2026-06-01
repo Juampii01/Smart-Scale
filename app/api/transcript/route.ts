@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { isAdmin } from "@/lib/auth/permissions"
 import Anthropic from "@anthropic-ai/sdk"
 
 export const runtime = "nodejs"
@@ -20,7 +21,7 @@ async function resolveClientScope(supabase: ReturnType<typeof createServiceClien
   const role = String((profile as any)?.role ?? "").toLowerCase()
   const ownClientId = (profile as any)?.client_id ?? null
 
-  if (role === "admin") {
+  if (isAdmin(role)) {
     // Admin puede consultar cualquier cliente; si no pasaron client_id usa el suyo
     return { clientId: requestedClientId ?? ownClientId, ok: true as const, role, ownClientId }
   }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { isAdmin } from "@/lib/auth/permissions"
 import { enqueueEvents, fireEventDispatcher, EventPayload } from "@/lib/events"
 
 export const runtime = "nodejs"
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
       .maybeSingle()
 
     const callerRole = String(prof?.role ?? "").toLowerCase()
-    const isStaff = callerRole === "admin" || callerRole === "team"
+    const isStaff = isAdmin(callerRole) || callerRole === "team"
 
     if (!isStaff) {
       const ownClientId = (prof as any)?.client_id ?? null

@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { isAdmin } from "@/lib/auth/permissions"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -28,13 +29,13 @@ async function requireCentroOpAccess(jwt: string | null): Promise<AuthCtx | null
   const { data: profile } = await supabase
     .from("profiles").select("role").eq("id", user.id).maybeSingle()
   const role = String((profile as any)?.role ?? "").toLowerCase()
-  if (role !== "admin" && role !== "team" && role !== "setter") return null
+  if (!isAdmin(role) && role !== "team" && role !== "setter") return null
   return { userId: user.id, role: role as AuthCtx["role"] }
 }
 
 /** Devuelve los scopes que el rol puede leer/escribir. */
 function allowedScopes(role: AuthCtx["role"]): string[] {
-  if (role === "admin")  return ["global", "prospeccion"]
+  if (isAdmin(role))  return ["global", "prospeccion"]
   if (role === "team")   return ["global"]
   if (role === "setter") return ["prospeccion"]
   return []
@@ -175,7 +176,7 @@ export async function PATCH(req: NextRequest) {
     if (
       typeof rest.scope === "string"
       && (rest.scope === "global" || rest.scope === "prospeccion")
-      && ctx.role === "admin"
+      && isAdmin(ctx.role)
     ) {
       allowed.scope = rest.scope
     }

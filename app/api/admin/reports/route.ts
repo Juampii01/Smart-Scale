@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
+import { isAdmin } from "@/lib/auth/permissions"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -90,7 +91,7 @@ export async function PATCH(req: NextRequest) {
       .eq("id", user.id)
       .maybeSingle()
 
-    if (!profile || String(profile.role ?? "").toLowerCase() !== "admin") {
+    if (!profile || !isAdmin(profile?.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 

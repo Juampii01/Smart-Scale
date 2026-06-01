@@ -21,6 +21,7 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { isAdmin } from "@/lib/auth/permissions"
 import { isOnlyCheckboxToggleChange } from "@/lib/playbook-diff"
 
 export const runtime = "nodejs"
@@ -45,7 +46,7 @@ async function authenticate(jwt: string | null): Promise<AuthCtx | null> {
     .eq("id", user.id)
     .maybeSingle()
   const role = String((profile as any)?.role ?? "").toLowerCase()
-  if (role !== "admin" && role !== "team" && role !== "client") return null
+  if (!isAdmin(role) && role !== "team" && role !== "client") return null
   return {
     userId:   user.id,
     role:     role as AuthCtx["role"],
@@ -164,7 +165,7 @@ export async function DELETE(req: NextRequest) {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
     const ctx = await authenticate(jwt)
     if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-    if (ctx.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    if (!isAdmin(ctx.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
