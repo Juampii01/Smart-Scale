@@ -64,13 +64,8 @@ export async function POST(req: NextRequest) {
       raw?.email ??
       null
 
-    const phone =
-      contact?.phone         ??
-      contact?.phone_number  ??
-      contact?.phoneNumber   ??
-      contact?.mobile        ??
-      raw?.phone             ??
-      null
+    // Nota: la tabla `leads` NO tiene columna `phone` (se eliminó a propósito).
+    // El teléfono, si viene en el payload, queda guardado en raw_payload.
 
     const instagram =
       contact?.instagram        ??
@@ -101,7 +96,6 @@ export async function POST(req: NextRequest) {
     const { error } = await supabase.from("leads").insert({
       name:        name        || null,
       email:       email       || null,
-      phone:       phone       || null,
       instagram:   instagram   || null,
       tag:         tag         || null,
       source:      source      || null,
