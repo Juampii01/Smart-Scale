@@ -112,11 +112,13 @@ async function runBillingAlerts() {
     errors: [] as string[],
   }
 
-  // 1. Cargar todos los clientes con plan mensual activo
+  // 1. Cargar TODOS los clientes activos (no solo los de plan mensual).
+  //    Las alertas de cuotas (próximas y vencidas) corren sobre todos.
+  //    La generación automática de la próxima cuota solo aplica a los de
+  //    plan mensual (is_monthly_subscription = true).
   const { data: clients, error: clientsErr } = await supabase
     .from("crm_clients")
     .select("id, name, installment_amount, status, is_monthly_subscription, program_start")
-    .eq("is_monthly_subscription", true)
     .eq("status", "activo")
 
   if (clientsErr) {
@@ -128,7 +130,7 @@ async function runBillingAlerts() {
 
   for (const client of clients ?? []) {
     try {
-      // 2. Última cuota del cliente
+      // 2. Cuotas del cliente
       const { data: installments } = await supabase
         .from("crm_installments")
         .select("id, due_date, amount, paid_at, alert_sent_at")
@@ -139,40 +141,42 @@ async function runBillingAlerts() {
       const latest = list[0] ?? null
       const amount = client.installment_amount ?? 0
 
-      // 3. Generar próxima cuota si la última está paga (y no hay otra futura)
-      if (latest && latest.paid_at) {
-        const hasFuture = list.some(i => !i.paid_at && i.due_date >= todayStr)
-        if (!hasFuture) {
-          const nextDue = addMonths(latest.due_date, 1)
+      // 3. Generar próxima cuota — SOLO para clientes de plan mensual.
+      if (client.is_monthly_subscription) {
+        if (latest && latest.paid_at) {
+          const hasFuture = list.some(i => !i.paid_at && i.due_date >= todayStr)
+          if (!hasFuture) {
+            const nextDue = addMonths(latest.due_date, 1)
+            const { error: insErr } = await supabase.from("crm_installments").insert({
+              client_id: client.id,
+              installment_number: list.length + 1,
+              due_date: nextDue,
+              amount,
+              paid_at: null,
+            })
+            if (insErr) {
+              result.errors.push(`[${client.name}] insert error: ${insErr.message}`)
+            } else {
+              result.installmentsCreated++
+            }
+          }
+        } else if (!latest) {
+          // Sin cuotas: generar la primera con due_date = program_start o hoy
+          const firstDue = client.program_start && client.program_start >= todayStr
+            ? client.program_start
+            : todayStr
           const { error: insErr } = await supabase.from("crm_installments").insert({
             client_id: client.id,
-            installment_number: list.length + 1,
-            due_date: nextDue,
+            installment_number: 1,
+            due_date: firstDue,
             amount,
             paid_at: null,
           })
           if (insErr) {
-            result.errors.push(`[${client.name}] insert error: ${insErr.message}`)
+            result.errors.push(`[${client.name}] first insert error: ${insErr.message}`)
           } else {
             result.installmentsCreated++
           }
-        }
-      } else if (!latest) {
-        // 3b. Sin cuotas: generar la primera con due_date = program_start o hoy
-        const firstDue = client.program_start && client.program_start >= todayStr
-          ? client.program_start
-          : todayStr
-        const { error: insErr } = await supabase.from("crm_installments").insert({
-          client_id: client.id,
-          installment_number: 1,
-          due_date: firstDue,
-          amount,
-          paid_at: null,
-        })
-        if (insErr) {
-          result.errors.push(`[${client.name}] first insert error: ${insErr.message}`)
-        } else {
-          result.installmentsCreated++
         }
       }
 
