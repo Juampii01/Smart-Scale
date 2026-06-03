@@ -5,7 +5,8 @@ import { createClient } from "@/lib/supabase"
 import { useOwnClient, useActiveClient, useActiveClientName, useUserRole } from "@/components/layout/dashboard-layout"
 import { isDeveloper } from "@/lib/auth/permissions"
 import { fakeMondayWin } from "@/lib/dev-test-data"
-import { CheckCircle, AlertCircle, Loader2, Star, Eye, FlaskConical } from "lucide-react"
+import { MondayWinsHistoryView } from "@/components/views/monday-wins-history-view"
+import { CheckCircle, AlertCircle, Loader2, Star, Eye, FlaskConical, FileText, History } from "lucide-react"
 
 function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
   return (
@@ -43,6 +44,7 @@ export function MondayWinView() {
 
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [message, setMessage] = useState("")
+  const [tab, setTab] = useState<"form" | "history">("form")
 
   // Envío real. Acepta un payload explícito (usado por el botón "Testear")
   // o lee el estado del form cuando no se pasa nada.
@@ -120,6 +122,22 @@ export function MondayWinView() {
   }
 
   return (
+    <>
+      {/* Tab switcher */}
+      <div className="flex gap-1 mb-6 rounded-xl border border-foreground/[0.06] bg-card p-1 w-fit">
+        <button type="button" onClick={() => setTab("form")}
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "form" ? "bg-[#ffde21] text-black" : "text-foreground/40 hover:text-foreground/70"}`}>
+          <FileText className="h-3.5 w-3.5" /> Cargar
+        </button>
+        <button type="button" onClick={() => setTab("history")}
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "history" ? "bg-[#ffde21] text-black" : "text-foreground/40 hover:text-foreground/70"}`}>
+          <History className="h-3.5 w-3.5" /> Historial
+        </button>
+      </div>
+
+      {tab === "history" && <MondayWinsHistoryView />}
+
+      {tab === "form" && (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Header */}
       <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.06] bg-card px-6 py-5">
@@ -274,5 +292,7 @@ export function MondayWinView() {
         )}
       </div>
     </form>
+      )}
+    </>
   )
 }

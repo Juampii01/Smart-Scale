@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { createClient } from "@/lib/supabase"
 import { useOwnClient, useActiveClient, useActiveClientName } from "@/components/layout/dashboard-layout"
-import { CheckCircle, AlertCircle, Loader2, Trophy, Eye } from "lucide-react"
+import { ChaChingHistoryView } from "@/components/views/cha-ching-history-view"
+import { CheckCircle, AlertCircle, Loader2, Trophy, Eye, FileText, History } from "lucide-react"
 
 const NIVEL_OPTIONS = [
   { value: "$5K", label: "$5K", color: "#ef4444", dot: "bg-red-500" },
@@ -42,6 +43,7 @@ export function ChiChangView() {
 
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [message, setMessage] = useState("")
+  const [tab, setTab] = useState<"form" | "history">("form")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -98,6 +100,22 @@ export function ChiChangView() {
   }
 
   return (
+    <>
+      {/* Tab switcher */}
+      <div className="flex gap-1 mb-6 rounded-xl border border-foreground/[0.06] bg-card p-1 w-fit">
+        <button type="button" onClick={() => setTab("form")}
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "form" ? "bg-[#ffde21] text-black" : "text-foreground/40 hover:text-foreground/70"}`}>
+          <FileText className="h-3.5 w-3.5" /> Registrar
+        </button>
+        <button type="button" onClick={() => setTab("history")}
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "history" ? "bg-[#ffde21] text-black" : "text-foreground/40 hover:text-foreground/70"}`}>
+          <History className="h-3.5 w-3.5" /> Historial
+        </button>
+      </div>
+
+      {tab === "history" && <ChaChingHistoryView />}
+
+      {tab === "form" && (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Header card */}
       <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.06] bg-card px-6 py-5">
@@ -234,5 +252,7 @@ export function ChiChangView() {
         )}
       </div>
     </form>
+      )}
+    </>
   )
 }
