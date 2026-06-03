@@ -112,9 +112,9 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
         {/* Navigation */}
         <nav className={cn("flex-1 overflow-y-auto py-4 space-y-1", collapsed ? "lg:px-2" : "px-3")}>
 
-          {/* ANAI — solo developer/admin. Item destacado, separado de los grupos. */}
-          {isAdmin && (
-            <Link href="/anai" onClick={onClose} title={collapsed ? "ANAI" : undefined}>
+          {/* Ann AI — disponible para todos. Item destacado, separado de los grupos. */}
+          {(
+            <Link href="/anai" onClick={onClose} title={collapsed ? "Ann AI" : undefined}>
               <div className={cn(
                 "group relative mb-3 flex items-center overflow-hidden rounded-xl transition-all duration-200",
                 "bg-gradient-to-br from-[#1a1a1d] to-[#0f0f10] border",
@@ -129,7 +129,7 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
                 </div>
                 {!collapsed && (
                   <div className="relative flex-1 min-w-0">
-                    <p className="text-[13px] font-extrabold tracking-wide text-[#ffde21] leading-none">ANAI</p>
+                    <p className="text-[13px] font-extrabold tracking-wide text-[#ffde21] leading-none">Ann AI</p>
                     <p className="text-[10px] text-foreground/40 mt-1 leading-none">Inteligencia artificial</p>
                   </div>
                 )}

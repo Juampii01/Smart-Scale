@@ -200,16 +200,28 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         if (userErr) throw userErr
         if (!user) return
 
-        const clientId = activeClientId
-        if (!clientId) return
-
-        const { data: rows, error: rErr } = await supabase
-          .from("monthly_reports")
-          .select("month")
-          .eq("client_id", clientId)
-          .order("month", { ascending: true })
-
-        if (rErr) throw rErr
+        // Interno (admin/developer/team/setter): habilitamos TODOS los meses que
+        // cualquier cliente cargó, para poder explorar libremente. Cliente: solo
+        // los meses de su propia cuenta.
+        let rows: any[] | null = null
+        if (isAdmin) {
+          const res = await supabase
+            .from("monthly_reports")
+            .select("month")
+            .order("month", { ascending: true })
+          if (res.error) throw res.error
+          rows = res.data
+        } else {
+          const clientId = activeClientId
+          if (!clientId) return
+          const res = await supabase
+            .from("monthly_reports")
+            .select("month")
+            .eq("client_id", clientId)
+            .order("month", { ascending: true })
+          if (res.error) throw res.error
+          rows = res.data
+        }
 
         const months = Array.from(
           new Set(
@@ -227,9 +239,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         setEnabledMonths(months)
 
-        // Si el mes seleccionado no tiene data, saltamos al más reciente disponible.
-        // Sin persistencia — recarga vuelve a defaultear al mes actual.
-        if (months.length) {
+        // Auto-salto solo para clientes: si el mes seleccionado no tiene data,
+        // saltamos al más reciente disponible. Para internos NO saltamos —
+        // pueden navegar libremente todos los meses.
+        if (!isAdmin && months.length) {
           setSelectedMonth((prev) => months.includes(prev) ? prev : months[months.length - 1])
         }
       } catch (err) {
@@ -243,7 +256,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     return () => {
       mounted = false
     }
-  }, [activeClientId])
+  }, [activeClientId, isAdmin])
 
   useEffect(() => {
     const checkSession = async () => {

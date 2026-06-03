@@ -1,10 +1,10 @@
 "use client"
 
 import { DashboardLayout, useActiveClient, useActiveClientName, useUserRole } from "@/components/layout/dashboard-layout"
-import { isAdmin } from "@/lib/auth/permissions"
+import { isInternal } from "@/lib/auth/permissions"
 import { useState, useRef, useEffect } from "react"
 import { createClient } from "@/lib/supabase"
-import { Sparkles, Send, Loader2, Lock, User, Wrench } from "lucide-react"
+import { Sparkles, Send, Loader2, User, Wrench } from "lucide-react"
 
 interface Msg { role: "user" | "assistant"; content: string; tools?: string[] }
 
@@ -19,7 +19,7 @@ function AnaiContent() {
   const activeClientId   = useActiveClient()
   const activeClientName = useActiveClientName()
   const userRole         = useUserRole()
-  const canUse           = isAdmin(userRole)
+  const internal         = isInternal(userRole)
 
   const [messages, setMessages] = useState<Msg[]>([])
   const [input, setInput]       = useState("")
@@ -30,17 +30,6 @@ function AnaiContent() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" })
   }, [messages, loading])
-
-  if (!canUse) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32 text-center">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-foreground/10 bg-foreground/[0.03] mb-4">
-          <Lock className="h-6 w-6 text-foreground/30" />
-        </div>
-        <p className="text-foreground/50 text-sm">ANAI está disponible solo para el equipo interno.</p>
-      </div>
-    )
-  }
 
   const send = async (text: string) => {
     const content = text.trim()
@@ -86,13 +75,15 @@ function AnaiContent() {
         </div>
         <div>
           <h1 className="text-xl font-extrabold tracking-tight text-foreground leading-none flex items-center gap-2">
-            ANAI
+            Ann AI
             <span className="rounded-md bg-[#ffde21]/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#ffde21]/80">Beta</span>
           </h1>
           <p className="text-[12px] text-foreground/40 mt-1.5">
-            {activeClientName
-              ? <>Analizando a <span className="text-foreground/70 font-medium">{activeClientName}</span></>
-              : "Sin cliente seleccionado — elegí uno arriba para análisis específico"}
+            {internal
+              ? (activeClientName
+                  ? <>Analizando a <span className="text-foreground/70 font-medium">{activeClientName}</span></>
+                  : "Sin cliente seleccionado — elegí uno arriba para análisis específico")
+              : "Tu asistente de negocio personal"}
           </p>
         </div>
       </div>
