@@ -5,7 +5,7 @@ import {
   X, DollarSign, ClipboardList, Table2, Users2,
   UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
   ChevronLeft, ChevronRight, MessageSquareText, UserPlus,
-  LayoutDashboard, CalendarDays,
+  LayoutDashboard, CalendarDays, Brain,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -33,6 +33,7 @@ const ADMIN_NAV_ITEMS = [
   { name: "Aplicaciones",     href: "/admin/applications",      icon: ClipboardList },
   { name: "Contratación",     href: "/admin/team-applications", icon: Briefcase },
   { name: "Centro Operativo", href: "/admin/centro-operativo",  icon: Layers },
+  { name: "Cerebro de Ann",   href: "/admin/ann-knowledge",     icon: Brain },
 ]
 
 export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollapsed }: AdminSidebarProps) {
