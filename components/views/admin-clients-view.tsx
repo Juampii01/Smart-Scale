@@ -8,6 +8,7 @@ import {
   DollarSign, Calendar, Mail,
   MessageCircle, PhoneCall, MoreHorizontal,
   Check, ChevronUp, ChevronDown, ChevronsUpDown, UserX,
+  BarChart3, FileText,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -302,6 +303,269 @@ function InstallmentRow({
 
 // ─── Detail Drawer ────────────────────────────────────────────────────────────
 
+// ─── Client Report Panel ──────────────────────────────────────────────────────
+
+const REPORT_GROUPS = [
+  {
+    key: "business", label: "Business",
+    fields: [
+      { key: "cash_collected",  label: "Cash Collected",     hint: "USD", type: "number" as const },
+      { key: "total_revenue",   label: "Revenue Total",      hint: "USD", type: "number" as const },
+      { key: "mrr",             label: "MRR",                hint: "USD", type: "number" as const },
+      { key: "ad_spend",        label: "Inversión Ads",      hint: "USD", type: "number" as const },
+      { key: "software_costs",  label: "Software",           hint: "USD", type: "number" as const },
+      { key: "variable_costs",  label: "Costos variables",   hint: "USD", type: "number" as const },
+    ],
+  },
+  {
+    key: "sales", label: "Sales",
+    fields: [
+      { key: "new_clients",           label: "Nuevos clientes",      type: "number" as const },
+      { key: "active_clients",        label: "Clientes activos",     type: "number" as const },
+      { key: "scheduled_calls",       label: "Llamadas agendadas",   type: "number" as const },
+      { key: "attended_calls",        label: "Llamadas atendidas",   type: "number" as const },
+      { key: "qualified_calls",       label: "Llamadas calificadas", type: "number" as const },
+      { key: "aplications",           label: "Aplicaciones",         type: "number" as const },
+      { key: "inbound_messages",      label: "Mensajes entrantes",   type: "number" as const },
+      { key: "offer_docs_sent",       label: "OfferDocs enviados",   type: "number" as const },
+      { key: "offer_docs_responded",  label: "OfferDocs respondidos",type: "number" as const },
+      { key: "cierres_por_offerdoc",  label: "Cierres OfferDoc",     type: "number" as const },
+    ],
+  },
+  {
+    key: "social", label: "Contenido & Social",
+    fields: [
+      { key: "short_followers",       label: "Seguidores",           type: "number" as const },
+      { key: "short_reach",           label: "Alcance",              type: "number" as const },
+      { key: "short_posts",           label: "Posts publicados",     type: "number" as const },
+      { key: "yt_subscribers",        label: "YouTube Suscriptores", type: "number" as const },
+      { key: "yt_new_subscribers",    label: "YouTube Nuevos subs",  type: "number" as const },
+      { key: "yt_views",              label: "YouTube Vistas",       type: "number" as const },
+      { key: "yt_videos",             label: "YouTube Videos",       type: "number" as const },
+      { key: "email_subscribers",     label: "Email lista",          type: "number" as const },
+      { key: "email_new_subscribers", label: "Email nuevos",         type: "number" as const },
+    ],
+  },
+  {
+    key: "reflection", label: "Reflection",
+    fields: [
+      { key: "biggest_win",    label: "Mayor logro del mes",  type: "text" as const },
+      { key: "next_focus",     label: "Próximo enfoque",      type: "text" as const },
+      { key: "support_needed", label: "Soporte necesario",    type: "text" as const },
+      { key: "improvements",   label: "Mejoras",              type: "text" as const },
+      { key: "nps_score",      label: "NPS (1–10)",           type: "nps"  as const },
+    ],
+  },
+]
+
+function ClientReportPanel({ clientId }: { clientId: string }) {
+  const [reports,  setReports]  = useState<any[]>([])
+  const [loadingR, setLoadingR] = useState(true)
+  const [selMonth, setSelMonth] = useState(() => new Date().toISOString().slice(0, 7))
+  const [values,   setValues]   = useState<Record<string, string>>({})
+  const [saving,   setSaving]   = useState(false)
+  const [saved,    setSaved]    = useState(false)
+  const [saveErr,  setSaveErr]  = useState<string | null>(null)
+
+  const getSession = useCallback(async () => {
+    const { data: { session } } = await createClient().auth.getSession()
+    return session
+  }, [])
+
+  // Load all reports for this client
+  useEffect(() => {
+    let cancelled = false
+    setLoadingR(true)
+    getSession().then(async session => {
+      if (!session || cancelled) { setLoadingR(false); return }
+      try {
+        const res  = await fetch(`/api/admin/reports?client_id=${clientId}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        const data = await res.json()
+        if (!cancelled) setReports(data.reports ?? [])
+      } catch {}
+      finally { if (!cancelled) setLoadingR(false) }
+    })
+    return () => { cancelled = true }
+  }, [clientId, getSession])
+
+  // Populate form when month selection or reports change
+  useEffect(() => {
+    const existing = reports.find(r => r.month?.slice(0, 7) === selMonth)
+    if (existing) {
+      const pre: Record<string, string> = {}
+      for (const g of REPORT_GROUPS) {
+        for (const f of g.fields) {
+          const v = existing[f.key]
+          if (v !== null && v !== undefined && v !== "") pre[f.key] = String(v)
+        }
+      }
+      setValues(pre)
+    } else {
+      setValues({})
+    }
+    setSaved(false); setSaveErr(null)
+  }, [selMonth, reports])
+
+  // Month list: all months with data + current month (newest first)
+  const monthList = useMemo(() => {
+    const now = new Date().toISOString().slice(0, 7)
+    const set = new Set<string>()
+    reports.forEach(r => { const m = r.month?.slice(0, 7); if (m) set.add(m) })
+    set.add(now)
+    return [...set].sort().reverse()
+  }, [reports])
+
+  const setValue = (k: string, v: string) => setValues(p => ({ ...p, [k]: v }))
+  const hasData  = (m: string) => reports.some(r => r.month?.slice(0, 7) === m)
+  const fmtMonth = (m: string) => {
+    try { return new Date(`${m}-01`).toLocaleDateString("es-AR", { month: "short", year: "2-digit" }) }
+    catch { return m }
+  }
+
+  const save = async () => {
+    setSaving(true); setSaved(false); setSaveErr(null)
+    try {
+      const session = await getSession()
+      if (!session) { setSaveErr("Sesión expirada"); return }
+      const body: Record<string, unknown> = { client_id: clientId, month: selMonth }
+      for (const [k, v] of Object.entries(values)) {
+        if (v !== "" && v !== null) body[k] = v
+      }
+      const res  = await fetch("/api/monthly-reports/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify(body),
+      })
+      const data = await res.json()
+      if (!res.ok) { setSaveErr(data.error ?? "Error al guardar"); return }
+      setReports(prev => {
+        const idx = prev.findIndex(r => r.month?.slice(0, 7) === selMonth)
+        return idx >= 0 ? prev.map((r, i) => i === idx ? data.report : r) : [...prev, data.report]
+      })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } finally { setSaving(false) }
+  }
+
+  if (loadingR) {
+    return <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-foreground/30" /></div>
+  }
+
+  return (
+    <div className="flex flex-col" style={{ height: "calc(100% - 1px)" }}>
+      {/* Month selector */}
+      <div className="border-b border-foreground/[0.06] px-6 py-4 shrink-0">
+        <p className="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-foreground/25">Mes del reporte</p>
+        <div className="flex gap-1.5 overflow-x-auto pb-1">
+          {monthList.map(m => (
+            <button key={m} onClick={() => setSelMonth(m)}
+              className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                selMonth === m
+                  ? "bg-[#ffde21] text-black"
+                  : "border border-foreground/[0.08] bg-foreground/[0.04] text-foreground/50 hover:text-foreground hover:border-foreground/20"
+              }`}>
+              {fmtMonth(m)}
+              <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${hasData(m) ? "bg-emerald-500" : "bg-foreground/20"}`} />
+            </button>
+          ))}
+        </div>
+        <p className="mt-1.5 text-[10px] text-foreground/25 flex items-center gap-3">
+          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />cargado</span>
+          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-foreground/20" />vacío</span>
+        </p>
+      </div>
+
+      {/* Scrollable form */}
+      <div className="flex-1 overflow-y-auto divide-y divide-foreground/[0.05]">
+        {REPORT_GROUPS.map(group => (
+          <div key={group.key} className="px-6 py-4 space-y-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/30">{group.label}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {group.fields.map(field => {
+                if (field.type === "text") {
+                  return (
+                    <div key={field.key} className="col-span-2 space-y-1">
+                      <label className="block text-[10px] font-semibold uppercase tracking-wider text-foreground/40">{field.label}</label>
+                      <textarea
+                        value={values[field.key] ?? ""}
+                        onChange={e => setValue(field.key, e.target.value)}
+                        rows={2}
+                        placeholder="—"
+                        className="w-full resize-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-foreground/20 focus:border-[#ffde21]/40 focus:outline-none"
+                      />
+                    </div>
+                  )
+                }
+                if (field.type === "nps") {
+                  return (
+                    <div key={field.key} className="col-span-2 space-y-1.5">
+                      <label className="block text-[10px] font-semibold uppercase tracking-wider text-foreground/40">{field.label}</label>
+                      <div className="flex gap-1 flex-wrap">
+                        {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                          <button key={n} type="button" onClick={() => setValue(field.key, String(n))}
+                            className={`h-8 w-8 rounded-lg text-xs font-bold transition-all ${
+                              values[field.key] === String(n)
+                                ? "bg-[#ffde21] text-black"
+                                : "border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:border-[#ffde21]/30"
+                            }`}>
+                            {n}
+                          </button>
+                        ))}
+                        {values[field.key] && (
+                          <button type="button" onClick={() => setValue(field.key, "")}
+                            className="ml-1 text-xs text-foreground/25 hover:text-foreground/50">limpiar</button>
+                        )}
+                      </div>
+                    </div>
+                  )
+                }
+                return (
+                  <div key={field.key} className="space-y-1">
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-foreground/40 truncate">
+                      {field.label}
+                      {"hint" in field && (field as any).hint && (
+                        <span className="ml-1 normal-case font-normal text-foreground/25 tracking-normal">({(field as any).hint})</span>
+                      )}
+                    </label>
+                    <input
+                      type="number"
+                      value={values[field.key] ?? ""}
+                      onChange={e => setValue(field.key, e.target.value)}
+                      placeholder="0"
+                      min={0}
+                      step="any"
+                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm font-semibold text-foreground placeholder:text-foreground/20 focus:border-[#ffde21]/40 focus:outline-none"
+                    />
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Save bar (sticky) */}
+      <div className="shrink-0 border-t border-foreground/[0.06] bg-card px-6 py-3 flex items-center gap-3">
+        <button onClick={save} disabled={saving}
+          className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] active:scale-95 disabled:opacity-50">
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+          {saving ? "Guardando…" : "Guardar reporte"}
+        </button>
+        {saved && (
+          <span className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 className="h-4 w-4" /> Guardado
+          </span>
+        )}
+        {saveErr && <span className="text-xs text-red-700 dark:text-red-400">{saveErr}</span>}
+      </div>
+    </div>
+  )
+}
+
+// ─── Detail Drawer ────────────────────────────────────────────────────────────
+
 function DetailDrawer({
   client,
   onClose,
@@ -329,6 +593,7 @@ function DetailDrawer({
   deleting:            boolean
   offboarding:         boolean
 }) {
+  const [drawerTab,        setDrawerTab]          = useState<"crm" | "reports">("crm")
   const [showFollowupForm, setShowFollowupForm]   = useState(false)
   const [fuDate,           setFuDate]             = useState(todayStr())
   const [fuType,           setFuType]             = useState<Followup["type"]>("whatsapp")
@@ -418,7 +683,37 @@ function DetailDrawer({
           </div>
         </div>
 
-        {/* Scrollable body */}
+        {/* Tab nav */}
+        <div className="flex gap-1 border-b border-foreground/[0.06] px-6 py-2.5" style={{ backgroundColor: "var(--card)" }}>
+          <button onClick={() => setDrawerTab("crm")}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+              drawerTab === "crm"
+                ? "bg-foreground/[0.08] text-foreground"
+                : "text-foreground/40 hover:text-foreground/70"
+            }`}>
+            <FileText className="h-3.5 w-3.5" />
+            CRM
+          </button>
+          <button onClick={() => setDrawerTab("reports")}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+              drawerTab === "reports"
+                ? "bg-foreground/[0.08] text-foreground"
+                : "text-foreground/40 hover:text-foreground/70"
+            }`}>
+            <BarChart3 className="h-3.5 w-3.5" />
+            Reportes
+          </button>
+        </div>
+
+        {/* Reports tab */}
+        {drawerTab === "reports" && (
+          <div className="flex-1 overflow-hidden" style={{ backgroundColor: "var(--card)" }}>
+            <ClientReportPanel clientId={client.id} />
+          </div>
+        )}
+
+        {/* Scrollable body (CRM tab) */}
+        {drawerTab === "crm" && (
         <div className="flex-1 overflow-y-auto" style={{ backgroundColor: "var(--card)" }}>
 
           {/* Section 1: Info fields */}
@@ -736,8 +1031,10 @@ function DetailDrawer({
           </div>
 
         </div>
+        )} {/* end drawerTab === "crm" */}
 
-        {/* Footer with summary */}
+        {/* Footer with summary (CRM tab only) */}
+        {drawerTab === "crm" && (
         <div className="border-t border-foreground/[0.06] px-6 py-3" style={{ backgroundColor: "var(--card)" }}>
           <div className="flex items-center gap-4 text-[11px] text-foreground/30">
             <span>
@@ -756,6 +1053,7 @@ function DetailDrawer({
             </span>
           </div>
         </div>
+        )} {/* end footer CRM tab */}
 
       </div>
     </>

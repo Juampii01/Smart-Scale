@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase"
 import { useOwnClient, useActiveClient, useActiveClientName, useSelectedMonth, useUserRole } from "@/components/layout/dashboard-layout"
 import { isDeveloper } from "@/lib/auth/permissions"
 import { fakeMonthlyReport } from "@/lib/dev-test-data"
-import { CheckCircle, AlertCircle, Loader2, AlertTriangle, History, FileText, Eye, FlaskConical } from "lucide-react"
+import { CheckCircle, AlertCircle, Loader2, AlertTriangle, History, FileText, Eye, FlaskConical, Sparkles } from "lucide-react"
 import { ReportHistoryView } from "@/components/views/report-history-view"
 
 // ─── Field definitions ────────────────────────────────────────────────────────
@@ -89,6 +89,92 @@ const FIELD_GROUPS = [
 
 type FormValues = Record<string, string>
 
+// ─── Celebration overlay ──────────────────────────────────────────────────────
+
+function CelebrationOverlay({
+  name,
+  month,
+  onClose,
+}: {
+  name: string | null
+  month: string
+  onClose: () => void
+}) {
+  const [secs, setSecs] = useState(5)
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setSecs(s => {
+        if (s <= 1) { clearInterval(t); onClose(); return 0 }
+        return s - 1
+      })
+    }, 1000)
+    return () => clearInterval(t)
+  }, [onClose])
+
+  const monthLabel = (() => {
+    try {
+      return new Date(month.length === 7 ? `${month}-01` : month)
+        .toLocaleDateString("es-AR", { month: "long", year: "numeric" })
+    } catch { return month }
+  })()
+
+  const firstName = name?.split(" ")[0] ?? null
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md"
+      onClick={onClose}
+    >
+      <div
+        className="relative mx-4 w-full max-w-sm overflow-hidden rounded-3xl border border-[#ffde21]/25 bg-card shadow-[0_0_80px_rgba(255,222,33,0.15)]"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Top gradient line */}
+        <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/0 via-[#ffde21] to-[#ffde21]/0" />
+
+        {/* Radial glow */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,222,33,0.10),transparent_60%)]" />
+
+        <div className="relative space-y-6 px-8 py-10 text-center">
+          {/* Animated icon */}
+          <div className="relative mx-auto w-fit">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#ffde21]/10 ring-4 ring-[#ffde21]/20">
+              <CheckCircle className="h-10 w-10 text-[#ffde21]" style={{ animation: "bounce 1.5s infinite" }} />
+            </div>
+            <Sparkles className="absolute -right-1 -top-1 h-5 w-5 animate-pulse text-[#ffde21]/70" />
+            <Sparkles className="absolute -bottom-1 -left-1 h-4 w-4 animate-pulse text-[#ffde21]/40" style={{ animationDelay: "0.6s" }} />
+          </div>
+
+          {/* Message */}
+          <div className="space-y-2">
+            <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
+              {firstName ? `¡Felicitaciones, ${firstName}!` : "¡Reporte completado!"}
+            </h2>
+            <p className="text-sm leading-relaxed text-foreground/60">
+              Tu reporte de{" "}
+              <span className="font-semibold capitalize text-foreground">{monthLabel}</span>{" "}
+              está guardado.
+            </p>
+            <p className="text-xs text-foreground/35">
+              Seguís construyendo tu Ecosistema Circular. 🔥
+            </p>
+          </div>
+
+          {/* CTA with countdown */}
+          <button
+            onClick={onClose}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-7 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] active:scale-95"
+          >
+            Continuar
+            <span className="text-xs font-normal text-black/40">({secs}s)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Confirm overwrite dialog ─────────────────────────────────────────────────
 
 function ConfirmOverwriteDialog({
@@ -165,6 +251,7 @@ export function ReportInputView() {
   const [existingData, setExistingData] = useState<Record<string, any> | null>(null)
   const [loadingExisting, setLoadingExisting] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [showCelebration, setShowCelebration] = useState(false)
 
   // Load existing report for selected client+month
   useEffect(() => {
@@ -244,6 +331,7 @@ export function ReportInputView() {
 
       setStatus("success")
       setExistingData(data.report)
+      setShowCelebration(true)
       const eventsMsg = data.events_enqueued > 0
         ? ` ${data.events_enqueued} notificación(es) enviadas.`
         : ""
@@ -288,6 +376,13 @@ export function ReportInputView() {
 
   return (
     <>
+      {showCelebration && (
+        <CelebrationOverlay
+          name={activeName}
+          month={month}
+          onClose={() => setShowCelebration(false)}
+        />
+      )}
       {/* Tab switcher */}
       <div className="flex gap-1 mb-8 rounded-xl border border-foreground/[0.06] bg-card p-1 w-fit">
         <button
