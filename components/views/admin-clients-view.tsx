@@ -1192,18 +1192,29 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
   , 0)
 
   // Pendiente: cuotas con vencimiento en ESTE mes que todavía no se pagaron
-  // → criterio independiente: no es expected - cobrado (serían métricas mezcladas)
   const oldCashPendiente = oldClients.reduce((sum, c) =>
     sum + c.installments
       .filter(i => {
-        if (i.paid_at) return false   // ya pagada → no es pendiente
+        if (i.paid_at) return false
         const d = new Date(i.due_date + "T12:00:00")
         return d.getMonth() === currentMonth && d.getFullYear() === currentYear
       })
       .reduce((s, i) => s + i.amount, 0)
   , 0)
 
-  // Expected = lo que vence este mes (referencia para el % de cobranza)
+  // Vencido: cuotas de meses ANTERIORES al visto que siguen sin pagar
+  const oldCashVencido = oldClients.reduce((sum, c) =>
+    sum + c.installments
+      .filter(i => {
+        if (i.paid_at) return false
+        const d = new Date(i.due_date + "T12:00:00")
+        const dy = d.getFullYear(), dm = d.getMonth()
+        return dy < currentYear || (dy === currentYear && dm < currentMonth)
+      })
+      .reduce((s, i) => s + i.amount, 0)
+  , 0)
+
+  // Expected = lo que vence este mes (para el % de cobranza)
   const oldCashExpected = oldClients.reduce((sum, c) =>
     sum + c.installments
       .filter(i => {
@@ -1212,9 +1223,8 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
       })
       .reduce((s, i) => s + i.amount, 0)
   , 0)
-  // Cuotas de mayo ya cobradas (para progress bar coherente)
-  const oldCashCobradoDeMayo = oldCashExpected - oldCashPendiente
-  const pct = oldCashExpected > 0 ? Math.min(100, (oldCashCobradoDeMayo / oldCashExpected) * 100) : 0
+  const oldCashCobradoDelMes = oldCashExpected - oldCashPendiente
+  const pct = oldCashExpected > 0 ? Math.min(100, (oldCashCobradoDelMes / oldCashExpected) * 100) : 0
 
   const [vmY, vmM] = viewMonth.split("-").map(Number)
   const monthName = new Date(Date.UTC(vmY, vmM - 1, 15)).toLocaleDateString("es-AR", { month: "long", year: "numeric" })
@@ -1243,6 +1253,17 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
           <p className="text-3xl font-bold text-foreground tabular-nums">{fmtMoney(oldCashCobrado)}</p>
           <p className="text-[11px] text-foreground/30 mt-0.5">recibido de clientes anteriores</p>
           <div className="mt-2.5 space-y-2">
+            {/* Vencido: cuotas de meses anteriores sin cobrar */}
+            {oldCashVencido > 0 && (
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] text-red-700 dark:text-red-400 uppercase tracking-wider font-semibold">
+                  ⚠ Vencido (meses ant.)
+                </span>
+                <span className="text-[13px] font-bold text-red-700 dark:text-red-400 tabular-nums">
+                  {fmtMoney(oldCashVencido)}
+                </span>
+              </div>
+            )}
             {/* Pendiente: cuotas de este mes sin pagar */}
             {oldCashPendiente > 0 && (
               <div className="flex items-center justify-between gap-2">
