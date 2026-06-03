@@ -8,11 +8,17 @@ import { Sparkles, Send, Loader2, User, Wrench } from "lucide-react"
 
 interface Msg { role: "user" | "assistant"; content: string; tools?: string[] }
 
-const SUGGESTIONS = [
+const SUGGESTIONS_INTERNAL = [
   "¿Cómo viene este cliente este mes?",
   "Dame un diagnóstico del Ecosistema Circular",
   "Analizá la tasa de cierre y dónde está el cuello de botella",
   "¿En qué pilar debería enfocarse ahora?",
+]
+const SUGGESTIONS_CLIENT = [
+  "¿Cómo vengo este mes?",
+  "Dame un diagnóstico de mi Ecosistema Circular",
+  "Analizá mi tasa de cierre y dónde está mi cuello de botella",
+  "¿En qué pilar debería enfocarme ahora?",
 ]
 
 function AnaiContent() {
@@ -54,7 +60,7 @@ function AnaiContent() {
         }),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error ?? "Error al consultar a ANAI."); return }
+      if (!res.ok) { setError(data.error ?? "Error al consultar a Ann AI."); return }
       setMessages(prev => [...prev, { role: "assistant", content: data.reply ?? "", tools: data.tools_used ?? [] }])
     } catch (err: any) {
       setError(err?.message ?? "Error inesperado.")
@@ -64,6 +70,7 @@ function AnaiContent() {
   }
 
   const empty = messages.length === 0
+  const suggestions = internal ? SUGGESTIONS_INTERNAL : SUGGESTIONS_CLIENT
 
   return (
     <div className="mx-auto flex h-[calc(100vh-9rem)] max-w-3xl flex-col">
@@ -95,10 +102,10 @@ function AnaiContent() {
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1a1a1d] to-[#0f0f10] border border-[#ffde21]/25 mb-4">
               <Sparkles className="h-6 w-6 text-[#ffde21]" />
             </div>
-            <p className="text-[15px] font-bold text-foreground">Preguntale lo que quieras sobre el negocio</p>
-            <p className="text-[13px] text-foreground/40 mt-1 max-w-sm">ANAI cruza la metodología de Ann con los datos reales del cliente.</p>
+            <p className="text-[15px] font-bold text-foreground">Preguntale lo que quieras sobre {internal ? "el negocio" : "tu negocio"}</p>
+            <p className="text-[13px] text-foreground/40 mt-1 max-w-sm">Ann AI cruza la metodología de Ann con {internal ? "los datos reales del cliente" : "tus datos reales"}.</p>
             <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">
-              {SUGGESTIONS.map(s => (
+              {suggestions.map(s => (
                 <button
                   key={s}
                   onClick={() => send(s)}
@@ -166,7 +173,7 @@ function AnaiContent() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input) } }}
-          placeholder="Preguntale a ANAI sobre el negocio…"
+          placeholder={internal ? "Preguntale a Ann AI sobre el negocio…" : "Preguntale a Ann AI sobre tu negocio…"}
           rows={1}
           disabled={loading}
           className="flex-1 resize-none bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-foreground/30 focus:outline-none disabled:opacity-50"
