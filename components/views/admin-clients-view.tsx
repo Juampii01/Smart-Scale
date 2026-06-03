@@ -1062,20 +1062,28 @@ function DetailDrawer({
 
 // ─── Summary Cards ────────────────────────────────────────────────────────────
 
-function SummaryCards({ clients }: { clients: Client[] }) {
-  const today = todayStr()
-  const now = new Date()
-  const currentMonth = now.getMonth()
-  const currentYear  = now.getFullYear()
+function SummaryCards({ clients, viewMonth }: { clients: Client[], viewMonth: string }) {
+  const today    = todayStr()
+  const nowStr   = new Date().toISOString().slice(0, 7)
+  const isCurrentMonth = viewMonth === nowStr
+
+  const [viewYear, viewMon] = viewMonth.split("-").map(Number)
+  const vm = viewMon - 1  // JS months 0-indexed
 
   const activeCount = clients.filter(c => c.status === "activo").length
+
+  // Clientes nuevos ese mes (created_at en el mes visto)
+  const newClientsCount = clients.filter(c => {
+    const d = new Date(c.created_at)
+    return d.getMonth() === vm && d.getFullYear() === viewYear
+  }).length
 
   const cobradoEsteMes = clients.reduce((sum, c) =>
     sum + c.installments
       .filter(i => {
         if (!i.paid_at) return false
         const d = new Date(i.paid_at)
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+        return d.getMonth() === vm && d.getFullYear() === viewYear
       })
       .reduce((s, i) => s + i.amount, 0)
   , 0)
@@ -1085,7 +1093,7 @@ function SummaryCards({ clients }: { clients: Client[] }) {
       .filter(i => {
         if (i.paid_at) return false
         const d = new Date(i.due_date + "T12:00:00")
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+        return d.getMonth() === vm && d.getFullYear() === viewYear
       })
       .reduce((s, i) => s + i.amount, 0)
   , 0)
@@ -1102,23 +1110,29 @@ function SummaryCards({ clients }: { clients: Client[] }) {
       icon:  <Users className="h-4 w-4" />,
     },
     {
-      label: "Cobrado este mes",
+      label: `Nuevos clientes`,
+      value: String(newClientsCount),
+      color: newClientsCount > 0 ? "text-[#ffde21]" : "text-foreground/50",
+      icon:  <Users className="h-4 w-4" />,
+    },
+    {
+      label: "Cobrado",
       value: fmtMoney(cobradoEsteMes),
       color: "text-emerald-700 dark:text-emerald-300",
       icon:  <DollarSign className="h-4 w-4" />,
     },
     {
-      label: "Por cobrar este mes",
+      label: isCurrentMonth ? "Por cobrar" : "Sin cobrar",
       value: fmtMoney(porCobrarEsteMes),
       color: "text-amber-700 dark:text-amber-300",
       icon:  <Clock className="h-4 w-4" />,
     },
-    {
+    ...(isCurrentMonth ? [{
       label: "Follow-ups hoy",
       value: String(followupsHoy),
-      color: followupsHoy > 0 ? "text-[#ffde21]" : "text-foreground/50",
+      color: followupsHoy > 0 ? "text-[#ffde21]" : "text-foreground/50" as string,
       icon:  <Calendar className="h-4 w-4" />,
-    },
+    }] : []),
   ]
 
   return (
@@ -1138,15 +1152,15 @@ function SummaryCards({ clients }: { clients: Client[] }) {
 
 // ─── New Cash / Old Cash ──────────────────────────────────────────────────────
 
-function CashSection({ clients }: { clients: Client[] }) {
-  const now          = new Date()
-  const currentMonth = now.getMonth()
-  const currentYear  = now.getFullYear()
+function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: string }) {
+  const [viewYear, viewMon] = viewMonth.split("-").map(Number)
+  const currentMonth = viewMon - 1  // JS months 0-indexed
+  const currentYear  = viewYear
 
   // Exclude churned/inactive clients from all cash calculations
   const activeClients = clients.filter(c => c.status !== "inactivo")
 
-  // New Cash: clients whose created_at is this month
+  // New Cash: clients whose created_at is the viewed month
   const newClients = activeClients.filter(c => {
     const d = new Date(c.created_at)
     return d.getMonth() === currentMonth && d.getFullYear() === currentYear
@@ -1202,7 +1216,7 @@ function CashSection({ clients }: { clients: Client[] }) {
   const oldCashCobradoDeMayo = oldCashExpected - oldCashPendiente
   const pct = oldCashExpected > 0 ? Math.min(100, (oldCashCobradoDeMayo / oldCashExpected) * 100) : 0
 
-  const monthName = now.toLocaleDateString("es-AR", { month: "long", year: "numeric" })
+  const monthName = new Date(viewMonth + "-01").toLocaleDateString("es-AR", { month: "long", year: "numeric" })
 
   return (
     <div className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-5">
@@ -1353,6 +1367,18 @@ export function AdminClientsView() {
   const [search,        setSearch]       = useState("")
   const [sortKey,       setSortKey]      = useState<SortKey>("created_at")
   const [sortDir,       setSortDir]      = useState<"asc" | "desc">("desc")
+  const [viewMonth,     setViewMonth]    = useState<string>(() => new Date().toISOString().slice(0, 7))
+
+  const currentMonthStr = new Date().toISOString().slice(0, 7)
+  const shiftMonth = (m: string, delta: number) => {
+    const d = new Date(m + "-01")
+    d.setMonth(d.getMonth() + delta)
+    return d.toISOString().slice(0, 7)
+  }
+  const viewMonthLabel = (() => {
+    try { return new Date(viewMonth + "-01").toLocaleDateString("es-AR", { month: "long", year: "numeric" }) }
+    catch { return viewMonth }
+  })()
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -1630,11 +1656,36 @@ export function AdminClientsView() {
         {/* Webhook card */}
         <WebhookCard />
 
+        {/* Month navigation */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setViewMonth(m => shiftMonth(m, -1))}
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all">
+            <ChevronDown className="h-4 w-4 rotate-90" />
+          </button>
+          <span className="min-w-[130px] text-center text-sm font-semibold capitalize text-foreground">
+            {viewMonthLabel}
+          </span>
+          <button
+            onClick={() => setViewMonth(m => shiftMonth(m, 1))}
+            disabled={viewMonth >= currentMonthStr}
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+            <ChevronDown className="h-4 w-4 -rotate-90" />
+          </button>
+          {viewMonth !== currentMonthStr && (
+            <button
+              onClick={() => setViewMonth(currentMonthStr)}
+              className="rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-xs font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all">
+              Hoy
+            </button>
+          )}
+        </div>
+
         {/* Summary cards */}
-        <SummaryCards clients={clients} />
+        <SummaryCards clients={clients} viewMonth={viewMonth} />
 
         {/* New Cash / Old Cash */}
-        <CashSection clients={clients} />
+        <CashSection clients={clients} viewMonth={viewMonth} />
 
         {/* Error message */}
         {error && (
