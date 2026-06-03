@@ -1216,7 +1216,8 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
   const oldCashCobradoDeMayo = oldCashExpected - oldCashPendiente
   const pct = oldCashExpected > 0 ? Math.min(100, (oldCashCobradoDeMayo / oldCashExpected) * 100) : 0
 
-  const monthName = new Date(viewMonth + "-01").toLocaleDateString("es-AR", { month: "long", year: "numeric" })
+  const [vmY, vmM] = viewMonth.split("-").map(Number)
+  const monthName = new Date(Date.UTC(vmY, vmM - 1, 15)).toLocaleDateString("es-AR", { month: "long", year: "numeric" })
 
   return (
     <div className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-5">
@@ -1370,14 +1371,15 @@ export function AdminClientsView() {
   const [viewMonth,     setViewMonth]    = useState<string>(() => new Date().toISOString().slice(0, 7))
 
   const currentMonthStr = new Date().toISOString().slice(0, 7)
+
+  // Usa Date.UTC para evitar bugs de timezone (UTC-3 convierte "YYYY-MM-01" a mes anterior)
   const shiftMonth = (m: string, delta: number) => {
-    const d = new Date(m + "-01")
-    d.setMonth(d.getMonth() + delta)
-    return d.toISOString().slice(0, 7)
+    const [y, mo] = m.split("-").map(Number)
+    return new Date(Date.UTC(y, mo - 1 + delta, 1)).toISOString().slice(0, 7)
   }
   const viewMonthLabel = (() => {
-    try { return new Date(viewMonth + "-01").toLocaleDateString("es-AR", { month: "long", year: "numeric" }) }
-    catch { return viewMonth }
+    const [y, mo] = viewMonth.split("-").map(Number)
+    return new Date(Date.UTC(y, mo - 1, 15)).toLocaleDateString("es-AR", { month: "long", year: "numeric" })
   })()
 
   const toggleSort = (key: SortKey) => {
