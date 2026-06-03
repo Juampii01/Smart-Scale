@@ -5,7 +5,7 @@ import {
   CalendarDays, Lock, LayoutGrid, ClipboardList,
   Zap, Globe, FileVideo, Clapperboard,
   ChevronDown, Trophy, FileBarChart, ShieldCheck, ArrowRight,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, Sparkles,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -111,6 +111,35 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
 
         {/* Navigation */}
         <nav className={cn("flex-1 overflow-y-auto py-4 space-y-1", collapsed ? "lg:px-2" : "px-3")}>
+
+          {/* ANAI — solo developer/admin. Item destacado, separado de los grupos. */}
+          {isAdmin && (
+            <Link href="/anai" onClick={onClose} title={collapsed ? "ANAI" : undefined}>
+              <div className={cn(
+                "group relative mb-3 flex items-center overflow-hidden rounded-xl transition-all duration-200",
+                "bg-gradient-to-br from-[#1a1a1d] to-[#0f0f10] border",
+                pathname === "/anai"
+                  ? "border-[#ffde21]/60 shadow-[0_0_22px_rgba(255,222,33,0.22)]"
+                  : "border-[#ffde21]/20 hover:border-[#ffde21]/45 hover:shadow-[0_0_18px_rgba(255,222,33,0.16)]",
+                collapsed ? "lg:justify-center lg:px-0 lg:py-2.5 px-3 py-2.5 gap-2.5" : "px-3 py-2.5 gap-2.5"
+              )}>
+                <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.10),transparent_60%)]" />
+                <div className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#ffde21]">
+                  <Sparkles className="h-4 w-4 text-black" />
+                </div>
+                {!collapsed && (
+                  <div className="relative flex-1 min-w-0">
+                    <p className="text-[13px] font-extrabold tracking-wide text-[#ffde21] leading-none">ANAI</p>
+                    <p className="text-[10px] text-foreground/40 mt-1 leading-none">Inteligencia artificial</p>
+                  </div>
+                )}
+                {!collapsed && (
+                  <span className="relative rounded-md bg-[#ffde21]/15 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-[#ffde21]/80">Beta</span>
+                )}
+              </div>
+            </Link>
+          )}
+
           {NAV_GROUPS.map((group) => {
             const isGroupCollapsed = groupsCollapsed[group.label]
             const hasActive = group.items.some(i => pathname === i.href)

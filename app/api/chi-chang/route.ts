@@ -33,6 +33,19 @@ export async function POST(req: NextRequest) {
 
     if (clientRow?.nombre) clientName = clientRow.nombre
 
+    // ── Persistir en la base (registro en el dashboard) ──────────────────────
+    const { error: insErr } = await supabase.from("cha_ching").insert({
+      client_id,
+      user_id:        user.id,
+      fecha,
+      valor_trato:    Number(valor_trato),
+      cash_collected: Number(cash_collected),
+      proximo_nivel:  proximoObjetivo,
+      notas:          notas || null,
+      submitted_by:   user.email,
+    })
+    if (insErr) console.error("[chi-chang] insert error:", insErr.message)
+
     const nivelEmojiMap: Record<string, string> = {
       "$5K":   "🔴",
       "$10K":  "🔵",

@@ -51,6 +51,20 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // ── Persistir en la base (registro en el dashboard) ──────────────────────
+    const { error: insErr } = await supabase.from("monday_wins").insert({
+      client_id,
+      user_id:       user.id,
+      fecha,
+      logro_1,
+      logro_2:       logro_2 || null,
+      logro_3:       logro_3 || null,
+      una_sola_cosa,
+      bloqueo,
+      submitted_by:  user.email,
+    })
+    if (insErr) console.error("[monday-win] insert error:", insErr.message)
+
     // Build Zapier payload
     const payload = {
       event_type:       "monday_win.submitted",
