@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect, useState, useCallback, useMemo } from "react"
+import { useEffect, useState, useCallback, useMemo, useRef } from "react"
 import { createClient } from "@/lib/supabase"
 import {
   Sparkles, Plus, Trash2, Loader2, Brain, Eye, EyeOff,
   ChevronDown, Save, Search, X, FileText, Mic, PenLine,
+  Upload, CheckCircle2,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -26,10 +27,10 @@ const pc = (p: string) => PILLAR_CONFIG[p] ?? PILLAR_CONFIG.general
 
 const PILLAR_BTNS = [
   { value: "general", label: "General" },
-  { value: "F", label: "Fascinate" },
-  { value: "E", label: "Educate" },
-  { value: "T", label: "Transform" },
-  { value: "I", label: "Invite" },
+  { value: "F",       label: "Fascinate" },
+  { value: "E",       label: "Educate" },
+  { value: "T",       label: "Transform" },
+  { value: "I",       label: "Invite" },
 ]
 
 const SOURCE_TYPES = [
@@ -47,6 +48,17 @@ const FILTER_TABS = [
   { value: "I",       label: "Invite" },
 ]
 
+const ACCEPTED_EXTS = ".pdf,.docx,.doc,.txt,.md,.csv"
+const EXT_LABELS: Record<string, string> = {
+  pdf: "PDF", docx: "Word", doc: "Word", txt: "TXT", md: "Markdown", csv: "CSV",
+}
+
+function fmtSize(bytes: number) {
+  if (bytes < 1024)       return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+}
+
 // ─── Auth fetch ───────────────────────────────────────────────────────────────
 async function authedFetch(path: string, opts: RequestInit = {}) {
   const { data: { session } } = await createClient().auth.getSession()
@@ -60,6 +72,20 @@ async function authedFetch(path: string, opts: RequestInit = {}) {
   })
 }
 
+async function extractFile(file: File): Promise<{ text: string; title: string }> {
+  const { data: { session } } = await createClient().auth.getSession()
+  const fd = new FormData()
+  fd.append("file", file)
+  const res = await fetch("/api/admin/ann-knowledge/extract", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
+    body: fd,
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error ?? "Error al extraer el texto")
+  return { text: data.text ?? "", title: data.title ?? file.name.replace(/\.[^.]+$/, "") }
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 export function AnnKnowledgeView() {
   const [items,   setItems]   = useState<Entry[]>([])
@@ -71,17 +97,24 @@ export function AnnKnowledgeView() {
   const [search,       setSearch]       = useState("")
 
   // Form (add new)
-  const [formOpen,    setFormOpen]    = useState(false)
-  const [title,       setTitle]       = useState("")
-  const [pillar,      setPillar]      = useState("general")
-  const [sourceType,  setSourceType]  = useState("manual")
-  const [content,     setContent]     = useState("")
-  const [saving,      setSaving]      = useState(false)
+  const [formOpen,   setFormOpen]   = useState(false)
+  const [title,      setTitle]      = useState("")
+  const [pillar,     setPillar]     = useState("general")
+  const [sourceType, setSourceType] = useState("manual")
+  const [content,    setContent]    = useState("")
+  const [saving,     setSaving]     = useState(false)
+
+  // File upload
+  const [uploadFile,   setUploadFile]   = useState<File | null>(null)
+  const [extracting,   setExtracting]   = useState(false)
+  const [extractDone,  setExtractDone]  = useState(false)
+  const [isDragging,   setIsDragging]   = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Edit (inline expand)
-  const [expanded,     setExpanded]     = useState<string | null>(null)
-  const [editTitle,    setEditTitle]    = useState("")
-  const [editContent,  setEditContent]  = useState("")
+  const [expanded,    setExpanded]    = useState<string | null>(null)
+  const [editTitle,   setEditTitle]   = useState("")
+  const [editContent, setEditContent] = useState("")
 
   // ── Load ────────────────────────────────────────────────────────────────────
   const load = useCallback(async () => {
@@ -96,6 +129,14 @@ export function AnnKnowledgeView() {
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  // Reset form when closing
+  useEffect(() => {
+    if (!formOpen) {
+      setTitle(""); setContent(""); setPillar("general"); setSourceType("manual")
+      setUploadFile(null); setExtractDone(false); setError(null)
+    }
+  }, [formOpen])
 
   // ── Derived ──────────────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -118,6 +159,50 @@ export function AnnKnowledgeView() {
 
   const activeCount = items.filter(i => i.is_active).length
 
+  // ── File handling ─────────────────────────────────────────────────────────
+  const handleFile = async (file: File) => {
+    setUploadFile(file)
+    setExtractDone(false)
+    setSourceType("documento")
+    setError(null)
+
+    // TXT/MD/CSV: extract client-side instantly
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? ""
+    if (["txt", "md", "csv"].includes(ext)) {
+      const text = await file.text()
+      setContent(text.trim())
+      if (!title) setTitle(file.name.replace(/\.[^.]+$/, ""))
+      setExtractDone(true)
+      return
+    }
+
+    // PDF/DOCX: send to server
+    setExtracting(true)
+    try {
+      const { text, title: suggestedTitle } = await extractFile(file)
+      setContent(text)
+      if (!title) setTitle(suggestedTitle)
+      setExtractDone(true)
+    } catch (e: any) {
+      setError(e?.message ?? "Error al extraer el texto")
+      setUploadFile(null)
+    } finally {
+      setExtracting(false)
+    }
+  }
+
+  const onFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) handleFile(file)
+    e.target.value = ""
+  }
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault(); setIsDragging(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file) handleFile(file)
+  }
+
   // ── Actions ──────────────────────────────────────────────────────────────────
   const add = async () => {
     if (!title.trim() || !content.trim() || saving) return
@@ -130,7 +215,6 @@ export function AnnKnowledgeView() {
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? "Error al guardar"); return }
       setItems(prev => [...prev, data.item])
-      setTitle(""); setContent(""); setPillar("general"); setSourceType("manual")
       setFormOpen(false)
     } finally { setSaving(false) }
   }
@@ -212,8 +296,8 @@ export function AnnKnowledgeView() {
             className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-sm font-medium text-foreground placeholder:text-foreground/25 focus:border-[#ffde21]/50 focus:outline-none focus:ring-2 focus:ring-[#ffde21]/10 transition"
           />
 
+          {/* Pillar + Source type */}
           <div className="grid grid-cols-2 gap-4">
-            {/* Pillar */}
             <div className="space-y-2">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Pilar</p>
               <div className="flex flex-wrap gap-1.5">
@@ -229,8 +313,6 @@ export function AnnKnowledgeView() {
                 ))}
               </div>
             </div>
-
-            {/* Source type */}
             <div className="space-y-2">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">Tipo</p>
               <div className="flex flex-wrap gap-1.5">
@@ -248,14 +330,87 @@ export function AnnKnowledgeView() {
             </div>
           </div>
 
+          {/* ── Drop zone ── */}
+          <div className="space-y-2">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">
+              Importar desde archivo
+            </p>
+
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef} type="file" accept={ACCEPTED_EXTS}
+              onChange={onFileInput} className="hidden"
+            />
+
+            {!uploadFile ? (
+              /* Drop zone */
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={e => { e.preventDefault(); setIsDragging(true) }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={onDrop}
+                className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-8 text-center transition-all ${
+                  isDragging
+                    ? "border-[#ffde21]/50 bg-[#ffde21]/[0.04]"
+                    : "border-foreground/[0.10] bg-foreground/[0.02] hover:border-[#ffde21]/30 hover:bg-[#ffde21]/[0.02]"
+                }`}>
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
+                  isDragging ? "bg-[#ffde21]/10" : "bg-foreground/[0.05]"
+                }`}>
+                  <Upload className={`h-5 w-5 transition-colors ${isDragging ? "text-[#ffde21]/70" : "text-foreground/25"}`} />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground/50">
+                    {isDragging ? "Soltá el archivo acá" : "Arrastrá o hacé click para subir"}
+                  </p>
+                  <p className="mt-1 text-xs text-foreground/25">PDF, DOCX, TXT, MD · máx. 10 MB</p>
+                </div>
+              </div>
+            ) : (
+              /* File selected */
+              <div className={`flex items-center gap-4 rounded-xl border px-4 py-3.5 transition-all ${
+                extractDone
+                  ? "border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06]"
+                  : "border-foreground/[0.08] bg-foreground/[0.04]"
+              }`}>
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                  extractDone ? "bg-emerald-500/10" : "bg-[#ffde21]/10"
+                }`}>
+                  {extracting
+                    ? <Loader2 className="h-5 w-5 animate-spin text-[#ffde21]/60" />
+                    : extractDone
+                      ? <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                      : <FileText className="h-5 w-5 text-[#ffde21]/60" />
+                  }
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">{uploadFile.name}</p>
+                  <p className="text-xs text-foreground/40 mt-0.5">
+                    {EXT_LABELS[uploadFile.name.split(".").pop()?.toLowerCase() ?? ""] ?? "Archivo"} · {fmtSize(uploadFile.size)}
+                    {extracting && <span className="ml-2 text-[#ffde21]/70">Extrayendo texto con IA…</span>}
+                    {extractDone && <span className="ml-2 text-emerald-600 dark:text-emerald-400">Texto extraído · podés editar abajo</span>}
+                  </p>
+                </div>
+                {!extracting && (
+                  <button
+                    onClick={() => { setUploadFile(null); setExtractDone(false) }}
+                    className="shrink-0 flex h-7 w-7 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground/70 hover:bg-foreground/[0.06] transition-all">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Content textarea */}
           <div className="relative">
             <textarea
               value={content} onChange={e => setContent(e.target.value)} rows={8}
-              placeholder="Pegá acá el contenido: metodología, transcripción de un video, un marco de trabajo, un SOP… todo lo que Ann enseñe."
+              placeholder="Pegá o escribí el contenido… o subí un archivo arriba para extraerlo automáticamente."
               className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-sm text-foreground placeholder:text-foreground/25 focus:border-[#ffde21]/50 focus:outline-none focus:ring-2 focus:ring-[#ffde21]/10 transition"
             />
             {content.length > 0 && (
-              <span className="absolute bottom-3 right-3 text-[10px] text-foreground/25 pointer-events-none">
+              <span className="pointer-events-none absolute bottom-3 right-3 text-[10px] text-foreground/25">
                 {content.length.toLocaleString()} chars
               </span>
             )}
@@ -268,7 +423,7 @@ export function AnnKnowledgeView() {
           )}
 
           <div className="flex justify-end">
-            <button onClick={add} disabled={saving || !title.trim() || !content.trim()}
+            <button onClick={add} disabled={saving || !title.trim() || !content.trim() || extracting}
               className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] active:scale-95 disabled:opacity-40">
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
               Agregar al cerebro
@@ -299,7 +454,6 @@ export function AnnKnowledgeView() {
               </button>
             ))}
           </div>
-
           <div className="relative shrink-0">
             <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/30" />
             <input
