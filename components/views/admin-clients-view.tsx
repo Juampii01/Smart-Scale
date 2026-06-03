@@ -1072,9 +1072,9 @@ function SummaryCards({ clients, viewMonth }: { clients: Client[], viewMonth: st
 
   const activeCount = clients.filter(c => c.status === "activo").length
 
-  // Clientes nuevos ese mes (created_at en el mes visto)
+  // Clientes nuevos ese mes (program_start en el mes visto)
   const newClientsCount = clients.filter(c => {
-    const d = new Date(c.created_at)
+    const d = new Date(c.program_start + (c.program_start.length === 10 ? "T12:00:00" : ""))
     return d.getMonth() === vm && d.getFullYear() === viewYear
   }).length
 
@@ -1160,9 +1160,9 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
   // Exclude churned/inactive clients from all cash calculations
   const activeClients = clients.filter(c => c.status !== "inactivo")
 
-  // New Cash: clients whose created_at is the viewed month
+  // New Cash: clients whose program_start is the viewed month
   const newClients = activeClients.filter(c => {
-    const d = new Date(c.created_at)
+    const d = new Date(c.program_start + (c.program_start.length === 10 ? "T12:00:00" : ""))
     return d.getMonth() === currentMonth && d.getFullYear() === currentYear
   })
 
@@ -1174,7 +1174,7 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
 
   // Old Cash: installments due this month from pre-existing clients
   const oldClients = activeClients.filter(c => {
-    const d = new Date(c.created_at)
+    const d = new Date(c.program_start + (c.program_start.length === 10 ? "T12:00:00" : ""))
     return !(d.getMonth() === currentMonth && d.getFullYear() === currentYear)
   })
 
