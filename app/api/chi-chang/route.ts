@@ -23,15 +23,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Faltan campos obligatorios." }, { status: 400 })
     }
 
-    // Resolve client name
-    let clientName = client_id
+    // Resolve client name: clients.nombre → clients.name (si no es email) → profiles.name → user.email
+    const isEmail = (s: string) => s.includes("@")
+    let clientName: string = client_id
+
     const { data: clientRow } = await supabase
       .from("clients")
-      .select("nombre")
+      .select("nombre, name")
       .eq("id", client_id)
       .maybeSingle()
 
-    if (clientRow?.nombre) clientName = clientRow.nombre
+    if (clientRow?.nombre && !isEmail(clientRow.nombre)) {
+      clientName = clientRow.nombre
+    } else if (clientRow?.name && !isEmail(clientRow.name)) {
+      clientName = clientRow.name
+    } else {
+      // Fallback: name from the authenticated user's profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("id", user.id)
+        .maybeSingle()
+      if ((profile as any)?.name) {
+        clientName = (profile as any).name
+      } else if (user.email) {
+        clientName = user.email
+      }
+    }
 
     // ── Persistir en la base (registro en el dashboard) ──────────────────────
     const { error: insErr } = await supabase.from("cha_ching").insert({
