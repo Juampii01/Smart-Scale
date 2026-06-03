@@ -1152,7 +1152,14 @@ function SummaryCards({ clients, viewMonth }: { clients: Client[], viewMonth: st
 
 // ─── New Cash / Old Cash ──────────────────────────────────────────────────────
 
+function fmtShortMonth(due_date: string) {
+  return new Date(due_date + "T12:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "short" })
+}
+
 function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: string }) {
+  const [showVencido,   setShowVencido]   = useState(true)
+  const [showPendiente, setShowPendiente] = useState(false)
+
   const [viewYear, viewMon] = viewMonth.split("-").map(Number)
   const currentMonth = viewMon - 1  // JS months 0-indexed
   const currentYear  = viewYear
@@ -1202,17 +1209,35 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
       .reduce((s, i) => s + i.amount, 0)
   , 0)
 
-  // Vencido: cuotas de meses ANTERIORES al visto que siguen sin pagar
-  const oldCashVencido = oldClients.reduce((sum, c) =>
-    sum + c.installments
-      .filter(i => {
-        if (i.paid_at) return false
-        const d = new Date(i.due_date + "T12:00:00")
-        const dy = d.getFullYear(), dm = d.getMonth()
-        return dy < currentYear || (dy === currentYear && dm < currentMonth)
-      })
-      .reduce((s, i) => s + i.amount, 0)
-  , 0)
+  // Vencido: cuotas de meses ANTERIORES al visto que siguen sin pagar (con detalle por cliente)
+  const vencidoByClient = oldClients
+    .map(c => {
+      const items = c.installments
+        .filter(i => {
+          if (i.paid_at) return false
+          const d = new Date(i.due_date + "T12:00:00")
+          return d.getFullYear() < currentYear || (d.getFullYear() === currentYear && d.getMonth() < currentMonth)
+        })
+        .sort((a, b) => a.due_date.localeCompare(b.due_date))
+      return items.length > 0 ? { name: c.name, items, total: items.reduce((s, i) => s + i.amount, 0) } : null
+    })
+    .filter((x): x is { name: string; items: Installment[]; total: number } => x !== null)
+    .sort((a, b) => a.name.localeCompare(b.name))
+
+  const oldCashVencido = vencidoByClient.reduce((s, c) => s + c.total, 0)
+
+  // Pendiente: cuotas de ESTE mes sin pagar (con detalle por cliente)
+  const pendienteDetails = oldClients
+    .flatMap(c =>
+      c.installments
+        .filter(i => {
+          if (i.paid_at) return false
+          const d = new Date(i.due_date + "T12:00:00")
+          return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+        })
+        .map(i => ({ name: c.name, due_date: i.due_date, amount: i.amount }))
+    )
+    .sort((a, b) => a.due_date.localeCompare(b.due_date))
 
   // Expected = lo que vence este mes (para el % de cobranza)
   const oldCashExpected = oldClients.reduce((sum, c) =>
@@ -1228,6 +1253,7 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
 
   const [vmY, vmM] = viewMonth.split("-").map(Number)
   const monthName = new Date(Date.UTC(vmY, vmM - 1, 15)).toLocaleDateString("es-AR", { month: "long", year: "numeric" })
+  const shortMonthName = monthName.split(" ")[0]
 
   return (
     <div className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-5">
@@ -1245,49 +1271,106 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
               ? `${newClients.length} cliente${newClients.length !== 1 ? "s" : ""} nuevo${newClients.length !== 1 ? "s" : ""} este mes`
               : "Sin clientes nuevos este mes"}
           </p>
+          {newClients.length > 0 && (
+            <div className="mt-2 space-y-1">
+              {newClients.map(c => {
+                const first = c.installments.find(i => i.installment_number === 1)
+                return (
+                  <div key={c.id} className="flex items-center justify-between text-[11px]">
+                    <span className="text-foreground/50 truncate max-w-[140px]">{c.name}</span>
+                    <span className="text-foreground/60 tabular-nums shrink-0">{fmtMoney(first?.amount ?? c.installment_amount)}</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
 
         {/* Old Cash */}
-        <div>
-          <p className="text-[11px] text-foreground/35 mb-1 font-semibold uppercase tracking-wider">Old Cash</p>
-          <p className="text-3xl font-bold text-foreground tabular-nums">{fmtMoney(oldCashCobrado)}</p>
-          <p className="text-[11px] text-foreground/30 mt-0.5">recibido de clientes anteriores</p>
-          <div className="mt-2.5 space-y-2">
-            {/* Vencido: cuotas de meses anteriores sin cobrar */}
-            {oldCashVencido > 0 && (
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] text-red-700 dark:text-red-400 uppercase tracking-wider font-semibold">
-                  ⚠ Vencido (meses ant.)
-                </span>
-                <span className="text-[13px] font-bold text-red-700 dark:text-red-400 tabular-nums">
-                  {fmtMoney(oldCashVencido)}
-                </span>
-              </div>
-            )}
-            {/* Pendiente: cuotas de este mes sin pagar */}
-            {oldCashPendiente > 0 && (
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] text-foreground/35 uppercase tracking-wider font-semibold">
-                  Pendiente ({monthName.split(" ")[0]})
-                </span>
-                <span className="text-[13px] font-semibold text-amber-700 dark:text-amber-300 tabular-nums">
-                  {fmtMoney(oldCashPendiente)}
-                </span>
-              </div>
-            )}
-            {/* Progress bar: % de cuotas de este mes cobradas */}
-            {oldCashExpected > 0 && (
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-1.5 rounded-full bg-foreground/[0.06] overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-                <span className="text-[10px] text-foreground/35 shrink-0 tabular-nums">{Math.round(pct)}% del mes</span>
-              </div>
-            )}
+        <div className="space-y-3">
+          <div>
+            <p className="text-[11px] text-foreground/35 mb-1 font-semibold uppercase tracking-wider">Old Cash</p>
+            <p className="text-3xl font-bold text-foreground tabular-nums">{fmtMoney(oldCashCobrado)}</p>
+            <p className="text-[11px] text-foreground/30 mt-0.5">recibido de clientes anteriores</p>
           </div>
+
+          {/* Vencido expandible */}
+          {oldCashVencido > 0 && (
+            <div className="rounded-xl border border-red-500/20 bg-red-50 dark:bg-red-500/[0.06] overflow-hidden">
+              <button
+                onClick={() => setShowVencido(v => !v)}
+                className="w-full flex items-center justify-between px-3 py-2 text-left"
+              >
+                <span className="text-[11px] font-bold uppercase tracking-wider text-red-700 dark:text-red-400">
+                  ⚠ Vencido meses anteriores
+                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[13px] font-bold text-red-700 dark:text-red-400 tabular-nums">{fmtMoney(oldCashVencido)}</span>
+                  <ChevronDown className={`h-3.5 w-3.5 text-red-500 transition-transform ${showVencido ? "rotate-180" : ""}`} />
+                </div>
+              </button>
+              {showVencido && (
+                <div className="border-t border-red-500/10 px-3 py-2 space-y-2">
+                  {vencidoByClient.map(({ name, items, total }) => (
+                    <div key={name}>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[12px] font-semibold text-foreground/80 truncate max-w-[160px]">{name}</span>
+                        <span className="text-[12px] font-bold text-red-700 dark:text-red-400 tabular-nums shrink-0">{fmtMoney(total)}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-x-3 mt-0.5">
+                        {items.map(i => (
+                          <span key={i.id} className="text-[10px] text-foreground/40">
+                            {fmtShortMonth(i.due_date)} · {fmtMoney(i.amount)}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Pendiente mes actual expandible */}
+          {oldCashPendiente > 0 && (
+            <div className="rounded-xl border border-amber-500/20 bg-amber-50 dark:bg-amber-500/[0.06] overflow-hidden">
+              <button
+                onClick={() => setShowPendiente(v => !v)}
+                className="w-full flex items-center justify-between px-3 py-2 text-left"
+              >
+                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 capitalize">
+                  Pendiente {shortMonthName}
+                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[13px] font-semibold text-amber-700 dark:text-amber-300 tabular-nums">{fmtMoney(oldCashPendiente)}</span>
+                  <ChevronDown className={`h-3.5 w-3.5 text-amber-500 transition-transform ${showPendiente ? "rotate-180" : ""}`} />
+                </div>
+              </button>
+              {showPendiente && (
+                <div className="border-t border-amber-500/10 px-3 py-2 space-y-1.5">
+                  {pendienteDetails.map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] text-foreground/60 truncate max-w-[150px]">{item.name}</span>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="text-[10px] text-foreground/35">vence {fmtShortMonth(item.due_date)}</span>
+                        <span className="text-[12px] font-semibold text-amber-700 dark:text-amber-300 tabular-nums">{fmtMoney(item.amount)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Progress bar */}
+          {oldCashExpected > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-1.5 rounded-full bg-foreground/[0.06] overflow-hidden">
+                <div className="h-full rounded-full bg-emerald-500 transition-all duration-500" style={{ width: `${pct}%` }} />
+              </div>
+              <span className="text-[10px] text-foreground/35 shrink-0 tabular-nums">{Math.round(pct)}% del mes</span>
+            </div>
+          )}
         </div>
 
       </div>
