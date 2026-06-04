@@ -5,6 +5,8 @@ import { isInternal } from "@/lib/auth/permissions"
 import { useState, useRef, useEffect } from "react"
 import { createClient } from "@/lib/supabase"
 import { Sparkles, Send, Loader2, User, Wrench } from "lucide-react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface Msg { role: "user" | "assistant"; content: string; tools?: string[] }
 
@@ -127,12 +129,40 @@ function AnaiContent() {
                   : <Sparkles className="h-4 w-4 text-black" />}
               </div>
               <div className={`min-w-0 max-w-[82%] ${m.role === "user" ? "text-right" : ""}`}>
-                <div className={`inline-block rounded-2xl px-4 py-2.5 text-[13.5px] leading-relaxed whitespace-pre-wrap ${
+                <div className={`inline-block rounded-2xl px-4 py-2.5 text-[13.5px] leading-relaxed ${
                   m.role === "user"
-                    ? "bg-[#ffde21] text-black font-medium"
+                    ? "bg-[#ffde21] text-black font-medium whitespace-pre-wrap"
                     : "bg-foreground/[0.04] text-foreground/90"
                 }`}>
-                  {m.content}
+                  {m.role === "user" ? m.content : (
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        p:          ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                        strong:     ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                        em:         ({ children }) => <em className="italic text-foreground/80">{children}</em>,
+                        ul:         ({ children }) => <ul className="mb-2 space-y-1 pl-4 list-disc marker:text-foreground/30">{children}</ul>,
+                        ol:         ({ children }) => <ol className="mb-2 space-y-1 pl-4 list-decimal marker:text-foreground/30">{children}</ol>,
+                        li:         ({ children }) => <li className="leading-snug">{children}</li>,
+                        h1:         ({ children }) => <h1 className="mb-2 text-base font-bold text-foreground">{children}</h1>,
+                        h2:         ({ children }) => <h2 className="mb-1.5 text-sm font-bold text-foreground">{children}</h2>,
+                        h3:         ({ children }) => <h3 className="mb-1 text-[13px] font-semibold text-foreground/80">{children}</h3>,
+                        hr:         () => <hr className="my-3 border-foreground/[0.08]" />,
+                        blockquote: ({ children }) => <blockquote className="border-l-2 border-[#ffde21]/40 pl-3 text-foreground/60 italic">{children}</blockquote>,
+                        code:       ({ children }) => <code className="rounded bg-foreground/[0.07] px-1 py-0.5 text-[12px] font-mono">{children}</code>,
+                        table:      ({ children }) => (
+                          <div className="my-2 overflow-x-auto rounded-xl border border-foreground/[0.08]">
+                            <table className="w-full text-[12.5px]">{children}</table>
+                          </div>
+                        ),
+                        thead: ({ children }) => <thead className="bg-foreground/[0.05]">{children}</thead>,
+                        th:    ({ children }) => <th className="px-3 py-2 text-left font-semibold text-foreground/70">{children}</th>,
+                        td:    ({ children }) => <td className="px-3 py-2 border-t border-foreground/[0.06] text-foreground/80">{children}</td>,
+                      }}
+                    >
+                      {m.content}
+                    </ReactMarkdown>
+                  )}
                 </div>
                 {m.tools && m.tools.length > 0 && (
                   <div className="mt-1.5 flex items-center gap-1.5 text-[10px] text-foreground/25">
