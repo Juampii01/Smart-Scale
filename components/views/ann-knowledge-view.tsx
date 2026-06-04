@@ -86,6 +86,17 @@ async function extractFile(file: File): Promise<{ text: string; title: string }>
   return { text: data.text ?? "", title: data.title ?? file.name.replace(/\.[^.]+$/, "") }
 }
 
+// ─── Types for multi-file queue ───────────────────────────────────────────────
+type FileStatus = "extracting" | "ready" | "error"
+interface QueuedFile {
+  id:      string
+  file:    File
+  title:   string
+  content: string
+  status:  FileStatus
+  error?:  string
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 export function AnnKnowledgeView() {
   const [items,   setItems]   = useState<Entry[]>([])
@@ -104,12 +115,16 @@ export function AnnKnowledgeView() {
   const [content,    setContent]    = useState("")
   const [saving,     setSaving]     = useState(false)
 
-  // File upload
+  // File upload — single mode
   const [uploadFile,   setUploadFile]   = useState<File | null>(null)
   const [extracting,   setExtracting]   = useState(false)
   const [extractDone,  setExtractDone]  = useState(false)
   const [isDragging,   setIsDragging]   = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Multi-file queue
+  const [queue,       setQueue]       = useState<QueuedFile[]>([])
+  const [batchSaving, setBatchSaving] = useState(false)
 
   // Edit (inline expand)
   const [expanded,    setExpanded]    = useState<string | null>(null)
@@ -135,6 +150,7 @@ export function AnnKnowledgeView() {
     if (!formOpen) {
       setTitle(""); setContent(""); setPillar("general"); setSourceType("manual")
       setUploadFile(null); setExtractDone(false); setError(null)
+      setQueue([])
     }
   }, [formOpen])
 
@@ -166,7 +182,6 @@ export function AnnKnowledgeView() {
     setSourceType("documento")
     setError(null)
 
-    // TXT/MD/CSV: extract client-side instantly
     const ext = file.name.split(".").pop()?.toLowerCase() ?? ""
     if (["txt", "md", "csv"].includes(ext)) {
       const text = await file.text()
@@ -176,7 +191,6 @@ export function AnnKnowledgeView() {
       return
     }
 
-    // PDF/DOCX: send to server
     setExtracting(true)
     try {
       const { text, title: suggestedTitle } = await extractFile(file)
@@ -191,16 +205,72 @@ export function AnnKnowledgeView() {
     }
   }
 
+  // Procesa varios archivos en paralelo y los agrega a la queue
+  const handleFiles = useCallback(async (files: File[]) => {
+    if (files.length === 1) { handleFile(files[0]); return }
+
+    const newItems: QueuedFile[] = files.map(f => ({
+      id:      crypto.randomUUID(),
+      file:    f,
+      title:   f.name.replace(/\.[^.]+$/, ""),
+      content: "",
+      status:  "extracting" as FileStatus,
+    }))
+    setQueue(newItems)
+    setSourceType("documento")
+
+    await Promise.all(newItems.map(async (item) => {
+      try {
+        const ext = item.file.name.split(".").pop()?.toLowerCase() ?? ""
+        let text = ""
+        if (["txt", "md", "csv"].includes(ext)) {
+          text = (await item.file.text()).trim()
+        } else {
+          const res = await extractFile(item.file)
+          text = res.text
+        }
+        setQueue(prev => prev.map(q =>
+          q.id === item.id ? { ...q, content: text, status: "ready" } : q
+        ))
+      } catch (e: any) {
+        setQueue(prev => prev.map(q =>
+          q.id === item.id ? { ...q, status: "error", error: e?.message ?? "Error" } : q
+        ))
+      }
+    }))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title])
+
   const onFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) handleFile(file)
+    const files = Array.from(e.target.files ?? [])
+    if (files.length > 0) handleFiles(files)
     e.target.value = ""
   }
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault(); setIsDragging(false)
-    const file = e.dataTransfer.files?.[0]
-    if (file) handleFile(file)
+    const files = Array.from(e.dataTransfer.files ?? [])
+    if (files.length > 0) handleFiles(files)
+  }
+
+  // Guarda todos los archivos listos de la queue
+  const addBatch = async () => {
+    const ready = queue.filter(q => q.status === "ready" && q.content.trim())
+    if (!ready.length || batchSaving) return
+    setBatchSaving(true)
+    try {
+      const results = await Promise.all(
+        ready.map(item =>
+          authedFetch("/api/admin/ann-knowledge", {
+            method: "POST",
+            body: JSON.stringify({ title: item.title, content: item.content, pillar, source_type: "documento" }),
+          }).then(r => r.json())
+        )
+      )
+      const newEntries = results.flatMap(d => d.item ? [d.item] : [])
+      setItems(prev => [...prev, ...newEntries])
+      setFormOpen(false)
+    } finally { setBatchSaving(false) }
   }
 
   // ── Actions ──────────────────────────────────────────────────────────────────
@@ -336,13 +406,13 @@ export function AnnKnowledgeView() {
               Importar desde archivo
             </p>
 
-            {/* Hidden file input */}
+            {/* Hidden file input — multiple */}
             <input
-              ref={fileInputRef} type="file" accept={ACCEPTED_EXTS}
+              ref={fileInputRef} type="file" accept={ACCEPTED_EXTS} multiple
               onChange={onFileInput} className="hidden"
             />
 
-            {!uploadFile ? (
+            {queue.length === 0 && !uploadFile ? (
               /* Drop zone */
               <div
                 onClick={() => fileInputRef.current?.click()}
@@ -361,13 +431,61 @@ export function AnnKnowledgeView() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-foreground/50">
-                    {isDragging ? "Soltá el archivo acá" : "Arrastrá o hacé click para subir"}
+                    {isDragging ? "Soltá los archivos acá" : "Arrastrá o hacé click para subir"}
                   </p>
-                  <p className="mt-1 text-xs text-foreground/25">PDF, DOCX, TXT, MD · máx. 10 MB</p>
+                  <p className="mt-1 text-xs text-foreground/25">PDF, DOCX, TXT, MD · máx. 10 MB · podés subir varios a la vez</p>
                 </div>
               </div>
+            ) : queue.length > 0 ? (
+              /* Multi-file queue */
+              <div className="space-y-2">
+                {queue.map(item => (
+                  <div key={item.id} className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-all ${
+                    item.status === "ready"      ? "border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06]"
+                    : item.status === "error"    ? "border-red-500/20 bg-red-50 dark:bg-red-500/[0.06]"
+                    : "border-foreground/[0.08] bg-foreground/[0.04]"
+                  }`}>
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                      item.status === "ready"   ? "bg-emerald-500/10"
+                      : item.status === "error" ? "bg-red-500/10"
+                      : "bg-[#ffde21]/10"
+                    }`}>
+                      {item.status === "extracting"
+                        ? <Loader2 className="h-4 w-4 animate-spin text-[#ffde21]/60" />
+                        : item.status === "ready"
+                          ? <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                          : <X className="h-4 w-4 text-red-600 dark:text-red-400" />
+                      }
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <input
+                        value={item.title}
+                        onChange={ev => setQueue(prev => prev.map(q => q.id === item.id ? { ...q, title: ev.target.value } : q))}
+                        className="w-full bg-transparent text-[13px] font-semibold text-foreground focus:outline-none truncate"
+                        disabled={item.status === "extracting"}
+                      />
+                      <p className="text-[11px] text-foreground/40 mt-0.5">
+                        {EXT_LABELS[item.file.name.split(".").pop()?.toLowerCase() ?? ""] ?? "Archivo"} · {fmtSize(item.file.size)}
+                        {item.status === "extracting" && <span className="ml-1.5 text-[#ffde21]/70">Extrayendo…</span>}
+                        {item.status === "ready"      && <span className="ml-1.5 text-emerald-600 dark:text-emerald-400">Listo</span>}
+                        {item.status === "error"      && <span className="ml-1.5 text-red-600 dark:text-red-400">{item.error}</span>}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setQueue(prev => prev.filter(q => q.id !== item.id))}
+                      className="shrink-0 flex h-6 w-6 items-center justify-center rounded-lg text-foreground/25 hover:text-foreground/60 hover:bg-foreground/[0.06] transition-all">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full rounded-xl border border-dashed border-foreground/[0.10] py-2 text-xs text-foreground/40 hover:border-foreground/20 hover:text-foreground/60 transition-all">
+                  + Agregar más archivos
+                </button>
+              </div>
             ) : (
-              /* File selected */
+              /* Single file selected */
               <div className={`flex items-center gap-4 rounded-xl border px-4 py-3.5 transition-all ${
                 extractDone
                   ? "border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06]"
@@ -384,9 +502,9 @@ export function AnnKnowledgeView() {
                   }
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{uploadFile.name}</p>
+                  <p className="text-sm font-semibold text-foreground truncate">{uploadFile!.name}</p>
                   <p className="text-xs text-foreground/40 mt-0.5">
-                    {EXT_LABELS[uploadFile.name.split(".").pop()?.toLowerCase() ?? ""] ?? "Archivo"} · {fmtSize(uploadFile.size)}
+                    {EXT_LABELS[uploadFile!.name.split(".").pop()?.toLowerCase() ?? ""] ?? "Archivo"} · {fmtSize(uploadFile!.size)}
                     {extracting && <span className="ml-2 text-[#ffde21]/70">Extrayendo texto con IA…</span>}
                     {extractDone && <span className="ml-2 text-emerald-600 dark:text-emerald-400">Texto extraído · podés editar abajo</span>}
                   </p>
@@ -402,19 +520,21 @@ export function AnnKnowledgeView() {
             )}
           </div>
 
-          {/* Content textarea */}
-          <div className="relative">
-            <textarea
-              value={content} onChange={e => setContent(e.target.value)} rows={8}
-              placeholder="Pegá o escribí el contenido… o subí un archivo arriba para extraerlo automáticamente."
-              className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-sm text-foreground placeholder:text-foreground/25 focus:border-[#ffde21]/50 focus:outline-none focus:ring-2 focus:ring-[#ffde21]/10 transition"
-            />
-            {content.length > 0 && (
-              <span className="pointer-events-none absolute bottom-3 right-3 text-[10px] text-foreground/25">
-                {content.length.toLocaleString()} chars
-              </span>
-            )}
-          </div>
+          {/* Content textarea — solo en modo single file */}
+          {queue.length === 0 && (
+            <div className="relative">
+              <textarea
+                value={content} onChange={e => setContent(e.target.value)} rows={8}
+                placeholder="Pegá o escribí el contenido… o subí un archivo arriba para extraerlo automáticamente."
+                className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-sm text-foreground placeholder:text-foreground/25 focus:border-[#ffde21]/50 focus:outline-none focus:ring-2 focus:ring-[#ffde21]/10 transition"
+              />
+              {content.length > 0 && (
+                <span className="pointer-events-none absolute bottom-3 right-3 text-[10px] text-foreground/25">
+                  {content.length.toLocaleString()} chars
+                </span>
+              )}
+            </div>
+          )}
 
           {error && (
             <p className="rounded-lg bg-red-50 dark:bg-red-500/10 px-3 py-2 text-xs text-red-700 dark:text-red-400">
@@ -423,11 +543,29 @@ export function AnnKnowledgeView() {
           )}
 
           <div className="flex justify-end">
-            <button onClick={add} disabled={saving || !title.trim() || !content.trim() || extracting}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] active:scale-95 disabled:opacity-40">
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
-              Agregar al cerebro
-            </button>
+            {queue.length > 0 ? (
+              /* Batch mode button */
+              <button
+                onClick={addBatch}
+                disabled={batchSaving || queue.every(q => q.status !== "ready") || queue.some(q => q.status === "extracting")}
+                className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] active:scale-95 disabled:opacity-40">
+                {batchSaving
+                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                  : <Brain className="h-4 w-4" />
+                }
+                {batchSaving
+                  ? "Guardando…"
+                  : `Agregar ${queue.filter(q => q.status === "ready").length} al cerebro`
+                }
+              </button>
+            ) : (
+              /* Single mode button */
+              <button onClick={add} disabled={saving || !title.trim() || !content.trim() || extracting}
+                className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] active:scale-95 disabled:opacity-40">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
+                Agregar al cerebro
+              </button>
+            )}
           </div>
         </div>
       )}
