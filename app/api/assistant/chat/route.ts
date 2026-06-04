@@ -42,9 +42,10 @@ ${METHOD}
 ══════ CÓMO TRABAJÁS ══════
 1. SIEMPRE usá las tools para traer datos antes de afirmar números. Nunca inventes cifras.
 2. Si el usuario habla de un cliente por nombre, usá list_clients para resolver su id.
-3. Cruzá los datos con la metodología: no digas "mejorá la oferta" (vago), decí qué pilar está flojo, por qué lo ves en los números, y la acción concreta.
-4. Sé breve y accionable. Números concretos, un foco claro.
-5. Si no hay datos cargados para algo, decilo con honestidad.
+3. Cuando necesités marcos, frameworks o estrategias específicas de Ann, usá search_knowledge con un término concreto (ej: "oferta", "contenido corto", "cierre", "prospección"). No cargues todo: buscá solo lo relevante para la pregunta.
+4. Cruzá los datos con la metodología: no digas "mejorá la oferta" (vago), decí qué pilar está flojo, por qué lo ves en los números, y la acción concreta.
+5. Sé breve y accionable. Números concretos, un foco claro.
+6. Si no hay datos cargados para algo, decilo con honestidad.
 
 ${activeClientId
   ? `══════ CONTEXTO ══════
@@ -87,10 +88,11 @@ ${METHOD}
 1. Usá el contexto de arriba para hablar de SU negocio específico desde el primer mensaje — no genérico.
 2. SIEMPRE usá las tools para traer SUS datos antes de afirmar números. Nunca inventes cifras.
 3. Referite a su negocio por nombre/nicho cuando lo conozcas. Es su asistente personal.
-4. Cruzá sus datos con la metodología: identificá qué pilar tiene flojo, por qué se ve en sus números, y la acción concreta para esta semana/mes.
-5. Sé breve y accionable. Un foco claro.
-6. Si todavía no cargó datos de algo, invitalo amablemente a cargarlos (reporte mensual, monday win, cha-ching) para que puedas ayudarlo mejor.
-7. NUNCA menciones a otros clientes, ni el sistema interno, ni datos que no sean de él. Solo su negocio.`
+4. Cuando necesités marcos o estrategias de Ann, usá search_knowledge con un término concreto. Solo buscá lo relevante para lo que te pregunta.
+5. Cruzá sus datos con la metodología: identificá qué pilar tiene flojo, por qué se ve en sus números, y la acción concreta para esta semana/mes.
+6. Sé breve y accionable. Un foco claro.
+7. Si todavía no cargó datos de algo, invitalo amablemente a cargarlos (reporte mensual, monday win, cha-ching) para que puedas ayudarlo mejor.
+8. NUNCA menciones a otros clientes, ni el sistema interno, ni datos que no sean de él. Solo su negocio.`
 }
 
 export async function POST(req: NextRequest) {
@@ -133,50 +135,25 @@ export async function POST(req: NextRequest) {
 
     const anthropic = new Anthropic({ apiKey })
 
-    // ── Cerebro de Ann + contexto del cliente (en paralelo) ──────────────────
-    let annBrain = ""
+    // ── Contexto del cliente (solo para rol cliente) ──────────────────────────
     let businessProfile: string | null = null
     let lastReport: Record<string, any> | null = null
 
-    const [knowledgeResult, clientContextResult] = await Promise.allSettled([
-      sb.from("ann_knowledge")
-        .select("title, content, pillar")
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true }),
-      !internal && ownClientId
-        ? Promise.all([
-            sb.from("clients")
-              .select("business_profile")
-              .eq("id", ownClientId)
-              .maybeSingle(),
-            sb.from("monthly_reports")
-              .select("month, total_revenue, mrr, new_clients, next_focus, biggest_win, support_needed")
-              .eq("client_id", ownClientId)
-              .order("month", { ascending: false })
-              .limit(1)
-              .maybeSingle(),
-          ])
-        : Promise.resolve(null),
-    ])
-
-    if (knowledgeResult.status === "fulfilled") {
-      const knowledge = knowledgeResult.value?.data
-      if (knowledge && knowledge.length > 0) {
-        annBrain =
-          "\n\n══════ BASE DE CONOCIMIENTO DE ANN ══════\n" +
-          "Usá esto como fuente de verdad de la metodología. Citá estos marcos cuando apliquen.\n\n" +
-          knowledge
-            .map((k: any) => `### ${k.title}${k.pillar && k.pillar !== "general" ? ` [${k.pillar}]` : ""}\n${k.content}`)
-            .join("\n\n")
-      }
-    } else {
-      console.error("[ann-ai] error cargando cerebro:", knowledgeResult.reason?.message)
-    }
-
-    if (clientContextResult.status === "fulfilled" && clientContextResult.value) {
-      const [profileRes, reportRes] = clientContextResult.value as any
-      businessProfile = profileRes?.data?.business_profile ?? null
-      lastReport = reportRes?.data ?? null
+    if (!internal && ownClientId) {
+      const [profileRes, reportRes] = await Promise.all([
+        sb.from("clients")
+          .select("business_profile")
+          .eq("id", ownClientId)
+          .maybeSingle(),
+        sb.from("monthly_reports")
+          .select("month, total_revenue, mrr, new_clients, next_focus, biggest_win, support_needed")
+          .eq("client_id", ownClientId)
+          .order("month", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+      ])
+      businessProfile = (profileRes as any)?.data?.business_profile ?? null
+      lastReport      = (reportRes as any)?.data ?? null
     }
 
     const messages: Anthropic.MessageParam[] = incoming
@@ -191,7 +168,7 @@ export async function POST(req: NextRequest) {
     const system: Anthropic.TextBlockParam[] = [
       {
         type: "text",
-        text: baseSystem + annBrain,
+        text: baseSystem,
         cache_control: { type: "ephemeral" },
       },
     ]

@@ -63,6 +63,22 @@ export function getToolDefinitions(isInternal: boolean) {
     },
   ]
 
+  // search_knowledge: disponible para todos los roles
+  tools.push({
+    name: "search_knowledge",
+    description:
+      "Busca en la base de conocimiento de Ann (metodología, marcos, frameworks, estrategias) por palabra clave o pilar. Usalo cuando necesitás contexto metodológico para responder: qué dice Ann sobre contenido, oferta, prospección, etc. Devuelve los fragmentos más relevantes.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        query:  { type: "string", description: "Término a buscar en título y contenido (ej: 'oferta', 'contenido corto', 'cierre')" },
+        pillar: { type: "string", description: "Filtrar por pilar: F, E, T, I, general (opcional)" },
+        limit:  { type: "number", description: "Cuántos resultados traer (default 4, máx 8)" },
+      },
+      required: ["query"],
+    },
+  })
+
   // list_clients solo para interno.
   if (isInternal) {
     tools.unshift({
@@ -141,6 +157,29 @@ export async function executeTool(
       if (error) return { error: error.message }
       if (!data || data.length === 0) return { mensaje: "No hay ventas (Cha-Ching) registradas todavía." }
       return data
+    }
+
+    case "search_knowledge": {
+      const query  = String(input.query ?? "").trim()
+      const pillar = typeof input.pillar === "string" ? input.pillar.trim() : null
+      const limit  = Math.min(8, Math.max(1, Number(input.limit) || 4))
+
+      if (!query) return { mensaje: "Necesito un término de búsqueda." }
+
+      let req = sb
+        .from("ann_knowledge")
+        .select("title, content, pillar")
+        .eq("is_active", true)
+        .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
+        .order("sort_order", { ascending: true })
+        .limit(limit)
+
+      if (pillar) req = req.eq("pillar", pillar)
+
+      const { data, error } = await req
+      if (error) return { error: error.message }
+      if (!data || data.length === 0) return { mensaje: `Sin resultados para "${query}" en el cerebro de Ann.` }
+      return data.map((k: any) => ({ title: k.title, pillar: k.pillar, content: k.content }))
     }
 
     default:
