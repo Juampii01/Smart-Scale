@@ -15,6 +15,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { isInternal } from "@/lib/auth/permissions"
 import { getToolDefinitions, executeTool } from "@/lib/assistant/tools"
+import { MAX_MESSAGES_PER_CONVERSATION } from "@/app/api/assistant/conversations/route"
 import Anthropic from "@anthropic-ai/sdk"
 
 export const runtime = "nodejs"
@@ -130,6 +131,31 @@ export async function POST(req: NextRequest) {
     const activeClientId   = internal ? (typeof body.client_id === "string" ? body.client_id : null) : ownClientId
     const activeClientName = typeof body.client_name === "string" ? body.client_name : null
 
+    // ── Conversación persistente ──────────────────────────────────────────────
+    const conversationId = typeof body.conversation_id === "string" ? body.conversation_id : null
+
+    if (conversationId) {
+      // Verificar que la conversación pertenece al usuario y chequear límite
+      const { data: conv } = await sb
+        .from("ann_conversations")
+        .select("id, messages, title")
+        .eq("id", conversationId)
+        .eq("user_id", user.id)
+        .maybeSingle()
+
+      if (!conv) {
+        return NextResponse.json({ error: "Conversación no encontrada." }, { status: 404 })
+      }
+
+      const existingCount = Array.isArray(conv.messages) ? conv.messages.length : 0
+      if (existingCount >= MAX_MESSAGES_PER_CONVERSATION) {
+        return NextResponse.json(
+          { error: `Límite de mensajes alcanzado (${MAX_MESSAGES_PER_CONVERSATION}). Iniciá una nueva conversación.`, limitReached: true },
+          { status: 429 },
+        )
+      }
+    }
+
     const apiKey = process.env.ANTHROPIC_API_KEY
     if (!apiKey) return NextResponse.json({ error: "ANTHROPIC_API_KEY no configurada" }, { status: 500 })
 
@@ -208,7 +234,38 @@ export async function POST(req: NextRequest) {
         .filter((b): b is Anthropic.TextBlock => b.type === "text")
         .map((b) => b.text)
         .join("")
-      return NextResponse.json({ reply: text, tools_used: toolsUsed })
+
+      // ── Guardar en DB si hay conversación activa ────────────────────────────
+      if (conversationId) {
+        // incoming ya tiene todos los mensajes incluyendo el nuevo del usuario;
+        // agregamos la respuesta del asistente.
+        const updatedMessages = [
+          ...incoming
+            .filter((m: any) => m.role === "user" || m.role === "assistant")
+            .map((m: any) => ({ role: m.role, content: m.content })),
+          { role: "assistant", content: text, tools: toolsUsed.length > 0 ? Array.from(new Set(toolsUsed)) : undefined },
+        ]
+
+        // Derivar título de la primera pregunta del usuario
+        const firstUserMsg = updatedMessages.find((m: any) => m.role === "user")
+        const derivedTitle = firstUserMsg
+          ? String(firstUserMsg.content).slice(0, 60) + (firstUserMsg.content.length > 60 ? "…" : "")
+          : null
+
+        const updatePayload: Record<string, any> = {
+          messages:   updatedMessages,
+          updated_at: new Date().toISOString(),
+        }
+        if (derivedTitle) updatePayload.title = derivedTitle
+
+        await sb
+          .from("ann_conversations")
+          .update(updatePayload)
+          .eq("id", conversationId)
+          .eq("user_id", user.id)
+      }
+
+      return NextResponse.json({ reply: text, tools_used: toolsUsed, conversation_id: conversationId })
     }
 
     return NextResponse.json({
