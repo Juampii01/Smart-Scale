@@ -53,6 +53,7 @@ interface Client {
   is_monthly_subscription: boolean
   status:              "activo" | "en_pausa" | "inactivo" | "completado"
   notes:              string | null
+  business_profile:   string | null
   created_at:         string
   updated_at:         string
   installments:       Installment[]
@@ -846,6 +847,20 @@ function DetailDrawer({
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) (e.target as HTMLTextAreaElement).blur() }}
                 className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <p className={labelCls}>Perfil del negocio (Ann AI)</p>
+              <textarea
+                key={client.id}
+                defaultValue={client.business_profile ?? ""}
+                placeholder={"Nicho, qué vende, avatar, contexto clave para Ann AI.\nEj: coach de nutrición para mujeres 30-45 años, vende programa grupal de 3 meses ($1.500), audiencia en Instagram."}
+                rows={4}
+                onBlur={e => onPatchClient(client.id, { business_profile: e.target.value || null } as any)}
+                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) (e.target as HTMLTextAreaElement).blur() }}
+                className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
+              />
+              <p className="text-[11px] text-foreground/40">Ann AI usa esto para hablar del negocio específico del cliente desde el primer mensaje.</p>
             </div>
           </div>
 

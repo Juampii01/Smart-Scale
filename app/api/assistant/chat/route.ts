@@ -21,7 +21,7 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
 
-const MODEL = process.env.ANAI_MODEL ?? "claude-sonnet-4-5"
+const MODEL = process.env.ANAI_MODEL ?? "claude-haiku-4-5-20251001"
 const MAX_TOOL_ROUNDS = 6
 
 const METHOD = `══════ METODOLOGÍA: EL ECOSISTEMA CIRCULAR ══════
@@ -53,20 +53,44 @@ El usuario está viendo al cliente: ${activeClientName ?? "(sin nombre)"} (clien
 No hay un cliente seleccionado. Si el usuario pregunta por uno puntual, usá list_clients para encontrarlo.`}`
 }
 
-function systemPromptClient(clientName: string | null): string {
+function systemPromptClient(
+  clientName: string | null,
+  businessProfile: string | null,
+  lastReport: Record<string, any> | null,
+): string {
+  const businessCtx = businessProfile
+    ? `\n\n══════ TU NEGOCIO ══════\n${businessProfile}`
+    : ""
+
+  let reportCtx = ""
+  if (lastReport) {
+    const lines: string[] = []
+    if (lastReport.month) lines.push(`Último reporte: ${lastReport.month}`)
+    if (lastReport.total_revenue != null) lines.push(`Revenue: $${lastReport.total_revenue}`)
+    if (lastReport.mrr != null) lines.push(`MRR: $${lastReport.mrr}`)
+    if (lastReport.new_clients != null) lines.push(`Nuevos clientes: ${lastReport.new_clients}`)
+    if (lastReport.next_focus) lines.push(`Foco declarado: "${lastReport.next_focus}"`)
+    if (lastReport.biggest_win) lines.push(`Mayor logro: "${lastReport.biggest_win}"`)
+    if (lastReport.support_needed) lines.push(`Necesita apoyo en: "${lastReport.support_needed}"`)
+    if (lines.length > 0) {
+      reportCtx = `\n\n══════ CONTEXTO RECIENTE ══════\n${lines.join("\n")}`
+    }
+  }
+
   return `Sos Ann AI, el asistente de inteligencia artificial del programa Smart Scale de Ann Sahakyan. Estás hablando DIRECTAMENTE con ${clientName ?? "el dueño/a"} sobre SU PROPIO negocio.
 
-Hablás en español rioplatense (vos), cálido pero directo, sin relleno motivacional vacío. Sos su coach personal de datos: lo ayudás a entender sus números y a saber en qué enfocarse, usando la metodología de Ann.
+Hablás en español rioplatense (vos), cálido pero directo, sin relleno motivacional vacío. Sos su coach personal de datos: lo ayudás a entender sus números y a saber en qué enfocarse, usando la metodología de Ann.${businessCtx}${reportCtx}
 
 ${METHOD}
 
 ══════ CÓMO TRABAJÁS ══════
-1. SIEMPRE usá las tools para traer SUS datos antes de afirmar números. Nunca inventes cifras.
-2. Hablале de "tu negocio", "tus números", "tu foco". Es su asistente personal.
-3. Cruzá sus datos con la metodología: identificá qué pilar tiene flojo, por qué se ve en sus números, y la acción concreta para esta semana/mes.
-4. Sé breve y accionable. Un foco claro.
-5. Si todavía no cargó datos de algo, invitalo amablemente a cargarlos (reporte mensual, monday win, cha-ching) para que puedas ayudarlo mejor.
-6. NUNCA menciones a otros clientes, ni el sistema interno, ni datos que no sean de él. Solo su negocio.`
+1. Usá el contexto de arriba para hablar de SU negocio específico desde el primer mensaje — no genérico.
+2. SIEMPRE usá las tools para traer SUS datos antes de afirmar números. Nunca inventes cifras.
+3. Referite a su negocio por nombre/nicho cuando lo conozcas. Es su asistente personal.
+4. Cruzá sus datos con la metodología: identificá qué pilar tiene flojo, por qué se ve en sus números, y la acción concreta para esta semana/mes.
+5. Sé breve y accionable. Un foco claro.
+6. Si todavía no cargó datos de algo, invitalo amablemente a cargarlos (reporte mensual, monday win, cha-ching) para que puedas ayudarlo mejor.
+7. NUNCA menciones a otros clientes, ni el sistema interno, ni datos que no sean de él. Solo su negocio.`
 }
 
 export async function POST(req: NextRequest) {
@@ -109,17 +133,65 @@ export async function POST(req: NextRequest) {
 
     const anthropic = new Anthropic({ apiKey })
 
+    // ── Cerebro de Ann + contexto del cliente (en paralelo) ──────────────────
+    let annBrain = ""
+    let businessProfile: string | null = null
+    let lastReport: Record<string, any> | null = null
+
+    const [knowledgeResult, clientContextResult] = await Promise.allSettled([
+      sb.from("ann_knowledge")
+        .select("title, content, pillar")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true }),
+      !internal && ownClientId
+        ? Promise.all([
+            sb.from("clients")
+              .select("business_profile")
+              .eq("id", ownClientId)
+              .maybeSingle(),
+            sb.from("monthly_reports")
+              .select("month, total_revenue, mrr, new_clients, next_focus, biggest_win, support_needed")
+              .eq("client_id", ownClientId)
+              .order("month", { ascending: false })
+              .limit(1)
+              .maybeSingle(),
+          ])
+        : Promise.resolve(null),
+    ])
+
+    if (knowledgeResult.status === "fulfilled") {
+      const knowledge = knowledgeResult.value?.data
+      if (knowledge && knowledge.length > 0) {
+        annBrain =
+          "\n\n══════ BASE DE CONOCIMIENTO DE ANN ══════\n" +
+          "Usá esto como fuente de verdad de la metodología. Citá estos marcos cuando apliquen.\n\n" +
+          knowledge
+            .map((k: any) => `### ${k.title}${k.pillar && k.pillar !== "general" ? ` [${k.pillar}]` : ""}\n${k.content}`)
+            .join("\n\n")
+      }
+    } else {
+      console.error("[ann-ai] error cargando cerebro:", knowledgeResult.reason?.message)
+    }
+
+    if (clientContextResult.status === "fulfilled" && clientContextResult.value) {
+      const [profileRes, reportRes] = clientContextResult.value as any
+      businessProfile = profileRes?.data?.business_profile ?? null
+      lastReport = reportRes?.data ?? null
+    }
+
     const messages: Anthropic.MessageParam[] = incoming
       .slice(-20)
       .filter((m: any) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
       .map((m: any) => ({ role: m.role, content: m.content }))
 
+    const baseSystem = internal
+      ? systemPromptInternal(activeClientId, activeClientName)
+      : systemPromptClient(activeClientName, businessProfile, lastReport)
+
     const system: Anthropic.TextBlockParam[] = [
       {
         type: "text",
-        text: internal
-          ? systemPromptInternal(activeClientId, activeClientName)
-          : systemPromptClient(activeClientName),
+        text: baseSystem + annBrain,
         cache_control: { type: "ephemeral" },
       },
     ]
