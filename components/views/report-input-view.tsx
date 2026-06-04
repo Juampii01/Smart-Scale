@@ -69,8 +69,10 @@ const FIELD_GROUPS = [
     label: "Email",
     color: "bg-blue-500",
     fields: [
-      { key: "email_subscribers",     label: "Suscriptores",         type: "number" },
+      { key: "email_subscribers",     label: "Total Subscribers",    type: "number" },
       { key: "email_new_subscribers", label: "Nuevos Suscriptores",  type: "number" },
+      { key: "email_sent",            label: "Emails Sent",          type: "number" },
+      { key: "email_open_rate",       label: "Open Rate (%)",        type: "number" },
     ],
   },
   {

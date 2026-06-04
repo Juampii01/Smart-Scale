@@ -99,11 +99,11 @@ export async function POST(req: NextRequest) {
 
     // ── 5. Fetch client name + previous state ─────────────────────────────────
     const [{ data: clientRow }, { data: existingRow }] = await Promise.all([
-      supabase.from("clients").select("nombre").eq("id", clientId).maybeSingle(),
+      supabase.from("clients").select("nombre,name").eq("id", clientId).maybeSingle(),
       supabase.from("monthly_reports").select("new_clients").eq("client_id", clientId).eq("month", monthValue).maybeSingle(),
     ])
 
-    const clientName: string | undefined = clientRow?.nombre ?? undefined
+    const clientName: string | undefined = clientRow?.nombre ?? clientRow?.name ?? undefined
 
     const prevNewClients = Number(existingRow?.new_clients ?? 0) || 0
     const nextNewClients = Number(reportRow.new_clients ?? 0) || 0
