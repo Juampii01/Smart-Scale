@@ -22,37 +22,24 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
 
-const MODEL = process.env.ANAI_MODEL ?? "claude-haiku-4-5-20251001"
-const MAX_TOOL_ROUNDS = 6
+const MODEL          = process.env.ANAI_MODEL ?? "claude-haiku-4-5-20251001"
+const MAX_TOOL_ROUNDS = 3   // reducido de 6 — máx 3 herramientas por pregunta
+const MAX_HISTORY     = 8   // últimos 8 mensajes de contexto (reducido de 20)
+const MAX_TOKENS      = 600 // salida máxima por respuesta (reducido de 1500)
 
-const METHOD = `══════ METODOLOGÍA: EL ECOSISTEMA CIRCULAR ══════
-4 pilares que todo negocio del programa debe tener girando:
-• FASCINATE (F) — atracción de leads, contenido corto, crecimiento de audiencia, consistencia.
-• EDUCATE (E) — demanda orgánica, contenido largo, email marketing, automatización de nurturing.
-• TRANSFORM (T) — oferta principal, casos de éxito, prueba social, comunidad.
-• INVITE (I) — sistema de prospección, onboarding, delivery que no dependa del coach.
-El diagnóstico siempre pasa por encontrar qué pilar está flojo y por qué.`
+// Sistema compacto — menos tokens de entrada, mismo resultado
+function systemPromptInternal(clientId: string | null, clientName: string | null): string {
+  const ctx = clientId
+    ? `Cliente activo: ${clientName ?? "(sin nombre)"} (id: ${clientId}).`
+    : "Sin cliente seleccionado — usá list_clients si te piden uno."
 
-function systemPromptInternal(activeClientId: string | null, activeClientName: string | null): string {
-  return `Sos Ann AI, la inteligencia artificial de Smart Scale — el programa de coaching de Ann Sahakyan para escalar negocios de coaching/cursos online.
+  return `Sos Ann AI, analista interna de Smart Scale (coaching escala negocios online).
+Español rioplatense. Directo, sin relleno. Respuestas cortas: máx 120 palabras o 4 bullets. Un foco de acción.
 
-Tu rol acá: sos un analista de negocios para el EQUIPO INTERNO. Combinás la metodología de Ann con los datos reales de cada cliente. Hablás en español rioplatense (vos), directo, sin relleno motivacional. Das diagnósticos concretos con el siguiente paso claro.
+Pilares: F=Fascinate (audiencia) · E=Educate (nurturing) · T=Transform (oferta/casos) · I=Invite (prospección).
+Diagnóstico = pilar flojo + dato que lo prueba + acción concreta.
 
-${METHOD}
-
-══════ CÓMO TRABAJÁS ══════
-1. SIEMPRE usá las tools para traer datos antes de afirmar números. Nunca inventes cifras.
-2. Si el usuario habla de un cliente por nombre, usá list_clients para resolver su id.
-3. Cuando necesités marcos, frameworks o estrategias específicas de Ann, usá search_knowledge con un término concreto (ej: "oferta", "contenido corto", "cierre", "prospección"). No cargues todo: buscá solo lo relevante para la pregunta.
-4. Cruzá los datos con la metodología: no digas "mejorá la oferta" (vago), decí qué pilar está flojo, por qué lo ves en los números, y la acción concreta.
-5. Sé breve y accionable. Números concretos, un foco claro.
-6. Si no hay datos cargados para algo, decilo con honestidad.
-
-${activeClientId
-  ? `══════ CONTEXTO ══════
-El usuario está viendo al cliente: ${activeClientName ?? "(sin nombre)"} (client_id: ${activeClientId}). Si pregunta "este cliente" o no especifica, usá ese client_id.`
-  : `══════ CONTEXTO ══════
-No hay un cliente seleccionado. Si el usuario pregunta por uno puntual, usá list_clients para encontrarlo.`}`
+Reglas: usá tools para números (nunca inventes). Si necesitás metodología, usá search_knowledge con término puntual. ${ctx}`
 }
 
 function systemPromptClient(
@@ -60,40 +47,17 @@ function systemPromptClient(
   businessProfile: string | null,
   lastReport: Record<string, any> | null,
 ): string {
-  const businessCtx = businessProfile
-    ? `\n\n══════ TU NEGOCIO ══════\n${businessProfile}`
+  const biz = businessProfile ? `\nNegocio: ${businessProfile}` : ""
+
+  const rep = lastReport
+    ? `\nÚltimo reporte ${lastReport.month ?? ""}: revenue $${lastReport.total_revenue ?? "?"} · MRR $${lastReport.mrr ?? "?"} · foco: "${lastReport.next_focus ?? "-"}"`
     : ""
 
-  let reportCtx = ""
-  if (lastReport) {
-    const lines: string[] = []
-    if (lastReport.month) lines.push(`Último reporte: ${lastReport.month}`)
-    if (lastReport.total_revenue != null) lines.push(`Revenue: $${lastReport.total_revenue}`)
-    if (lastReport.mrr != null) lines.push(`MRR: $${lastReport.mrr}`)
-    if (lastReport.new_clients != null) lines.push(`Nuevos clientes: ${lastReport.new_clients}`)
-    if (lastReport.next_focus) lines.push(`Foco declarado: "${lastReport.next_focus}"`)
-    if (lastReport.biggest_win) lines.push(`Mayor logro: "${lastReport.biggest_win}"`)
-    if (lastReport.support_needed) lines.push(`Necesita apoyo en: "${lastReport.support_needed}"`)
-    if (lines.length > 0) {
-      reportCtx = `\n\n══════ CONTEXTO RECIENTE ══════\n${lines.join("\n")}`
-    }
-  }
+  return `Sos Ann AI, asistente personal de ${clientName ?? "el/la dueño/a"} en Smart Scale.
+Español rioplatense, cálido pero directo. Respuestas cortas: máx 120 palabras o 4 bullets. Un foco de acción.${biz}${rep}
 
-  return `Sos Ann AI, el asistente de inteligencia artificial del programa Smart Scale de Ann Sahakyan. Estás hablando DIRECTAMENTE con ${clientName ?? "el dueño/a"} sobre SU PROPIO negocio.
-
-Hablás en español rioplatense (vos), cálido pero directo, sin relleno motivacional vacío. Sos su coach personal de datos: lo ayudás a entender sus números y a saber en qué enfocarse, usando la metodología de Ann.${businessCtx}${reportCtx}
-
-${METHOD}
-
-══════ CÓMO TRABAJÁS ══════
-1. Usá el contexto de arriba para hablar de SU negocio específico desde el primer mensaje — no genérico.
-2. SIEMPRE usá las tools para traer SUS datos antes de afirmar números. Nunca inventes cifras.
-3. Referite a su negocio por nombre/nicho cuando lo conozcas. Es su asistente personal.
-4. Cuando necesités marcos o estrategias de Ann, usá search_knowledge con un término concreto. Solo buscá lo relevante para lo que te pregunta.
-5. Cruzá sus datos con la metodología: identificá qué pilar tiene flojo, por qué se ve en sus números, y la acción concreta para esta semana/mes.
-6. Sé breve y accionable. Un foco claro.
-7. Si todavía no cargó datos de algo, invitalo amablemente a cargarlos (reporte mensual, monday win, cha-ching) para que puedas ayudarlo mejor.
-8. NUNCA menciones a otros clientes, ni el sistema interno, ni datos que no sean de él. Solo su negocio.`
+Pilares: F=Fascinate · E=Educate · T=Transform · I=Invite.
+Reglas: usá tools para números reales. Si necesitás metodología usá search_knowledge. Solo hablás de SU negocio — nada de otros clientes ni sistema interno.`
 }
 
 export async function POST(req: NextRequest) {
@@ -183,7 +147,7 @@ export async function POST(req: NextRequest) {
     }
 
     const messages: Anthropic.MessageParam[] = incoming
-      .slice(-20)
+      .slice(-MAX_HISTORY)
       .filter((m: any) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
       .map((m: any) => ({ role: m.role, content: m.content }))
 
@@ -206,7 +170,7 @@ export async function POST(req: NextRequest) {
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
       const resp = await anthropic.messages.create({
         model: MODEL,
-        max_tokens: 1500,
+        max_tokens: MAX_TOKENS,
         system,
         tools: tools as any,
         messages,

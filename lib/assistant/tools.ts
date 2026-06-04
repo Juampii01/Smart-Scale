@@ -73,7 +73,7 @@ export function getToolDefinitions(isInternal: boolean) {
       properties: {
         query:  { type: "string", description: "Término a buscar en título y contenido (ej: 'oferta', 'contenido corto', 'cierre')" },
         pillar: { type: "string", description: "Filtrar por pilar: F, E, T, I, general (opcional)" },
-        limit:  { type: "number", description: "Cuántos resultados traer (default 4, máx 8)" },
+        limit:  { type: "number", description: "Cuántos resultados traer (default 3, máx 5)" },
       },
       required: ["query"],
     },
@@ -162,7 +162,7 @@ export async function executeTool(
     case "search_knowledge": {
       const query  = String(input.query ?? "").trim()
       const pillar = typeof input.pillar === "string" ? input.pillar.trim() : null
-      const limit  = Math.min(8, Math.max(1, Number(input.limit) || 4))
+      const limit  = Math.min(5, Math.max(1, Number(input.limit) || 3))
 
       if (!query) return { mensaje: "Necesito un término de búsqueda." }
 
