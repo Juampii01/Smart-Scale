@@ -105,11 +105,17 @@ export async function POST(req: NextRequest) {
   let body: any = {}
   try { body = await req.json() } catch {}
 
+  // Validar client_id: debe ser UUID válido (36 chars, guiones en posición correcta)
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  const rawClientId = body.client_id
+  const safeClientId =
+    typeof rawClientId === "string" && UUID_REGEX.test(rawClientId) ? rawClientId : null
+
   const { data, error } = await sb
     .from("ann_conversations")
     .insert({
       user_id:   user.id,
-      client_id: body.client_id ?? null,
+      client_id: safeClientId,
       title:     "Nueva conversación",
       messages:  [],
       month,
@@ -118,7 +124,11 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ conversation: { ...data, message_count: 0 } })
+
+  const remaining = MAX_CONVERSATIONS_PER_MONTH - ((count ?? 0) + 1)
+  const response = NextResponse.json({ conversation: { ...data, message_count: 0 } })
+  response.headers.set("X-RateLimit-Remaining", String(Math.max(0, remaining)))
+  return response
 }
 
 /** DELETE — elimina una conversación del usuario */

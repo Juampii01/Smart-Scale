@@ -166,6 +166,10 @@ export async function executeTool(
 
       if (!query) return { mensaje: "Necesito un término de búsqueda." }
 
+      const VALID_PILLARS = ["F", "E", "T", "I", "general"]
+      const safePillar = pillar && VALID_PILLARS.includes(pillar) ? pillar : null
+      const invalidPillar = pillar !== null && pillar !== "" && !VALID_PILLARS.includes(pillar)
+
       let req = sb
         .from("ann_knowledge")
         .select("title, content, pillar")
@@ -174,12 +178,14 @@ export async function executeTool(
         .order("sort_order", { ascending: true })
         .limit(limit)
 
-      if (pillar) req = req.eq("pillar", pillar)
+      if (safePillar) req = req.eq("pillar", safePillar)
 
       const { data, error } = await req
       if (error) return { error: error.message }
       if (!data || data.length === 0) return { mensaje: `Sin resultados para "${query}" en el cerebro de Ann.` }
-      return data.map((k: any) => ({ title: k.title, pillar: k.pillar, content: k.content }))
+      const results = data.map((k: any) => ({ title: k.title, pillar: k.pillar, content: k.content }))
+      if (invalidPillar) return { results, hint: "Pilares válidos: F, E, T, I, general" }
+      return results
     }
 
     default:
