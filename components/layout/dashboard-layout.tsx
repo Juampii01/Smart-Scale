@@ -200,20 +200,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         if (userErr) throw userErr
         if (!user) return
 
-        // Interno (admin/developer/team/setter): habilitamos TODOS los meses que
-        // cualquier cliente cargó, para poder explorar libremente. Cliente: solo
-        // los meses de su propia cuenta.
+        // Regla: si hay un cliente activo (admin viendo cliente puntual, o cliente propio),
+        // filtramos por ese cliente. Solo cargamos meses globales cuando el admin
+        // no tiene ningún cliente seleccionado (exploración libre sin contexto).
         let rows: any[] | null = null
-        if (isAdmin) {
-          const res = await supabase
-            .from("monthly_reports")
-            .select("month")
-            .order("month", { ascending: true })
-          if (res.error) throw res.error
-          rows = res.data
-        } else {
-          const clientId = activeClientId
-          if (!clientId) return
+        const clientId = activeClientId
+
+        if (clientId) {
+          // Caso 1: hay cliente activo — admin o cliente, misma query
           const res = await supabase
             .from("monthly_reports")
             .select("month")
@@ -221,6 +215,17 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             .order("month", { ascending: true })
           if (res.error) throw res.error
           rows = res.data
+        } else if (isAdmin) {
+          // Caso 2: admin sin cliente seleccionado — meses globales para explorar
+          const res = await supabase
+            .from("monthly_reports")
+            .select("month")
+            .order("month", { ascending: true })
+          if (res.error) throw res.error
+          rows = res.data
+        } else {
+          // Caso 3: cliente sin client_id vinculado — nada que mostrar
+          return
         }
 
         const months = Array.from(
@@ -239,10 +244,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         setEnabledMonths(months)
 
-        // Auto-salto solo para clientes: si el mes seleccionado no tiene data,
-        // saltamos al más reciente disponible. Para internos NO saltamos —
-        // pueden navegar libremente todos los meses.
-        if (!isAdmin && months.length) {
+        // Auto-salto: si el mes seleccionado no tiene data para este cliente,
+        // ir al más reciente disponible. Aplica tanto a clientes como a admins
+        // con cliente activo.
+        if (months.length && clientId) {
           setSelectedMonth((prev) => months.includes(prev) ? prev : months[months.length - 1])
         }
       } catch (err) {
