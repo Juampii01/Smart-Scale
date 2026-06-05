@@ -89,10 +89,14 @@ function AnaiContent() {
     try {
       const res  = await authFetch("/api/assistant/conversations")
       const data = await res.json()
-      if (res.ok) {
-        setConversations(data.conversations ?? [])
-        setUsage(data.usage ?? null)
+      if (!res.ok) {
+        setError("Error al cargar el historial. Intentá recargar la página.")
+        return
       }
+      setConversations(data.conversations ?? [])
+      setUsage(data.usage ?? null)
+    } catch (e: any) {
+      setError(e?.message ?? "Error al cargar conversaciones.")
     } finally {
       setLoadingConvs(false)
     }
@@ -168,7 +172,7 @@ function AnaiContent() {
     const content = text.trim()
     if (!content || loading) return
 
-    // Si no hay conversación activa, crear una primero
+    // 1. Crear conversación si no existe
     let convId = activeConvId
     if (!convId) {
       setCreatingConv(true)
@@ -178,7 +182,10 @@ function AnaiContent() {
           body: JSON.stringify({ client_id: activeClientId }),
         })
         const data = await res.json()
-        if (!res.ok) { setError(data.error ?? "Error al crear conversación."); return }
+        if (!res.ok) {
+          setError(data.error ?? "Error al crear conversación.")
+          return
+        }
         const conv: Conv = { ...data.conversation }
         setConversations(prev => [conv, ...prev])
         setUsage(prev => prev ? { ...prev, used: prev.used + 1 } : prev)
@@ -189,11 +196,18 @@ function AnaiContent() {
       }
     }
 
+    // 2. Si falló la creación, convId sigue null → salir
+    if (!convId) return
+
+    // 3. Solo después de tener conversación: actualizar estado y enviar
     setError(null)
     const next = [...messages, { role: "user" as const, content }]
     setMessages(next)
     setInput("")
     setLoading(true)
+
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 55000)
 
     try {
       const token = await getToken()
@@ -208,6 +222,7 @@ function AnaiContent() {
           client_name:     activeClientName,
           conversation_id: convId,
         }),
+        signal: controller.signal,
       })
       const data = await res.json()
       if (!res.ok) {
@@ -231,8 +246,13 @@ function AnaiContent() {
         )
       }
     } catch (err: any) {
-      setError(err?.message ?? "Error inesperado.")
+      if (err.name === "AbortError") {
+        setError("La respuesta tardó demasiado. Intentá de nuevo.")
+      } else {
+        setError(err?.message ?? "Error inesperado.")
+      }
     } finally {
+      clearTimeout(timeout)
       setLoading(false)
     }
   }
@@ -355,7 +375,7 @@ function AnaiContent() {
 
       {/* ── Mensajes ──────────────────────────────────────────────────────── */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto rounded-2xl border border-foreground/[0.07] bg-card p-5 space-y-5">
-        {empty && !loading ? (
+        {empty ? (
           <div className="flex h-full flex-col items-center justify-center text-center px-6">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1a1a1d] to-[#0f0f10] border border-[#ffde21]/25 mb-4">
               <Sparkles className="h-6 w-6 text-[#ffde21]" />
