@@ -24,14 +24,16 @@ export const maxDuration = 60
 
 const MODEL          = process.env.ANAI_MODEL ?? "claude-haiku-4-5-20251001"
 const MAX_TOOL_ROUNDS = 3   // reducido de 6 — máx 3 herramientas por pregunta
-const MAX_HISTORY     = 8   // últimos 8 mensajes de contexto (reducido de 20)
-const MAX_TOKENS      = 600 // salida máxima por respuesta (reducido de 1500)
+const MAX_HISTORY     = 12  // últimos 12 mensajes de contexto
+const MAX_TOKENS      = 900 // salida máxima por respuesta
 
 // Sistema compacto — menos tokens de entrada, mismo resultado
-function systemPromptInternal(clientId: string | null, clientName: string | null): string {
+function systemPromptInternal(clientId: string | null, clientName: string | null, businessProfile: string | null = null): string {
   const ctx = clientId
     ? `Cliente activo: ${clientName ?? "(sin nombre)"} (id: ${clientId}).`
     : "Sin cliente seleccionado — usá list_clients si te piden uno."
+
+  const bizCtx = businessProfile ? `\nNegocio del cliente: ${businessProfile}` : ""
 
   return `Sos Ann AI, analista interna de Smart Scale (coaching escala negocios online).
 Español rioplatense. Directo, sin relleno. Respuestas cortas: máx 120 palabras o 4 bullets. Un foco de acción.
@@ -39,7 +41,7 @@ Español rioplatense. Directo, sin relleno. Respuestas cortas: máx 120 palabras
 Pilares: F=Fascinate (audiencia) · E=Educate (nurturing) · T=Transform (oferta/casos) · I=Invite (prospección).
 Diagnóstico = pilar flojo + dato que lo prueba + acción concreta.
 
-Reglas: usá tools para números (nunca inventes). Si necesitás metodología, usá search_knowledge con término puntual. ${ctx}`
+Reglas: usá tools para números (nunca inventes). Si necesitás metodología, usá search_knowledge con término puntual. ${ctx}${bizCtx}`
 }
 
 function systemPromptClient(
@@ -50,8 +52,8 @@ function systemPromptClient(
   const biz = businessProfile ? `\nNegocio: ${businessProfile}` : ""
 
   const rep = lastReport
-    ? `\nÚltimo reporte ${lastReport.month ?? ""}: revenue $${lastReport.total_revenue ?? "?"} · MRR $${lastReport.mrr ?? "?"} · foco: "${lastReport.next_focus ?? "-"}"`
-    : ""
+    ? `\nContexto reciente (${lastReport.month ?? ""}): revenue $${lastReport.total_revenue ?? "n/d"} · MRR $${lastReport.mrr ?? "n/d"}${lastReport.next_focus ? ` · foco: "${lastReport.next_focus}"` : ""}`
+    : "\nEs nuevo en el programa — aún no tiene reportes cargados."
 
   return `Sos Ann AI, asistente personal de ${clientName ?? "el/la dueño/a"} en Smart Scale.
 Español rioplatense, cálido pero directo. Respuestas cortas: máx 120 palabras o 4 bullets. Un foco de acción.${biz}${rep}
@@ -98,8 +100,12 @@ export async function POST(req: NextRequest) {
     // ── Conversación persistente ──────────────────────────────────────────────
     const conversationId = typeof body.conversation_id === "string" ? body.conversation_id : null
 
-    if (conversationId) {
-      // Verificar que la conversación pertenece al usuario y chequear límite
+    if (!conversationId) {
+      return NextResponse.json({ error: "conversation_id requerido." }, { status: 400 })
+    }
+
+    // Verificar que la conversación pertenece al usuario y chequear límite
+    {
       const { data: conv } = await sb
         .from("ann_conversations")
         .select("id, messages, title")
@@ -146,13 +152,24 @@ export async function POST(req: NextRequest) {
       lastReport      = (reportRes as any)?.data ?? null
     }
 
+    // Para internos con cliente activo: traer business_profile
+    let internalClientProfile: string | null = null
+    if (internal && activeClientId) {
+      const { data: cp } = await sb
+        .from("clients")
+        .select("business_profile")
+        .eq("id", activeClientId)
+        .maybeSingle()
+      internalClientProfile = (cp as any)?.business_profile ?? null
+    }
+
     const messages: Anthropic.MessageParam[] = incoming
       .slice(-MAX_HISTORY)
       .filter((m: any) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
       .map((m: any) => ({ role: m.role, content: m.content }))
 
     const baseSystem = internal
-      ? systemPromptInternal(activeClientId, activeClientName)
+      ? systemPromptInternal(activeClientId, activeClientName, internalClientProfile)
       : systemPromptClient(activeClientName, businessProfile, lastReport)
 
     const system: Anthropic.TextBlockParam[] = [
