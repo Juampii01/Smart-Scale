@@ -10,12 +10,13 @@ import { AnimatePresence } from "motion/react"
 import { Plus, CheckSquare } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase"
-import { KANBAN_COLUMNS } from "./constants"
+import { KANBAN_COLUMNS, TEAM_MEMBERS } from "./constants"
 import type { TaskColumnId } from "./constants"
 import { KanbanColumn } from "./KanbanColumn"
 import { TaskCard } from "./TaskCard"
 import type { Task } from "./TaskCard"
 import { TaskModal } from "./TaskModal"
+import { initials, avatarColor } from "./avatar"
 
 interface ApiTask {
   id:          string
@@ -61,6 +62,10 @@ export function KanbanBoard() {
   const [modalConfig, setModalConfig] = useState<{
     open: boolean; task?: Task | null; defaultColumnId?: TaskColumnId
   }>({ open: false })
+
+  // Filtros
+  const [filterDue,      setFilterDue]      = useState<null | "overdue" | "today">(null)
+  const [filterAssignee, setFilterAssignee] = useState<string | null>(null) // nombre o "__none__"
 
   const reorderTimerRef     = useRef<ReturnType<typeof setTimeout> | null>(null)
   const reorderPendingRef   = useRef<Task[] | null>(null)
@@ -384,6 +389,29 @@ export function KanbanBoard() {
     }
   }, [tasks])
 
+  // ── Métricas (sobre TODAS las tareas, no filtradas) ────────────────────────
+  const today = new Date().toISOString().slice(0, 10)
+  const isOverdue = (t: Task) => !!t.dueDate && t.dueDate < today && t.columnId !== "listo"
+  const isDueToday = (t: Task) => t.dueDate === today && t.columnId !== "listo"
+  const metrics = {
+    total:      tasks.length,
+    overdue:    tasks.filter(isOverdue).length,
+    today:      tasks.filter(isDueToday).length,
+    unassigned: tasks.filter(t => !t.assignedTo && t.columnId !== "listo").length,
+  }
+
+  // ── Tareas visibles según filtros ──────────────────────────────────────────
+  const visibleTasks = tasks.filter(t => {
+    if (filterDue === "overdue" && !isOverdue(t)) return false
+    if (filterDue === "today"   && !isDueToday(t)) return false
+    if (filterAssignee === "__none__" && t.assignedTo) return false
+    if (filterAssignee && filterAssignee !== "__none__" && t.assignedTo !== filterAssignee) return false
+    return true
+  })
+
+  const anyFilter = filterDue !== null || filterAssignee !== null
+  const clearFilters = () => { setFilterDue(null); setFilterAssignee(null) }
+
   if (loading) return <KanbanSkeleton />
   if (loadError && tasks.length === 0) return (
     <div className="flex items-center justify-center py-16 text-sm" style={{ color: "var(--muted-foreground)" }}>
@@ -411,6 +439,83 @@ export function KanbanBoard() {
         </button>
       </div>
 
+      {/* Barra de filtros + métricas */}
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+        {/* Chips de métricas (actúan como filtros rápidos) */}
+        <button
+          onClick={clearFilters}
+          className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
+            !anyFilter ? "bg-foreground/10 text-foreground" : "text-foreground/40 hover:bg-foreground/[0.05]"
+          }`}
+        >
+          Todas <span className="tabular-nums opacity-60">{metrics.total}</span>
+        </button>
+
+        <button
+          onClick={() => setFilterDue(d => d === "overdue" ? null : "overdue")}
+          disabled={metrics.overdue === 0}
+          className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all disabled:opacity-30 ${
+            filterDue === "overdue"
+              ? "bg-red-100 dark:bg-red-500/15 text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-500/30"
+              : "text-red-700/70 dark:text-red-400/70 hover:bg-red-500/[0.08]"
+          }`}
+        >
+          Vencidas <span className="tabular-nums">{metrics.overdue}</span>
+        </button>
+
+        <button
+          onClick={() => setFilterDue(d => d === "today" ? null : "today")}
+          disabled={metrics.today === 0}
+          className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all disabled:opacity-30 ${
+            filterDue === "today"
+              ? "bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 ring-1 ring-inset ring-amber-500/30"
+              : "text-amber-700/70 dark:text-amber-400/70 hover:bg-amber-500/[0.08]"
+          }`}
+        >
+          Hoy <span className="tabular-nums">{metrics.today}</span>
+        </button>
+
+        <button
+          onClick={() => setFilterAssignee(a => a === "__none__" ? null : "__none__")}
+          disabled={metrics.unassigned === 0}
+          className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all disabled:opacity-30 ${
+            filterAssignee === "__none__" ? "bg-foreground/10 text-foreground" : "text-foreground/40 hover:bg-foreground/[0.05]"
+          }`}
+        >
+          Sin asignar <span className="tabular-nums opacity-60">{metrics.unassigned}</span>
+        </button>
+
+        {/* Divisor */}
+        <div className="h-5 w-px mx-1" style={{ backgroundColor: "var(--border)" }} />
+
+        {/* Avatares para filtrar por persona */}
+        {TEAM_MEMBERS.map(m => {
+          const active = filterAssignee === m
+          return (
+            <button
+              key={m}
+              onClick={() => setFilterAssignee(a => a === m ? null : m)}
+              title={`Filtrar por ${m}`}
+              className={`flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold text-white transition-all ${
+                active ? "ring-2 ring-offset-1 ring-offset-[var(--background)]" : "opacity-50 hover:opacity-100"
+              }`}
+              style={{ backgroundColor: avatarColor(m), ...(active ? { boxShadow: `0 0 0 2px ${avatarColor(m)}` } : {}) }}
+            >
+              {initials(m)}
+            </button>
+          )
+        })}
+
+        {anyFilter && (
+          <button
+            onClick={clearFilters}
+            className="ml-1 text-xs text-foreground/40 hover:text-foreground/70 transition-colors"
+          >
+            Limpiar filtros
+          </button>
+        )}
+      </div>
+
       {/* Board */}
       <DndContext
         sensors={sensors}
@@ -421,7 +526,7 @@ export function KanbanBoard() {
       >
         <div className="grid grid-cols-3 gap-5 flex-1 min-h-0 overflow-x-auto xl:overflow-x-visible -mx-6 px-6 xl:mx-0 xl:px-0">
           {KANBAN_COLUMNS.map(col => {
-            const colTasks = tasks.filter(t => t.columnId === col.id).sort((a, b) => a.order - b.order)
+            const colTasks = visibleTasks.filter(t => t.columnId === col.id).sort((a, b) => a.order - b.order)
             return (
               <div key={col.id} className="shrink-0 xl:shrink w-[280px] xl:w-auto min-h-0 flex flex-col">
                 <KanbanColumn
