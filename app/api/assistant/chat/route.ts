@@ -16,6 +16,7 @@ import { createServiceClient } from "@/lib/supabase-service"
 import { isInternal } from "@/lib/auth/permissions"
 import { getToolDefinitions, executeTool } from "@/lib/assistant/tools"
 import { MAX_MESSAGES_PER_CONVERSATION } from "@/app/api/assistant/conversations/route"
+import { log } from "@/lib/logger"
 import Anthropic from "@anthropic-ai/sdk"
 
 export const runtime = "nodejs"
@@ -254,7 +255,7 @@ export async function POST(req: NextRequest) {
       tools_used: toolsUsed,
     })
   } catch (err: any) {
-    console.error("[ann-ai/chat] error:", err?.message ?? err)
+    await log.error("ann-ai/chat", err?.message ?? "Error interno", { stack: err?.stack?.slice(0, 300) })
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
   }
 }
