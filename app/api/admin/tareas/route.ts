@@ -7,13 +7,15 @@ import { z } from "zod"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
+const COLUMN_IDS = ["por-hacer", "en-proceso", "listo"] as const
+
 const CreateSchema = z.object({
-  title:       z.string().min(1),
+  title:       z.string().min(1).max(300),
   description: z.string().optional(),
   dueDate:     z.string().optional().nullable(),
   labelText:   z.string().optional(),
   labelColor:  z.string().optional(),
-  columnId:    z.string().optional(),
+  columnId:    z.enum(COLUMN_IDS).optional(),
   assignedTo:  z.string().optional().nullable(),
   order:       z.number().int().optional(),
 })

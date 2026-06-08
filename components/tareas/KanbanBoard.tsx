@@ -67,6 +67,8 @@ export function KanbanBoard() {
   // Snapshot del estado al iniciar el drag — para detectar qué cambió de verdad
   // (handleDragOver muta el estado en vivo, así que no podemos comparar contra prev)
   const dragStartSnapshotRef = useRef<Task[]>([])
+  // Ref espejo de activeTask para leerlo dentro del callback de Realtime
+  const isDraggingRef        = useRef(false)
 
   // Initial fetch
   useEffect(() => {
@@ -96,6 +98,40 @@ export function KanbanBoard() {
     return () => { if (reorderTimerRef.current) clearTimeout(reorderTimerRef.current) }
   }, [])
 
+  // Realtime: el tablero se sincroniza en vivo entre los miembros del equipo.
+  useEffect(() => {
+    const supabase = createClient()
+    const channel = supabase
+      .channel("kanban_tasks_realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "kanban_tasks" },
+        (payload) => {
+          // No pisar el estado mientras el usuario arrastra una tarjeta
+          if (isDraggingRef.current) return
+
+          if (payload.eventType === "DELETE") {
+            const oldId = (payload.old as { id?: string })?.id
+            if (oldId) setTasks(prev => prev.filter(t => t.id !== oldId))
+            return
+          }
+
+          // INSERT / UPDATE → reconciliar por id
+          const row = payload.new as ApiTask
+          if (!row?.id) return
+          const incoming = apiToUiTask(row)
+          setTasks(prev => {
+            const exists = prev.some(t => t.id === incoming.id)
+            if (exists) return prev.map(t => t.id === incoming.id ? incoming : t)
+            return [...prev, incoming]
+          })
+        }
+      )
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [])
+
   // Debounced batch reorder
   function scheduleBatchReorder(updatedTasks: Task[]) {
     reorderPendingRef.current = updatedTasks
@@ -123,6 +159,7 @@ export function KanbanBoard() {
   const handleDragStart = (event: DragStartEvent) => {
     const found = tasks.find(t => t.id === event.active.id)
     setActiveTask(found ?? null)
+    isDraggingRef.current = true
     // Guardar snapshot del estado antes de que dragOver lo mute
     dragStartSnapshotRef.current = tasks
   }
@@ -143,6 +180,7 @@ export function KanbanBoard() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     setActiveTask(null)
+    isDraggingRef.current = false
     if (!over) return
     const activeId = active.id as string
     const overId   = over.id   as string
@@ -251,7 +289,9 @@ export function KanbanBoard() {
         })
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const { task: apiTask } = await res.json() as { task: ApiTask }
-        setTasks(prev => [...prev, apiToUiTask(apiTask)])
+        const real = apiToUiTask(apiTask)
+        // Dedupe: por si Realtime ya insertó la misma tarea
+        setTasks(prev => [...prev.filter(t => t.id !== real.id), real])
         toast.success("Tarea creada")
       } catch (err) {
         toast.error(`Error al crear: ${err instanceof Error ? err.message : String(err)}`)
@@ -276,29 +316,33 @@ export function KanbanBoard() {
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const { task: apiTask } = await res.json() as { task: ApiTask }
-      setTasks(prev => prev.map(t => t.id === tempId ? apiToUiTask(apiTask) : t))
+      const real = apiToUiTask(apiTask)
+      // Reemplazar la temp y deduplicar por si Realtime ya insertó la real
+      setTasks(prev => [...prev.filter(t => t.id !== tempId && t.id !== real.id), real])
     } catch (err) {
-      setTasks(prev => prev.filter(t => !t.id.startsWith("temp-")))
+      setTasks(prev => prev.filter(t => t.id !== tempId))
       toast.error(`Error al crear: ${err instanceof Error ? err.message : String(err)}`)
     }
   }, [tasks])
 
   const handleComplete = useCallback(async (task: Task) => {
     const targetCol: TaskColumnId = task.columnId === "listo" ? "por-hacer" : "listo"
-    setTasks(prev => prev.map(t => t.id === task.id ? { ...t, columnId: targetCol } : t))
+    // La tarea va al FINAL de la columna destino — orden = cantidad actual ahí
+    const newOrder = tasks.filter(t => t.columnId === targetCol).length
+    setTasks(prev => prev.map(t => t.id === task.id ? { ...t, columnId: targetCol, order: newOrder } : t))
     const token = await getToken()
     try {
       const res = await fetch(`/api/admin/tareas/${task.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ columnId: targetCol }),
+        body: JSON.stringify({ columnId: targetCol, order: newOrder }),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
     } catch {
-      setTasks(prev => prev.map(t => t.id === task.id ? { ...t, columnId: task.columnId } : t))
+      setTasks(prev => prev.map(t => t.id === task.id ? { ...t, columnId: task.columnId, order: task.order } : t))
       toast.error("Error al actualizar tarea")
     }
-  }, [])
+  }, [tasks])
 
   const handleDelete = useCallback(async (id: string) => {
     const deleted = tasks.find(t => t.id === id)
