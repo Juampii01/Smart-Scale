@@ -549,7 +549,7 @@ export function KanbanBoard() {
           {KANBAN_COLUMNS.map(col => {
             const colTasks = visibleTasks.filter(t => t.columnId === col.id).sort((a, b) => a.order - b.order)
             return (
-              <div key={col.id} className="shrink-0 w-[300px] min-h-0 flex flex-col">
+              <div key={col.id} className="flex-1 min-w-[280px] min-h-0 flex flex-col">
                 <KanbanColumn
                   id={col.id}
                   title={col.label}
@@ -594,7 +594,7 @@ function KanbanSkeleton() {
   return (
     <div className="flex gap-4 flex-1 overflow-x-auto">
       {KANBAN_COLUMNS.map(col => (
-        <div key={col.id} className="shrink-0 w-[300px] flex flex-col gap-2">
+        <div key={col.id} className="flex-1 min-w-[280px] flex flex-col gap-2">
           <div className="flex items-center gap-2 mb-1 px-1">
             <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: col.color, opacity: 0.4 }} />
             <div className="h-3 w-20 rounded-full animate-pulse" style={{ backgroundColor: "var(--muted)" }} />
