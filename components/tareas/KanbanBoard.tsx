@@ -27,7 +27,10 @@ interface ApiTask {
   label_color: string
   column_id:   string
   priority:    string | null
+  assignees:   string[] | null
   assigned_to: string | null
+  subtasks:    { text: string; done: boolean }[] | null
+  blocked:     boolean | null
   created_by:  string | null
   order:       number
   created_at:  string
@@ -47,7 +50,9 @@ function apiToUiTask(t: ApiTask): Task {
     priority:    (t.priority as Task["priority"]) ?? "con-tiempo",
     createdAt:   t.created_at,
     order:       t.order,
-    assignedTo:  t.assigned_to ?? undefined,
+    assignees:   t.assignees ?? (t.assigned_to ? [t.assigned_to] : []),
+    subtasks:    t.subtasks ?? [],
+    blocked:     t.blocked ?? false,
   }
 }
 
@@ -267,7 +272,9 @@ export function KanbanBoard() {
             labelColor:  data.label?.color ?? "",
             columnId:    data.columnId,
             priority:    data.priority ?? "con-tiempo",
-            assignedTo:  data.assignedTo ?? null,
+            assignees:   data.assignees ?? [],
+            subtasks:    data.subtasks ?? [],
+            blocked:     data.blocked ?? false,
           }),
         })
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -292,7 +299,9 @@ export function KanbanBoard() {
             labelColor:  data.label?.color ?? "",
             columnId:    data.columnId,
             priority:    data.priority ?? "con-tiempo",
-            assignedTo:  data.assignedTo ?? null,
+            assignees:   data.assignees ?? [],
+            subtasks:    data.subtasks ?? [],
+            blocked:     data.blocked ?? false,
             order:       colTasks.length,
           }),
         })
@@ -313,7 +322,7 @@ export function KanbanBoard() {
     if (!trimmed) return
     const colTasks = tasks.filter(t => t.columnId === columnId)
     const tempId   = `temp-${Date.now()}`
-    const optimistic: Task = { id: tempId, title: trimmed, columnId, order: colTasks.length, createdAt: new Date().toISOString() }
+    const optimistic: Task = { id: tempId, title: trimmed, columnId, order: colTasks.length, createdAt: new Date().toISOString(), priority: "con-tiempo", assignees: [], subtasks: [], blocked: false }
     setTasks(prev => [...prev, optimistic])
     toast.success("Tarea creada")
     const token = await getToken()
@@ -373,6 +382,10 @@ export function KanbanBoard() {
                 labelText:   deleted.label?.text  ?? "",
                 labelColor:  deleted.label?.color ?? "",
                 columnId:    deleted.columnId,
+                priority:    deleted.priority ?? "con-tiempo",
+                assignees:   deleted.assignees ?? [],
+                subtasks:    deleted.subtasks ?? [],
+                blocked:     deleted.blocked ?? false,
                 order:       deleted.order,
               }),
             })
@@ -401,15 +414,15 @@ export function KanbanBoard() {
     total:      tasks.length,
     overdue:    tasks.filter(isOverdue).length,
     today:      tasks.filter(isDueToday).length,
-    unassigned: tasks.filter(t => !t.assignedTo && t.columnId !== "listo").length,
+    unassigned: tasks.filter(t => t.assignees.length === 0 && t.columnId !== "listo").length,
   }
 
   // ── Tareas visibles según filtros ──────────────────────────────────────────
   const visibleTasks = tasks.filter(t => {
     if (filterDue === "overdue" && !isOverdue(t)) return false
     if (filterDue === "today"   && !isDueToday(t)) return false
-    if (filterAssignee === "__none__" && t.assignedTo) return false
-    if (filterAssignee && filterAssignee !== "__none__" && t.assignedTo !== filterAssignee) return false
+    if (filterAssignee === "__none__" && t.assignees.length > 0) return false
+    if (filterAssignee && filterAssignee !== "__none__" && !t.assignees.includes(filterAssignee)) return false
     return true
   })
 

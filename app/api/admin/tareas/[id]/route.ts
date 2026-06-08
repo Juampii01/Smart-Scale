@@ -7,7 +7,9 @@ import { z } from "zod"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-const COLUMN_IDS = ["por-hacer", "en-proceso", "listo"] as const
+const COLUMN_IDS = ["por-hacer", "en-proceso", "en-revision", "listo"] as const
+
+const SubtaskSchema = z.object({ text: z.string(), done: z.boolean() })
 
 const UpdateSchema = z.object({
   title:       z.string().min(1).max(300).optional(),
@@ -17,7 +19,9 @@ const UpdateSchema = z.object({
   labelColor:  z.string().optional(),
   columnId:    z.enum(COLUMN_IDS).optional(),
   priority:    z.enum(["urgente", "importante", "con-tiempo"]).optional(),
-  assignedTo:  z.string().optional().nullable(),
+  assignees:   z.array(z.string()).optional(),
+  subtasks:    z.array(SubtaskSchema).optional(),
+  blocked:     z.boolean().optional(),
   order:       z.number().int().optional(),
 })
 
@@ -47,20 +51,24 @@ export async function PATCH(
         label_color: rest.labelColor,
         column_id:   rest.columnId,
         priority:    rest.priority,
-        assigned_to: rest.assignedTo,
+        assignees:   rest.assignees,
+        subtasks:    rest.subtasks,
+        blocked:     rest.blocked,
         order:       rest.order,
       }).filter(([, v]) => v !== undefined)
     ),
     updated_at: new Date().toISOString(),
   }
   if (dueDate !== undefined) updateData.due_date = dueDate ?? null
+  // Mantener assigned_to (legacy) sincronizado con el primer asignado
+  if (rest.assignees !== undefined) updateData.assigned_to = rest.assignees[0] ?? null
 
   const sb = createServiceClient()
 
   // Leer estado anterior para detectar cambios de columna / asignación
   const { data: before } = await sb
     .from("kanban_tasks")
-    .select("column_id, assigned_to")
+    .select("column_id, assignees")
     .eq("id", id)
     .maybeSingle()
 
@@ -78,21 +86,24 @@ export async function PATCH(
   //  · completar (mover a Listo)
   //  · asignar a alguien
   const triggeredBy = (user as { email?: string; id: string }).email ?? user.id
+  const assigneesStr = (data.assignees ?? []).join(" y ") || null
   try {
     const completedNow = before && before.column_id !== "listo" && data.column_id === "listo"
     if (completedNow) {
       await zapierTaskEvent({
         event_type: "task.completed", task_id: data.id, title: data.title,
-        triggered_by: triggeredBy, assigned_to: data.assigned_to,
+        triggered_by: triggeredBy, assigned_to: assigneesStr,
         label: data.label_text || null, priority: data.priority || null,
       })
     }
-    // Asignación nueva o cambiada
-    const assigneeChanged = before && before.assigned_to !== data.assigned_to && data.assigned_to
+    // Asignación: cambió la lista de asignados y ahora hay al menos uno
+    const beforeArr = (before?.assignees ?? []) as string[]
+    const afterArr  = (data.assignees ?? []) as string[]
+    const assigneeChanged = JSON.stringify(beforeArr) !== JSON.stringify(afterArr) && afterArr.length > 0
     if (assigneeChanged) {
       await zapierTaskEvent({
         event_type: "task.assigned", task_id: data.id, title: data.title,
-        triggered_by: triggeredBy, assigned_to: data.assigned_to,
+        triggered_by: triggeredBy, assigned_to: afterArr.join(" y "),
         label: data.label_text || null, priority: data.priority || null,
         due_date: data.due_date,
       })

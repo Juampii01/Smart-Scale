@@ -1,4 +1,4 @@
-export type TaskColumnId = "por-hacer" | "en-proceso" | "listo"
+export type TaskColumnId = "por-hacer" | "en-proceso" | "en-revision" | "listo"
 
 export const KANBAN_COLUMNS: {
   id: TaskColumnId
@@ -7,6 +7,7 @@ export const KANBAN_COLUMNS: {
 }[] = [
   { id: "por-hacer",   label: "Por hacer",   color: "var(--muted-foreground)" },
   { id: "en-proceso",  label: "En proceso",  color: "#F59E0B" },
+  { id: "en-revision", label: "En revisión", color: "#8B5CF6" },
   { id: "listo",       label: "Listo",       color: "#22C55E" },
 ]
 

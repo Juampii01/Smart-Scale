@@ -2,11 +2,13 @@
 
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { Calendar, CheckCircle2, Circle, AlignLeft } from "lucide-react"
+import { Calendar, CheckSquare, Flag, Ban, MessageSquare, Paperclip } from "lucide-react"
 import { LabelBadge } from "./LabelBadge"
 import { initials, avatarColor } from "./avatar"
 import { PRIORITY_BY_ID } from "./constants"
 import type { TaskColumnId } from "./constants"
+
+export interface Subtask { text: string; done: boolean }
 
 export interface Task {
   id: string
@@ -14,11 +16,15 @@ export interface Task {
   description?: string
   dueDate?: string
   label?: { text: string; color: string }
-  priority?: "urgente" | "importante" | "con-tiempo"
+  priority: "urgente" | "importante" | "con-tiempo"
   columnId: TaskColumnId
   createdAt: string
   order: number
-  assignedTo?: string
+  assignees: string[]
+  subtasks: Subtask[]
+  blocked: boolean
+  commentsCount?: number
+  attachmentsCount?: number
 }
 
 interface TaskCardProps {
@@ -52,7 +58,12 @@ export function TaskCard({ task, onClick, onComplete, isOverlay = false }: TaskC
     ? new Date(task.dueDate + "T00:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "short" })
     : null
 
-  const hasFooter = Boolean(dueDateFormatted || task.assignedTo || task.description)
+  const prio   = PRIORITY_BY_ID[task.priority] ?? PRIORITY_BY_ID["con-tiempo"]
+  const subs   = task.subtasks ?? []
+  const done   = subs.filter(s => s.done).length
+  const total  = subs.length
+  const pct    = total ? Math.round((done / total) * 100) : 0
+  const people = task.assignees ?? []
 
   const style = isDragging
     ? {
@@ -76,84 +87,91 @@ export function TaskCard({ task, onClick, onComplete, isOverlay = false }: TaskC
       {...(isOverlay ? {} : attributes)}
       {...(isOverlay ? {} : listeners)}
       style={style}
-      className="group relative rounded-lg border p-2.5 cursor-grab active:cursor-grabbing transition-shadow hover:shadow-[0_2px_10px_-2px_rgba(0,0,0,0.18)]"
+      className="group relative overflow-hidden rounded-xl border pl-3.5 pr-3 py-3 cursor-grab active:cursor-grabbing transition-shadow hover:shadow-[0_6px_20px_-6px_rgba(0,0,0,0.3)]"
       onClick={() => onClick(task)}
     >
-      {/* Top row: prioridad + label + completion toggle */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-1.5 min-w-0">
-          {task.priority && task.priority !== "con-tiempo" && PRIORITY_BY_ID[task.priority] && (
-            <span
-              className="h-2 w-2 rounded-full shrink-0"
-              style={{ backgroundColor: PRIORITY_BY_ID[task.priority].color }}
-              title={PRIORITY_BY_ID[task.priority].label}
-            />
-          )}
-          {task.label && <LabelBadge label={task.label} small />}
-        </div>
-        <button
-          className="shrink-0 -mt-0.5 -mr-0.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-          title={isDone ? "Mover a Por hacer" : "Marcar como listo"}
-          onPointerDown={e => e.stopPropagation()}
-          onClick={e => { e.stopPropagation(); onComplete(task) }}
-        >
-          {isDone
-            ? <CheckCircle2 size={15} style={{ color: "#22C55E" }} />
-            : <Circle      size={15} style={{ color: "var(--muted-foreground)", opacity: 0.35 }} />
-          }
-        </button>
+      {/* Barra de prioridad lateral */}
+      <span
+        className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full"
+        style={{ backgroundColor: prio.color }}
+      />
+
+      {/* Top row: etiqueta + bandera de prioridad */}
+      <div className="flex items-center justify-between gap-2 mb-2">
+        {task.label
+          ? <LabelBadge label={task.label} small />
+          : <span />
+        }
+        <span className="flex items-center gap-1 text-[10.5px] font-semibold shrink-0" style={{ color: prio.color }}>
+          <Flag size={11} /> {prio.label}
+        </span>
       </div>
 
-      {/* Title */}
+      {/* Title (con badge BLOQUEADA) */}
       <p
-        className={`text-[13px] font-medium leading-snug ${task.label ? "mt-1.5" : "mt-0.5"}`}
+        className="text-[13.5px] font-medium leading-snug"
         style={{
           color:          "var(--foreground)",
           textDecoration: isDone ? "line-through" : "none",
-          opacity:        isDone ? 0.5 : 1,
+          opacity:        isDone ? 0.55 : 1,
         }}
       >
+        {task.blocked && (
+          <span
+            className="inline-flex items-center gap-1 text-[9.5px] font-bold uppercase tracking-wide rounded mr-1.5 px-1.5 py-0.5 align-middle text-red-700 dark:text-red-400"
+            style={{ backgroundColor: "color-mix(in srgb, #ef4444 12%, transparent)", border: "1px solid color-mix(in srgb, #ef4444 30%, transparent)" }}
+          >
+            <Ban size={9} /> Bloqueada
+          </span>
+        )}
         {task.title}
       </p>
 
-      {/* Footer meta */}
-      {hasFooter && (
-        <div className="flex items-center gap-2 mt-2.5">
-          {dueDateFormatted && (
-            <div
-              className="flex items-center gap-1 rounded-md px-1.5 py-0.5"
-              style={{
-                backgroundColor: isOverdue
-                  ? "color-mix(in srgb, #ef4444 12%, transparent)"
-                  : isToday
-                    ? "color-mix(in srgb, #F59E0B 14%, transparent)"
-                    : "var(--muted)",
-              }}
-            >
-              <Calendar size={10} style={{ color: dueDateColor }} />
-              <span className="text-[10.5px] font-medium" style={{ color: dueDateColor }}>
-                {isOverdue ? `${dueDateFormatted} · vencida` : isToday ? "Hoy" : dueDateFormatted}
-              </span>
-            </div>
-          )}
-
-          {/* Description indicator */}
-          {task.description && (
-            <AlignLeft size={12} style={{ color: "var(--muted-foreground)", opacity: 0.5 }} />
-          )}
-
-          {/* Assignee avatar */}
-          {task.assignedTo && (
-            <div
-              className="ml-auto flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold text-white shrink-0"
-              style={{ backgroundColor: avatarColor(task.assignedTo) }}
-              title={task.assignedTo}
-            >
-              {initials(task.assignedTo)}
-            </div>
-          )}
+      {/* Progreso de subtareas */}
+      {total > 0 && (
+        <div className="mt-2.5">
+          <div className="flex items-center justify-between text-[10.5px] mb-1" style={{ color: "var(--muted-foreground)" }}>
+            <span className="flex items-center gap-1"><CheckSquare size={11} /> {done}/{total}</span>
+            <span>{pct}%</span>
+          </div>
+          <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: "var(--muted)" }}>
+            <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: pct === 100 ? "#22C55E" : "#ffde21" }} />
+          </div>
         </div>
       )}
+
+      {/* Footer: fecha + comentarios/adjuntos + avatares */}
+      <div className="flex items-center justify-between mt-2.5">
+        <div className="flex items-center gap-2.5 text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+          {dueDateFormatted && (
+            <span className="flex items-center gap-1 font-medium" style={{ color: dueDateColor }}>
+              <Calendar size={11} /> {isOverdue ? `${dueDateFormatted}` : isToday ? "Hoy" : dueDateFormatted}
+            </span>
+          )}
+          {!!task.commentsCount && (
+            <span className="flex items-center gap-1"><MessageSquare size={11} /> {task.commentsCount}</span>
+          )}
+          {!!task.attachmentsCount && (
+            <span className="flex items-center gap-1"><Paperclip size={11} /> {task.attachmentsCount}</span>
+          )}
+        </div>
+
+        {/* Avatares apilados */}
+        {people.length > 0 && (
+          <div className="flex">
+            {people.map((p, i) => (
+              <div
+                key={p}
+                className="flex h-5 w-5 items-center justify-center rounded-full text-[8.5px] font-bold text-white"
+                style={{ backgroundColor: avatarColor(p), marginLeft: i ? -7 : 0, border: "2px solid var(--card)" }}
+                title={p}
+              >
+                {initials(p)}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -7,7 +7,9 @@ import { z } from "zod"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-const COLUMN_IDS = ["por-hacer", "en-proceso", "listo"] as const
+const COLUMN_IDS = ["por-hacer", "en-proceso", "en-revision", "listo"] as const
+
+const SubtaskSchema = z.object({ text: z.string(), done: z.boolean() })
 
 const CreateSchema = z.object({
   title:       z.string().min(1).max(300),
@@ -17,7 +19,9 @@ const CreateSchema = z.object({
   labelColor:  z.string().optional(),
   columnId:    z.enum(COLUMN_IDS).optional(),
   priority:    z.enum(["urgente", "importante", "con-tiempo"]).optional(),
-  assignedTo:  z.string().optional().nullable(),
+  assignees:   z.array(z.string()).optional(),
+  subtasks:    z.array(SubtaskSchema).optional(),
+  blocked:     z.boolean().optional(),
   order:       z.number().int().optional(),
 })
 
@@ -48,8 +52,9 @@ export async function POST(req: NextRequest) {
   const parsed = CreateSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: "Invalid request" }, { status: 400 })
 
-  const { title, description, dueDate, labelText, labelColor, columnId, priority, assignedTo, order } = parsed.data
+  const { title, description, dueDate, labelText, labelColor, columnId, priority, assignees, subtasks, blocked, order } = parsed.data
   const resolvedColumnId = columnId ?? "por-hacer"
+  const resolvedAssignees = assignees ?? []
 
   const sb = createServiceClient()
 
@@ -71,7 +76,10 @@ export async function POST(req: NextRequest) {
       label_color: labelColor ?? "",
       column_id:   resolvedColumnId,
       priority:    priority ?? "con-tiempo",
-      assigned_to: assignedTo ?? null,
+      assignees:   resolvedAssignees,
+      assigned_to: resolvedAssignees[0] ?? null,  // compat con campo legacy
+      subtasks:    subtasks ?? [],
+      blocked:     blocked ?? false,
       created_by:  (user as { email?: string; id: string }).email ?? user.id,
       order:       taskOrder,
     })
@@ -90,7 +98,7 @@ export async function POST(req: NextRequest) {
       task_id:      data.id,
       title:        data.title,
       triggered_by: triggeredBy,
-      assigned_to:  data.assigned_to,
+      assigned_to:  (data.assignees ?? []).join(" y ") || null,
       to_column:    data.column_id,
       label:        data.label_text || null,
       priority:     data.priority || null,

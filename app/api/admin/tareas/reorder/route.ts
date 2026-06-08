@@ -7,7 +7,7 @@ import { z } from "zod"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-const COLUMN_IDS = ["por-hacer", "en-proceso", "listo"] as const
+const COLUMN_IDS = ["por-hacer", "en-proceso", "en-revision", "listo"] as const
 
 const ReorderSchema = z.object({
   tasks: z.array(z.object({
