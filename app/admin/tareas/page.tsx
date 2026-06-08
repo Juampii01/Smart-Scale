@@ -1,11 +1,12 @@
-"use client"
-
+import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { KanbanBoard } from "@/components/tareas/KanbanBoard"
+
+export const dynamic = "force-dynamic"
 
 export default function TareasPage() {
   return (
-    <main className="flex-1 p-6 min-h-screen" style={{ backgroundColor: "var(--background)" }}>
+    <DashboardLayout>
       <KanbanBoard />
-    </main>
+    </DashboardLayout>
   )
 }
