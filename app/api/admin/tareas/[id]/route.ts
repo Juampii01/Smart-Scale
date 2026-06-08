@@ -52,7 +52,7 @@ export async function PATCH(
 
   const sb = createServiceClient()
   const { data, error } = await sb
-    .from("tasks")
+    .from("kanban_tasks")
     .update(updateData)
     .eq("id", id)
     .select()
@@ -74,7 +74,7 @@ export async function DELETE(
   const { id } = await params
   const sb = createServiceClient()
 
-  const { error } = await sb.from("tasks").delete().eq("id", id)
+  const { error } = await sb.from("kanban_tasks").delete().eq("id", id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 }

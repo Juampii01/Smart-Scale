@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
   await Promise.all(
     parsed.data.tasks.map(t =>
-      sb.from("tasks")
+      sb.from("kanban_tasks")
         .update({ column_id: t.columnId, order: t.order, updated_at: now })
         .eq("id", t.id)
     )

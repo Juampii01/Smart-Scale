@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
 
   const sb = createServiceClient()
   const { data, error } = await sb
-    .from("tasks")
+    .from("kanban_tasks")
     .select("*")
     .order("column_id", { ascending: true })
     .order("order", { ascending: true })
@@ -51,14 +51,14 @@ export async function POST(req: NextRequest) {
 
   // Get current count in column for order
   const { count } = await sb
-    .from("tasks")
+    .from("kanban_tasks")
     .select("id", { count: "exact", head: true })
     .eq("column_id", resolvedColumnId)
 
   const taskOrder = order !== undefined ? order : (count ?? 0)
 
   const { data, error } = await sb
-    .from("tasks")
+    .from("kanban_tasks")
     .insert({
       title,
       description: description ?? "",

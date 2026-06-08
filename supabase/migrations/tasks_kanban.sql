@@ -1,4 +1,5 @@
-CREATE TABLE IF NOT EXISTS tasks (
+-- Tablero Kanban del equipo interno. Tabla separada de la legacy `tasks`.
+CREATE TABLE IF NOT EXISTS kanban_tasks (
   id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   title       text NOT NULL,
   description text NOT NULL DEFAULT '',
@@ -13,6 +14,6 @@ CREATE TABLE IF NOT EXISTS tasks (
   updated_at  timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_tasks_column_order ON tasks (column_id, "order");
-ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "tasks_internal_select" ON tasks FOR SELECT USING (false);
+CREATE INDEX IF NOT EXISTS idx_kanban_tasks_column_order ON kanban_tasks (column_id, "order");
+ALTER TABLE kanban_tasks ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "kanban_tasks_internal_select" ON kanban_tasks FOR SELECT USING (false);
