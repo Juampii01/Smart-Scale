@@ -62,8 +62,11 @@ export function KanbanBoard() {
     open: boolean; task?: Task | null; defaultColumnId?: TaskColumnId
   }>({ open: false })
 
-  const reorderTimerRef   = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const reorderPendingRef = useRef<Task[] | null>(null)
+  const reorderTimerRef     = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const reorderPendingRef   = useRef<Task[] | null>(null)
+  // Snapshot del estado al iniciar el drag — para detectar qué cambió de verdad
+  // (handleDragOver muta el estado en vivo, así que no podemos comparar contra prev)
+  const dragStartSnapshotRef = useRef<Task[]>([])
 
   // Initial fetch
   useEffect(() => {
@@ -120,6 +123,8 @@ export function KanbanBoard() {
   const handleDragStart = (event: DragStartEvent) => {
     const found = tasks.find(t => t.id === event.active.id)
     setActiveTask(found ?? null)
+    // Guardar snapshot del estado antes de que dragOver lo mute
+    dragStartSnapshotRef.current = tasks
   }
 
   const handleDragOver = (event: DragOverEvent) => {
@@ -141,41 +146,51 @@ export function KanbanBoard() {
     if (!over) return
     const activeId = active.id as string
     const overId   = over.id   as string
-    if (activeId === overId) return
 
     setTasks(prev => {
       const draggedTask = prev.find(t => t.id === activeId)
-      const overTask   = prev.find(t => t.id === overId)
       if (!draggedTask) return prev
-      let updated = prev
 
-      if (overTask) {
-        const sameCol = draggedTask.columnId === overTask.columnId
-        if (sameCol) {
-          const colTasks   = prev.filter(t => t.columnId === draggedTask.columnId)
-          const activeIdx  = colTasks.findIndex(t => t.id === activeId)
-          const overIdx    = colTasks.findIndex(t => t.id === overId)
-          const reordered  = arrayMove(colTasks, activeIdx, overIdx).map((t, i) => ({ ...t, order: i }))
-          updated = [...prev.filter(t => t.columnId !== draggedTask.columnId), ...reordered]
-        } else {
-          const targetColTasks = prev.filter(t => t.columnId === overTask.columnId && t.id !== activeId).sort((a, b) => a.order - b.order)
-          const overIdx        = targetColTasks.findIndex(t => t.id === overId)
-          const insertAt       = overIdx === -1 ? targetColTasks.length : overIdx
-          const reinserted = [
-            ...targetColTasks.slice(0, insertAt),
-            { ...draggedTask, columnId: overTask.columnId },
-            ...targetColTasks.slice(insertAt),
-          ].map((t, i) => ({ ...t, order: i }))
-          updated = [
-            ...prev.filter(t => t.columnId !== overTask.columnId && t.id !== activeId),
-            ...reinserted,
-          ]
-        }
+      const overTask    = prev.find(t => t.id === overId)
+      const overColumn  = KANBAN_COLUMNS.find(c => c.id === overId)
+      // Columna destino: la de la tarjeta sobre la que soltamos, o la columna
+      // directa (drop en zona vacía), o la actual (que dragOver ya pudo cambiar).
+      const targetColId = overTask?.columnId ?? overColumn?.id ?? draggedTask.columnId
+
+      let updated: Task[]
+
+      if (overTask && overTask.columnId === draggedTask.columnId && overId !== activeId) {
+        // Reorden dentro de la misma columna
+        const colTasks  = prev.filter(t => t.columnId === targetColId)
+        const activeIdx = colTasks.findIndex(t => t.id === activeId)
+        const overIdx   = colTasks.findIndex(t => t.id === overId)
+        const reordered = arrayMove(colTasks, activeIdx, overIdx).map((t, i) => ({ ...t, order: i }))
+        updated = [...prev.filter(t => t.columnId !== targetColId), ...reordered]
+      } else {
+        // Cross-column o drop en columna (vacía o no). Insertamos en la posición
+        // de overTask, o al final si soltamos sobre la columna.
+        const targetColTasks = prev
+          .filter(t => t.columnId === targetColId && t.id !== activeId)
+          .sort((a, b) => a.order - b.order)
+        const overIdx  = overTask ? targetColTasks.findIndex(t => t.id === overId) : -1
+        const insertAt = overIdx === -1 ? targetColTasks.length : overIdx
+        const reinserted = [
+          ...targetColTasks.slice(0, insertAt),
+          { ...draggedTask, columnId: targetColId },
+          ...targetColTasks.slice(insertAt),
+        ].map((t, i) => ({ ...t, order: i }))
+        updated = [
+          ...prev.filter(t => t.columnId !== targetColId && t.id !== activeId),
+          ...reinserted,
+        ]
       }
 
+      // Comparar contra el snapshot del INICIO del drag (no contra prev, que
+      // dragOver ya mutó) para detectar todos los cambios reales a persistir.
+      const original = dragStartSnapshotRef.current
       const changed = updated.filter(t => {
-        const orig = prev.find(p => p.id === t.id)
-        return orig && (orig.columnId !== t.columnId || orig.order !== t.order)
+        const orig = original.find(p => p.id === t.id)
+        return !orig || orig.columnId !== t.columnId || orig.order !== t.order
       })
       if (changed.length > 0) scheduleBatchReorder(changed)
       return updated
