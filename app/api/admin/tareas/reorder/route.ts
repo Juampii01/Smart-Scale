@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   const ids = parsed.data.tasks.map(t => t.id)
   const { data: before } = await sb
     .from("kanban_tasks")
-    .select("id, title, column_id, assigned_to")
+    .select("id, title, column_id, assignees, label_text, priority")
     .in("id", ids)
   const beforeById = new Map((before ?? []).map(b => [b.id, b]))
 
@@ -47,20 +47,26 @@ export async function POST(req: NextRequest) {
     )
   )
 
-  // Notificar SOLO completadas (arrastrar a Listo). Los movimientos entre
-  // Por hacer / En proceso NO avisan — saturarían Slack.
+  // Notificar a Slack solo lo relevante al arrastrar:
+  //  · Completar (a Listo)
+  //  · Pasar a revisión (a En revisión) → aviso para Ann
+  // Los movimientos entre Por hacer / En proceso NO avisan.
   const triggeredBy = (user as { email?: string; id: string }).email ?? user.id
+  const joinAssignees = (a: unknown) => Array.isArray(a) ? (a as string[]).join(" y ") || null : null
   try {
-    const completed = parsed.data.tasks.filter(t => {
+    for (const t of parsed.data.tasks) {
       const prev = beforeById.get(t.id)
-      return prev && prev.column_id !== "listo" && t.columnId === "listo"
-    })
-    for (const t of completed) {
-      const prev = beforeById.get(t.id)!
-      await zapierTaskEvent({
-        event_type: "task.completed", task_id: t.id, title: prev.title,
-        triggered_by: triggeredBy, assigned_to: prev.assigned_to,
-      })
+      if (!prev) continue
+      const meta = {
+        task_id: t.id, title: prev.title, triggered_by: triggeredBy,
+        assigned_to: joinAssignees(prev.assignees),
+        label: prev.label_text || null, priority: prev.priority || null,
+      }
+      if (prev.column_id !== "listo" && t.columnId === "listo") {
+        await zapierTaskEvent({ event_type: "task.completed", ...meta })
+      } else if (prev.column_id !== "en-revision" && t.columnId === "en-revision") {
+        await zapierTaskEvent({ event_type: "task.review", ...meta })
+      }
     }
   } catch (e) {
     console.error("[tareas/reorder] zapier error:", e instanceof Error ? e.message : String(e))

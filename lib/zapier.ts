@@ -223,6 +223,7 @@ export type TaskEventType =
   | "task.moved"
   | "task.completed"
   | "task.assigned"
+  | "task.review"
 
 const PRIORITY_META: Record<string, { dot: string; label: string }> = {
   "urgente":    { dot: "🔴", label: "Urgente" },
@@ -302,6 +303,20 @@ export async function zapierTaskEvent(payload: {
       message += `> ${fromCol ? `${fromCol}  →  ` : ""}*${toCol}*`
       if (metaLine) message += `  ·  ${metaLine}`
       if (actor)    message += `\n_movida por ${actor}_`
+      break
+    }
+
+    case "task.review": {
+      const metaLine = meta([
+        payload.assigned_to && `👤 ${payload.assigned_to}`,
+        showPriority,
+        showLabel,
+      ])
+      message = `👀  *Para revisar* — Ann\n`
+      message += `> *${payload.title}*`
+      if (metaLine) message += `\n> ${metaLine}`
+      message += `\n_Revisá y pasala a Listo cuando esté_`
+      if (actor) message += `\n_envió a revisión: ${actor}_`
       break
     }
 

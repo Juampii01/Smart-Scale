@@ -96,6 +96,15 @@ export async function PATCH(
         label: data.label_text || null, priority: data.priority || null,
       })
     }
+    // Pasó a revisión → avisar a Ann
+    const toReviewNow = before && before.column_id !== "en-revision" && data.column_id === "en-revision"
+    if (toReviewNow) {
+      await zapierTaskEvent({
+        event_type: "task.review", task_id: data.id, title: data.title,
+        triggered_by: triggeredBy, assigned_to: assigneesStr,
+        label: data.label_text || null, priority: data.priority || null,
+      })
+    }
     // Asignación: cambió la lista de asignados y ahora hay al menos uno
     const beforeArr = (before?.assignees ?? []) as string[]
     const afterArr  = (data.assignees ?? []) as string[]
