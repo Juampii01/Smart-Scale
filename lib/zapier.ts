@@ -200,6 +200,24 @@ function formatDueDateEs(iso?: string | null): string | null {
   return `${d.getDate()} de ${meses[d.getMonth()]}`
 }
 
+// Mapeo email → nombre lindo para mostrar quién hizo la acción.
+// Completá con los emails de Ann y Fabri para que se vean por nombre.
+const USER_NAMES: Record<string, string> = {
+  "juampiacosta158@gmail.com": "Juampi",
+}
+
+/** Resuelve el nombre de quien ejecutó la acción a partir de su email/id. */
+function prettyActor(idOrEmail?: string): string | null {
+  if (!idOrEmail) return null
+  const known = USER_NAMES[idOrEmail.toLowerCase()]
+  if (known) return known
+  if (idOrEmail.includes("@")) {
+    const local = idOrEmail.split("@")[0].replace(/[._-]+/g, " ").replace(/\d+/g, "").trim()
+    return local ? local.charAt(0).toUpperCase() + local.slice(1) : null
+  }
+  return null // uuid sin mapear
+}
+
 export type TaskEventType =
   | "task.created"
   | "task.moved"
@@ -225,30 +243,52 @@ export async function zapierTaskEvent(payload: {
   const toCol    = payload.to_column   ? (COLUMN_LABELS[payload.to_column]   ?? payload.to_column)   : null
   const fromCol  = payload.from_column ? (COLUMN_LABELS[payload.from_column] ?? payload.from_column) : null
 
+  // Línea de metadatos: solo incluye lo que existe, separado por " · "
+  const meta = (parts: (string | false | null | undefined)[]) =>
+    parts.filter(Boolean).join("   ·   ")
+
+  const actor = prettyActor(payload.triggered_by)
+
   let message = ""
   switch (payload.event_type) {
-    case "task.created":
-      message = `🆕 Nueva tarea: *${payload.title}*`
-      if (payload.assigned_to) message += `\n👤 Asignada a *${payload.assigned_to}*`
-      if (isUrgent)            message += `\n🔴 *URGENTE*`
-      if (dueLabel)            message += `\n📅 Para el ${dueLabel}`
+    case "task.created": {
+      const metaLine = meta([
+        payload.assigned_to && `👤 ${payload.assigned_to}`,
+        dueLabel            && `📅 ${dueLabel}`,
+        isUrgent            && `🔴 Urgente`,
+      ])
+      message = `🆕  *Nueva tarea*${toCol ? ` — _${toCol}_` : ""}\n*${payload.title}*`
+      if (metaLine) message += `\n${metaLine}`
+      if (actor)    message += `\n_creada por ${actor}_`
       break
+    }
+
+    case "task.assigned": {
+      const metaLine = meta([
+        dueLabel && `📅 Vence el ${dueLabel}`,
+        isUrgent && `🔴 Urgente`,
+      ])
+      message = `🎯  *Nueva asignación para ${payload.assigned_to}*\n*${payload.title}*`
+      if (metaLine) message += `\n${metaLine}`
+      if (actor)    message += `\n_asignada por ${actor}_`
+      break
+    }
 
     case "task.moved":
-      message = `🔀 *${payload.title}* se movió${fromCol ? ` de *${fromCol}*` : ""} a *${toCol}*`
-      if (payload.assigned_to) message += ` · ${payload.assigned_to}`
+      message = `🔀  *Tarea movida*\n*${payload.title}*\n${fromCol ? `${fromCol}  →  ` : ""}*${toCol}*`
+      if (payload.assigned_to) message += `   ·   👤 ${payload.assigned_to}`
+      if (actor)               message += `\n_movida por ${actor}_`
       break
 
     case "task.completed":
-      message = `✅ Tarea completada: *${payload.title}*`
-      if (payload.assigned_to) message += ` por *${payload.assigned_to}*`
-      break
-
-    case "task.assigned":
-      message = `👤 Se le asignó una tarea${isUrgent ? " *urgente*" : ""} a *${payload.assigned_to}*: *${payload.title}*`
-      if (dueLabel) message += `\n📅 Para el ${dueLabel}`
+      message = `✅  *Tarea completada*\n*${payload.title}*`
+      if (payload.assigned_to) message += `\n🎉 responsable: *${payload.assigned_to}*`
+      if (actor)               message += `\n_completada por ${actor}_`
       break
   }
+
+  // Banner para urgentes — resalta arriba de todo
+  if (isUrgent) message = `🚨🔴 *URGENTE* 🔴🚨\n${message}`
 
   return postWebhook(url, { ...payload, message })
 }
