@@ -4,9 +4,9 @@ import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { AnimatePresence, motion } from "motion/react"
 import { X, Tag } from "lucide-react"
-import type { TaskColumnId } from "./constants"
-import { KANBAN_COLUMNS, LABEL_PRESETS, TEAM_MEMBERS } from "./constants"
-import { LabelBadge } from "./LabelBadge"
+import type { TaskColumnId, TaskPriority } from "./constants"
+import { KANBAN_COLUMNS, TEAM_MEMBERS, PRIORITY_LEVELS } from "./constants"
+import { labelColor } from "./avatar"
 import type { Task } from "./TaskCard"
 
 interface TaskModalProps {
@@ -22,7 +22,8 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
   const [description,   setDescription]   = useState(task?.description ?? "")
   const [dueDate,       setDueDate]       = useState(task?.dueDate ?? "")
   const [columnId,      setColumnId]      = useState<TaskColumnId>(task?.columnId ?? defaultColumnId)
-  const [selectedLabel, setSelectedLabel] = useState<{ text: string; color: string } | undefined>(task?.label)
+  const [labelText,     setLabelText]     = useState(task?.label?.text ?? "")
+  const [priority,      setPriority]      = useState<TaskPriority>(task?.priority ?? "con-tiempo")
   const [assignedTo,    setAssignedTo]    = useState(task?.assignedTo ?? "")
   const [mounted,       setMounted]       = useState(false)
 
@@ -35,12 +36,14 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
 
   const handleSubmit = () => {
     if (!title.trim()) return
+    const lt = labelText.trim()
     onSave({
       id:          task?.id,
       title:       title.trim(),
       description: description.trim() || undefined,
       dueDate:     dueDate || undefined,
-      label:       selectedLabel,
+      label:       lt ? { text: lt, color: labelColor(lt) } : undefined,
+      priority,
       columnId,
       assignedTo:  assignedTo.trim() || undefined,
     })
@@ -154,30 +157,47 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
               </select>
             </div>
 
-            {/* Label */}
+            {/* Urgencia */}
             <div>
-              <label className="text-[10px] font-semibold uppercase tracking-wider mb-2 flex items-center gap-1" style={{ color: "var(--muted-foreground)" }}>
-                <Tag size={10} /> Etiqueta
+              <label className="text-[10px] font-semibold uppercase tracking-wider mb-2 block" style={{ color: "var(--muted-foreground)" }}>
+                Urgencia
               </label>
-              <div className="flex flex-wrap gap-1.5">
-                {LABEL_PRESETS.map(preset => {
-                  const active = selectedLabel?.text === preset.text
+              <div className="flex gap-1.5">
+                {PRIORITY_LEVELS.map(p => {
+                  const active = priority === p.id
                   return (
                     <button
-                      key={preset.text}
-                      onClick={() => setSelectedLabel(active ? undefined : preset)}
-                      className="transition-all cursor-pointer"
+                      key={p.id}
+                      type="button"
+                      onClick={() => setPriority(p.id)}
+                      className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg px-3 py-2 transition-all"
                       style={{
-                        outline:       active ? `2px solid ${preset.color}` : "none",
-                        outlineOffset: "2px",
-                        borderRadius:  "9px",
+                        backgroundColor: active ? `color-mix(in srgb, ${p.color} 15%, transparent)` : "var(--muted)",
+                        color:           active ? p.color : "var(--muted-foreground)",
+                        border:          `1px solid ${active ? p.color : "var(--border)"}`,
                       }}
                     >
-                      <LabelBadge label={preset} small />
+                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: p.color }} />
+                      {p.label}
                     </button>
                   )
                 })}
               </div>
+            </div>
+
+            {/* Etiqueta (texto libre) */}
+            <div>
+              <label className="text-[10px] font-semibold uppercase tracking-wider mb-2 flex items-center gap-1" style={{ color: "var(--muted-foreground)" }}>
+                <Tag size={10} /> Etiqueta
+              </label>
+              <input
+                value={labelText}
+                onChange={e => setLabelText(e.target.value)}
+                placeholder="De qué se trata (ej: Reel cliente X, Edición, Guión…)"
+                maxLength={40}
+                className="w-full text-xs rounded-lg px-3 py-2 outline-none"
+                style={{ backgroundColor: "var(--muted)", color: "var(--foreground)", border: "1px solid var(--border)" }}
+              />
             </div>
           </div>
 

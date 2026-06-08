@@ -47,27 +47,20 @@ export async function POST(req: NextRequest) {
     )
   )
 
-  // Notificar solo los cambios de columna a Slack vía Zapier (best-effort)
+  // Notificar SOLO completadas (arrastrar a Listo). Los movimientos entre
+  // Por hacer / En proceso NO avisan — saturarían Slack.
   const triggeredBy = (user as { email?: string; id: string }).email ?? user.id
   try {
-    const moved = parsed.data.tasks.filter(t => {
+    const completed = parsed.data.tasks.filter(t => {
       const prev = beforeById.get(t.id)
-      return prev && prev.column_id !== t.columnId
+      return prev && prev.column_id !== "listo" && t.columnId === "listo"
     })
-    for (const t of moved) {
+    for (const t of completed) {
       const prev = beforeById.get(t.id)!
-      if (t.columnId === "listo") {
-        await zapierTaskEvent({
-          event_type: "task.completed", task_id: t.id, title: prev.title,
-          triggered_by: triggeredBy, assigned_to: prev.assigned_to,
-        })
-      } else {
-        await zapierTaskEvent({
-          event_type: "task.moved", task_id: t.id, title: prev.title,
-          triggered_by: triggeredBy, assigned_to: prev.assigned_to,
-          from_column: prev.column_id, to_column: t.columnId,
-        })
-      }
+      await zapierTaskEvent({
+        event_type: "task.completed", task_id: t.id, title: prev.title,
+        triggered_by: triggeredBy, assigned_to: prev.assigned_to,
+      })
     }
   } catch (e) {
     console.error("[tareas/reorder] zapier error:", e instanceof Error ? e.message : String(e))

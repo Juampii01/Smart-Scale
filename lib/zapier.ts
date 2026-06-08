@@ -224,6 +224,12 @@ export type TaskEventType =
   | "task.completed"
   | "task.assigned"
 
+const PRIORITY_META: Record<string, { dot: string; label: string }> = {
+  "urgente":    { dot: "🔴", label: "Urgente" },
+  "importante": { dot: "🟡", label: "Importante" },
+  "con-tiempo": { dot: "🟢", label: "Con tiempo" },
+}
+
 export async function zapierTaskEvent(payload: {
   event_type:   TaskEventType
   task_id:      string
@@ -232,20 +238,24 @@ export async function zapierTaskEvent(payload: {
   assigned_to?: string | null
   from_column?: string | null         // para task.moved
   to_column?:   string | null         // para task.moved / completed / created
-  label?:       string | null         // etiqueta (ej "Urgente")
+  label?:       string | null         // etiqueta descriptiva (texto libre)
+  priority?:    string | null         // urgente | importante | con-tiempo
   due_date?:    string | null         // ISO
 }): Promise<ZapierResult> {
   const url = process.env.ZAPIER_WEBHOOK_TAREAS
   if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_TAREAS not configured" }
 
-  const isUrgent = (payload.label ?? "").toLowerCase() === "urgente"
+  const isUrgent = payload.priority === "urgente"
   const dueLabel = formatDueDateEs(payload.due_date)
   const toCol    = payload.to_column   ? (COLUMN_LABELS[payload.to_column]   ?? payload.to_column)   : null
   const fromCol  = payload.from_column ? (COLUMN_LABELS[payload.from_column] ?? payload.from_column) : null
 
-  // Etiqueta visible (salvo "Urgente", que tiene su propio banner)
+  // Etiqueta descriptiva (texto libre que puso quien la creó)
   const labelTxt = payload.label && payload.label.trim() ? payload.label.trim() : null
-  const showLabel = labelTxt && !isUrgent ? `🏷 ${labelTxt}` : null
+  const showLabel = labelTxt ? `🏷 ${labelTxt}` : null
+  // Prioridad visible (salvo urgente, que tiene banner propio)
+  const prio = payload.priority ? PRIORITY_META[payload.priority] : null
+  const showPriority = prio && payload.priority !== "urgente" ? `${prio.dot} ${prio.label}` : null
 
   // Línea de metadatos: solo incluye lo que existe, separado por " · "
   const meta = (parts: (string | false | null | undefined)[]) =>
@@ -259,6 +269,7 @@ export async function zapierTaskEvent(payload: {
       const metaLine = meta([
         payload.assigned_to && `👤 ${payload.assigned_to}`,
         dueLabel            && `📅 ${dueLabel}`,
+        showPriority,
         showLabel,
       ])
       message = `🆕  *Nueva tarea*${toCol ? `  ·  _${toCol}_` : ""}\n`
@@ -271,6 +282,7 @@ export async function zapierTaskEvent(payload: {
     case "task.assigned": {
       const metaLine = meta([
         dueLabel && `📅 ${dueLabel}`,
+        showPriority,
         showLabel,
       ])
       message = `🎯  *Tarea asignada a ${payload.assigned_to}*\n`

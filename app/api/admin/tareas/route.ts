@@ -16,6 +16,7 @@ const CreateSchema = z.object({
   labelText:   z.string().optional(),
   labelColor:  z.string().optional(),
   columnId:    z.enum(COLUMN_IDS).optional(),
+  priority:    z.enum(["urgente", "importante", "con-tiempo"]).optional(),
   assignedTo:  z.string().optional().nullable(),
   order:       z.number().int().optional(),
 })
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
   const parsed = CreateSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: "Invalid request" }, { status: 400 })
 
-  const { title, description, dueDate, labelText, labelColor, columnId, assignedTo, order } = parsed.data
+  const { title, description, dueDate, labelText, labelColor, columnId, priority, assignedTo, order } = parsed.data
   const resolvedColumnId = columnId ?? "por-hacer"
 
   const sb = createServiceClient()
@@ -69,6 +70,7 @@ export async function POST(req: NextRequest) {
       label_text:  labelText ?? "",
       label_color: labelColor ?? "",
       column_id:   resolvedColumnId,
+      priority:    priority ?? "con-tiempo",
       assigned_to: assignedTo ?? null,
       created_by:  (user as { email?: string; id: string }).email ?? user.id,
       order:       taskOrder,
@@ -91,6 +93,7 @@ export async function POST(req: NextRequest) {
       assigned_to:  data.assigned_to,
       to_column:    data.column_id,
       label:        data.label_text || null,
+      priority:     data.priority || null,
       due_date:     data.due_date,
     })
   } catch (e) {

@@ -5,6 +5,7 @@ import { CSS } from "@dnd-kit/utilities"
 import { Calendar, CheckCircle2, Circle, AlignLeft } from "lucide-react"
 import { LabelBadge } from "./LabelBadge"
 import { initials, avatarColor } from "./avatar"
+import { PRIORITY_BY_ID } from "./constants"
 import type { TaskColumnId } from "./constants"
 
 export interface Task {
@@ -13,6 +14,7 @@ export interface Task {
   description?: string
   dueDate?: string
   label?: { text: string; color: string }
+  priority?: "urgente" | "importante" | "con-tiempo"
   columnId: TaskColumnId
   createdAt: string
   order: number
@@ -77,12 +79,18 @@ export function TaskCard({ task, onClick, onComplete, isOverlay = false }: TaskC
       className="group relative rounded-lg border p-2.5 cursor-grab active:cursor-grabbing transition-shadow hover:shadow-[0_2px_10px_-2px_rgba(0,0,0,0.18)]"
       onClick={() => onClick(task)}
     >
-      {/* Top row: label + completion toggle */}
+      {/* Top row: prioridad + label + completion toggle */}
       <div className="flex items-start justify-between gap-2">
-        {task.label
-          ? <LabelBadge label={task.label} small />
-          : <span />
-        }
+        <div className="flex items-center gap-1.5 min-w-0">
+          {task.priority && task.priority !== "con-tiempo" && PRIORITY_BY_ID[task.priority] && (
+            <span
+              className="h-2 w-2 rounded-full shrink-0"
+              style={{ backgroundColor: PRIORITY_BY_ID[task.priority].color }}
+              title={PRIORITY_BY_ID[task.priority].label}
+            />
+          )}
+          {task.label && <LabelBadge label={task.label} small />}
+        </div>
         <button
           className="shrink-0 -mt-0.5 -mr-0.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
           title={isDone ? "Mover a Por hacer" : "Marcar como listo"}

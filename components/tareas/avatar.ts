@@ -25,7 +25,7 @@ export function initials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
-/** Color determinístico a partir del nombre. */
+/** Color determinístico a partir de un string (nombre, etiqueta, etc). */
 export function avatarColor(name: string): string {
   let hash = 0
   for (let i = 0; i < name.length; i++) {
@@ -33,3 +33,6 @@ export function avatarColor(name: string): string {
   }
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
 }
+
+/** Color para una etiqueta de texto libre (mismo algoritmo determinístico). */
+export const labelColor = avatarColor

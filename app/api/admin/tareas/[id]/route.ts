@@ -16,6 +16,7 @@ const UpdateSchema = z.object({
   labelText:   z.string().optional(),
   labelColor:  z.string().optional(),
   columnId:    z.enum(COLUMN_IDS).optional(),
+  priority:    z.enum(["urgente", "importante", "con-tiempo"]).optional(),
   assignedTo:  z.string().optional().nullable(),
   order:       z.number().int().optional(),
 })
@@ -45,6 +46,7 @@ export async function PATCH(
         label_text:  rest.labelText,
         label_color: rest.labelColor,
         column_id:   rest.columnId,
+        priority:    rest.priority,
         assigned_to: rest.assignedTo,
         order:       rest.order,
       }).filter(([, v]) => v !== undefined)
@@ -72,23 +74,18 @@ export async function PATCH(
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   if (!data)  return NextResponse.json({ error: "Task not found" }, { status: 404 })
 
-  // Notificar cambios relevantes a Slack vía Zapier (best-effort)
+  // Notificar SOLO eventos relevantes (no movimientos intermedios — saturan Slack):
+  //  · completar (mover a Listo)
+  //  · asignar a alguien
   const triggeredBy = (user as { email?: string; id: string }).email ?? user.id
   try {
-    const columnChanged = before && before.column_id !== data.column_id
-    if (columnChanged) {
-      if (data.column_id === "listo") {
-        await zapierTaskEvent({
-          event_type: "task.completed", task_id: data.id, title: data.title,
-          triggered_by: triggeredBy, assigned_to: data.assigned_to,
-        })
-      } else {
-        await zapierTaskEvent({
-          event_type: "task.moved", task_id: data.id, title: data.title,
-          triggered_by: triggeredBy, assigned_to: data.assigned_to,
-          from_column: before.column_id, to_column: data.column_id,
-        })
-      }
+    const completedNow = before && before.column_id !== "listo" && data.column_id === "listo"
+    if (completedNow) {
+      await zapierTaskEvent({
+        event_type: "task.completed", task_id: data.id, title: data.title,
+        triggered_by: triggeredBy, assigned_to: data.assigned_to,
+        label: data.label_text || null, priority: data.priority || null,
+      })
     }
     // Asignación nueva o cambiada
     const assigneeChanged = before && before.assigned_to !== data.assigned_to && data.assigned_to
@@ -96,7 +93,8 @@ export async function PATCH(
       await zapierTaskEvent({
         event_type: "task.assigned", task_id: data.id, title: data.title,
         triggered_by: triggeredBy, assigned_to: data.assigned_to,
-        label: data.label_text || null, due_date: data.due_date,
+        label: data.label_text || null, priority: data.priority || null,
+        due_date: data.due_date,
       })
     }
   } catch (e) {

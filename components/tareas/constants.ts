@@ -13,13 +13,19 @@ export const KANBAN_COLUMNS: {
 // Miembros del equipo asignables a una tarea
 export const TEAM_MEMBERS = ["Juampi", "Fabri", "Ann"]
 
-export const LABEL_PRESETS = [
-  { text: "Reels",       color: "var(--foreground)" },
-  { text: "Historia",    color: "#B09A4A" },
-  { text: "Urgente",     color: "#E05252" },
-  { text: "Ideas",       color: "#5BBDEF" },
-  { text: "Edición",     color: "#8B5CF6" },
-  { text: "Guión",       color: "#10B981" },
-  { text: "Grabación",   color: "#F59E0B" },
-  { text: "Revisión",    color: "#6B7280" },
+// Niveles de urgencia
+export type TaskPriority = "urgente" | "importante" | "con-tiempo"
+
+export const PRIORITY_LEVELS: {
+  id: TaskPriority
+  label: string
+  color: string
+  dot: string   // emoji para Slack
+}[] = [
+  { id: "urgente",    label: "Urgente",    color: "#EF4444", dot: "🔴" },
+  { id: "importante", label: "Importante", color: "#F59E0B", dot: "🟡" },
+  { id: "con-tiempo", label: "Con tiempo", color: "#22C55E", dot: "🟢" },
 ]
+
+export const PRIORITY_BY_ID: Record<string, { label: string; color: string; dot: string }> =
+  Object.fromEntries(PRIORITY_LEVELS.map(p => [p.id, { label: p.label, color: p.color, dot: p.dot }]))

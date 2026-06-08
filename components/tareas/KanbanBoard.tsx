@@ -26,6 +26,7 @@ interface ApiTask {
   label_text:  string
   label_color: string
   column_id:   string
+  priority:    string | null
   assigned_to: string | null
   created_by:  string | null
   order:       number
@@ -43,6 +44,7 @@ function apiToUiTask(t: ApiTask): Task {
                    ? { text: t.label_text, color: t.label_color }
                    : undefined,
     columnId:    t.column_id as TaskColumnId,
+    priority:    (t.priority as Task["priority"]) ?? "con-tiempo",
     createdAt:   t.created_at,
     order:       t.order,
     assignedTo:  t.assigned_to ?? undefined,
@@ -264,6 +266,7 @@ export function KanbanBoard() {
             labelText:   data.label?.text  ?? "",
             labelColor:  data.label?.color ?? "",
             columnId:    data.columnId,
+            priority:    data.priority ?? "con-tiempo",
             assignedTo:  data.assignedTo ?? null,
           }),
         })
@@ -288,6 +291,7 @@ export function KanbanBoard() {
             labelText:   data.label?.text  ?? "",
             labelColor:  data.label?.color ?? "",
             columnId:    data.columnId,
+            priority:    data.priority ?? "con-tiempo",
             assignedTo:  data.assignedTo ?? null,
             order:       colTasks.length,
           }),
