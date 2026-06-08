@@ -243,9 +243,13 @@ export async function zapierTaskEvent(payload: {
   const toCol    = payload.to_column   ? (COLUMN_LABELS[payload.to_column]   ?? payload.to_column)   : null
   const fromCol  = payload.from_column ? (COLUMN_LABELS[payload.from_column] ?? payload.from_column) : null
 
+  // Etiqueta visible (salvo "Urgente", que tiene su propio banner)
+  const labelTxt = payload.label && payload.label.trim() ? payload.label.trim() : null
+  const showLabel = labelTxt && !isUrgent ? `🏷 ${labelTxt}` : null
+
   // Línea de metadatos: solo incluye lo que existe, separado por " · "
   const meta = (parts: (string | false | null | undefined)[]) =>
-    parts.filter(Boolean).join("   ·   ")
+    parts.filter(Boolean).join("  ·  ")
 
   const actor = prettyActor(payload.triggered_by)
 
@@ -255,40 +259,52 @@ export async function zapierTaskEvent(payload: {
       const metaLine = meta([
         payload.assigned_to && `👤 ${payload.assigned_to}`,
         dueLabel            && `📅 ${dueLabel}`,
-        isUrgent            && `🔴 Urgente`,
+        showLabel,
       ])
-      message = `🆕  *Nueva tarea*${toCol ? ` — _${toCol}_` : ""}\n*${payload.title}*`
-      if (metaLine) message += `\n${metaLine}`
+      message = `🆕  *Nueva tarea*${toCol ? `  ·  _${toCol}_` : ""}\n`
+      message += `> *${payload.title}*`
+      if (metaLine) message += `\n> ${metaLine}`
       if (actor)    message += `\n_creada por ${actor}_`
       break
     }
 
     case "task.assigned": {
       const metaLine = meta([
-        dueLabel && `📅 Vence el ${dueLabel}`,
-        isUrgent && `🔴 Urgente`,
+        dueLabel && `📅 ${dueLabel}`,
+        showLabel,
       ])
-      message = `🎯  *Nueva asignación para ${payload.assigned_to}*\n*${payload.title}*`
-      if (metaLine) message += `\n${metaLine}`
+      message = `🎯  *Tarea asignada a ${payload.assigned_to}*\n`
+      message += `> *${payload.title}*`
+      if (metaLine) message += `\n> ${metaLine}`
       if (actor)    message += `\n_asignada por ${actor}_`
       break
     }
 
-    case "task.moved":
-      message = `🔀  *Tarea movida*\n*${payload.title}*\n${fromCol ? `${fromCol}  →  ` : ""}*${toCol}*`
-      if (payload.assigned_to) message += `   ·   👤 ${payload.assigned_to}`
-      if (actor)               message += `\n_movida por ${actor}_`
+    case "task.moved": {
+      const metaLine = meta([
+        payload.assigned_to && `👤 ${payload.assigned_to}`,
+        showLabel,
+      ])
+      message = `🔀  *Tarea movida*\n`
+      message += `> *${payload.title}*\n`
+      message += `> ${fromCol ? `${fromCol}  →  ` : ""}*${toCol}*`
+      if (metaLine) message += `  ·  ${metaLine}`
+      if (actor)    message += `\n_movida por ${actor}_`
       break
+    }
 
-    case "task.completed":
-      message = `✅  *Tarea completada*\n*${payload.title}*`
-      if (payload.assigned_to) message += `\n🎉 responsable: *${payload.assigned_to}*`
-      if (actor)               message += `\n_completada por ${actor}_`
+    case "task.completed": {
+      const metaLine = meta([payload.assigned_to && `👤 ${payload.assigned_to}`, showLabel])
+      message = `✅  *Tarea completada*\n`
+      message += `> *${payload.title}*`
+      if (metaLine) message += `\n> ${metaLine}`
+      if (actor)    message += `\n_completada por ${actor}_`
       break
+    }
   }
 
   // Banner para urgentes — resalta arriba de todo
-  if (isUrgent) message = `🚨🔴 *URGENTE* 🔴🚨\n${message}`
+  if (isUrgent) message = `🚨  *URGENTE*  🚨\n${message}`
 
   return postWebhook(url, { ...payload, message })
 }

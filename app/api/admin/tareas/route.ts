@@ -81,6 +81,8 @@ export async function POST(req: NextRequest) {
   // Notificar a Slack vía Zapier (best-effort, no bloquea la respuesta)
   const triggeredBy = (user as { email?: string; id: string }).email ?? user.id
   try {
+    // Un solo mensaje: "Nueva tarea" ya incluye a quién está asignada.
+    // El evento task.assigned solo se dispara al asignar una tarea existente (PATCH).
     await zapierTaskEvent({
       event_type:   "task.created",
       task_id:      data.id,
@@ -91,18 +93,6 @@ export async function POST(req: NextRequest) {
       label:        data.label_text || null,
       due_date:     data.due_date,
     })
-    // Si se crea ya asignada, avisar también la asignación
-    if (data.assigned_to) {
-      await zapierTaskEvent({
-        event_type:   "task.assigned",
-        task_id:      data.id,
-        title:        data.title,
-        triggered_by: triggeredBy,
-        assigned_to:  data.assigned_to,
-        label:        data.label_text || null,
-        due_date:     data.due_date,
-      })
-    }
   } catch (e) {
     console.error("[tareas/POST] zapier error:", e instanceof Error ? e.message : String(e))
   }
