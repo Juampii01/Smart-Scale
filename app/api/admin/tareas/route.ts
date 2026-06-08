@@ -31,21 +31,27 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   const sb = createServiceClient()
-  const [tasksRes, commentsRes] = await Promise.all([
+  const [tasksRes, commentsRes, attachRes] = await Promise.all([
     sb.from("kanban_tasks").select("*")
       .order("column_id", { ascending: true })
       .order("order", { ascending: true }),
     sb.from("kanban_comments").select("task_id"),
+    sb.from("kanban_attachments").select("task_id"),
   ])
 
   if (tasksRes.error) return NextResponse.json({ error: tasksRes.error.message }, { status: 500 })
 
-  // Conteo de comentarios por tarea
+  // Conteos por tarea
   const commentCount: Record<string, number> = {}
-  for (const c of (commentsRes.data ?? [])) {
-    commentCount[c.task_id] = (commentCount[c.task_id] ?? 0) + 1
-  }
-  const tasks = (tasksRes.data ?? []).map((t: any) => ({ ...t, comments_count: commentCount[t.id] ?? 0 }))
+  for (const c of (commentsRes.data ?? [])) commentCount[c.task_id] = (commentCount[c.task_id] ?? 0) + 1
+  const attachCount: Record<string, number> = {}
+  for (const a of (attachRes.data ?? [])) attachCount[a.task_id] = (attachCount[a.task_id] ?? 0) + 1
+
+  const tasks = (tasksRes.data ?? []).map((t: any) => ({
+    ...t,
+    comments_count:    commentCount[t.id] ?? 0,
+    attachments_count: attachCount[t.id] ?? 0,
+  }))
 
   return NextResponse.json({ tasks })
 }

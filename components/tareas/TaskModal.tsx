@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import { AnimatePresence, motion } from "motion/react"
-import { X, Tag, Flag, Plus, Trash2, Ban, Check, MessageSquare, Send } from "lucide-react"
+import { X, Tag, Flag, Plus, Trash2, Ban, Check, MessageSquare, Send, Paperclip, Download, Loader2 } from "lucide-react"
 import type { TaskColumnId, TaskPriority } from "./constants"
 import { KANBAN_COLUMNS, TEAM_MEMBERS, PRIORITY_LEVELS } from "./constants"
 import { labelColor, initials, avatarColor } from "./avatar"
@@ -11,6 +11,14 @@ import { createClient } from "@/lib/supabase"
 import type { Task, Subtask } from "./TaskCard"
 
 interface Comment { id: string; author: string; body: string; created_at: string }
+interface Attachment { id: string; file_name: string; size_bytes: number | null; url: string | null }
+
+function fmtSize(b: number | null) {
+  if (!b) return ""
+  if (b < 1024) return `${b} B`
+  if (b < 1024 * 1024) return `${(b / 1024).toFixed(0)} KB`
+  return `${(b / 1024 / 1024).toFixed(1)} MB`
+}
 
 async function commentsToken() {
   const { data: { session } } = await createClient().auth.getSession()
@@ -45,6 +53,11 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
   const [comments,   setComments]   = useState<Comment[]>([])
   const [newComment, setNewComment] = useState("")
   const [sending,    setSending]    = useState(false)
+
+  // Adjuntos
+  const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [uploading,   setUploading]   = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => { setMounted(true) }, [])
   useEffect(() => {
@@ -94,6 +107,44 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
         setNewComment("")
       }
     } finally { setSending(false) }
+  }
+
+  // Cargar adjuntos al abrir
+  useEffect(() => {
+    if (!taskId) return
+    let active = true
+    ;(async () => {
+      const token = await commentsToken()
+      const res = await fetch(`/api/admin/tareas/${taskId}/attachments`, { headers: { Authorization: `Bearer ${token}` } })
+      const data = await res.json()
+      if (active && res.ok) setAttachments(data.attachments ?? [])
+    })()
+    return () => { active = false }
+  }, [taskId])
+
+  const uploadFile = async (file: File) => {
+    if (!taskId || uploading) return
+    if (file.size > 4 * 1024 * 1024) { alert("El archivo supera 4MB"); return }
+    setUploading(true)
+    try {
+      const token = await commentsToken()
+      const fd = new FormData()
+      fd.append("file", file)
+      const res = await fetch(`/api/admin/tareas/${taskId}/attachments`, {
+        method: "POST", headers: { Authorization: `Bearer ${token}` }, body: fd,
+      })
+      const data = await res.json()
+      if (res.ok && data.attachment) setAttachments(prev => [...prev, data.attachment])
+      else alert(data.error ?? "Error al subir el archivo")
+    } finally { setUploading(false) }
+  }
+
+  const deleteAttachment = async (attId: string) => {
+    const token = await commentsToken()
+    const res = await fetch(`/api/admin/tareas/${taskId}/attachments?attachment_id=${attId}`, {
+      method: "DELETE", headers: { Authorization: `Bearer ${token}` },
+    })
+    if (res.ok) setAttachments(prev => prev.filter(a => a.id !== attId))
   }
 
   const toggleAssignee = (m: string) =>
@@ -312,6 +363,44 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                 </div>
               </div>
             </div>
+
+            {/* Adjuntos (solo en tareas existentes) */}
+            {taskId && (
+              <div>
+                <label className="text-[10px] font-semibold uppercase tracking-wider mb-2 flex items-center gap-1" style={{ color: "var(--muted-foreground)" }}>
+                  <Paperclip size={10} /> Adjuntos {attachments.length > 0 && <span style={{ color: "var(--foreground)" }}>· {attachments.length}</span>}
+                </label>
+
+                <div className="space-y-1.5 mb-2">
+                  {attachments.map(a => (
+                    <div key={a.id} className="group/att flex items-center gap-2.5 rounded-lg px-3 py-2" style={{ backgroundColor: "var(--muted)" }}>
+                      <Paperclip size={13} style={{ color: "var(--muted-foreground)" }} className="shrink-0" />
+                      <span className="flex-1 min-w-0 truncate text-[13px]" style={{ color: "var(--foreground)" }}>{a.file_name}</span>
+                      <span className="shrink-0 text-[10.5px]" style={{ color: "var(--muted-foreground)" }}>{fmtSize(a.size_bytes)}</span>
+                      {a.url && (
+                        <a href={a.url} target="_blank" rel="noopener noreferrer" className="shrink-0 p-1 rounded hover:opacity-70" title="Descargar">
+                          <Download size={13} style={{ color: "var(--muted-foreground)" }} />
+                        </a>
+                      )}
+                      <button onClick={() => deleteAttachment(a.id)} className="shrink-0 opacity-0 group-hover/att:opacity-100 transition-opacity" title="Eliminar">
+                        <Trash2 size={12} style={{ color: "var(--muted-foreground)" }} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <input ref={fileRef} type="file" className="hidden"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) uploadFile(f); e.target.value = "" }} />
+                <button
+                  onClick={() => fileRef.current?.click()} disabled={uploading}
+                  className="flex items-center justify-center gap-2 w-full text-[12.5px] rounded-lg py-2 transition-all disabled:opacity-50"
+                  style={{ border: "1px dashed var(--border)", color: "var(--muted-foreground)" }}
+                >
+                  {uploading ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
+                  {uploading ? "Subiendo…" : "Adjuntar archivo (máx 4MB)"}
+                </button>
+              </div>
+            )}
 
             {/* Comentarios (solo en tareas existentes) */}
             {taskId && (
