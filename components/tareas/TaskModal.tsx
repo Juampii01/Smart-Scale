@@ -3,11 +3,19 @@
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { AnimatePresence, motion } from "motion/react"
-import { X, Tag, Flag, Plus, Trash2, Ban, Check } from "lucide-react"
+import { X, Tag, Flag, Plus, Trash2, Ban, Check, MessageSquare, Send } from "lucide-react"
 import type { TaskColumnId, TaskPriority } from "./constants"
 import { KANBAN_COLUMNS, TEAM_MEMBERS, PRIORITY_LEVELS } from "./constants"
 import { labelColor, initials, avatarColor } from "./avatar"
+import { createClient } from "@/lib/supabase"
 import type { Task, Subtask } from "./TaskCard"
+
+interface Comment { id: string; author: string; body: string; created_at: string }
+
+async function commentsToken() {
+  const { data: { session } } = await createClient().auth.getSession()
+  return session?.access_token ?? ""
+}
 
 interface TaskModalProps {
   task?:            Task | null
@@ -32,12 +40,61 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
   const [newSub,      setNewSub]      = useState("")
   const [mounted,     setMounted]     = useState(false)
 
+  // Comentarios (solo para tareas existentes)
+  const taskId = task?.id ?? null
+  const [comments,   setComments]   = useState<Comment[]>([])
+  const [newComment, setNewComment] = useState("")
+  const [sending,    setSending]    = useState(false)
+
   useEffect(() => { setMounted(true) }, [])
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
     window.addEventListener("keydown", handleKey)
     return () => window.removeEventListener("keydown", handleKey)
   }, [onClose])
+
+  // Cargar comentarios + suscribirse a nuevos en vivo
+  useEffect(() => {
+    if (!taskId) return
+    let active = true
+    ;(async () => {
+      const token = await commentsToken()
+      const res = await fetch(`/api/admin/tareas/${taskId}/comments`, { headers: { Authorization: `Bearer ${token}` } })
+      const data = await res.json()
+      if (active && res.ok) setComments(data.comments ?? [])
+    })()
+
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`kanban_comments_${taskId}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "kanban_comments", filter: `task_id=eq.${taskId}` },
+        (payload) => {
+          const c = payload.new as Comment
+          setComments(prev => prev.some(x => x.id === c.id) ? prev : [...prev, c])
+        })
+      .subscribe()
+
+    return () => { active = false; supabase.removeChannel(channel) }
+  }, [taskId])
+
+  const sendComment = async () => {
+    const body = newComment.trim()
+    if (!body || !taskId || sending) return
+    setSending(true)
+    try {
+      const token = await commentsToken()
+      const res = await fetch(`/api/admin/tareas/${taskId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ body }),
+      })
+      const data = await res.json()
+      if (res.ok && data.comment) {
+        setComments(prev => prev.some(x => x.id === data.comment.id) ? prev : [...prev, data.comment])
+        setNewComment("")
+      }
+    } finally { setSending(false) }
+  }
 
   const toggleAssignee = (m: string) =>
     setAssignees(prev => prev.includes(m) ? prev.filter(x => x !== m) : [...prev, m])
@@ -255,6 +312,53 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                 </div>
               </div>
             </div>
+
+            {/* Comentarios (solo en tareas existentes) */}
+            {taskId && (
+              <div>
+                <label className="text-[10px] font-semibold uppercase tracking-wider mb-2 flex items-center gap-1" style={{ color: "var(--muted-foreground)" }}>
+                  <MessageSquare size={10} /> Comentarios {comments.length > 0 && <span style={{ color: "var(--foreground)" }}>· {comments.length}</span>}
+                </label>
+
+                <div className="space-y-2.5 mb-2.5">
+                  {comments.map(c => (
+                    <div key={c.id} className="flex gap-2.5">
+                      <span className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold text-white mt-0.5"
+                        style={{ backgroundColor: avatarColor(c.author) }} title={c.author}>
+                        {initials(c.author)}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[12px] font-semibold" style={{ color: "var(--foreground)" }}>{c.author}</span>
+                          <span className="text-[10.5px]" style={{ color: "var(--muted-foreground)" }}>
+                            {new Date(c.created_at).toLocaleString("es-AR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </div>
+                        <p className="text-[13px] leading-snug whitespace-pre-wrap" style={{ color: "var(--foreground)", opacity: 0.85 }}>{c.body}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {comments.length === 0 && (
+                    <p className="text-[12px] italic" style={{ color: "var(--muted-foreground)" }}>Sin comentarios todavía.</p>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 rounded-lg px-3 py-2" style={{ backgroundColor: "var(--muted)", border: "1px solid var(--border)" }}>
+                  <input
+                    value={newComment} onChange={e => setNewComment(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendComment() } }}
+                    placeholder="Escribí un comentario…"
+                    className="flex-1 bg-transparent text-[13px] outline-none placeholder:opacity-40"
+                    style={{ color: "var(--foreground)" }}
+                  />
+                  <button onClick={sendComment} disabled={!newComment.trim() || sending}
+                    className="shrink-0 flex h-7 w-7 items-center justify-center rounded-md transition disabled:opacity-30"
+                    style={{ backgroundColor: "#ffde21", color: "#000" }}>
+                    <Send size={13} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer */}

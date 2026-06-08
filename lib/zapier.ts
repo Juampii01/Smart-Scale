@@ -11,6 +11,8 @@
 //   Trigger: "Webhooks by Zapier → Catch Hook"
 //   Actions: Slack message
 
+import { resolveTeamName } from "@/lib/team"
+
 export interface ZapierResult {
   ok: boolean
   error?: string
@@ -200,23 +202,8 @@ function formatDueDateEs(iso?: string | null): string | null {
   return `${d.getDate()} de ${meses[d.getMonth()]}`
 }
 
-// Mapeo email → nombre lindo para mostrar quién hizo la acción.
-// Completá con los emails de Ann y Fabri para que se vean por nombre.
-const USER_NAMES: Record<string, string> = {
-  "juampiacosta158@gmail.com": "Juampi",
-}
-
 /** Resuelve el nombre de quien ejecutó la acción a partir de su email/id. */
-function prettyActor(idOrEmail?: string): string | null {
-  if (!idOrEmail) return null
-  const known = USER_NAMES[idOrEmail.toLowerCase()]
-  if (known) return known
-  if (idOrEmail.includes("@")) {
-    const local = idOrEmail.split("@")[0].replace(/[._-]+/g, " ").replace(/\d+/g, "").trim()
-    return local ? local.charAt(0).toUpperCase() + local.slice(1) : null
-  }
-  return null // uuid sin mapear
-}
+const prettyActor = (idOrEmail?: string): string | null => resolveTeamName(idOrEmail)
 
 export type TaskEventType =
   | "task.created"

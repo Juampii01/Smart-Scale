@@ -31,14 +31,23 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   const sb = createServiceClient()
-  const { data, error } = await sb
-    .from("kanban_tasks")
-    .select("*")
-    .order("column_id", { ascending: true })
-    .order("order", { ascending: true })
+  const [tasksRes, commentsRes] = await Promise.all([
+    sb.from("kanban_tasks").select("*")
+      .order("column_id", { ascending: true })
+      .order("order", { ascending: true }),
+    sb.from("kanban_comments").select("task_id"),
+  ])
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ tasks: data ?? [] })
+  if (tasksRes.error) return NextResponse.json({ error: tasksRes.error.message }, { status: 500 })
+
+  // Conteo de comentarios por tarea
+  const commentCount: Record<string, number> = {}
+  for (const c of (commentsRes.data ?? [])) {
+    commentCount[c.task_id] = (commentCount[c.task_id] ?? 0) + 1
+  }
+  const tasks = (tasksRes.data ?? []).map((t: any) => ({ ...t, comments_count: commentCount[t.id] ?? 0 }))
+
+  return NextResponse.json({ tasks })
 }
 
 export async function POST(req: NextRequest) {

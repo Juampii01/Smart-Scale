@@ -32,6 +32,7 @@ interface ApiTask {
   subtasks:    { text: string; done: boolean }[] | null
   blocked:     boolean | null
   created_by:  string | null
+  comments_count?: number
   order:       number
   created_at:  string
   updated_at:  string
@@ -53,6 +54,7 @@ function apiToUiTask(t: ApiTask): Task {
     assignees:   t.assignees ?? (t.assigned_to ? [t.assigned_to] : []),
     subtasks:    t.subtasks ?? [],
     blocked:     t.blocked ?? false,
+    commentsCount: t.comments_count ?? 0,
   }
 }
 
