@@ -10,6 +10,9 @@ export const KANBAN_COLUMNS: {
   { id: "listo",       label: "Listo",       color: "#22C55E" },
 ]
 
+// Miembros del equipo asignables a una tarea
+export const TEAM_MEMBERS = ["Juampi", "Fabri", "Ann"]
+
 export const LABEL_PRESETS = [
   { text: "Reels",       color: "var(--foreground)" },
   { text: "Historia",    color: "#B09A4A" },

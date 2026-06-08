@@ -5,7 +5,7 @@ import { createPortal } from "react-dom"
 import { AnimatePresence, motion } from "motion/react"
 import { X, Tag } from "lucide-react"
 import type { TaskColumnId } from "./constants"
-import { KANBAN_COLUMNS, LABEL_PRESETS } from "./constants"
+import { KANBAN_COLUMNS, LABEL_PRESETS, TEAM_MEMBERS } from "./constants"
 import { LabelBadge } from "./LabelBadge"
 import type { Task } from "./TaskCard"
 
@@ -141,13 +141,17 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
               <label className="text-[10px] font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--muted-foreground)" }}>
                 Asignada a
               </label>
-              <input
+              <select
                 value={assignedTo}
                 onChange={e => setAssignedTo(e.target.value)}
-                placeholder="Ann, Fabri, Juan…"
                 className="w-full text-xs rounded-lg px-3 py-2 outline-none"
-                style={{ backgroundColor: "var(--muted)", color: "var(--foreground)", border: "1px solid var(--border)" }}
-              />
+                style={{ backgroundColor: "var(--muted)", color: assignedTo ? "var(--foreground)" : "var(--muted-foreground)", border: "1px solid var(--border)" }}
+              >
+                <option value="">Sin asignar</option>
+                {TEAM_MEMBERS.map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
             </div>
 
             {/* Label */}
