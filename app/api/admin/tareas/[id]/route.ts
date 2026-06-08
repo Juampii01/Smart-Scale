@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
+import { zapierTaskEvent } from "@/lib/zapier"
 import { z } from "zod"
 
 export const runtime = "nodejs"
@@ -51,6 +52,14 @@ export async function PATCH(
   if (dueDate !== undefined) updateData.due_date = dueDate ?? null
 
   const sb = createServiceClient()
+
+  // Leer estado anterior para detectar cambios de columna / asignación
+  const { data: before } = await sb
+    .from("kanban_tasks")
+    .select("column_id, assigned_to")
+    .eq("id", id)
+    .maybeSingle()
+
   const { data, error } = await sb
     .from("kanban_tasks")
     .update(updateData)
@@ -60,6 +69,38 @@ export async function PATCH(
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   if (!data)  return NextResponse.json({ error: "Task not found" }, { status: 404 })
+
+  // Notificar cambios relevantes a Slack vía Zapier (best-effort)
+  const triggeredBy = (user as { email?: string; id: string }).email ?? user.id
+  try {
+    const columnChanged = before && before.column_id !== data.column_id
+    if (columnChanged) {
+      if (data.column_id === "listo") {
+        await zapierTaskEvent({
+          event_type: "task.completed", task_id: data.id, title: data.title,
+          triggered_by: triggeredBy, assigned_to: data.assigned_to,
+        })
+      } else {
+        await zapierTaskEvent({
+          event_type: "task.moved", task_id: data.id, title: data.title,
+          triggered_by: triggeredBy, assigned_to: data.assigned_to,
+          from_column: before.column_id, to_column: data.column_id,
+        })
+      }
+    }
+    // Asignación nueva o cambiada
+    const assigneeChanged = before && before.assigned_to !== data.assigned_to && data.assigned_to
+    if (assigneeChanged) {
+      await zapierTaskEvent({
+        event_type: "task.assigned", task_id: data.id, title: data.title,
+        triggered_by: triggeredBy, assigned_to: data.assigned_to,
+        label: data.label_text || null, due_date: data.due_date,
+      })
+    }
+  } catch (e) {
+    console.error("[tareas/PATCH] zapier error:", e instanceof Error ? e.message : String(e))
+  }
+
   return NextResponse.json({ task: data })
 }
 

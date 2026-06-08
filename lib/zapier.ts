@@ -180,3 +180,75 @@ export async function zapierEODSubmitted(payload: {
 
   return postWebhook(url, { ...payload, message })
 }
+
+// ─── Fire: task events (Kanban) ───────────────────────────────────────────────
+// Un solo webhook para todos los eventos del tablero de tareas.
+//   ZAPIER_WEBHOOK_TAREAS → catch hook que postea a Slack usando {{message}}
+
+const COLUMN_LABELS: Record<string, string> = {
+  "por-hacer":  "Por hacer",
+  "en-proceso": "En proceso",
+  "listo":      "Listo",
+}
+
+/** "2026-06-11" → "11 de junio" */
+function formatDueDateEs(iso?: string | null): string | null {
+  if (!iso) return null
+  const d = new Date(iso.slice(0, 10) + "T00:00:00")
+  if (isNaN(d.getTime())) return null
+  const meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"]
+  return `${d.getDate()} de ${meses[d.getMonth()]}`
+}
+
+export type TaskEventType =
+  | "task.created"
+  | "task.moved"
+  | "task.completed"
+  | "task.assigned"
+
+export async function zapierTaskEvent(payload: {
+  event_type:   TaskEventType
+  task_id:      string
+  title:        string
+  triggered_by: string                // quién hizo la acción (email)
+  assigned_to?: string | null
+  from_column?: string | null         // para task.moved
+  to_column?:   string | null         // para task.moved / completed / created
+  label?:       string | null         // etiqueta (ej "Urgente")
+  due_date?:    string | null         // ISO
+}): Promise<ZapierResult> {
+  const url = process.env.ZAPIER_WEBHOOK_TAREAS
+  if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_TAREAS not configured" }
+
+  const isUrgent = (payload.label ?? "").toLowerCase() === "urgente"
+  const dueLabel = formatDueDateEs(payload.due_date)
+  const toCol    = payload.to_column   ? (COLUMN_LABELS[payload.to_column]   ?? payload.to_column)   : null
+  const fromCol  = payload.from_column ? (COLUMN_LABELS[payload.from_column] ?? payload.from_column) : null
+
+  let message = ""
+  switch (payload.event_type) {
+    case "task.created":
+      message = `🆕 Nueva tarea: *${payload.title}*`
+      if (payload.assigned_to) message += `\n👤 Asignada a *${payload.assigned_to}*`
+      if (isUrgent)            message += `\n🔴 *URGENTE*`
+      if (dueLabel)            message += `\n📅 Para el ${dueLabel}`
+      break
+
+    case "task.moved":
+      message = `🔀 *${payload.title}* se movió${fromCol ? ` de *${fromCol}*` : ""} a *${toCol}*`
+      if (payload.assigned_to) message += ` · ${payload.assigned_to}`
+      break
+
+    case "task.completed":
+      message = `✅ Tarea completada: *${payload.title}*`
+      if (payload.assigned_to) message += ` por *${payload.assigned_to}*`
+      break
+
+    case "task.assigned":
+      message = `👤 Se le asignó una tarea${isUrgent ? " *urgente*" : ""} a *${payload.assigned_to}*: *${payload.title}*`
+      if (dueLabel) message += `\n📅 Para el ${dueLabel}`
+      break
+  }
+
+  return postWebhook(url, { ...payload, message })
+}

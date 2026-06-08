@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
+import { zapierTaskEvent } from "@/lib/zapier"
 import { z } from "zod"
 
 export const runtime = "nodejs"
@@ -74,5 +75,35 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Notificar a Slack vía Zapier (best-effort, no bloquea la respuesta)
+  const triggeredBy = (user as { email?: string; id: string }).email ?? user.id
+  try {
+    await zapierTaskEvent({
+      event_type:   "task.created",
+      task_id:      data.id,
+      title:        data.title,
+      triggered_by: triggeredBy,
+      assigned_to:  data.assigned_to,
+      to_column:    data.column_id,
+      label:        data.label_text || null,
+      due_date:     data.due_date,
+    })
+    // Si se crea ya asignada, avisar también la asignación
+    if (data.assigned_to) {
+      await zapierTaskEvent({
+        event_type:   "task.assigned",
+        task_id:      data.id,
+        title:        data.title,
+        triggered_by: triggeredBy,
+        assigned_to:  data.assigned_to,
+        label:        data.label_text || null,
+        due_date:     data.due_date,
+      })
+    }
+  } catch (e) {
+    console.error("[tareas/POST] zapier error:", e instanceof Error ? e.message : String(e))
+  }
+
   return NextResponse.json({ task: data }, { status: 201 })
 }
