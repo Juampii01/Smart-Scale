@@ -17,6 +17,7 @@ import { TaskCard } from "./TaskCard"
 import type { Task } from "./TaskCard"
 import { TaskModal } from "./TaskModal"
 import { initials, avatarColor } from "./avatar"
+import { PushOptIn } from "@/components/push-optin"
 
 interface ApiTask {
   id:          string
@@ -451,13 +452,16 @@ export function KanbanBoard() {
           </h1>
           <p className="text-sm text-foreground/40 mt-1">Tablero compartido · Ann · Fabri · Juan</p>
         </div>
-        <button
-          onClick={() => openCreateModal()}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] active:scale-95"
-        >
-          <Plus className="h-4 w-4" />
-          Nueva tarea
-        </button>
+        <div className="flex items-center gap-2">
+          <PushOptIn />
+          <button
+            onClick={() => openCreateModal()}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] active:scale-95"
+          >
+            <Plus className="h-4 w-4" />
+            Nueva tarea
+          </button>
+        </div>
       </div>
 
       {/* Barra de filtros + métricas */}

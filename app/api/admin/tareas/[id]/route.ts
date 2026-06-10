@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
 import { zapierTaskEvent } from "@/lib/zapier"
+import { sendPushToNames } from "@/lib/push"
 import { z } from "zod"
 
 export const runtime = "nodejs"
@@ -116,6 +117,16 @@ export async function PATCH(
         label: data.label_text || null, priority: data.priority || null,
         due_date: data.due_date,
       })
+      // Push al celular de los recién asignados
+      const added = afterArr.filter((a) => !beforeArr.includes(a))
+      if (added.length > 0) {
+        const urgent = data.priority === "urgente" ? "🔴 " : ""
+        await sendPushToNames(sb, added, {
+          title: `${urgent}Nueva tarea asignada`,
+          body:  data.title,
+          url:   "/admin/tareas",
+        })
+      }
     }
   } catch (e) {
     console.error("[tareas/PATCH] zapier error:", e instanceof Error ? e.message : String(e))

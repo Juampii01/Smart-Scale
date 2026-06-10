@@ -2,7 +2,7 @@
 // Estrategia conservadora: network-first para navegación (siempre datos frescos),
 // con fallback a caché solo si no hay red. No cachea respuestas de /api ni de Supabase.
 
-const CACHE = "smartscale-v1"
+const CACHE = "smartscale-v2"
 const OFFLINE_ASSETS = ["/smartscale-icon-192.png", "/smartscale-icon-512.png"]
 
 self.addEventListener("install", (event) => {
@@ -37,5 +37,34 @@ self.addEventListener("fetch", (event) => {
         return res
       })
       .catch(() => caches.match(request).then((cached) => cached || caches.match("/dashboard")))
+  )
+})
+
+// ─── Web Push ───────────────────────────────────────────────────────────────
+self.addEventListener("push", (event) => {
+  let data = {}
+  try { data = event.data ? event.data.json() : {} } catch (e) { data = {} }
+  const title = data.title || "Smart Scale"
+  const options = {
+    body: data.body || "",
+    icon: "/smartscale-icon-192.png",
+    badge: "/smartscale-icon-192.png",
+    data: { url: data.url || "/" },
+    vibrate: [80, 40, 80],
+  }
+  event.waitUntil(self.registration.showNotification(title, options))
+})
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close()
+  const target = (event.notification.data && event.notification.data.url) || "/"
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      // Si ya hay una ventana abierta, enfocarla y navegar
+      for (const client of clientList) {
+        if ("focus" in client) { client.focus(); if ("navigate" in client) client.navigate(target); return }
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(target)
+    })
   )
 })
