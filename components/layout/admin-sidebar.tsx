@@ -69,7 +69,7 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
       <aside
         className={cn(
           "fixed left-0 top-0 z-50 h-full w-[220px] border-r border-foreground/[0.07] transition-all duration-200 ease-in-out lg:translate-x-0",
-          "bg-card flex flex-col",
+          "bg-card flex flex-col pt-[env(safe-area-inset-top)]",
           open ? "translate-x-0" : "-translate-x-full",
           collapsed && "lg:w-[64px]",
         )}
