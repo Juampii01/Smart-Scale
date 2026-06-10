@@ -1,8 +1,9 @@
 import type React from "react"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Geist, Instrument_Serif } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme/theme-provider"
+import { PwaRegister } from "@/components/pwa-register"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -46,6 +47,18 @@ export const metadata: Metadata = {
     description: "Client Monthly Analytics Portal",
     images: ["/og-image-v3.png"],
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Smart Scale",
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: "#ffde21",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 }
 
 export default function RootLayout({
@@ -63,6 +76,7 @@ export default function RootLayout({
         <ThemeProvider>
           {children}
           <Analytics />
+          <PwaRegister />
         </ThemeProvider>
       </body>
     </html>
