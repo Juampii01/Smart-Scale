@@ -17,6 +17,14 @@ async function authHeader() {
   return { Authorization: `Bearer ${session?.access_token ?? ""}`, "Content-Type": "application/json" }
 }
 
+/** Promesa con timeout para no colgarse esperando al service worker. */
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error(`Timeout: ${label}`)), ms)),
+  ])
+}
+
 type State = "idle" | "unsupported" | "subscribed" | "working"
 
 /** Botón para activar notificaciones push en el dispositivo. */
@@ -40,20 +48,36 @@ export function PushOptIn() {
   const enable = async () => {
     setState("working"); setMsg(null)
     try {
+      // Pedir permiso primero (debe ser dentro del gesto de click)
       const perm = await Notification.requestPermission()
-      if (perm !== "granted") { setMsg("Permiso denegado. Activalo desde los ajustes del navegador."); setState("idle"); return }
+      if (perm !== "granted") {
+        setMsg(perm === "denied"
+          ? "Permiso bloqueado. Activalo desde Ajustes → Notificaciones."
+          : "No se concedió el permiso. Probá de nuevo.")
+        setState("idle"); return
+      }
 
-      const reg = await navigator.serviceWorker.ready
-      const sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-      })
+      // Esperar al SW con timeout (en iOS recién instalado puede tardar)
+      const reg = await withTimeout(navigator.serviceWorker.ready, 12000,
+        "el service worker no se activó. Cerrá la app del todo y reabrila.")
+
+      // Reusar suscripción existente o crear una nueva
+      let sub = await reg.pushManager.getSubscription()
+      if (!sub) {
+        sub = await withTimeout(reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        }), 12000, "no se pudo crear la suscripción.")
+      }
 
       const headers = await authHeader()
       const res = await fetch("/api/push/subscribe", {
         method: "POST", headers, body: JSON.stringify({ subscription: sub }),
       })
-      if (!res.ok) throw new Error("No se pudo registrar la suscripción")
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        throw new Error(d.error ?? `Error ${res.status} al registrar`)
+      }
 
       // Push de prueba para confirmar
       await fetch("/api/push/test", { method: "POST", headers })
