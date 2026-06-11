@@ -66,3 +66,13 @@ export async function sendPushToNames(sb: SB, names: string[], payload: PushPayl
     .in("name", names)
   await sendToSubs(sb, (data ?? []) as SubRow[], payload)
 }
+
+/** Envía push a varios usuarios (por user_id). Mismo payload para todos. */
+export async function sendPushToUsers(sb: SB, userIds: string[], payload: PushPayload) {
+  if (userIds.length === 0) return
+  const { data } = await sb
+    .from("push_subscriptions")
+    .select("id, endpoint, p256dh, auth")
+    .in("user_id", userIds)
+  await sendToSubs(sb, (data ?? []) as SubRow[], payload)
+}
