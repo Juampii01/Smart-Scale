@@ -660,6 +660,19 @@ function DetailDrawer({
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            {/* Marcar programa finalizado — visible si aún no está finalizado/inactivo */}
+            {client.status !== "completado" && client.status !== "inactivo" && (
+              <button
+                onClick={() => onPatchClient(client.id, { status: "completado" })}
+                disabled={offboarding || deleting}
+                aria-label="Marcar programa finalizado"
+                title="Marca el programa como finalizado (completado)"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-sky-300/50 px-2.5 text-[11px] font-semibold text-sky-700 hover:bg-sky-100/60 dark:border-sky-500/25 dark:text-sky-300 dark:hover:bg-sky-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                <span>Finalizar programa</span>
+              </button>
+            )}
             {/* Dar de baja — solo visible si está activo/en_pausa */}
             {client.status !== "inactivo" && (
               <button
