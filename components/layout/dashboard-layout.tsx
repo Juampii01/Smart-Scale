@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { MonthSelector } from "@/components/layout/month-selector"
 import { Sidebar } from "@/components/layout/sidebar"
 import { AdminSidebar } from "@/components/layout/admin-sidebar"
+import { PushOptIn } from "@/components/push-optin"
 import { AnnualMetricsProvider } from "@/contexts/annual-metrics-context"
 import { NavigationProgress } from "@/components/ui/navigation-progress"
 import { HelpChat } from "@/components/ui/help-chat"
@@ -746,7 +747,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <OwnClientContext.Provider value={ownClientId}>
                 <AnnualMetricsProvider>
                   <SelectedMonthContext.Provider value={selectedMonth}>
-                    <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-background">{children}</main>
+                    <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-background">
+                      {!isAdminMode && (
+                        <PushOptIn banner prompt="Activá las notificaciones para enterarte de tus llamadas y recordatorios" />
+                      )}
+                      {children}
+                    </main>
                   </SelectedMonthContext.Provider>
                 </AnnualMetricsProvider>
               </OwnClientContext.Provider>

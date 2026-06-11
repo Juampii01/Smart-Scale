@@ -27,8 +27,11 @@ function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
 
 type State = "idle" | "unsupported" | "subscribed" | "working"
 
-/** Botón para activar notificaciones push en el dispositivo. */
-export function PushOptIn() {
+/** Botón para activar notificaciones push en el dispositivo.
+ *  - banner: muestra un cartel completo (para el portal cliente) que se oculta
+ *    solo una vez activado o si no está soportado.
+ *  - prompt: texto contextual mostrado junto al botón. */
+export function PushOptIn({ banner = false, prompt }: { banner?: boolean; prompt?: string } = {}) {
   const [state, setState] = useState<State>("idle")
   const [msg,   setMsg]   = useState<string | null>(null)
 
@@ -91,7 +94,9 @@ export function PushOptIn() {
 
   if (state === "unsupported") return null
 
+  // En modo banner, una vez activado no mostramos nada (no molestar)
   if (state === "subscribed") {
+    if (banner) return null
     return (
       <div className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold"
         style={{ backgroundColor: "color-mix(in srgb, #22C55E 12%, transparent)", color: "#16A34A" }}>
@@ -100,16 +105,34 @@ export function PushOptIn() {
     )
   }
 
+  const btn = (
+    <button
+      onClick={enable} disabled={state === "working"}
+      className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition active:scale-95 disabled:opacity-50 shrink-0"
+      style={{ backgroundColor: "#ffde21", color: "#000" }}
+    >
+      {state === "working" ? <Loader2 size={14} className="animate-spin" /> : <BellRing size={14} />}
+      Activar notificaciones
+    </button>
+  )
+
+  if (banner) {
+    return (
+      <div className="flex items-center gap-3 rounded-xl border px-4 py-3 mb-4"
+        style={{ borderColor: "color-mix(in srgb, #ffde21 35%, var(--border))", backgroundColor: "color-mix(in srgb, #ffde21 8%, transparent)" }}>
+        <Bell size={18} className="shrink-0" style={{ color: "#ffde21" }} />
+        <div className="flex-1 min-w-0">
+          <p className="text-[13px] font-semibold text-foreground">{prompt ?? "Activá las notificaciones"}</p>
+          {msg && <p className="text-[11px] mt-0.5" style={{ color: "var(--muted-foreground)" }}>{msg}</p>}
+        </div>
+        {btn}
+      </div>
+    )
+  }
+
   return (
     <div className="inline-flex flex-col gap-1">
-      <button
-        onClick={enable} disabled={state === "working"}
-        className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition active:scale-95 disabled:opacity-50"
-        style={{ backgroundColor: "#ffde21", color: "#000" }}
-      >
-        {state === "working" ? <Loader2 size={14} className="animate-spin" /> : <BellRing size={14} />}
-        Activar notificaciones
-      </button>
+      {btn}
       {msg && <span className="text-[11px]" style={{ color: "var(--muted-foreground)" }}>{msg}</span>}
     </div>
   )
