@@ -35,29 +35,13 @@ const OFFERS: Offer[] = [
     footnote: "Misma estructura que la renovación con 1-1, sin la llamada privada mensual.",
   },
   {
-    id: "renovacion-1a1",
-    badge: "Renovación",
-    icon: Repeat,
-    title: "Renovación con 1-1 mensual",
-    tagline: "Seguí con todo el ecosistema + tu llamada privada mensual.",
-    price: "USD 1.000/mes",
-    highlight: true,
-    features: [
-      "Llamada 1-1 mensual con Ann",
-      "Llamada semanal de Lab / Workshop",
-      "Llamada quincenal de Automatizaciones y Sistemas",
-      "Llamada mensual de Mentalidad",
-      "Acceso completo a la comunidad y recursos",
-    ],
-  },
-  {
     id: "scaleup",
     badge: "Upsell · 1:1",
     icon: Crown,
     title: "ScaleUp",
     tagline: "Acompañamiento mucho más directo y estratégico.",
     price: "USD 2.500/mes",
-    highlight: false,
+    highlight: true,
     features: [
       "Soporte 1:1 con Ann vía WhatsApp y llamadas",
       "Seguimiento constante de números y trackers semanales",
@@ -69,6 +53,22 @@ const OFFERS: Offer[] = [
       "Acceso completo a la comunidad y recursos",
     ],
     footnote: "El nivel más alto de acompañamiento del programa.",
+  },
+  {
+    id: "renovacion-1a1",
+    badge: "Renovación",
+    icon: Repeat,
+    title: "Renovación con 1-1 mensual",
+    tagline: "Seguí con todo el ecosistema + tu llamada privada mensual.",
+    price: "USD 1.000/mes",
+    highlight: false,
+    features: [
+      "Llamada 1-1 mensual con Ann",
+      "Llamada semanal de Lab / Workshop",
+      "Llamada quincenal de Automatizaciones y Sistemas",
+      "Llamada mensual de Mentalidad",
+      "Acceso completo a la comunidad y recursos",
+    ],
   },
 ]
 
