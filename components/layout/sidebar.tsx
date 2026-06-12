@@ -51,6 +51,12 @@ const NAV_GROUPS = [
       { name: "Transcript de Videos", href: "/transcript",          icon: FileVideo },
     ],
   },
+  {
+    label: "Tu plan",
+    items: [
+      { name: "Próximo nivel", href: "/renovacion", icon: Sparkles },
+    ],
+  },
 ]
 
 
