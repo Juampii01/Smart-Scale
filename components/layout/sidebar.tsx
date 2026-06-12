@@ -51,12 +51,8 @@ const NAV_GROUPS = [
       { name: "Transcript de Videos", href: "/transcript",          icon: FileVideo },
     ],
   },
-  {
-    label: "Tu plan",
-    items: [
-      { name: "Próximo nivel", href: "/renovacion", icon: Sparkles },
-    ],
-  },
+  // La página /renovacion existe pero NO va en el sidebar:
+  // el equipo le envía el link directo al cliente cuando corresponde.
 ]
 
 
