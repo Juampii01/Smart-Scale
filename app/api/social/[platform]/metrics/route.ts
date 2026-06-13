@@ -15,12 +15,28 @@ import { getConnection, getValidYouTubeToken } from "@/lib/social/connection"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
+export const maxDuration = 60
 
 const WEEKDAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
 
 interface MediaItem {
   id: string; thumbnail: string | null; permalink: string; caption: string
-  likes: number; comments: number; views: number; type: string; timestamp: string | null
+  likes: number; comments: number; views: number; reach?: number; type: string; timestamp: string | null
+}
+
+/** Corre fn sobre items con concurrencia limitada. */
+async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const out: R[] = new Array(items.length)
+  let i = 0
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, async () => {
+      while (i < items.length) {
+        const idx = i++
+        out[idx] = await fn(items[idx])
+      }
+    }),
+  )
+  return out
 }
 interface Stat { label: string; value: string; sub?: string }
 
@@ -85,40 +101,64 @@ function detailedFromMedia(media: MediaItem[], followers: number, unit: string):
 }
 
 // ─── Instagram ────────────────────────────────────────────────────────────────
+const IG_BASE = "https://graph.instagram.com/v23.0"
+
+/** Views + reach de una media vía el endpoint de insights (el campo directo `views` no existe). */
+async function igMediaInsights(mediaId: string, token: string): Promise<{ views: number; reach: number }> {
+  const parse = (json: any) => {
+    const out = { views: 0, reach: 0 }
+    for (const d of json?.data ?? []) {
+      const v = d?.values?.[0]?.value ?? 0
+      if (d?.name === "views") out.views = v
+      if (d?.name === "reach") out.reach = v
+    }
+    return out
+  }
+  try {
+    let res = await fetch(`${IG_BASE}/${mediaId}/insights?metric=views,reach&access_token=${encodeURIComponent(token)}`, { signal: AbortSignal.timeout(8_000) })
+    if (res.ok) return parse(await res.json())
+    // Algunos tipos de media no soportan `views` → reintentar solo con reach
+    res = await fetch(`${IG_BASE}/${mediaId}/insights?metric=reach&access_token=${encodeURIComponent(token)}`, { signal: AbortSignal.timeout(8_000) })
+    if (res.ok) return parse(await res.json())
+  } catch { /* best-effort */ }
+  return { views: 0, reach: 0 }
+}
+
 async function instagramMetrics(accessToken: string) {
-  const base = "https://graph.instagram.com/v23.0"
+  const enc = encodeURIComponent(accessToken)
   const profileRes = await fetch(
-    `${base}/me?fields=followers_count,media_count&access_token=${encodeURIComponent(accessToken)}`,
+    `${IG_BASE}/me?fields=followers_count,media_count&access_token=${enc}`,
     { signal: AbortSignal.timeout(10_000) },
   )
   if (!profileRes.ok) throw new Error(`IG profile ${profileRes.status}`)
   const profile = (await profileRes.json()) as { followers_count?: number; media_count?: number }
 
-  const media: MediaItem[] = []
-  let url = `${base}/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count,views&limit=50&access_token=${encodeURIComponent(accessToken)}`
-  for (let page = 0; page < 2 && url; page++) {
-    const res = await fetch(url, { signal: AbortSignal.timeout(10_000) })
-    if (!res.ok) break
-    const data = (await res.json()) as { data?: Array<Record<string, any>>; paging?: { next?: string } }
-    for (const m of data.data ?? []) {
-      media.push({
-        id: String(m.id),
-        thumbnail: m.media_type === "VIDEO" ? (m.thumbnail_url ?? m.media_url ?? null) : (m.media_url ?? null),
-        permalink: m.permalink ?? "#",
-        caption: (m.caption ?? "").slice(0, 140),
-        likes: m.like_count ?? 0,
-        comments: m.comments_count ?? 0,
-        views: m.views ?? 0,
-        type: m.media_type ?? "IMAGE",
-        timestamp: m.timestamp ?? null,
-      })
-    }
-    url = data.paging?.next ?? ""
-  }
+  // Media reciente (hasta 24 para mantener el fetch de insights rápido)
+  const mediaRes = await fetch(
+    `${IG_BASE}/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=24&access_token=${enc}`,
+    { signal: AbortSignal.timeout(10_000) },
+  )
+  const mediaData = mediaRes.ok ? ((await mediaRes.json()) as { data?: Array<Record<string, any>> }) : { data: [] }
+  const media: MediaItem[] = (mediaData.data ?? []).map((m) => ({
+    id: String(m.id),
+    thumbnail: m.media_type === "VIDEO" ? (m.thumbnail_url ?? m.media_url ?? null) : (m.media_url ?? null),
+    permalink: m.permalink ?? "#",
+    caption: (m.caption ?? "").slice(0, 140),
+    likes: m.like_count ?? 0,
+    comments: m.comments_count ?? 0,
+    views: 0,
+    type: m.media_type ?? "IMAGE",
+    timestamp: m.timestamp ?? null,
+  }))
+
+  // Views + reach reales por media (insights), con concurrencia limitada
+  const insights = await mapLimit(media, 8, (m) => igMediaInsights(m.id, accessToken))
+  media.forEach((m, i) => { m.views = insights[i].views; m.reach = insights[i].reach })
 
   const followers = profile.followers_count ?? 0
   const posts = profile.media_count ?? 0
   const totalViews = media.reduce((s, m) => s + m.views, 0)
+  const totalReach = media.reduce((s, m) => s + (m.reach ?? 0), 0)
   const totalLikes = media.reduce((s, m) => s + m.likes, 0)
   const totalComments = media.reduce((s, m) => s + m.comments, 0)
   const avgInteractions = media.length ? (totalLikes + totalComments) / media.length : 0
@@ -127,11 +167,11 @@ async function instagramMetrics(accessToken: string) {
   const overview: Stat[] = [
     { label: "Seguidores", value: fmt(followers) },
     { label: "Publicaciones", value: fmt(posts) },
-    { label: "Likes promedio", value: fmt(media.length ? totalLikes / media.length : 0) },
-    { label: "Comentarios prom.", value: fmt(media.length ? totalComments / media.length : 0) },
     { label: "Engagement", value: pct(engagement) },
   ]
-  if (totalViews > 0) overview.push({ label: "Views totales", value: fmt(totalViews) })
+  if (totalViews > 0) overview.push({ label: "Views (recientes)", value: fmt(totalViews) })
+  if (totalReach > 0) overview.push({ label: "Alcance (recientes)", value: fmt(totalReach) })
+  overview.push({ label: "Likes promedio", value: fmt(media.length ? totalLikes / media.length : 0) })
 
   return { overview, detailed: detailedFromMedia(media, followers, "reel"), media }
 }
