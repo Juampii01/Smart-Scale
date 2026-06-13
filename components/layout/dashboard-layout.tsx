@@ -511,7 +511,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         ? <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />
         : <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin && !activeViewAs} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />}
 
-      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-[margin] duration-200 bg-background pt-[env(safe-area-inset-top)] ${sidebarCollapsed ? 'lg:ml-[64px]' : 'lg:ml-[220px]'}`}>
+      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-[margin] duration-200 bg-background pt-[env(safe-area-inset-top)] ${
+        isAdminMode
+          ? (sidebarCollapsed ? 'lg:ml-[64px]'  : 'lg:ml-[220px]')   // admin: sidebar pegado
+          : (sidebarCollapsed ? 'lg:ml-[100px]' : 'lg:ml-[252px]')   // cliente: sidebar flotante
+      }`}>
 
         {/* "View as" banner — solo admin impersonando otro rol */}
         {activeViewAs && (

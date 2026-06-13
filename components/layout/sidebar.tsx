@@ -76,10 +76,13 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-[220px] border-r border-foreground/[0.07] transition-all duration-200 ease-in-out lg:translate-x-0",
-          "bg-card flex flex-col pt-[env(safe-area-inset-top)] shadow-[6px_0_30px_-10px_rgba(0,0,0,0.28)]",
+          "fixed left-0 top-0 z-50 h-full w-[220px] transition-all duration-200 ease-in-out lg:translate-x-0",
+          "bg-card flex flex-col pt-[env(safe-area-inset-top)] overflow-hidden",
+          "border-r border-foreground/[0.07]",                                        // borde drawer (mobile)
+          // Flotante en desktop: despegado, redondeado, con sombra
+          "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-foreground/[0.08] lg:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.45)]",
           open ? "translate-x-0" : "-translate-x-full",
-          collapsed && "lg:w-[64px]",
+          collapsed && "lg:w-[68px]",
         )}
       >
         {/* Logo + collapse toggle (siempre en la misma fila) */}
