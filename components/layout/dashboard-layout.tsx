@@ -198,6 +198,17 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     return () => { active = false }
   }, [supabase])
 
+  // Refresco en vivo cuando /perfil actualiza nombre o foto (sin recargar)
+  useEffect(() => {
+    const onProfileUpdated = (e: Event) => {
+      const detail = (e as CustomEvent).detail ?? {}
+      if ("name" in detail) setClientDisplayName(detail.name || null)
+      if ("avatarUrl" in detail) setAvatarUrl(detail.avatarUrl ?? null)
+    }
+    window.addEventListener("ss:profile-updated", onProfileUpdated)
+    return () => window.removeEventListener("ss:profile-updated", onProfileUpdated)
+  }, [])
+
   const handleAvatarUpload = async (file: File) => {
     if (uploadingAvatar) return
     setUploadingAvatar(true)
@@ -349,20 +360,17 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         setOwnClientId(cid ?? null)
         setUserRole(role ?? jwtRole ?? null)
 
-        // For non-admin users, load their display name from clients.nombre
-        const isClientRole = !isAdminRole(role)  // false para admin Y developer
-        if (isClientRole && cid) {
-          // Try profile name first, then fall back to clients.nombre
-          if (profName) {
-            setClientDisplayName(profName)
-          } else {
-            const { data: clientRow } = await supabase
-              .from("clients")
-              .select("nombre")
-              .eq("id", cid)
-              .maybeSingle()
-            if (clientRow?.nombre) setClientDisplayName(clientRow.nombre)
-          }
+        // Display name: profiles.name tiene prioridad para CUALQUIER rol (lo edita /perfil).
+        // Para clientes sin name propio, fallback a clients.nombre.
+        if (profName) {
+          setClientDisplayName(profName)
+        } else if (!isAdminRole(role) && cid) {
+          const { data: clientRow } = await supabase
+            .from("clients")
+            .select("nombre")
+            .eq("id", cid)
+            .maybeSingle()
+          if (clientRow?.nombre) setClientDisplayName(clientRow.nombre)
         }
 
         // Initialize active client.
@@ -512,7 +520,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       <WhatsNew3 />
       {isAdminMode
         ? <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />
-        : <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin && !activeViewAs} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />}
+        : <Sidebar
+            open={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            isAdmin={isAdmin && !activeViewAs}
+            collapsed={sidebarCollapsed}
+            onToggleCollapsed={toggleSidebarCollapsed}
+            avatarUrl={avatarUrl}
+            displayName={clientDisplayName ?? userEmail}
+            email={userEmail}
+          />}
 
       <div className={`flex-1 flex flex-col h-full overflow-hidden transition-[margin] duration-200 bg-background pt-[env(safe-area-inset-top)] ${
         isAdminMode

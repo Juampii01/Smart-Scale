@@ -6,6 +6,7 @@ import {
   Zap, Globe, FileVideo,
   ChevronDown, ShieldCheck, ArrowRight,
   ChevronLeft, ChevronRight, Sparkles, PenLine, Instagram, Youtube,
+  User, Pencil,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -18,6 +19,10 @@ interface SidebarProps {
   isAdmin?: boolean
   collapsed?: boolean
   onToggleCollapsed?: () => void
+  // Perfil — para el bloque de avatar al pie del sidebar (link a /perfil)
+  avatarUrl?: string | null
+  displayName?: string | null
+  email?: string | null
 }
 
 const NAV_GROUPS = [
@@ -60,13 +65,19 @@ const NAV_GROUPS = [
 ]
 
 
-export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onToggleCollapsed }: SidebarProps) {
+export function Sidebar({
+  open, onClose, isAdmin = false, collapsed = false, onToggleCollapsed,
+  avatarUrl, displayName, email,
+}: SidebarProps) {
   const pathname = usePathname()
   const [groupsCollapsed, setGroupsCollapsed] = useState<Record<string, boolean>>({})
 
   const toggleGroup = (label: string) => {
     setGroupsCollapsed(prev => ({ ...prev, [label]: !prev[label] }))
   }
+
+  const profileLabel = displayName ?? email ?? "Mi perfil"
+  const hasProfile = Boolean(displayName || email)
 
   return (
     <>
@@ -79,14 +90,14 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
           "fixed left-0 top-0 z-50 h-full w-[220px] transition-all duration-200 ease-in-out lg:translate-x-0",
           "bg-card flex flex-col pt-[env(safe-area-inset-top)] overflow-hidden",
           "border-r border-foreground/[0.07]",                                        // borde drawer (mobile)
-          // Flotante en desktop: despegado, redondeado, con sombra
-          "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-foreground/[0.08] lg:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.45)]",
+          // Flotante en desktop: despegado, redondeado, con sombra suave
+          "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-foreground/[0.08] lg:shadow-[0_10px_36px_-18px_rgba(0,0,0,0.30)]",
           open ? "translate-x-0" : "-translate-x-full",
           collapsed && "lg:w-[68px]",
         )}
       >
         {/* Logo + collapse toggle (siempre en la misma fila) */}
-        <div className={cn("flex h-16 flex-shrink-0 items-center border-b border-foreground/[0.07]", collapsed ? "lg:justify-center lg:px-2 px-5" : "justify-between px-5")}>
+        <div className={cn("flex h-16 flex-shrink-0 items-center border-b border-foreground/[0.07]", collapsed ? "lg:justify-center lg:px-2 px-4" : "justify-between pl-5 pr-3")}>
           {/* Logo: solo cuando NO está colapsado en desktop, o siempre en mobile */}
           {!collapsed && (
             <a href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
@@ -103,7 +114,7 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
           <div className="flex items-center gap-1">
             {onToggleCollapsed && (
               <button
-                className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-[#ffde21] hover:bg-[#ffde21]/[0.08] transition-all border border-transparent hover:border-[#ffde21]/20"
+                className="hidden lg:flex h-7 w-7 items-center justify-center rounded-md text-foreground/35 hover:text-foreground hover:bg-foreground/[0.06] transition-colors"
                 onClick={onToggleCollapsed}
                 aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
                 title={collapsed ? "Expandir (Cmd+\\)" : "Colapsar (Cmd+\\)"}
@@ -237,6 +248,41 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
                   </>
                 )}
               </div>
+            </Link>
+          )}
+
+          {/* Perfil — link a "Editar perfil" (nombre, email, contraseña y foto) */}
+          {hasProfile && (
+            <Link
+              href="/perfil"
+              onClick={onClose}
+              title={collapsed ? `${profileLabel} — editar perfil` : "Editar perfil"}
+              className={cn(
+                "group/profile mt-1 flex w-full items-center rounded-lg border transition-all duration-150",
+                pathname === "/perfil"
+                  ? "border-[#ffde21]/30 bg-[#ffde21]/[0.08]"
+                  : "border-foreground/[0.06] bg-foreground/[0.02] hover:bg-foreground/[0.05]",
+                collapsed ? "lg:justify-center lg:px-2 px-3 py-2 gap-2.5" : "px-2.5 py-2 gap-2.5"
+              )}
+            >
+              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10 text-[13px] font-bold text-[#ffde21]">
+                {avatarUrl
+                  ? <img src={avatarUrl} alt="Perfil" className="h-full w-full object-cover" />
+                  : <User className="h-4 w-4 text-[#ffde21]" />}
+                {/* Badge de lápiz — invita a editar; en hover si ya hay foto */}
+                <span className={cn(
+                  "absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#ffde21] ring-2 ring-card",
+                  avatarUrl && "opacity-0 group-hover/profile:opacity-100 transition-opacity"
+                )}>
+                  <Pencil className="h-2.5 w-2.5 text-black" />
+                </span>
+              </span>
+              {!collapsed && (
+                <span className="min-w-0 flex-1 text-left">
+                  <span className="block truncate text-[13px] font-semibold text-foreground">{profileLabel}</span>
+                  <span className="block truncate text-[11px] text-foreground/45">Editar perfil</span>
+                </span>
+              )}
             </Link>
           )}
         </div>
