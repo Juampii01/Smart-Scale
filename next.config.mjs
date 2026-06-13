@@ -34,8 +34,8 @@ const nextConfig = {
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               // Tailwind inline styles + shadcn/ui
               "style-src 'self' 'unsafe-inline'",
-              // App images + proxy-image CDN sources + Calendly embeds
-              "img-src 'self' data: blob: https://cdninstagram.com https://*.cdninstagram.com https://fbcdn.net https://*.fbcdn.net https://ytimg.com https://*.ytimg.com https://ggpht.com https://*.ggpht.com https://googleusercontent.com https://*.googleusercontent.com",
+              // App images + Supabase Storage (avatares, attachments) + proxy-image CDN sources
+              "img-src 'self' data: blob: https://*.supabase.co https://cdninstagram.com https://*.cdninstagram.com https://fbcdn.net https://*.fbcdn.net https://ytimg.com https://*.ytimg.com https://ggpht.com https://*.ggpht.com https://googleusercontent.com https://*.googleusercontent.com",
               // API calls: Supabase, Anthropic (server-side only but kept for fetch()),
               // YouTube embeds, Calendly
               "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://calendly.com",
