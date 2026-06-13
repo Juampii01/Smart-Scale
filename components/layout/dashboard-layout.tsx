@@ -11,6 +11,7 @@ import { MonthSelector } from "@/components/layout/month-selector"
 import { Sidebar } from "@/components/layout/sidebar"
 import { AdminSidebar } from "@/components/layout/admin-sidebar"
 import { PushOptIn } from "@/components/push-optin"
+import { WhatsNew3 } from "@/components/whats-new-3"
 import { AnnualMetricsProvider } from "@/contexts/annual-metrics-context"
 import { NavigationProgress } from "@/components/ui/navigation-progress"
 import { HelpChat } from "@/components/ui/help-chat"
@@ -507,6 +508,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <NavigationProgress />
+      <WhatsNew3 />
       {isAdminMode
         ? <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />
         : <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin && !activeViewAs} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />}
