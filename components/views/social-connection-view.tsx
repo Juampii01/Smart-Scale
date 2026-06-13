@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase"
 import { useActiveClient } from "@/components/layout/dashboard-layout"
-import { Instagram, Youtube, Loader2, Check, Link2, Unlink, AlertTriangle, RefreshCw, Heart, MessageCircle, Eye, ExternalLink } from "lucide-react"
+import { Instagram, Youtube, Loader2, Check, Link2, Unlink, AlertTriangle, RefreshCw, Heart, MessageCircle, Eye, ExternalLink, Flame } from "lucide-react"
 
 const supabase = createClient()
 
@@ -18,12 +18,12 @@ interface Status {
   expiresAt?: string | null
 }
 
-interface Kpi { key: string; label: string; value: number; format?: "int" | "pct" | "float" }
+interface Stat { label: string; value: string; sub?: string }
 interface MediaItem {
   id: string; thumbnail: string | null; permalink: string; caption: string
   likes: number; comments: number; views?: number; type: string; timestamp: string | null
 }
-interface Metrics { kpis: Kpi[]; media: MediaItem[]; note?: string }
+interface Metrics { overview: Stat[]; detailed: Stat[]; media: MediaItem[]; note?: string }
 
 const BRAND: Record<Platform, { name: string; color: string; Icon: typeof Instagram; desc: string }> = {
   instagram: { name: "Instagram", color: "#E1306C", Icon: Instagram, desc: "Tus métricas de Instagram, en vivo desde tu cuenta conectada." },
@@ -34,10 +34,6 @@ function fmt(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`
   if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}K`
   return n.toLocaleString("es-AR")
-}
-function fmtKpi(k: Kpi): string {
-  if (k.format === "pct") return `${k.value.toFixed(2)}%`
-  return fmt(k.value)
 }
 
 async function getToken(): Promise<string | null> {
@@ -55,7 +51,6 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [banner, setBanner] = useState<{ type: "ok" | "error"; msg: string } | null>(null)
-
   const [metrics, setMetrics] = useState<Metrics | null>(null)
   const [metricsLoading, setMetricsLoading] = useState(false)
 
@@ -65,9 +60,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
     try {
       const res = await fetch(`/api/social/${platform}/status${clientQ}`, { headers: { Authorization: `Bearer ${token}` } })
       setStatus(await res.json())
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }, [platform, clientQ])
 
   const loadMetrics = useCallback(async () => {
@@ -78,22 +71,18 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
       const res = await fetch(`/api/social/${platform}/metrics${clientQ}`, { headers: { Authorization: `Bearer ${token}` } })
       if (res.ok) {
         const data = await res.json()
-        if (data.connected) setMetrics({ kpis: data.kpis ?? [], media: data.media ?? [], note: data.note })
+        if (data.connected) setMetrics({ overview: data.overview ?? [], detailed: data.detailed ?? [], media: data.media ?? [], note: data.note })
       }
-    } finally {
-      setMetricsLoading(false)
-    }
+    } finally { setMetricsLoading(false) }
   }, [platform, clientQ])
 
   useEffect(() => { loadStatus() }, [loadStatus])
   useEffect(() => { if (status?.connected) loadMetrics() }, [status?.connected, loadMetrics])
 
-  // Banner desde el redirect del callback (?connect_success / ?connect_error)
   useEffect(() => {
     if (typeof window === "undefined") return
     const sp = new URLSearchParams(window.location.search)
-    const ok = sp.get("connect_success")
-    const err = sp.get("connect_error")
+    const ok = sp.get("connect_success"), err = sp.get("connect_error")
     if (ok === platform) setBanner({ type: "ok", msg: `${brand.name} conectado correctamente.` })
     else if (err === platform) setBanner({ type: "error", msg: `No se pudo conectar ${brand.name}. Probá de nuevo.` })
     if (ok || err) {
@@ -114,9 +103,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
       const data = await res.json()
       if (res.ok && data.url) { window.location.href = data.url; return }
       setBanner({ type: "error", msg: data.error === "not_configured" ? `La conexión con ${brand.name} todavía no está configurada en el servidor.` : (data.error ?? "No se pudo iniciar la conexión.") })
-    } finally {
-      setBusy(false)
-    }
+    } finally { setBusy(false) }
   }
 
   const handleDisconnect = async () => {
@@ -129,9 +116,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
       const res = await fetch(`/api/social/${platform}/disconnect${clientQ}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } })
       if (res.ok) { setStatus({ connected: false }); setMetrics(null); setBanner({ type: "ok", msg: `${brand.name} desconectado.` }) }
       else setBanner({ type: "error", msg: "No se pudo desconectar." })
-    } finally {
-      setBusy(false)
-    }
+    } finally { setBusy(false) }
   }
 
   return (
@@ -175,7 +160,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
           {/* Cuenta conectada */}
           <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
             {status.accountPic ? (
-              <img src={status.accountPic} alt={status.accountName} className="h-11 w-11 rounded-full object-cover border border-border" />
+              <img src={status.accountPic} alt={status.accountName} referrerPolicy="no-referrer" className="h-11 w-11 rounded-full object-cover border border-border" />
             ) : (
               <span className="flex h-11 w-11 items-center justify-center rounded-full" style={{ backgroundColor: `color-mix(in srgb, ${brand.color} 14%, transparent)` }}>
                 <Icon className="h-5 w-5" style={{ color: brand.color }} />
@@ -202,26 +187,46 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
             </div>
           )}
 
-          {/* KPIs */}
           {metricsLoading && !metrics ? (
             <div className="flex items-center justify-center gap-2 rounded-2xl border border-border bg-card py-12 text-foreground/50">
               <Loader2 className="h-4 w-4 animate-spin" /> Trayendo métricas…
             </div>
-          ) : metrics && metrics.kpis.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-              {metrics.kpis.map((k) => (
-                <div key={k.key} className="rounded-2xl border border-border bg-card p-4">
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-foreground/45">{k.label}</p>
-                  <p className="mt-1 text-2xl font-bold text-foreground">{fmtKpi(k)}</p>
+          ) : metrics && metrics.overview.length > 0 ? (
+            <>
+              {/* Overview */}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                {metrics.overview.map((s, i) => (
+                  <div key={s.label} className={`rounded-2xl border p-4 ${i === 0 ? "border-[#ffde21]/30 bg-[#ffde21]/[0.06]" : "border-border bg-card"}`}>
+                    <p className="text-[11px] font-medium uppercase tracking-wide text-foreground/45">{s.label}</p>
+                    <p className="mt-1 text-2xl font-bold text-foreground tabular-nums">{s.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Métricas detalladas */}
+              {metrics.detailed.length > 0 && (
+                <div className="rounded-2xl border border-border bg-card overflow-hidden">
+                  <div className="flex items-center gap-2 border-b border-border px-5 py-3">
+                    <Flame className="h-4 w-4 text-foreground/50" />
+                    <span className="text-sm font-semibold text-foreground">Métricas detalladas</span>
+                    <span className="ml-auto text-[11px] text-foreground/40">sobre {metrics.media.length} {platform === "youtube" ? "videos" : "reels"} recientes</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-3">
+                    {metrics.detailed.map((s) => (
+                      <div key={s.label} className="rounded-xl border border-border bg-background/40 p-4">
+                        <p className="text-xs text-foreground/50">{s.label}</p>
+                        <p className="mt-1 text-xl font-bold text-foreground tabular-nums">{s.value}</p>
+                        {s.sub && <p className="mt-0.5 text-[11px] text-foreground/40">{s.sub}</p>}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           ) : metrics?.note ? (
             <div className="flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300">
               <AlertTriangle className="h-4 w-4 shrink-0" />
-              {metrics.note === "reconnect"
-                ? "El acceso a la API expiró. Reconectá la cuenta para ver las métricas."
-                : "No pudimos traer las métricas en este momento. Probá actualizar en un rato."}
+              {metrics.note === "reconnect" ? "El acceso a la API expiró. Reconectá la cuenta para ver las métricas." : "No pudimos traer las métricas ahora. Probá actualizar en un rato."}
             </div>
           ) : null}
 
@@ -230,11 +235,11 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
             <div>
               <h2 className="mb-3 text-sm font-semibold text-foreground">{platform === "youtube" ? "Videos recientes" : "Publicaciones recientes"}</h2>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {metrics.media.map((m) => (
+                {metrics.media.slice(0, 12).map((m) => (
                   <a key={m.id} href={m.permalink} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-xl border border-border bg-card transition hover:border-foreground/20">
                     <div className="relative aspect-square w-full overflow-hidden bg-foreground/[0.04]">
                       {m.thumbnail ? (
-                        <img src={m.thumbnail} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
+                        <img src={m.thumbnail} alt="" referrerPolicy="no-referrer" className="h-full w-full object-cover transition group-hover:scale-105" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center"><Icon className="h-6 w-6 text-foreground/20" /></div>
                       )}
@@ -245,7 +250,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                     <div className="p-2.5">
                       {m.caption && <p className="mb-1.5 line-clamp-2 text-[11px] text-foreground/60 leading-snug">{m.caption}</p>}
                       <div className="flex items-center gap-3 text-[11px] text-foreground/50">
-                        {typeof m.views === "number" && <span className="flex items-center gap-0.5"><Eye className="h-3 w-3" /> {fmt(m.views)}</span>}
+                        {typeof m.views === "number" && m.views > 0 && <span className="flex items-center gap-0.5"><Eye className="h-3 w-3" /> {fmt(m.views)}</span>}
                         <span className="flex items-center gap-0.5"><Heart className="h-3 w-3" /> {fmt(m.likes)}</span>
                         <span className="flex items-center gap-0.5"><MessageCircle className="h-3 w-3" /> {fmt(m.comments)}</span>
                       </div>
