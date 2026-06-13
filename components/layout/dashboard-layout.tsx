@@ -5,7 +5,7 @@ import type React from "react"
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
-import { ChevronDown, LogOut, Menu, User, ShieldCheck, Check, Eye, EyeOff } from "lucide-react"
+import { ChevronDown, LogOut, Menu, User, ShieldCheck, Check, Eye, EyeOff, Camera, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MonthSelector } from "@/components/layout/month-selector"
 import { Sidebar } from "@/components/layout/sidebar"
@@ -170,6 +170,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const isAdmin = isAdminRole(userRole)  // true para "admin" Y "developer"
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const profileMenuRef = useRef<HTMLDivElement | null>(null)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const avatarInputRef = useRef<HTMLInputElement | null>(null)
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
 
@@ -177,6 +180,41 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const viewAsRole: ViewAsRole = useViewAsRole()
   // Si NO es admin, ignoramos viewAs (solo admin puede impersonar)
   const activeViewAs: ViewAsRole = isAdmin ? viewAsRole : null
+
+  // Foto de perfil — cargar al montar
+  useEffect(() => {
+    let active = true
+    ;(async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const res = await fetch("/api/profile/avatar", { headers: { Authorization: `Bearer ${session.access_token}` } })
+      if (!res.ok) return
+      const data = await res.json()
+      if (active && data.url) setAvatarUrl(data.url)
+    })()
+    return () => { active = false }
+  }, [supabase])
+
+  const handleAvatarUpload = async (file: File) => {
+    if (uploadingAvatar) return
+    setUploadingAvatar(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const fd = new FormData()
+      fd.append("file", file)
+      const res = await fetch("/api/profile/avatar", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: fd,
+      })
+      const data = await res.json()
+      if (res.ok && data.url) setAvatarUrl(data.url)
+      else alert(data.error ?? "Error al subir la foto")
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
 
   // Redirect setter / team que aterrizan en el portal cliente a su landing de admin.
   useEffect(() => {
@@ -579,9 +617,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           : "Perfil"
                   }
                 >
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10">
-                    <User className="h-4 w-4 text-[#ffde21]" />
-                  </span>
+                  {avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={avatarUrl} alt="Perfil" className="h-7 w-7 rounded-full object-cover border border-[#ffde21]/40" />
+                  ) : (
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10">
+                      <User className="h-4 w-4 text-[#ffde21]" />
+                    </span>
+                  )}
                   <span className="hidden sm:inline text-foreground font-semibold">
                     {activeClientName ?? clientDisplayName ?? userEmail ?? "—"}
                   </span>
@@ -596,9 +639,25 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   >
                     {/* Header — current user */}
                     <div className="flex items-center gap-3 px-4 py-3 bg-foreground/[0.02]">
-                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21] text-[13px] font-bold">
-                        {(clientDisplayName ?? userEmail ?? "?").charAt(0).toUpperCase()}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => avatarInputRef.current?.click()}
+                        className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21] text-[13px] font-bold overflow-hidden group/avatar"
+                        title="Cambiar foto"
+                      >
+                        {avatarUrl
+                          ? <img src={avatarUrl} alt="Perfil" className="h-full w-full object-cover" />
+                          : (clientDisplayName ?? userEmail ?? "?").charAt(0).toUpperCase()}
+                        <span className="absolute inset-0 hidden items-center justify-center bg-black/45 group-hover/avatar:flex">
+                          {uploadingAvatar
+                            ? <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
+                            : <Camera className="h-3.5 w-3.5 text-white" />}
+                        </span>
+                      </button>
+                      <input
+                        ref={avatarInputRef} type="file" accept="image/*" className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAvatarUpload(f); e.target.value = "" }}
+                      />
                       <div className="min-w-0 flex-1">
                         {clientDisplayName && !isAdmin && (
                           <p className="truncate text-sm font-semibold text-foreground">{clientDisplayName}</p>
