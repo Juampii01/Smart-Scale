@@ -3,8 +3,8 @@
 import {
   X, BarChart3, Radio, DollarSign, MessageSquare, Wrench,
   CalendarDays, Lock, LayoutGrid, ClipboardList,
-  Zap, Globe, FileVideo, Clapperboard,
-  ChevronDown, Trophy, FileBarChart, ShieldCheck, ArrowRight,
+  Zap, Globe, FileVideo,
+  ChevronDown, ShieldCheck, ArrowRight,
   ChevronLeft, ChevronRight, Sparkles, PenLine, Instagram, Youtube,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -51,7 +51,6 @@ const NAV_GROUPS = [
     items: [
       { name: "Mi Instagram",         href: "/mi-instagram",        icon: Instagram },
       { name: "Mi YouTube",           href: "/mi-youtube",          icon: Youtube },
-      { name: "Video Feed",           href: "/video-feed",          icon: Clapperboard },
       { name: "Competitor Research",  href: "/competitor-research", icon: Globe },
       { name: "Transcript de Videos", href: "/transcript",          icon: FileVideo },
     ],
@@ -78,7 +77,7 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
       <aside
         className={cn(
           "fixed left-0 top-0 z-50 h-full w-[220px] border-r border-foreground/[0.07] transition-all duration-200 ease-in-out lg:translate-x-0",
-          "bg-card flex flex-col pt-[env(safe-area-inset-top)]",
+          "bg-card flex flex-col pt-[env(safe-area-inset-top)] shadow-[6px_0_30px_-10px_rgba(0,0,0,0.28)]",
           open ? "translate-x-0" : "-translate-x-full",
           collapsed && "lg:w-[64px]",
         )}
@@ -118,34 +117,6 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
 
         {/* Navigation */}
         <nav className={cn("flex-1 overflow-y-auto py-4 space-y-1", collapsed ? "lg:px-2" : "px-3")}>
-
-          {/* Ann AI — disponible para todos. Item destacado, separado de los grupos. */}
-          {(
-            <Link href="/anai" onClick={onClose} title={collapsed ? "Ann AI" : undefined}>
-              <div className={cn(
-                "group relative mb-3 flex items-center overflow-hidden rounded-xl transition-all duration-200",
-                "bg-gradient-to-br from-[#1a1a1d] to-[#0f0f10] border",
-                pathname === "/anai"
-                  ? "border-[#ffde21]/60 shadow-[0_0_22px_rgba(255,222,33,0.22)]"
-                  : "border-[#ffde21]/20 hover:border-[#ffde21]/45 hover:shadow-[0_0_18px_rgba(255,222,33,0.16)]",
-                collapsed ? "lg:justify-center lg:px-0 lg:py-2.5 px-3 py-2.5 gap-2.5" : "px-3 py-2.5 gap-2.5"
-              )}>
-                <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.10),transparent_60%)]" />
-                <div className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#ffde21]">
-                  <Sparkles className="h-4 w-4 text-black" />
-                </div>
-                {!collapsed && (
-                  <div className="relative flex-1 min-w-0">
-                    <p className="text-[13px] font-extrabold tracking-wide text-[#ffde21] leading-none">Ann AI</p>
-                    <p className="text-[10px] text-foreground/40 mt-1 leading-none">Inteligencia artificial</p>
-                  </div>
-                )}
-                {!collapsed && (
-                  <span className="relative rounded-md bg-[#ffde21]/15 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-[#ffde21]/80">Beta</span>
-                )}
-              </div>
-            </Link>
-          )}
 
           {NAV_GROUPS.map((group) => {
             const isGroupCollapsed = groupsCollapsed[group.label]
@@ -227,40 +198,40 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
           })}
         </nav>
 
-        {/* Footer */}
-        <div className={cn("flex-shrink-0 border-t border-foreground/[0.07] space-y-3", collapsed ? "lg:p-2 p-4" : "p-4")}>
+        {/* Footer — compacto: Ann AI + acceso admin */}
+        <div className={cn("flex-shrink-0 border-t border-foreground/[0.07] space-y-1.5", collapsed ? "lg:p-2 p-3" : "p-3")}>
+          {/* Ann AI (para todos) — compacto */}
+          <Link href="/anai" onClick={onClose} title={collapsed ? "Ann AI" : undefined}>
+            <div className={cn(
+              "group flex items-center rounded-lg transition-all duration-150",
+              pathname === "/anai"
+                ? "bg-[#ffde21]/[0.12] text-[#ffde21]"
+                : "text-foreground/80 hover:bg-foreground/[0.05]",
+              collapsed ? "lg:justify-center lg:px-2 px-3 py-2 gap-2.5" : "px-3 py-2 gap-2.5"
+            )}>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#ffde21]">
+                <Sparkles className="h-3.5 w-3.5 text-black" />
+              </span>
+              {!collapsed && <span className="text-[13px] font-semibold">Ann AI</span>}
+            </div>
+          </Link>
+
+          {/* Acceso al panel interno (solo admin) — compacto */}
           {isAdmin && (
-            <Link href="/admin/clients" onClick={onClose} title={collapsed ? "Smart Scale Internal" : undefined}>
+            <Link href="/admin/clients" onClick={onClose} title={collapsed ? "Panel interno" : undefined}>
               <div className={cn(
-                "group relative flex items-center rounded-xl overflow-hidden transition-all duration-200",
-                "bg-[#ffde21] hover:bg-[#ffe84d]",
-                "shadow-[0_2px_14px_rgba(255,222,33,0.30)] hover:shadow-[0_4px_20px_rgba(255,222,33,0.45)]",
-                collapsed ? "lg:justify-center lg:px-0 lg:py-2.5 px-3 py-2.5 gap-0" : "px-3 py-2.5 gap-2.5"
+                "group flex items-center rounded-lg text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground transition-all duration-150",
+                collapsed ? "lg:justify-center lg:px-2 px-3 py-2 gap-2.5" : "px-3 py-2 gap-2.5"
               )}>
-                {/* subtle top-left shine */}
-                <span className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
-                <ShieldCheck className="relative h-4 w-4 text-black/70 flex-shrink-0" />
+                <ShieldCheck className="h-4 w-4 shrink-0 text-[#ffde21]" />
                 {!collapsed && (
                   <>
-                    <div className="relative flex-1 min-w-0">
-                      <p className="text-[11px] font-bold text-black tracking-wide leading-none">Smart Scale Internal</p>
-                      <p className="text-[10px] text-black/50 mt-1 leading-none">Panel de administración</p>
-                    </div>
-                    <ArrowRight className="relative h-3.5 w-3.5 text-black/40 group-hover:text-black/60 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                    <span className="flex-1 text-[13px] font-medium">Panel interno</span>
+                    <ArrowRight className="h-3.5 w-3.5 text-foreground/30 group-hover:translate-x-0.5 transition-transform" />
                   </>
                 )}
               </div>
             </Link>
-          )}
-
-          {!collapsed && (
-            <div className="flex items-center gap-2.5 rounded-xl bg-foreground/[0.03] px-3 py-2.5 border border-foreground/[0.07]">
-              <span className="flex h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse flex-shrink-0" />
-              <div>
-                <p className="text-[10px] font-bold text-foreground/60 tracking-widest uppercase">Client Analytics</p>
-                <p className="text-[10px] text-foreground/30 mt-0.5">Portal 2.0</p>
-              </div>
-            </div>
           )}
         </div>
       </aside>
