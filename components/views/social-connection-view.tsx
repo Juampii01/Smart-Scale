@@ -23,7 +23,8 @@ interface MediaItem {
   id: string; thumbnail: string | null; permalink: string; caption: string
   likes: number; comments: number; views?: number; type: string; timestamp: string | null
 }
-interface Metrics { overview: Stat[]; detailed: Stat[]; media: MediaItem[]; note?: string }
+interface Bucket { key: string; label: string; count: number; overview: Stat[]; detailed: Stat[]; media: MediaItem[] }
+interface Metrics { current: Stat[]; buckets: Bucket[]; note?: string }
 
 const BRAND: Record<Platform, { name: string; color: string; Icon: typeof Instagram; desc: string }> = {
   instagram: { name: "Instagram", color: "#E1306C", Icon: Instagram, desc: "Tus métricas de Instagram, en vivo desde tu cuenta conectada." },
@@ -60,6 +61,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
   const [banner, setBanner] = useState<{ type: "ok" | "error"; msg: string } | null>(null)
   const [metrics, setMetrics] = useState<Metrics | null>(null)
   const [metricsLoading, setMetricsLoading] = useState(false)
+  const [bucketKey, setBucketKey] = useState<string>("total")
 
   const loadStatus = useCallback(async () => {
     const token = await getToken()
@@ -78,7 +80,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
       const res = await fetch(`/api/social/${platform}/metrics${clientQ}`, { headers: { Authorization: `Bearer ${token}` } })
       if (res.ok) {
         const data = await res.json()
-        if (data.connected) setMetrics({ overview: data.overview ?? [], detailed: data.detailed ?? [], media: data.media ?? [], note: data.note })
+        if (data.connected) { setMetrics({ current: data.current ?? [], buckets: data.buckets ?? [], note: data.note }); setBucketKey("total") }
       }
     } finally { setMetricsLoading(false) }
   }, [platform, clientQ])
@@ -125,6 +127,8 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
       else setBanner({ type: "error", msg: "No se pudo desconectar." })
     } finally { setBusy(false) }
   }
+
+  const bucket = metrics?.buckets.find((b) => b.key === bucketKey) ?? metrics?.buckets[0]
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
@@ -194,16 +198,52 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
             </div>
           )}
 
+          {/* Números de cuenta (actuales) */}
+          {metrics && metrics.current.length > 0 && (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {metrics.current.map((s, i) => (
+                <div key={s.label} className={`rounded-2xl border p-4 ${i === 0 ? "border-[#ffde21]/30 bg-[#ffde21]/[0.06]" : "border-border bg-card"}`}>
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-foreground/45">{s.label}</p>
+                  <p className="mt-1 text-2xl font-bold text-foreground tabular-nums">{s.value}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
           {metricsLoading && !metrics ? (
             <div className="flex items-center justify-center gap-2 rounded-2xl border border-border bg-card py-12 text-foreground/50">
               <Loader2 className="h-4 w-4 animate-spin" /> Trayendo métricas…
             </div>
-          ) : metrics && metrics.overview.length > 0 ? (
+          ) : metrics?.note ? (
+            <div className="flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              {metrics.note === "reconnect" ? "El acceso a la API expiró. Reconectá la cuenta para ver las métricas." : "No pudimos traer las métricas ahora. Probá actualizar en un rato."}
+            </div>
+          ) : metrics && bucket ? (
             <>
-              {/* Overview */}
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-                {metrics.overview.map((s, i) => (
-                  <div key={s.label} className={`rounded-2xl border p-4 ${i === 0 ? "border-[#ffde21]/30 bg-[#ffde21]/[0.06]" : "border-border bg-card"}`}>
+              {/* Filtro de meses */}
+              {metrics.buckets.length > 1 && (
+                <div className="flex flex-wrap gap-2">
+                  {metrics.buckets.map((b) => (
+                    <button
+                      key={b.key}
+                      onClick={() => setBucketKey(b.key)}
+                      className={`rounded-lg border px-3 py-1.5 text-[13px] font-medium transition ${
+                        b.key === bucketKey
+                          ? "border-[#ffde21]/40 bg-[#ffde21]/[0.12] text-foreground"
+                          : "border-border bg-card text-foreground/60 hover:bg-foreground/[0.05]"
+                      }`}
+                    >
+                      {b.label} <span className="text-foreground/35">· {b.count}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Overview del período */}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                {bucket.overview.map((s) => (
+                  <div key={s.label} className="rounded-2xl border border-border bg-card p-4">
                     <p className="text-[11px] font-medium uppercase tracking-wide text-foreground/45">{s.label}</p>
                     <p className="mt-1 text-2xl font-bold text-foreground tabular-nums">{s.value}</p>
                   </div>
@@ -211,15 +251,17 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
               </div>
 
               {/* Métricas detalladas */}
-              {metrics.detailed.length > 0 && (
+              {bucket.detailed.length > 0 && (
                 <div className="rounded-2xl border border-border bg-card overflow-hidden">
                   <div className="flex items-center gap-2 border-b border-border px-5 py-3">
                     <Flame className="h-4 w-4 text-foreground/50" />
                     <span className="text-sm font-semibold text-foreground">Métricas detalladas</span>
-                    <span className="ml-auto text-[11px] text-foreground/40">sobre {metrics.media.length} {platform === "youtube" ? "videos" : "reels"} recientes</span>
+                    <span className="ml-auto text-[11px] text-foreground/40">
+                      {bucket.key === "total" ? "todo el período" : bucket.label} · {bucket.count} {platform === "youtube" ? "videos" : "publicaciones"}
+                    </span>
                   </div>
                   <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-3">
-                    {metrics.detailed.map((s) => (
+                    {bucket.detailed.map((s) => (
                       <div key={s.label} className="rounded-xl border border-border bg-background/40 p-4">
                         <p className="text-xs text-foreground/50">{s.label}</p>
                         <p className="mt-1 text-xl font-bold text-foreground tabular-nums">{s.value}</p>
@@ -229,46 +271,39 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                   </div>
                 </div>
               )}
-            </>
-          ) : metrics?.note ? (
-            <div className="flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300">
-              <AlertTriangle className="h-4 w-4 shrink-0" />
-              {metrics.note === "reconnect" ? "El acceso a la API expiró. Reconectá la cuenta para ver las métricas." : "No pudimos traer las métricas ahora. Probá actualizar en un rato."}
-            </div>
-          ) : null}
 
-          {/* Media reciente */}
-          {metrics && metrics.media.length > 0 && (
-            <div>
-              <h2 className="mb-3 text-sm font-semibold text-foreground">{platform === "youtube" ? "Videos recientes" : "Publicaciones recientes"}</h2>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {metrics.media.slice(0, 12).map((m) => (
-                  <a key={m.id} href={m.permalink} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-xl border border-border bg-card transition hover:border-foreground/20">
-                    <div className="relative aspect-square w-full overflow-hidden bg-foreground/[0.04]">
-                      {m.thumbnail ? (
-                        <img src={px(m.thumbnail)} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center"><Icon className="h-6 w-6 text-foreground/20" /></div>
-                      )}
-                      <span className="absolute right-1.5 top-1.5 rounded-md bg-black/55 p-1 opacity-0 transition group-hover:opacity-100">
-                        <ExternalLink className="h-3 w-3 text-white" />
-                      </span>
-                    </div>
-                    <div className="p-2.5">
-                      {m.caption && <p className="mb-1.5 line-clamp-2 text-[11px] text-foreground/60 leading-snug">{m.caption}</p>}
-                      <div className="flex items-center gap-3 text-[11px] text-foreground/50">
-                        {(m.views ?? 0) > 0 && (
-                          <span className="flex items-center gap-0.5" title="Views"><Eye className="h-3 w-3" /> {fmt(m.views ?? 0)}</span>
-                        )}
-                        <span className="flex items-center gap-0.5" title="Likes"><Heart className="h-3 w-3" /> {fmt(m.likes)}</span>
-                        <span className="flex items-center gap-0.5" title="Comentarios"><MessageCircle className="h-3 w-3" /> {fmt(m.comments)}</span>
-                      </div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
+              {/* Media del período */}
+              {bucket.media.length > 0 && (
+                <div>
+                  <h2 className="mb-3 text-sm font-semibold text-foreground">{platform === "youtube" ? "Videos" : "Publicaciones"} · {bucket.label}</h2>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                    {bucket.media.slice(0, 12).map((m) => (
+                      <a key={m.id} href={m.permalink} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-xl border border-border bg-card transition hover:border-foreground/20">
+                        <div className="relative aspect-square w-full overflow-hidden bg-foreground/[0.04]">
+                          {m.thumbnail ? (
+                            <img src={px(m.thumbnail)} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center"><Icon className="h-6 w-6 text-foreground/20" /></div>
+                          )}
+                          <span className="absolute right-1.5 top-1.5 rounded-md bg-black/55 p-1 opacity-0 transition group-hover:opacity-100">
+                            <ExternalLink className="h-3 w-3 text-white" />
+                          </span>
+                        </div>
+                        <div className="p-2.5">
+                          {m.caption && <p className="mb-1.5 line-clamp-2 text-[11px] text-foreground/60 leading-snug">{m.caption}</p>}
+                          <div className="flex items-center gap-3 text-[11px] text-foreground/50">
+                            {(m.views ?? 0) > 0 && <span className="flex items-center gap-0.5" title="Views"><Eye className="h-3 w-3" /> {fmt(m.views ?? 0)}</span>}
+                            <span className="flex items-center gap-0.5" title="Likes"><Heart className="h-3 w-3" /> {fmt(m.likes)}</span>
+                            <span className="flex items-center gap-0.5" title="Comentarios"><MessageCircle className="h-3 w-3" /> {fmt(m.comments)}</span>
+                          </div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : null}
         </div>
       )}
     </div>
