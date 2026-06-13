@@ -7,8 +7,8 @@
    LIGHT MODE — blanco con contraste fuerte (no diluido)
    ───────────────────────────────────────────────────────────────────────── */
 :root {
-  /* Light 3.0 — fondo apenas gris + superficies blanco puro (nítido, con profundidad) */
-  --background: #f6f7f9;
+  /* Light 3.0 — fondo blanco nítido + superficies blanco puro con sombra para profundidad */
+  --background: #ffffff;
   --foreground: #0b0b0d;
   --card: #ffffff;
   --card-foreground: #0b0b0d;
