@@ -5,7 +5,7 @@ import {
   CalendarDays, Lock, LayoutGrid, ClipboardList,
   Zap, Globe, FileVideo, Clapperboard,
   ChevronDown, Trophy, FileBarChart, ShieldCheck, ArrowRight,
-  ChevronLeft, ChevronRight, Sparkles,
+  ChevronLeft, ChevronRight, Sparkles, PenLine, Instagram, Youtube,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -34,18 +34,23 @@ const NAV_GROUPS = [
   {
     label: "Programa",
     items: [
-      { name: "Audit",           href: "/audit",             icon: ClipboardList },
-      { name: "Implementacion",  href: "/program-checklist", icon: Zap },
-      { name: "Tools",           href: "/tools",             icon: Wrench },
-      { name: "Agenda",          href: "/calendar",          icon: CalendarDays },
-      { name: "Monday Win",      href: "/monday-win",        icon: Trophy },
-      { name: "Reporte Mensual", href: "/report-input",      icon: FileBarChart },
-      { name: "Cha-Ching 💰",    href: "/chi-chang",         icon: DollarSign },
+      { name: "Audit",          href: "/audit",             icon: ClipboardList },
+      { name: "Implementacion", href: "/program-checklist", icon: Zap },
+      { name: "Tools",          href: "/tools",             icon: Wrench },
+      { name: "Agenda",         href: "/calendar",          icon: CalendarDays },
+    ],
+  },
+  {
+    label: "Mis reportes",
+    items: [
+      { name: "Llenar reporte", href: "/llenar", icon: PenLine },
     ],
   },
   {
     label: "Contenido",
     items: [
+      { name: "Mi Instagram",         href: "/mi-instagram",        icon: Instagram },
+      { name: "Mi YouTube",           href: "/mi-youtube",          icon: Youtube },
       { name: "Video Feed",           href: "/video-feed",          icon: Clapperboard },
       { name: "Competitor Research",  href: "/competitor-research", icon: Globe },
       { name: "Transcript de Videos", href: "/transcript",          icon: FileVideo },
