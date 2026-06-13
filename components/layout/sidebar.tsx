@@ -94,6 +94,9 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
               <span className="rounded-md bg-foreground px-2 py-1 text-xl font-bold tracking-tight text-background shadow-sm leading-none">
                 Scale
               </span>
+              <span className="self-start rounded-full bg-[#ffde21]/15 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-[#ffde21] leading-none">
+                3.0
+              </span>
             </a>
           )}
 
