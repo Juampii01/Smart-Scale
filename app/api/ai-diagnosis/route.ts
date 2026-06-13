@@ -1,6 +1,7 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { rateLimit } from "@/lib/rate-limit"
 import Anthropic from "@anthropic-ai/sdk"
 
 // Helper: extrae el usuario autenticado del JWT (cualquier rol sirve)
@@ -325,6 +326,8 @@ export async function GET(req: NextRequest) {
 // ─── POST: build diagnóstico (IA + determinístico) ────────────────────────────
 
 export async function POST(req: NextRequest) {
+  const limited = rateLimit(req, { bucket: "ai-diagnosis", limit: 10, windowMs: 60_000 })
+  if (limited) return limited
   // Auth: cualquier usuario autenticado puede generar diagnósticos propios
   const user = await getAuthedUser(req)
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })

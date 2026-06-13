@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { rateLimit } from "@/lib/rate-limit"
 import { isAdmin } from "@/lib/auth/permissions"
 import Anthropic from "@anthropic-ai/sdk"
 import { getInstagramTranscript } from "@/lib/instagram-transcript"
@@ -621,6 +622,8 @@ export async function GET(req: NextRequest) {
 const WEEKLY_LIMIT = 3
 
 export async function POST(req: NextRequest) {
+  const limited = rateLimit(req, { bucket: "content-research", limit: 6, windowMs: 60_000 })
+  if (limited) return limited
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
     if (!jwt) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })

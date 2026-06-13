@@ -3,9 +3,10 @@
 import {
   X, BarChart3, Radio, DollarSign, MessageSquare, Wrench,
   CalendarDays, Lock, LayoutGrid, ClipboardList,
-  Zap, Globe, FileVideo, Clapperboard,
-  ChevronDown, Trophy, FileBarChart, ShieldCheck, ArrowRight,
-  ChevronLeft, ChevronRight, Sparkles,
+  Zap, Globe, FileVideo,
+  ChevronDown, ShieldCheck, ArrowRight,
+  ChevronLeft, ChevronRight, Sparkles, PenLine, Instagram, Youtube,
+  User, Pencil,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -18,6 +19,10 @@ interface SidebarProps {
   isAdmin?: boolean
   collapsed?: boolean
   onToggleCollapsed?: () => void
+  // Perfil — para el bloque de avatar al pie del sidebar (link a /perfil)
+  avatarUrl?: string | null
+  displayName?: string | null
+  email?: string | null
 }
 
 const NAV_GROUPS = [
@@ -34,19 +39,23 @@ const NAV_GROUPS = [
   {
     label: "Programa",
     items: [
-      { name: "Audit",           href: "/audit",             icon: ClipboardList },
-      { name: "Implementacion",  href: "/program-checklist", icon: Zap },
-      { name: "Tools",           href: "/tools",             icon: Wrench },
-      { name: "Agenda",          href: "/calendar",          icon: CalendarDays },
-      { name: "Monday Win",      href: "/monday-win",        icon: Trophy },
-      { name: "Reporte Mensual", href: "/report-input",      icon: FileBarChart },
-      { name: "Cha-Ching 💰",    href: "/chi-chang",         icon: DollarSign },
+      { name: "Audit",          href: "/audit",             icon: ClipboardList },
+      { name: "Implementacion", href: "/program-checklist", icon: Zap },
+      { name: "Tools",          href: "/tools",             icon: Wrench },
+      { name: "Agenda",         href: "/calendar",          icon: CalendarDays },
+    ],
+  },
+  {
+    label: "Mis reportes",
+    items: [
+      { name: "Llenar reporte", href: "/llenar", icon: PenLine },
     ],
   },
   {
     label: "Contenido",
     items: [
-      { name: "Video Feed",           href: "/video-feed",          icon: Clapperboard },
+      { name: "Mi Instagram",         href: "/mi-instagram",        icon: Instagram },
+      { name: "Mi YouTube",           href: "/mi-youtube",          icon: Youtube },
       { name: "Competitor Research",  href: "/competitor-research", icon: Globe },
       { name: "Transcript de Videos", href: "/transcript",          icon: FileVideo },
     ],
@@ -56,13 +65,19 @@ const NAV_GROUPS = [
 ]
 
 
-export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onToggleCollapsed }: SidebarProps) {
+export function Sidebar({
+  open, onClose, isAdmin = false, collapsed = false, onToggleCollapsed,
+  avatarUrl, displayName, email,
+}: SidebarProps) {
   const pathname = usePathname()
   const [groupsCollapsed, setGroupsCollapsed] = useState<Record<string, boolean>>({})
 
   const toggleGroup = (label: string) => {
     setGroupsCollapsed(prev => ({ ...prev, [label]: !prev[label] }))
   }
+
+  const profileLabel = displayName ?? email ?? "Mi perfil"
+  const hasProfile = Boolean(displayName || email)
 
   return (
     <>
@@ -72,14 +87,17 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-[220px] border-r border-foreground/[0.07] transition-all duration-200 ease-in-out lg:translate-x-0",
-          "bg-card flex flex-col pt-[env(safe-area-inset-top)]",
+          "fixed left-0 top-0 z-50 h-full w-[220px] transition-all duration-200 ease-in-out lg:translate-x-0",
+          "bg-card flex flex-col pt-[env(safe-area-inset-top)] overflow-hidden",
+          "border-r border-foreground/[0.07]",                                        // borde drawer (mobile)
+          // Flotante en desktop: despegado, redondeado, con sombra suave
+          "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-foreground/[0.08] lg:shadow-[0_10px_36px_-18px_rgba(0,0,0,0.30)]",
           open ? "translate-x-0" : "-translate-x-full",
-          collapsed && "lg:w-[64px]",
+          collapsed && "lg:w-[68px]",
         )}
       >
         {/* Logo + collapse toggle (siempre en la misma fila) */}
-        <div className={cn("flex h-16 flex-shrink-0 items-center border-b border-foreground/[0.07]", collapsed ? "lg:justify-center lg:px-2 px-5" : "justify-between px-5")}>
+        <div className={cn("flex h-16 flex-shrink-0 items-center border-b border-foreground/[0.07]", collapsed ? "lg:justify-center lg:px-2 px-4" : "justify-between pl-5 pr-3")}>
           {/* Logo: solo cuando NO está colapsado en desktop, o siempre en mobile */}
           {!collapsed && (
             <a href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
@@ -87,13 +105,16 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
               <span className="rounded-md bg-foreground px-2 py-1 text-xl font-bold tracking-tight text-background shadow-sm leading-none">
                 Scale
               </span>
+              <span className="self-start rounded-full bg-[#ffde21]/15 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-[#ffde21] leading-none">
+                3.0
+              </span>
             </a>
           )}
 
           <div className="flex items-center gap-1">
             {onToggleCollapsed && (
               <button
-                className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-[#ffde21] hover:bg-[#ffde21]/[0.08] transition-all border border-transparent hover:border-[#ffde21]/20"
+                className="hidden lg:flex h-7 w-7 items-center justify-center rounded-md text-foreground/35 hover:text-foreground hover:bg-foreground/[0.06] transition-colors"
                 onClick={onToggleCollapsed}
                 aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
                 title={collapsed ? "Expandir (Cmd+\\)" : "Colapsar (Cmd+\\)"}
@@ -113,34 +134,6 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
 
         {/* Navigation */}
         <nav className={cn("flex-1 overflow-y-auto py-4 space-y-1", collapsed ? "lg:px-2" : "px-3")}>
-
-          {/* Ann AI — disponible para todos. Item destacado, separado de los grupos. */}
-          {(
-            <Link href="/anai" onClick={onClose} title={collapsed ? "Ann AI" : undefined}>
-              <div className={cn(
-                "group relative mb-3 flex items-center overflow-hidden rounded-xl transition-all duration-200",
-                "bg-gradient-to-br from-[#1a1a1d] to-[#0f0f10] border",
-                pathname === "/anai"
-                  ? "border-[#ffde21]/60 shadow-[0_0_22px_rgba(255,222,33,0.22)]"
-                  : "border-[#ffde21]/20 hover:border-[#ffde21]/45 hover:shadow-[0_0_18px_rgba(255,222,33,0.16)]",
-                collapsed ? "lg:justify-center lg:px-0 lg:py-2.5 px-3 py-2.5 gap-2.5" : "px-3 py-2.5 gap-2.5"
-              )}>
-                <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.10),transparent_60%)]" />
-                <div className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#ffde21]">
-                  <Sparkles className="h-4 w-4 text-black" />
-                </div>
-                {!collapsed && (
-                  <div className="relative flex-1 min-w-0">
-                    <p className="text-[13px] font-extrabold tracking-wide text-[#ffde21] leading-none">Ann AI</p>
-                    <p className="text-[10px] text-foreground/40 mt-1 leading-none">Inteligencia artificial</p>
-                  </div>
-                )}
-                {!collapsed && (
-                  <span className="relative rounded-md bg-[#ffde21]/15 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-[#ffde21]/80">Beta</span>
-                )}
-              </div>
-            </Link>
-          )}
 
           {NAV_GROUPS.map((group) => {
             const isGroupCollapsed = groupsCollapsed[group.label]
@@ -222,40 +215,75 @@ export function Sidebar({ open, onClose, isAdmin = false, collapsed = false, onT
           })}
         </nav>
 
-        {/* Footer */}
-        <div className={cn("flex-shrink-0 border-t border-foreground/[0.07] space-y-3", collapsed ? "lg:p-2 p-4" : "p-4")}>
+        {/* Footer — compacto: Ann AI + acceso admin */}
+        <div className={cn("flex-shrink-0 border-t border-foreground/[0.07] space-y-1.5", collapsed ? "lg:p-2 p-3" : "p-3")}>
+          {/* Ann AI (para todos) — compacto */}
+          <Link href="/anai" onClick={onClose} title={collapsed ? "Ann AI" : undefined}>
+            <div className={cn(
+              "group flex items-center rounded-lg transition-all duration-150",
+              pathname === "/anai"
+                ? "bg-[#ffde21]/[0.12] text-[#ffde21]"
+                : "text-foreground/80 hover:bg-foreground/[0.05]",
+              collapsed ? "lg:justify-center lg:px-2 px-3 py-2 gap-2.5" : "px-3 py-2 gap-2.5"
+            )}>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#ffde21]">
+                <Sparkles className="h-3.5 w-3.5 text-black" />
+              </span>
+              {!collapsed && <span className="text-[13px] font-semibold">Ann AI</span>}
+            </div>
+          </Link>
+
+          {/* Acceso al panel interno (solo admin) — compacto */}
           {isAdmin && (
-            <Link href="/admin/clients" onClick={onClose} title={collapsed ? "Smart Scale Internal" : undefined}>
+            <Link href="/admin/clients" onClick={onClose} title={collapsed ? "Panel interno" : undefined}>
               <div className={cn(
-                "group relative flex items-center rounded-xl overflow-hidden transition-all duration-200",
-                "bg-[#ffde21] hover:bg-[#ffe84d]",
-                "shadow-[0_2px_14px_rgba(255,222,33,0.30)] hover:shadow-[0_4px_20px_rgba(255,222,33,0.45)]",
-                collapsed ? "lg:justify-center lg:px-0 lg:py-2.5 px-3 py-2.5 gap-0" : "px-3 py-2.5 gap-2.5"
+                "group flex items-center rounded-lg text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground transition-all duration-150",
+                collapsed ? "lg:justify-center lg:px-2 px-3 py-2 gap-2.5" : "px-3 py-2 gap-2.5"
               )}>
-                {/* subtle top-left shine */}
-                <span className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
-                <ShieldCheck className="relative h-4 w-4 text-black/70 flex-shrink-0" />
+                <ShieldCheck className="h-4 w-4 shrink-0 text-[#ffde21]" />
                 {!collapsed && (
                   <>
-                    <div className="relative flex-1 min-w-0">
-                      <p className="text-[11px] font-bold text-black tracking-wide leading-none">Smart Scale Internal</p>
-                      <p className="text-[10px] text-black/50 mt-1 leading-none">Panel de administración</p>
-                    </div>
-                    <ArrowRight className="relative h-3.5 w-3.5 text-black/40 group-hover:text-black/60 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                    <span className="flex-1 text-[13px] font-medium">Panel interno</span>
+                    <ArrowRight className="h-3.5 w-3.5 text-foreground/30 group-hover:translate-x-0.5 transition-transform" />
                   </>
                 )}
               </div>
             </Link>
           )}
 
-          {!collapsed && (
-            <div className="flex items-center gap-2.5 rounded-xl bg-foreground/[0.03] px-3 py-2.5 border border-foreground/[0.07]">
-              <span className="flex h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse flex-shrink-0" />
-              <div>
-                <p className="text-[10px] font-bold text-foreground/60 tracking-widest uppercase">Client Analytics</p>
-                <p className="text-[10px] text-foreground/30 mt-0.5">Portal 2.0</p>
-              </div>
-            </div>
+          {/* Perfil — link a "Editar perfil" (nombre, email, contraseña y foto) */}
+          {hasProfile && (
+            <Link
+              href="/perfil"
+              onClick={onClose}
+              title={collapsed ? `${profileLabel} — editar perfil` : "Editar perfil"}
+              className={cn(
+                "group/profile mt-1 flex w-full items-center rounded-lg border transition-all duration-150",
+                pathname === "/perfil"
+                  ? "border-[#ffde21]/30 bg-[#ffde21]/[0.08]"
+                  : "border-foreground/[0.06] bg-foreground/[0.02] hover:bg-foreground/[0.05]",
+                collapsed ? "lg:justify-center lg:px-2 px-3 py-2 gap-2.5" : "px-2.5 py-2 gap-2.5"
+              )}
+            >
+              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10 text-[13px] font-bold text-[#ffde21]">
+                {avatarUrl
+                  ? <img src={avatarUrl} alt="Perfil" className="h-full w-full object-cover" />
+                  : <User className="h-4 w-4 text-[#ffde21]" />}
+                {/* Badge de lápiz — invita a editar; en hover si ya hay foto */}
+                <span className={cn(
+                  "absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#ffde21] ring-2 ring-card",
+                  avatarUrl && "opacity-0 group-hover/profile:opacity-100 transition-opacity"
+                )}>
+                  <Pencil className="h-2.5 w-2.5 text-black" />
+                </span>
+              </span>
+              {!collapsed && (
+                <span className="min-w-0 flex-1 text-left">
+                  <span className="block truncate text-[13px] font-semibold text-foreground">{profileLabel}</span>
+                  <span className="block truncate text-[11px] text-foreground/45">Editar perfil</span>
+                </span>
+              )}
+            </Link>
           )}
         </div>
       </aside>

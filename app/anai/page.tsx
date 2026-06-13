@@ -279,7 +279,6 @@ function AnaiContent() {
         <div className="flex-1 min-w-0">
           <h1 className="text-xl font-extrabold tracking-tight text-foreground leading-none flex items-center gap-2">
             Ann AI
-            <span className="rounded-md bg-[#ffde21]/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#ffde21]/80">Beta</span>
           </h1>
           <p className="text-[12px] text-foreground/40 mt-1">
             {internal

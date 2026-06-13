@@ -30,3 +30,6 @@ next-env.d.ts
 .claude/
 .mcp.json
 supabase/.temp/
+
+# macOS
+.DS_Store

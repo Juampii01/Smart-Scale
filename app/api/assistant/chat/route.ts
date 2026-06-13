@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { rateLimit } from "@/lib/rate-limit"
 import { isInternal } from "@/lib/auth/permissions"
 import { getToolDefinitions, executeTool } from "@/lib/assistant/tools"
 import { MAX_MESSAGES_PER_CONVERSATION } from "@/app/api/assistant/conversations/route"
@@ -64,6 +65,8 @@ Reglas: usá tools para números reales. Si necesitás metodología usá search_
 }
 
 export async function POST(req: NextRequest) {
+  const limited = rateLimit(req, { bucket: "anai", limit: 20, windowMs: 60_000 })
+  if (limited) return limited
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
     if (!jwt) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
