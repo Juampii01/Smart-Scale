@@ -721,6 +721,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                     <div className="h-px bg-foreground/[0.07]" />
 
+                    {/* Notificaciones — un solo lugar para todos (equipo y clientes) */}
+                    <div className="px-4 py-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35 mb-2">Notificaciones</p>
+                      <PushOptIn />
+                    </div>
+
+                    <div className="h-px bg-foreground/[0.07]" />
+
                     <button
                       type="button"
                       role="menuitem"
