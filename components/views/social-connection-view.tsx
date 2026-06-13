@@ -257,9 +257,11 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                     <div className="p-2.5">
                       {m.caption && <p className="mb-1.5 line-clamp-2 text-[11px] text-foreground/60 leading-snug">{m.caption}</p>}
                       <div className="flex items-center gap-3 text-[11px] text-foreground/50">
-                        {typeof m.views === "number" && m.views > 0 && <span className="flex items-center gap-0.5"><Eye className="h-3 w-3" /> {fmt(m.views)}</span>}
-                        <span className="flex items-center gap-0.5"><Heart className="h-3 w-3" /> {fmt(m.likes)}</span>
-                        <span className="flex items-center gap-0.5"><MessageCircle className="h-3 w-3" /> {fmt(m.comments)}</span>
+                        {(platform === "youtube" || m.type === "VIDEO" || m.type === "REELS" || (m.views ?? 0) > 0) && (
+                          <span className="flex items-center gap-0.5" title="Views"><Eye className="h-3 w-3" /> {fmt(m.views ?? 0)}</span>
+                        )}
+                        <span className="flex items-center gap-0.5" title="Likes"><Heart className="h-3 w-3" /> {fmt(m.likes)}</span>
+                        <span className="flex items-center gap-0.5" title="Comentarios"><MessageCircle className="h-3 w-3" /> {fmt(m.comments)}</span>
                       </div>
                     </div>
                   </a>
