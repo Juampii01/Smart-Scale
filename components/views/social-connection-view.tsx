@@ -36,6 +36,13 @@ function fmt(n: number): string {
   return n.toLocaleString("es-AR")
 }
 
+/** Servimos las imágenes de IG/YT por nuestro proxy (evita CSP + bloqueo por referrer). */
+function px(url: string | null | undefined): string | undefined {
+  if (!url) return undefined
+  if (url.startsWith("/")) return url
+  return `/api/proxy-image?url=${encodeURIComponent(url)}`
+}
+
 async function getToken(): Promise<string | null> {
   const { data: { session } } = await supabase.auth.getSession()
   return session?.access_token ?? null
@@ -160,7 +167,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
           {/* Cuenta conectada */}
           <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
             {status.accountPic ? (
-              <img src={status.accountPic} alt={status.accountName} referrerPolicy="no-referrer" className="h-11 w-11 rounded-full object-cover border border-border" />
+              <img src={px(status.accountPic)} alt={status.accountName} className="h-11 w-11 rounded-full object-cover border border-border" />
             ) : (
               <span className="flex h-11 w-11 items-center justify-center rounded-full" style={{ backgroundColor: `color-mix(in srgb, ${brand.color} 14%, transparent)` }}>
                 <Icon className="h-5 w-5" style={{ color: brand.color }} />
@@ -239,7 +246,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                   <a key={m.id} href={m.permalink} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-xl border border-border bg-card transition hover:border-foreground/20">
                     <div className="relative aspect-square w-full overflow-hidden bg-foreground/[0.04]">
                       {m.thumbnail ? (
-                        <img src={m.thumbnail} alt="" referrerPolicy="no-referrer" className="h-full w-full object-cover transition group-hover:scale-105" />
+                        <img src={px(m.thumbnail)} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center"><Icon className="h-6 w-6 text-foreground/20" /></div>
                       )}

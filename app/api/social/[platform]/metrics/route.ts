@@ -1,12 +1,12 @@
 /**
  * GET /api/social/[platform]/metrics
  *
- * Métricas EN VIVO de la cuenta conectada (sin tabla de snapshots), replicando
- * el set de Content-Dashboard. Todo se deriva de perfil + media (no usa insights
- * de cuenta, que requieren App Review de Meta):
- *  - overview: cards principales.
- *  - detailed: grilla de métricas calculadas (promedio, mediana, mejor, viral, cadencia, mejor día…).
- *  - media: grilla de posts/videos recientes.
+ * Métricas EN VIVO de la cuenta conectada (sin tabla de snapshots). Todo se
+ * deriva de perfil + media (no usa insights de cuenta, que requieren App Review).
+ *
+ * Adaptativo: si la media tiene views (videos/reels) las métricas se calculan
+ * sobre views; si son imágenes (sin views) se calculan sobre interacciones
+ * (likes + comentarios). El engagement siempre es sobre seguidores → nunca 0.
  */
 import { NextRequest, NextResponse } from "next/server"
 import { resolveSocialScope } from "@/lib/social/scope"
@@ -32,49 +32,56 @@ function fmt(n: number): string {
 }
 const pct = (n: number) => `${(isFinite(n) ? n : 0).toFixed(1)}%`
 const avg = (a: number[]) => (a.length ? a.reduce((s, n) => s + n, 0) / a.length : 0)
+const median = (a: number[]) => { if (!a.length) return 0; const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)] }
 
-/** Métricas detalladas calculadas desde la media (sirve para reels y videos). */
-function detailedFromMedia(media: MediaItem[], unit: string): Stat[] {
+/**
+ * Métricas detalladas calculadas desde la media. `followers` para el engagement.
+ * `unit` = "reel" | "video" para los textos.
+ */
+function detailedFromMedia(media: MediaItem[], followers: number, unit: string): Stat[] {
   const n = media.length
   if (!n) return []
-  const views = media.map((m) => m.views)
-  const totalViews = views.reduce((s, v) => s + v, 0)
+  const unitPl = unit === "video" ? "videos" : "publicaciones"
+
+  const totalViews = media.reduce((s, m) => s + m.views, 0)
+  const hasViews = totalViews > 0
+  const interactions = media.map((m) => m.likes + m.comments)
   const totalLikes = media.reduce((s, m) => s + m.likes, 0)
   const totalComments = media.reduce((s, m) => s + m.comments, 0)
-  const avgViews = totalViews / n
-  const sorted = [...views].sort((a, b) => a - b)
-  const median = sorted[Math.floor(n / 2)] ?? 0
-  const maxViews = Math.max(...views)
-  const likeRate = totalViews > 0 ? (totalLikes / totalViews) * 100 : 0
-  const commentRate = totalViews > 0 ? (totalComments / totalViews) * 100 : 0
-  const engRate = totalViews > 0 ? ((totalLikes + totalComments) / totalViews) * 100 : 0
-  const viral = media.filter((m) => m.views > avgViews * 1.5).length
+
+  // Métrica primaria: views si hay, si no interacciones
+  const primary = hasViews ? media.map((m) => m.views) : interactions
+  const avgPrimary = avg(primary)
+  const maxPrimary = Math.max(...primary)
+  const viral = primary.filter((v) => v > avgPrimary * 1.5).length
   const viralPct = Math.round((viral / n) * 100)
+  const primaryLabel = hasViews ? "Views" : "Interacciones"
+
+  const avgInteractions = avg(interactions)
+  const engagement = followers > 0 ? (avgInteractions / followers) * 100 : 0
+
   const now = Date.now()
   const last30 = media.filter((m) => m.timestamp && now - new Date(m.timestamp).getTime() < 30 * 86_400_000).length
 
   const wd = Array.from({ length: 7 }, () => ({ eng: 0, count: 0 }))
   for (const m of media) {
-    if (m.timestamp) {
-      const d = new Date(m.timestamp).getDay()
-      wd[d].eng += m.likes + m.comments
-      wd[d].count++
-    }
+    if (m.timestamp) { const d = new Date(m.timestamp).getDay(); wd[d].eng += m.likes + m.comments; wd[d].count++ }
   }
   let bestDay = "—", bestEng = -1
   wd.forEach((b, i) => { if (b.count > 0 && b.eng / b.count > bestEng) { bestEng = b.eng / b.count; bestDay = WEEKDAYS[i] } })
 
-  return [
-    { label: "Views promedio", value: fmt(avgViews), sub: `por ${unit}` },
-    { label: "Views mediana", value: fmt(median), sub: `el ${unit} típico` },
-    { label: "Mejor", value: fmt(maxViews), sub: avgViews > 0 ? `${Math.round((maxViews / avgViews - 1) * 100)}% sobre prom.` : undefined },
-    { label: "Likes promedio", value: fmt(totalLikes / n), sub: `${pct(likeRate)} de views` },
-    { label: "Comentarios prom.", value: fmt(totalComments / n), sub: `${pct(commentRate)} de views` },
-    { label: "Engagement", value: pct(engRate), sub: "interacciones / views" },
-    { label: `${unit === "reel" ? "Reels" : "Videos"} virales`, value: `${viralPct}%`, sub: `${viral} de ${n} superan 1.5× prom.` },
-    { label: "Cadencia", value: String(last30), sub: `${unit === "reel" ? "reels" : "videos"} (últimos 30 días)` },
+  const stats: Stat[] = [
+    { label: `${primaryLabel} promedio`, value: fmt(avgPrimary), sub: `por ${unit}` },
+    { label: `${primaryLabel} mediana`, value: fmt(median(primary)), sub: `el ${unit} típico` },
+    { label: "Mejor publicación", value: fmt(maxPrimary), sub: avgPrimary > 0 ? `${Math.round((maxPrimary / avgPrimary - 1) * 100)}% sobre prom.` : undefined },
+    { label: "Likes promedio", value: fmt(totalLikes / n) },
+    { label: "Comentarios prom.", value: fmt(totalComments / n) },
+    { label: "Engagement", value: pct(engagement), sub: "interacciones / seguidores" },
+    { label: "Virales", value: `${viralPct}%`, sub: `${viral} de ${n} superan 1.5× prom.` },
+    { label: "Cadencia", value: String(last30), sub: `${unitPl} (últimos 30 días)` },
     { label: "Mejor día", value: bestDay, sub: "mayor engagement" },
   ]
+  return stats
 }
 
 // ─── Instagram ────────────────────────────────────────────────────────────────
@@ -114,15 +121,19 @@ async function instagramMetrics(accessToken: string) {
   const totalViews = media.reduce((s, m) => s + m.views, 0)
   const totalLikes = media.reduce((s, m) => s + m.likes, 0)
   const totalComments = media.reduce((s, m) => s + m.comments, 0)
-  const engRate = totalViews > 0 ? ((totalLikes + totalComments) / totalViews) * 100 : 0
+  const avgInteractions = media.length ? (totalLikes + totalComments) / media.length : 0
+  const engagement = followers > 0 ? (avgInteractions / followers) * 100 : 0
 
   const overview: Stat[] = [
     { label: "Seguidores", value: fmt(followers) },
-    { label: "Views totales", value: fmt(totalViews) },
-    { label: "Engagement", value: pct(engRate) },
     { label: "Publicaciones", value: fmt(posts) },
+    { label: "Likes promedio", value: fmt(media.length ? totalLikes / media.length : 0) },
+    { label: "Comentarios prom.", value: fmt(media.length ? totalComments / media.length : 0) },
+    { label: "Engagement", value: pct(engagement) },
   ]
-  return { overview, detailed: detailedFromMedia(media, "reel"), media }
+  if (totalViews > 0) overview.push({ label: "Views totales", value: fmt(totalViews) })
+
+  return { overview, detailed: detailedFromMedia(media, followers, "reel"), media }
 }
 
 // ─── YouTube ──────────────────────────────────────────────────────────────────
@@ -187,7 +198,7 @@ async function youtubeMetrics(accessToken: string) {
     { label: "Promedio/video", value: avgPerVideo > 0 ? fmt(avgPerVideo) : "—" },
     { label: "Crecimiento", value: growth !== null ? `${growth > 0 ? "+" : ""}${growth}%` : "—" },
   ]
-  return { overview, detailed: detailedFromMedia(media, "video"), media }
+  return { overview, detailed: detailedFromMedia(media, subs, "video"), media }
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ platform: string }> }) {
