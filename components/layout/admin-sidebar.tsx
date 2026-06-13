@@ -5,7 +5,7 @@ import {
   X, DollarSign, ClipboardList, Table2, Users2,
   UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
   ChevronLeft, ChevronRight, MessageSquareText, UserPlus,
-  LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell,
+  LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -36,6 +36,7 @@ const ADMIN_NAV_ITEMS = [
   { name: "Cerebro de Ann",   href: "/admin/ann-knowledge",     icon: Brain },
   { name: "Tareas",           href: "/admin/tareas",            icon: CheckSquare },
   { name: "Notificaciones",   href: "/admin/notificaciones",    icon: Bell },
+  { name: "Conexiones",       href: "/admin/conexiones",        icon: Share2 },
   { name: "Dev Logs",         href: "/admin/dev-logs",          icon: Terminal },
 ]
 
