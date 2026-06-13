@@ -60,9 +60,11 @@ export function PushOptIn({ banner = false, prompt }: { banner?: boolean; prompt
         setState("idle"); return
       }
 
-      // Esperar al SW con timeout (en iOS recién instalado puede tardar)
-      const reg = await withTimeout(navigator.serviceWorker.ready, 12000,
-        "el service worker no se activó. Cerrá la app del todo y reabrila.")
+      // Asegurar que el SW esté registrado (PwaRegister puede no haber corrido
+      // en esta carga) ANTES de esperar a que active — así `.ready` no se cuelga.
+      await navigator.serviceWorker.register("/sw.js").catch(() => {})
+      const reg = await withTimeout(navigator.serviceWorker.ready, 15000,
+        "el service worker no se activó. Recargá la página (Cmd+R) y probá de nuevo.")
 
       // Reusar suscripción existente o crear una nueva
       let sub = await reg.pushManager.getSubscription()
