@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { rateLimit } from "@/lib/rate-limit"
 import { isAdmin } from "@/lib/auth/permissions"
 import Anthropic from "@anthropic-ai/sdk"
 
@@ -772,6 +773,8 @@ Sé directo y concreto. Sin emojis en los títulos.`,
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  const limited = rateLimit(req, { bucket: "transcript", limit: 10, windowMs: 60_000 })
+  if (limited) return limited
   try {
     const authHeader = req.headers.get("authorization") ?? ""
     const jwt = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null

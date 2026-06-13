@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { rateLimit } from "@/lib/rate-limit"
 import Anthropic from "@anthropic-ai/sdk"
 
 export const runtime = "nodejs"
@@ -122,6 +123,8 @@ REGLAS PARA TU RESPUESTA
 // ─── POST handler ────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  const limited = rateLimit(req, { bucket: "help-chat", limit: 30, windowMs: 60_000 })
+  if (limited) return limited
   try {
     // Auth — solo usuarios logueados
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
