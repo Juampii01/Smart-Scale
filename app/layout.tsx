@@ -37,14 +37,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Smart Scale",
     description: "Client Monthly Analytics Portal",
-    images: [{ url: "/og-image-v3.png", width: 1200, height: 630, alt: "Smart Scale" }],
     type: "website",
+    // La imagen de preview la genera app/opengraph-image.tsx (logo Smart Scale)
   },
   twitter: {
     card: "summary_large_image",
     title: "Smart Scale",
     description: "Client Monthly Analytics Portal",
-    images: ["/og-image-v3.png"],
   },
   appleWebApp: {
     capable: true,
