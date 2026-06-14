@@ -532,9 +532,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           />}
 
       <div className={`flex-1 flex flex-col h-full overflow-hidden transition-[margin] duration-200 bg-background pt-[env(safe-area-inset-top)] ${
-        isAdminMode
-          ? (sidebarCollapsed ? 'lg:ml-[64px]'  : 'lg:ml-[220px]')              // admin: sidebar pegado
-          : (sidebarCollapsed ? 'lg:ml-[100px] lg:pt-4' : 'lg:ml-[252px] lg:pt-4') // cliente: alineado al sidebar flotante
+        // Ambos sidebars (cliente y admin) son flotantes → mismo margen
+        sidebarCollapsed ? 'lg:ml-[100px] lg:pt-4' : 'lg:ml-[252px] lg:pt-4'
       }`}>
 
         {/* "View as" banner — solo admin impersonando otro rol */}
