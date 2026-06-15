@@ -5,19 +5,21 @@ import { createClient } from "@/lib/supabase"
 import { useActiveClient } from "@/components/layout/dashboard-layout"
 
 export interface MonthlyReport {
-  month:             string
-  cash_collected:    number
-  total_revenue:     number
-  mrr:               number
-  ad_spend:          number
-  new_clients:       number
-  short_followers:   number
-  short_posts:       number
-  short_reach:       number
-  yt_subscribers:    number
-  yt_views:          number
-  yt_videos:         number
-  email_subscribers: number
+  month:                string
+  cash_collected:       number
+  total_revenue:        number
+  mrr:                  number
+  ad_spend:             number
+  new_clients:          number
+  short_followers:      number
+  short_posts:          number
+  short_reach:          number
+  yt_subscribers:       number
+  yt_views:             number
+  yt_monthly_audience:  number
+  yt_videos:            number
+  email_subscribers:    number
+  email_new_subscribers:number
 }
 
 export function useMonthlyReports() {
@@ -43,7 +45,7 @@ export function useMonthlyReports() {
 
         const { data, error } = await supabase
           .from("monthly_reports")
-          .select("month, cash_collected, total_revenue, mrr, ad_spend, new_clients, short_followers, short_posts, short_reach, yt_subscribers, yt_views, yt_videos, email_subscribers")
+          .select("month, cash_collected, total_revenue, mrr, ad_spend, new_clients, short_followers, short_posts, short_reach, yt_subscribers, yt_views, yt_monthly_audience, yt_videos, email_subscribers, email_new_subscribers")
           .eq("client_id", activeClientId)
           .order("month", { ascending: true })
 
@@ -59,11 +61,13 @@ export function useMonthlyReports() {
             new_clients:       Number(r.new_clients)       || 0,
             short_followers:   Number(r.short_followers)   || 0,
             short_posts:       Number(r.short_posts)       || 0,
-            short_reach:       Number(r.short_reach)       || 0,
-            yt_subscribers:    Number(r.yt_subscribers)    || 0,
-            yt_views:          Number(r.yt_views)          || 0,
-            yt_videos:         Number(r.yt_videos)         || 0,
-            email_subscribers: Number(r.email_subscribers) || 0,
+            short_reach:           Number(r.short_reach)           || 0,
+            yt_subscribers:        Number(r.yt_subscribers)        || 0,
+            yt_views:              Number(r.yt_views)              || 0,
+            yt_monthly_audience:   Number(r.yt_monthly_audience)   || 0,
+            yt_videos:             Number(r.yt_videos)             || 0,
+            email_subscribers:     Number(r.email_subscribers)     || 0,
+            email_new_subscribers: Number(r.email_new_subscribers) || 0,
           }))
         )
       } catch (e: any) {
