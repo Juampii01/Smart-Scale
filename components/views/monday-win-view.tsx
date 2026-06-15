@@ -140,8 +140,7 @@ export function MondayWinView() {
       {tab === "form" && (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.06] bg-card px-6 py-5">
-        <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#ffde21]/60 via-[#ffde21]/30 to-transparent" />
+      <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-5">
         <div className="flex items-center gap-4">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#ffde21]/10 ring-1 ring-[#ffde21]/20">
             <Star className="h-5 w-5 text-[#ffde21]" />
@@ -156,7 +155,7 @@ export function MondayWinView() {
 
       {/* Aviso si admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
+        <div className="flex items-start gap-3 rounded-[14px] border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
           <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Aviso · este Monday Win es tuyo</p>
@@ -168,7 +167,7 @@ export function MondayWinView() {
       )}
 
       {/* Fields */}
-      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.06] bg-card">
+      <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card">
         <div className="flex items-center gap-2 border-b border-foreground/[0.05] px-5 py-3">
           <span className="h-3 w-[2px] rounded-full bg-[#ffde21]" />
           <span className="text-xs font-semibold uppercase tracking-widest text-foreground/40">Semana en revisión</span>
@@ -219,7 +218,7 @@ export function MondayWinView() {
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.06] bg-card">
+      <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card">
         <div className="flex items-center gap-2 border-b border-foreground/[0.05] px-5 py-3">
           <span className="h-3 w-[2px] rounded-full bg-[#ffde21]" />
           <span className="text-xs font-semibold uppercase tracking-widest text-foreground/40">Esta semana</span>

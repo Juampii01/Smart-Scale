@@ -87,7 +87,7 @@ export function TaskCard({ task, onClick, onComplete, isOverlay = false }: TaskC
       {...(isOverlay ? {} : attributes)}
       {...(isOverlay ? {} : listeners)}
       style={style}
-      className="group relative overflow-hidden rounded-xl border pl-3.5 pr-3 py-3 cursor-grab active:cursor-grabbing transition-shadow hover:shadow-[0_6px_20px_-6px_rgba(0,0,0,0.3)]"
+      className="group relative shrink-0 overflow-hidden rounded-xl border pl-3.5 pr-3 py-3 cursor-grab active:cursor-grabbing transition-shadow hover:shadow-[0_6px_20px_-6px_rgba(0,0,0,0.3)]"
       onClick={() => onClick(task)}
     >
       {/* Barra de prioridad lateral */}

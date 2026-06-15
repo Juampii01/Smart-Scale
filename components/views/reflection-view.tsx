@@ -165,7 +165,7 @@ export function ReflectionView() {
 
       {loading && <p className="text-foreground/40 text-sm">Cargando reflexión…</p>}
       {!loading && !error && !data && (
-        <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-10 text-center">
+        <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-10 text-center">
           <p className="text-sm text-foreground/40 mb-3">No hay reflexión cargada para este mes.</p>
           <a
             href="/report-input"
@@ -184,7 +184,7 @@ export function ReflectionView() {
             return (
               <div
                 key={item.title}
-                className="group relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card p-5 transition-all duration-200 hover:border-foreground/15"
+                className="group relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card p-5 transition-all duration-200 hover:border-foreground/15"
               >
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.03),transparent_60%)]" />
                 <div className="relative">
