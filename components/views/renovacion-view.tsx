@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Check, Sparkles, Repeat, Crown } from "lucide-react"
 
 // ─── Ofertas ──────────────────────────────────────────────────────────────────
@@ -72,10 +73,12 @@ const OFFERS: Offer[] = [
 ]
 
 export function RenovacionView() {
+  const [billing, setBilling] = useState<"once" | "monthly">("once")
+
   return (
     <div className="mx-auto max-w-5xl pb-16">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-2xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
           <Sparkles className="h-6 w-6 text-[#ffde21]" />
           Próximo nivel
@@ -84,6 +87,26 @@ export function RenovacionView() {
           Tu programa puede seguir creciendo. Estas son las formas de continuar el acompañamiento
           y llevar tu negocio al siguiente nivel.
         </p>
+      </div>
+
+      {/* Toggle de forma de pago */}
+      <div className="mb-8 flex justify-center">
+        <div className="inline-flex items-center rounded-xl border border-border bg-card p-1">
+          {([
+            { key: "once", label: "Pago único" },
+            { key: "monthly", label: "Mensual" },
+          ] as const).map((opt) => (
+            <button
+              key={opt.key}
+              onClick={() => setBilling(opt.key)}
+              className={`rounded-lg px-4 py-1.5 text-[13px] font-semibold transition ${
+                billing === opt.key ? "bg-[#ffde21] text-black" : "text-foreground/55 hover:text-foreground"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Cards */}
@@ -118,16 +141,31 @@ export function RenovacionView() {
               <h2 className="text-lg font-bold text-foreground leading-tight">{o.title}</h2>
               <p className="text-[13px] text-foreground/55 mt-1.5 leading-relaxed">{o.tagline}</p>
 
-              {/* Precio */}
+              {/* Precio — reacciona al toggle */}
               <div className="mt-4 mb-4 border-y border-foreground/[0.06] py-3">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl font-extrabold text-foreground">{o.priceTotal}</span>
-                  <span className="text-[11px] font-medium text-foreground/45">pago único</span>
-                </div>
-                {o.priceMonthly && (
-                  <p className="text-[12.5px] text-foreground/60 mt-1">
-                    o <span className="font-semibold text-foreground">{o.priceMonthly}</span>/mes
-                  </p>
+                {billing === "once" ? (
+                  <>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-2xl font-extrabold text-foreground">{o.priceTotal}</span>
+                      <span className="text-[11px] font-medium text-foreground/45">pago único</span>
+                    </div>
+                    {o.priceMonthly && (
+                      <p className="text-[12px] text-foreground/45 mt-1">o {o.priceMonthly}/mes en cuotas</p>
+                    )}
+                  </>
+                ) : o.priceMonthly ? (
+                  <>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-2xl font-extrabold text-foreground">{o.priceMonthly}</span>
+                      <span className="text-[11px] font-medium text-foreground/45">/ mes</span>
+                    </div>
+                    <p className="text-[12px] text-foreground/45 mt-1">o {o.priceTotal} en un pago</p>
+                  </>
+                ) : (
+                  <div>
+                    <span className="text-sm font-semibold text-[#ffde21]">Plan mensual disponible</span>
+                    <p className="text-[12px] text-foreground/45 mt-1">Coordiná el valor por mes con Ann · total {o.priceTotal}</p>
+                  </div>
                 )}
               </div>
 
