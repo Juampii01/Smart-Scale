@@ -83,7 +83,7 @@ function CopyPasscodeButton({ value }: { value: string }) {
       className="inline-flex items-center gap-1 rounded-md border border-foreground/[0.08] bg-foreground/[0.03] px-2 py-1 text-[10px] font-semibold text-foreground/55 hover:text-[#ffde21] hover:border-[#ffde21]/30 transition-all"
       title={copied ? "Copiado" : "Copiar código"}
     >
-      {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+      {copied ? <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" /> : <Copy className="h-3 w-3" />}
       {copied ? "Copiado" : "Copiar"}
     </button>
   )
@@ -147,11 +147,8 @@ export function CalendarView() {
     <section className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <div className="flex items-center gap-2.5 mb-1">
-            <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
-            <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Agenda Semanal</h1>
-          </div>
-          <p className="text-xs text-foreground/30 ml-[18px]">
+          <h1 className="text-[22px] font-bold text-foreground leading-tight">Agenda</h1>
+          <p className="text-[13px] text-foreground/50 mt-0.5">
             Llamadas semanales · horario Miami · todas quedan grabadas
           </p>
         </div>
@@ -169,11 +166,11 @@ export function CalendarView() {
           <Loader2 className="h-5 w-5 animate-spin text-[#ffde21]/40" />
         </div>
       ) : error ? (
-        <div className="rounded-2xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-700 dark:text-red-400">
+        <div className="rounded-[14px] border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-700 dark:text-red-400">
           {error}
         </div>
       ) : sorted.length === 0 ? (
-        <div className="rounded-2xl border border-foreground/[0.07] py-16 text-center text-sm text-foreground/30">
+        <div className="rounded-[14px] border border-foreground/[0.07] py-16 text-center text-sm text-foreground/30">
           No hay llamadas programadas esta semana.
         </div>
       ) : (
@@ -183,11 +180,8 @@ export function CalendarView() {
             return (
               <div
                 key={item.id}
-                className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card transition-all duration-200 hover:border-[#ffde21]/25 hover:shadow-[0_0_30px_rgba(255,222,33,0.06)]"
+                className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card transition-colors duration-200 hover:border-foreground/[0.12]"
               >
-                <div className={`h-[2px] w-full ${cancelled ? "bg-red-500/50" : "bg-gradient-to-r from-[#ffde21]/20 via-[#ffde21]/40 to-[#ffde21]/20"}`} />
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
-
                 <div className="relative p-5 space-y-4">
                   {/* Title + status */}
                   <div className="flex items-start justify-between gap-3">
@@ -291,10 +285,7 @@ export function CalendarView() {
       )}
 
       {/* Monthly call — Ann */}
-      <div className="relative overflow-hidden rounded-2xl border border-[#ffde21]/15 bg-card">
-        <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/30 via-[#ffde21]/60 to-[#ffde21]/30" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,222,33,0.06),transparent_55%)]" />
-
+      <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
         <div className="relative p-5 space-y-4">
           {/* Header */}
           <div className="flex items-start justify-between gap-4">
@@ -311,7 +302,7 @@ export function CalendarView() {
               href="https://calendly.com/strategystudio-mkt/ann-s-privat-link"
               target="_blank"
               rel="noreferrer"
-              className="shrink-0 flex items-center gap-1.5 rounded-xl bg-[#ffde21] px-4 py-2 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all shadow-md shadow-[#ffde21]/15 hover:shadow-[#ffde21]/25"
+              className="shrink-0 flex items-center gap-1.5 rounded-[8px] bg-[#ffde21] px-4 py-2 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-colors"
             >
               <Calendar className="h-3.5 w-3.5" />
               Agendar llamada

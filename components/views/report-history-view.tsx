@@ -81,7 +81,7 @@ function ConfirmDeleteDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative w-full max-w-sm rounded-2xl border border-red-400 bg-card p-6 shadow-2xl dark:border-red-500/30">
+      <div className="relative w-full max-w-sm rounded-[14px] border border-red-400 bg-card p-6 shadow-2xl dark:border-red-500/30">
         <button onClick={onCancel} className="absolute right-4 top-4 text-foreground/30 hover:text-foreground/70 transition-colors">
           <X className="h-4 w-4" />
         </button>
@@ -389,8 +389,7 @@ export function ReportHistoryView() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.06] bg-card px-6 py-5">
-        <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#ffde21]/60 via-[#ffde21]/30 to-transparent" />
+      <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card px-6 py-5">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/70 mb-1">Datos</p>
           <h2 className="text-xl font-bold text-foreground">Historial de Reportes</h2>

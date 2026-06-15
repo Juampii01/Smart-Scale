@@ -605,14 +605,14 @@ export function ClientPlaybookView({ userRole }: { userRole: string | null }) {
 
   if (!activeClientId) {
     return (
-      <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-sm text-foreground/40">
+      <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-sm text-foreground/40">
         No hay un cliente activo seleccionado.
       </div>
     )
   }
 
   return (
-    <div className="flex h-[calc(100vh-260px)] min-h-[520px] gap-3 rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="flex h-[calc(100vh-260px)] min-h-[520px] gap-3 rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
 
       {/* Sidebar */}
       <aside className="flex w-[240px] shrink-0 flex-col border-r border-foreground/[0.06] bg-foreground/[0.015]">

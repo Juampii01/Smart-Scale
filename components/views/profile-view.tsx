@@ -190,7 +190,7 @@ export function ProfileView() {
       </div>
 
       {/* Foto */}
-      <section className="rounded-2xl border border-border bg-card p-5">
+      <section className="rounded-[14px] border border-border bg-card p-5">
         <h2 className="text-sm font-semibold text-foreground mb-4">Foto de perfil</h2>
         <div className="flex items-center gap-4">
           <button
@@ -234,7 +234,7 @@ export function ProfileView() {
       </section>
 
       {/* Nombre */}
-      <section className="rounded-2xl border border-border bg-card p-5">
+      <section className="rounded-[14px] border border-border bg-card p-5">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-4"><UserRound className="h-4 w-4 text-[#ffde21]" /> Nombre</h2>
         <label className={labelCls}>Tu nombre</label>
         <input className={inputCls} value={name} onChange={(e) => { setName(e.target.value); setNameState("idle"); setNameMsg(null) }} placeholder="Cómo querés que te llamemos" maxLength={60} />
@@ -245,7 +245,7 @@ export function ProfileView() {
       </section>
 
       {/* Email */}
-      <section className="rounded-2xl border border-border bg-card p-5">
+      <section className="rounded-[14px] border border-border bg-card p-5">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-4"><Mail className="h-4 w-4 text-[#ffde21]" /> Email</h2>
         <label className={labelCls}>Email de inicio de sesión</label>
         <input className={inputCls} type="email" value={email} onChange={(e) => { setEmail(e.target.value); setEmailState("idle"); setEmailMsg(null) }} placeholder="tu@email.com" />
@@ -256,7 +256,7 @@ export function ProfileView() {
       </section>
 
       {/* Contraseña */}
-      <section className="rounded-2xl border border-border bg-card p-5">
+      <section className="rounded-[14px] border border-border bg-card p-5">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-4"><Lock className="h-4 w-4 text-[#ffde21]" /> Contraseña</h2>
         <div className="space-y-3">
           <div>

@@ -330,7 +330,7 @@ export function ProgramChecklistView() {
 
       {/* Banner de "viendo cliente" — solo cuando admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-center gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
+        <div className="flex items-center gap-3 rounded-[14px] border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
           <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Viendo otro cliente</p>
@@ -343,13 +343,13 @@ export function ProgramChecklistView() {
 
       {/* Estado vacío si no hay cliente activo */}
       {!activeClientId && !loading && (
-        <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-sm text-foreground/40">
+        <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-sm text-foreground/40">
           No hay un cliente activo seleccionado. Cambiá de perfil desde el menú superior para ver un checklist.
         </div>
       )}
 
       {/* Table */}
-      <div className="rounded-2xl border border-foreground/[0.08] bg-card overflow-hidden">
+      <div className="rounded-[14px] border border-foreground/[0.08] bg-card overflow-hidden">
 
         {/* Column headers */}
         <div className="grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-b border-foreground/[0.07] bg-foreground/[0.03]">

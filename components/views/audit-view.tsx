@@ -301,7 +301,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
             if (!s) return null
             const style = stateStyles[s.estado]
             return (
-              <div key={key} className="rounded-2xl border border-foreground/[0.07] bg-card p-5">
+              <div key={key} className="rounded-[14px] border border-foreground/[0.07] bg-card p-5">
                 <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-foreground/55 mb-2">
                   {s.name}
                 </p>
@@ -336,7 +336,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
         </p>
         <div className="space-y-4">
           {data.focos.map((f, idx) => (
-            <div key={idx} className="rounded-2xl border border-foreground/[0.07] bg-card p-6">
+            <div key={idx} className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
               <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${priorityPill(idx)}`}>
                 {f.etiqueta}
               </span>
@@ -666,7 +666,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
       </div>
 
       {/* Revenue card */}
-      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+      <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
         <div className={`h-[2px] w-full ${annualRevenue >= 20000 ? "bg-emerald-500/60" : "bg-amber-500/60"}`} />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
         <div className="relative flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
@@ -731,7 +731,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                     {group.items.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] dark:bg-foreground/[0.04] px-5 py-4 space-y-3"
+                        className="rounded-[14px] border border-foreground/[0.07] bg-foreground/[0.02] dark:bg-foreground/[0.04] px-5 py-4 space-y-3"
                       >
                         {/* ID + statement */}
                         <div className="flex items-start gap-3">
@@ -761,8 +761,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
       {/* Controls */}
       <div className="space-y-4">
-        <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
-          <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/20 via-[#ffde21]/40 to-[#ffde21]/20" />
+        <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
 
           <div className="relative border-b border-foreground/[0.05] px-6 py-5">
@@ -804,8 +803,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
         {/* AI Loading */}
         {loading && !aiResponse && (
-          <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
-            <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/20 via-[#ffde21]/40 to-[#ffde21]/20" />
+          <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
             <AiLoading
               title="Generando diagnóstico estratégico"
               steps={[
@@ -821,8 +819,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
         {/* AI Response */}
         {aiResponse && (
-          <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
-            <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/20 via-[#ffde21]/40 to-[#ffde21]/20" />
+          <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
 
             <div className="relative border-b border-foreground/[0.05] px-6 py-5">
@@ -865,7 +862,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
         )}
 
         {/* History */}
-        <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+        <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,222,33,0.03),transparent_55%)]" />
 
           <div className="relative border-b border-foreground/[0.05] px-6 py-6">
@@ -909,7 +906,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                   return (
                     <div
                       key={item.request_id}
-                      className={`flex flex-col h-full justify-between rounded-2xl border p-5 transition-all duration-200 ${
+                      className={`flex flex-col h-full justify-between rounded-[14px] border p-5 transition-all duration-200 ${
                         isActiveDiagnosis
                           ? "border-[#ffde21]/30 bg-[#ffde21]/[0.04]"
                           : "border-foreground/[0.07] bg-foreground/[0.02] hover:border-foreground/15"
@@ -930,7 +927,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                           type="button"
                           onClick={() => handleDelete(item.request_id)}
                           disabled={deletingId === item.request_id}
-                          className="flex h-6 w-6 items-center justify-center rounded-lg text-foreground/25 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
+                          className="flex h-6 w-6 items-center justify-center rounded-lg text-foreground/25 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
                           title="Eliminar auditoría"
                         >
                           {deletingId === item.request_id

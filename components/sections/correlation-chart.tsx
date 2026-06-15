@@ -66,9 +66,7 @@ function CorrCard({
   const avgBar  = data.length ? data.reduce((s, d) => s + d[barKey],  0) / data.length : 0
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors duration-200">
-      <div className="h-[2px] w-full bg-gradient-to-r"
-        style={{ background: `linear-gradient(90deg, ${barColor}90, ${lineColor}90)` }} />
+    <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors duration-200">
 
       <div className="p-6">
         {/* Header */}
@@ -194,7 +192,7 @@ export function CorrelationChart() {
       <section>
         <div className="grid gap-5 md:grid-cols-2">
           {[0,1,2,3].map(i => (
-            <div key={i} className="h-[380px] animate-pulse rounded-2xl border border-foreground/[0.07] bg-card" />
+            <div key={i} className="h-[380px] animate-pulse rounded-[14px] border border-foreground/[0.07] bg-card" />
           ))}
         </div>
       </section>

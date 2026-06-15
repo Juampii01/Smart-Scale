@@ -66,7 +66,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
   }
 
   return (
-    <div className="rounded-2xl border border-[#ffde21]/20 bg-card p-5 mb-6">
+    <div className="rounded-[14px] border border-[#ffde21]/20 bg-card p-5 mb-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-foreground">Agregar recurso</h3>
         <button onClick={onClose} aria-label="Cerrar" className="text-foreground/30 hover:text-foreground/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 rounded">
@@ -164,7 +164,7 @@ function ResourceCard({ resource, onDelete }: { resource: Resource; onDelete: (i
   }
 
   return (
-    <div className="group rounded-2xl border border-foreground/[0.07] bg-card p-4 flex flex-col gap-3 hover:border-foreground/[0.12] transition-all">
+    <div className="group rounded-[14px] border border-foreground/[0.07] bg-card p-4 flex flex-col gap-3 hover:border-foreground/[0.12] transition-all">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.05] flex-shrink-0">
@@ -180,7 +180,7 @@ function ResourceCard({ resource, onDelete }: { resource: Resource; onDelete: (i
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="opacity-0 group-hover:opacity-100 flex-shrink-0 text-foreground/20 hover:text-red-400 transition-all"
+          className="opacity-0 group-hover:opacity-100 flex-shrink-0 text-foreground/20 hover:text-red-600 dark:hover:text-red-400 transition-all"
         >
           {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
         </button>
