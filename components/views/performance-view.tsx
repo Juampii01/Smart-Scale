@@ -80,29 +80,31 @@ function MetricCard({ label, value, pct, noData }: {
 
 // ─── Stage mini chart ─────────────────────────────────────────────────────────
 
-function MiniChart({ data, dataKey, color, label }: {
-  data: MonthlyReport[]; dataKey: keyof MonthlyReport; color: string; label: string
+function MiniChart({ data, dataKey, color, label, className }: {
+  data: MonthlyReport[]; dataKey: keyof MonthlyReport; color: string; label: string; className?: string
 }) {
   const points = data.slice(-8).map(r => ({ month: fmtMonthLabel(r.month), value: Number(r[dataKey]) || 0 }))
   if (points.every(p => p.value === 0)) return null
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-5">
+    <div className={cn("rounded-[14px] border border-foreground/[0.07] bg-card p-5 flex flex-col", className)}>
       <p className="text-[11px] font-semibold uppercase tracking-[0.10em] text-foreground/40 mb-4">{label}</p>
-      <ResponsiveContainer width="100%" height={100}>
-        <AreaChart data={points} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-          <defs>
-            <linearGradient id={`grad-${String(dataKey)}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stopColor={color} stopOpacity={0.25} />
-              <stop offset="100%" stopColor={color} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <XAxis dataKey="month" tick={{ fontSize: 10, fill: "var(--text-3)" }} axisLine={false} tickLine={false} />
-          <YAxis hide />
-          <Tooltip {...tooltipStyle} />
-          <Area type="monotone" dataKey="value" name={label} stroke={color} strokeWidth={2}
-            fill={`url(#grad-${String(dataKey)})`} dot={false} activeDot={{ r: 4, fill: color }} />
-        </AreaChart>
-      </ResponsiveContainer>
+      <div className="flex-1 min-h-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={points} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id={`grad-${String(dataKey)}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stopColor={color} stopOpacity={0.25} />
+                <stop offset="100%" stopColor={color} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis dataKey="month" tick={{ fontSize: 10, fill: "var(--text-3)" }} axisLine={false} tickLine={false} />
+            <YAxis hide />
+            <Tooltip {...tooltipStyle} />
+            <Area type="monotone" dataKey="value" name={label} stroke={color} strokeWidth={2}
+              fill={`url(#grad-${String(dataKey)})`} dot={false} activeDot={{ r: 4, fill: color }} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   )
 }
@@ -321,13 +323,15 @@ function FascinateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
         </div>
         <p className="text-[13px] text-foreground/50">Captar atención — crecer la audiencia que alimenta el motor.</p>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <MetricCard label="Seguidores IG"   value={fmtK(cur?.short_followers)} pct={d.ig}    noData={!cur?.short_followers} />
-        <MetricCard label="Alcance IG"      value={fmtK(cur?.short_reach)}     pct={d.reach} noData={!cur?.short_reach} />
-        <MetricCard label="Suscriptores YT" value={fmtK(cur?.yt_subscribers)}  pct={d.yt}    noData={!cur?.yt_subscribers} />
-        <MetricCard label="Vistas YT"       value={fmtK(cur?.yt_views)}        pct={d.ytv}   noData={!cur?.yt_views} />
+      <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4 items-stretch">
+        <div className="grid grid-cols-2 gap-3">
+          <MetricCard label="Seguidores IG"   value={fmtK(cur?.short_followers)} pct={d.ig}    noData={!cur?.short_followers} />
+          <MetricCard label="Alcance IG"      value={fmtK(cur?.short_reach)}     pct={d.reach} noData={!cur?.short_reach} />
+          <MetricCard label="Suscriptores YT" value={fmtK(cur?.yt_subscribers)}  pct={d.yt}    noData={!cur?.yt_subscribers} />
+          <MetricCard label="Vistas YT"       value={fmtK(cur?.yt_views)}        pct={d.ytv}   noData={!cur?.yt_views} />
+        </div>
+        <MiniChart data={all} dataKey="short_followers" color="#818cf8" label="Seguidores IG — últimos 8 meses" className="min-h-[220px]" />
       </div>
-      <MiniChart data={all} dataKey="short_followers" color="#818cf8" label="Seguidores IG — últimos 8 meses" />
     </div>
   )
 }
@@ -348,13 +352,15 @@ function EducateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Month
         </div>
         <p className="text-[13px] text-foreground/50">Construir autoridad — convertir atención en audiencia comprometida.</p>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <MetricCard label="Posts IG"           value={fmtK(cur?.short_posts)}       pct={d.posts} noData={!cur?.short_posts} />
-        <MetricCard label="Videos YT"          value={fmtK(cur?.yt_videos)}         pct={d.ytv}   noData={!cur?.yt_videos} />
-        <MetricCard label="Suscriptores Email" value={fmtK(cur?.email_subscribers)} pct={d.email} noData={!cur?.email_subscribers} />
-        <MetricCard label="Canales activos"    value={[cur?.short_posts, cur?.yt_videos, cur?.email_subscribers].filter(Boolean).length.toString()} pct={null} />
+      <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4 items-stretch">
+        <div className="grid grid-cols-2 gap-3">
+          <MetricCard label="Posts IG"           value={fmtK(cur?.short_posts)}       pct={d.posts} noData={!cur?.short_posts} />
+          <MetricCard label="Videos YT"          value={fmtK(cur?.yt_videos)}         pct={d.ytv}   noData={!cur?.yt_videos} />
+          <MetricCard label="Suscriptores Email" value={fmtK(cur?.email_subscribers)} pct={d.email} noData={!cur?.email_subscribers} />
+          <MetricCard label="Canales activos"    value={[cur?.short_posts, cur?.yt_videos, cur?.email_subscribers].filter(Boolean).length.toString()} pct={null} />
+        </div>
+        <MiniChart data={all} dataKey="short_posts" color="#4ade80" label="Posts IG — últimos 8 meses" className="min-h-[220px]" />
       </div>
-      <MiniChart data={all} dataKey="short_posts" color="#4ade80" label="Posts IG — últimos 8 meses" />
     </div>
   )
 }
@@ -376,13 +382,15 @@ function InviteTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Monthl
         </div>
         <p className="text-[13px] text-foreground/50">Conversión eficiente — convertir audiencia pre-calentada en clientes.</p>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <MetricCard label="Nuevos clientes" value={fmtK(cur?.new_clients)}        pct={d.clients} noData={!cur?.new_clients} />
-        <MetricCard label="Cash collected"  value={fmtMoney(cur?.cash_collected)} pct={d.cash}    noData={!cur?.cash_collected} />
-        <MetricCard label="MRR"             value={fmtMoney(cur?.mrr)}            pct={d.mrr}     noData={!cur?.mrr} />
-        <MetricCard label="Revenue total"   value={fmtMoney(cur?.total_revenue)}  pct={d.rev}     noData={!cur?.total_revenue} />
+      <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4 items-stretch">
+        <div className="grid grid-cols-2 gap-3">
+          <MetricCard label="Nuevos clientes" value={fmtK(cur?.new_clients)}        pct={d.clients} noData={!cur?.new_clients} />
+          <MetricCard label="Cash collected"  value={fmtMoney(cur?.cash_collected)} pct={d.cash}    noData={!cur?.cash_collected} />
+          <MetricCard label="MRR"             value={fmtMoney(cur?.mrr)}            pct={d.mrr}     noData={!cur?.mrr} />
+          <MetricCard label="Revenue total"   value={fmtMoney(cur?.total_revenue)}  pct={d.rev}     noData={!cur?.total_revenue} />
+        </div>
+        <MiniChart data={all} dataKey="cash_collected" color="#ffde21" label="Cash collected — últimos 8 meses" className="min-h-[220px]" />
       </div>
-      <MiniChart data={all} dataKey="cash_collected" color="#ffde21" label="Cash collected — últimos 8 meses" />
     </div>
   )
 }
@@ -404,13 +412,15 @@ function TransformTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
         </div>
         <p className="text-[13px] text-foreground/50">Retención y eficiencia — sostener y escalar lo que funciona.</p>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <MetricCard label="MRR"          value={fmtMoney(cur?.mrr)}      pct={d.mrr} noData={!cur?.mrr} />
-        <MetricCard label="Gasto en ads" value={fmtMoney(cur?.ad_spend)} pct={d.ad}  noData={!cur?.ad_spend} />
-        <MetricCard label="ROAS"         value={curRoas ? `${curRoas.toFixed(1)}x` : "—"} pct={pctDelta(curRoas ?? 0, prevRoas ?? 0)} noData={!curRoas} />
-        <MetricCard label="Meses con datos" value={all.filter(r => r.cash_collected > 0).length.toString()} pct={null} />
+      <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4 items-stretch">
+        <div className="grid grid-cols-2 gap-3">
+          <MetricCard label="MRR"             value={fmtMoney(cur?.mrr)}      pct={d.mrr} noData={!cur?.mrr} />
+          <MetricCard label="Gasto en ads"    value={fmtMoney(cur?.ad_spend)} pct={d.ad}  noData={!cur?.ad_spend} />
+          <MetricCard label="ROAS"            value={curRoas ? `${curRoas.toFixed(1)}x` : "—"} pct={pctDelta(curRoas ?? 0, prevRoas ?? 0)} noData={!curRoas} />
+          <MetricCard label="Meses con datos" value={all.filter(r => r.cash_collected > 0).length.toString()} pct={null} />
+        </div>
+        <MiniChart data={all} dataKey="mrr" color="#38bdf8" label="MRR — últimos 8 meses" className="min-h-[220px]" />
       </div>
-      <MiniChart data={all} dataKey="mrr" color="#38bdf8" label="MRR — últimos 8 meses" />
     </div>
   )
 }
@@ -505,7 +515,7 @@ export function PerformanceView() {
   const prev = idx >= 1 ? reports[idx - 1] : (reports[reports.length - 2] ?? null)
 
   return (
-    <div className="max-w-[900px] space-y-6 pb-10">
+    <div className="space-y-6 pb-10">
       <div>
         <h1 className="text-[22px] font-bold text-foreground leading-tight">Performance</h1>
         <p className="text-[13px] text-foreground/50 mt-0.5">Tu pulso a través de las 4 etapas del modelo</p>
