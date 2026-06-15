@@ -110,8 +110,7 @@ const RANGE_LABELS: Record<Range, string> = {
 
 function BlockSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn("rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden", className)}>
-      <div className="h-[2px] w-full skeleton" />
+    <div className={cn("rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden", className)}>
       <div className="p-5 space-y-4">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
@@ -193,8 +192,7 @@ function StatPill({
 
 function NewCashBlock({ data }: { data: DashboardData["new_cash"] }) {
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden">
-      <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/60 to-[#ffde21]/10" />
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={TrendingUp}
@@ -296,8 +294,7 @@ function groupOldCashInstallments(installments: OldCashInstallment[]) {
 function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
   const grouped = groupOldCashInstallments(data.installments)
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden">
-      <div className="h-[2px] w-full bg-gradient-to-r from-blue-500/50 to-blue-500/10" />
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={RefreshCw}
@@ -366,8 +363,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
   ]
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden">
-      <div className="h-[2px] w-full bg-gradient-to-r from-purple-500/50 to-purple-500/10" />
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={MessageSquareText}
@@ -468,8 +464,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
 
 function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] }) {
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden">
-      <div className="h-[2px] w-full bg-gradient-to-r from-red-500/50 to-amber-500/20" />
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={CalendarClock}
