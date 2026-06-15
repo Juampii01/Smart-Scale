@@ -134,7 +134,7 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
         {!collapsed && (
           <div className="mx-2 mt-4 mb-2 flex items-center gap-2">
             <div className="flex-1 h-px bg-foreground/[0.07]" />
-            <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.15em] text-[#ffde21]/40 whitespace-nowrap">
+            <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.15em] text-foreground/35 whitespace-nowrap">
               Smart Scale CRM
             </span>
             <div className="flex-1 h-px bg-foreground/[0.07]" />
@@ -154,10 +154,10 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
                     collapsed ? "lg:justify-center lg:px-2 px-3" : "px-3",
                     isActive
                       ? "bg-foreground/[0.07] text-[#ffde21]"
-                      : "text-foreground/80 hover:bg-foreground/[0.05] hover:text-foreground"
+                      : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
                   )}
                 >
-                  <item.icon className="h-[14px] w-[14px] flex-shrink-0 text-[#ffde21]" />
+                  <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
                   {!collapsed && (
                     <span className={cn(
                       "text-[13px] leading-none",
