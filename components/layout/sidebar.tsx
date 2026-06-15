@@ -6,7 +6,7 @@ import {
   Zap, Globe, FileVideo,
   ChevronDown, ShieldCheck, ArrowRight,
   ChevronLeft, ChevronRight, Sparkles, Instagram, Youtube,
-  User, Pencil, Trophy, Coins, FileBarChart,
+  User, Pencil, Trophy, Coins, FileBarChart, TrendingUp,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -29,11 +29,12 @@ const NAV_GROUPS = [
   {
     label: "Performance",
     items: [
-      { name: "Performance Center", href: "/dashboard",  icon: BarChart3 },
-      { name: "Channels",           href: "/channels",   icon: Radio },
-      { name: "Sales",              href: "/sales",      icon: DollarSign },
-      { name: "Reflection",         href: "/reflection", icon: MessageSquare },
-      { name: "All Metrics",        href: "/metrics",    icon: LayoutGrid },
+      { name: "Overview",     href: "/dashboard",   icon: BarChart3   },
+      { name: "Performance",  href: "/performance", icon: TrendingUp  },
+      { name: "Channels",     href: "/channels",    icon: Radio       },
+      { name: "Sales",        href: "/sales",       icon: DollarSign  },
+      { name: "Reflection",   href: "/reflection",  icon: MessageSquare },
+      { name: "All Metrics",  href: "/metrics",     icon: LayoutGrid  },
     ],
   },
   {
