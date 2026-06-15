@@ -46,6 +46,7 @@ const OFFERS: Offer[] = [
     highlight: true,
     features: [
       "Soporte 1:1 con Ann por WhatsApp y llamadas",
+      "Llamada semanal 1-1 con Ann",
       "Seguimiento constante de números y trackers semanales",
       "Trabajo profundo del backend: procesos, delivery, clientes y escalado con ads",
       "Todo el ecosistema grupal (Lab, Automatizaciones, Mentalidad y comunidad)",
@@ -62,7 +63,7 @@ const OFFERS: Offer[] = [
     priceMonthly: "USD 1.000",
     highlight: false,
     features: [
-      "Soporte 1:1 con Ann por WhatsApp y llamadas",
+      "Llamada 1-1 mensual con Ann",
       "Llamada semanal de Lab / Workshop",
       "Llamada quincenal de Automatizaciones y Sistemas",
       "Llamada mensual de Mentalidad",
