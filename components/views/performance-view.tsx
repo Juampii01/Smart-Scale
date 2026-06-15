@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { useMonthlyReports, type MonthlyReport } from "@/hooks/use-monthly-reports"
 import { useSelectedMonth } from "@/components/layout/dashboard-layout"
 import { Sk } from "@/components/ui/skeleton"
+import { SalesView } from "@/components/views/sales-view"
 import { TrendingUp, TrendingDown, Eye, FileText, Instagram, Youtube, Mail } from "lucide-react"
 import {
   ResponsiveContainer, AreaChart, Area, LineChart, Line,
@@ -420,6 +421,11 @@ function InviteTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Monthl
           <MetricCard label="Revenue total"   value={fmtMoney(cur?.total_revenue)}  pct={d.rev}     noData={!cur?.total_revenue} />
         </div>
         <MiniChart data={all} dataKey="cash_collected" color="#ffde21" label="Cash collected — últimos 8 meses" className="min-h-[220px]" />
+      </div>
+
+      {/* Sales: el embudo de conversión vive dentro de Invite */}
+      <div className="pt-4 mt-2 border-t border-foreground/[0.07]">
+        <SalesView />
       </div>
     </div>
   )

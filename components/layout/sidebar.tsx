@@ -41,7 +41,6 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { name: "Overview",           href: "/dashboard",   icon: BarChart3     },
       { name: "Performance",        href: "/performance", icon: TrendingUp    },
-      { name: "Sales",              href: "/sales",       icon: DollarSign    },
       { name: "Reflection",         href: "/reflection",  icon: MessageSquare },
       { name: "All Metrics",        href: "/metrics",     icon: LayoutGrid    },
     ],
@@ -364,7 +363,7 @@ export function Sidebar({
               {!collapsed && (
                 <span className="min-w-0 flex-1 text-left">
                   <span className="block truncate text-[13px] font-semibold text-foreground">{profileLabel}</span>
-                  <span className="block truncate text-[11px] text-foreground/45">Editar perfil</span>
+                  <span className="block truncate text-[11px] text-foreground/45">Context Room</span>
                 </span>
               )}
             </Link>
