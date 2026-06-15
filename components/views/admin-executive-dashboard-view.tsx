@@ -5,6 +5,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 import { Sk } from "@/components/ui/skeleton"
+import { Stat } from "@/components/ui/stat"
 import {
   TrendingUp, RefreshCw, MessageSquareText,
   CalendarClock, AlertTriangle, Clock, Users, DollarSign,
@@ -198,12 +199,7 @@ function NewCashBlock({ data }: { data: DashboardData["new_cash"] }) {
           icon={TrendingUp}
           title="New Cash"
           subtitle={`${data.client_count} cliente${data.client_count !== 1 ? "s" : ""} nuevos`}
-          badge={
-            <div className="text-right">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">contratado</p>
-              <p className="text-[22px] font-bold text-foreground tabular-nums">{fmt(data.total_contracted)}</p>
-            </div>
-          }
+          badge={<Stat value={data.total_contracted} label="contratado" format="currency" />}
         />
 
         <div className="flex flex-wrap gap-2 mb-4">
@@ -300,12 +296,7 @@ function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
           icon={RefreshCw}
           title="Caja Recurrente"
           subtitle={`${data.installment_count} cuota${data.installment_count !== 1 ? "s" : ""} cobradas`}
-          badge={
-            <div className="text-right">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">cobrado</p>
-              <p className="text-[22px] font-bold text-foreground tabular-nums">{fmt(data.total_collected)}</p>
-            </div>
-          }
+          badge={<Stat value={data.total_collected} label="cobrado" format="currency" />}
         />
 
         {grouped.length === 0 ? (
@@ -370,19 +361,10 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
           title="Setting / Equipo"
           subtitle="performance del período"
           badge={
-            <div className="flex gap-6 text-right">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#ffde21]/70">total conv.</p>
-                <p className="text-[22px] font-bold text-[#ffde21] tabular-nums">{data.totals.total_conversations}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">cierres</p>
-                <p className="text-[22px] font-bold text-foreground tabular-nums">{data.totals.cierres}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">monto</p>
-                <p className="text-[22px] font-bold text-foreground tabular-nums">{fmt(data.totals.cierre_amount)}</p>
-              </div>
+            <div className="flex gap-5">
+              <Stat value={data.totals.total_conversations} label="total conv." colorClass="text-[#ffde21]" />
+              <Stat value={data.totals.cierres}             label="cierres" />
+              <Stat value={data.totals.cierre_amount}       label="monto"   format="currency" />
             </div>
           }
         />
@@ -471,18 +453,13 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
           title="Cuotas Próximas"
           subtitle="vencidas y por vencer"
           badge={
-            <div className="flex gap-4 text-right">
+            <div className="flex gap-4">
               {data.overdue_count > 0 && (
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400">vencidas</p>
-                  <p className="text-[22px] font-bold text-red-700 dark:text-red-400 tabular-nums">{fmt(data.overdue_total)}</p>
-                </div>
+                <Stat value={data.overdue_total} label="vencidas" format="currency"
+                  colorClass="text-red-700 dark:text-red-400" />
               )}
               {data.upcoming_count > 0 && (
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">próximas</p>
-                  <p className="text-[22px] font-bold text-foreground tabular-nums">{fmt(data.upcoming_total)}</p>
-                </div>
+                <Stat value={data.upcoming_total} label="próximas" format="currency" />
               )}
             </div>
           }
