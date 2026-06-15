@@ -1,13 +1,11 @@
 "use client"
 
 import {
-  X, BarChart3, DollarSign, MessageSquare, Wrench,
-  CalendarDays, Lock, LayoutGrid, ClipboardList,
-  Zap, Globe, FileVideo,
-  ChevronDown, ShieldCheck, ArrowRight,
-  ChevronLeft, ChevronRight, Sparkles, Instagram, Youtube,
+  X, BarChart3, MessageSquare, CalendarDays, LayoutGrid,
+  ClipboardList, Zap, Globe, FileVideo, ChevronDown,
+  ShieldCheck, ArrowRight, Sparkles, Instagram, Youtube,
   User, Pencil, Trophy, Coins, FileBarChart, TrendingUp,
-  Brain, Bot,
+  Brain, Bot, Wrench,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -30,55 +28,20 @@ type NavItem = {
   name: string
   href: string
   icon: React.ElementType
-  disabled?: boolean
   children?: ChildItem[]
 }
-type NavGroup = { label: string; items: NavItem[] }
+// label opcional: undefined = sección sin título (la primera)
+type NavGroup = { label?: string; items: NavItem[] }
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    label: "Performance",
     items: [
-      { name: "Overview",           href: "/dashboard",   icon: BarChart3     },
-      { name: "Performance",        href: "/performance", icon: TrendingUp    },
-      { name: "Reflection",         href: "/reflection",  icon: MessageSquare },
-      { name: "All Metrics",        href: "/metrics",     icon: LayoutGrid    },
-    ],
-  },
-  {
-    label: "Programa",
-    items: [
-      { name: "Performance Audit", href: "/audit",             icon: ClipboardList },
-      { name: "Implementacion",    href: "/program-checklist", icon: Zap           },
-      { name: "Agenda",            href: "/calendar",          icon: CalendarDays  },
-    ],
-  },
-  {
-    label: "Mis reportes",
-    items: [
-      { name: "Monday Win",      href: "/monday-win",   icon: Trophy       },
-      { name: "Cha-Ching 💰",    href: "/chi-chang",    icon: Coins        },
-      { name: "Reporte Mensual", href: "/report-input", icon: FileBarChart },
-    ],
-  },
-  {
-    label: "Contenido",
-    items: [
+      { name: "Overview",    href: "/dashboard",   icon: BarChart3     },
+      { name: "Performance", href: "/performance", icon: TrendingUp    },
+      { name: "Reflection",  href: "/reflection",  icon: MessageSquare },
+      { name: "All Metrics", href: "/metrics",     icon: LayoutGrid    },
       {
-        name: "Instagram",
-        href: "/mi-instagram",
-        icon: Instagram,
-        children: [
-          { name: "My Profile",  href: "/mi-instagram"          },
-          { name: "Competitors", href: "/instagram/competitors"  },
-          { name: "Vault",       href: "/instagram/vault"        },
-          { name: "Ideas",       href: "/instagram/ideas"        },
-        ],
-      },
-      {
-        name: "YouTube",
-        href: "/mi-youtube",
-        icon: Youtube,
+        name: "YouTube", href: "/mi-youtube", icon: Youtube,
         children: [
           { name: "My Channel",  href: "/mi-youtube"           },
           { name: "Competitors", href: "/youtube/competitors"  },
@@ -86,13 +49,38 @@ const NAV_GROUPS: NavGroup[] = [
           { name: "Ideas",       href: "/youtube/ideas"        },
         ],
       },
+      {
+        name: "Instagram", href: "/mi-instagram", icon: Instagram,
+        children: [
+          { name: "My Profile",  href: "/mi-instagram"          },
+          { name: "Competitors", href: "/instagram/competitors"  },
+          { name: "Vault",       href: "/instagram/vault"        },
+          { name: "Ideas",       href: "/instagram/ideas"        },
+        ],
+      },
+      { name: "Calendar", href: "/calendar", icon: CalendarDays },
     ],
   },
   {
-    label: "Content Tools",
+    label: "Reportes",
     items: [
-      { name: "Competitor Research",  href: "/competitor-research", icon: Globe     },
-      { name: "Transcript de Videos", href: "/transcript",          icon: FileVideo },
+      { name: "Monday Win",      href: "/monday-win",   icon: Trophy       },
+      { name: "Cha-Ching 💰",    href: "/chi-chang",    icon: Coins        },
+      { name: "Reporte Mensual", href: "/report-input", icon: FileBarChart },
+    ],
+  },
+  {
+    label: "Performance Tools",
+    items: [
+      {
+        name: "Content Tools", href: "/competitor-research", icon: Wrench,
+        children: [
+          { name: "Competitor Research", href: "/competitor-research" },
+          { name: "Transcriptions",      href: "/transcript"          },
+        ],
+      },
+      { name: "Implementation",   href: "/program-checklist", icon: Zap           },
+      { name: "Performance Audit", href: "/audit",            icon: ClipboardList },
     ],
   },
   {
@@ -103,37 +91,23 @@ const NAV_GROUPS: NavGroup[] = [
       { name: "GPTs",          href: "/tools",         icon: Bot      },
     ],
   },
-  // /renovacion no va en el sidebar — el equipo envía el link directo.
 ]
 
-const LS_GROUPS = "ss_sidebar_groups"
-const LS_ITEMS  = "ss_sidebar_items"
+const LS_ITEMS = "ss_sidebar_items"
 
 export function Sidebar({
-  open, onClose, isAdmin = false, collapsed = false, onToggleCollapsed,
+  open, onClose, isAdmin = false,
   avatarUrl, displayName, email,
 }: SidebarProps) {
   const pathname = usePathname()
-  const [groupsCollapsed, setGroupsCollapsed] = useState<Record<string, boolean>>({})
-  const [expandedItems,   setExpandedItems]   = useState<Record<string, boolean>>({})
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
 
-  // Persist sidebar state across navigations
   useEffect(() => {
     try {
-      const g = localStorage.getItem(LS_GROUPS)
-      if (g) setGroupsCollapsed(JSON.parse(g))
       const i = localStorage.getItem(LS_ITEMS)
       if (i) setExpandedItems(JSON.parse(i))
     } catch {}
   }, [])
-
-  const toggleGroup = (label: string) => {
-    setGroupsCollapsed(prev => {
-      const next = { ...prev, [label]: !prev[label] }
-      try { localStorage.setItem(LS_GROUPS, JSON.stringify(next)) } catch {}
-      return next
-    })
-  }
 
   const toggleItem = (name: string) => {
     setExpandedItems(prev => {
@@ -154,184 +128,118 @@ export function Sidebar({
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-[220px] transition-all duration-200 ease-in-out lg:translate-x-0",
+          "fixed left-0 top-0 z-50 h-full w-[220px] transition-transform duration-200 ease-in-out lg:translate-x-0",
           "bg-card flex flex-col pt-[env(safe-area-inset-top)] overflow-hidden",
           "border-r border-foreground/[0.07]",
           "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-foreground/[0.08] lg:shadow-[0_10px_36px_-18px_rgba(0,0,0,0.30)]",
           open ? "translate-x-0" : "-translate-x-full",
-          collapsed && "lg:w-[68px]",
         )}
       >
-        {/* Logo + collapse toggle */}
-        <div className={cn(
-          "flex h-16 flex-shrink-0 items-center border-b border-foreground/[0.07]",
-          collapsed ? "lg:justify-center lg:px-2 px-4" : "justify-between pl-5 pr-3"
-        )}>
-          {!collapsed && (
-            <a href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-              <span className="text-foreground text-xl font-bold tracking-tight leading-none">Smart</span>
-              <span className="rounded-md bg-foreground px-2 py-1 text-xl font-bold tracking-tight text-background shadow-sm leading-none">Scale</span>
-              <span className="self-start rounded-full bg-[#ffde21]/15 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-[#ffde21] leading-none">3.0</span>
-            </a>
-          )}
-          <div className="flex items-center gap-1">
-            {onToggleCollapsed && (
-              <button
-                className="hidden lg:flex h-7 w-7 items-center justify-center rounded-md text-foreground/35 hover:text-foreground hover:bg-foreground/[0.06] transition-colors"
-                onClick={onToggleCollapsed}
-                aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
-                title={collapsed ? "Expandir (Cmd+\\)" : "Colapsar (Cmd+\\)"}
-              >
-                {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-              </button>
-            )}
-            <button
-              className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-foreground/50 hover:text-foreground hover:bg-foreground/10 transition-all"
-              onClick={onClose}
-              aria-label="Cerrar menú"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
+        {/* Logo (sin línea divisoria) */}
+        <div className="flex h-16 flex-shrink-0 items-center justify-between pl-5 pr-3">
+          <a href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+            <span className="text-foreground text-xl font-bold tracking-tight leading-none">Smart</span>
+            <span className="rounded-md bg-foreground px-2 py-1 text-xl font-bold tracking-tight text-background shadow-sm leading-none">Scale</span>
+            <span className="self-start rounded-full bg-[#ffde21]/15 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-[#ffde21] leading-none">3.0</span>
+          </a>
+          <button
+            className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-foreground/50 hover:text-foreground hover:bg-foreground/10 transition-all"
+            onClick={onClose}
+            aria-label="Cerrar menú"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
 
         {/* Navigation */}
-        <nav className={cn("flex-1 overflow-y-auto py-4 space-y-1", collapsed ? "lg:px-2" : "px-3")}>
-          {NAV_GROUPS.map((group) => {
-            const isGroupCollapsed = groupsCollapsed[group.label]
-            const hasActive = group.items.some(i =>
-              pathname === i.href || i.children?.some(c => pathname === c.href)
-            )
+        <nav className="flex-1 overflow-y-auto py-2 px-3">
+          {NAV_GROUPS.map((group, gi) => (
+            <div key={group.label ?? `g${gi}`} className={cn(gi > 0 && "mt-6")}>
+              {/* Section label — estático, no colapsable */}
+              {group.label && (
+                <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/35">
+                  {group.label}
+                </p>
+              )}
 
-            return (
-              <div key={group.label} className="mb-1">
-                {!collapsed && (
-                  <button
-                    onClick={() => toggleGroup(group.label)}
-                    className={cn(
-                      "w-full flex items-center justify-between gap-2 rounded-lg px-3 py-1.5 transition-all duration-150 hover:bg-foreground/[0.04]",
-                      hasActive && isGroupCollapsed ? "text-[#ffde21]" : "text-foreground/40"
-                    )}
-                  >
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">{group.label}</span>
-                    <ChevronDown className={cn(
-                      "h-3.5 w-3.5 text-foreground/30 transition-transform duration-200 flex-shrink-0",
-                      isGroupCollapsed && "-rotate-90"
-                    )} />
-                  </button>
-                )}
+              <div className="space-y-0.5">
+                {group.items.map((item) => {
+                  const hasChildren    = !!item.children?.length
+                  const isItemExpanded = expandedItems[item.name] ?? false
+                  const isActive       = pathname === item.href
+                  const hasActiveChild = item.children?.some(c => pathname === c.href) ?? false
 
-                {(collapsed || !isGroupCollapsed) && (
-                  <div className={cn("space-y-0.5", collapsed ? "lg:mt-0 mt-0.5 lg:pl-0 pl-1" : "mt-0.5 pl-1")}>
-                    {group.items.map((item) => {
-                      const hasChildren   = !!item.children?.length
-                      const isItemExpanded = expandedItems[item.name] ?? false
-                      const isActive      = pathname === item.href
-                      const hasActiveChild = item.children?.some(c => pathname === c.href) ?? false
+                  // ── Item colapsable (solo Instagram / YouTube / Content Tools) ──
+                  if (hasChildren) {
+                    return (
+                      <div key={item.name}>
+                        <button
+                          onClick={() => toggleItem(item.name)}
+                          className={cn(
+                            "w-full flex items-center gap-2.5 rounded-lg py-[7px] px-3 transition-all duration-150",
+                            (isItemExpanded || hasActiveChild)
+                              ? "text-foreground"
+                              : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
+                          )}
+                        >
+                          <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
+                          <span className={cn("text-[13px] leading-none flex-1 text-left", (isItemExpanded || hasActiveChild) ? "font-semibold" : "font-medium")}>
+                            {item.name}
+                          </span>
+                          <ChevronDown className={cn("h-3 w-3 text-foreground/30 transition-transform duration-200", isItemExpanded && "rotate-180")} />
+                        </button>
 
-                      if (item.disabled) {
-                        return (
-                          <div key={item.name}
-                            className={cn("flex items-center gap-2.5 rounded-lg px-3 py-2 opacity-25 cursor-not-allowed select-none", collapsed && "lg:justify-center lg:px-2")}
-                            title={item.name}
-                          >
-                            <item.icon className="h-[14px] w-[14px] text-foreground/40 flex-shrink-0" />
-                            {!collapsed && <><span className="text-[13px] text-foreground/40">{item.name}</span><Lock className="ml-auto h-3 w-3 text-foreground/25 flex-shrink-0" /></>}
+                        {/* Sub-items — indentación sin línea */}
+                        {isItemExpanded && (
+                          <div className="mt-0.5 ml-[28px] space-y-0.5 pb-1">
+                            {item.children!.map(child => (
+                              <Link key={child.href} href={child.href} onClick={onClose}>
+                                <div className={cn(
+                                  "py-1.5 px-2 rounded-md text-[12px] transition-colors duration-150",
+                                  pathname === child.href
+                                    ? "text-[#ffde21] font-semibold"
+                                    : "text-foreground/50 hover:text-foreground/90 hover:bg-foreground/[0.04]"
+                                )}>
+                                  {child.name}
+                                </div>
+                              </Link>
+                            ))}
                           </div>
-                        )
-                      }
+                        )}
+                      </div>
+                    )
+                  }
 
-                      // ── Item with children ──
-                      if (hasChildren) {
-                        return (
-                          <div key={item.name}>
-                            <button
-                              onClick={() => !collapsed && toggleItem(item.name)}
-                              className={cn(
-                                "w-full flex items-center gap-2.5 rounded-lg py-[7px] transition-all duration-150",
-                                collapsed ? "lg:justify-center lg:px-2 px-3" : "px-3",
-                                (isItemExpanded || hasActiveChild)
-                                  ? "text-foreground"
-                                  : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
-                              )}
-                              title={collapsed ? item.name : undefined}
-                            >
-                              <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
-                              {!collapsed && (
-                                <>
-                                  <span className={cn("text-[13px] leading-none flex-1 text-left", (isItemExpanded || hasActiveChild) ? "font-semibold" : "font-medium")}>
-                                    {item.name}
-                                  </span>
-                                  <ChevronDown className={cn("h-3 w-3 text-foreground/30 transition-transform duration-200 flex-shrink-0", isItemExpanded && "rotate-180")} />
-                                </>
-                              )}
-                            </button>
-
-                            {isItemExpanded && !collapsed && (
-                              <div className="mt-0.5 ml-[22px] pl-3 border-l border-foreground/[0.07] space-y-0.5 pb-1">
-                                {item.children!.map(child => (
-                                  <Link key={child.href} href={child.href} onClick={onClose}>
-                                    <div className={cn(
-                                      "py-1.5 px-2 rounded-md text-[12px] transition-colors duration-150",
-                                      pathname === child.href
-                                        ? "text-[#ffde21] font-semibold"
-                                        : "text-foreground/50 hover:text-foreground/90 hover:bg-foreground/[0.04]"
-                                    )}>
-                                      {child.name}
-                                    </div>
-                                  </Link>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )
-                      }
-
-                      // ── Regular item ──
-                      return (
-                        <Link key={item.name} href={item.href} onClick={onClose}>
-                          <div
-                            className={cn(
-                              "flex items-center gap-2.5 rounded-lg py-[7px] transition-all duration-150",
-                              collapsed ? "lg:justify-center lg:px-2 px-3" : "px-3",
-                              isActive
-                                ? "bg-foreground/[0.07] text-[#ffde21]"
-                                : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
-                            )}
-                            title={collapsed ? item.name : undefined}
-                          >
-                            <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
-                            {!collapsed && (
-                              <span className={cn("text-[13px] leading-none", isActive ? "font-semibold" : "font-medium")}>
-                                {item.name}
-                              </span>
-                            )}
-                          </div>
-                        </Link>
-                      )
-                    })}
-                  </div>
-                )}
+                  // ── Item normal ──
+                  return (
+                    <Link key={item.name} href={item.href} onClick={onClose}>
+                      <div className={cn(
+                        "flex items-center gap-2.5 rounded-lg py-[7px] px-3 transition-all duration-150",
+                        isActive
+                          ? "bg-foreground/[0.07] text-[#ffde21]"
+                          : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
+                      )}>
+                        <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
+                        <span className={cn("text-[13px] leading-none", isActive ? "font-semibold" : "font-medium")}>
+                          {item.name}
+                        </span>
+                      </div>
+                    </Link>
+                  )
+                })}
               </div>
-            )
-          })}
+            </div>
+          ))}
         </nav>
 
-        {/* Footer — solo admin link + perfil */}
-        <div className={cn("flex-shrink-0 border-t border-foreground/[0.07] space-y-1.5", collapsed ? "lg:p-2 p-3" : "p-3")}>
+        {/* Footer — sin línea divisoria */}
+        <div className="flex-shrink-0 p-3 space-y-1.5">
           {isAdmin && (
-            <Link href="/admin/clients" onClick={onClose} title={collapsed ? "Panel interno" : undefined}>
-              <div className={cn(
-                "group flex items-center rounded-lg text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground transition-all duration-150",
-                collapsed ? "lg:justify-center lg:px-2 px-3 py-2 gap-2.5" : "px-3 py-2 gap-2.5"
-              )}>
+            <Link href="/admin/clients" onClick={onClose}>
+              <div className="group flex items-center gap-2.5 rounded-lg px-3 py-2 text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground transition-all duration-150">
                 <ShieldCheck className="h-4 w-4 shrink-0" />
-                {!collapsed && (
-                  <>
-                    <span className="flex-1 text-[13px] font-medium">Panel interno</span>
-                    <ArrowRight className="h-3.5 w-3.5 text-foreground/30 group-hover:translate-x-0.5 transition-transform" />
-                  </>
-                )}
+                <span className="flex-1 text-[13px] font-medium">Panel interno</span>
+                <ArrowRight className="h-3.5 w-3.5 text-foreground/30 group-hover:translate-x-0.5 transition-transform" />
               </div>
             </Link>
           )}
@@ -340,13 +248,12 @@ export function Sidebar({
             <Link
               href="/perfil"
               onClick={onClose}
-              title={collapsed ? `${profileLabel} — editar perfil` : "Editar perfil"}
+              title="Context Room"
               className={cn(
-                "group/profile mt-1 flex w-full items-center rounded-lg border transition-all duration-150",
+                "group/profile flex w-full items-center gap-2.5 rounded-lg border px-2.5 py-2 transition-all duration-150",
                 pathname === "/perfil"
                   ? "border-[#ffde21]/30 bg-[#ffde21]/[0.08]"
-                  : "border-foreground/[0.06] bg-foreground/[0.02] hover:bg-foreground/[0.05]",
-                collapsed ? "lg:justify-center lg:px-2 px-3 py-2 gap-2.5" : "px-2.5 py-2 gap-2.5"
+                  : "border-foreground/[0.06] bg-foreground/[0.02] hover:bg-foreground/[0.05]"
               )}
             >
               <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10 text-[13px] font-bold text-[#ffde21]">
@@ -360,12 +267,10 @@ export function Sidebar({
                   <Pencil className="h-2.5 w-2.5 text-black" />
                 </span>
               </span>
-              {!collapsed && (
-                <span className="min-w-0 flex-1 text-left">
-                  <span className="block truncate text-[13px] font-semibold text-foreground">{profileLabel}</span>
-                  <span className="block truncate text-[11px] text-foreground/45">Context Room</span>
-                </span>
-              )}
+              <span className="min-w-0 flex-1 text-left">
+                <span className="block truncate text-[13px] font-semibold text-foreground">{profileLabel}</span>
+                <span className="block truncate text-[11px] text-foreground/45">Context Room</span>
+              </span>
             </Link>
           )}
         </div>
