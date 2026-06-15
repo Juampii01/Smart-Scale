@@ -62,15 +62,16 @@ function MetricCard({ label, value, pct, noData }: {
   label: string; value: string; pct: number | null; noData?: boolean
 }) {
   const up = (pct ?? 0) > 0
+  const showDelta = pct !== null && !noData
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4 flex flex-col gap-2">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.10em] text-foreground/40">{label}</p>
-      <p className={cn("text-[28px] font-bold tabular-nums leading-none", noData ? "text-foreground/25" : "text-foreground")}>
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-4 py-3.5 flex flex-col gap-1.5">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.10em] text-foreground/40">{label}</p>
+      <p className={cn("text-[26px] font-bold tabular-nums leading-none", noData ? "text-foreground/25" : "text-foreground")}>
         {value}
       </p>
-      {pct !== null && (
+      {showDelta && (
         <p className={cn("text-[12px] font-semibold", up ? "text-success" : "text-danger")}>
-          {up ? "+" : ""}{pct.toFixed(1)}%
+          {up ? "+" : ""}{pct!.toFixed(1)}%
         </p>
       )}
     </div>
@@ -320,7 +321,7 @@ function FascinateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
         </div>
         <p className="text-[13px] text-foreground/50">Captar atención — crecer la audiencia que alimenta el motor.</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <MetricCard label="Seguidores IG"   value={fmtK(cur?.short_followers)} pct={d.ig}    noData={!cur?.short_followers} />
         <MetricCard label="Alcance IG"      value={fmtK(cur?.short_reach)}     pct={d.reach} noData={!cur?.short_reach} />
         <MetricCard label="Suscriptores YT" value={fmtK(cur?.yt_subscribers)}  pct={d.yt}    noData={!cur?.yt_subscribers} />
@@ -347,7 +348,7 @@ function EducateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Month
         </div>
         <p className="text-[13px] text-foreground/50">Construir autoridad — convertir atención en audiencia comprometida.</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <MetricCard label="Posts IG"           value={fmtK(cur?.short_posts)}       pct={d.posts} noData={!cur?.short_posts} />
         <MetricCard label="Videos YT"          value={fmtK(cur?.yt_videos)}         pct={d.ytv}   noData={!cur?.yt_videos} />
         <MetricCard label="Suscriptores Email" value={fmtK(cur?.email_subscribers)} pct={d.email} noData={!cur?.email_subscribers} />
@@ -375,7 +376,7 @@ function InviteTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Monthl
         </div>
         <p className="text-[13px] text-foreground/50">Conversión eficiente — convertir audiencia pre-calentada en clientes.</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <MetricCard label="Nuevos clientes" value={fmtK(cur?.new_clients)}        pct={d.clients} noData={!cur?.new_clients} />
         <MetricCard label="Cash collected"  value={fmtMoney(cur?.cash_collected)} pct={d.cash}    noData={!cur?.cash_collected} />
         <MetricCard label="MRR"             value={fmtMoney(cur?.mrr)}            pct={d.mrr}     noData={!cur?.mrr} />
@@ -403,7 +404,7 @@ function TransformTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
         </div>
         <p className="text-[13px] text-foreground/50">Retención y eficiencia — sostener y escalar lo que funciona.</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <MetricCard label="MRR"          value={fmtMoney(cur?.mrr)}      pct={d.mrr} noData={!cur?.mrr} />
         <MetricCard label="Gasto en ads" value={fmtMoney(cur?.ad_spend)} pct={d.ad}  noData={!cur?.ad_spend} />
         <MetricCard label="ROAS"         value={curRoas ? `${curRoas.toFixed(1)}x` : "—"} pct={pctDelta(curRoas ?? 0, prevRoas ?? 0)} noData={!curRoas} />
@@ -532,7 +533,7 @@ export function PerformanceView() {
 
       {loading ? (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[1,2,3,4].map(i => <Sk key={i} className="h-[100px] rounded-[14px]" />)}
           </div>
           <Sk className="h-[160px] rounded-[14px]" />
