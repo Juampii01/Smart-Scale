@@ -7,11 +7,12 @@ import {
   ChevronDown, ShieldCheck, ArrowRight,
   ChevronLeft, ChevronRight, Sparkles, Instagram, Youtube,
   User, Pencil, Trophy, Coins, FileBarChart, TrendingUp,
+  Brain, Bot,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface SidebarProps {
   open: boolean
@@ -38,27 +39,26 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Performance",
     items: [
-      { name: "Overview",    href: "/dashboard",   icon: BarChart3    },
-      { name: "Performance", href: "/performance", icon: TrendingUp   },
-      { name: "Sales",       href: "/sales",       icon: DollarSign   },
-      { name: "Reflection",  href: "/reflection",  icon: MessageSquare },
-      { name: "All Metrics", href: "/metrics",     icon: LayoutGrid   },
+      { name: "Overview",           href: "/dashboard",   icon: BarChart3     },
+      { name: "Performance",        href: "/performance", icon: TrendingUp    },
+      { name: "Sales",              href: "/sales",       icon: DollarSign    },
+      { name: "Reflection",         href: "/reflection",  icon: MessageSquare },
+      { name: "All Metrics",        href: "/metrics",     icon: LayoutGrid    },
     ],
   },
   {
     label: "Programa",
     items: [
-      { name: "Audit",          href: "/audit",             icon: ClipboardList },
-      { name: "Implementacion", href: "/program-checklist", icon: Zap           },
-      { name: "Tools",          href: "/tools",             icon: Wrench        },
-      { name: "Agenda",         href: "/calendar",          icon: CalendarDays  },
+      { name: "Performance Audit", href: "/audit",             icon: ClipboardList },
+      { name: "Implementacion",    href: "/program-checklist", icon: Zap           },
+      { name: "Agenda",            href: "/calendar",          icon: CalendarDays  },
     ],
   },
   {
     label: "Mis reportes",
     items: [
-      { name: "Monday Win",      href: "/monday-win",   icon: Trophy      },
-      { name: "Cha-Ching 💰",    href: "/chi-chang",    icon: Coins       },
+      { name: "Monday Win",      href: "/monday-win",   icon: Trophy       },
+      { name: "Cha-Ching 💰",    href: "/chi-chang",    icon: Coins        },
       { name: "Reporte Mensual", href: "/report-input", icon: FileBarChart },
     ],
   },
@@ -70,10 +70,10 @@ const NAV_GROUPS: NavGroup[] = [
         href: "/mi-instagram",
         icon: Instagram,
         children: [
-          { name: "My Profile",   href: "/mi-instagram"          },
-          { name: "Competitors",  href: "/instagram/competitors"  },
-          { name: "Vault",        href: "/instagram/vault"        },
-          { name: "Ideas",        href: "/instagram/ideas"        },
+          { name: "My Profile",  href: "/mi-instagram"          },
+          { name: "Competitors", href: "/instagram/competitors"  },
+          { name: "Vault",       href: "/instagram/vault"        },
+          { name: "Ideas",       href: "/instagram/ideas"        },
         ],
       },
       {
@@ -96,9 +96,19 @@ const NAV_GROUPS: NavGroup[] = [
       { name: "Transcript de Videos", href: "/transcript",          icon: FileVideo },
     ],
   },
-  // /renovacion no va en el sidebar — el equipo envía el link directo al cliente.
+  {
+    label: "Scalekit",
+    items: [
+      { name: "Ann AI",        href: "/anai",          icon: Brain    },
+      { name: "Claude Skills", href: "/claude-skills", icon: Sparkles },
+      { name: "GPTs",          href: "/tools",         icon: Bot      },
+    ],
+  },
+  // /renovacion no va en el sidebar — el equipo envía el link directo.
 ]
 
+const LS_GROUPS = "ss_sidebar_groups"
+const LS_ITEMS  = "ss_sidebar_items"
 
 export function Sidebar({
   open, onClose, isAdmin = false, collapsed = false, onToggleCollapsed,
@@ -106,14 +116,33 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname()
   const [groupsCollapsed, setGroupsCollapsed] = useState<Record<string, boolean>>({})
-  // Nested items: collapsed by default
-  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
+  const [expandedItems,   setExpandedItems]   = useState<Record<string, boolean>>({})
 
-  const toggleGroup = (label: string) =>
-    setGroupsCollapsed(prev => ({ ...prev, [label]: !prev[label] }))
+  // Persist sidebar state across navigations
+  useEffect(() => {
+    try {
+      const g = localStorage.getItem(LS_GROUPS)
+      if (g) setGroupsCollapsed(JSON.parse(g))
+      const i = localStorage.getItem(LS_ITEMS)
+      if (i) setExpandedItems(JSON.parse(i))
+    } catch {}
+  }, [])
 
-  const toggleItem = (name: string) =>
-    setExpandedItems(prev => ({ ...prev, [name]: !prev[name] }))
+  const toggleGroup = (label: string) => {
+    setGroupsCollapsed(prev => {
+      const next = { ...prev, [label]: !prev[label] }
+      try { localStorage.setItem(LS_GROUPS, JSON.stringify(next)) } catch {}
+      return next
+    })
+  }
+
+  const toggleItem = (name: string) => {
+    setExpandedItems(prev => {
+      const next = { ...prev, [name]: !prev[name] }
+      try { localStorage.setItem(LS_ITEMS, JSON.stringify(next)) } catch {}
+      return next
+    })
+  }
 
   const profileLabel = displayName ?? email ?? "Mi perfil"
   const hasProfile = Boolean(displayName || email)
@@ -135,7 +164,10 @@ export function Sidebar({
         )}
       >
         {/* Logo + collapse toggle */}
-        <div className={cn("flex h-16 flex-shrink-0 items-center border-b border-foreground/[0.07]", collapsed ? "lg:justify-center lg:px-2 px-4" : "justify-between pl-5 pr-3")}>
+        <div className={cn(
+          "flex h-16 flex-shrink-0 items-center border-b border-foreground/[0.07]",
+          collapsed ? "lg:justify-center lg:px-2 px-4" : "justify-between pl-5 pr-3"
+        )}>
           {!collapsed && (
             <a href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
               <span className="text-foreground text-xl font-bold tracking-tight leading-none">Smart</span>
@@ -183,33 +215,39 @@ export function Sidebar({
                     )}
                   >
                     <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">{group.label}</span>
-                    <ChevronDown className={cn("h-3.5 w-3.5 text-foreground/30 transition-transform duration-200 flex-shrink-0", isGroupCollapsed && "-rotate-90")} />
+                    <ChevronDown className={cn(
+                      "h-3.5 w-3.5 text-foreground/30 transition-transform duration-200 flex-shrink-0",
+                      isGroupCollapsed && "-rotate-90"
+                    )} />
                   </button>
                 )}
 
                 {(collapsed || !isGroupCollapsed) && (
                   <div className={cn("space-y-0.5", collapsed ? "lg:mt-0 mt-0.5 lg:pl-0 pl-1" : "mt-0.5 pl-1")}>
                     {group.items.map((item) => {
-                      const hasChildren = !!item.children?.length
+                      const hasChildren   = !!item.children?.length
                       const isItemExpanded = expandedItems[item.name] ?? false
-                      const isActive = pathname === item.href
+                      const isActive      = pathname === item.href
                       const hasActiveChild = item.children?.some(c => pathname === c.href) ?? false
 
                       if (item.disabled) {
                         return (
-                          <div key={item.name} className={cn("flex items-center gap-2.5 rounded-lg px-3 py-2 opacity-25 cursor-not-allowed select-none", collapsed && "lg:justify-center lg:px-2")} title={item.name}>
+                          <div key={item.name}
+                            className={cn("flex items-center gap-2.5 rounded-lg px-3 py-2 opacity-25 cursor-not-allowed select-none", collapsed && "lg:justify-center lg:px-2")}
+                            title={item.name}
+                          >
                             <item.icon className="h-[14px] w-[14px] text-foreground/40 flex-shrink-0" />
                             {!collapsed && <><span className="text-[13px] text-foreground/40">{item.name}</span><Lock className="ml-auto h-3 w-3 text-foreground/25 flex-shrink-0" /></>}
                           </div>
                         )
                       }
 
-                      // ── Item with nested children ──
+                      // ── Item with children ──
                       if (hasChildren) {
                         return (
                           <div key={item.name}>
                             <button
-                              onClick={() => collapsed ? undefined : toggleItem(item.name)}
+                              onClick={() => !collapsed && toggleItem(item.name)}
                               className={cn(
                                 "w-full flex items-center gap-2.5 rounded-lg py-[7px] transition-all duration-150",
                                 collapsed ? "lg:justify-center lg:px-2 px-3" : "px-3",
@@ -230,7 +268,6 @@ export function Sidebar({
                               )}
                             </button>
 
-                            {/* Sub-items — colapsados por defecto */}
                             {isItemExpanded && !collapsed && (
                               <div className="mt-0.5 ml-[22px] pl-3 border-l border-foreground/[0.07] space-y-0.5 pb-1">
                                 {item.children!.map(child => (
@@ -281,21 +318,8 @@ export function Sidebar({
           })}
         </nav>
 
-        {/* Footer */}
+        {/* Footer — solo admin link + perfil */}
         <div className={cn("flex-shrink-0 border-t border-foreground/[0.07] space-y-1.5", collapsed ? "lg:p-2 p-3" : "p-3")}>
-          <Link href="/anai" onClick={onClose} title={collapsed ? "Ann AI" : undefined}>
-            <div className={cn(
-              "group flex items-center rounded-lg transition-all duration-150",
-              pathname === "/anai" ? "bg-[#ffde21]/[0.12] text-[#ffde21]" : "text-foreground/80 hover:bg-foreground/[0.05]",
-              collapsed ? "lg:justify-center lg:px-2 px-3 py-2 gap-2.5" : "px-3 py-2 gap-2.5"
-            )}>
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#ffde21]">
-                <Sparkles className="h-3.5 w-3.5 text-black" />
-              </span>
-              {!collapsed && <span className="text-[13px] font-semibold">Ann AI</span>}
-            </div>
-          </Link>
-
           {isAdmin && (
             <Link href="/admin/clients" onClick={onClose} title={collapsed ? "Panel interno" : undefined}>
               <div className={cn(

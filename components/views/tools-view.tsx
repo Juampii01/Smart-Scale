@@ -166,25 +166,6 @@ export function ToolsView() {
           },
         ]}
       />
-      <ToolsSection
-        title="Formularios"
-        subtitle="Formularios internos para seguimiento y reporting"
-        variant="form"
-        tools={[
-          {
-            name: "Monday Wins",
-            description:
-              "Formulario semanal para completar todos los lunes con wins, avances y foco de la semana.",
-            href: "/monday-win",
-          },
-          {
-            name: "Monthly Report",
-            description:
-              "Formulario mensual para completar una vez al mes con el reporte del mes anterior.",
-            href: "/report-input",
-          },
-        ]}
-      />
     </>
   )
 }
