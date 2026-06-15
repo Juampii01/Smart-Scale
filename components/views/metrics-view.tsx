@@ -67,7 +67,7 @@ function HealthRadar({ reports }: { reports: any[] }) {
   ]
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-6">
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
       <h3 className="text-[16px] font-bold text-foreground mb-1">Health Score</h3>
       <p className="text-xs text-foreground/35 mb-4">
         Cada eje muestra qué tan cerca estás de tu mejor mes histórico (100 = tu máximo)
@@ -156,7 +156,7 @@ function RollingTrend({ reports }: { reports: any[] }) {
   }
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-6">
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
       <h3 className="text-[16px] font-bold text-foreground mb-1">Evolución financiera — 12 meses</h3>
       <p className="text-xs text-foreground/35 mb-5">Cash Collected, Total Revenue y MRR en el tiempo</p>
       <div className="flex flex-wrap gap-5 mb-4">
@@ -338,7 +338,7 @@ export function MetricsView() {
         <section className="grid gap-5 md:grid-cols-2">
           <HealthRadar reports={reports} />
           {/* Texto explicativo */}
-          <div className="rounded-2xl border border-foreground/[0.07] bg-card p-6 flex flex-col justify-center gap-4">
+          <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6 flex flex-col justify-center gap-4">
             <h3 className="text-[16px] font-bold text-foreground">¿Cómo leer el radar?</h3>
             <div className="space-y-3 text-sm text-foreground/50 leading-relaxed">
               <p>Cada eje representa una métrica clave. <span className="text-foreground/70 font-medium">100 = tu mejor mes histórico</span> en esa categoría.</p>

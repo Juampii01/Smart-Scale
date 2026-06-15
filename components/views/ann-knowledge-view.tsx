@@ -330,7 +330,7 @@ export function AnnKnowledgeView() {
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#ffde21] shadow-[0_0_32px_rgba(255,222,33,0.35)]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-[#ffde21] shadow-[0_0_32px_rgba(255,222,33,0.35)]">
             <Brain className="h-6 w-6 text-black" />
           </div>
           <div>
@@ -358,7 +358,7 @@ export function AnnKnowledgeView() {
 
       {/* ── Add form ───────────────────────────────────────────────────────── */}
       {formOpen && (
-        <div className="rounded-2xl border border-[#ffde21]/20 bg-card p-6 shadow-[0_0_0_1px_rgba(255,222,33,0.08),0_4px_24px_rgba(255,222,33,0.06)] space-y-4">
+        <div className="rounded-[14px] border border-[#ffde21]/20 bg-card p-6 shadow-[0_0_0_1px_rgba(255,222,33,0.08),0_4px_24px_rgba(255,222,33,0.06)] space-y-4">
 
           <input
             value={title} onChange={e => setTitle(e.target.value)}
@@ -615,8 +615,8 @@ export function AnnKnowledgeView() {
           <Loader2 className="h-5 w-5 animate-spin text-foreground/30" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-20 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-foreground/[0.04]">
+        <div className="flex flex-col items-center gap-3 rounded-[14px] border border-foreground/[0.07] bg-card py-20 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-foreground/[0.04]">
             <Sparkles className="h-5 w-5 text-foreground/20" />
           </div>
           <div>
@@ -640,7 +640,7 @@ export function AnnKnowledgeView() {
 
             return (
               <div key={e.id}
-                className={`overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card border-l-[3px] ${cfg.border} transition-opacity ${!e.is_active ? "opacity-45" : ""}`}>
+                className={`overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card border-l-[3px] ${cfg.border} transition-opacity ${!e.is_active ? "opacity-45" : ""}`}>
 
                 {/* ── Card row ── */}
                 <div className="flex items-center gap-3 px-5 py-4">

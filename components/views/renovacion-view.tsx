@@ -94,7 +94,7 @@ export function RenovacionView() {
           return (
             <div
               key={o.id}
-              className="relative flex flex-col rounded-2xl border bg-card p-6 transition-all"
+              className="relative flex flex-col rounded-[14px] border bg-card p-6 transition-all"
               style={{
                 borderColor: o.highlight ? "#ffde21" : "var(--border)",
                 boxShadow: o.highlight ? "0 0 0 1px #ffde21, 0 8px 32px -8px rgba(255,222,33,0.25)" : undefined,

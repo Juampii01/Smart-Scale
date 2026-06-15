@@ -67,7 +67,7 @@ export function ChaChingHistoryView() {
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-16 text-center">
+      <div className="flex flex-col items-center gap-3 rounded-[14px] border border-foreground/[0.07] bg-card py-16 text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
           <DollarSign className="h-5 w-5 text-foreground/20" />
         </div>
@@ -80,15 +80,15 @@ export function ChaChingHistoryView() {
     <div className="space-y-4">
       {/* Resumen */}
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+        <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
           <div className="flex items-center gap-1.5 text-foreground/35 mb-1.5"><TrendingUp className="h-3 w-3" /><span className="text-[10px] font-semibold uppercase tracking-widest">Total cerrado</span></div>
           <p className="text-xl font-bold text-foreground tabular-nums">{fmtMoney(totals.totalDeals)}</p>
         </div>
-        <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+        <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
           <div className="flex items-center gap-1.5 text-foreground/35 mb-1.5"><Wallet className="h-3 w-3" /><span className="text-[10px] font-semibold uppercase tracking-widest">Cash total</span></div>
           <p className="text-xl font-bold text-[#ffde21] tabular-nums">{fmtMoney(totals.totalCash)}</p>
         </div>
-        <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+        <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
           <div className="flex items-center gap-1.5 text-foreground/35 mb-1.5"><DollarSign className="h-3 w-3" /><span className="text-[10px] font-semibold uppercase tracking-widest">Cash este mes</span></div>
           <p className="text-xl font-bold text-foreground tabular-nums">{fmtMoney(totals.mesCash)}</p>
         </div>
@@ -99,7 +99,7 @@ export function ChaChingHistoryView() {
         <span className="text-xs text-foreground/30 tabular-nums">{totals.count} venta{totals.count !== 1 ? "s" : ""}</span>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card divide-y divide-foreground/[0.05]">
+      <div className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card divide-y divide-foreground/[0.05]">
         {items.map((d) => (
           <div key={d.id} className="flex items-center gap-4 px-5 py-3.5">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#ffde21]/10 border border-[#ffde21]/20">

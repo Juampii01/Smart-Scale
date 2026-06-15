@@ -44,7 +44,7 @@ export function ChannelShellView({
       {/* Empty state */}
       <div className="flex flex-col items-center justify-center py-24 gap-4">
         <div
-          className="flex h-16 w-16 items-center justify-center rounded-2xl"
+          className="flex h-16 w-16 items-center justify-center rounded-[14px]"
           style={{ backgroundColor: `${iconColor}15`, boxShadow: `0 0 0 1px ${iconColor}25` }}
         >
           <Icon className="h-7 w-7" style={{ color: iconColor }} />

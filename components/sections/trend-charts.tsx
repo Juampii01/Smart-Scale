@@ -104,10 +104,7 @@ function ChartCard({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors duration-200">
-      {/* Subtle top accent */}
-      <div className="h-[2px] w-full" style={{ backgroundColor: cfg.color, opacity: 0.6 }} />
-
+    <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors duration-200">
       <div className="p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-1">
@@ -287,7 +284,7 @@ export function TrendCharts() {
       <section>
         <div className="grid gap-5 md:grid-cols-2">
           {CHARTS.map(cfg => (
-            <div key={cfg.key} className="rounded-2xl border border-foreground/[0.07] bg-card h-[380px] animate-pulse" />
+            <div key={cfg.key} className="rounded-[14px] border border-foreground/[0.07] bg-card h-[380px] animate-pulse" />
           ))}
         </div>
       </section>

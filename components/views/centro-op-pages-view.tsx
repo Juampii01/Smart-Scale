@@ -482,7 +482,7 @@ export function CentroOpPagesView({ userRole }: { userRole: string | null }) {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex h-[calc(100vh-180px)] min-h-[520px] gap-3 rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="flex h-[calc(100vh-180px)] min-h-[520px] gap-3 rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
 
       {/* Sidebar */}
       <aside className="flex w-[240px] shrink-0 flex-col border-r border-foreground/[0.06] bg-foreground/[0.015]">

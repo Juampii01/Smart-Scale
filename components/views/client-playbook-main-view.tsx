@@ -192,7 +192,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
 
   if (!activeClientId) {
     return (
-      <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-sm text-foreground/40">
+      <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-sm text-foreground/40">
         No hay un cliente activo seleccionado.
       </div>
     )
@@ -200,7 +200,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
 
   if (loading) {
     return (
-      <div className="flex h-[400px] items-center justify-center rounded-2xl border border-foreground/[0.07] bg-card">
+      <div className="flex h-[400px] items-center justify-center rounded-[14px] border border-foreground/[0.07] bg-card">
         <Loader2 className="h-5 w-5 animate-spin text-foreground/40" />
       </div>
     )
@@ -210,7 +210,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   if (!playbook) {
     if (canManage) {
       return (
-        <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-foreground/[0.07] bg-card px-6 py-16 text-center">
+        <div className="flex flex-col items-center justify-center gap-4 rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-16 text-center">
           <Sparkles className="h-10 w-10 text-foreground/20" />
           <div>
             <h3 className="text-base font-bold text-foreground">Playbook aún no creado</h3>
@@ -230,7 +230,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
       )
     }
     return (
-      <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-16 text-center">
+      <div className="flex flex-col items-center justify-center gap-3 rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-16 text-center">
         <FileText className="h-10 w-10 text-foreground/15" />
         <div>
           <h3 className="text-base font-bold text-foreground/70">Tu playbook aún no fue creado</h3>
@@ -245,7 +245,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   // Client playbook reveal button (hidden until clicked)
   if (!canManage && !playbook.visible_to_client) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-foreground/[0.07] bg-card px-6 py-16 text-center">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-16 text-center">
         <FileText className="h-10 w-10 text-foreground/20" />
         <div>
           <h3 className="text-base font-bold text-foreground">Tu playbook está listo</h3>
@@ -266,7 +266,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   }
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
       {/* Save indicator bar */}
       <div className="flex items-center justify-between gap-3 border-b border-foreground/[0.06] px-6 py-2.5">
         <div className="flex items-center gap-2 text-[12px]">

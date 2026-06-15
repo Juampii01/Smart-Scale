@@ -111,7 +111,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
       {!loading && ideas.length === 0 && (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <div
-            className="flex h-16 w-16 items-center justify-center rounded-2xl"
+            className="flex h-16 w-16 items-center justify-center rounded-[14px]"
             style={{ backgroundColor: `${iconColor}15`, boxShadow: `0 0 0 1px ${iconColor}25` }}
           >
             <Lightbulb className="h-7 w-7" style={{ color: iconColor }} />
@@ -163,7 +163,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
       {/* Modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-[460px] rounded-2xl border border-foreground/[0.10] bg-card shadow-2xl">
+          <div className="w-full max-w-[460px] rounded-[14px] border border-foreground/[0.10] bg-card shadow-2xl">
             {/* Modal header */}
             <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-foreground/[0.07]">
               <div className="flex items-center gap-2.5">
