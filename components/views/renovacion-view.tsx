@@ -26,7 +26,7 @@ const OFFERS: Offer[] = [
     title: "Renovación sin llamada",
     tagline: "Seguí con todo el ecosistema grupal del programa.",
     priceTotal: "USD 2.000",
-    priceMonthly: null,
+    priceMonthly: "USD 497",
     highlight: false,
     features: [
       "Llamada semanal de Lab / Workshop",
@@ -42,7 +42,7 @@ const OFFERS: Offer[] = [
     title: "ScaleUp",
     tagline: "Acompañamiento 1:1 directo + trabajo profundo sobre tu negocio.",
     priceTotal: "USD 12.000",
-    priceMonthly: null,
+    priceMonthly: "USD 2.500",
     highlight: true,
     features: [
       "Soporte 1:1 con Ann por WhatsApp y llamadas",
@@ -59,7 +59,7 @@ const OFFERS: Offer[] = [
     title: "Renovación con llamada",
     tagline: "El ecosistema grupal + soporte 1:1 con Ann.",
     priceTotal: "USD 5.000",
-    priceMonthly: null,
+    priceMonthly: "USD 1.000",
     highlight: false,
     features: [
       "Soporte 1:1 con Ann por WhatsApp y llamadas",
