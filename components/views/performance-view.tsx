@@ -247,31 +247,35 @@ function GrowthIndexChart({ reports }: { reports: MonthlyReport[] }) {
   )
 }
 
-function PostsVsFollowers({ reports }: { reports: MonthlyReport[] }) {
+function PostsVsFollowers({ reports, className }: { reports: MonthlyReport[]; className?: string }) {
   if (reports.length < 2 || !reports.some(r => r.short_posts > 0)) return null
   const data = reports.map(r => ({ month: fmtMonthLabel(r.month), posts: r.short_posts || 0, followers: r.short_followers || 0 }))
   const avg = data.reduce((s, d) => s + d.posts, 0) / data.length
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-5">
-      <p className="text-[15px] font-bold text-foreground mb-0.5">Posts vs Seguidores IG</p>
-      <p className="text-[11px] text-foreground/40 mb-4">¿Publicar más mueve la aguja en seguidores?</p>
-      <div className="flex flex-wrap gap-5 mb-4">
-        <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#ffde21]" /><span className="text-[11px] text-foreground/50">Posts</span></div>
-        <div className="flex items-center gap-1.5"><span className="h-[3px] w-5 rounded-full bg-[#818cf8]" /><span className="text-[11px] text-foreground/50">Seguidores</span></div>
+    <div className={cn("rounded-[14px] border border-foreground/[0.07] bg-card p-5", className)}>
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.10em] text-foreground/40">Contenido vs Audiencia</p>
+          <p className="text-[15px] font-bold text-foreground mt-0.5">Posts vs Seguidores IG</p>
+        </div>
+        <div className="flex gap-4">
+          <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#ffde21]" /><span className="text-[11px] text-foreground/50">Posts</span></div>
+          <div className="flex items-center gap-1.5"><span className="h-[3px] w-5 rounded-full bg-[#818cf8]" /><span className="text-[11px] text-foreground/50">Seguidores</span></div>
+        </div>
       </div>
-      <ResponsiveContainer width="100%" height={200}>
+      <ResponsiveContainer width="100%" height={220}>
         <ComposedChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
-          <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.05)" />
+          <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
           <XAxis dataKey="month" stroke="transparent" tick={{ fill: "var(--text-3)", fontSize: 11 }} tickLine={false} axisLine={false} />
           <YAxis yAxisId="posts" stroke="transparent" width={28} tick={{ fill: "var(--text-3)", fontSize: 10 }} tickLine={false} axisLine={false} />
           <YAxis yAxisId="followers" orientation="right" stroke="transparent" width={44}
             tick={{ fill: "var(--text-3)", fontSize: 10 }} tickLine={false} axisLine={false}
             tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)} />
-          {avg > 0 && <ReferenceLine yAxisId="posts" y={avg} stroke="#ffde2140" strokeDasharray="4 3" />}
+          {avg > 0 && <ReferenceLine yAxisId="posts" y={avg} stroke="#ffde2130" strokeDasharray="4 3" />}
           <Tooltip {...tooltipStyle} formatter={(v: number, name: string) => [name === "Seguidores" ? fmtK(v) : String(v), name]} />
-          <Bar yAxisId="posts" dataKey="posts" name="Posts" fill="#ffde21" fillOpacity={0.75} radius={[4,4,0,0]} maxBarSize={36} />
+          <Bar yAxisId="posts" dataKey="posts" name="Posts" fill="#ffde21" fillOpacity={0.8} radius={[4,4,0,0]} maxBarSize={32} />
           <Line yAxisId="followers" type="monotone" dataKey="followers" name="Seguidores"
-            stroke="#818cf8" strokeWidth={2.5} dot={{ fill: "#818cf8", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+            stroke="#818cf8" strokeWidth={2} dot={{ fill: "#818cf8", r: 2.5, strokeWidth: 0 }} activeDot={{ r: 4 }} />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
@@ -313,7 +317,7 @@ function FascinateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
   const status = stageStatus(igDelta)
   return (
     <div className="space-y-5">
-      <div>
+      <div className="pb-4 border-b border-foreground/[0.07]">
         <div className="flex items-center gap-3 mb-1">
           <h2 className="text-[22px] font-bold text-foreground">Fascinate</h2>
           <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span>
@@ -365,29 +369,28 @@ function FascinateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
 
 function EducateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: MonthlyReport | null; all: MonthlyReport[] }) {
   const d = {
-    posts:  pctDelta(cur?.short_posts       ?? 0, prev?.short_posts       ?? 0),
-    ytv:    pctDelta(cur?.yt_videos         ?? 0, prev?.yt_videos         ?? 0),
-    email:  pctDelta(cur?.email_subscribers ?? 0, prev?.email_subscribers ?? 0),
+    posts:  pctDelta(cur?.short_posts            ?? 0, prev?.short_posts            ?? 0),
+    ytv:    pctDelta(cur?.yt_videos              ?? 0, prev?.yt_videos              ?? 0),
+    email:  pctDelta(cur?.email_subscribers      ?? 0, prev?.email_subscribers      ?? 0),
+    enew:   pctDelta(cur?.email_new_subscribers  ?? 0, prev?.email_new_subscribers  ?? 0),
   }
   const status = stageStatus(d.posts)
   return (
-    <div className="space-y-4">
-      <div>
+    <div className="space-y-5">
+      <div className="pb-4 border-b border-foreground/[0.07]">
         <div className="flex items-center gap-3 mb-1">
           <h2 className="text-[22px] font-bold text-foreground">Educate</h2>
           <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span>
         </div>
         <p className="text-[13px] text-foreground/50">Construir autoridad — convertir atención en audiencia comprometida.</p>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4 items-start">
-        <div className="grid grid-cols-2 gap-3">
-          <MetricCard label="Posts IG"           value={fmtK(cur?.short_posts)}       pct={d.posts} noData={!cur?.short_posts} />
-          <MetricCard label="Videos YT"          value={fmtK(cur?.yt_videos)}         pct={d.ytv}   noData={!cur?.yt_videos} />
-          <MetricCard label="Suscriptores Email" value={fmtK(cur?.email_subscribers)} pct={d.email} noData={!cur?.email_subscribers} />
-          <MetricCard label="Canales activos"    value={[cur?.short_posts, cur?.yt_videos, cur?.email_subscribers].filter(Boolean).length.toString()} pct={null} />
-        </div>
-        <PostsVsFollowers reports={all} />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <MetricCard label="Posts IG"    value={fmtK(cur?.short_posts)}           pct={d.posts} noData={!cur?.short_posts} />
+        <MetricCard label="Videos YT"   value={fmtK(cur?.yt_videos)}             pct={d.ytv}   noData={!cur?.yt_videos} />
+        <MetricCard label="Email subs"  value={fmtK(cur?.email_subscribers)}     pct={d.email} noData={!cur?.email_subscribers} />
+        <MetricCard label="Email nuevos" value={fmtK(cur?.email_new_subscribers)} pct={d.enew}  noData={!cur?.email_new_subscribers} />
       </div>
+      <PostsVsFollowers reports={all} />
     </div>
   )
 }
@@ -402,7 +405,7 @@ function InviteTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Monthl
   const status = stageStatus(d.cash)
   return (
     <div className="space-y-4">
-      <div>
+      <div className="pb-4 border-b border-foreground/[0.07]">
         <div className="flex items-center gap-3 mb-1">
           <h2 className="text-[22px] font-bold text-foreground">Invite</h2>
           <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span>
@@ -432,7 +435,7 @@ function TransformTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
   const status = stageStatus(d.mrr)
   return (
     <div className="space-y-4">
-      <div>
+      <div className="pb-4 border-b border-foreground/[0.07]">
         <div className="flex items-center gap-3 mb-1">
           <h2 className="text-[22px] font-bold text-foreground">Transform</h2>
           <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span>
