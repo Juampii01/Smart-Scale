@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { Plus, X, Instagram, Youtube, Lightbulb } from "lucide-react"
+import { useState, useEffect } from "react"
+import { createClient } from "@/lib/supabase"
+import { useActiveClient } from "@/components/layout/dashboard-layout"
+import { Plus, X, Instagram, Youtube, Lightbulb, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 type Channel = "instagram" | "youtube"
@@ -11,17 +13,26 @@ type YtFormat = "Short" | "Video largo"
 interface Idea {
   id: string
   title: string
-  format: IgFormat | YtFormat
+  format: string
   hook: string
   notes: string
-  createdAt: string
+  created_at: string
 }
 
 const IG_FORMATS: IgFormat[] = ["Reel", "Carousel", "Image"]
 const YT_FORMATS: YtFormat[] = ["Short", "Video largo"]
 
+const supabase = createClient()
+
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString("es-AR", { day: "numeric", month: "short" })
+}
+
 export function ContentIdeasView({ channel }: { channel: Channel }) {
+  const clientId = useActiveClient()
   const [ideas, setIdeas] = useState<Idea[]>([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState("")
   const [format, setFormat] = useState<IgFormat | YtFormat>(
@@ -36,23 +47,40 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
   const iconColor = isIG ? "#818cf8" : "#f87171"
   const channelLabel = isIG ? "Instagram" : "YouTube"
 
-  function handleAdd() {
-    if (!title.trim()) return
-    setIdeas(prev => [{
-      id: crypto.randomUUID(),
-      title: title.trim(),
-      format,
-      hook: hook.trim(),
-      notes: notes.trim(),
-      createdAt: new Date().toLocaleDateString("es-AR", { day: "numeric", month: "short" }),
-    }, ...prev])
+  // Cargar ideas del cliente para este canal
+  useEffect(() => {
+    let alive = true
+    if (!clientId) { setLoading(false); setIdeas([]); return () => { alive = false } }
+    setLoading(true)
+    supabase
+      .from("content_ideas")
+      .select("id, title, format, hook, notes, created_at")
+      .eq("client_id", clientId)
+      .eq("channel", channel)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => { if (alive) { setIdeas((data as Idea[]) ?? []); setLoading(false) } })
+    return () => { alive = false }
+  }, [clientId, channel])
+
+  async function handleAdd() {
+    if (!title.trim() || !clientId || saving) return
+    setSaving(true)
+    const { data, error } = await supabase
+      .from("content_ideas")
+      .insert({ client_id: clientId, channel, title: title.trim(), format, hook: hook.trim(), notes: notes.trim() })
+      .select("id, title, format, hook, notes, created_at")
+      .single()
+    setSaving(false)
+    if (error || !data) return
+    setIdeas(prev => [data as Idea, ...prev])
     setTitle(""); setHook(""); setNotes("")
     setFormat(isIG ? "Reel" : "Short")
     setOpen(false)
   }
 
-  function handleRemove(id: string) {
+  async function handleRemove(id: string) {
     setIdeas(prev => prev.filter(i => i.id !== id))
+    await supabase.from("content_ideas").delete().eq("id", id)
   }
 
   return (
@@ -72,8 +100,15 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
         </button>
       </div>
 
+      {/* Loading */}
+      {loading && (
+        <div className="flex items-center justify-center py-24 text-foreground/40">
+          <Loader2 className="h-5 w-5 animate-spin" />
+        </div>
+      )}
+
       {/* Empty state */}
-      {ideas.length === 0 && (
+      {!loading && ideas.length === 0 && (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <div
             className="flex h-16 w-16 items-center justify-center rounded-2xl"
@@ -111,7 +146,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
                 >
                   {idea.format}
                 </span>
-                <span className="text-[11px] text-foreground/30">{idea.createdAt}</span>
+                <span className="text-[11px] text-foreground/30">{fmtDate(idea.created_at)}</span>
               </div>
               <p className="text-[14px] font-semibold text-foreground leading-snug mb-2">{idea.title}</p>
               {idea.hook && (
@@ -221,10 +256,11 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
               </button>
               <button
                 onClick={handleAdd}
-                disabled={!title.trim()}
-                className="rounded-[8px] px-4 py-2 text-[13px] font-semibold text-black transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90"
+                disabled={!title.trim() || saving}
+                className="flex items-center gap-1.5 rounded-[8px] px-4 py-2 text-[13px] font-semibold text-black transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90"
                 style={{ backgroundColor: iconColor }}
               >
+                {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 Add Idea
               </button>
             </div>
