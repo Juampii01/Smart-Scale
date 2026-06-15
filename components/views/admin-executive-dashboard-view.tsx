@@ -5,6 +5,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 import { Sk } from "@/components/ui/skeleton"
+import { Stat } from "@/components/ui/stat"
 import {
   TrendingUp, RefreshCw, MessageSquareText,
   CalendarClock, AlertTriangle, Clock, Users, DollarSign,
@@ -110,8 +111,7 @@ const RANGE_LABELS: Record<Range, string> = {
 
 function BlockSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn("rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden", className)}>
-      <div className="h-[2px] w-full skeleton" />
+    <div className={cn("rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden", className)}>
       <div className="p-5 space-y-4">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
@@ -193,19 +193,13 @@ function StatPill({
 
 function NewCashBlock({ data }: { data: DashboardData["new_cash"] }) {
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden">
-      <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/60 to-[#ffde21]/10" />
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={TrendingUp}
           title="New Cash"
           subtitle={`${data.client_count} cliente${data.client_count !== 1 ? "s" : ""} nuevos`}
-          badge={
-            <div className="text-right">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">contratado</p>
-              <p className="text-[22px] font-bold text-foreground tabular-nums">{fmt(data.total_contracted)}</p>
-            </div>
-          }
+          badge={<Stat value={data.total_contracted} label="contratado" format="currency" />}
         />
 
         <div className="flex flex-wrap gap-2 mb-4">
@@ -296,19 +290,13 @@ function groupOldCashInstallments(installments: OldCashInstallment[]) {
 function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
   const grouped = groupOldCashInstallments(data.installments)
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden">
-      <div className="h-[2px] w-full bg-gradient-to-r from-blue-500/50 to-blue-500/10" />
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={RefreshCw}
           title="Caja Recurrente"
           subtitle={`${data.installment_count} cuota${data.installment_count !== 1 ? "s" : ""} cobradas`}
-          badge={
-            <div className="text-right">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">cobrado</p>
-              <p className="text-[22px] font-bold text-foreground tabular-nums">{fmt(data.total_collected)}</p>
-            </div>
-          }
+          badge={<Stat value={data.total_collected} label="cobrado" format="currency" />}
         />
 
         {grouped.length === 0 ? (
@@ -366,27 +354,17 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
   ]
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden">
-      <div className="h-[2px] w-full bg-gradient-to-r from-purple-500/50 to-purple-500/10" />
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={MessageSquareText}
           title="Setting / Equipo"
           subtitle="performance del período"
           badge={
-            <div className="flex gap-6 text-right">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#ffde21]/70">total conv.</p>
-                <p className="text-[22px] font-bold text-[#ffde21] tabular-nums">{data.totals.total_conversations}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">cierres</p>
-                <p className="text-[22px] font-bold text-foreground tabular-nums">{data.totals.cierres}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">monto</p>
-                <p className="text-[22px] font-bold text-foreground tabular-nums">{fmt(data.totals.cierre_amount)}</p>
-              </div>
+            <div className="flex gap-5">
+              <Stat value={data.totals.total_conversations} label="total conv." colorClass="text-[#ffde21]" />
+              <Stat value={data.totals.cierres}             label="cierres" />
+              <Stat value={data.totals.cierre_amount}       label="monto"   format="currency" />
             </div>
           }
         />
@@ -468,26 +446,20 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
 
 function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] }) {
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden">
-      <div className="h-[2px] w-full bg-gradient-to-r from-red-500/50 to-amber-500/20" />
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={CalendarClock}
           title="Cuotas Próximas"
           subtitle="vencidas y por vencer"
           badge={
-            <div className="flex gap-4 text-right">
+            <div className="flex gap-4">
               {data.overdue_count > 0 && (
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400">vencidas</p>
-                  <p className="text-[22px] font-bold text-red-700 dark:text-red-400 tabular-nums">{fmt(data.overdue_total)}</p>
-                </div>
+                <Stat value={data.overdue_total} label="vencidas" format="currency"
+                  colorClass="text-red-700 dark:text-red-400" />
               )}
               {data.upcoming_count > 0 && (
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">próximas</p>
-                  <p className="text-[22px] font-bold text-foreground tabular-nums">{fmt(data.upcoming_total)}</p>
-                </div>
+                <Stat value={data.upcoming_total} label="próximas" format="currency" />
               )}
             </div>
           }

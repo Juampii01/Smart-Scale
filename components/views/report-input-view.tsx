@@ -129,14 +129,9 @@ function CelebrationOverlay({
       onClick={onClose}
     >
       <div
-        className="relative mx-4 w-full max-w-sm overflow-hidden rounded-3xl border border-[#ffde21]/25 bg-card shadow-[0_0_80px_rgba(255,222,33,0.15)]"
+        className="relative mx-4 w-full max-w-sm overflow-hidden rounded-[14px] border border-foreground/[0.10] bg-card shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
-        {/* Top gradient line */}
-        <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/0 via-[#ffde21] to-[#ffde21]/0" />
-
-        {/* Radial glow */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,222,33,0.10),transparent_60%)]" />
 
         <div className="relative space-y-6 px-8 py-10 text-center">
           {/* Animated icon */}
@@ -190,9 +185,7 @@ function ConfirmOverwriteDialog({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="relative overflow-hidden rounded-2xl border border-amber-400 bg-card shadow-2xl w-full max-w-md mx-4 dark:border-amber-400/20">
-        <div className="h-[2px] w-full bg-gradient-to-r from-amber-500/20 via-amber-500/60 to-amber-500/20" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(251,191,36,0.04),transparent_55%)]" />
+      <div className="relative overflow-hidden rounded-[14px] border border-amber-200 dark:border-amber-400/20 bg-card shadow-2xl w-full max-w-md mx-4">
         <div className="relative p-6 space-y-5">
           <div className="flex items-start gap-3">
             <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-100 ring-1 ring-amber-400 dark:bg-amber-500/10 dark:ring-amber-500/20">
@@ -440,7 +433,7 @@ export function ReportInputView() {
 
         {/* Aviso si admin está viendo otro cliente */}
         {isViewingOther && (
-          <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
+          <div className="flex items-start gap-3 rounded-[14px] border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
             <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Aviso · este reporte es tuyo</p>
@@ -452,7 +445,7 @@ export function ReportInputView() {
         )}
 
         {/* Month + client selector */}
-        <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card p-5">
+        <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card p-5">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
           <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -491,7 +484,7 @@ export function ReportInputView() {
 
         {/* Field groups */}
         {FIELD_GROUPS.map((group) => (
-          <div key={group.key} className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+          <div key={group.key} className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
             <div className="flex items-center justify-between border-b border-foreground/[0.05] px-5 py-3">
               <div className="flex items-center gap-2">
                 <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
@@ -507,7 +500,7 @@ export function ReportInputView() {
 
                 if (isNps) {
                   return (
-                    <div key={field.key} className="sm:col-span-2 lg:col-span-3 flex flex-col gap-2 rounded-2xl border border-[#ffde21]/15 bg-[#ffde21]/[0.03] p-5">
+                    <div key={field.key} className="sm:col-span-2 lg:col-span-3 flex flex-col gap-2 rounded-[14px] border border-[#ffde21]/15 bg-[#ffde21]/[0.03] p-5">
                       <label className="text-xs font-semibold uppercase tracking-widest text-foreground/65">
                         {field.label}
                         <span className="ml-1.5 text-foreground/35 normal-case tracking-normal font-normal">— del 1 al 10</span>

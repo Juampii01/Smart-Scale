@@ -273,7 +273,7 @@ function AnaiContent() {
 
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 pb-4">
-        <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-[#ffde21] shadow-[0_0_24px_rgba(255,222,33,0.35)]">
+        <div className="relative flex h-11 w-11 items-center justify-center rounded-[14px] bg-[#ffde21]">
           <Sparkles className="h-5 w-5 text-black" />
         </div>
         <div className="flex-1 min-w-0">
@@ -317,7 +317,7 @@ function AnaiContent() {
 
           {/* Dropdown historial */}
           {historialOpen && (
-            <div className="absolute left-0 right-0 top-full z-50 mt-1.5 rounded-2xl border border-foreground/[0.08] bg-card shadow-xl overflow-hidden">
+            <div className="absolute left-0 right-0 top-full z-50 mt-1.5 rounded-[14px] border border-foreground/[0.08] bg-card shadow-xl overflow-hidden">
               <div className="max-h-72 overflow-y-auto">
                 {loadingConvs ? (
                   <div className="flex items-center justify-center py-6">
@@ -373,10 +373,10 @@ function AnaiContent() {
       </div>
 
       {/* ── Mensajes ──────────────────────────────────────────────────────── */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto rounded-2xl border border-foreground/[0.07] bg-card p-5 space-y-5">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto rounded-[14px] border border-foreground/[0.07] bg-card p-5 space-y-5">
         {empty ? (
           <div className="flex h-full flex-col items-center justify-center text-center px-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1a1a1d] to-[#0f0f10] border border-[#ffde21]/25 mb-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-[#ffde21]/10 border border-[#ffde21]/20 mb-4">
               <Sparkles className="h-6 w-6 text-[#ffde21]" />
             </div>
             <p className="text-[15px] font-bold text-foreground">Preguntale lo que quieras sobre {internal ? "el negocio" : "tu negocio"}</p>
@@ -498,7 +498,7 @@ function AnaiContent() {
       {/* ── Input ─────────────────────────────────────────────────────────── */}
       <form
         onSubmit={(e) => { e.preventDefault(); send(input) }}
-        className="mt-3 flex items-end gap-2 rounded-2xl border border-foreground/[0.08] bg-card p-2"
+        className="mt-3 flex items-end gap-2 rounded-[14px] border border-foreground/[0.08] bg-card p-2"
       >
         <textarea
           value={input}

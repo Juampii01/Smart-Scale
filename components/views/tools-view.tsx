@@ -45,10 +45,8 @@ export function ToolsSection({
         {tools.map((t) => (
           <div
             key={t.href}
-            className="group relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card transition-all duration-200 hover:border-[#ffde21]/25 hover:shadow-[0_0_40px_rgba(255,222,33,0.07)]"
+            className="group relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card transition-colors duration-200 hover:border-foreground/[0.12]"
           >
-            <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/40 via-[#ffde21]/20 to-transparent" />
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.05),transparent_55%)]" />
 
             <div className="relative p-5 space-y-4">
               {/* Header row */}
@@ -163,25 +161,6 @@ export function ToolsView() {
               "GPT para convertir videos en carruseles listos para publicar, con copy optimizado para Instagram.",
             href:
               "https://chatgpt.com/g/g-69cde322c25c819182cb9207bce35a92-video-a-carrousel-copywriter-smart-scaletm",
-          },
-        ]}
-      />
-      <ToolsSection
-        title="Formularios"
-        subtitle="Formularios internos para seguimiento y reporting"
-        variant="form"
-        tools={[
-          {
-            name: "Monday Wins",
-            description:
-              "Formulario semanal para completar todos los lunes con wins, avances y foco de la semana.",
-            href: "/monday-win",
-          },
-          {
-            name: "Monthly Report",
-            description:
-              "Formulario mensual para completar una vez al mes con el reporte del mes anterior.",
-            href: "/report-input",
           },
         ]}
       />

@@ -74,7 +74,7 @@ export function KanbanColumn({
       {/* Drop zone */}
       <div
         ref={setNodeRef}
-        className="flex-1 flex flex-col gap-1.5 rounded-xl p-1.5 transition-colors min-h-[120px]"
+        className="flex-1 flex flex-col gap-1.5 rounded-xl p-1.5 transition-colors min-h-[120px] overflow-y-auto"
         style={{
           backgroundColor: isOver ? accentColor + "0D" : "var(--muted)",
           border: `1px dashed ${isOver ? accentColor + "66" : "transparent"}`,
