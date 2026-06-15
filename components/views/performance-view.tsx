@@ -6,7 +6,6 @@ import { useMonthlyReports, type MonthlyReport } from "@/hooks/use-monthly-repor
 import { useSelectedMonth } from "@/components/layout/dashboard-layout"
 import { Sk } from "@/components/ui/skeleton"
 import { SalesView } from "@/components/views/sales-view"
-import { TrendingUp, TrendingDown, Eye, FileText, Instagram, Youtube, Mail } from "lucide-react"
 import {
   ResponsiveContainer, AreaChart, Area, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ComposedChart, Bar, ReferenceLine,
@@ -110,81 +109,6 @@ function MiniChart({ data, dataKey, color, label, className }: {
   )
 }
 
-// ─── Channel card (Redes tab) ─────────────────────────────────────────────────
-
-function ChannelCard({ icon: Icon, title, color, audience, audienceLabel, rows, deltaPct, sparkValues, noData }: {
-  icon: React.ElementType; title: string; color: string
-  audience: string; audienceLabel: string
-  rows: { icon: React.ElementType; label: string; value: string }[]
-  deltaPct: number | null; sparkValues: number[]; noData?: boolean
-}) {
-  const isUp = (deltaPct ?? 0) >= 0
-  return (
-    <div className="flex flex-col overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors">
-      <div className="flex-1 p-5 pb-2">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl"
-              style={{ backgroundColor: `${color}18`, boxShadow: `0 0 0 1px ${color}30` }}>
-              <Icon className="h-4 w-4" style={{ color }} />
-            </div>
-            <span className="text-[13px] font-bold text-foreground/90">{title}</span>
-          </div>
-          {deltaPct !== null && !noData && (
-            <span className={cn(
-              "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold",
-              isUp
-                ? "bg-success-soft text-success"
-                : "bg-danger-soft text-danger"
-            )}>
-              {isUp ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-              {`${deltaPct > 0 ? "+" : ""}${Math.round(deltaPct)}%`}
-            </span>
-          )}
-        </div>
-
-        {noData ? (
-          <div className="flex flex-col items-center justify-center py-6 gap-1">
-            <p className="text-foreground/20 text-sm">Sin datos</p>
-            <p className="text-foreground/15 text-xs">Cargá el reporte del mes</p>
-          </div>
-        ) : (
-          <>
-            <p className="text-[34px] font-bold tabular-nums leading-none text-foreground">{audience}</p>
-            <p className="text-[11px] text-foreground/35 mt-1 mb-4">{audienceLabel}</p>
-            <div>
-              {rows.map((row, i) => (
-                <div key={i} className={cn("flex items-center justify-between py-2", i < rows.length - 1 && "border-b border-foreground/[0.05]")}>
-                  <div className="flex items-center gap-1.5 text-xs text-foreground/40">
-                    <row.icon className="h-3.5 w-3.5" />{row.label}
-                  </div>
-                  <span className="text-sm font-semibold text-foreground tabular-nums">{row.value}</span>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-
-      {sparkValues.length >= 2 && !noData && (
-        <div className="opacity-60 px-0 pb-0">
-          <ResponsiveContainer width="100%" height={48}>
-            <AreaChart data={sparkValues.map((v, i) => ({ i, v }))} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id={`spk-${title}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor={color} stopOpacity={0.3} />
-                  <stop offset="95%" stopColor={color} stopOpacity={0}   />
-                </linearGradient>
-              </defs>
-              <Area type="monotone" dataKey="v" stroke={color} strokeWidth={1.5}
-                fill={`url(#spk-${title})`} dot={false} isAnimationActive={false} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-    </div>
-  )
-}
 
 // ─── Redes charts ─────────────────────────────────────────────────────────────
 
@@ -312,10 +236,13 @@ function YouTubeTrend({ reports }: { reports: MonthlyReport[] }) {
 // ─── Tab contents ─────────────────────────────────────────────────────────────
 
 function FascinateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: MonthlyReport | null; all: MonthlyReport[] }) {
-  const igDelta    = pctDelta(cur?.short_followers   ?? 0, prev?.short_followers   ?? 0)
-  const ytDelta    = pctDelta(cur?.yt_subscribers    ?? 0, prev?.yt_subscribers    ?? 0)
-  const emailDelta = pctDelta(cur?.email_subscribers ?? 0, prev?.email_subscribers ?? 0)
-  const status = stageStatus(igDelta)
+  const d = {
+    ig:    pctDelta(cur?.short_followers ?? 0, prev?.short_followers ?? 0),
+    reach: pctDelta(cur?.short_reach     ?? 0, prev?.short_reach     ?? 0),
+    yt:    pctDelta(cur?.yt_subscribers  ?? 0, prev?.yt_subscribers  ?? 0),
+    ytv:   pctDelta(cur?.yt_views        ?? 0, prev?.yt_views        ?? 0),
+  }
+  const status = stageStatus(d.ig)
   return (
     <div className="space-y-5">
       <div className="pb-4 border-b border-foreground/[0.07]">
@@ -325,44 +252,12 @@ function FascinateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
         </div>
         <p className="text-[13px] text-foreground/50">Captar atención — crecer la audiencia que alimenta el motor.</p>
       </div>
-
-      {/* Channel cards: la audiencia por canal ES Fascinate */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <ChannelCard
-          icon={Instagram} title="Instagram" color="#818cf8"
-          audience={fmtK(cur?.short_followers)} audienceLabel="Seguidores totales"
-          rows={[
-            { icon: Eye,      label: "Alcance", value: fmtK(cur?.short_reach) },
-            { icon: FileText, label: "Posts",   value: fmtK(cur?.short_posts) },
-          ]}
-          deltaPct={igDelta}
-          sparkValues={all.slice(-8).map(r => r.short_followers)}
-          noData={!cur?.short_followers}
-        />
-        <ChannelCard
-          icon={Youtube} title="YouTube" color="#f87171"
-          audience={fmtK(cur?.yt_subscribers)} audienceLabel="Suscriptores"
-          rows={[
-            { icon: Eye,      label: "Vistas",  value: fmtK(cur?.yt_views || cur?.yt_monthly_audience) },
-            { icon: FileText, label: "Videos",  value: fmtK(cur?.yt_videos) },
-          ]}
-          deltaPct={ytDelta}
-          sparkValues={all.slice(-8).map(r => r.yt_subscribers)}
-          noData={!cur?.yt_subscribers}
-        />
-        <ChannelCard
-          icon={Mail} title="Email" color="#4ade80"
-          audience={fmtK(cur?.email_subscribers)} audienceLabel="Suscriptores totales"
-          rows={[
-            { icon: Eye, label: "Nuevos subs", value: fmtK(cur?.email_new_subscribers) },
-          ]}
-          deltaPct={emailDelta}
-          sparkValues={all.slice(-8).map(r => r.email_subscribers)}
-          noData={!cur?.email_subscribers}
-        />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <MetricCard label="Seguidores IG"   value={fmtK(cur?.short_followers)} pct={d.ig}    noData={!cur?.short_followers} />
+        <MetricCard label="Alcance IG"      value={fmtK(cur?.short_reach)}     pct={d.reach} noData={!cur?.short_reach} />
+        <MetricCard label="Suscriptores YT" value={fmtK(cur?.yt_subscribers)}  pct={d.yt}    noData={!cur?.yt_subscribers} />
+        <MetricCard label="Vistas YT"       value={fmtK(cur?.yt_views)}        pct={d.ytv}   noData={!cur?.yt_views} />
       </div>
-
-      {/* Índice de crecimiento comparado entre canales */}
       <GrowthIndexChart reports={all} />
     </div>
   )
