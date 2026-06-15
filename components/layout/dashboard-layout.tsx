@@ -5,7 +5,7 @@ import type React from "react"
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
-import { ChevronDown, LogOut, Menu, User, ShieldCheck, Check, Eye, EyeOff, Camera, Loader2, PenLine } from "lucide-react"
+import { ChevronDown, LogOut, Menu, User, ShieldCheck, Check, Eye, EyeOff, Camera, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MonthSelector } from "@/components/layout/month-selector"
 import { Sidebar } from "@/components/layout/sidebar"
@@ -171,8 +171,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const isAdmin = isAdminRole(userRole)  // true para "admin" Y "developer"
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const profileMenuRef = useRef<HTMLDivElement | null>(null)
-  const [reportMenuOpen, setReportMenuOpen] = useState(false)
-  const reportMenuRef = useRef<HTMLDivElement | null>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const avatarInputRef = useRef<HTMLInputElement | null>(null)
@@ -486,7 +484,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
     const onMouseDown = (e: MouseEvent) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) setProfileMenuOpen(false)
-      if (reportMenuRef.current && !reportMenuRef.current.contains(e.target as Node)) setReportMenuOpen(false)
     }
 
     document.addEventListener("keydown", onKeyDown)
@@ -584,45 +581,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-2">
               {!isAdminMode && (
                 <>
-                  {/* Llenar reporte — dropdown con las 3 cargas */}
-                  <div className="relative hidden sm:block" ref={reportMenuRef}>
-                    <button
-                      onClick={() => setReportMenuOpen(v => !v)}
-                      className="inline-flex items-center gap-1.5 rounded-md bg-[#ffde21] text-black font-semibold hover:bg-[#ffe84d] text-xs px-3 h-8 transition-colors"
-                      aria-haspopup="menu"
-                      aria-expanded={reportMenuOpen}
-                    >
-                      <PenLine className="h-3.5 w-3.5" />
-                      Llenar reporte
-                      <ChevronDown className={`h-3.5 w-3.5 transition-transform ${reportMenuOpen ? "rotate-180" : ""}`} />
-                    </button>
-                    {reportMenuOpen && (
-                      <div
-                        role="menu"
-                        className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl z-50"
-                      >
-                        {[
-                          { href: "/monday-win",   label: "Monday Win",     emoji: "🏆", sub: "Logros de la semana" },
-                          { href: "/chi-chang",    label: "Cha-Ching",      emoji: "💰", sub: "Registrar una venta" },
-                          { href: "/report-input", label: "Reporte Mensual", emoji: "📊", sub: "Métricas del mes" },
-                        ].map(opt => (
-                          <a
-                            key={opt.href}
-                            href={opt.href}
-                            onClick={() => setReportMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2.5 hover:bg-foreground/[0.06] transition-colors"
-                          >
-                            <span className="text-base">{opt.emoji}</span>
-                            <div className="min-w-0">
-                              <p className="text-[13px] font-semibold text-foreground leading-tight">{opt.label}</p>
-                              <p className="text-[11px] text-foreground/45 leading-tight mt-0.5">{opt.sub}</p>
-                            </div>
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
                   <MonthSelector
                     value={selectedMonth}
                     onChange={setSelectedMonth}

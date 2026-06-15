@@ -5,8 +5,8 @@ import {
   CalendarDays, Lock, LayoutGrid, ClipboardList,
   Zap, Globe, FileVideo,
   ChevronDown, ShieldCheck, ArrowRight,
-  ChevronLeft, ChevronRight, Sparkles, PenLine, Instagram, Youtube,
-  User, Pencil,
+  ChevronLeft, ChevronRight, Sparkles, Instagram, Youtube,
+  User, Pencil, Trophy, Coins, FileBarChart,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -48,7 +48,9 @@ const NAV_GROUPS = [
   {
     label: "Mis reportes",
     items: [
-      { name: "Llenar reporte", href: "/llenar", icon: PenLine },
+      { name: "Monday Win",      href: "/monday-win",   icon: Trophy },
+      { name: "Cha-Ching 💰",     href: "/chi-chang",    icon: Coins },
+      { name: "Reporte Mensual", href: "/report-input", icon: FileBarChart },
     ],
   },
   {
