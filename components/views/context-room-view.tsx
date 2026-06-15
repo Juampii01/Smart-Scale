@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase"
 import { useMonthlyReports } from "@/hooks/use-monthly-reports"
+import { useActiveClient } from "@/components/layout/dashboard-layout"
 import { cn } from "@/lib/utils"
 import { User, Camera, Loader2, Check, Lock, Plus, X, Trash2 } from "lucide-react"
 
@@ -534,12 +535,15 @@ export function ContextRoomView() {
 
   const getToken = useCallback(async () => (await supabase.auth.getSession()).data.session?.access_token ?? null, [])
 
+  const clientId = useActiveClient()
   const [ctx, setCtx]  = useState<Ctx>({})
+  const [ctxLoaded, setCtxLoaded] = useState(false)
   const saveTimer      = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const [saved, setSaved] = useState(false)
 
   const { reports } = useMonthlyReports()
 
+  // Datos de cuenta (nombre/email/avatar)
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -557,26 +561,43 @@ export function ContextRoomView() {
           if (res.ok) { const d = await res.json(); setAvatarUrl(d.url ?? null) }
         }
       } catch {}
-      try {
-        const stored = localStorage.getItem(`ss_ctx_${user.id}`)
-        if (stored) setCtx(JSON.parse(stored))
-      } catch {}
       setAuthLoading(false)
     }
     init()
   }, [])
 
+  // Cargar el contexto del cliente (tabla client_context)
   useEffect(() => {
-    if (!userId || Object.keys(ctx).length === 0) return
+    let alive = true
+    if (!clientId) return
+    setCtxLoaded(false)
+    supabase
+      .from("client_context")
+      .select("context")
+      .eq("client_id", clientId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!alive) return
+        setCtx(((data as any)?.context as Ctx) ?? {})
+        setCtxLoaded(true)
+      })
+    return () => { alive = false }
+  }, [clientId])
+
+  // Auto-save del contexto (upsert debounced) — solo después de cargar
+  useEffect(() => {
+    if (!clientId || !ctxLoaded) return
     clearTimeout(saveTimer.current)
-    saveTimer.current = setTimeout(() => {
-      try {
-        localStorage.setItem(`ss_ctx_${userId}`, JSON.stringify(ctx))
+    saveTimer.current = setTimeout(async () => {
+      const { error } = await supabase
+        .from("client_context")
+        .upsert({ client_id: clientId, context: ctx }, { onConflict: "client_id" })
+      if (!error) {
         setSaved(true)
         setTimeout(() => setSaved(false), 2000)
-      } catch {}
+      }
     }, 600)
-  }, [ctx, userId])
+  }, [ctx, clientId, ctxLoaded])
 
   const set    = useCallback((k: string, v: string) => setCtx(prev => ({ ...prev, [k]: v })), [])
   const getArr = useCallback((k: string): string[] => { try { return JSON.parse(ctx[k] || "[]") } catch { return [] } }, [ctx])
