@@ -307,15 +307,12 @@ function YouTubeTrend({ reports }: { reports: MonthlyReport[] }) {
 // ─── Tab contents ─────────────────────────────────────────────────────────────
 
 function FascinateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: MonthlyReport | null; all: MonthlyReport[] }) {
-  const d = {
-    ig:    pctDelta(cur?.short_followers ?? 0, prev?.short_followers ?? 0),
-    reach: pctDelta(cur?.short_reach     ?? 0, prev?.short_reach     ?? 0),
-    yt:    pctDelta(cur?.yt_subscribers  ?? 0, prev?.yt_subscribers  ?? 0),
-    ytv:   pctDelta(cur?.yt_views        ?? 0, prev?.yt_views        ?? 0),
-  }
-  const status = stageStatus(d.ig)
+  const igDelta    = pctDelta(cur?.short_followers   ?? 0, prev?.short_followers   ?? 0)
+  const ytDelta    = pctDelta(cur?.yt_subscribers    ?? 0, prev?.yt_subscribers    ?? 0)
+  const emailDelta = pctDelta(cur?.email_subscribers ?? 0, prev?.email_subscribers ?? 0)
+  const status = stageStatus(igDelta)
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
         <div className="flex items-center gap-3 mb-1">
           <h2 className="text-[22px] font-bold text-foreground">Fascinate</h2>
@@ -323,15 +320,45 @@ function FascinateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
         </div>
         <p className="text-[13px] text-foreground/50">Captar atención — crecer la audiencia que alimenta el motor.</p>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4 items-stretch">
-        <div className="grid grid-cols-2 gap-3">
-          <MetricCard label="Seguidores IG"   value={fmtK(cur?.short_followers)} pct={d.ig}    noData={!cur?.short_followers} />
-          <MetricCard label="Alcance IG"      value={fmtK(cur?.short_reach)}     pct={d.reach} noData={!cur?.short_reach} />
-          <MetricCard label="Suscriptores YT" value={fmtK(cur?.yt_subscribers)}  pct={d.yt}    noData={!cur?.yt_subscribers} />
-          <MetricCard label="Vistas YT"       value={fmtK(cur?.yt_views)}        pct={d.ytv}   noData={!cur?.yt_views} />
-        </div>
-        <MiniChart data={all} dataKey="short_followers" color="#818cf8" label="Seguidores IG — últimos 8 meses" className="min-h-[220px]" />
+
+      {/* Channel cards: la audiencia por canal ES Fascinate */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <ChannelCard
+          icon={Instagram} title="Instagram" color="#818cf8"
+          audience={fmtK(cur?.short_followers)} audienceLabel="Seguidores totales"
+          rows={[
+            { icon: Eye,      label: "Alcance", value: fmtK(cur?.short_reach) },
+            { icon: FileText, label: "Posts",   value: fmtK(cur?.short_posts) },
+          ]}
+          deltaPct={igDelta}
+          sparkValues={all.slice(-8).map(r => r.short_followers)}
+          noData={!cur?.short_followers}
+        />
+        <ChannelCard
+          icon={Youtube} title="YouTube" color="#f87171"
+          audience={fmtK(cur?.yt_subscribers)} audienceLabel="Suscriptores"
+          rows={[
+            { icon: Eye,      label: "Vistas",  value: fmtK(cur?.yt_views || cur?.yt_monthly_audience) },
+            { icon: FileText, label: "Videos",  value: fmtK(cur?.yt_videos) },
+          ]}
+          deltaPct={ytDelta}
+          sparkValues={all.slice(-8).map(r => r.yt_subscribers)}
+          noData={!cur?.yt_subscribers}
+        />
+        <ChannelCard
+          icon={Mail} title="Email" color="#4ade80"
+          audience={fmtK(cur?.email_subscribers)} audienceLabel="Suscriptores totales"
+          rows={[
+            { icon: Eye, label: "Nuevos subs", value: fmtK(cur?.email_new_subscribers) },
+          ]}
+          deltaPct={emailDelta}
+          sparkValues={all.slice(-8).map(r => r.email_subscribers)}
+          noData={!cur?.email_subscribers}
+        />
       </div>
+
+      {/* Índice de crecimiento comparado entre canales */}
+      <GrowthIndexChart reports={all} />
     </div>
   )
 }
@@ -352,14 +379,14 @@ function EducateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Month
         </div>
         <p className="text-[13px] text-foreground/50">Construir autoridad — convertir atención en audiencia comprometida.</p>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4 items-start">
         <div className="grid grid-cols-2 gap-3">
           <MetricCard label="Posts IG"           value={fmtK(cur?.short_posts)}       pct={d.posts} noData={!cur?.short_posts} />
           <MetricCard label="Videos YT"          value={fmtK(cur?.yt_videos)}         pct={d.ytv}   noData={!cur?.yt_videos} />
           <MetricCard label="Suscriptores Email" value={fmtK(cur?.email_subscribers)} pct={d.email} noData={!cur?.email_subscribers} />
           <MetricCard label="Canales activos"    value={[cur?.short_posts, cur?.yt_videos, cur?.email_subscribers].filter(Boolean).length.toString()} pct={null} />
         </div>
-        <MiniChart data={all} dataKey="short_posts" color="#4ade80" label="Posts IG — últimos 8 meses" className="min-h-[220px]" />
+        <PostsVsFollowers reports={all} />
       </div>
     </div>
   )
@@ -425,68 +452,6 @@ function TransformTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
   )
 }
 
-function RedesTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: MonthlyReport | null; all: MonthlyReport[] }) {
-  const igDelta    = pctDelta(cur?.short_followers   ?? 0, prev?.short_followers   ?? 0)
-  const ytDelta    = pctDelta(cur?.yt_subscribers    ?? 0, prev?.yt_subscribers    ?? 0)
-  const emailDelta = pctDelta(cur?.email_subscribers ?? 0, prev?.email_subscribers ?? 0)
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-[22px] font-bold text-foreground">Redes</h2>
-        <p className="text-[13px] text-foreground/50">Señales por canal — comparación vs mes anterior</p>
-      </div>
-
-      {/* Channel cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <ChannelCard
-          icon={Instagram} title="Instagram" color="#818cf8"
-          audience={fmtK(cur?.short_followers)} audienceLabel="Seguidores totales"
-          rows={[
-            { icon: Eye,      label: "Alcance",   value: fmtK(cur?.short_reach) },
-            { icon: FileText, label: "Posts",      value: fmtK(cur?.short_posts) },
-          ]}
-          deltaPct={igDelta}
-          sparkValues={all.slice(-8).map(r => r.short_followers)}
-          noData={!cur?.short_followers}
-        />
-        <ChannelCard
-          icon={Youtube} title="YouTube" color="#f87171"
-          audience={fmtK(cur?.yt_subscribers)} audienceLabel="Suscriptores"
-          rows={[
-            { icon: Eye,      label: "Vistas",  value: fmtK(cur?.yt_views || cur?.yt_monthly_audience) },
-            { icon: FileText, label: "Videos",  value: fmtK(cur?.yt_videos) },
-          ]}
-          deltaPct={ytDelta}
-          sparkValues={all.slice(-8).map(r => r.yt_subscribers)}
-          noData={!cur?.yt_subscribers}
-        />
-        <ChannelCard
-          icon={Mail} title="Email" color="#4ade80"
-          audience={fmtK(cur?.email_subscribers)} audienceLabel="Suscriptores totales"
-          rows={[
-            { icon: Eye, label: "Nuevos subs", value: fmtK(cur?.email_new_subscribers) },
-          ]}
-          deltaPct={emailDelta}
-          sparkValues={all.slice(-8).map(r => r.email_subscribers)}
-          noData={!cur?.email_subscribers}
-        />
-      </div>
-
-      {/* Charts */}
-      {all.length >= 2 && (
-        <>
-          <GrowthIndexChart reports={all} />
-          <div className="grid gap-4 md:grid-cols-2">
-            <PostsVsFollowers reports={all} />
-            <YouTubeTrend reports={all} />
-          </div>
-        </>
-      )}
-    </div>
-  )
-}
-
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 const TABS = [
@@ -494,7 +459,6 @@ const TABS = [
   { id: "educate",   label: "Educate"   },
   { id: "invite",    label: "Invite"    },
   { id: "transform", label: "Transform" },
-  { id: "redes",     label: "Redes"     },
 ] as const
 type TabId = typeof TABS[number]["id"]
 
@@ -554,7 +518,6 @@ export function PerformanceView() {
           {tab === "educate"   && <EducateTab   cur={cur} prev={prev} all={reports} />}
           {tab === "invite"    && <InviteTab    cur={cur} prev={prev} all={reports} />}
           {tab === "transform" && <TransformTab cur={cur} prev={prev} all={reports} />}
-          {tab === "redes"     && <RedesTab     cur={cur} prev={prev} all={reports} />}
         </>
       )}
     </div>
