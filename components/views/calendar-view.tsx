@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
-import { Calendar, Clock, ExternalLink, Loader2, RefreshCw, Video, Search, Play, FileText } from "lucide-react"
+import { Calendar, Clock, ExternalLink, Loader2, RefreshCw, Video, Search, Play, FileText, Copy, Check, Lock } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -200,6 +200,25 @@ function SessionRow({ occ }: { occ: Occurrence }) {
 
 // ─── Recording row (Scale20 style) ───────────────────────────────────────────
 
+function PasscodeBox({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false)
+  return (
+    <button
+      type="button"
+      onClick={async (e) => { e.preventDefault(); try { await navigator.clipboard.writeText(value); setCopied(true); setTimeout(() => setCopied(false), 1800) } catch {} }}
+      title="Copiar contraseña"
+      className="inline-flex items-center gap-2 rounded-[8px] border border-[#ffde21]/25 bg-[#ffde21]/[0.06] px-2.5 py-1.5 transition-colors hover:bg-[#ffde21]/[0.12]"
+    >
+      <Lock className="h-3 w-3 text-[#ffde21]/70" />
+      <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">Contraseña</span>
+      <span className="font-mono text-[13px] font-semibold text-foreground">{value}</span>
+      {copied
+        ? <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+        : <Copy className="h-3.5 w-3.5 text-foreground/35" />}
+    </button>
+  )
+}
+
 function RecordingRow({ rec }: { rec: Recording }) {
   const date = new Date(rec.recorded_at + "T12:00:00")
   return (
@@ -221,9 +240,9 @@ function RecordingRow({ rec }: { rec: Recording }) {
         {rec.notes && <p className="text-[12px] text-foreground/40 mt-0.5 line-clamp-1">{rec.notes}</p>}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[12px] text-foreground/45">
           <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />{fullDate(date)}</span>
-          {rec.duration && <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" />{rec.duration}</span>}
-          {rec.passcode && <span className="text-foreground/35">Código <span className="font-mono text-foreground/60">{rec.passcode}</span></span>}
+          {rec.duration && <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" />{rec.duration} min</span>}
         </div>
+        {rec.passcode && <div className="mt-2.5"><PasscodeBox value={rec.passcode} /></div>}
       </div>
 
       {/* CTAs */}
