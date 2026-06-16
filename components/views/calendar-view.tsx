@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
-import { Calendar, Clock, ExternalLink, Loader2, RefreshCw, Video, Search } from "lucide-react"
+import { Calendar, Clock, ExternalLink, Loader2, RefreshCw, Video, Search, Play, FileText } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -25,6 +25,18 @@ interface CalendarEvent {
 interface Occurrence {
   ev:   CalendarEvent
   date: Date
+}
+
+interface Recording {
+  id:            string
+  title:         string
+  recorded_at:   string
+  recording_url: string
+  passcode:      string | null
+  duration:      string | null
+  playbook_url:  string | null
+  thumbnail:     string | null
+  notes:         string | null
 }
 
 // ─── Time helpers ─────────────────────────────────────────────────────────────
@@ -186,6 +198,51 @@ function SessionRow({ occ }: { occ: Occurrence }) {
   )
 }
 
+// ─── Recording row (Scale20 style) ───────────────────────────────────────────
+
+function RecordingRow({ rec }: { rec: Recording }) {
+  const date = new Date(rec.recorded_at + "T12:00:00")
+  return (
+    <div className="flex items-start gap-4 rounded-[14px] border border-foreground/[0.07] bg-card p-4 hover:border-foreground/[0.12] transition-colors">
+      {/* Day block */}
+      <div className="flex w-12 shrink-0 flex-col items-center justify-center rounded-[10px] bg-foreground/[0.04] py-1.5">
+        <span className="text-[20px] font-bold leading-none text-foreground tabular-nums">{date.getDate()}</span>
+        <span className="text-[9px] font-semibold uppercase tracking-wider text-foreground/40 mt-0.5">{weekdayAbbr(date)}</span>
+      </div>
+
+      {/* Middle */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="inline-flex items-center gap-1 rounded-full border border-foreground/10 bg-foreground/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/50">
+            <Video className="h-2.5 w-2.5" /> Grabación
+          </span>
+        </div>
+        <p className="text-[14px] font-semibold text-foreground leading-snug">{rec.title}</p>
+        {rec.notes && <p className="text-[12px] text-foreground/40 mt-0.5 line-clamp-1">{rec.notes}</p>}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[12px] text-foreground/45">
+          <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />{fullDate(date)}</span>
+          {rec.duration && <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" />{rec.duration}</span>}
+          {rec.passcode && <span className="text-foreground/35">Código <span className="font-mono text-foreground/60">{rec.passcode}</span></span>}
+        </div>
+      </div>
+
+      {/* CTAs */}
+      <div className="shrink-0 self-center flex items-center gap-2">
+        {rec.playbook_url && (
+          <a href={rec.playbook_url} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-[8px] border border-foreground/[0.10] px-3 py-2 text-[12px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/[0.20] transition-colors whitespace-nowrap">
+            <FileText className="h-3.5 w-3.5" /> Playbook
+          </a>
+        )}
+        <a href={rec.recording_url} target="_blank" rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-[8px] bg-[#ffde21] px-3.5 py-2 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-colors whitespace-nowrap">
+          <Play className="h-3.5 w-3.5" /> Ver
+        </a>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export function CalendarView() {
@@ -194,6 +251,7 @@ export function CalendarView() {
   const [error,   setError]   = useState<string | null>(null)
   const [tab,     setTab]     = useState<"upcoming" | "recordings">("upcoming")
   const [query,   setQuery]   = useState("")
+  const [recordings, setRecordings] = useState<Recording[]>([])
 
   const fetchEvents = async () => {
     setLoading(true); setError(null)
@@ -201,10 +259,18 @@ export function CalendarView() {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { setError("Sin sesión"); return }
-      const res = await fetch("/api/admin/calendar-events", { headers: { Authorization: `Bearer ${session.access_token}` } })
-      const json = await res.json()
-      if (!res.ok) { setError(json.error ?? "Error cargando agenda"); return }
-      setEvents(json.events ?? [])
+      const headers = { Authorization: `Bearer ${session.access_token}` }
+      const [evRes, recRes] = await Promise.all([
+        fetch("/api/admin/calendar-events", { headers }),
+        fetch("/api/calendar-recordings", { headers }),
+      ])
+      const evJson = await evRes.json()
+      if (!evRes.ok) { setError(evJson.error ?? "Error cargando agenda"); return }
+      setEvents(evJson.events ?? [])
+      if (recRes.ok) {
+        const recJson = await recRes.json().catch(() => ({}))
+        setRecordings(recJson.recordings ?? [])
+      }
     } catch (err: any) {
       setError(err?.message ?? "Error de red")
     } finally {
@@ -243,6 +309,20 @@ export function CalendarView() {
     return Array.from(map.values())
   }, [listOccs])
 
+  // Grabaciones (filtradas por búsqueda) agrupadas por mes
+  const recordingGroups = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    const filtered = q ? recordings.filter(r => r.title.toLowerCase().includes(q)) : recordings
+    const map = new Map<string, { label: string; items: Recording[] }>()
+    for (const r of filtered) {
+      const d = new Date(r.recorded_at + "T12:00:00")
+      const k = monthKey(d)
+      if (!map.has(k)) map.set(k, { label: monthLabel(d), items: [] })
+      map.get(k)!.items.push(r)
+    }
+    return Array.from(map.values())
+  }, [recordings, query])
+
   return (
     <section className="space-y-6 pb-10">
       {/* Header */}
@@ -260,7 +340,7 @@ export function CalendarView() {
       {/* Tabs + search */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-foreground/[0.07]">
         <div className="flex gap-0">
-          {([["upcoming", "Próximas", occurrences.length], ["recordings", "Grabaciones", 0]] as const).map(([id, label, count]) => (
+          {([["upcoming", "Próximas", occurrences.length], ["recordings", "Grabaciones", recordings.length]] as const).map(([id, label, count]) => (
             <button key={id} onClick={() => setTab(id)}
               className={cn(
                 "relative flex items-center gap-2 pb-3 px-4 text-[14px] font-semibold transition-colors",
@@ -273,13 +353,12 @@ export function CalendarView() {
             </button>
           ))}
         </div>
-        {tab === "upcoming" && (
-          <div className="relative pb-2 sm:pb-0 sm:mb-1.5">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/30" />
-            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar sesión…"
-              className="w-full sm:w-56 rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.03] pl-9 pr-3 py-1.5 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-foreground/[0.22] transition-colors" />
-          </div>
-        )}
+        <div className="relative pb-2 sm:pb-0 sm:mb-1.5">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/30" />
+          <input value={query} onChange={e => setQuery(e.target.value)}
+            placeholder={tab === "recordings" ? "Buscar grabación…" : "Buscar sesión…"}
+            className="w-full sm:w-56 rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.03] pl-9 pr-3 py-1.5 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-foreground/[0.22] transition-colors" />
+        </div>
       </div>
 
       {/* Content */}
@@ -288,15 +367,35 @@ export function CalendarView() {
       ) : error ? (
         <div className="rounded-[14px] border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-700 dark:text-red-400">{error}</div>
       ) : tab === "recordings" ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-foreground/[0.04] border border-foreground/[0.07]">
-            <Video className="h-6 w-6 text-foreground/30" />
+        recordings.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-foreground/[0.04] border border-foreground/[0.07]">
+              <Video className="h-6 w-6 text-foreground/30" />
+            </div>
+            <div className="text-center">
+              <p className="text-[15px] font-semibold text-foreground/70">Todavía no hay grabaciones</p>
+              <p className="text-[13px] text-foreground/40 mt-1 max-w-sm">Cada sesión queda grabada. Las grabaciones se publican acá automáticamente después de cada llamada.</p>
+            </div>
           </div>
-          <div className="text-center">
-            <p className="text-[15px] font-semibold text-foreground/70">Grabaciones próximamente</p>
-            <p className="text-[13px] text-foreground/40 mt-1 max-w-sm">Cada sesión queda grabada. Las grabaciones se publican acá después de cada llamada.</p>
+        ) : recordingGroups.length === 0 ? (
+          <div className="rounded-[14px] border border-foreground/[0.07] py-16 text-center text-sm text-foreground/30">
+            No hay grabaciones para esa búsqueda.
           </div>
-        </div>
+        ) : (
+          <div className="space-y-6">
+            {recordingGroups.map(g => (
+              <div key={g.label} className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40">{g.label}</p>
+                  <span className="text-[11px] text-foreground/30">{g.items.length} {g.items.length === 1 ? "grabación" : "grabaciones"}</span>
+                </div>
+                <div className="space-y-2.5">
+                  {g.items.map(r => <RecordingRow key={r.id} rec={r} />)}
+                </div>
+              </div>
+            ))}
+          </div>
+        )
       ) : (
         <div className="space-y-6">
           {/* Destacadas — las 2 más próximas */}
