@@ -257,7 +257,7 @@ export function AdminDataView() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
+      <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
         {loading ? (
           <div className="flex items-center justify-center py-24">
             <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />

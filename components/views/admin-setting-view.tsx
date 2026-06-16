@@ -421,11 +421,11 @@ export function AdminSettingView() {
             </div>
 
             {logs.length === 0 ? (
-              <div className="rounded-2xl border border-foreground/10 py-12 text-center">
+              <div className="rounded-[14px] border border-foreground/10 py-12 text-center">
                 <p className="text-sm text-foreground/40">Sin registros cargados para este mes</p>
               </div>
             ) : (
-              <div className="overflow-hidden rounded-2xl border border-foreground/10 bg-card">
+              <div className="overflow-hidden rounded-[14px] border border-foreground/10 bg-card">
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead>

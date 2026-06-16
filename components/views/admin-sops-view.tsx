@@ -350,7 +350,7 @@ function CreateEditModal({
     <>
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="relative flex h-full max-h-[90vh] w-full max-w-3xl flex-col rounded-2xl border border-foreground/[0.08] bg-card shadow-2xl overflow-hidden">
+        <div className="relative flex h-full max-h-[90vh] w-full max-w-3xl flex-col rounded-[14px] border border-foreground/[0.08] bg-card shadow-2xl overflow-hidden">
 
           {/* Header */}
           <div className="flex items-center justify-between gap-4 border-b border-foreground/[0.06] px-6 py-4 shrink-0">
@@ -683,7 +683,7 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
           <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/50" />
         </div>
       ) : !filtered.length ? (
-        <div className="rounded-2xl border border-foreground/[0.08] bg-card py-16 text-center">
+        <div className="rounded-[14px] border border-foreground/[0.08] bg-card py-16 text-center">
           <FileText className="mx-auto h-8 w-8 text-foreground/20 mb-2" />
           <p className="text-[14px] text-foreground/50">
             {sops.length === 0 ? "Todavía no hay SOPs." : "No hay SOPs que coincidan con el filtro."}
@@ -698,7 +698,7 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
             <button
               key={sop.id}
               onClick={() => setSelected(sop)}
-              className="group flex flex-col gap-2 rounded-2xl border border-foreground/[0.07] bg-card p-4 text-left hover:border-foreground/20 hover:bg-foreground/[0.02] transition-all"
+              className="group flex flex-col gap-2 rounded-[14px] border border-foreground/[0.07] bg-card p-4 text-left hover:border-foreground/20 hover:bg-foreground/[0.02] transition-all"
             >
               <div className="flex items-start gap-2">
                 <div className="min-w-0 flex-1">
