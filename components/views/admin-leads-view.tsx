@@ -218,7 +218,7 @@ function NewLeadModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-sm rounded-2xl border border-foreground/[0.10] shadow-2xl p-6 space-y-4"
+          className="w-full max-w-sm rounded-[14px] border border-foreground/[0.10] shadow-2xl p-6 space-y-4"
           style={{ backgroundColor: "var(--card)" }}
         >
           <div className="flex items-center justify-between mb-1">
@@ -442,7 +442,7 @@ export function AdminLeadsView() {
         </div>
 
         {/* Webhook card */}
-        <div className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-4">
+        <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
           <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-2">
             Webhook URL — ManyChat / Zapier
           </p>
@@ -509,7 +509,7 @@ export function AdminLeadsView() {
         )}
 
         {/* Table */}
-        <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
+        <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
           {loading ? (
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
               <table className="w-full border-collapse">

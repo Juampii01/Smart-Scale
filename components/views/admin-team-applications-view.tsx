@@ -338,7 +338,7 @@ export function AdminTeamApplicationsView() {
         {/* Summary cards (estado) */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {STATUS_LIST.map(s => (
-            <div key={s} className="rounded-2xl border border-foreground/[0.07] bg-card px-4 py-3.5">
+            <div key={s} className="rounded-[14px] border border-foreground/[0.07] bg-card px-4 py-3.5">
               <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25 capitalize">{s}</p>
               <p className={`mt-1 text-2xl font-bold ${STATUS_STYLE[s].split(" ")[1]}`}>
                 {apps.filter(a => a.status === s).length}
@@ -383,7 +383,7 @@ export function AdminTeamApplicationsView() {
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-20 text-center text-sm text-foreground/40">
+          <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-20 text-center text-sm text-foreground/40">
             {apps.length === 0
               ? "Todavía no hay candidatos. Compartí el link del formulario para empezar a recibir aplicaciones."
               : "Ningún candidato matchea los filtros actuales."}
@@ -394,7 +394,7 @@ export function AdminTeamApplicationsView() {
               <button
                 key={app.id}
                 onClick={() => setSelected(app)}
-                className="group flex w-full items-center gap-4 rounded-2xl border border-foreground/[0.07] bg-card px-5 py-4 text-left transition hover:border-foreground/20"
+                className="group flex w-full items-center gap-4 rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4 text-left transition hover:border-foreground/20"
               >
                 <div className="flex-1 min-w-0 space-y-1.5">
                   <div className="flex items-center gap-2 flex-wrap">

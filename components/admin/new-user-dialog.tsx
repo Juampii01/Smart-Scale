@@ -121,7 +121,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
         className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
         onClick={handleClose}
       />
-      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl">
+      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[14px] border border-border bg-popover text-popover-foreground shadow-2xl">
         {/* Header */}
         <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5">
           <div className="flex items-center gap-3">

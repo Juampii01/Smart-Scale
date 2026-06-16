@@ -79,7 +79,7 @@ function SuccessModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="relative z-10 w-full max-w-md rounded-[14px] border border-border bg-card p-6 shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
         <div className="mb-5 flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20">
             <Check className="h-5 w-5 text-emerald-500" />
@@ -260,7 +260,7 @@ function OnboardingForm({
   const labelCls = "block text-[10px] font-semibold uppercase tracking-widest text-foreground/40 mb-1.5"
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-6">
+    <div className="rounded-[14px] border border-border bg-card p-6">
       <div className="mb-6 flex items-center gap-3">
         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ffde21]/10 border border-[#ffde21]/20">
           <UserPlus className="h-4 w-4 text-[#ffde21]" />
@@ -413,7 +413,7 @@ function OnboardingForm({
 function ClientCard({ client }: { client: OnboardingClient }) {
   const mrr = client.installment_amount * client.num_installments
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 transition hover:border-foreground/[0.12]">
+    <div className="rounded-[14px] border border-border bg-card p-4 transition hover:border-foreground/[0.12]">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-foreground/[0.07] border border-foreground/[0.08]">
@@ -561,7 +561,7 @@ export function AdminOnboardingView() {
               <Loader2 className="h-6 w-6 animate-spin text-foreground/30" />
             </div>
           ) : clients.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-foreground/[0.08] py-16 text-center">
+            <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-foreground/[0.08] py-16 text-center">
               <UserPlus className="mb-3 h-8 w-8 text-foreground/20" />
               <p className="font-semibold text-foreground/50">Sin onboardings aún</p>
               <p className="mt-1 text-[12px] text-foreground/30">Creá el primero con el botón de arriba.</p>

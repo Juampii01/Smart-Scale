@@ -180,7 +180,7 @@ function WebhookCard() {
   }
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-4">
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
       <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-2">
         Webhook URL — Zapier / Formulario de onboarding
       </p>
@@ -1166,7 +1166,7 @@ function SummaryCards({ clients, viewMonth }: { clients: Client[], viewMonth: st
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {cards.map(card => (
-        <div key={card.label} className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-4">
+        <div key={card.label} className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-foreground/25">{card.icon}</span>
             <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30">{card.label}</p>
@@ -1284,7 +1284,7 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
   const shortMonthName = monthName.split(" ")[0]
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-5">
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-5">
       <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-4">
         Cash — {monthName}
       </p>
@@ -1864,7 +1864,7 @@ export function AdminClientsView() {
         </div>
 
         {/* Table */}
-        <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
+        <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
           {loading ? (
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
               <table className="w-full border-collapse">

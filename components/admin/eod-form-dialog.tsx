@@ -187,7 +187,7 @@ export function EodFormDialog({ open, onClose, initialDate, onSaved }: EodFormDi
         className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
         onClick={() => !saving && onClose()}
       />
-      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-[14px] border border-border bg-popover text-popover-foreground shadow-2xl max-h-[90vh] overflow-y-auto">
 
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-border bg-popover px-6 py-4">

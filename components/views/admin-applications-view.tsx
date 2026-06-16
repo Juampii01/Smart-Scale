@@ -403,7 +403,7 @@ export function AdminApplicationsView() {
         {/* Summary cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {(["nueva","revisada","aceptada","rechazada"] as const).map(s => (
-            <div key={s} className="rounded-2xl border border-foreground/[0.07] bg-card px-4 py-3.5">
+            <div key={s} className="rounded-[14px] border border-foreground/[0.07] bg-card px-4 py-3.5">
               <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25 capitalize">{s}</p>
               <p className={`mt-1 text-2xl font-bold ${STATUS_NUMBER_COLOR[s]}`}>
                 {apps.filter(a => a.status === s).length}
@@ -437,7 +437,7 @@ export function AdminApplicationsView() {
         </div>
 
         {/* Table */}
-        <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
+        <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />
@@ -521,7 +521,7 @@ export function AdminApplicationsView() {
                         <button
                           onClick={() => handleDelete(app.id)}
                           disabled={deletingId === app.id}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/15 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
+                          className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/15 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
                         >
                           {deletingId === app.id
                             ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
