@@ -7,7 +7,8 @@ import { createClient } from "@/lib/supabase"
 interface CommissionData {
   setter_id: string
   setter_name: string | null
-  client_count: number
+  new_count: number
+  paid_count: number
   mrr_total: number
   cash_collected: number
   old_cash: number
@@ -108,10 +109,11 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Mi comisión — <span className="text-[#ffde21]">{monthLabel(month)}</span></h3>
         </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-          <CommissionCard label="Clientes" value={String(c.client_count)} />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <CommissionCard label="Nuevos" value={String(c.new_count)} />
+          <CommissionCard label="Cuotas" value={String(c.paid_count)} />
           <CommissionCard label="Revenue" value={formatCurrency(c.mrr_total)} />
-          <CommissionCard label="Cash Cobrado" value={formatCurrency(c.cash_collected)} />
+          <CommissionCard label="New Cash" value={formatCurrency(c.new_cash)} />
           <CommissionCard label="Old Cash" value={formatCurrency(c.old_cash)} small />
           <CommissionCard label="Comisión (5%)" value={formatCurrency(c.commission_earned)} highlight />
         </div>
@@ -121,8 +123,6 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
 
   // If admin/team: show summary + table
   const totalCommission = commissions.reduce((sum, c) => sum + c.commission_earned, 0)
-  const totalOldCash = commissions.reduce((sum, c) => sum + c.old_cash, 0)
-  const totalNewCash = commissions.reduce((sum, c) => sum + c.new_cash, 0)
 
   return (
     <div className="space-y-4">
@@ -144,10 +144,11 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
           <thead>
             <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
               <th className="px-4 py-2.5 text-left font-semibold text-foreground/80">Setter</th>
-              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Clientes</th>
+              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Nuevos</th>
+              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Cuotas</th>
               <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Revenue</th>
-              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Cash</th>
-              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80 text-[#ffde21]/70">Old</th>
+              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">New Cash</th>
+              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80 text-[#ffde21]/70">Old Cash</th>
               <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Comisión</th>
             </tr>
           </thead>
@@ -157,19 +158,22 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
                 <td className="px-4 py-2.5 font-medium text-foreground">
                   {c.setter_name ?? "—"}
                 </td>
-                <td className="px-4 py-2.5 text-right text-foreground/80">
-                  {c.client_count}
+                <td className="px-4 py-2.5 text-right text-foreground/80 tabular-nums">
+                  {c.new_count}
                 </td>
-                <td className="px-4 py-2.5 text-right text-foreground/80">
-                  {formatCurrency(c.mrr_total)}
+                <td className="px-4 py-2.5 text-right text-foreground/80 tabular-nums">
+                  {c.paid_count}
                 </td>
-                <td className="px-4 py-2.5 text-right text-foreground/80">
-                  {formatCurrency(c.cash_collected)}
+                <td className="px-4 py-2.5 text-right text-foreground/80 tabular-nums">
+                  {c.mrr_total > 0 ? formatCurrency(c.mrr_total) : "—"}
                 </td>
-                <td className="px-4 py-2.5 text-right text-[#ffde21]/60 text-xs">
+                <td className="px-4 py-2.5 text-right text-foreground/80 tabular-nums">
+                  {c.new_cash > 0 ? formatCurrency(c.new_cash) : "—"}
+                </td>
+                <td className="px-4 py-2.5 text-right text-[#ffde21]/60 text-xs tabular-nums">
                   {c.old_cash > 0 ? formatCurrency(c.old_cash) : "—"}
                 </td>
-                <td className="px-4 py-2.5 text-right font-semibold text-[#ffde21]">
+                <td className="px-4 py-2.5 text-right font-semibold text-[#ffde21] tabular-nums">
                   {formatCurrency(c.commission_earned)}
                 </td>
               </tr>
