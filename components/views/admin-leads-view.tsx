@@ -6,6 +6,7 @@ import {
   Loader2, Trash2, RefreshCw, Download, X, Star, Plus,
   Instagram, ExternalLink, ChevronRight,
 } from "lucide-react"
+import { PurchasedToggle } from "@/components/admin/purchased-toggle"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -21,6 +22,7 @@ interface Lead {
   rating:     number | null
   niche:      string | null
   notes:      string | null
+  purchased:  boolean
   created_at: string
 }
 
@@ -290,6 +292,7 @@ export function AdminLeadsView() {
   const [selected,     setSelected]     = useState<Lead | null>(null)
   const [deletingId,   setDeletingId]   = useState<string | null>(null)
   const [search,       setSearch]       = useState("")
+  const [filterPurchased, setFilterPurchased] = useState(false)
   // -1 = solo 4-5 estrellas (default), 0 = todas, 1-5 = exacto
   const [filterRating, setFilterRating] = useState<number>(-1)
   const [showNewForm,  setShowNewForm]  = useState(false)
@@ -367,9 +370,9 @@ export function AdminLeadsView() {
   }
 
   const exportCsv = () => {
-    const header = ["Nombre","Email","Tag","Desde dónde llegó","Tipo","Estado","Instagram","Rating","Nicho","Notas","Fecha"].join(",")
+    const header = ["Nombre","Email","Tag","Desde dónde llegó","Tipo","Estado","Compró","Instagram","Rating","Nicho","Notas","Fecha"].join(",")
     const rows = filtered.map(l =>
-      [l.name, l.email, l.tag, l.source, l.lead_type, l.status, l.instagram, l.rating, l.niche, l.notes, l.created_at]
+      [l.name, l.email, l.tag, l.source, l.lead_type, l.status, l.purchased ? "Sí" : "No", l.instagram, l.rating, l.niche, l.notes, l.created_at]
         .map(v => `"${String(v ?? "").replace(/"/g, '""')}"`)
         .join(",")
     )
@@ -381,6 +384,7 @@ export function AdminLeadsView() {
   }
 
   const filtered = leads.filter(l => {
+    if (filterPurchased && !l.purchased) return false
     if (filterRating === -1 && (l.rating === null || l.rating < 4)) return false
     if (filterRating > 0 && l.rating !== filterRating) return false
     if (!search.trim()) return true
@@ -496,6 +500,17 @@ export function AdminLeadsView() {
             </button>
             {/* Filtros de 1-3 ⭐ removidos: solo nos interesan leads calificados (4-5 ⭐). */}
           </div>
+
+          {/* Filtro: solo los que compraron */}
+          <button
+            onClick={() => setFilterPurchased(v => !v)}
+            className={`h-8 rounded-xl border px-3 text-[12px] font-semibold transition-all ${
+              filterPurchased
+                ? "border-emerald-400/40 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300"
+                : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
+            }`}>
+            Compraron
+          </button>
         </div>
 
         {/* Banner explicativo cuando el filtro 4-5 está activo */}
@@ -515,7 +530,7 @@ export function AdminLeadsView() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-                    {["Nombre","Email","Tag","Instagram","Rating","Estado","Desde dónde llegó","Tipo","Nicho","Fecha",""].map(h => (
+                    {["Nombre","Email","Tag","Instagram","Rating","Estado","Compró","Desde dónde llegó","Tipo","Nicho","Fecha",""].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
@@ -523,7 +538,7 @@ export function AdminLeadsView() {
                 <tbody>
                   {Array.from({ length: 8 }).map((_, i) => (
                     <tr key={i} className="border-b border-foreground/[0.04]">
-                      {Array.from({ length: 11 }).map((_, j) => (
+                      {Array.from({ length: 12 }).map((_, j) => (
                         <td key={j} className="px-4 py-4">
                           <div className="h-3 skeleton rounded" style={{ width: `${45 + (i * 13 + j * 7) % 50}%` }} />
                         </td>
@@ -538,7 +553,7 @@ export function AdminLeadsView() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-                    {["Nombre","Email","Tag","Instagram","Rating","Estado","Desde dónde llegó","Tipo","Nicho","Fecha",""].map(h => (
+                    {["Nombre","Email","Tag","Instagram","Rating","Estado","Compró","Desde dónde llegó","Tipo","Nicho","Fecha",""].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
@@ -586,6 +601,10 @@ export function AdminLeadsView() {
                       <td className="px-4 py-4 whitespace-nowrap min-w-[130px]" onClick={e => e.stopPropagation()}>
                         <InlineField value={lead.status !== "nuevo" ? lead.status : null}
                           placeholder="estado..." onSave={v => patch(lead.id, { status: v || "nuevo" })} />
+                      </td>
+
+                      <td className="px-4 py-4 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                        <PurchasedToggle value={!!lead.purchased} onChange={v => patch(lead.id, { purchased: v })} />
                       </td>
 
                       <td className="px-4 py-4 whitespace-nowrap min-w-[140px]" onClick={e => e.stopPropagation()}>

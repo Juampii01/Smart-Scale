@@ -72,7 +72,7 @@ const ALL_FIELDS = [
   "primary_channel","short_content_link","youtube_podcast_link",
   "email_list_size","monthly_revenue","paying_clients","client_work_style",
   "income_goal","main_blocker","superpowers","contribution","motivation",
-  "one_year_goal","terms_accepted","status","notes","created_at",
+  "one_year_goal","terms_accepted","status","notes","purchased","created_at",
 ].join(", ")
 
 /** GET — all applications ordered by created_at desc. Lectura: admin OR team. */
@@ -167,7 +167,7 @@ export async function PATCH(req: NextRequest) {
       "status","notes","first_name","last_name","email","whatsapp",
       "instagram_handle","primary_channel","short_content_link","youtube_podcast_link",
       "email_list_size","monthly_revenue","paying_clients","client_work_style",
-      "income_goal","main_blocker","superpowers","contribution","motivation","one_year_goal",
+      "income_goal","main_blocker","superpowers","contribution","motivation","one_year_goal","purchased",
     ]
     const allowed: Record<string, any> = { updated_at: new Date().toISOString() }
     for (const key of PATCHABLE) {
