@@ -6,6 +6,7 @@ import {
   Loader2, Trash2, RefreshCw, Download, X, ExternalLink,
   Instagram, Link2, Mail, Phone, ChevronRight,
 } from "lucide-react"
+import { PurchasedToggle } from "@/components/admin/purchased-toggle"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,6 +33,7 @@ interface Application {
   terms_accepted:       boolean | null
   status:               "nueva" | "revisada" | "aceptada" | "rechazada"
   notes:                string | null
+  purchased:            boolean
   created_at:           string
 }
 
@@ -294,6 +296,18 @@ export function AdminApplicationsView() {
     })
   }
 
+  const handlePurchasedToggle = async (id: string, purchased: boolean) => {
+    setApps(prev => prev.map(a => a.id === id ? { ...a, purchased } : a))
+    if (selectedApp?.id === id) setSelectedApp(prev => prev ? { ...prev, purchased } : prev)
+    const session = await getSession()
+    if (!session) return
+    await fetch("/api/admin/applications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+      body: JSON.stringify({ id, purchased }),
+    })
+  }
+
   const handleNotesChange = async (id: string, notes: string) => {
     setApps(prev => prev.map(a => a.id === id ? { ...a, notes } : a))
     if (selectedApp?.id === id) setSelectedApp(prev => prev ? { ...prev, notes } : prev)
@@ -329,7 +343,7 @@ export function AdminApplicationsView() {
       "Canal","Link corto","YouTube/Podcast",
       "Lista emails","Facturación","Clientes pagos","Modelo trabajo",
       "Obj. ingresos","Bloqueo","Superpoderes","Aporte","Motivación","Visión 1 año",
-      "T&C","Estado","Notas","Fecha",
+      "T&C","Estado","Compró","Notas","Fecha",
     ].join(",")
     const rows = filtered.map(a =>
       [
@@ -337,7 +351,7 @@ export function AdminApplicationsView() {
         a.primary_channel, a.short_content_link, a.youtube_podcast_link,
         a.email_list_size, a.monthly_revenue, a.paying_clients, a.client_work_style,
         a.income_goal, a.main_blocker, a.superpowers, a.contribution, a.motivation, a.one_year_goal,
-        a.terms_accepted ? "Sí" : "No", a.status, a.notes, a.created_at,
+        a.terms_accepted ? "Sí" : "No", a.status, a.purchased ? "Sí" : "No", a.notes, a.created_at,
       ].map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")
     )
     const csv  = [header, ...rows].join("\n")
@@ -447,14 +461,14 @@ export function AdminApplicationsView() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-                    {["Nombre","Email","Instagram","Canal","Facturación","Estado","Fecha",""].map(h => (
+                    {["Nombre","Email","Instagram","Canal","Facturación","Estado","Compró","Fecha",""].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {!filtered.length ? (
-                    <tr><td colSpan={9} className="py-16 text-center text-sm text-foreground/25">
+                    <tr><td colSpan={10} className="py-16 text-center text-sm text-foreground/25">
                       {apps.length ? "No hay aplicaciones con ese filtro." : "Todavía no hay aplicaciones. Compartí el formulario (/apply) para recibirlas."}
                     </td></tr>
                   ) : filtered.map(app => (
@@ -504,6 +518,11 @@ export function AdminApplicationsView() {
                           <option value="aceptada">Aceptada</option>
                           <option value="rechazada">Rechazada</option>
                         </select>
+                      </td>
+
+                      {/* Compró */}
+                      <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                        <PurchasedToggle value={!!app.purchased} onChange={v => handlePurchasedToggle(app.id, v)} />
                       </td>
 
                       {/* Date */}
