@@ -20,17 +20,23 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ plat
   const sb = createServiceClient()
   const { data } = await sb
     .from("social_connections")
-    .select("account_name, account_pic, connected_at, expires_at")
+    .select("account_name, account_pic, connected_at, expires_at, refresh_token")
     .eq("client_id", scope.clientId)
     .eq("platform", platform)
     .maybeSingle()
 
   if (!data) return NextResponse.json({ connected: false })
 
-  const isExpired = data.expires_at ? new Date(data.expires_at) <= new Date() : false
+  // El access token expira (Google ~1h). Si hay refresh_token, la conexión SIGUE
+  // viva — el access token se refresca on-demand al pedir métricas. Solo se
+  // considera "necesita reconectar" cuando venció y NO hay refresh disponible.
+  const accessExpired = data.expires_at ? new Date(data.expires_at) <= new Date() : false
+  const canRefresh = !!data.refresh_token
+  const needsReconnect = accessExpired && !canRefresh
+
   return NextResponse.json({
-    connected: !isExpired,
-    tokenExpired: isExpired,
+    connected: !needsReconnect,
+    tokenExpired: needsReconnect,
     accountName: data.account_name,
     accountPic: data.account_pic ?? undefined,
     connectedAt: data.connected_at,
