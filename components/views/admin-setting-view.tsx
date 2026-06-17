@@ -288,42 +288,48 @@ export function AdminSettingView() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Setting CRM</h1>
           <p className="text-sm text-foreground/40 mt-0.5">Métricas diarias de setter · click en celdas para editar</p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button onClick={() => changMonth(-1)} className="h-9 w-9 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes anterior">
-            <ChevronLeft className="h-4 w-4" />
-          </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Selector de mes — ocupa toda la fila en mobile */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button onClick={() => changMonth(-1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes anterior">
+              <ChevronLeft className="h-4 w-4" />
+            </button>
 
-          <div className="px-4 py-2 rounded-lg border border-foreground/10 min-w-[220px] text-center">
-            <span className="text-sm font-bold text-foreground">{monthLabel(month)}</span>
+            <div className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-foreground/10 min-w-0 sm:min-w-[220px] text-center">
+              <span className="text-sm font-bold text-foreground">{monthLabel(month)}</span>
+            </div>
+
+            <button onClick={() => changMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
 
-          <button onClick={() => changMonth(1)} className="h-9 w-9 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
-            <ChevronRight className="h-4 w-4" />
-          </button>
+          {/* Acciones */}
+          <div className="flex items-center gap-2">
+            <button onClick={() => loadLogs(month)} disabled={loading} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors disabled:opacity-40" title="Recargar">
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            </button>
 
-          <button onClick={() => loadLogs(month)} disabled={loading} className="h-9 w-9 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors disabled:opacity-40" title="Recargar">
-            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-          </button>
+            <button onClick={exportCsv} className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg border border-foreground/10 hover:bg-foreground/5 text-sm font-medium transition-colors" title="Descargar CSV">
+              <Download className="h-3.5 w-3.5" />
+              CSV
+            </button>
 
-          <button onClick={exportCsv} className="h-9 px-3 flex items-center gap-1.5 rounded-lg border border-foreground/10 hover:bg-foreground/5 text-sm font-medium transition-colors" title="Descargar CSV">
-            <Download className="h-3.5 w-3.5" />
-            CSV
-          </button>
-
-          <button
-            onClick={() => setEodOpen(true)}
-            className="h-9 px-3 flex items-center gap-1.5 rounded-lg bg-[#ffde21] hover:bg-[#ffe84d] text-black text-sm font-bold transition-colors"
-            title="Cargar datos diarios"
-          >
-            <PlusCircle className="h-3.5 w-3.5" />
-            EOD
-          </button>
+            <button
+              onClick={() => setEodOpen(true)}
+              className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg bg-[#ffde21] hover:bg-[#ffe84d] text-black text-sm font-bold transition-colors"
+              title="Cargar datos diarios"
+            >
+              <PlusCircle className="h-3.5 w-3.5" />
+              EOD
+            </button>
+          </div>
         </div>
       </div>
 
