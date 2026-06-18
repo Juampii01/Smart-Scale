@@ -41,7 +41,7 @@ interface GHLResponse {
 }
 
 /**
- * Create a contact in GHL
+ * Create or update a contact in GHL (upsert by email/phone).
  * Fire-and-forget: logs errors but doesn't throw
  */
 export async function createGHLContact(data: GHLContactData): Promise<GHLResponse | null> {
@@ -87,7 +87,12 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
 
     if (customFields.length) payload.customFields = customFields
 
-    const response = await fetch(`${GHL_API_BASE}/contacts/`, {
+    // Upsert (create-or-update) en vez de create: si el contacto ya existe en
+    // GHL (p. ej. agendó la call de ventas por el calendario antes de cerrar),
+    // /contacts/ devuelve "duplicated" y se perdían teléfono, custom fields y
+    // tags. /contacts/upsert matchea por email/teléfono dentro de la location y
+    // escribe los campos exista o no.
+    const response = await fetch(`${GHL_API_BASE}/contacts/upsert`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${GHL_API_KEY}`,
@@ -101,13 +106,7 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
 
     if (!response.ok) {
       const msg: string = (result as any).message ?? (result as any).error ?? ""
-      // GHL rejects duplicate contacts — treat as soft success (contact already exists)
-      if (response.status === 400 && msg.toLowerCase().includes("duplicated")) {
-        const existingId = (result as any).meta?.contactId ?? "unknown"
-        console.log("GHL contact already exists, skipping creation:", existingId)
-        return { success: true, contact: { id: existingId } }
-      }
-      console.error("GHL contact creation failed:", {
+      console.error("GHL contact upsert failed:", {
         status: response.status,
         error: msg,
         detail: JSON.stringify(result).slice(0, 500),
@@ -115,7 +114,7 @@ export async function createGHLContact(data: GHLContactData): Promise<GHLRespons
       return { success: false, error: msg || "Unknown error" }
     }
 
-    console.log("GHL contact created successfully:", (result as any).contact?.id)
+    console.log("GHL contact upserted:", (result as any).contact?.id, "(new:", (result as any).new, ")")
     return {
       success: true,
       contact: result.contact,
