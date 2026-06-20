@@ -11,6 +11,7 @@ export interface MonthlyReport {
   mrr:                  number
   ad_spend:             number
   new_clients:          number
+  inbound_messages:     number
   short_followers:      number
   short_posts:          number
   short_reach:          number
@@ -20,6 +21,7 @@ export interface MonthlyReport {
   yt_videos:            number
   email_subscribers:    number
   email_new_subscribers:number
+  case_studies:         number
 }
 
 export function useMonthlyReports() {
@@ -45,11 +47,25 @@ export function useMonthlyReports() {
 
         const { data, error } = await supabase
           .from("monthly_reports")
-          .select("month, cash_collected, total_revenue, mrr, ad_spend, new_clients, short_followers, short_posts, short_reach, yt_subscribers, yt_views, yt_monthly_audience, yt_videos, email_subscribers, email_new_subscribers")
+          .select("month, cash_collected, total_revenue, mrr, ad_spend, new_clients, inbound_messages, short_followers, short_posts, short_reach, yt_subscribers, yt_views, yt_monthly_audience, yt_videos, email_subscribers, email_new_subscribers")
           .eq("client_id", activeClientId)
           .order("month", { ascending: true })
 
         if (error) throw error
+
+        // case_studies es una columna nueva (Performance Status). Se lee aparte y
+        // de forma tolerante: si la migración aún no se aplicó, el SELECT falla y
+        // lo tratamos como 0 sin romper el resto del dashboard.
+        const caseByMonth: Record<string, number> = {}
+        try {
+          const { data: cs } = await supabase
+            .from("monthly_reports")
+            .select("month, case_studies")
+            .eq("client_id", activeClientId)
+          for (const r of cs ?? []) {
+            caseByMonth[String(r.month).slice(0, 7)] = Number((r as any).case_studies) || 0
+          }
+        } catch { /* columna inexistente todavía — se ignora */ }
 
         if (mounted) setReports(
           (data ?? []).map(r => ({
@@ -59,6 +75,7 @@ export function useMonthlyReports() {
             mrr:               Number(r.mrr)               || 0,
             ad_spend:          Number(r.ad_spend)          || 0,
             new_clients:       Number(r.new_clients)       || 0,
+            inbound_messages:      Number(r.inbound_messages)      || 0,
             short_followers:   Number(r.short_followers)   || 0,
             short_posts:       Number(r.short_posts)       || 0,
             short_reach:           Number(r.short_reach)           || 0,
@@ -68,6 +85,7 @@ export function useMonthlyReports() {
             yt_videos:             Number(r.yt_videos)             || 0,
             email_subscribers:     Number(r.email_subscribers)     || 0,
             email_new_subscribers: Number(r.email_new_subscribers) || 0,
+            case_studies:          caseByMonth[String(r.month).slice(0, 7)] ?? 0,
           }))
         )
       } catch (e: any) {
