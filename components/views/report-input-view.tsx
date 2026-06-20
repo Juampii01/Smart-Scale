@@ -39,6 +39,7 @@ const FIELD_GROUPS = [
       { key: "cierres_por_offerdoc", label: "Cierres por OfferDoc",   type: "number" },
       { key: "new_clients",          label: "Nuevos Clientes",        type: "number", highlight: true },
       { key: "active_clients",       label: "Clientes Activos",       type: "number" },
+      { key: "case_studies",         label: "Casos de Éxito",         type: "number", hint: "total acumulado" },
     ],
   },
   {

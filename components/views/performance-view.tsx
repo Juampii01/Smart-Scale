@@ -6,6 +6,7 @@ import { useMonthlyReports, type MonthlyReport } from "@/hooks/use-monthly-repor
 import { useSelectedMonth } from "@/components/layout/dashboard-layout"
 import { Sk } from "@/components/ui/skeleton"
 import { SalesView } from "@/components/views/sales-view"
+import { PerformanceStatus } from "@/components/views/performance-status"
 import {
   ResponsiveContainer, AreaChart, Area, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ComposedChart, Bar, ReferenceLine,
@@ -388,6 +389,11 @@ export function PerformanceView() {
         <h1 className="text-[22px] font-bold text-foreground leading-tight">Performance</h1>
         <p className="text-[13px] text-foreground/50 mt-0.5">Tu pulso a través de las 4 etapas del modelo</p>
       </div>
+
+      {/* Performance Status — estado del Ecosistema Circular según el reporte mensual */}
+      {loading
+        ? <Sk className="h-[220px] rounded-[14px]" />
+        : <PerformanceStatus reports={reports} cur={cur} />}
 
       {/* Tab bar — underline style */}
       <div className="border-b border-foreground/[0.07]">
