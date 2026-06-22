@@ -24,6 +24,16 @@ interface Lead {
   notes:      string | null
   purchased:  boolean
   created_at: string
+  custom_fields?: Record<string, any> | null
+}
+
+// Columna custom (definición compartida, estilo Airtable)
+interface LeadColumn {
+  id:       string
+  key:      string
+  label:    string
+  type:     "text" | "number"
+  position: number
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -76,6 +86,24 @@ const GROUPS: { id: GroupId; label: string }[] = [
   { id: "source",    label: "Fuente" },
   { id: "status",    label: "Estado" },
 ]
+
+// ─── Celda editable para columnas custom ────────────────────────────────────────
+
+function CustomCell({ value, type, onSave }: {
+  value: any; type: "text" | "number"; onSave: (v: string) => void
+}) {
+  return (
+    <input
+      type={type === "number" ? "number" : "text"}
+      defaultValue={value ?? ""}
+      onClick={e => e.stopPropagation()}
+      onBlur={e => onSave(e.target.value)}
+      onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
+      placeholder="—"
+      className="w-full min-w-[90px] rounded-lg border border-transparent bg-transparent px-2 py-1 text-[13px] text-foreground placeholder:text-foreground/30 hover:border-foreground/[0.08] focus:border-foreground/20 focus:bg-foreground/[0.03] focus:outline-none transition-all"
+    />
+  )
+}
 
 // ─── Star Rating ──────────────────────────────────────────────────────────────
 
@@ -310,6 +338,73 @@ function NewLeadModal({
   )
 }
 
+// ─── New Column Modal ─────────────────────────────────────────────────────────
+
+function ColumnModal({ onClose, onCreate, creating }: {
+  onClose: () => void
+  onCreate: (label: string, type: "text" | "number") => Promise<void>
+  creating: boolean
+}) {
+  const [label, setLabel] = useState("")
+  const [type, setType]   = useState<"text" | "number">("text")
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!label.trim()) return
+    await onCreate(label.trim(), type)
+  }
+
+  return (
+    <>
+      <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <form onSubmit={handleSubmit}
+          className="w-full max-w-sm rounded-[14px] border border-foreground/[0.10] shadow-2xl p-6 space-y-4"
+          style={{ backgroundColor: "var(--card)" }}>
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="text-base font-bold text-foreground">Nueva columna</h3>
+            <button type="button" onClick={onClose}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Nombre de la columna *</p>
+            <input
+              autoFocus type="text" value={label} onChange={e => setLabel(e.target.value)}
+              placeholder="ej: Presupuesto, Ciudad, Objeción..."
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Tipo</p>
+            <div className="flex gap-2">
+              {([["text", "Texto"], ["number", "Número"]] as const).map(([val, lbl]) => (
+                <button key={val} type="button" onClick={() => setType(val)}
+                  className={`flex-1 h-9 rounded-xl border text-[13px] font-semibold transition-all ${
+                    type === val
+                      ? "border-[#ffde21]/50 bg-[#ffde21]/[0.08] text-foreground"
+                      : "border-foreground/[0.08] text-foreground/45 hover:text-foreground hover:border-foreground/20"
+                  }`}>
+                  {lbl}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button type="submit" disabled={!label.trim() || creating}
+            className="w-full h-10 rounded-xl bg-[#ffde21] text-black text-[13px] font-bold hover:bg-[#ffe84d] transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+            {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Crear columna
+          </button>
+        </form>
+      </div>
+    </>
+  )
+}
+
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 export function AdminLeadsView() {
@@ -323,6 +418,10 @@ export function AdminLeadsView() {
   const [collapsed,    setCollapsed]    = useState<Set<string>>(new Set())
   const [showNewForm,  setShowNewForm]  = useState(false)
   const [creating,     setCreating]     = useState(false)
+  // Columnas custom (estilo Airtable)
+  const [customCols,   setCustomCols]   = useState<LeadColumn[]>([])
+  const [showColModal, setShowColModal] = useState(false)
+  const [creatingCol,  setCreatingCol]  = useState(false)
 
   const getSession = async () => {
     const supabase = createClient()
@@ -344,7 +443,59 @@ export function AdminLeadsView() {
     } finally { setLoading(false) }
   }, [])
 
-  useEffect(() => { fetchLeads() }, [fetchLeads])
+  const fetchCols = useCallback(async () => {
+    try {
+      const session = await getSession()
+      if (!session) return
+      const res = await fetch("/api/admin/lead-columns", {
+        headers: { "Authorization": `Bearer ${session.access_token}` },
+      })
+      if (!res.ok) return
+      const json = await res.json()
+      setCustomCols(json.columns ?? [])
+    } catch { /* tabla aún no migrada — sin columnas custom */ }
+  }, [])
+
+  useEffect(() => { fetchLeads(); fetchCols() }, [fetchLeads, fetchCols])
+
+  const addColumn = async (label: string, type: "text" | "number") => {
+    setCreatingCol(true)
+    try {
+      const session = await getSession()
+      if (!session) return
+      const res = await fetch("/api/admin/lead-columns", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+        body:    JSON.stringify({ label, type }),
+      })
+      const json = await res.json()
+      if (res.ok && json.column) {
+        setCustomCols(prev => [...prev, json.column])
+        setShowColModal(false)
+      } else {
+        alert(json.error ?? "No se pudo crear la columna.")
+      }
+    } finally {
+      setCreatingCol(false)
+    }
+  }
+
+  const deleteColumn = async (col: LeadColumn) => {
+    if (!window.confirm(`¿Eliminar la columna "${col.label}"? Los datos cargados en ella se ocultan.`)) return
+    setCustomCols(prev => prev.filter(c => c.id !== col.id))
+    const session = await getSession()
+    if (!session) return
+    await fetch("/api/admin/lead-columns", {
+      method:  "DELETE",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+      body:    JSON.stringify({ id: col.id }),
+    })
+  }
+
+  const patchCustom = (lead: Lead, key: string, value: string) => {
+    const next = { ...(lead.custom_fields ?? {}), [key]: value === "" ? null : value }
+    patch(lead.id, { custom_fields: next })
+  }
 
   const handleCreate = async (data: Partial<Lead>) => {
     setCreating(true)
@@ -396,9 +547,10 @@ export function AdminLeadsView() {
   }
 
   const exportCsv = () => {
-    const header = ["Nombre","Email","Tag","Desde dónde llegó","Tipo","Estado","Compró","Instagram","Rating","Nicho","Notas","Fecha"].join(",")
+    const header = ["Nombre","Email","Tag","Desde dónde llegó","Tipo","Estado","Compró","Instagram","Rating","Nicho","Notas","Fecha", ...customCols.map(c => c.label)].join(",")
     const rows = filtered.map(l =>
-      [l.name, l.email, l.tag, l.source, l.lead_type, l.status, l.purchased ? "Sí" : "No", l.instagram, l.rating, l.niche, l.notes, l.created_at]
+      [l.name, l.email, l.tag, l.source, l.lead_type, l.status, l.purchased ? "Sí" : "No", l.instagram, l.rating, l.niche, l.notes, l.created_at,
+        ...customCols.map(c => l.custom_fields?.[c.key])]
         .map(v => `"${String(v ?? "").replace(/"/g, '""')}"`)
         .join(",")
     )
@@ -446,6 +598,33 @@ export function AdminLeadsView() {
     setWebhookUrl(`${window.location.origin}/api/webhooks/lead`)
   }, [])
 
+  // Columnas: 10 fijas + N custom + 1 (botón "+" / chevron)
+  const colCount = 11 + customCols.length
+  const headRow = (
+    <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+      {["#","Nombre","Desde dónde","Tipo","Nicho","Instagram","Rating","Estado","Compró","Fecha"].map(h => (
+        <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">{h}</th>
+      ))}
+      {customCols.map(col => (
+        <th key={col.id} className="group/col px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">
+          <span className="inline-flex items-center gap-1.5">
+            {col.label}
+            <button onClick={() => deleteColumn(col)} title="Eliminar columna"
+              className="opacity-0 group-hover/col:opacity-100 text-foreground/30 hover:text-red-600 dark:hover:text-red-400 transition-opacity">
+              <X className="h-3 w-3" />
+            </button>
+          </span>
+        </th>
+      ))}
+      <th className="px-3 py-3 text-left">
+        <button onClick={() => setShowColModal(true)} title="Agregar columna"
+          className="flex h-6 w-6 items-center justify-center rounded-md border border-foreground/[0.12] text-foreground/40 hover:text-foreground hover:border-foreground/30 transition-colors">
+          <Plus className="h-3.5 w-3.5" />
+        </button>
+      </th>
+    </tr>
+  )
+
   return (
     <>
       {showNewForm && (
@@ -453,6 +632,14 @@ export function AdminLeadsView() {
           onClose={() => setShowNewForm(false)}
           onCreate={handleCreate}
           creating={creating}
+        />
+      )}
+
+      {showColModal && (
+        <ColumnModal
+          onClose={() => setShowColModal(false)}
+          onCreate={addColumn}
+          creating={creatingCol}
         />
       )}
 
@@ -564,16 +751,12 @@ export function AdminLeadsView() {
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-                    {["#","Nombre","Desde dónde","Tipo","Nicho","Instagram","Rating","Estado","Compró","Fecha",""].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
+                  {headRow}
                 </thead>
                 <tbody>
                   {Array.from({ length: 8 }).map((_, i) => (
                     <tr key={i} className="border-b border-foreground/[0.04]">
-                      {Array.from({ length: 11 }).map((_, j) => (
+                      {Array.from({ length: colCount }).map((_, j) => (
                         <td key={j} className="px-4 py-4">
                           <div className="h-3 skeleton rounded" style={{ width: `${45 + (i * 13 + j * 7) % 50}%` }} />
                         </td>
@@ -587,15 +770,11 @@ export function AdminLeadsView() {
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-                    {["#","Nombre","Desde dónde","Tipo","Nicho","Instagram","Rating","Estado","Compró","Fecha",""].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
+                  {headRow}
                 </thead>
                 <tbody>
                   {!filtered.length ? (
-                    <tr><td colSpan={11} className="py-16 text-center text-sm text-foreground/25">
+                    <tr><td colSpan={colCount} className="py-16 text-center text-sm text-foreground/25">
                       {leads.length ? "No hay leads con esa búsqueda." : "Todavía no hay leads. Conectá ManyChat al webhook."}
                     </td></tr>
                   ) : (() => {
@@ -606,7 +785,7 @@ export function AdminLeadsView() {
                         <Fragment key={group.key}>
                           {groupBy !== "none" && (
                             <tr className="border-y border-foreground/[0.06] bg-foreground/[0.03]">
-                              <td colSpan={11} className="px-3 py-2">
+                              <td colSpan={colCount} className="px-3 py-2">
                                 <button type="button" onClick={() => toggleGroup(group.key)}
                                   className="flex items-center gap-2 focus:outline-none">
                                   <ChevronRight className={`h-3.5 w-3.5 text-foreground/40 transition-transform ${isCollapsed ? "" : "rotate-90"}`} />
@@ -661,6 +840,16 @@ export function AdminLeadsView() {
                                 <td className="px-4 py-3 whitespace-nowrap">
                                   <span className="text-[12px] text-foreground/60">{fmtDate(lead.created_at)}</span>
                                 </td>
+
+                                {customCols.map(col => (
+                                  <td key={col.id} className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                                    <CustomCell
+                                      value={lead.custom_fields?.[col.key]}
+                                      type={col.type}
+                                      onSave={v => patchCustom(lead, col.key, v)}
+                                    />
+                                  </td>
+                                ))}
 
                                 <td className="px-4 py-3 whitespace-nowrap">
                                   <ChevronRight className="h-4 w-4 text-foreground/25 group-hover:text-foreground/60 transition-colors" />
