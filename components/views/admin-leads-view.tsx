@@ -42,27 +42,12 @@ function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })
 }
 
-// ─── Pills de categoría (color determinístico por valor, estilo Airtable) ───────
+// ─── Pills de categoría (monocromo — blanco/negro según tema) ───────────────────
 
-const TAG_COLORS = [
-  "bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-300",
-  "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300",
-  "bg-violet-100 text-violet-800 dark:bg-violet-500/15 dark:text-violet-300",
-  "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
-  "bg-pink-100 text-pink-800 dark:bg-pink-500/15 dark:text-pink-300",
-  "bg-cyan-100 text-cyan-800 dark:bg-cyan-500/15 dark:text-cyan-300",
-  "bg-orange-100 text-orange-800 dark:bg-orange-500/15 dark:text-orange-300",
-  "bg-teal-100 text-teal-800 dark:bg-teal-500/15 dark:text-teal-300",
-]
-function tagColor(s: string) {
-  let h = 0
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0
-  return TAG_COLORS[h % TAG_COLORS.length]
-}
 function Pill({ value }: { value: string | null }) {
   if (!value || !value.trim()) return <span className="text-foreground/25 text-[13px]">—</span>
   return (
-    <span className={`inline-block max-w-[180px] truncate rounded-md px-2 py-0.5 text-[12px] font-medium align-middle ${tagColor(value.trim().toLowerCase())}`}>
+    <span className="inline-block max-w-[180px] truncate rounded-md border border-foreground/[0.10] bg-foreground/[0.06] px-2 py-0.5 text-[12px] font-medium text-foreground/75 align-middle">
       {value}
     </span>
   )
@@ -127,10 +112,10 @@ function StarRating({
           onClick={() => onChange(star === value ? 0 : star)}
           onMouseEnter={() => setHover(star)}
           onMouseLeave={() => setHover(null)}
-          className="transition-transform hover:scale-110 focus:outline-none focus-visible:scale-110 focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1 rounded-sm"
+          className="transition-transform hover:scale-110 focus:outline-none focus-visible:scale-110 focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-1 rounded-sm"
         >
           <Star className={`${dim} transition-colors ${
-            star <= active ? "fill-amber-400 text-amber-400" : "fill-transparent text-foreground/20"
+            star <= active ? "fill-foreground text-foreground" : "fill-transparent text-foreground/25"
           }`} />
         </button>
       ))}
@@ -176,11 +161,11 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => onDelete(lead.id)} disabled={deleting} aria-label="Eliminar lead"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-foreground hover:bg-foreground/[0.08] transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
             <button onClick={onClose} aria-label="Cerrar"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -192,14 +177,14 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
             <StarRating size="md" value={lead.rating}
               onChange={n => onPatch(lead.id, { rating: n || null })} />
             {lead.tag && (
-              <span className="rounded-full border border-amber-500 bg-amber-100 px-3 py-0.5 text-[11px] font-bold text-amber-900 dark:border-[#ffde21]/20 dark:bg-[#ffde21]/[0.06] dark:text-[#ffde21]/70">
+              <span className="rounded-full border border-foreground/[0.12] bg-foreground/[0.06] px-3 py-0.5 text-[11px] font-bold text-foreground/70">
                 {lead.tag}
               </span>
             )}
           </div>
           {ig && (
             <a href={`https://instagram.com/${ig}`} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 text-[13px] text-pink-700 hover:text-pink-900 dark:text-pink-300/70 dark:hover:text-pink-300 transition-colors">
+              className="flex items-center gap-2 text-[13px] text-foreground/70 hover:text-foreground transition-colors">
               <Instagram className="h-4 w-4 shrink-0" />
               @{ig}
               <ExternalLink className="h-3 w-3 opacity-50" />
@@ -327,7 +312,7 @@ function NewLeadModal({
           <button
             type="submit"
             disabled={!name.trim() || creating}
-            className="w-full h-10 rounded-xl bg-[#ffde21] text-black text-[13px] font-bold hover:bg-[#ffe84d] transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+            className="w-full h-10 rounded-xl bg-foreground text-background text-[13px] font-bold hover:bg-foreground/90 transition-all disabled:opacity-40 flex items-center justify-center gap-2"
           >
             {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Crear lead
@@ -385,7 +370,7 @@ function ColumnModal({ onClose, onCreate, creating }: {
                 <button key={val} type="button" onClick={() => setType(val)}
                   className={`flex-1 h-9 rounded-xl border text-[13px] font-semibold transition-all ${
                     type === val
-                      ? "border-[#ffde21]/50 bg-[#ffde21]/[0.08] text-foreground"
+                      ? "border-foreground/30 bg-foreground/[0.08] text-foreground"
                       : "border-foreground/[0.08] text-foreground/45 hover:text-foreground hover:border-foreground/20"
                   }`}>
                   {lbl}
@@ -395,7 +380,7 @@ function ColumnModal({ onClose, onCreate, creating }: {
           </div>
 
           <button type="submit" disabled={!label.trim() || creating}
-            className="w-full h-10 rounded-xl bg-[#ffde21] text-black text-[13px] font-bold hover:bg-[#ffe84d] transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+            className="w-full h-10 rounded-xl bg-foreground text-background text-[13px] font-bold hover:bg-foreground/90 transition-all disabled:opacity-40 flex items-center justify-center gap-2">
             {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Crear columna
           </button>
@@ -610,7 +595,7 @@ export function AdminLeadsView() {
           <span className="inline-flex items-center gap-1.5">
             {col.label}
             <button onClick={() => deleteColumn(col)} title="Eliminar columna"
-              className="opacity-0 group-hover/col:opacity-100 text-foreground/30 hover:text-red-600 dark:hover:text-red-400 transition-opacity">
+              className="opacity-0 group-hover/col:opacity-100 text-foreground/30 hover:text-foreground transition-opacity">
               <X className="h-3 w-3" />
             </button>
           </span>
@@ -673,7 +658,7 @@ export function AdminLeadsView() {
             </button>
             <button
               onClick={() => setShowNewForm(true)}
-              className="flex items-center gap-2 h-9 rounded-xl bg-[#ffde21] px-4 text-sm font-bold text-black hover:bg-[#ffe84d] transition-all">
+              className="flex items-center gap-2 h-9 rounded-xl bg-foreground px-4 text-sm font-bold text-background hover:bg-foreground/90 transition-all">
               <Plus className="h-3.5 w-3.5" />
               Nuevo lead
             </button>
@@ -686,7 +671,7 @@ export function AdminLeadsView() {
             Webhook URL — ManyChat / Zapier
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-[#ffde21]/70 font-mono truncate" suppressHydrationWarning>
+            <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-foreground/60 font-mono truncate" suppressHydrationWarning>
               {webhookUrl ?? "Cargando…"}
             </code>
             <button
@@ -712,11 +697,11 @@ export function AdminLeadsView() {
                 onClick={() => setView(v.id)}
                 className={`inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[12.5px] font-semibold transition-all ${
                   view === v.id
-                    ? "bg-[#ffde21] text-black"
+                    ? "bg-foreground text-background"
                     : "text-foreground/45 hover:text-foreground hover:bg-foreground/[0.05]"
                 }`}>
                 {(v.id === "calificados" || v.id === "cinco") && (
-                  <Star className={`h-3 w-3 ${view === v.id ? "fill-black text-black" : "fill-transparent text-amber-500"}`} />
+                  <Star className={`h-3 w-3 ${view === v.id ? "fill-background text-background" : "fill-transparent text-foreground/40"}`} />
                 )}
                 {v.label}
               </button>
@@ -819,7 +804,7 @@ export function AdminLeadsView() {
                                   {lead.instagram
                                     ? <a href={`https://instagram.com/${lead.instagram.replace("@","")}`}
                                         target="_blank" rel="noopener noreferrer"
-                                        className="flex items-center gap-1.5 text-[13px] text-pink-700 hover:text-pink-900 dark:text-pink-300 dark:hover:text-pink-200 transition-colors">
+                                        className="flex items-center gap-1.5 text-[13px] text-foreground/70 hover:text-foreground transition-colors">
                                         <Instagram className="h-3.5 w-3.5 shrink-0" />
                                         {lead.instagram}
                                       </a>
@@ -834,7 +819,7 @@ export function AdminLeadsView() {
                                 <td className="px-4 py-3 whitespace-nowrap"><Pill value={lead.status !== "nuevo" ? lead.status : null} /></td>
 
                                 <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
-                                  <PurchasedToggle value={!!lead.purchased} onChange={v => patch(lead.id, { purchased: v })} />
+                                  <PurchasedToggle mono value={!!lead.purchased} onChange={v => patch(lead.id, { purchased: v })} />
                                 </td>
 
                                 <td className="px-4 py-3 whitespace-nowrap">
