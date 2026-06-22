@@ -5,7 +5,7 @@ import type React from "react"
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
-import { ChevronDown, LogOut, Menu, User, ShieldCheck, Check, Eye, EyeOff, Camera, Loader2 } from "lucide-react"
+import { ChevronDown, LogOut, Menu, User, ShieldCheck, Check, Eye, EyeOff, Camera, Loader2, Coins, Trophy, FileBarChart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MonthSelector } from "@/components/layout/month-selector"
 import { Sidebar } from "@/components/layout/sidebar"
@@ -59,6 +59,13 @@ const PAGE_TITLES: Record<string, string> = {
   "/admin/clients":      "Clientes",
   "/admin/centro-operativo": "Centro Operativo",
 }
+
+// Accesos rápidos del cliente: llevan directo a cargar cada form.
+const QUICK_ACTIONS: { label: string; short: string; href: string; Icon: typeof Coins }[] = [
+  { label: "Cha-Ching",       short: "Cha-Ching", href: "/chi-chang",    Icon: Coins        },
+  { label: "Monday Win",      short: "Monday",    href: "/monday-win",   Icon: Trophy       },
+  { label: "Reporte Mensual", short: "Reporte",   href: "/report-input", Icon: FileBarChart },
+]
 
 const SelectedMonthContext = createContext<string | null>(null)
 
@@ -580,6 +587,24 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
             <div className="flex items-center gap-2">
               {!isAdminMode && (
+                <div className="hidden lg:flex items-center gap-1.5 mr-1">
+                  {QUICK_ACTIONS.filter(a => a.href !== pathname).map(({ label, href, Icon }) => (
+                    <button
+                      key={href}
+                      type="button"
+                      onClick={() => router.push(href)}
+                      title={label}
+                      aria-label={label}
+                      className="inline-flex h-9 items-center gap-1.5 rounded-md border border-foreground/[0.10] bg-card px-2.5 text-[13px] font-semibold text-foreground/75 hover:text-foreground hover:border-foreground/[0.18] hover:bg-foreground/[0.04] transition-colors"
+                    >
+                      <Icon className="h-4 w-4 text-[#ffde21]" />
+                      <span className="hidden xl:inline">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {!isAdminMode && (
                 <>
                   <MonthSelector
                     value={selectedMonth}
@@ -797,6 +822,23 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
           </div>
+
+          {/* Accesos rápidos — fila scrollable solo en mobile/tablet */}
+          {!isAdminMode && (
+            <div className="lg:hidden flex items-center gap-2 overflow-x-auto px-4 pb-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {QUICK_ACTIONS.filter(a => a.href !== pathname).map(({ short, href, Icon }) => (
+                <button
+                  key={href}
+                  type="button"
+                  onClick={() => router.push(href)}
+                  className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-foreground/[0.10] bg-card px-3 text-[12.5px] font-semibold text-foreground/80 hover:text-foreground active:scale-[0.98] transition-all"
+                >
+                  <Icon className="h-3.5 w-3.5 text-[#ffde21]" />
+                  {short}
+                </button>
+              ))}
+            </div>
+          )}
         </header>
 
         <UserRoleContext.Provider value={userRole}>
