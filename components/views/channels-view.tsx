@@ -226,7 +226,7 @@ function GrowthIndexChart({ reports }: { reports: any[] }) {
             <Line key={ch.key} type="monotone" dataKey={ch.key} name={ch.label}
               stroke={ch.color} strokeWidth={2.5} connectNulls
               dot={{ fill: ch.color, r: 3, strokeWidth: 0 }}
-              activeDot={{ r: 5, fill: ch.color, strokeWidth: 2, stroke: "#0a0a0b" }}
+              activeDot={{ r: 5, fill: ch.color, strokeWidth: 2, stroke: "var(--card)" }}
             />
           ))}
         </LineChart>

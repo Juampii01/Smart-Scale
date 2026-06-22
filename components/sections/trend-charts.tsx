@@ -210,7 +210,7 @@ function ChartCard({
                   strokeWidth={2.5}
                   fill={`url(#${cfg.gradId})`}
                   dot={false}
-                  activeDot={{ r: 5, fill: cfg.color, strokeWidth: 2, stroke: "#0a0a0b" }}
+                  activeDot={{ r: 5, fill: cfg.color, strokeWidth: 2, stroke: "var(--card)" }}
                 />
               </AreaChart>
             )}

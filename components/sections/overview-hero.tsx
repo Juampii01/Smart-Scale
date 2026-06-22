@@ -121,6 +121,14 @@ const SECONDARY: { key: keyof MonthlyReport; label: string; money: boolean; colo
   { key: "short_followers", label: "Seguidores Instagram", money: false, color: "#818cf8" },
 ]
 
+// Métricas de audiencia / canales — franja integrada full-width.
+const CHANNELS: { key: keyof MonthlyReport; label: string }[] = [
+  { key: "email_subscribers", label: "Suscriptores Email" },
+  { key: "yt_subscribers",    label: "Suscriptores YouTube" },
+  { key: "short_reach",       label: "Alcance Instagram" },
+  { key: "yt_views",          label: "Vistas YouTube" },
+]
+
 // ─── Componente ───────────────────────────────────────────────────────────────
 
 export function OverviewHero() {
@@ -279,6 +287,31 @@ export function OverviewHero() {
           </div>
         </div>
       </div>
+
+      {/* Audiencia & canales — toda la data visible, panel integrado */}
+      {current && (
+        <div className="rounded-2xl border border-foreground/[0.08] bg-card overflow-hidden">
+          <div className="border-b border-foreground/[0.06] px-5 py-3.5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/40">Audiencia & canales</p>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-foreground/[0.06]">
+            {CHANNELS.map(ch => {
+              const cur = Number((current as any)[ch.key])
+              const prev = previous ? Number((previous as any)[ch.key]) : null
+              const d = delta(cur, prev)
+              return (
+                <div key={String(ch.key)} className="bg-card px-5 py-4">
+                  <p className="text-[11.5px] text-foreground/45">{ch.label}</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="text-[20px] font-bold text-foreground tabular-nums leading-none">{fmtNumber(cur)}</span>
+                    <DeltaPill pct={d.pct} diff={d.diff} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </section>
   )
 }

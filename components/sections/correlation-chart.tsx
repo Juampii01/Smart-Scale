@@ -159,7 +159,7 @@ function CorrCard({
               stroke={lineColor}
               strokeWidth={2.5}
               dot={{ fill: lineColor, r: 3.5, strokeWidth: 0 }}
-              activeDot={{ r: 6, fill: lineColor, strokeWidth: 2, stroke: "#0a0a0b" }}
+              activeDot={{ r: 6, fill: lineColor, strokeWidth: 2, stroke: "var(--card)" }}
             />
           </ComposedChart>
         </ResponsiveContainer>
