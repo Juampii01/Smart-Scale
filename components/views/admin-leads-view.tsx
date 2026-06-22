@@ -42,6 +42,32 @@ function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })
 }
 
+// ─── Instagram: aceptar @usuario O link completo sin romper ─────────────────────
+
+/** href válido tanto si el valor es un @handle como si ya es una URL completa. */
+function igHref(v: string) {
+  const s = v.trim()
+  if (/^https?:\/\//i.test(s)) return s
+  return `https://instagram.com/${s.replace(/^@+/, "")}`
+}
+/** Etiqueta legible: @handle cuando se puede inferir, si no la URL sin protocolo. */
+function igLabel(v: string) {
+  const s = v.trim()
+  if (/^https?:\/\//i.test(s)) {
+    try {
+      const u = new URL(s)
+      const host = u.hostname.replace(/^www\./, "").toLowerCase()
+      const seg  = u.pathname.split("/").filter(Boolean)
+      if (host === "instagram.com" && seg.length === 1 &&
+          !["p", "reel", "reels", "stories", "direct", "explore"].includes(seg[0].toLowerCase())) {
+        return `@${seg[0]}`
+      }
+    } catch { /* URL inválida — se muestra tal cual abajo */ }
+    return s.replace(/^https?:\/\//i, "").replace(/\/+$/, "")
+  }
+  return `@${s.replace(/^@+/, "")}`
+}
+
 // ─── Pills de categoría (monocromo — blanco/negro según tema) ───────────────────
 
 function Pill({ value }: { value: string | null }) {
@@ -132,7 +158,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
   onDelete: (id: string) => void
   deleting: boolean
 }) {
-  const ig = lead.instagram?.replace("@", "")
+  const ig = lead.instagram?.trim()
 
   const textField = (label: string, key: keyof Lead, placeholder: string) => (
     <div className="space-y-1.5">
@@ -183,11 +209,11 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
             )}
           </div>
           {ig && (
-            <a href={`https://instagram.com/${ig}`} target="_blank" rel="noopener noreferrer"
+            <a href={igHref(ig)} target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2 text-[13px] text-foreground/70 hover:text-foreground transition-colors">
               <Instagram className="h-4 w-4 shrink-0" />
-              @{ig}
-              <ExternalLink className="h-3 w-3 opacity-50" />
+              <span className="min-w-0 truncate">{igLabel(ig)}</span>
+              <ExternalLink className="h-3 w-3 opacity-50 shrink-0" />
             </a>
           )}
         </div>
@@ -801,12 +827,12 @@ export function AdminLeadsView() {
                                 <td className="px-4 py-3 whitespace-nowrap"><Pill value={lead.niche} /></td>
 
                                 <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
-                                  {lead.instagram
-                                    ? <a href={`https://instagram.com/${lead.instagram.replace("@","")}`}
+                                  {lead.instagram?.trim()
+                                    ? <a href={igHref(lead.instagram)}
                                         target="_blank" rel="noopener noreferrer"
-                                        className="flex items-center gap-1.5 text-[13px] text-foreground/70 hover:text-foreground transition-colors">
+                                        className="inline-flex max-w-[200px] items-center gap-1.5 text-[13px] text-foreground/70 hover:text-foreground transition-colors">
                                         <Instagram className="h-3.5 w-3.5 shrink-0" />
-                                        {lead.instagram}
+                                        <span className="min-w-0 truncate">{igLabel(lead.instagram)}</span>
                                       </a>
                                     : <span className="text-foreground/30 text-[13px]">—</span>}
                                 </td>
