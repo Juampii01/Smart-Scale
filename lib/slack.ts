@@ -247,57 +247,6 @@ export async function notifySaleRegistered(payload: {
   )
 }
 
-// ─── Notification: Cha-Ching (cierre de venta) ────────────────────────────────
-
-export async function notifyChaChing(payload: {
-  client_name?: string
-  valor_trato?: number
-  cash_collected?: number
-  proximo_nivel?: string | null
-  notas?: string | null
-  submitted_by?: string
-  fecha?: string
-}): Promise<SlackResult> {
-  const clientName = payload.client_name ?? "Cliente"
-  const valor = payload.valor_trato != null
-    ? `$${Number(payload.valor_trato).toLocaleString()}`
-    : "—"
-  const cash = payload.cash_collected != null
-    ? `$${Number(payload.cash_collected).toLocaleString()}`
-    : "—"
-
-  const blocks: unknown[] = [
-    header("💰 ¡Cha-Ching! Nueva venta"),
-    section(`*${clientName}* cerró un trato de *${valor}* (cash collected: *${cash}*).`),
-    divider(),
-    fields([
-      { title: "Valor del trato", value: valor },
-      { title: "Cash collected", value: cash },
-      { title: "Próximo nivel", value: payload.proximo_nivel || "—" },
-      { title: "Fecha", value: payload.fecha || "—" },
-    ]),
-  ]
-
-  // La historia detrás del cierre (reflexión obligatoria).
-  const story = (payload.notas ?? "").trim()
-  if (story) {
-    const quoted = story.split("\n").map((l) => `> ${l}`).join("\n")
-    blocks.push(
-      section(`*📝 La historia detrás del cierre*\n${quoted}`),
-    )
-  }
-
-  blocks.push(
-    divider(),
-    context(`Cargado por: ${payload.submitted_by ?? "sistema"} · Smart Scale Portal 2.0`),
-  )
-
-  return sendSlackMessage(
-    blocks,
-    `💰 ¡Cha-Ching! ${clientName} cerró ${valor}`
-  )
-}
-
 // ─── Notification: client onboarded ──────────────────────────────────────────
 // Creates a dedicated #cl-{name} channel and posts the onboarding summary.
 // Requires SLACK_BOT_TOKEN. Fails silently if the token is missing.

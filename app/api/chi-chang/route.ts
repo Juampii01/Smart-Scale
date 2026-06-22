@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { notifyChaChing } from "@/lib/slack"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -64,24 +63,6 @@ export async function POST(req: NextRequest) {
       submitted_by:   user.email,
     })
     if (insErr) console.error("[chi-chang] insert error:", insErr.message)
-
-    // Aviso a Slack (best-effort): incluye la historia detrás del cierre.
-    try {
-      const slackRes = await notifyChaChing({
-        client_name:    clientName,
-        valor_trato:    Number(valor_trato),
-        cash_collected: Number(cash_collected),
-        proximo_nivel:  proximoObjetivo,
-        notas:          notas || null,
-        submitted_by:   user.email,
-        fecha,
-      })
-      if (!slackRes.ok && slackRes.error !== "SLACK_WEBHOOK_URL not configured") {
-        console.error("[chi-chang] slack error:", slackRes.error)
-      }
-    } catch (e: any) {
-      console.error("[chi-chang] slack threw:", e?.message)
-    }
 
     const nivelEmojiMap: Record<string, string> = {
       "$5K":   "🔴",
