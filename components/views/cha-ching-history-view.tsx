@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { createClient } from "@/lib/supabase"
 import { useActiveClient } from "@/components/layout/dashboard-layout"
-import { DollarSign, Loader2, TrendingUp, Wallet } from "lucide-react"
+import { DollarSign, Loader2, TrendingUp, Wallet, Quote } from "lucide-react"
 
 interface ChaChing {
   id: string
@@ -11,6 +11,7 @@ interface ChaChing {
   valor_trato: number
   cash_collected: number
   proximo_nivel: string | null
+  notas: string | null
   created_at: string
 }
 
@@ -35,7 +36,7 @@ export function ChaChingHistoryView() {
       const supabase = createClient()
       const { data } = await supabase
         .from("cha_ching")
-        .select("id, fecha, valor_trato, cash_collected, proximo_nivel, created_at")
+        .select("id, fecha, valor_trato, cash_collected, proximo_nivel, notas, created_at")
         .eq("client_id", activeClientId)
         .order("fecha", { ascending: false })
         .limit(200)
@@ -101,18 +102,26 @@ export function ChaChingHistoryView() {
 
       <div className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card divide-y divide-foreground/[0.05]">
         {items.map((d) => (
-          <div key={d.id} className="flex items-center gap-4 px-5 py-3.5">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#ffde21]/10 border border-[#ffde21]/20">
-              <DollarSign className="h-4 w-4 text-[#ffde21]" />
+          <div key={d.id} className="px-5 py-3.5">
+            <div className="flex items-center gap-4">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#ffde21]/10 border border-[#ffde21]/20">
+                <DollarSign className="h-4 w-4 text-[#ffde21]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-semibold text-foreground tabular-nums">{fmtMoney(d.valor_trato)}</p>
+                <p className="text-[11px] text-foreground/35">{fmtDate(d.fecha)}{d.proximo_nivel ? ` · próximo: ${d.proximo_nivel}` : ""}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] uppercase tracking-widest text-foreground/30">Cash</p>
+                <p className="text-[13px] font-bold text-[#ffde21] tabular-nums">{fmtMoney(d.cash_collected)}</p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[13px] font-semibold text-foreground tabular-nums">{fmtMoney(d.valor_trato)}</p>
-              <p className="text-[11px] text-foreground/35">{fmtDate(d.fecha)}{d.proximo_nivel ? ` · próximo: ${d.proximo_nivel}` : ""}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] uppercase tracking-widest text-foreground/30">Cash</p>
-              <p className="text-[13px] font-bold text-[#ffde21] tabular-nums">{fmtMoney(d.cash_collected)}</p>
-            </div>
+            {d.notas && (
+              <div className="mt-3 flex items-start gap-2 rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3.5 py-2.5">
+                <Quote className="h-3.5 w-3.5 shrink-0 text-[#ffde21]/60 mt-0.5" />
+                <p className="text-[12.5px] text-foreground/70 leading-relaxed whitespace-pre-wrap">{d.notas}</p>
+              </div>
+            )}
           </div>
         ))}
       </div>

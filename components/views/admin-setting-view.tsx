@@ -431,7 +431,49 @@ export function AdminSettingView() {
                 <p className="text-sm text-foreground/40">Sin registros cargados para este mes</p>
               </div>
             ) : (
-              <div className="overflow-hidden rounded-[14px] border border-foreground/10 bg-card">
+              <>
+              {/* Mobile / tablet: cards apilados (sin scroll horizontal) */}
+              <div className="md:hidden space-y-2.5">
+                {logs.map(log => (
+                  <button
+                    key={log.id}
+                    type="button"
+                    onClick={() => setEditingLog(log)}
+                    className="w-full text-left rounded-[14px] border border-foreground/10 bg-card p-4 transition-colors hover:bg-foreground/[0.03] active:scale-[0.99]"
+                  >
+                    <div className="mb-3 flex items-center justify-between gap-2">
+                      <span className="text-[13px] font-semibold text-foreground">{dateLabel(log.date)}</span>
+                      <span className="truncate text-[12px] text-foreground/55">{log.setter_name || "—"}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {COLUMNS.map(col => (
+                        <div key={col.key} className="rounded-lg border border-foreground/[0.06] bg-foreground/[0.02] px-2.5 py-2">
+                          <p className="truncate text-[9px] font-bold uppercase tracking-wider text-foreground/35" title={col.label}>{col.short}</p>
+                          <p className="mt-0.5 text-[15px] font-bold tabular-nums text-foreground/85">
+                            {log[col.key] != null ? log[col.key] : "—"}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </button>
+                ))}
+
+                {/* Total del mes */}
+                <div className="rounded-[14px] border-2 border-[#ffde21]/30 bg-foreground/[0.04] p-4">
+                  <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-foreground/60">Total del mes</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {COLUMNS.map(col => (
+                      <div key={`m-total-${col.key}`} className="rounded-lg bg-foreground/[0.03] px-2.5 py-2">
+                        <p className="truncate text-[9px] font-bold uppercase tracking-wider text-foreground/35" title={col.label}>{col.short}</p>
+                        <p className="mt-0.5 text-[15px] font-bold tabular-nums text-foreground">{monthTotals[col.key]}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop: tabla completa */}
+              <div className="hidden md:block overflow-hidden rounded-[14px] border border-foreground/10 bg-card">
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead>
@@ -490,6 +532,7 @@ export function AdminSettingView() {
                   </table>
                 </div>
               </div>
+              </>
             )}
           </div>
         </>
