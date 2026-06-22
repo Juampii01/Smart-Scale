@@ -85,6 +85,14 @@ export function useActiveClientName() {
   return useContext(ActiveClientNameContext)
 }
 
+// Nombre para el saludo del Overview: el del cliente activo (si admin impersona)
+// o el del propio usuario logueado.
+const GreetingNameContext = createContext<string | null>(null)
+
+export function useGreetingName() {
+  return useContext(GreetingNameContext)
+}
+
 const OwnClientContext = createContext<string | null>(null)
 
 /** El client_id propio del usuario logueado (independiente del activeClient).
@@ -844,6 +852,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <UserRoleContext.Provider value={userRole}>
           <ActiveClientContext.Provider value={activeClientId}>
             <ActiveClientNameContext.Provider value={activeClientName}>
+              <GreetingNameContext.Provider value={activeClientName ?? clientDisplayName}>
               <OwnClientContext.Provider value={ownClientId}>
                 <AnnualMetricsProvider>
                   <SelectedMonthContext.Provider value={selectedMonth}>
@@ -856,6 +865,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   </SelectedMonthContext.Provider>
                 </AnnualMetricsProvider>
               </OwnClientContext.Provider>
+              </GreetingNameContext.Provider>
             </ActiveClientNameContext.Provider>
           </ActiveClientContext.Provider>
         </UserRoleContext.Provider>
