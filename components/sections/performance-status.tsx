@@ -27,6 +27,8 @@ const SALES_GOAL   = 10
 const CASES_GOAL   = 5
 const LEADS_GOAL   = 300
 const INBOUND_GOAL = 30
+// Atajo de etapa: 10k+ de revenue mensual promedio ⇒ ya está al menos "En marcha".
+const EN_MARCHA_REVENUE = 10_000
 
 type SignalKey = "oferta" | "leads" | "apalancamiento"
 type StageState = "done" | "current" | "todo"
@@ -39,10 +41,10 @@ interface Stage {
 
 // El índice de cada etapa coincide con cuántas señales encendidas hacen falta.
 const STAGES: Stage[] = [
-  { name: "Construyendo", signals: ["oferta", "leads"],                    focus: ["Proceso", "Prueba", "Conversaciones"] },
-  { name: "Cargado",      signals: ["oferta", "leads"],                    focus: ["Base de Email", "Crecer Audiencia", "Automatizar Leads"] },
-  { name: "En marcha",    signals: ["oferta", "leads"],                    focus: ["Tiempo en Marca", "Entrega Escalable"] },
-  { name: "Escalando",    signals: ["oferta", "leads", "apalancamiento"],  focus: ["Sistemas", "IA", "Contratar Cracks"] },
+  { name: "Construyendo",     signals: ["oferta", "leads"],                    focus: ["Proceso", "Prueba", "Conversaciones"] },
+  { name: "Cargando",         signals: ["oferta", "leads"],                    focus: ["Base de Email", "Crecer Audiencia", "Automatizar Leads"] },
+  { name: "En marcha",        signals: ["oferta", "leads"],                    focus: ["Tiempo en Marca", "Entrega Escalable"] },
+  { name: "Efecto compuesto", signals: ["oferta", "leads", "apalancamiento"],  focus: ["Sistemas", "IA", "Contratar Cracks"] },
 ]
 
 const SIGNAL_LABEL: Record<SignalKey, string> = {
@@ -52,10 +54,10 @@ const SIGNAL_LABEL: Record<SignalKey, string> = {
 }
 
 const STAGE_HINT: Record<string, string> = {
-  Construyendo: "Punto de partida — todavía no hay señales encendidas.",
-  Cargado:      "Tracción de Oferta encendida (10+ ventas + 5 casos).",
-  "En marcha":  "Oferta + Leads encendidas (300+ emails nuevos en el mes).",
-  Escalando:    "Las tres señales encendidas, incluido Apalancamiento (30+ inbound).",
+  Construyendo:       "Punto de partida — todavía no hay señales encendidas.",
+  Cargando:           "Tracción de Oferta encendida (10+ ventas + 5 casos).",
+  "En marcha":        "Oferta + Leads encendidas — o 10k+ de revenue mensual promedio.",
+  "Efecto compuesto": "Las tres señales encendidas, incluido Apalancamiento (30+ inbound).",
 }
 
 function computeStatus(reports: MonthlyReport[], cur: MonthlyReport | null) {
@@ -76,7 +78,14 @@ function computeStatus(reports: MonthlyReport[], cur: MonthlyReport | null) {
   }
 
   // Etapa alcanzada: gate secuencial por señal.
-  const reached = !met.oferta ? 0 : !met.leads ? 1 : !met.apalancamiento ? 2 : 3
+  let reached = !met.oferta ? 0 : !met.leads ? 1 : !met.apalancamiento ? 2 : 3
+
+  // Atajo: si el promedio mensual de revenue ya supera 10k, está al menos "En marcha".
+  const avgRevenue = reports.length
+    ? reports.reduce((s, r) => s + (Number(r.total_revenue) || 0), 0) / reports.length
+    : 0
+  if (avgRevenue >= EN_MARCHA_REVENUE) reached = Math.max(reached, 2)
+
   return { met, detail, reached }
 }
 
@@ -196,8 +205,8 @@ export function PerformanceStatus() {
     ? "Cargá tu reporte mensual para ver en qué etapa de tu Ecosistema estás."
     : reached === 0 ? "Conseguí 10+ ventas y 5+ casos de éxito para encender la Tracción de Oferta."
     : reached === 1 ? "Tracción de Oferta lista. Llegá a 300 nuevos emails en el mes para pasar a En marcha."
-    : reached === 2 ? "Oferta + Leads encendidas. Sumá 30 consultas inbound en el mes para empezar a Escalar."
-    : "Las tres señales encendidas — estás en la etapa de apalancamiento. 🚀"
+    : reached === 2 ? "Estás En marcha. Sumá 30 consultas inbound en el mes para entrar en Efecto Compuesto."
+    : "Las tres señales encendidas — estás en Efecto Compuesto. 🚀"
 
   return (
     <div className="rounded-2xl border border-foreground/[0.08] bg-card p-5 sm:p-6">
