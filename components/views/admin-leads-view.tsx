@@ -39,7 +39,11 @@ interface LeadColumn {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })
+  const d = new Date(iso)
+  const dd = String(d.getDate()).padStart(2, "0")
+  const mm = String(d.getMonth() + 1).padStart(2, "0")
+  const yy = String(d.getFullYear()).slice(-2)
+  return `${dd}/${mm}/${yy}`
 }
 
 // ─── Instagram: aceptar @usuario O link completo sin romper ─────────────────────
@@ -610,10 +614,10 @@ export function AdminLeadsView() {
   }, [])
 
   // Columnas: 10 fijas + N custom + 1 (botón "+" / chevron)
-  const colCount = 11 + customCols.length
+  const colCount = 8 + customCols.length
   const headRow = (
     <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-      {["#","Nombre","Desde dónde","Tipo","Nicho","Instagram","Rating","Estado","Compró","Fecha"].map(h => (
+      {["Nombre","Fecha","Desde dónde","Nicho","Instagram","Rating","Compró"].map(h => (
         <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">{h}</th>
       ))}
       {customCols.map(col => (
@@ -788,90 +792,78 @@ export function AdminLeadsView() {
                     <tr><td colSpan={colCount} className="py-16 text-center text-sm text-foreground/25">
                       {leads.length ? "No hay leads con esa búsqueda." : "Todavía no hay leads. Conectá ManyChat al webhook."}
                     </td></tr>
-                  ) : (() => {
-                    let n = 0
-                    return groups.map(group => {
-                      const isCollapsed = collapsed.has(group.key)
-                      return (
-                        <Fragment key={group.key}>
-                          {groupBy !== "none" && (
-                            <tr className="border-y border-foreground/[0.06] bg-foreground/[0.03]">
-                              <td colSpan={colCount} className="px-3 py-2">
-                                <button type="button" onClick={() => toggleGroup(group.key)}
-                                  className="flex items-center gap-2 focus:outline-none">
-                                  <ChevronRight className={`h-3.5 w-3.5 text-foreground/40 transition-transform ${isCollapsed ? "" : "rotate-90"}`} />
-                                  {group.label === "Sin asignar"
-                                    ? <span className="text-[12.5px] font-semibold text-foreground/45">Sin asignar</span>
-                                    : <Pill value={group.label} />}
-                                  <span className="text-[11px] tabular-nums text-foreground/35">{group.leads.length}</span>
-                                </button>
+                  ) : groups.map(group => {
+                    const isCollapsed = collapsed.has(group.key)
+                    return (
+                      <Fragment key={group.key}>
+                        {groupBy !== "none" && (
+                          <tr className="border-y border-foreground/[0.06] bg-foreground/[0.03]">
+                            <td colSpan={colCount} className="px-3 py-2">
+                              <button type="button" onClick={() => toggleGroup(group.key)}
+                                className="flex items-center gap-2 focus:outline-none">
+                                <ChevronRight className={`h-3.5 w-3.5 text-foreground/40 transition-transform ${isCollapsed ? "" : "rotate-90"}`} />
+                                {group.label === "Sin asignar"
+                                  ? <span className="text-[12.5px] font-semibold text-foreground/45">Sin asignar</span>
+                                  : <Pill value={group.label} />}
+                                <span className="text-[11px] tabular-nums text-foreground/35">{group.leads.length}</span>
+                              </button>
+                            </td>
+                          </tr>
+                        )}
+                        {!isCollapsed && group.leads.map(lead => (
+                          <tr key={lead.id}
+                            onClick={() => setSelected(lead)}
+                            className="border-b border-foreground/[0.04] cursor-pointer transition-colors group bg-card hover:bg-muted">
+
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <span className="text-[14px] font-semibold text-foreground">{lead.name ?? <span className="text-foreground/30">—</span>}</span>
+                            </td>
+
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <span className="text-[12px] tabular-nums text-foreground/60">{fmtDate(lead.created_at)}</span>
+                            </td>
+
+                            <td className="px-4 py-3 whitespace-nowrap"><Pill value={lead.source} /></td>
+                            <td className="px-4 py-3 whitespace-nowrap"><Pill value={lead.niche} /></td>
+
+                            <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                              {lead.instagram?.trim()
+                                ? <a href={igHref(lead.instagram)}
+                                    target="_blank" rel="noopener noreferrer"
+                                    className="inline-flex max-w-[200px] items-center gap-1.5 text-[13px] text-foreground/70 hover:text-foreground transition-colors">
+                                    <Instagram className="h-3.5 w-3.5 shrink-0" />
+                                    <span className="min-w-0 truncate">{igLabel(lead.instagram)}</span>
+                                  </a>
+                                : <span className="text-foreground/30 text-[13px]">—</span>}
+                            </td>
+
+                            <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                              <StarRating value={lead.rating}
+                                onChange={r => patch(lead.id, { rating: r || null })} />
+                            </td>
+
+                            <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                              <PurchasedToggle mono value={!!lead.purchased} onChange={v => patch(lead.id, { purchased: v })} />
+                            </td>
+
+                            {customCols.map(col => (
+                              <td key={col.id} className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                                <CustomCell
+                                  value={lead.custom_fields?.[col.key]}
+                                  type={col.type}
+                                  onSave={v => patchCustom(lead, col.key, v)}
+                                />
                               </td>
-                            </tr>
-                          )}
-                          {!isCollapsed && group.leads.map(lead => {
-                            n += 1
-                            const rowNum = n
-                            return (
-                              <tr key={lead.id}
-                                onClick={() => setSelected(lead)}
-                                className="border-b border-foreground/[0.04] cursor-pointer transition-colors group bg-card hover:bg-muted">
+                            ))}
 
-                                <td className="w-10 px-3 py-3 text-[12px] tabular-nums text-foreground/30">{rowNum}</td>
-
-                                <td className="px-4 py-3 whitespace-nowrap">
-                                  <span className="text-[14px] font-semibold text-foreground">{lead.name ?? <span className="text-foreground/30">—</span>}</span>
-                                </td>
-
-                                <td className="px-4 py-3 whitespace-nowrap"><Pill value={lead.source} /></td>
-                                <td className="px-4 py-3 whitespace-nowrap"><Pill value={lead.lead_type} /></td>
-                                <td className="px-4 py-3 whitespace-nowrap"><Pill value={lead.niche} /></td>
-
-                                <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
-                                  {lead.instagram?.trim()
-                                    ? <a href={igHref(lead.instagram)}
-                                        target="_blank" rel="noopener noreferrer"
-                                        className="inline-flex max-w-[200px] items-center gap-1.5 text-[13px] text-foreground/70 hover:text-foreground transition-colors">
-                                        <Instagram className="h-3.5 w-3.5 shrink-0" />
-                                        <span className="min-w-0 truncate">{igLabel(lead.instagram)}</span>
-                                      </a>
-                                    : <span className="text-foreground/30 text-[13px]">—</span>}
-                                </td>
-
-                                <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
-                                  <StarRating value={lead.rating}
-                                    onChange={r => patch(lead.id, { rating: r || null })} />
-                                </td>
-
-                                <td className="px-4 py-3 whitespace-nowrap"><Pill value={lead.status !== "nuevo" ? lead.status : null} /></td>
-
-                                <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
-                                  <PurchasedToggle mono value={!!lead.purchased} onChange={v => patch(lead.id, { purchased: v })} />
-                                </td>
-
-                                <td className="px-4 py-3 whitespace-nowrap">
-                                  <span className="text-[12px] text-foreground/60">{fmtDate(lead.created_at)}</span>
-                                </td>
-
-                                {customCols.map(col => (
-                                  <td key={col.id} className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
-                                    <CustomCell
-                                      value={lead.custom_fields?.[col.key]}
-                                      type={col.type}
-                                      onSave={v => patchCustom(lead, col.key, v)}
-                                    />
-                                  </td>
-                                ))}
-
-                                <td className="px-4 py-3 whitespace-nowrap">
-                                  <ChevronRight className="h-4 w-4 text-foreground/25 group-hover:text-foreground/60 transition-colors" />
-                                </td>
-                              </tr>
-                            )
-                          })}
-                        </Fragment>
-                      )
-                    })
-                  })()}
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <ChevronRight className="h-4 w-4 text-foreground/25 group-hover:text-foreground/60 transition-colors" />
+                            </td>
+                          </tr>
+                        ))}
+                      </Fragment>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
