@@ -25,7 +25,6 @@ const ADMIN_NAV_ITEMS = [
   { name: "Dashboard",         href: "/admin/executive-dashboard", icon: LayoutDashboard },
   { name: "Adquisition Stats", href: "/admin/data",             icon: Table2 },
   { name: "Leads",            href: "/admin/leads",             icon: Users2 },
-  { name: "Instagram",        href: "/admin/instagram-access",  icon: Instagram },
   { name: "Setting",          href: "/admin/setting",           icon: MessageSquareText },
   { name: "Onboarding",       href: "/admin/onboarding",        icon: UserPlus },
   { name: "Pagos",            href: "/admin/payments",          icon: DollarSign },
@@ -37,8 +36,13 @@ const ADMIN_NAV_ITEMS = [
   { name: "Cerebro de Ann",   href: "/admin/ann-knowledge",     icon: Brain },
   { name: "Tareas",           href: "/admin/tareas",            icon: CheckSquare },
   { name: "Notificaciones",   href: "/admin/notificaciones",    icon: Bell },
-  { name: "Conexiones",       href: "/admin/conexiones",        icon: Share2 },
-  { name: "Dev Logs",         href: "/admin/dev-logs",          icon: Terminal },
+]
+
+// Sección "Desarrollador" — herramientas técnicas, al final del sidebar.
+const DEV_NAV_ITEMS = [
+  { name: "Conexiones", href: "/admin/conexiones",       icon: Share2 },
+  { name: "Dev Logs",   href: "/admin/dev-logs",         icon: Terminal },
+  { name: "Instagram",  href: "/admin/instagram-access", icon: Instagram },
 ]
 
 export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
@@ -60,6 +64,10 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
   const visibleItems = userRole === undefined
     ? []
     : ADMIN_NAV_ITEMS.filter(item => canAccessAdminPath(effectiveRole, item.href))
+
+  const visibleDevItems = userRole === undefined
+    ? []
+    : DEV_NAV_ITEMS.filter(item => canAccessAdminPath(effectiveRole, item.href))
 
   return (
     <>
@@ -134,6 +142,34 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
               )
             })}
           </div>
+
+          {visibleDevItems.length > 0 && (
+            <>
+              <p className="px-3 mt-5 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/35">
+                Desarrollador
+              </p>
+              <div className="space-y-0.5">
+                {visibleDevItems.map(item => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link key={item.name} href={item.href} onClick={onClose}>
+                      <div className={cn(
+                        "flex items-center gap-2.5 rounded-lg py-[7px] px-3 transition-all duration-150",
+                        isActive
+                          ? "bg-foreground/[0.07] text-[#ffde21]"
+                          : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
+                      )}>
+                        <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
+                        <span className={cn("text-[13px] leading-none", isActive ? "font-semibold" : "font-medium")}>
+                          {item.name}
+                        </span>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            </>
+          )}
         </nav>
 
         {/* Footer — sin línea divisoria */}
