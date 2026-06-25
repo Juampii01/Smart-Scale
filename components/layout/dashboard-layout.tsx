@@ -51,6 +51,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/recursos":   "Biblioteca",
   "/admin/data":         "Adquisition Stats",
   "/admin/leads":        "Leads",
+  "/admin/instagram-access": "Instagram · Acceso a métricas",
   "/admin/setting":      "Setting CRM",
   "/admin/onboarding":   "Onboarding",
   "/admin/payments":     "Pagos",

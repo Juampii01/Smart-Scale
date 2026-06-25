@@ -5,7 +5,7 @@ import {
   X, DollarSign, ClipboardList, Table2, Users2,
   UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
   MessageSquareText, UserPlus,
-  LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2,
+  LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2, Instagram,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -25,6 +25,7 @@ const ADMIN_NAV_ITEMS = [
   { name: "Dashboard",         href: "/admin/executive-dashboard", icon: LayoutDashboard },
   { name: "Adquisition Stats", href: "/admin/data",             icon: Table2 },
   { name: "Leads",            href: "/admin/leads",             icon: Users2 },
+  { name: "Instagram",        href: "/admin/instagram-access",  icon: Instagram },
   { name: "Setting",          href: "/admin/setting",           icon: MessageSquareText },
   { name: "Onboarding",       href: "/admin/onboarding",        icon: UserPlus },
   { name: "Pagos",            href: "/admin/payments",          icon: DollarSign },
