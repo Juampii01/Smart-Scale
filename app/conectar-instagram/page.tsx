@@ -18,8 +18,6 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
 export default function ConectarInstagramPage() {
   const [name,      setName]      = useState("")
   const [instagram, setInstagram] = useState("")
-  const [email,     setEmail]     = useState("")
-  const [isPro,     setIsPro]     = useState(false)
 
   const [loading,   setLoading]   = useState(false)
   const [error,     setError]     = useState<string | null>(null)
@@ -36,7 +34,7 @@ export default function ConectarInstagramPage() {
       const res = await fetch("/api/instagram-access", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ name: name.trim(), instagram: instagram.trim(), email: email.trim(), is_professional: isPro }),
+        body:    JSON.stringify({ name: name.trim(), instagram: instagram.trim() }),
       })
       const json = await res.json()
       if (!res.ok) { setError(json.error ?? "Ocurrió un error. Intentá de nuevo."); return }
@@ -137,7 +135,7 @@ export default function ConectarInstagramPage() {
           )}
 
           <div>
-            <Label required>Tu nombre</Label>
+            <Label required>Nombre y apellido</Label>
             <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Nombre y apellido" className={inputCls} autoFocus />
           </div>
 
@@ -146,18 +144,6 @@ export default function ConectarInstagramPage() {
             <input type="text" value={instagram} onChange={e => setInstagram(e.target.value)} placeholder="@tucuenta (o el link de tu perfil)" className={inputCls} />
             <p className="text-[11.5px] text-foreground/30 mt-1.5">Podés poner tu @usuario o pegar el link de tu perfil — las dos formas valen.</p>
           </div>
-
-          <div>
-            <Label>Email <span className="font-normal text-foreground/35">(opcional, para avisarte)</span></Label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="correo@ejemplo.com" className={inputCls} />
-          </div>
-
-          <label className="flex items-start gap-3 cursor-pointer select-none rounded-xl border border-foreground/[0.08] px-4 py-3 hover:border-foreground/[0.16] transition-colors">
-            <input type="checkbox" checked={isPro} onChange={e => setIsPro(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[#ffde21]" />
-            <span className="text-[13px] text-foreground/65 leading-relaxed">
-              Confirmo que mi cuenta de Instagram es <span className="font-semibold text-foreground/80">Profesional</span> (Business o Creator).
-            </span>
-          </label>
 
           <button
             type="submit"
