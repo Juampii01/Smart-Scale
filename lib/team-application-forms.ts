@@ -78,7 +78,7 @@ const SETTER_FORM: RoleForm = {
   role: "setter",
   title: "DM Closer / VA de Ventas",
   subtitle:
-    "Vas a trabajar directamente con Ann, cerrando su oferta de alto ticket en conversaciones 1 a 1 (DM y llamadas). Buscamos gente con experiencia real en ventas conversacionales. Leé todo antes de aplicar.",
+    "Acá estamos buscando a un nuevo integrante como DM Closer para Smart Scale. Buscamos a alguien comprometido, que entienda lo que hacemos y sepa manejar conversaciones B2B. Leé todo antes de aplicar.",
   shortLabel: "DM Closer / VA de Ventas",
   sections: [
     CONTACT_SECTION,
