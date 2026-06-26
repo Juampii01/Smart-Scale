@@ -7,6 +7,13 @@ const nextConfig = {
     unoptimized: true,
   },
 
+  async redirects() {
+    return [
+      // El form de setter ahora se comparte como /team (link más limpio).
+      { source: "/aplicar-equipo/setter", destination: "/team", permanent: false },
+    ]
+  },
+
   async headers() {
     return [
       {
