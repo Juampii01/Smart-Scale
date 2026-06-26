@@ -83,7 +83,7 @@ const SETTER_FORM: RoleForm = {
   sections: [
     CONTACT_SECTION,
     {
-      title: "Filtro inicial",
+      title: "Experiencia",
       fields: [
         {
           id: "experiencia_cerrando",
@@ -113,7 +113,7 @@ const SETTER_FORM: RoleForm = {
       ],
     },
     {
-      title: "Situación actual",
+      title: "Tu Situación Actual",
       fields: [
         {
           id: "situacion_laboral",
