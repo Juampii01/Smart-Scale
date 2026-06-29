@@ -556,9 +556,18 @@ PUNTOS SIN RESPONDER:
 ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
   }
 
+  // El endpoint /api/ai-diagnosis autentica vía Bearer JWT (no cookies). Sin este
+  // header, todas las llamadas devuelven 401.
+  const getAuthHeaders = async (): Promise<Record<string, string>> => {
+    const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}
+  }
+
   const pollDiagnosisResult = async (requestId: string, retries = 20, interval = 3000) => {
+    const authHeaders = await getAuthHeaders()
     for (let i = 0; i < retries; i++) {
-      const res = await fetch(`/api/ai-diagnosis?request_id=${requestId}`)
+      const res = await fetch(`/api/ai-diagnosis?request_id=${requestId}`, { headers: authHeaders })
       const data = await res.json()
       if (data.status === "completed" && data.result) {
         setAiResponse(data.result)
@@ -585,7 +594,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
     try {
       await fetch("/api/ai-diagnosis", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(await getAuthHeaders()) },
         body: JSON.stringify({ request_id: requestId, user_id: userId }),
       })
       setDiagnosisHistory(prev => prev.filter(i => i.request_id !== requestId))
@@ -612,7 +621,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
       const res = await fetch("/api/ai-diagnosis", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(await getAuthHeaders()) },
         body: JSON.stringify({
           prompt,
           auditType,
