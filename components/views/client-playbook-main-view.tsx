@@ -67,6 +67,10 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
 
   const load = useCallback(async () => {
     if (!activeClientId) { setPlaybook(null); setLoading(false); return }
+    // Limpiamos el playbook anterior ANTES de pedir el nuevo, para que el editor
+    // no muestre ni autoguarde contenido del cliente previo mientras carga.
+    setPlaybook(null)
+    lastSavedRef.current = []
     setLoading(true)
     try {
       const res = await authedFetch(`/api/client-playbook-main?client_id=${encodeURIComponent(activeClientId)}`)
@@ -115,20 +119,29 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   }
 
   // ── Editor ──────────────────────────────────────────────────────────────────
-  // Recreamos cuando cambia activeClientId o cuando aparece/desaparece playbook.
-  // Mientras se edita NO recreamos (el ref de last-saved se actualiza, pero
-  // el editor mantiene su estado interno).
+  // El editor SOLO debe inicializarse con contenido del cliente activo. Si el
+  // playbook cargado todavía pertenece a otro cliente (transición al cambiar de
+  // cliente, antes de que termine el load), lo tratamos como "no listo" para no
+  // arrastrar el contenido del cliente anterior — que de otra forma se
+  // autoguardaría sobre el nuevo (bug "modificás uno y se modifican todos").
+  const ready = !!playbook && playbook.client_id === activeClientId
+
+  // Recreamos al cambiar de cliente o cuando llega el contenido real de ESTE
+  // cliente (clave = client_id + updated_at). Mientras se edita NO recreamos:
+  // updated_at no cambia en el autosave (solo actualizamos lastSavedRef).
   const editor = useCreateBlockNote(
     {
-      initialContent: playbook?.content && playbook.content.length > 0
-        ? playbook.content
+      initialContent: ready && playbook!.content.length > 0
+        ? playbook!.content
         : undefined,
     },
-    [activeClientId, playbook ? "loaded" : "empty"],
+    [activeClientId, ready ? `${playbook!.client_id}:${playbook!.updated_at}` : "loading"],
   )
 
   useEffect(() => {
-    if (!editor || !playbook) return
+    // Solo enganchamos el autosave cuando el playbook cargado es el del cliente
+    // activo. Evita guardar contenido de otro cliente durante la transición.
+    if (!editor || !playbook || playbook.client_id !== activeClientId) return
 
     const handler = () => {
       if (ignoreNextChangeRef.current) {
@@ -198,7 +211,8 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
     )
   }
 
-  if (loading) {
+  // loading, o playbook cargado que aún pertenece a otro cliente (transición).
+  if (loading || (playbook && playbook.client_id !== activeClientId)) {
     return (
       <div className="flex h-[400px] items-center justify-center rounded-[14px] border border-foreground/[0.07] bg-card">
         <Loader2 className="h-5 w-5 animate-spin text-foreground/40" />
