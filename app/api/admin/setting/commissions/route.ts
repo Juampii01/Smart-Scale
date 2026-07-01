@@ -49,6 +49,7 @@ export async function GET(req: NextRequest) {
       .from("crm_clients")
       .select(`
         setter_id,
+        setter,
         id,
         program_start,
         total_amount,
@@ -100,8 +101,12 @@ export async function GET(req: NextRequest) {
     }
 
     for (const client of clients) {
-      const sid = (client as any).setter_id
-      if (!sid) continue
+      const rawSid = ((client as any).setter_id as string | null) || null
+      const rawSetterText = (((client as any).setter as string | null) ?? "").trim() || null
+      // Setters con perfil → se agrupan por uuid. Setters sin perfil (ej: Fabri, que
+      // dejó el equipo pero sigue cobrando comisión) → se agrupan por crm_clients.setter (texto).
+      const groupKey = rawSid ?? (rawSetterText ? `text:${rawSetterText}` : null)
+      if (!groupKey) continue
 
       // ¿Cerró este mes? — por program_start (date "YYYY-MM-DD")
       const programStart: string | null = (client as any).program_start ?? null
@@ -123,7 +128,8 @@ export async function GET(req: NextRequest) {
       const contractValue = Number((client as any).total_amount ?? 0) ||
         (Number((client as any).installment_amount ?? 0) * Number((client as any).num_installments ?? 1))
 
-      const rec = ensure(sid, setterProfiles.get(sid) ?? null)
+      const groupName = rawSid ? (setterProfiles.get(rawSid) ?? null) : rawSetterText
+      const rec = ensure(groupKey, groupName)
       if (isNew) {
         rec.new_count += 1
         rec.mrr_total += contractValue
