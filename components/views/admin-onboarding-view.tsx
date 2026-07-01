@@ -199,12 +199,13 @@ function OnboardingForm({
     })
   }, [])
 
-  // Auto-seleccionar Fabri cuando carguen los setters
+  // Auto-seleccionar el setter por defecto (Steffano) cuando carguen los setters
   useEffect(() => {
     if (setters.length === 0) return
-    const fabri = setters.find(s => s.name?.toLowerCase().includes("fabri"))
-    if (fabri) {
-      setFields(prev => ({ ...prev, setter_id: prev.setter_id || fabri.id }))
+    const preferido = setters.find(s => s.name?.toLowerCase().includes("steffano"))
+      ?? (setters.length === 1 ? setters[0] : undefined)
+    if (preferido) {
+      setFields(prev => ({ ...prev, setter_id: prev.setter_id || preferido.id }))
     }
   }, [setters])
 

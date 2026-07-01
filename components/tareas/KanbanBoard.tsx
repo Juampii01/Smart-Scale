@@ -449,7 +449,7 @@ export function KanbanBoard() {
             <CheckSquare className="h-6 w-6 text-[#ffde21]" />
             Tareas
           </h1>
-          <p className="text-sm text-foreground/40 mt-1">Tablero compartido · Ann · Fabri · Juan</p>
+          <p className="text-sm text-foreground/40 mt-1">Tablero compartido · Ann · Steffano · Juan</p>
         </div>
         <button
           onClick={() => openCreateModal()}

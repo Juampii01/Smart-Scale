@@ -6,7 +6,7 @@
 const TEAM_BY_EMAIL: Record<string, string> = {
   "juampiacosta158@gmail.com": "Juampi",
   "ann@strategycoach.us":      "Ann",
-  "delacruzfabra@gmail.com":   "Fabri",
+  "steffanoleivac@gmail.com":  "Steffano",
 }
 
 /** Devuelve el nombre lindo, o null si no se puede resolver. */
