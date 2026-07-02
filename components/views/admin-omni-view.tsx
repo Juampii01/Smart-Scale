@@ -1,7 +1,13 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Sparkles, MessageCircle, FileText, Megaphone, DollarSign, Cog } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase"
+
+// Piloto interno — solo el dueño del proyecto, ni el resto de los admins (Ann incluida).
+const OMNI_OWNER_EMAIL = "juampiacosta158@gmail.com"
 
 // Módulos de Omni. El piloto arranca con el Agente de Conversaciones (DMs de Ann);
 // el resto son la expansión natural, mismo molde apuntado a otra fuente.
@@ -46,6 +52,24 @@ const MODULES = [
 const DATA_SOURCES = ["Instagram DMs", "Instagram contenido", "Meta Ads", "CRM", "Slack"]
 
 export function AdminOmniView() {
+  const router = useRouter()
+  const [allowed, setAllowed] = useState<boolean | null>(null) // null = verificando
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then((res: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
+      const email = res.data?.user?.email?.toLowerCase() ?? null
+      if (email === OMNI_OWNER_EMAIL) {
+        setAllowed(true)
+      } else {
+        setAllowed(false)
+        router.replace("/admin/executive-dashboard")
+      }
+    })
+  }, [router])
+
+  if (!allowed) return null
+
   return (
     <div className="space-y-8">
 

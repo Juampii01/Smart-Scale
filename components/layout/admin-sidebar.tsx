@@ -45,18 +45,26 @@ const DEV_NAV_ITEMS = [
   { name: "Instagram",  href: "/admin/instagram-access", icon: Instagram },
 ]
 
+// Omni todavía es un piloto interno — solo lo ve el dueño del proyecto, ni el
+// resto de los admins (Ann incluida).
+const OMNI_OWNER_EMAIL = "juampiacosta158@gmail.com"
+
 export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
   const pathname = usePathname()
-  const [userRole, setUserRole] = useState<string | null | undefined>(undefined) // undefined = aún cargando
+  const [userRole, setUserRole]  = useState<string | null | undefined>(undefined) // undefined = aún cargando
+  const [userEmail, setUserEmail] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => {
       if (!data?.user) { setUserRole(null); return }
+      setUserEmail(data.user.email ?? null)
       supabase.from("profiles").select("role").eq("id", data.user.id).maybeSingle()
         .then(({ data: prof }) => setUserRole((prof as any)?.role ?? null))
     })
   }, [])
+
+  const isOmniOwner = userEmail?.toLowerCase() === OMNI_OWNER_EMAIL
 
   // Si admin está en modo "view as setter/team", el sidebar se filtra como ese rol
   const effectiveRole = useEffectiveRole(userRole === undefined ? null : userRole)
@@ -117,8 +125,8 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
           </div>
         )}
 
-        {/* Omni — sistema de IA (destacado, admin only) */}
-        {isAdmin(effectiveRole) && (
+        {/* Omni — sistema de IA (destacado, solo el dueño del proyecto) */}
+        {isOmniOwner && (
           <div className="px-3 pt-1">
             <Link href="/admin/omni" onClick={onClose}>
               <div className={cn(
