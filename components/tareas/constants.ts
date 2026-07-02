@@ -12,7 +12,7 @@ export const KANBAN_COLUMNS: {
 ]
 
 // Miembros del equipo asignables a una tarea
-export const TEAM_MEMBERS = ["Juampi", "Fabri", "Ann"]
+export const TEAM_MEMBERS = ["Juampi", "Steffano", "Ann"]
 
 // Niveles de urgencia
 export type TaskPriority = "urgente" | "importante" | "con-tiempo"

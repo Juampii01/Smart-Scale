@@ -5,7 +5,7 @@ import {
   X, DollarSign, ClipboardList, Table2, Users2,
   UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
   MessageSquareText, UserPlus,
-  LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2,
+  LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2, Instagram, Sparkles,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
 import { canAccessAdminPath, isAdmin } from "@/lib/auth/permissions"
 import { useEffectiveRole } from "@/lib/auth/view-as"
+import { isOmniOwnerEmail } from "@/lib/omni/owner"
 
 interface AdminSidebarProps {
   open: boolean
@@ -28,7 +29,6 @@ const ADMIN_NAV_ITEMS = [
   { name: "Setting",          href: "/admin/setting",           icon: MessageSquareText },
   { name: "Onboarding",       href: "/admin/onboarding",        icon: UserPlus },
   { name: "Pagos",            href: "/admin/payments",          icon: DollarSign },
-  { name: "Agenda",           href: "/admin/agenda",            icon: CalendarDays },
   { name: "Clientes",         href: "/admin/clients",           icon: UserCheck },
   { name: "Aplicaciones",     href: "/admin/applications",      icon: ClipboardList },
   { name: "Contratación",     href: "/admin/team-applications", icon: Briefcase },
@@ -36,22 +36,32 @@ const ADMIN_NAV_ITEMS = [
   { name: "Cerebro de Ann",   href: "/admin/ann-knowledge",     icon: Brain },
   { name: "Tareas",           href: "/admin/tareas",            icon: CheckSquare },
   { name: "Notificaciones",   href: "/admin/notificaciones",    icon: Bell },
-  { name: "Conexiones",       href: "/admin/conexiones",        icon: Share2 },
-  { name: "Dev Logs",         href: "/admin/dev-logs",          icon: Terminal },
+]
+
+// Sección "Desarrollador" — herramientas técnicas, al final del sidebar.
+const DEV_NAV_ITEMS = [
+  { name: "Agenda",     href: "/admin/agenda",           icon: CalendarDays },
+  { name: "Conexiones", href: "/admin/conexiones",       icon: Share2 },
+  { name: "Dev Logs",   href: "/admin/dev-logs",         icon: Terminal },
+  { name: "Instagram",  href: "/admin/instagram-access", icon: Instagram },
 ]
 
 export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
   const pathname = usePathname()
-  const [userRole, setUserRole] = useState<string | null | undefined>(undefined) // undefined = aún cargando
+  const [userRole, setUserRole]  = useState<string | null | undefined>(undefined) // undefined = aún cargando
+  const [userEmail, setUserEmail] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => {
       if (!data?.user) { setUserRole(null); return }
+      setUserEmail(data.user.email ?? null)
       supabase.from("profiles").select("role").eq("id", data.user.id).maybeSingle()
         .then(({ data: prof }) => setUserRole((prof as any)?.role ?? null))
     })
   }, [])
+
+  const isOmniOwner = isOmniOwnerEmail(userEmail)
 
   // Si admin está en modo "view as setter/team", el sidebar se filtra como ese rol
   const effectiveRole = useEffectiveRole(userRole === undefined ? null : userRole)
@@ -59,6 +69,10 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
   const visibleItems = userRole === undefined
     ? []
     : ADMIN_NAV_ITEMS.filter(item => canAccessAdminPath(effectiveRole, item.href))
+
+  const visibleDevItems = userRole === undefined
+    ? []
+    : DEV_NAV_ITEMS.filter(item => canAccessAdminPath(effectiveRole, item.href))
 
   return (
     <>
@@ -108,6 +122,26 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
           </div>
         )}
 
+        {/* Omni — sistema de IA (destacado, solo el dueño del proyecto) */}
+        {isOmniOwner && (
+          <div className="px-3 pt-1">
+            <Link href="/admin/omni" onClick={onClose}>
+              <div className={cn(
+                "flex items-center gap-2.5 rounded-lg border px-3 py-2 transition-all",
+                pathname === "/admin/omni"
+                  ? "border-[#ffde21]/45 bg-[#ffde21]/[0.14] text-[#ffde21]"
+                  : "border-[#ffde21]/20 bg-[#ffde21]/[0.06] text-[#ffde21]/90 hover:bg-[#ffde21]/[0.12] hover:border-[#ffde21]/40"
+              )}>
+                <Sparkles className="h-4 w-4 flex-shrink-0" />
+                <div className="min-w-0 leading-none">
+                  <p className="text-[13px] font-bold">Omni</p>
+                  <p className="mt-1 text-[10px] text-foreground/40">Sistema IA · Ann</p>
+                </div>
+              </div>
+            </Link>
+          </div>
+        )}
+
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-4 px-3">
           <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/35">
@@ -133,6 +167,34 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
               )
             })}
           </div>
+
+          {visibleDevItems.length > 0 && (
+            <>
+              <p className="px-3 mt-5 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/35">
+                Desarrollador
+              </p>
+              <div className="space-y-0.5">
+                {visibleDevItems.map(item => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link key={item.name} href={item.href} onClick={onClose}>
+                      <div className={cn(
+                        "flex items-center gap-2.5 rounded-lg py-[7px] px-3 transition-all duration-150",
+                        isActive
+                          ? "bg-foreground/[0.07] text-[#ffde21]"
+                          : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
+                      )}>
+                        <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
+                        <span className={cn("text-[13px] leading-none", isActive ? "font-semibold" : "font-medium")}>
+                          {item.name}
+                        </span>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            </>
+          )}
         </nav>
 
         {/* Footer — sin línea divisoria */}

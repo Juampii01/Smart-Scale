@@ -17,6 +17,12 @@ export async function register() {
   // Evita recursión: si el propio insert dispara un console.error.
   let inside = false
 
+  // Throttle en memoria para la alerta push: máx. 1 cada 10 min por
+  // combinación "level:route". Best-effort — no sobrevive un cold start de
+  // Vercel (mismo espíritu que `inside`, arriba).
+  const lastPushAt = new Map<string, number>()
+  const PUSH_THROTTLE_MS = 10 * 60 * 1000
+
   const origError = console.error.bind(console)
   const origWarn  = console.warn.bind(console)
 
@@ -46,6 +52,26 @@ export async function register() {
     return { route: null, message: text, context }
   }
 
+  /** Push best-effort a Juampi cuando aparece un error/warning nuevo. Nunca
+   *  debe poder tirar `persist` — se llama fire-and-forget, sin await. */
+  async function notifyPush(sb: ReturnType<typeof createServiceClient>, level: "error" | "warn", route: string | null, message: string) {
+    const key = `${level}:${route ?? "unknown"}`
+    const now = Date.now()
+    const last = lastPushAt.get(key)
+    if (last && now - last < PUSH_THROTTLE_MS) return
+    lastPushAt.set(key, now)
+
+    try {
+      const { sendPushToNames } = await import("@/lib/push")
+      const title = level === "error" ? "⚠️ Error en Smart Scale" : "⚠️ Warning en Smart Scale"
+      const prefix = route ? `[${route}] ` : ""
+      const body = `${prefix}${message}`.slice(0, 180)
+      await sendPushToNames(sb, ["Juampi"], { title, body, url: "/admin/dev-logs" })
+    } catch {
+      // best-effort
+    }
+  }
+
   async function persist(level: "error" | "warn", args: any[]) {
     if (inside) return
     inside = true
@@ -53,12 +79,15 @@ export async function register() {
       const { route, message, context } = parse(args)
       if (!message) return
       const sb = createServiceClient()
-      await sb.from("app_logs").insert({
+      const { error: insertError } = await sb.from("app_logs").insert({
         level,
         route,
         message: message.slice(0, 2000),
         context: context ?? null,
       })
+      if (!insertError) {
+        notifyPush(sb, level, route, message).catch(() => {})
+      }
     } catch {
       // best-effort
     } finally {

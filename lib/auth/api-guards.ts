@@ -1,5 +1,6 @@
 import { createServiceClient } from "@/lib/supabase-service"
 import { isAdmin, isInternal } from "@/lib/auth/permissions"
+import { isOmniOwnerEmail } from "@/lib/omni/owner"
 
 /**
  * Server-side guards para route handlers `/api/admin/*`.
@@ -7,6 +8,7 @@ import { isAdmin, isInternal } from "@/lib/auth/permissions"
  * Uso:
  *   const user = await requireAdmin(jwt)        // solo admin (datos sensibles)
  *   const user = await requireInternal(jwt)     // admin OR team (datos no sensibles)
+ *   const user = await requireOmniOwner(jwt)    // solo el dueño del proyecto (piloto Omni)
  *   if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
  */
 
@@ -32,5 +34,12 @@ export async function requireAdmin(jwt: string | null) {
 export async function requireInternal(jwt: string | null) {
   const ctx = await getProfile(jwt)
   if (!ctx || !isInternal(ctx.role)) return null
+  return ctx.user
+}
+
+/** Ann es admin también — esto NO chequea rol, chequea la identidad exacta del dueño. */
+export async function requireOmniOwner(jwt: string | null) {
+  const ctx = await getProfile(jwt)
+  if (!ctx || !isOmniOwnerEmail(ctx.user.email)) return null
   return ctx.user
 }

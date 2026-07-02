@@ -1,18 +1,29 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { UserPlus } from "lucide-react"
+import { UserPlus, NotebookText, ListChecks } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { isAdmin } from "@/lib/auth/permissions"
 import { useEffectiveRole } from "@/lib/auth/view-as"
 import { NewUserDialog } from "@/components/admin/new-user-dialog"
 import { CentroOpPagesView } from "@/components/views/centro-op-pages-view"
+import { AdminSOPsView } from "@/components/views/admin-sops-view"
+
+// ─── Tabs ──────────────────────────────────────────────────────────────────────
+
+type CentroOpTab = "notion" | "sops"
+
+const CENTRO_OP_TABS: Array<{ id: CentroOpTab; label: string; icon: any }> = [
+  { id: "notion", label: "Notion", icon: NotebookText },
+  { id: "sops",   label: "SOPs",   icon: ListChecks   },
+]
 
 // ─── Main View ─────────────────────────────────────────────────────────────────
 
 export function AdminCentroOperativoView() {
   const [userRole, setUserRole] = useState<string | null>(null)
   const [newUserOpen, setNewUserOpen] = useState(false)
+  const [tab, setTab] = useState<CentroOpTab>("notion")
 
   useEffect(() => {
     const supabase = createClient()
@@ -54,7 +65,34 @@ export function AdminCentroOperativoView() {
 
       <NewUserDialog open={newUserOpen} onClose={() => setNewUserOpen(false)} />
 
-      <CentroOpPagesView userRole={effectiveRole} />
+      {/* Tabs nav */}
+      <div className="flex items-center gap-1 border-b border-foreground/[0.08]">
+        {CENTRO_OP_TABS.map(t => {
+          const Icon = t.icon
+          const active = tab === t.id
+          return (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`relative inline-flex items-center gap-1.5 px-3 py-2 text-[13px] font-semibold transition-colors -mb-px ${
+                active
+                  ? "text-foreground"
+                  : "text-foreground/45 hover:text-foreground/70"
+              }`}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {t.label}
+              {active && (
+                <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#ffde21] rounded-full" />
+              )}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Contenido */}
+      {tab === "notion" && <CentroOpPagesView userRole={effectiveRole} />}
+      {tab === "sops"   && <AdminSOPsView userRole={effectiveRole} />}
     </div>
   )
 }

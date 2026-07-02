@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { createPortal } from "react-dom"
 import {
   Youtube, Instagram, Copy, Check, ChevronDown,
-  Sparkles, Clock, User, FileText, ExternalLink, FileVideo, X, Maximize2, Loader2, Eye,
+  Sparkles, Clock, User, FileText, ExternalLink, FileVideo, X, Maximize2, Loader2, Eye, AlertCircle,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { AiLoading } from "@/components/ui/ai-loading"
@@ -19,6 +19,7 @@ interface TranscriptResult {
   duration: string | null
   transcript: string
   summary: string
+  warning?: string | null
 }
 
 interface HistoryItem {
@@ -512,6 +513,14 @@ export function TranscriptView() {
       {/* ── Result ── */}
       {result && (
         <div className="space-y-5">
+          {/* Aviso cuando el análisis con IA no se pudo generar (ej. servicio sobrecargado) */}
+          {result.warning && (
+            <div className="flex items-start gap-2.5 rounded-[14px] border border-amber-400 bg-amber-100 px-4 py-3 dark:border-amber-400/20 dark:bg-amber-500/[0.06]">
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-amber-700 dark:text-amber-400" />
+              <p className="text-[13px] text-amber-900 dark:text-amber-200/80 leading-relaxed">{result.warning}</p>
+            </div>
+          )}
+
           {/* Meta card */}
           <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
             <div className="px-6 py-5 flex flex-wrap items-center gap-5 justify-between">

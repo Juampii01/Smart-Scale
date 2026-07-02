@@ -164,11 +164,11 @@
    (#0a0a0b base, #111113 elevated, etc.)
    ───────────────────────────────────────────────────────────────────────── */
 .dark {
-  --background: #0a0a0b;
+  --background: #0a0a0c;
   --foreground: #ffffff;
-  --card: #111113;
+  --card: #141519;
   --card-foreground: #ffffff;
-  --popover: #111113;
+  --popover: #141519;
   --popover-foreground: #ffffff;
   --primary: #ffffff;
   --primary-foreground: #0a0a0b;
@@ -188,7 +188,7 @@
   --chart-3: oklch(0.82 0.22 70.08);
   --chart-4: oklch(0.7 0.28 303.9);
   --chart-5: oklch(0.72 0.26 16.439);
-  --sidebar: #111113;
+  --sidebar: #0c0c0f;
   --sidebar-foreground: #ffffff;
   --sidebar-primary: #ffde21;
   --sidebar-primary-foreground: #0a0a0b;
@@ -198,8 +198,8 @@
   --sidebar-ring: rgba(255, 255, 255, 0.3);
 
   /* ── Design system tokens (dark — hex exacto del spec) ───────────────────── */
-  --surface:       #141417;
-  --elevated:      #1a1a1e;
+  --surface:       #141519;
+  --elevated:      #1c1d22;
   --text-2:        #9a9a96;
   --text-3:        #6a6a66;
   --border-hover:  #34343a;
@@ -211,7 +211,7 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-space-grotesk), var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-serif: var(--font-instrument-serif), ui-serif, Georgia, "Times New Roman", serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --color-background: var(--background);

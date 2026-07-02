@@ -78,6 +78,7 @@ const programData: Array<{
           { label: "Tus Historias de Conversion", level: "Nivel 5 — Conexión & Fascinación", outcome: "Ventas", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=50f9815603874c5b859b0f70aac2d15a" },
           { label: "Crea tu calendario de contenido", level: "Nivel 5 — Conexión & Fascinación", outcome: "Contenido", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=dde2660eda3e48b09383936180dd1e1b" },
           { label: "Amplifica con follow me AD el contenido que ya te trae min 30% de leads calificados organicamente", level: "Nivel 5 — Conexión & Fascinación", outcome: "Contenido", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=2a5b1b985dc645078b8f3e23097090ed" },
+          { label: "Tener al menos 15 piezas de contenido hablándole a tu ICP y aplicar el protocolo de Simple Ads", level: "Nivel 5 — Conexión & Fascinación", outcome: "Contenido", link: "https://www.skool.com/strategy-consulting/classroom/6de08095?md=2612acf4f7e64788b327f4568554abe0" },
         ],
       },
       {

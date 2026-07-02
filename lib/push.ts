@@ -57,7 +57,7 @@ export async function sendPushToUser(sb: SB, userId: string, payload: PushPayloa
   await sendToSubs(sb, (data ?? []) as SubRow[], payload)
 }
 
-/** Envía push a los miembros del equipo por nombre (Juampi/Fabri/Ann). */
+/** Envía push a los miembros del equipo por nombre (Juampi/Steffano/Ann). */
 export async function sendPushToNames(sb: SB, names: string[], payload: PushPayload) {
   if (names.length === 0) return
   const { data } = await sb

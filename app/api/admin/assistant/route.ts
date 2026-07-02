@@ -79,7 +79,7 @@ Devuelve: todas sus cuotas con monto, fecha de vencimiento y si fue pagado.
     name: "get_commission_data",
     description: `Obtiene las comisiones de los setters para un mes específico.
 Calcula: cash cobrado de sus clientes, comisión al 5%.
-Úsala cuando pregunten por comisiones, cuánto gana Fabri, comisión del setter, etc.`,
+Úsala cuando pregunten por comisiones, cuánto gana Steffano, comisión del setter, etc.`,
     input_schema: {
       type: "object" as const,
       properties: {

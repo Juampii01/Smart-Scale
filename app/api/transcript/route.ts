@@ -742,7 +742,9 @@ async function getYouTubeTranscript(
 // ─── Claude summary ───────────────────────────────────────────────────────────
 
 async function generateSummary(transcript: string, creator: string | null): Promise<string> {
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  // maxRetries: reintenta automáticamente con backoff exponencial ante 429/5xx/529
+  // (overloaded). El default del SDK es 2; lo subimos para aguantar picos de carga.
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, maxRetries: 4 })
   const msg = await anthropic.messages.create({
     model: "claude-opus-4-6",
     max_tokens: 800,
@@ -768,6 +770,30 @@ Sé directo y concreto. Sin emojis en los títulos.`,
     }],
   })
   return (msg.content[0] as any).text ?? ""
+}
+
+// Genera el resumen sin tirar abajo todo el request si la IA falla.
+// La transcripción ya se obtuvo (la parte cara): si el análisis no se puede
+// generar (ej. Anthropic 529 overloaded), devolvemos el transcript igual.
+async function generateSummarySafe(
+  transcript: string,
+  creator: string | null
+): Promise<{ summary: string; warning: string | null }> {
+  try {
+    return { summary: await generateSummary(transcript, creator), warning: null }
+  } catch (err: any) {
+    const overloaded =
+      err instanceof Anthropic.OverloadedError ||
+      err?.status === 529 ||
+      /overloaded|529/i.test(err?.message ?? "")
+    console.error("[transcript] summary failed:", err?.status, err?.message)
+    return {
+      summary: "",
+      warning: overloaded
+        ? "El análisis con IA no se generó porque el servicio está sobrecargado en este momento. La transcripción está completa — probá generar el análisis de nuevo en unos minutos."
+        : "No se pudo generar el análisis con IA, pero la transcripción está completa.",
+    }
+  }
 }
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
@@ -799,6 +825,7 @@ export async function POST(req: NextRequest) {
     let duration: string | null = null
     let transcript: string | null = null
     let summary: string = ""
+    let warning: string | null = null
 
     if (isInstagramUrl(url)) {
       // ── Instagram path ──────────────────────────────────────────────────────
@@ -816,7 +843,7 @@ export async function POST(req: NextRequest) {
             : "No se pudo transcribir este reel. Apify no pudo resolver el video desde Instagram. Probá con un reel público e intentá más tarde.",
         }, { status: 422 })
       }
-      summary = await generateSummary(transcript, creator)
+      ;({ summary, warning } = await generateSummarySafe(transcript, creator))
     } else {
       // ── YouTube path ────────────────────────────────────────────────────────
       const videoId = extractYouTubeId(url)
@@ -845,7 +872,7 @@ export async function POST(req: NextRequest) {
         }, { status: 422 })
       }
 
-      summary = await generateSummary(transcript, creator)
+      ;({ summary, warning } = await generateSummarySafe(transcript, creator))
     }
 
     // Save to history (scopeado por client_id, no por user_id)
@@ -869,9 +896,21 @@ export async function POST(req: NextRequest) {
       duration,
       transcript,
       summary,
+      warning,
     })
   } catch (err: any) {
     console.error("[transcript] error:", err)
-    return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
+    const overloaded =
+      err instanceof Anthropic.OverloadedError ||
+      err?.status === 529 ||
+      /overloaded|529/i.test(err?.message ?? "")
+    return NextResponse.json(
+      {
+        error: overloaded
+          ? "El servicio de IA está sobrecargado en este momento. Esperá unos minutos y volvé a intentar."
+          : (err?.message ?? "Error interno"),
+      },
+      { status: overloaded ? 503 : 500 }
+    )
   }
 }
