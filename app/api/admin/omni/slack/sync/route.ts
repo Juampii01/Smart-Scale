@@ -4,12 +4,16 @@
  * Sincroniza canales + historial de Slack a omni_slack_channels/omni_slack_messages.
  * Incluye los canales #cl-nombre (1:1 por cliente) y los compartidos de comunidad.
  * Mismo SLACK_BOT_TOKEN ya configurado — requiere los scopes de lectura
- * (channels:read, channels:history, users:read) agregados y la app reinstalada.
+ * (channels:read, channels:history, users:read, channels:join).
+ *
+ * Antes de leer el historial de cada canal, el bot se auto-agrega si no es
+ * miembro (Slack exige membresía para conversations.history, incluso en
+ * canales públicos) — evita tener que invitarlo a mano a cada #cl-nombre.
  */
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireOmniOwner } from "@/lib/auth/api-guards"
-import { listOmniSlackChannels, fetchOmniSlackHistory, resolveOmniSlackUserNames } from "@/lib/omni/slack-read"
+import { listOmniSlackChannels, joinOmniSlackChannel, fetchOmniSlackHistory, resolveOmniSlackUserNames } from "@/lib/omni/slack-read"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -70,6 +74,13 @@ export async function POST(req: NextRequest) {
       continue
     }
     channelsSynced++
+
+    try {
+      await joinOmniSlackChannel(ch.id)
+    } catch (e) {
+      console.error(`[omni/slack/sync] join error (${ch.name}):`, e instanceof Error ? e.message : e)
+      continue
+    }
 
     let history
     try {

@@ -3,9 +3,10 @@
 // SLACK_BOT_TOKEN ya configurado; el token es infraestructura compartida, pero
 // este código de lectura es enteramente nuevo y propio de Omni.
 //
-// Requiere que el Bot Token tenga, además de los scopes de escritura ya
-// otorgados, estos de lectura (se agregan reinstalando la app en el panel de
-// Slack, sin crear una app nueva): channels:read, channels:history, users:read.
+// Requiere que el Bot Token tenga estos scopes: channels:read, channels:history,
+// users:read, channels:join. Este último es clave: Slack exige que el bot sea
+// MIEMBRO de un canal para leer su historial, incluso si es público — sin
+// channels:join habría que invitarlo a mano a cada #cl-nombre, uno por uno.
 
 async function slackApiGet(method: string, params: Record<string, string>): Promise<any> {
   const token = process.env.SLACK_BOT_TOKEN
@@ -17,6 +18,32 @@ async function slackApiGet(method: string, params: Record<string, string>): Prom
     signal: AbortSignal.timeout(15_000),
   })
   return res.json()
+}
+
+async function slackApiPost(method: string, body: Record<string, unknown>): Promise<any> {
+  const token = process.env.SLACK_BOT_TOKEN
+  if (!token) return { ok: false, error: "SLACK_BOT_TOKEN not configured" }
+
+  const res = await fetch(`https://slack.com/api/${method}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(15_000),
+  })
+  return res.json()
+}
+
+/** Se auto-agrega al canal si todavía no es miembro (requiere channels:join).
+ *  Best-effort: "already_in_channel" no es un error, y otros fallos (ej. un
+ *  canal archivado) no deben cortar el sync completo. */
+export async function joinOmniSlackChannel(channelId: string): Promise<void> {
+  const data = await slackApiPost("conversations.join", { channel: channelId })
+  if (!data.ok && data.error !== "already_in_channel" && data.error !== "method_not_supported_for_channel_type") {
+    throw new Error(`Slack conversations.join: ${data.error ?? "unknown error"}`)
+  }
 }
 
 export interface OmniSlackChannel {
