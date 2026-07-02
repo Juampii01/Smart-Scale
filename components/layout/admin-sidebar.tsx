@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
 import { canAccessAdminPath, isAdmin } from "@/lib/auth/permissions"
 import { useEffectiveRole } from "@/lib/auth/view-as"
+import { isOmniOwnerEmail } from "@/lib/omni/owner"
 
 interface AdminSidebarProps {
   open: boolean
@@ -45,10 +46,6 @@ const DEV_NAV_ITEMS = [
   { name: "Instagram",  href: "/admin/instagram-access", icon: Instagram },
 ]
 
-// Omni todavía es un piloto interno — solo lo ve el dueño del proyecto, ni el
-// resto de los admins (Ann incluida).
-const OMNI_OWNER_EMAIL = "juampiacosta158@gmail.com"
-
 export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
   const pathname = usePathname()
   const [userRole, setUserRole]  = useState<string | null | undefined>(undefined) // undefined = aún cargando
@@ -64,7 +61,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
     })
   }, [])
 
-  const isOmniOwner = userEmail?.toLowerCase() === OMNI_OWNER_EMAIL
+  const isOmniOwner = isOmniOwnerEmail(userEmail)
 
   // Si admin está en modo "view as setter/team", el sidebar se filtra como ese rol
   const effectiveRole = useEffectiveRole(userRole === undefined ? null : userRole)
