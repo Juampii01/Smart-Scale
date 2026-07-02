@@ -29,7 +29,6 @@ const ADMIN_NAV_ITEMS = [
   { name: "Setting",          href: "/admin/setting",           icon: MessageSquareText },
   { name: "Onboarding",       href: "/admin/onboarding",        icon: UserPlus },
   { name: "Pagos",            href: "/admin/payments",          icon: DollarSign },
-  { name: "Agenda",           href: "/admin/agenda",            icon: CalendarDays },
   { name: "Clientes",         href: "/admin/clients",           icon: UserCheck },
   { name: "Aplicaciones",     href: "/admin/applications",      icon: ClipboardList },
   { name: "Contratación",     href: "/admin/team-applications", icon: Briefcase },
@@ -41,6 +40,7 @@ const ADMIN_NAV_ITEMS = [
 
 // Sección "Desarrollador" — herramientas técnicas, al final del sidebar.
 const DEV_NAV_ITEMS = [
+  { name: "Agenda",     href: "/admin/agenda",           icon: CalendarDays },
   { name: "Conexiones", href: "/admin/conexiones",       icon: Share2 },
   { name: "Dev Logs",   href: "/admin/dev-logs",         icon: Terminal },
   { name: "Instagram",  href: "/admin/instagram-access", icon: Instagram },
