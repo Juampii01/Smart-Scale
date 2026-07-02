@@ -37,11 +37,12 @@ async function slackApiPost(method: string, body: Record<string, unknown>): Prom
 }
 
 /** Se auto-agrega al canal si todavía no es miembro (requiere channels:join).
- *  Best-effort: "already_in_channel" no es un error, y otros fallos (ej. un
- *  canal archivado) no deben cortar el sync completo. */
+ *  Best-effort: solo "already_in_channel" es un no-error real. Cualquier otro
+ *  fallo se reporta (antes se ignoraban silenciosamente otros códigos, lo que
+ *  tapaba el motivo real cuando el join fallaba de verdad). */
 export async function joinOmniSlackChannel(channelId: string): Promise<void> {
   const data = await slackApiPost("conversations.join", { channel: channelId })
-  if (!data.ok && data.error !== "already_in_channel" && data.error !== "method_not_supported_for_channel_type") {
+  if (!data.ok && data.error !== "already_in_channel") {
     throw new Error(`Slack conversations.join: ${data.error ?? "unknown error"}`)
   }
 }
