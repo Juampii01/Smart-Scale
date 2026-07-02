@@ -5,7 +5,7 @@ import {
   X, DollarSign, ClipboardList, Table2, Users2,
   UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
   MessageSquareText, UserPlus,
-  LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2, Instagram,
+  LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2, Instagram, Sparkles,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -112,6 +112,26 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
               <div className="group flex items-center gap-2 rounded-lg border border-foreground/[0.07] bg-foreground/[0.02] px-3 py-2 text-[12px] font-semibold text-foreground/55 hover:text-foreground hover:border-foreground/[0.15] transition-all">
                 <ArrowLeft className="h-3.5 w-3.5 flex-shrink-0" />
                 Volver al portal
+              </div>
+            </Link>
+          </div>
+        )}
+
+        {/* Omni — sistema de IA (destacado, admin only) */}
+        {isAdmin(effectiveRole) && (
+          <div className="px-3 pt-1">
+            <Link href="/admin/omni" onClick={onClose}>
+              <div className={cn(
+                "flex items-center gap-2.5 rounded-lg border px-3 py-2 transition-all",
+                pathname === "/admin/omni"
+                  ? "border-[#ffde21]/45 bg-[#ffde21]/[0.14] text-[#ffde21]"
+                  : "border-[#ffde21]/20 bg-[#ffde21]/[0.06] text-[#ffde21]/90 hover:bg-[#ffde21]/[0.12] hover:border-[#ffde21]/40"
+              )}>
+                <Sparkles className="h-4 w-4 flex-shrink-0" />
+                <div className="min-w-0 leading-none">
+                  <p className="text-[13px] font-bold">Omni</p>
+                  <p className="mt-1 text-[10px] text-foreground/40">Sistema IA · Ann</p>
+                </div>
               </div>
             </Link>
           </div>
