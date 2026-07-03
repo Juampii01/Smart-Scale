@@ -1,19 +1,16 @@
 /**
  * POST /api/admin/omni/slack/sync
  *
- * Sincroniza canales + historial de Slack a omni_slack_channels/omni_slack_messages.
+ * Sincroniza canales + historial de Slack a omni_slack_channels/omni_slack_messages,
+ * usando el token de USUARIO de Ann (omni_slack_user_connection) — hereda
+ * automáticamente sus canales público y privado, sin join ni invitación manual.
  * Incluye los canales #cl-nombre (1:1 por cliente) y los compartidos de comunidad.
- * Mismo SLACK_BOT_TOKEN ya configurado — requiere los scopes de lectura
- * (channels:read, channels:history, users:read, channels:join).
- *
- * Antes de leer el historial de cada canal, el bot se auto-agrega si no es
- * miembro (Slack exige membresía para conversations.history, incluso en
- * canales públicos) — evita tener que invitarlo a mano a cada #cl-nombre.
  */
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireOmniOwner } from "@/lib/auth/api-guards"
-import { listOmniSlackChannels, joinOmniSlackChannel, fetchOmniSlackHistory, resolveOmniSlackUserNames } from "@/lib/omni/slack-read"
+import { decryptToken } from "@/lib/social/crypto"
+import { listOmniSlackChannels, fetchOmniSlackHistory, resolveOmniSlackUserNames } from "@/lib/omni/slack-read"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -39,9 +36,21 @@ export async function POST(req: NextRequest) {
 
   const sb = createServiceClient()
 
+  const { data: conn } = await sb
+    .from("omni_slack_user_connection")
+    .select("access_token")
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (!conn) {
+    return NextResponse.json({ error: "Slack de Omni no está conectado (falta autorizar como Ann)" }, { status: 400 })
+  }
+  const token = decryptToken((conn as any).access_token)
+
   let channels
   try {
-    channels = await listOmniSlackChannels()
+    channels = await listOmniSlackChannels(token)
   } catch (e) {
     console.error("[omni/slack/sync] list channels error:", e instanceof Error ? e.message : e)
     return NextResponse.json({ error: "No se pudieron listar los canales de Slack" }, { status: 502 })
@@ -75,23 +84,16 @@ export async function POST(req: NextRequest) {
     }
     channelsSynced++
 
-    try {
-      await joinOmniSlackChannel(ch.id)
-    } catch (e) {
-      console.error(`[omni/slack/sync] join error (${ch.name}):`, e instanceof Error ? e.message : e)
-      continue
-    }
-
     let history
     try {
-      history = await fetchOmniSlackHistory(ch.id)
+      history = await fetchOmniSlackHistory(token, ch.id)
     } catch (e) {
       console.error(`[omni/slack/sync] history error (${ch.name}):`, e instanceof Error ? e.message : e)
       continue
     }
     if (history.length === 0) continue
 
-    const names = await resolveOmniSlackUserNames(history.map(m => m.userId ?? "").filter(Boolean))
+    const names = await resolveOmniSlackUserNames(token, history.map(m => m.userId ?? "").filter(Boolean))
     const rows = history.map(m => ({
       channel_id: (chRow as any).id,
       slack_ts:   m.ts,

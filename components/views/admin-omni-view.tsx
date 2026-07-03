@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   Sparkles, MessageCircle, FileText, Megaphone, DollarSign, Cog,
-  Instagram, Slack, RefreshCw, Loader2, CheckCircle2, Wand2, Quote,
+  Instagram, Slack, RefreshCw, Loader2, CheckCircle2, Wand2, Quote, Send, Bot,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase"
@@ -80,6 +80,65 @@ function fmtDateTime(iso: string | null): string {
   return new Date(iso).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
 }
 
+/** Formatea un campo `date` (YYYY-MM-DD, sin hora) sin riesgo de correrse de día por timezone. */
+function fmtDateOnly(isoDate: string): string {
+  const [y, m, d] = isoDate.split("-")
+  return `${d}/${m}/${y}`
+}
+
+interface DailyBriefing {
+  date:              string
+  findings:          SlackFinding[]
+  messages_analyzed: number
+}
+
+interface ChatMessage {
+  role:    "user" | "assistant"
+  content: string
+}
+
+function FindingsSection({ title, subtitle, findings }: { title: string; subtitle?: string; findings: SlackFinding[] }) {
+  return (
+    <div>
+      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+        {title}{subtitle && <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">{subtitle}</span>}
+      </p>
+      {findings.length === 0 ? (
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+          No se encontraron patrones relevantes en los mensajes analizados.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {findings.map((f, i) => (
+            <div key={i} className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-[14px] font-semibold text-foreground">{f.titulo}</h3>
+                <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", SEVERITY_STYLES[f.severidad])}>
+                  {f.severidad}
+                </span>
+              </div>
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-foreground/60">{f.descripcion}</p>
+              <div className="mt-2.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
+                <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
+                <p className="text-[12px] italic text-foreground/50">{f.evidencia}</p>
+              </div>
+              {f.canales.length > 0 && (
+                <div className="mt-2.5 flex flex-wrap gap-1.5">
+                  {f.canales.map(c => (
+                    <span key={c} className="rounded-md border border-foreground/[0.10] bg-foreground/[0.03] px-2 py-0.5 text-[11px] text-foreground/50">
+                      #{c}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function AdminOmniView() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -94,9 +153,19 @@ export function AdminOmniView() {
   const [slackSyncing, setSlackSyncing] = useState(false)
   const [slackSyncMsg, setSlackSyncMsg] = useState<string | null>(null)
 
+  const [slackUserConnected, setSlackUserConnected] = useState<boolean | undefined>(undefined) // undefined = cargando
+  const [slackConnecting,    setSlackConnecting]    = useState(false)
+
   const [communityFindings, setCommunityFindings] = useState<SlackFinding[] | null>(null)
   const [analyzing,         setAnalyzing]         = useState(false)
   const [analyzeMsg,        setAnalyzeMsg]        = useState<string | null>(null)
+
+  const [dailyBriefing, setDailyBriefing] = useState<DailyBriefing | null>(null)
+
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+  const [chatInput,    setChatInput]    = useState("")
+  const [chatSending,  setChatSending]  = useState(false)
+  const [chatLoaded,   setChatLoaded]   = useState(false)
 
   const getAuthHeader = useCallback(async () => {
     const supabase = createClient()
@@ -122,6 +191,35 @@ export function AdminOmniView() {
     setSlackStatus(await res.json())
   }, [getAuthHeader])
 
+  const fetchSlackUserStatus = useCallback(async () => {
+    const headers = await getAuthHeader()
+    if (!headers) return
+    const res = await fetch("/api/admin/omni/slack/user-status", { headers })
+    if (!res.ok) return
+    const json = await res.json()
+    setSlackUserConnected(!!json.connection)
+  }, [getAuthHeader])
+
+  const fetchDailyBriefing = useCallback(async () => {
+    const headers = await getAuthHeader()
+    if (!headers) return
+    const res = await fetch("/api/admin/omni/briefing", { headers })
+    if (!res.ok) return
+    const json = await res.json()
+    setDailyBriefing(json.briefing ?? null)
+  }, [getAuthHeader])
+
+  const fetchChatHistory = useCallback(async () => {
+    const headers = await getAuthHeader()
+    if (!headers) return
+    const res = await fetch("/api/admin/omni/chat", { headers })
+    if (res.ok) {
+      const json = await res.json()
+      setChatMessages(json.messages ?? [])
+    }
+    setChatLoaded(true)
+  }, [getAuthHeader])
+
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then((res: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
@@ -139,10 +237,15 @@ export function AdminOmniView() {
     if (!allowed) return
     fetchIgStatus()
     fetchSlackStatus()
+    fetchSlackUserStatus()
+    fetchDailyBriefing()
+    fetchChatHistory()
 
     if (searchParams.get("omni_ig_success")) setIgSyncMsg("Instagram conectado — ya podés sincronizar.")
     if (searchParams.get("omni_ig_error"))   setIgSyncMsg(`Error al conectar Instagram (${searchParams.get("omni_ig_error")}).`)
-  }, [allowed, fetchIgStatus, fetchSlackStatus, searchParams])
+    if (searchParams.get("omni_slack_success")) setSlackSyncMsg("Slack conectado como Ann — ya podés sincronizar.")
+    if (searchParams.get("omni_slack_error"))   setSlackSyncMsg(`Error al conectar Slack (${searchParams.get("omni_slack_error")}).`)
+  }, [allowed, fetchIgStatus, fetchSlackStatus, fetchSlackUserStatus, fetchDailyBriefing, fetchChatHistory, searchParams])
 
   const connectInstagram = async () => {
     setIgLoading(true)
@@ -171,6 +274,20 @@ export function AdminOmniView() {
         : (json.error ?? "Error al sincronizar"))
     } finally {
       setIgSyncing(false)
+    }
+  }
+
+  const connectSlack = async () => {
+    setSlackConnecting(true)
+    try {
+      const headers = await getAuthHeader()
+      if (!headers) return
+      const res = await fetch("/api/admin/omni/slack/connect", { headers })
+      const json = await res.json()
+      if (res.ok && json.url) window.location.href = json.url
+      else setSlackSyncMsg(json.error ?? "No se pudo iniciar la conexión")
+    } finally {
+      setSlackConnecting(false)
     }
   }
 
@@ -209,6 +326,30 @@ export function AdminOmniView() {
       }
     } finally {
       setAnalyzing(false)
+    }
+  }
+
+  const sendChatMessage = async () => {
+    const text = chatInput.trim()
+    if (!text || chatSending) return
+    setChatInput("")
+    setChatMessages(prev => [...prev, { role: "user", content: text }])
+    setChatSending(true)
+    try {
+      const headers = await getAuthHeader()
+      if (!headers) return
+      const res = await fetch("/api/admin/omni/chat", {
+        method:  "POST",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body:    JSON.stringify({ message: text }),
+      })
+      const json = await res.json()
+      setChatMessages(prev => [...prev, {
+        role: "assistant",
+        content: res.ok ? json.reply : (json.error ?? "Error al responder"),
+      }])
+    } finally {
+      setChatSending(false)
     }
   }
 
@@ -290,22 +431,37 @@ export function AdminOmniView() {
               <div className="min-w-0">
                 <h3 className="text-[14px] font-semibold text-foreground">Slack — Comunidad</h3>
                 <p className="text-[12px] text-foreground/40">
-                  {slackStatus
+                  {!slackUserConnected
+                    ? (slackUserConnected === undefined ? "Verificando…" : "No conectado — falta autorizar como Ann")
+                    : slackStatus
                     ? `${slackStatus.channels} canales · ${slackStatus.messages} mensajes · última sync: ${fmtDateTime(slackStatus.lastSyncedAt)}`
                     : "Verificando…"}
                 </p>
               </div>
+              {slackUserConnected && <CheckCircle2 className="ml-auto h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-400" />}
             </div>
             <div className="mt-3 flex gap-2">
-              <button
-                onClick={syncSlack}
-                disabled={slackSyncing}
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[12px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
-              >
-                <RefreshCw className={cn("h-3.5 w-3.5", slackSyncing && "animate-spin")} />
-                Sincronizar
-              </button>
-              {!!slackStatus?.messages && (
+              {!slackUserConnected && (
+                <button
+                  onClick={connectSlack}
+                  disabled={slackConnecting}
+                  className="flex h-8 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+                >
+                  {slackConnecting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                  Conectar como Ann
+                </button>
+              )}
+              {slackUserConnected && (
+                <button
+                  onClick={syncSlack}
+                  disabled={slackSyncing}
+                  className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[12px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+                >
+                  <RefreshCw className={cn("h-3.5 w-3.5", slackSyncing && "animate-spin")} />
+                  Sincronizar
+                </button>
+              )}
+              {slackUserConnected && !!slackStatus?.messages && (
                 <button
                   onClick={analyzeSlack}
                   disabled={analyzing}
@@ -327,45 +483,75 @@ export function AdminOmniView() {
         </p>
       </div>
 
-      {/* Hallazgos de comunidad */}
-      {communityFindings && (
-        <div>
-          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
-            Hallazgos — Comunidad
-          </p>
-          {communityFindings.length === 0 ? (
-            <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
-              No se encontraron patrones relevantes en los mensajes analizados.
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {communityFindings.map((f, i) => (
-                <div key={i} className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-[14px] font-semibold text-foreground">{f.titulo}</h3>
-                    <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", SEVERITY_STYLES[f.severidad])}>
-                      {f.severidad}
-                    </span>
+      {/* Preguntale a Omni */}
+      <div>
+        <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">Preguntale a Omni</p>
+        <div className="rounded-2xl border border-foreground/[0.07] bg-card">
+          <div className="max-h-[420px] min-h-[160px] overflow-y-auto p-4 space-y-3">
+            {!chatLoaded ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="h-4 w-4 animate-spin text-foreground/30" />
+              </div>
+            ) : chatMessages.length === 0 ? (
+              <p className="py-6 text-center text-[13px] text-foreground/35">
+                Preguntale algo sobre la comunidad — ej: "¿cómo cerró Andrés?" o "qué objeciones aparecieron esta semana".
+              </p>
+            ) : (
+              chatMessages.map((m, i) => (
+                <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
+                  <div className={cn(
+                    "max-w-[85%] rounded-2xl px-3.5 py-2 text-[13px] leading-relaxed whitespace-pre-wrap",
+                    m.role === "user"
+                      ? "bg-[#ffde21] text-black"
+                      : "bg-foreground/[0.05] text-foreground/80",
+                  )}>
+                    {m.content}
                   </div>
-                  <p className="mt-1.5 text-[12.5px] leading-relaxed text-foreground/60">{f.descripcion}</p>
-                  <div className="mt-2.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
-                    <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
-                    <p className="text-[12px] italic text-foreground/50">{f.evidencia}</p>
-                  </div>
-                  {f.canales.length > 0 && (
-                    <div className="mt-2.5 flex flex-wrap gap-1.5">
-                      {f.canales.map(c => (
-                        <span key={c} className="rounded-md border border-foreground/[0.10] bg-foreground/[0.03] px-2 py-0.5 text-[11px] text-foreground/50">
-                          #{c}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+            {chatSending && (
+              <div className="flex justify-start">
+                <div className="flex items-center gap-1.5 rounded-2xl bg-foreground/[0.05] px-3.5 py-2 text-foreground/40">
+                  <Bot className="h-3.5 w-3.5" />
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2 border-t border-foreground/[0.07] p-3">
+            <input
+              type="text"
+              value={chatInput}
+              onChange={e => setChatInput(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChatMessage() } }}
+              placeholder="Preguntale a Omni…"
+              disabled={chatSending}
+              className="flex-1 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none disabled:opacity-50"
+            />
+            <button
+              onClick={sendChatMessage}
+              disabled={chatSending || !chatInput.trim()}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#ffde21] text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+            >
+              <Send className="h-4 w-4" />
+            </button>
+          </div>
         </div>
+      </div>
+
+      {/* Briefing diario (guardado por el cron) */}
+      {dailyBriefing && (
+        <FindingsSection
+          title="Briefing de hoy"
+          subtitle={`${fmtDateOnly(dailyBriefing.date)} · ${dailyBriefing.messages_analyzed} mensajes`}
+          findings={dailyBriefing.findings}
+        />
+      )}
+
+      {/* Hallazgos de comunidad (análisis manual) */}
+      {communityFindings && (
+        <FindingsSection title="Hallazgos — Comunidad" findings={communityFindings} />
       )}
 
       {/* Módulos */}
