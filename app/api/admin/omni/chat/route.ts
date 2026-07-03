@@ -2,7 +2,7 @@
  * Chat conversacional de Omni — mismo patrón de agentic loop que
  * /api/admin/assistant (TOOLS + executeTool + rounds), pero aislado: tools
  * propias (lib/omni/chat-tools.ts), gateado por requireOmniOwner, memoria en
- * omni_conversations (un solo hilo persistente — Omni es de un solo usuario).
+ * omni_chat_conversations (un solo hilo persistente — Omni es de un solo usuario).
  *
  * GET  → devuelve el historial simple guardado (para hidratar la UI)
  * POST → { message: string } → corre el loop, guarda el turno, devuelve reply
@@ -21,7 +21,7 @@ interface SimpleMessage { role: "user" | "assistant"; content: string }
 
 async function getOrCreateConversation(sb: ReturnType<typeof createServiceClient>) {
   const { data: existing } = await sb
-    .from("omni_conversations")
+    .from("omni_chat_conversations")
     .select("id, messages")
     .order("updated_at", { ascending: false })
     .limit(1)
@@ -30,7 +30,7 @@ async function getOrCreateConversation(sb: ReturnType<typeof createServiceClient
   if (existing) return { id: (existing as any).id, messages: ((existing as any).messages ?? []) as SimpleMessage[] }
 
   const { data: created, error } = await sb
-    .from("omni_conversations")
+    .from("omni_chat_conversations")
     .insert({ messages: [] })
     .select("id")
     .single()
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
 
   // Historial agéntico de esta sola llamada: contexto previo simple + la pregunta nueva.
   // El tool-calling interno (tool_use/tool_result) NUNCA se persiste — solo el
-  // texto final de cada turno queda en omni_conversations.
+  // texto final de cada turno queda en omni_chat_conversations.
   const history: Anthropic.MessageParam[] = [
     ...simpleHistory.slice(-20).map(m => ({ role: m.role, content: m.content }) as Anthropic.MessageParam),
     { role: "user", content: userMessage },
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
     { role: "assistant", content: reply },
   ]
 
-  await sb.from("omni_conversations")
+  await sb.from("omni_chat_conversations")
     .update({ messages: updatedHistory, updated_at: new Date().toISOString() })
     .eq("id", conversationId)
 
