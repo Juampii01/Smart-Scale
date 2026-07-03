@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   const sb = createServiceClient()
   const { data: conn } = await sb
     .from("omni_instagram_connections")
-    .select("account_id, access_token")
+    .select("account_name, access_token")
     .order("updated_at", { ascending: false })
     .limit(1)
     .maybeSingle()
@@ -34,11 +34,11 @@ export async function POST(req: NextRequest) {
   }
 
   const accessToken = decryptToken((conn as any).access_token)
-  const accountId = (conn as any).account_id as string
+  const accountUsername = (conn as any).account_name as string
 
   let conversations
   try {
-    conversations = await fetchOmniIgConversations(accessToken, accountId)
+    conversations = await fetchOmniIgConversations(accessToken, accountUsername)
   } catch (e) {
     console.error("[omni/instagram/sync] conversations error:", e instanceof Error ? e.message : e)
     return NextResponse.json({ error: "No se pudieron traer las conversaciones" }, { status: 502 })
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   for (const c of conversations) {
     let messages
     try {
-      messages = await fetchOmniIgMessages(accessToken, c.id, accountId)
+      messages = await fetchOmniIgMessages(accessToken, c.id, c.selfIgId)
     } catch (e) {
       console.error(`[omni/instagram/sync] messages error (${c.id}):`, e instanceof Error ? e.message : e)
       continue

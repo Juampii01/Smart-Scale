@@ -101,6 +101,10 @@ export interface OmniIgConversation {
   id: string
   participantUsername: string | null
   participantIgId: string | null
+  /** El id de la propia cuenta TAL COMO aparece en este endpoint de mensajería —
+   *  distinto del account_id que devuelve /me durante el OAuth. Meta usa dos
+   *  esquemas de ID diferentes para la misma cuenta según el endpoint. */
+  selfIgId: string | null
 }
 
 export interface OmniIgMessage {
@@ -110,25 +114,39 @@ export interface OmniIgMessage {
   sentAt: string | null
 }
 
-/** Trae las conversaciones recientes de la cuenta conectada. */
-export async function fetchOmniIgConversations(accessToken: string, accountId: string): Promise<OmniIgConversation[]> {
+/**
+ * Trae las conversaciones recientes de la cuenta conectada.
+ *
+ * Identifica "la propia cuenta" dentro de cada conversación por USERNAME
+ * (accountUsername, el mismo que se guardó al conectar), no por id — el id
+ * que devuelve /me en el OAuth (account_id) no coincide con el id que este
+ * endpoint de mensajería usa para el mismo participante, así que comparar
+ * por id nunca excluía a la cuenta propia (bug encontrado en producción: las
+ * 24 conversaciones de prueba quedaban todas con el username del dueño de la
+ * cuenta en vez del contacto real).
+ */
+export async function fetchOmniIgConversations(accessToken: string, accountUsername: string): Promise<OmniIgConversation[]> {
   const url = `https://graph.instagram.com/v23.0/me/conversations?platform=instagram&fields=participants&access_token=${encodeURIComponent(accessToken)}`
   const res = await fetch(url, { signal: AbortSignal.timeout(15_000) })
   if (!res.ok) throw new Error(`IG conversations ${res.status}: ${(await res.text()).slice(0, 150)}`)
   const data = await res.json() as { data?: Array<{ id: string; participants?: { data?: Array<{ id: string; username?: string }> } }> }
 
   return (data.data ?? []).map(c => {
-    const other = (c.participants?.data ?? []).find(p => p.id !== accountId)
+    const participants = c.participants?.data ?? []
+    const self  = participants.find(p => p.username === accountUsername)
+    const other = participants.find(p => p.username !== accountUsername) ?? participants.find(p => p.id !== self?.id)
     return {
       id: c.id,
       participantUsername: other?.username ?? null,
       participantIgId: other?.id ?? null,
+      selfIgId: self?.id ?? null,
     }
   })
 }
 
-/** Trae los mensajes de una conversación puntual. */
-export async function fetchOmniIgMessages(accessToken: string, conversationId: string, accountId: string): Promise<OmniIgMessage[]> {
+/** Trae los mensajes de una conversación puntual. `selfIgId` es el id resuelto
+ *  por fetchOmniIgConversations para ESA conversación (no el account_id del OAuth). */
+export async function fetchOmniIgMessages(accessToken: string, conversationId: string, selfIgId: string | null): Promise<OmniIgMessage[]> {
   const url = `https://graph.instagram.com/v23.0/${conversationId}?fields=messages.limit(50){id,from,to,message,created_time}&access_token=${encodeURIComponent(accessToken)}`
   const res = await fetch(url, { signal: AbortSignal.timeout(15_000) })
   if (!res.ok) throw new Error(`IG messages ${res.status}: ${(await res.text()).slice(0, 150)}`)
@@ -138,7 +156,7 @@ export async function fetchOmniIgMessages(accessToken: string, conversationId: s
 
   return (data.messages?.data ?? []).map(m => ({
     id: m.id,
-    from: m.from?.id === accountId ? "ann" : "lead",
+    from: selfIgId && m.from?.id === selfIgId ? "ann" : "lead",
     body: m.message ?? null,
     sentAt: m.created_time ?? null,
   }))
