@@ -1,16 +1,16 @@
 // Lectura de Slack para Omni — aislado de lib/slack.ts (que sigue siendo solo
-// de salida: notificaciones, creación de canales de onboarding). Usa el mismo
-// SLACK_BOT_TOKEN ya configurado; el token es infraestructura compartida, pero
-// este código de lectura es enteramente nuevo y propio de Omni.
+// de salida: notificaciones, creación de canales de onboarding, con
+// SLACK_BOT_TOKEN). Este módulo lee con el TOKEN DE USUARIO de Ann
+// (omni_slack_user_connection, ver lib/omni/slack-oauth.ts), no con un bot.
 //
-// Requiere que el Bot Token tenga, además de los scopes de escritura ya
-// otorgados, estos de lectura (se agregan reinstalando la app en el panel de
-// Slack, sin crear una app nueva): channels:read, channels:history, users:read.
+// Por qué token de usuario y no bot: un token de usuario hereda automática-
+// mente todos los canales de los que Ann YA es miembro — público y privado —
+// sin necesidad de invitar a nadie canal por canal. Un bot, en cambio, no se
+// puede auto-unir a canales privados vía API, y aun en públicos exige un paso
+// de "join" explícito. Con token de usuario ese problema desaparece: no hay
+// concepto de "unirse", ya está adentro de todo lo que ella puede ver.
 
-async function slackApiGet(method: string, params: Record<string, string>): Promise<any> {
-  const token = process.env.SLACK_BOT_TOKEN
-  if (!token) return { ok: false, error: "SLACK_BOT_TOKEN not configured" }
-
+async function slackApiGet(token: string, method: string, params: Record<string, string>): Promise<any> {
   const url = `https://slack.com/api/${method}?${new URLSearchParams(params).toString()}`
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
@@ -24,13 +24,13 @@ export interface OmniSlackChannel {
   name: string
 }
 
-/** Lista todos los canales públicos que el bot puede ver (paginado, hasta 10 páginas). */
-export async function listOmniSlackChannels(): Promise<OmniSlackChannel[]> {
+/** Lista todos los canales (públicos + privados) que Ann puede ver (paginado, hasta 10 páginas). */
+export async function listOmniSlackChannels(token: string): Promise<OmniSlackChannel[]> {
   const channels: OmniSlackChannel[] = []
   let cursor = ""
   for (let page = 0; page < 10; page++) {
-    const data = await slackApiGet("conversations.list", {
-      types: "public_channel",
+    const data = await slackApiGet(token, "conversations.list", {
+      types: "public_channel,private_channel",
       exclude_archived: "true",
       limit: "200",
       ...(cursor ? { cursor } : {}),
@@ -51,11 +51,11 @@ export interface OmniSlackMessage {
 }
 
 /** Trae el historial de un canal (paginado, hasta 5 páginas ~ 1000 mensajes). */
-export async function fetchOmniSlackHistory(channelId: string): Promise<OmniSlackMessage[]> {
+export async function fetchOmniSlackHistory(token: string, channelId: string): Promise<OmniSlackMessage[]> {
   const messages: OmniSlackMessage[] = []
   let cursor = ""
   for (let page = 0; page < 5; page++) {
-    const data = await slackApiGet("conversations.history", {
+    const data = await slackApiGet(token, "conversations.history", {
       channel: channelId,
       limit: "200",
       ...(cursor ? { cursor } : {}),
@@ -77,11 +77,11 @@ export async function fetchOmniSlackHistory(channelId: string): Promise<OmniSlac
 }
 
 /** Resuelve nombres de usuario (con cache local para no repetir llamadas). */
-export async function resolveOmniSlackUserNames(userIds: string[]): Promise<Map<string, string>> {
+export async function resolveOmniSlackUserNames(token: string, userIds: string[]): Promise<Map<string, string>> {
   const names = new Map<string, string>()
   const unique = Array.from(new Set(userIds.filter(Boolean)))
   for (const id of unique) {
-    const data = await slackApiGet("users.info", { user: id })
+    const data = await slackApiGet(token, "users.info", { user: id })
     if (data.ok && data.user) {
       names.set(id, data.user.real_name ?? data.user.name ?? id)
     }
