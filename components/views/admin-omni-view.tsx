@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   Sparkles, MessageCircle, FileText, Megaphone, DollarSign, Cog,
-  Instagram, Slack, RefreshCw, Loader2, CheckCircle2,
+  Instagram, Slack, RefreshCw, Loader2, CheckCircle2, Wand2, Quote,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase"
@@ -61,6 +61,20 @@ interface SlackStatus {
   lastSyncedAt: string | null
 }
 
+interface SlackFinding {
+  titulo:      string
+  descripcion: string
+  canales:     string[]
+  evidencia:   string
+  severidad:   "alta" | "media" | "baja"
+}
+
+const SEVERITY_STYLES: Record<SlackFinding["severidad"], string> = {
+  alta:  "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
+  media: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
+  baja:  "bg-foreground/[0.06] text-foreground/50",
+}
+
 function fmtDateTime(iso: string | null): string {
   if (!iso) return "nunca"
   return new Date(iso).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
@@ -79,6 +93,10 @@ export function AdminOmniView() {
   const [slackStatus,  setSlackStatus]  = useState<SlackStatus | null>(null)
   const [slackSyncing, setSlackSyncing] = useState(false)
   const [slackSyncMsg, setSlackSyncMsg] = useState<string | null>(null)
+
+  const [communityFindings, setCommunityFindings] = useState<SlackFinding[] | null>(null)
+  const [analyzing,         setAnalyzing]         = useState(false)
+  const [analyzeMsg,        setAnalyzeMsg]        = useState<string | null>(null)
 
   const getAuthHeader = useCallback(async () => {
     const supabase = createClient()
@@ -175,6 +193,25 @@ export function AdminOmniView() {
     }
   }
 
+  const analyzeSlack = async () => {
+    setAnalyzing(true)
+    setAnalyzeMsg(null)
+    try {
+      const headers = await getAuthHeader()
+      if (!headers) return
+      const res = await fetch("/api/admin/omni/slack/analyze", { method: "POST", headers })
+      const json = await res.json()
+      if (res.ok) {
+        setCommunityFindings(json.findings)
+        setAnalyzeMsg(`Analizados ${json.messagesAnalyzed} mensajes — ${json.findings.length} hallazgos.`)
+      } else {
+        setAnalyzeMsg(json.error ?? "Error al analizar")
+      }
+    } finally {
+      setAnalyzing(false)
+    }
+  }
+
   if (!allowed) return null
 
   return (
@@ -268,8 +305,19 @@ export function AdminOmniView() {
                 <RefreshCw className={cn("h-3.5 w-3.5", slackSyncing && "animate-spin")} />
                 Sincronizar
               </button>
+              {!!slackStatus?.messages && (
+                <button
+                  onClick={analyzeSlack}
+                  disabled={analyzing}
+                  className="flex h-8 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+                >
+                  {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
+                  Analizar
+                </button>
+              )}
             </div>
             {slackSyncMsg && <p className="mt-2 text-[11.5px] text-foreground/45">{slackSyncMsg}</p>}
+            {analyzeMsg && <p className="mt-1 text-[11.5px] text-foreground/45">{analyzeMsg}</p>}
           </div>
 
         </div>
@@ -278,6 +326,47 @@ export function AdminOmniView() {
           agregados al bot de Slack — ver la conversación del setup para el detalle de cada uno.
         </p>
       </div>
+
+      {/* Hallazgos de comunidad */}
+      {communityFindings && (
+        <div>
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+            Hallazgos — Comunidad
+          </p>
+          {communityFindings.length === 0 ? (
+            <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+              No se encontraron patrones relevantes en los mensajes analizados.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {communityFindings.map((f, i) => (
+                <div key={i} className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-[14px] font-semibold text-foreground">{f.titulo}</h3>
+                    <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", SEVERITY_STYLES[f.severidad])}>
+                      {f.severidad}
+                    </span>
+                  </div>
+                  <p className="mt-1.5 text-[12.5px] leading-relaxed text-foreground/60">{f.descripcion}</p>
+                  <div className="mt-2.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
+                    <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
+                    <p className="text-[12px] italic text-foreground/50">{f.evidencia}</p>
+                  </div>
+                  {f.canales.length > 0 && (
+                    <div className="mt-2.5 flex flex-wrap gap-1.5">
+                      {f.canales.map(c => (
+                        <span key={c} className="rounded-md border border-foreground/[0.10] bg-foreground/[0.03] px-2 py-0.5 text-[11px] text-foreground/50">
+                          #{c}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Módulos */}
       <div>

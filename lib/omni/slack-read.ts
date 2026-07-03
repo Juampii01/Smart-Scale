@@ -7,6 +7,12 @@
 // users:read, channels:join. Este último es clave: Slack exige que el bot sea
 // MIEMBRO de un canal para leer su historial, incluso si es público — sin
 // channels:join habría que invitarlo a mano a cada #cl-nombre, uno por uno.
+//
+// Canales privados (groups:read/groups:history) son un caso aparte: un bot NO
+// se puede auto-unir a uno privado vía API (conversations.join solo funciona en
+// públicos) — a esos hay que invitarlo a mano, una vez, desde el propio canal
+// (`/invite @nombre-del-bot`). Si no está invitado, el join falla y ese canal
+// se saltea solo (no rompe el sync del resto).
 
 async function slackApiGet(method: string, params: Record<string, string>): Promise<any> {
   const token = process.env.SLACK_BOT_TOKEN
@@ -52,13 +58,13 @@ export interface OmniSlackChannel {
   name: string
 }
 
-/** Lista todos los canales públicos que el bot puede ver (paginado, hasta 10 páginas). */
+/** Lista todos los canales (públicos + privados) que el bot puede ver (paginado, hasta 10 páginas). */
 export async function listOmniSlackChannels(): Promise<OmniSlackChannel[]> {
   const channels: OmniSlackChannel[] = []
   let cursor = ""
   for (let page = 0; page < 10; page++) {
     const data = await slackApiGet("conversations.list", {
-      types: "public_channel",
+      types: "public_channel,private_channel",
       exclude_archived: "true",
       limit: "200",
       ...(cursor ? { cursor } : {}),
