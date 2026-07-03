@@ -8,27 +8,27 @@ import Anthropic from "@anthropic-ai/sdk"
 export const OMNI_CHAT_TOOLS: Anthropic.Tool[] = [
   {
     name: "search_slack_messages",
-    description: `Busca mensajes de Slack de la comunidad que contengan un texto (búsqueda parcial, no exacta).
-Devuelve canal, usuario, fecha y texto de cada mensaje que matchea.
-Úsala para responder preguntas sobre una persona, un tema o un evento puntual — ej: "¿cómo cerró Andrés?", "qué dijeron sobre el módulo 3", "quién preguntó por el pricing".
-Podés llamarla varias veces con distintos términos si la primera búsqueda no alcanza (ej: buscar por nombre y también por apellido).`,
+    description: `Busca o trae mensajes de Slack de la comunidad. Dos modos:
+1. Con "query": busca mensajes que contengan ese texto (ILIKE parcial). Úsala para preguntas sobre una persona, tema o evento puntual — ej: "¿cómo cerró Andrés?", "qué dijeron sobre el módulo 3".
+2. Sin "query" pero con "channel": trae los mensajes más recientes de ESE canal completo, sin filtrar por texto. Úsala cuando piden "resumime el canal X" o "qué pasó en X" sin un término específico.
+Necesitás pasar al menos uno de los dos (query o channel). Podés llamarla varias veces con distintos términos si la primera búsqueda no alcanza.`,
     input_schema: {
       type: "object" as const,
       properties: {
         query: {
           type: "string",
-          description: "Texto a buscar dentro de los mensajes (ILIKE parcial, no case-sensitive)",
+          description: "Texto a buscar dentro de los mensajes (ILIKE parcial, no case-sensitive). Opcional si pasás channel.",
         },
         channel: {
           type: "string",
-          description: "Nombre de canal para acotar la búsqueda (sin el #). Opcional — si no se pasa, busca en todos.",
+          description: "Nombre de canal para acotar la búsqueda o traer toda su conversación reciente (sin el #). Opcional si pasás query.",
         },
         limit: {
           type: "number",
           description: "Máximo de mensajes a devolver. Default 40, máximo 100.",
         },
       },
-      required: ["query"],
+      required: [],
     },
   },
   {
@@ -43,27 +43,27 @@ Podés llamarla varias veces con distintos términos si la primera búsqueda no 
   },
   {
     name: "search_instagram_messages",
-    description: `Busca mensajes de los DMs de Instagram (ya sincronizados) que contengan un texto (búsqueda parcial, no exacta).
-Devuelve con quién es la conversación, quién mandó cada mensaje (el dueño de la cuenta conectada o el lead/contacto), fecha y texto.
-Úsala para responder preguntas sobre una conversación puntual — ej: "¿qué le dijo a Andrés?", "qué preguntó tal persona por DM", "cómo fue la charla con tal lead".
-Podés llamarla varias veces con distintos términos si la primera búsqueda no alcanza.`,
+    description: `Busca o trae mensajes de los DMs de Instagram ya sincronizados. Dos modos:
+1. Con "query": busca mensajes que contengan ese texto (ILIKE parcial). Úsala para preguntas puntuales — ej: "qué preguntó tal persona por DM".
+2. Sin "query" pero con "participant": trae los mensajes más recientes de TODA la conversación con esa persona, sin filtrar por texto. Úsala cuando piden "analizá mi conversación con X" o "qué pasó con X" sin un término específico — es el caso más común en DMs 1 a 1.
+Necesitás pasar al menos uno de los dos (query o participant). Devuelve con quién es la conversación, quién mandó cada mensaje (el dueño de la cuenta o el lead/contacto), fecha y texto.`,
     input_schema: {
       type: "object" as const,
       properties: {
         query: {
           type: "string",
-          description: "Texto a buscar dentro de los mensajes (ILIKE parcial, no case-sensitive)",
+          description: "Texto a buscar dentro de los mensajes (ILIKE parcial, no case-sensitive). Opcional si pasás participant.",
         },
         participant: {
           type: "string",
-          description: "Username de Instagram del otro participante, para acotar a una sola conversación. Opcional.",
+          description: "Username de Instagram del otro participante — trae toda su conversación reciente si no hay query. Opcional si pasás query.",
         },
         limit: {
           type: "number",
           description: "Máximo de mensajes a devolver. Default 40, máximo 100.",
         },
       },
-      required: ["query"],
+      required: [],
     },
   },
   {
@@ -85,23 +85,24 @@ export async function executeOmniChatTool(
 ): Promise<string> {
   if (name === "search_slack_messages") {
     const query: string = String(input.query ?? "").trim()
-    if (!query) return "Error: falta el término de búsqueda"
+    const channel: string = String(input.channel ?? "").trim()
+    if (!query && !channel) return "Error: pasá al menos 'query' o 'channel'"
     const limit = Math.min(Number(input.limit) || 40, 100)
 
     let q = sb
       .from("omni_slack_messages")
       .select("body, user_name, posted_at, omni_slack_channels!inner(name)")
-      .ilike("body", `%${query}%`)
       .order("posted_at", { ascending: false })
       .limit(limit)
 
-    if (input.channel) {
-      q = q.eq("omni_slack_channels.name", String(input.channel))
-    }
+    if (query) q = q.ilike("body", `%${query}%`)
+    if (channel) q = q.eq("omni_slack_channels.name", channel)
 
     const { data, error } = await q
     if (error) return `Error BD: ${error.message}`
-    if (!data || data.length === 0) return `No se encontraron mensajes que contengan "${query}"`
+    if (!data || data.length === 0) {
+      return query ? `No se encontraron mensajes que contengan "${query}"` : `No hay mensajes en el canal "${channel}"`
+    }
 
     return JSON.stringify(
       data.map((r: any) => ({
@@ -133,23 +134,24 @@ export async function executeOmniChatTool(
 
   if (name === "search_instagram_messages") {
     const query: string = String(input.query ?? "").trim()
-    if (!query) return "Error: falta el término de búsqueda"
+    const participant: string = String(input.participant ?? "").trim()
+    if (!query && !participant) return "Error: pasá al menos 'query' o 'participant'"
     const limit = Math.min(Number(input.limit) || 40, 100)
 
     let q = sb
       .from("omni_messages")
       .select("body, sender, sent_at, omni_conversations!inner(participant_username)")
-      .ilike("body", `%${query}%`)
       .order("sent_at", { ascending: false })
       .limit(limit)
 
-    if (input.participant) {
-      q = q.eq("omni_conversations.participant_username", String(input.participant))
-    }
+    if (query) q = q.ilike("body", `%${query}%`)
+    if (participant) q = q.eq("omni_conversations.participant_username", participant)
 
     const { data, error } = await q
     if (error) return `Error BD: ${error.message}`
-    if (!data || data.length === 0) return `No se encontraron mensajes que contengan "${query}"`
+    if (!data || data.length === 0) {
+      return query ? `No se encontraron mensajes que contengan "${query}"` : `No hay mensajes en la conversación con "${participant}"`
+    }
 
     return JSON.stringify(
       data.map((r: any) => ({
