@@ -201,6 +201,15 @@ export async function POST(req: NextRequest) {
 
     const clientId = crmClient.id
 
+    // Fila de tracking del onboarding (etapas: contrato firmado, emails
+    // enviados) — se crea para TODO cliente nuevo desde ya, sin esperar al
+    // contrato. ghl_contact_id se completa más abajo cuando resuelva GHL.
+    try {
+      await supabase.from("onboarding_flow").insert({ crm_client_id: clientId })
+    } catch (err) {
+      console.error("[onboarding] onboarding_flow insert failed (non-blocking):", err)
+    }
+
     // ── 5. Create individual installments ──────────────────────────────────
     // Fallback para pago único: si no se llenaron cuotas pero hay total_amount
     if (cuotasWithValues.length === 0 && totalAmount > 0) {
@@ -361,6 +370,15 @@ export async function POST(req: NextRequest) {
       cantidadPagos:  numInstallments,
       cantidadMeses:  programDuration ?? numInstallments,
       setterName,
+    }).then(result => {
+      // Guarda el contact.id de GHL en onboarding_flow — permite matchear el
+      // webhook de "contrato firmado" por id además de por email.
+      const ghlContactId = result?.contact?.id
+      if (ghlContactId) {
+        return supabase.from("onboarding_flow")
+          .update({ ghl_contact_id: ghlContactId, updated_at: new Date().toISOString() })
+          .eq("crm_client_id", clientId)
+      }
     }).catch(err => {
       console.error("GHL sync failed (non-blocking):", err)
     })
@@ -419,7 +437,9 @@ export async function POST(req: NextRequest) {
 
 /**
  * GET /api/admin/onboarding
- * Lista los clientes onboarding recientes (últimos 50 de crm_clients, más nuevos primero).
+ * Lista los clientes onboarding recientes (últimos 50 de crm_clients, más nuevos primero),
+ * con el estado resumido de onboarding_flow (contrato firmado, emails enviados) para
+ * que la UI pueda mostrar en qué etapa está cada uno sin pedidos extra.
  */
 export async function GET(req: NextRequest) {
   const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
@@ -434,5 +454,17 @@ export async function GET(req: NextRequest) {
     .limit(50)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ clients: data ?? [] })
+
+  const clientIds = (data ?? []).map((c: any) => c.id)
+  const { data: flows } = clientIds.length > 0
+    ? await supabase
+        .from("onboarding_flow")
+        .select("crm_client_id, contract_signed_at, email_skool_sent_at, email_skool_error, email_slack_sent_at, email_slack_error, email_platform_sent_at, email_platform_error")
+        .in("crm_client_id", clientIds)
+    : { data: [] }
+
+  const flowByClient = new Map((flows ?? []).map((f: any) => [f.crm_client_id, f]))
+  const clients = (data ?? []).map((c: any) => ({ ...c, onboarding_flow: flowByClient.get(c.id) ?? null }))
+
+  return NextResponse.json({ clients })
 }

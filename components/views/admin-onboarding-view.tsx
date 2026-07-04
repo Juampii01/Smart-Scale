@@ -5,11 +5,21 @@ import { createClient } from "@/lib/supabase"
 import {
   UserPlus, Loader2, Check, Copy, X, ChevronRight,
   Phone, Calendar, DollarSign, User, Mail,
-  RefreshCw, CheckCircle2, Clock, AlertCircle,
+  RefreshCw, CheckCircle2, Clock, AlertCircle, XCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+interface OnboardingFlowStatus {
+  contract_signed_at:     string | null
+  email_skool_sent_at:    string | null
+  email_skool_error:      string | null
+  email_slack_sent_at:    string | null
+  email_slack_error:      string | null
+  email_platform_sent_at: string | null
+  email_platform_error:   string | null
+}
 
 interface OnboardingClient {
   id:                 string
@@ -24,11 +34,42 @@ interface OnboardingClient {
   notes:              string | null
   created_at:         string
   setter_id:          string | null
+  onboarding_flow:    OnboardingFlowStatus | null
 }
 
 interface SetterProfile {
   id:   string
   name: string | null
+}
+
+type OnboardingEmailTemplate = "skool" | "slack" | "platform"
+
+// ─── Etapa resumida (para el punto de color en la card + los filtros) ────────
+
+type OnboardingStage = "esperando" | "procesando" | "completo" | "error"
+
+function getOnboardingStage(flow: OnboardingFlowStatus | null): OnboardingStage {
+  if (!flow?.contract_signed_at) return "esperando"
+  if (flow.email_skool_error || flow.email_slack_error || flow.email_platform_error) return "error"
+  if (flow.email_skool_sent_at && flow.email_slack_sent_at && flow.email_platform_sent_at) return "completo"
+  return "procesando"
+}
+
+const STAGE_META: Record<OnboardingStage, { label: string; dot: string }> = {
+  esperando:  { label: "Esperando contrato",  dot: "bg-foreground/25" },
+  procesando: { label: "Procesando accesos",  dot: "bg-amber-500" },
+  completo:   { label: "Onboarding completo", dot: "bg-emerald-500" },
+  error:      { label: "Con errores",         dot: "bg-red-500" },
+}
+
+function StageIndicator({ stage }: { stage: OnboardingStage }) {
+  const meta = STAGE_META[stage]
+  return (
+    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-foreground/50">
+      <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", meta.dot)} />
+      {meta.label}
+    </span>
+  )
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -411,10 +452,14 @@ function OnboardingForm({
 
 // ─── Client card ──────────────────────────────────────────────────────────────
 
-function ClientCard({ client }: { client: OnboardingClient }) {
+function ClientCard({ client, onClick }: { client: OnboardingClient; onClick: () => void }) {
   const mrr = client.installment_amount * client.num_installments
+  const stage = getOnboardingStage(client.onboarding_flow)
   return (
-    <div className="rounded-[14px] border border-border bg-card p-4 transition hover:border-foreground/[0.12]">
+    <button
+      onClick={onClick}
+      className="w-full rounded-[14px] border border-border bg-card p-4 text-left transition hover:border-foreground/[0.12] hover:bg-foreground/[0.015]"
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-foreground/[0.07] border border-foreground/[0.08]">
@@ -457,21 +502,180 @@ function ClientCard({ client }: { client: OnboardingClient }) {
         )}
       </div>
 
-      <p className="mt-2 text-[10px] text-foreground/25">{fmtDate(client.created_at)}</p>
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <p className="text-[10px] text-foreground/25">{fmtDate(client.created_at)}</p>
+        <StageIndicator stage={stage} />
+      </div>
+    </button>
+  )
+}
+
+// ─── Onboarding detail drawer ─────────────────────────────────────────────────
+
+type TimelineState = "done" | "pending" | "error" | "locked"
+
+function TimelineStep({
+  label, state, error, onAction, actionLabel, actionLoading, last,
+}: {
+  label:         string
+  state:         TimelineState
+  error?:        string | null
+  onAction?:     () => void
+  actionLabel?:  string
+  actionLoading?: boolean
+  last?:         boolean
+}) {
+  const Icon = state === "done" ? CheckCircle2 : state === "error" ? XCircle : Clock
+  const iconCls =
+    state === "done"  ? "border-emerald-200 dark:border-emerald-500/20 bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" :
+    state === "error" ? "border-red-200 dark:border-red-500/20 bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400" :
+    "border-foreground/[0.1] bg-foreground/[0.04] text-foreground/35"
+
+  return (
+    <div className="flex gap-3">
+      <div className="flex flex-col items-center">
+        <div className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-full border", iconCls)}>
+          <Icon className="h-3.5 w-3.5" />
+        </div>
+        {!last && <div className="w-px flex-1 bg-border" />}
+      </div>
+      <div className={cn("min-w-0", !last && "pb-5")}>
+        <p className="text-[13px] font-semibold text-foreground">{label}</p>
+        {state === "locked" && <p className="mt-0.5 text-[11px] text-foreground/35">Esperando etapa anterior</p>}
+        {error && <p className="mt-0.5 text-[11px] text-red-700 dark:text-red-400">{error}</p>}
+        {onAction && (
+          <button
+            onClick={onAction}
+            disabled={actionLoading}
+            className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] px-2.5 py-1 text-[11px] font-semibold text-foreground/70 transition-colors hover:bg-foreground/[0.05] disabled:opacity-50"
+          >
+            {actionLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+            {actionLabel}
+          </button>
+        )}
+      </div>
     </div>
   )
 }
+
+function OnboardingDetailDrawer({
+  client, onClose, onMarkSigned, onResend, busyMarkSigned, busyResendTemplate, actionError,
+}: {
+  client:              OnboardingClient
+  onClose:             () => void
+  onMarkSigned:        () => void
+  onResend:            (template: OnboardingEmailTemplate) => void
+  busyMarkSigned:      boolean
+  busyResendTemplate:  OnboardingEmailTemplate | null
+  actionError:         string | null
+}) {
+  const flow = client.onboarding_flow
+  const contractSigned = !!flow?.contract_signed_at
+
+  function emailState(sentAt?: string | null, error?: string | null): TimelineState {
+    if (!contractSigned) return "locked"
+    if (sentAt) return "done"
+    if (error) return "error"
+    return "pending"
+  }
+
+  return (
+    <>
+      <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[440px] flex-col border-l border-foreground/[0.08] shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
+
+        <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
+          <div className="min-w-0">
+            <h2 className="truncate text-lg font-bold text-foreground">{client.name}</h2>
+            <p className="mt-0.5 truncate text-[12px] text-foreground/35">{client.email}</p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Cerrar"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-foreground/30 transition-all hover:bg-foreground/[0.06] hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-6 py-6">
+          {actionError && (
+            <div className="mb-5 flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3.5 py-2.5 text-[12px] text-red-700 dark:text-red-400">
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              {actionError}
+            </div>
+          )}
+
+          <TimelineStep label="Cuenta creada" state="done" />
+
+          <TimelineStep
+            label="Contrato firmado"
+            state={contractSigned ? "done" : "pending"}
+            onAction={!contractSigned ? onMarkSigned : undefined}
+            actionLabel="Marcar como firmado"
+            actionLoading={busyMarkSigned}
+          />
+
+          <TimelineStep
+            label="Email: acceso a Skool"
+            state={emailState(flow?.email_skool_sent_at, flow?.email_skool_error)}
+            error={flow?.email_skool_error}
+            onAction={emailState(flow?.email_skool_sent_at, flow?.email_skool_error) === "error" ? () => onResend("skool") : undefined}
+            actionLabel="Reintentar"
+            actionLoading={busyResendTemplate === "skool"}
+          />
+
+          <TimelineStep
+            label="Email: acceso a Slack"
+            state={emailState(flow?.email_slack_sent_at, flow?.email_slack_error)}
+            error={flow?.email_slack_error}
+            onAction={emailState(flow?.email_slack_sent_at, flow?.email_slack_error) === "error" ? () => onResend("slack") : undefined}
+            actionLabel="Reintentar"
+            actionLoading={busyResendTemplate === "slack"}
+          />
+
+          <TimelineStep
+            label="Email: acceso a la plataforma"
+            state={emailState(flow?.email_platform_sent_at, flow?.email_platform_error)}
+            error={flow?.email_platform_error}
+            onAction={emailState(flow?.email_platform_sent_at, flow?.email_platform_error) === "error" ? () => onResend("platform") : undefined}
+            actionLabel="Reintentar"
+            actionLoading={busyResendTemplate === "platform"}
+            last
+          />
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ─── Vistas rápidas por etapa ─────────────────────────────────────────────────
+
+type OnboardingViewId = "todos" | "esperando" | "errores"
+const ONBOARDING_VIEWS: { id: OnboardingViewId; label: string }[] = [
+  { id: "todos",     label: "Todos" },
+  { id: "esperando", label: "Esperando contrato" },
+  { id: "errores",   label: "Con errores" },
+]
 
 // ─── Main view ────────────────────────────────────────────────────────────────
 
 export function AdminOnboardingView() {
   const supabase = createClient()
 
-  const [view,     setView]     = useState<"list" | "form">("list")
-  const [clients,  setClients]  = useState<OnboardingClient[]>([])
-  const [setters,  setSetters]  = useState<SetterProfile[]>([])
-  const [loading,  setLoading]  = useState(true)
-  const [success,  setSuccess]  = useState<{ name: string; email: string; tempPassword: string | null; magicLink: string | null } | null>(null)
+  const [view,       setView]       = useState<"list" | "form">("list")
+  const [clients,    setClients]    = useState<OnboardingClient[]>([])
+  const [setters,    setSetters]    = useState<SetterProfile[]>([])
+  const [loading,    setLoading]    = useState(true)
+  const [success,    setSuccess]    = useState<{ name: string; email: string; tempPassword: string | null; magicLink: string | null } | null>(null)
+  const [activeView, setActiveView] = useState<OnboardingViewId>("todos")
+
+  const [selectedClientId,     setSelectedClientId]     = useState<string | null>(null)
+  const [busyMarkSigned,       setBusyMarkSigned]       = useState(false)
+  const [busyResendTemplate,   setBusyResendTemplate]   = useState<OnboardingEmailTemplate | null>(null)
+  const [drawerError,          setDrawerError]          = useState<string | null>(null)
+
+  const selectedClient = clients.find(c => c.id === selectedClientId) ?? null
 
   const loadClients = useCallback(async () => {
     setLoading(true)
@@ -504,6 +708,52 @@ export function AdminOnboardingView() {
     setView("list")
     loadClients()
   }
+
+  async function handleMarkSigned() {
+    if (!selectedClientId) return
+    setDrawerError(null)
+    setBusyMarkSigned(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const res = await fetch(`/api/admin/onboarding/${selectedClientId}/mark-contract-signed`, {
+        method:  "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const json = await res.json()
+      if (!res.ok) { setDrawerError(json?.error ?? "No se pudo marcar el contrato como firmado"); return }
+      await loadClients()
+    } finally {
+      setBusyMarkSigned(false)
+    }
+  }
+
+  async function handleResend(template: OnboardingEmailTemplate) {
+    if (!selectedClientId) return
+    setDrawerError(null)
+    setBusyResendTemplate(template)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const res = await fetch(`/api/admin/onboarding/${selectedClientId}/resend-email`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body:    JSON.stringify({ template }),
+      })
+      const json = await res.json()
+      if (!res.ok) { setDrawerError(json?.error ?? "No se pudo reenviar el email"); return }
+      await loadClients()
+    } finally {
+      setBusyResendTemplate(null)
+    }
+  }
+
+  const filteredClients = clients.filter(c => {
+    const stage = getOnboardingStage(c.onboarding_flow)
+    if (activeView === "esperando") return stage === "esperando"
+    if (activeView === "errores")   return stage === "error"
+    return true
+  })
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-1 pb-12 page-enter">
@@ -557,6 +807,26 @@ export function AdminOnboardingView() {
       {/* List */}
       {view === "list" && (
         <>
+          {/* Vistas rápidas por etapa */}
+          {clients.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 border-b border-foreground/[0.06] pb-3">
+              {ONBOARDING_VIEWS.map(v => (
+                <button
+                  key={v.id}
+                  onClick={() => setActiveView(v.id)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[12.5px] font-semibold transition-all",
+                    activeView === v.id
+                      ? "bg-foreground text-background"
+                      : "text-foreground/45 hover:text-foreground hover:bg-foreground/[0.05]"
+                  )}
+                >
+                  {v.label}
+                </button>
+              ))}
+            </div>
+          )}
+
           {loading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="h-6 w-6 animate-spin text-foreground/30" />
@@ -574,9 +844,16 @@ export function AdminOnboardingView() {
                 Nuevo onboarding
               </button>
             </div>
+          ) : filteredClients.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-foreground/[0.08] py-16 text-center">
+              <p className="font-semibold text-foreground/50">Nada en esta vista</p>
+              <p className="mt-1 text-[12px] text-foreground/30">Probá con otro filtro.</p>
+            </div>
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {clients.map(c => <ClientCard key={c.id} client={c} />)}
+              {filteredClients.map(c => (
+                <ClientCard key={c.id} client={c} onClick={() => setSelectedClientId(c.id)} />
+              ))}
             </div>
           )}
         </>
@@ -590,6 +867,19 @@ export function AdminOnboardingView() {
           tempPassword={success.tempPassword}
           magicLink={success.magicLink}
           onClose={() => setSuccess(null)}
+        />
+      )}
+
+      {/* Detail drawer */}
+      {selectedClient && (
+        <OnboardingDetailDrawer
+          client={selectedClient}
+          onClose={() => { setSelectedClientId(null); setDrawerError(null) }}
+          onMarkSigned={handleMarkSigned}
+          onResend={handleResend}
+          busyMarkSigned={busyMarkSigned}
+          busyResendTemplate={busyResendTemplate}
+          actionError={drawerError}
         />
       )}
     </div>

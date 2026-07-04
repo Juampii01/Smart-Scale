@@ -172,6 +172,182 @@ Smart Scale · ${siteUrl}
   })
 }
 
+// ─── Template: acceso a Skool ─────────────────────────────────────────────────
+
+export async function sendSkoolAccessEmail(payload: {
+  name:  string
+  email: string
+}): Promise<EmailResult> {
+  const skoolLink = process.env.SKOOL_INVITE_LINK
+  if (!skoolLink) return { ok: false, error: "SKOOL_INVITE_LINK not configured" }
+
+  const firstName = payload.name.split(" ")[0]
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tu acceso a Skool</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+          <tr>
+            <td style="padding-bottom:24px;" align="center">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
+                  <td width="6"></td>
+                  <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
+                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#ffffff;border-radius:16px;border:1px solid #e5e5e5;padding:40px 36px;">
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#a3a3a3;text-transform:uppercase;letter-spacing:0.08em;">
+                Comunidad
+              </p>
+              <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#1a1a1a;line-height:1.2;">
+                Hola ${firstName}, unite a Skool 🎓
+              </h1>
+              <p style="margin:0 0 24px;font-size:15px;color:#525252;line-height:1.6;">
+                Ahí vas a encontrar el contenido del programa, la comunidad y las clases en vivo.
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding:8px 0 8px;">
+                    <a href="${skoolLink}"
+                       style="display:inline-block;background:#ffde21;color:#1a1a1a;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+                      Unirme a Skool →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top:20px;" align="center">
+              <p style="margin:0;font-size:12px;color:#a3a3a3;">Smart Scale</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+  const text = `Hola ${firstName},
+
+Ya podés unirte a la comunidad de Skool: ${skoolLink}
+
+Smart Scale
+`
+
+  return sendEmail({
+    to:      payload.email,
+    subject: `${firstName}, unite a la comunidad en Skool 🎓`,
+    html,
+    text,
+  })
+}
+
+// ─── Template: acceso a Slack ──────────────────────────────────────────────
+
+export async function sendSlackAccessEmail(payload: {
+  name:  string
+  email: string
+}): Promise<EmailResult> {
+  const slackLink = process.env.SLACK_INVITE_LINK
+  if (!slackLink) return { ok: false, error: "SLACK_INVITE_LINK not configured" }
+
+  const firstName = payload.name.split(" ")[0]
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tu acceso a Slack</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+          <tr>
+            <td style="padding-bottom:24px;" align="center">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
+                  <td width="6"></td>
+                  <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
+                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#ffffff;border-radius:16px;border:1px solid #e5e5e5;padding:40px 36px;">
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#a3a3a3;text-transform:uppercase;letter-spacing:0.08em;">
+                Comunidad
+              </p>
+              <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#1a1a1a;line-height:1.2;">
+                Hola ${firstName}, sumate a Slack 💬
+              </h1>
+              <p style="margin:0 0 24px;font-size:15px;color:#525252;line-height:1.6;">
+                Ahí vas a estar en contacto directo con el equipo y el resto de la comunidad.
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding:8px 0 8px;">
+                    <a href="${slackLink}"
+                       style="display:inline-block;background:#ffde21;color:#1a1a1a;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+                      Unirme a Slack →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top:20px;" align="center">
+              <p style="margin:0;font-size:12px;color:#a3a3a3;">Smart Scale</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+  const text = `Hola ${firstName},
+
+Ya podés unirte a Slack: ${slackLink}
+
+Smart Scale
+`
+
+  return sendEmail({
+    to:      payload.email,
+    subject: `${firstName}, sumate a Slack 💬`,
+    html,
+    text,
+  })
+}
+
 // ─── Template: credenciales para el admin que creó el cliente ────────────────
 
 export async function sendCredentialsToAdmin(payload: {
