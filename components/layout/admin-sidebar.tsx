@@ -5,7 +5,7 @@ import {
   X, DollarSign, ClipboardList, Table2, Users2,
   UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
   MessageSquareText, UserPlus,
-  LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2, Instagram, Sparkles,
+  LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2, Instagram, Sparkles, Activity,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -40,10 +40,11 @@ const ADMIN_NAV_ITEMS = [
 
 // Sección "Desarrollador" — herramientas técnicas, al final del sidebar.
 const DEV_NAV_ITEMS = [
-  { name: "Agenda",     href: "/admin/agenda",           icon: CalendarDays },
-  { name: "Conexiones", href: "/admin/conexiones",       icon: Share2 },
-  { name: "Dev Logs",   href: "/admin/dev-logs",         icon: Terminal },
-  { name: "Instagram",  href: "/admin/instagram-access", icon: Instagram },
+  { name: "Agenda",     href: "/admin/agenda",              icon: CalendarDays },
+  { name: "Conexiones", href: "/admin/conexiones",          icon: Share2 },
+  { name: "Actividad",  href: "/admin/actividad-clientes",  icon: Activity },
+  { name: "Dev Logs",   href: "/admin/dev-logs",            icon: Terminal },
+  { name: "Instagram",  href: "/admin/instagram-access",    icon: Instagram },
 ]
 
 export function AdminSidebar({ open, onClose }: AdminSidebarProps) {

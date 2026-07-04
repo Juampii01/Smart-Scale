@@ -484,3 +484,263 @@ Smart Scale
     text,
   })
 }
+
+// ─── Template: recordatorio Monday Win ───────────────────────────────────────
+
+export async function sendMondayWinReminderEmail(payload: {
+  name:  string
+  email: string
+}): Promise<EmailResult> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://app.smartscale.co"
+  const firstName = payload.name.split(" ")[0]
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cargá tu Monday Win</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+          <tr>
+            <td style="padding-bottom:24px;" align="center">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
+                  <td width="6"></td>
+                  <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
+                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#ffffff;border-radius:16px;border:1px solid #e5e5e5;padding:40px 36px;">
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#a3a3a3;text-transform:uppercase;letter-spacing:0.08em;">
+                Arrancá la semana
+              </p>
+              <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#1a1a1a;line-height:1.2;">
+                Hola ${firstName}, cargá tu Monday Win 🏆
+              </h1>
+              <p style="margin:0 0 24px;font-size:15px;color:#525252;line-height:1.6;">
+                Todavía no registraste tus logros y tu foco de esta semana. Te toma 2 minutos.
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding:8px 0 8px;">
+                    <a href="${siteUrl}/monday-win"
+                       style="display:inline-block;background:#ffde21;color:#1a1a1a;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+                      Cargar mi Monday Win →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top:20px;" align="center">
+              <p style="margin:0;font-size:12px;color:#a3a3a3;">Smart Scale</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+  const text = `Hola ${firstName},
+
+Todavía no cargaste tu Monday Win de esta semana. Cargalo acá: ${siteUrl}/monday-win
+
+Smart Scale
+`
+
+  return sendEmail({
+    to:      payload.email,
+    subject: `${firstName}, cargá tu Monday Win 🏆`,
+    html,
+    text,
+  })
+}
+
+// ─── Template: recordatorio Reporte Mensual ──────────────────────────────────
+
+export async function sendMonthlyReportReminderEmail(payload: {
+  name:  string
+  email: string
+}): Promise<EmailResult> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://app.smartscale.co"
+  const firstName = payload.name.split(" ")[0]
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Te falta el Reporte Mensual</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+          <tr>
+            <td style="padding-bottom:24px;" align="center">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
+                  <td width="6"></td>
+                  <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
+                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#ffffff;border-radius:16px;border:1px solid #e5e5e5;padding:40px 36px;">
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#a3a3a3;text-transform:uppercase;letter-spacing:0.08em;">
+                Reporte mensual
+              </p>
+              <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#1a1a1a;line-height:1.2;">
+                Hola ${firstName}, te falta el reporte 📊
+              </h1>
+              <p style="margin:0 0 24px;font-size:15px;color:#525252;line-height:1.6;">
+                Todavía no cargaste tu reporte mensual. Cargalo para que Ann AI te dé el diagnóstico de tu negocio.
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding:8px 0 8px;">
+                    <a href="${siteUrl}/report-input"
+                       style="display:inline-block;background:#ffde21;color:#1a1a1a;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+                      Cargar mi reporte →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top:20px;" align="center">
+              <p style="margin:0;font-size:12px;color:#a3a3a3;">Smart Scale</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+  const text = `Hola ${firstName},
+
+Todavía no cargaste tu reporte mensual. Cargalo acá: ${siteUrl}/report-input
+
+Smart Scale
+`
+
+  return sendEmail({
+    to:      payload.email,
+    subject: `${firstName}, te falta el Reporte Mensual 📊`,
+    html,
+    text,
+  })
+}
+
+// ─── Template: recordatorio de inactividad ───────────────────────────────────
+
+export async function sendInactivityReminderEmail(payload: {
+  name:           string
+  email:          string
+  daysSinceLogin: number
+}): Promise<EmailResult> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://app.smartscale.co"
+  const firstName = payload.name.split(" ")[0]
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hace rato que no entrás</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+          <tr>
+            <td style="padding-bottom:24px;" align="center">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
+                  <td width="6"></td>
+                  <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
+                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#ffffff;border-radius:16px;border:1px solid #e5e5e5;padding:40px 36px;">
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#a3a3a3;text-transform:uppercase;letter-spacing:0.08em;">
+                Te extrañamos
+              </p>
+              <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#1a1a1a;line-height:1.2;">
+                Hola ${firstName}, hace ${payload.daysSinceLogin} días que no entrás
+              </h1>
+              <p style="margin:0 0 24px;font-size:15px;color:#525252;line-height:1.6;">
+                Tu dashboard te está esperando con tus métricas, recursos y el progreso de tu negocio.
+                Entrá un ratito para no perder el hilo.
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding:8px 0 8px;">
+                    <a href="${siteUrl}/dashboard"
+                       style="display:inline-block;background:#ffde21;color:#1a1a1a;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+                      Entrar al dashboard →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top:20px;" align="center">
+              <p style="margin:0;font-size:12px;color:#a3a3a3;">Smart Scale</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+  const text = `Hola ${firstName},
+
+Hace ${payload.daysSinceLogin} días que no entrás al dashboard. Entrá acá: ${siteUrl}/dashboard
+
+Smart Scale
+`
+
+  return sendEmail({
+    to:      payload.email,
+    subject: `${firstName}, hace ${payload.daysSinceLogin} días que no entrás 👋`,
+    html,
+    text,
+  })
+}
