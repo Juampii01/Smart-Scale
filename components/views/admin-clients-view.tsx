@@ -14,14 +14,15 @@ import {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Installment {
-  id:                 string
-  client_id:          string
-  installment_number: number
-  due_date:           string
-  amount:             number
-  paid_at:            string | null
-  notes:              string | null
-  status:             "pagado" | "pendiente" | "vencido"
+  id:                          string
+  client_id:                   string
+  installment_number:          number
+  due_date:                    string
+  amount:                      number
+  paid_at:                     string | null
+  notes:                       string | null
+  status:                      "pagado" | "pendiente" | "vencido"
+  overdue_alert_snoozed_until: string | null
 }
 
 interface Followup {
@@ -205,13 +206,17 @@ function WebhookCard() {
 function InstallmentRow({
   inst,
   togglingInst,
+  snoozingInst,
   onToggle,
   onPatchAmount,
+  onSnooze,
 }: {
   inst:          Installment
   togglingInst:  string | null
+  snoozingInst:  string | null
   onToggle:      () => void
   onPatchAmount: (amount: number) => Promise<void>
+  onSnooze:      (days: number | null) => Promise<void>
 }) {
   const [editing,  setEditing]  = useState(false)
   const [rawValue, setRawValue] = useState(String(inst.amount))
@@ -294,9 +299,26 @@ function InstallmentRow({
             ? <Loader2 className="h-3 w-3 animate-spin" />
             : inst.status === "pagado" ? "Desmarcar" : "Marcar pagado"}
         </button>
+        {inst.status !== "pagado" && (
+          <button
+            onClick={() => onSnooze(inst.overdue_alert_snoozed_until ? null : 7)}
+            disabled={snoozingInst === inst.id}
+            title="Posponer el email de cuota vencida al cliente — no afecta el aviso interno de Slack"
+            className="shrink-0 h-7 rounded-lg border border-border px-2.5 text-[11px] font-semibold text-foreground/60 hover:bg-foreground/[0.05] transition-all disabled:opacity-40"
+          >
+            {snoozingInst === inst.id
+              ? <Loader2 className="h-3 w-3 animate-spin" />
+              : inst.overdue_alert_snoozed_until ? "Cancelar posponer" : "Posponer +7d"}
+          </button>
+        )}
       </div>
       {inst.paid_at && (
         <p className="text-[11px] text-foreground/35 pl-9">Pagado el {fmtDate(inst.paid_at)}</p>
+      )}
+      {inst.overdue_alert_snoozed_until && (
+        <p className="text-[11px] text-amber-700 dark:text-amber-400 pl-9">
+          Email de vencido pospuesto hasta {fmtDate(inst.overdue_alert_snoozed_until)}
+        </p>
       )}
     </div>
   )
@@ -573,6 +595,7 @@ function DetailDrawer({
   onPatchClient,
   onToggleInstallment,
   onPatchInstallmentAmount,
+  onSnoozeInstallment,
   onAddFollowup,
   onToggleFollowup,
   onDeleteFollowup,
@@ -586,6 +609,7 @@ function DetailDrawer({
   onPatchClient:       (id: string, updates: Partial<Client>) => Promise<void>
   onToggleInstallment:       (installmentId: string, currentPaidAt: string | null) => Promise<void>
   onPatchInstallmentAmount:  (installmentId: string, amount: number) => Promise<void>
+  onSnoozeInstallment:       (installmentId: string, until: string | null) => Promise<void>
   onAddFollowup:             (clientId: string, data: any) => Promise<void>
   onToggleFollowup:    (followupId: string) => Promise<void>
   onDeleteFollowup:    (followupId: string) => Promise<void>
@@ -601,6 +625,7 @@ function DetailDrawer({
   const [fuNotes,          setFuNotes]            = useState("")
   const [savingFu,         setSavingFu]           = useState(false)
   const [togglingInst,     setTogglingInst]       = useState<string | null>(null)
+  const [snoozingInst,     setSnoozingInst]       = useState<string | null>(null)
   const [togglingFu,       setTogglingFu]         = useState<string | null>(null)
   const [deletingFuId,     setDeletingFuId]       = useState<string | null>(null)
 
@@ -619,6 +644,13 @@ function DetailDrawer({
     setTogglingInst(inst.id)
     await onToggleInstallment(inst.id, inst.paid_at)
     setTogglingInst(null)
+  }
+
+  const handleSnoozeInst = async (inst: Installment, days: number | null) => {
+    setSnoozingInst(inst.id)
+    const until = days == null ? null : new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10)
+    await onSnoozeInstallment(inst.id, until)
+    setSnoozingInst(null)
   }
 
   const handleToggleFu = async (fu: Followup) => {
@@ -945,7 +977,9 @@ function DetailDrawer({
                   key={inst.id}
                   inst={inst}
                   togglingInst={togglingInst}
+                  snoozingInst={snoozingInst}
                   onToggle={() => handleToggleInst(inst)}
+                  onSnooze={(days) => handleSnoozeInst(inst, days)}
                   onPatchAmount={async (newAmt) => {
                     await onPatchInstallmentAmount(inst.id, newAmt)
                   }}
@@ -1589,6 +1623,24 @@ export function AdminClientsView() {
     }
   }
 
+  const handleSnoozeInstallment = async (installmentId: string, until: string | null) => {
+    const session = await getSession()
+    if (!session) return
+    const res = await fetch("/api/admin/clients", {
+      method:  "PATCH",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+      body:    JSON.stringify({ installment_id: installmentId, overdue_alert_snoozed_until: until }),
+    })
+    if (res.ok) {
+      setClients(prev => prev.map(c => ({
+        ...c,
+        installments: c.installments.map(i =>
+          i.id === installmentId ? { ...i, overdue_alert_snoozed_until: until } : i
+        ),
+      })))
+    }
+  }
+
   const handleToggleInstallment = async (installmentId: string, _currentPaidAt: string | null) => {
     const session = await getSession()
     if (!session) return
@@ -1761,6 +1813,7 @@ export function AdminClientsView() {
           onPatchClient={handlePatchClient}
           onToggleInstallment={handleToggleInstallment}
           onPatchInstallmentAmount={handlePatchInstallmentAmount}
+          onSnoozeInstallment={handleSnoozeInstallment}
           onAddFollowup={handleAddFollowup}
           onToggleFollowup={handleToggleFollowup}
           onDeleteFollowup={handleDeleteFollowup}

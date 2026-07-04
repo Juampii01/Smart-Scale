@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireAdmin } from "@/lib/auth/api-guards"
+import { sendPaymentConfirmedEmail } from "@/lib/email"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -207,6 +208,18 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: true, amount: newAmount })
     }
 
+    // Posponer (o reactivar) el email de "cuota vencida" — el admin lo carga
+    // a mano cuando ya arregló algo distinto con el cliente por privado. No
+    // afecta el aviso interno de Slack al equipo, solo el email al cliente.
+    if (body.installment_id && body.overdue_alert_snoozed_until !== undefined) {
+      const { error } = await supabase
+        .from("crm_installments")
+        .update({ overdue_alert_snoozed_until: body.overdue_alert_snoozed_until })
+        .eq("id", body.installment_id)
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ success: true, overdue_alert_snoozed_until: body.overdue_alert_snoozed_until })
+    }
+
     // Toggle installment paid
     if (body.installment_id) {
       // Fetch installment + parent client info (for monthly subscription logic)
@@ -230,9 +243,18 @@ export async function PATCH(req: NextRequest) {
       if (newPaidAt && existing?.client_id) {
         const { data: client } = await supabase
           .from("crm_clients")
-          .select("is_monthly_subscription, installment_amount")
+          .select("name, email, is_monthly_subscription, installment_amount")
           .eq("id", existing.client_id)
           .maybeSingle()
+
+        // Email de confirmación al cliente (fire-and-forget, no bloquea la respuesta).
+        if (client?.email) {
+          sendPaymentConfirmedEmail({
+            name:   client.name,
+            email:  client.email,
+            amount: existing.amount ?? client.installment_amount ?? 0,
+          }).catch(() => {})
+        }
 
         if (client?.is_monthly_subscription) {
           // Check if a future unpaid installment already exists
