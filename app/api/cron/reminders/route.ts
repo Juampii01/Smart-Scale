@@ -1,8 +1,13 @@
 /**
- * Cron diario de recordatorios push a clientes (corre a la mañana, hora Miami).
+ * Cron diario de recordatorios a clientes (corre a la mañana, hora Miami).
  *  - 🏆 Monday Win: los lunes, a quien no cargó su win de la semana.
  *  - 📊 Reporte Mensual: fin de mes (últimos 3 días) y primeros 3 días del mes,
  *       a quien no cargó el reporte del mes correspondiente.
+ *  - 👋 Inactividad: clientes con 7+ días sin loguearse, throttleado a 1 email
+ *       por semana por cliente (profiles.last_inactivity_email_sent_at).
+ *
+ * Push + email para Monday Win y Reporte Mensual; solo email para inactividad
+ * (no tiene sentido un push si el problema es justamente que no abre la app).
  *
  * Auth: Vercel Cron envía Authorization: Bearer ${CRON_SECRET}.
  */
@@ -10,30 +15,19 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { sendPushToUsers } from "@/lib/push"
+import { sendMondayWinReminderEmail, sendMonthlyReportReminderEmail, sendInactivityReminderEmail } from "@/lib/email"
+import { getClientActivitySnapshot, miamiNow } from "@/lib/client-activity"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
 
+const INACTIVITY_THRESHOLD_DAYS = 7
+
 function authorize(req: NextRequest): boolean {
   const expected = process.env.CRON_SECRET
   if (!expected) return false
   return (req.headers.get("authorization") ?? "") === `Bearer ${expected}`
-}
-
-/** Partes de fecha en hora de Miami (America/New_York). */
-function miamiNow() {
-  const fmt = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York", weekday: "short", year: "numeric", month: "2-digit", day: "2-digit",
-  })
-  const parts = Object.fromEntries(fmt.formatToParts(new Date()).map(p => [p.type, p.value]))
-  const year  = Number(parts.year)
-  const month = Number(parts.month)        // 1-12
-  const day   = Number(parts.day)          // 1-31
-  const weekday = parts.weekday            // "Mon", "Tue", ...
-  // Último día del mes
-  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate()
-  return { year, month, day, weekday, lastDay }
 }
 
 export async function GET(req: NextRequest) {
@@ -43,56 +37,69 @@ export async function GET(req: NextRequest) {
   const { year, month, day, weekday, lastDay } = miamiNow()
   const sent: Record<string, number> = {}
 
-  // Clientes activos con cuenta (client_id + user_id para push)
-  const { data: profiles } = await sb
-    .from("profiles").select("id, client_id").eq("role", "client").not("client_id", "is", null)
-  const clients = (profiles ?? []) as { id: string; client_id: string }[]
-  if (clients.length === 0) return NextResponse.json({ ok: true, note: "sin clientes" })
+  const activity = await getClientActivitySnapshot(sb)
+  if (activity.length === 0) return NextResponse.json({ ok: true, note: "sin clientes" })
 
   // ── 🏆 Monday Win (lunes) ────────────────────────────────────────────────
   if (weekday === "Mon") {
-    // Inicio de la semana = hoy (lunes) a las 00:00
-    const monday = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`
-    const { data: wins } = await sb
-      .from("monday_wins").select("client_id").gte("fecha", monday)
-    const cargaron = new Set((wins ?? []).map((w: any) => w.client_id))
-    const faltan = clients.filter(c => !cargaron.has(c.client_id)).map(c => c.id)
+    const faltan = activity.filter(c => !c.mondayWinSubmitted)
     if (faltan.length) {
-      await sendPushToUsers(sb, faltan, {
+      await sendPushToUsers(sb, faltan.map(c => c.userId), {
         title: "🏆 Cargá tu Monday Win",
         body:  "Arrancá la semana registrando tus logros y tu foco. Te toma 2 minutos.",
         url:   "/monday-win",
       })
+      await Promise.all(
+        faltan
+          .filter(c => c.email)
+          .map(c => sendMondayWinReminderEmail({ name: c.name, email: c.email! }).catch(() => {}))
+      )
       sent.monday_win = faltan.length
     }
   }
 
   // ── 📊 Reporte Mensual (fin de mes o primeros días) ──────────────────────
-  const finDeMes   = day >= lastDay - 2          // últimos 3 días
-  const inicioMes  = day <= 3                     // primeros 3 días
+  const finDeMes  = day >= lastDay - 2          // últimos 3 días
+  const inicioMes = day <= 3                     // primeros 3 días
   if (finDeMes || inicioMes) {
-    // Si es inicio de mes, recordamos el reporte del MES ANTERIOR; si es fin, el del mes en curso.
-    const targetY = inicioMes ? (month === 1 ? year - 1 : year) : year
-    const targetM = inicioMes ? (month === 1 ? 12 : month - 1) : month
-    const monthKey = `${targetY}-${String(targetM).padStart(2, "0")}`
-
-    const { data: reports } = await sb
-      .from("monthly_reports").select("client_id, month")
-    const cargaron = new Set(
-      (reports ?? [])
-        .filter((r: any) => String(r.month).slice(0, 7) === monthKey)
-        .map((r: any) => r.client_id)
-    )
-    const faltan = clients.filter(c => !cargaron.has(c.client_id)).map(c => c.id)
+    const faltan = activity.filter(c => !c.monthlyReportSubmitted)
     if (faltan.length) {
       const cuando = inicioMes ? "del mes pasado" : "de este mes"
-      await sendPushToUsers(sb, faltan, {
+      await sendPushToUsers(sb, faltan.map(c => c.userId), {
         title: "📊 Te falta el Reporte Mensual",
         body:  `Todavía no cargaste el reporte ${cuando}. Cargalo para que Ann AI te dé el diagnóstico.`,
         url:   "/report-input",
       })
+      await Promise.all(
+        faltan
+          .filter(c => c.email)
+          .map(c => sendMonthlyReportReminderEmail({ name: c.name, email: c.email! }).catch(() => {}))
+      )
       sent.monthly_report = faltan.length
     }
+  }
+
+  // ── 👋 Inactividad (7+ días sin loguearse, throttle 1/semana) ────────────
+  const now = Date.now()
+  const inactivos = activity.filter(c => {
+    if (c.daysSinceLogin == null || c.daysSinceLogin < INACTIVITY_THRESHOLD_DAYS) return false
+    if (!c.lastInactivityEmailSentAt) return true
+    const daysSinceLastEmail = (now - new Date(c.lastInactivityEmailSentAt).getTime()) / 86_400_000
+    return daysSinceLastEmail >= INACTIVITY_THRESHOLD_DAYS
+  })
+  if (inactivos.length) {
+    const nowIso = new Date().toISOString()
+    await Promise.all(
+      inactivos
+        .filter(c => c.email)
+        .map(async c => {
+          const result = await sendInactivityReminderEmail({ name: c.name, email: c.email!, daysSinceLogin: c.daysSinceLogin! }).catch(() => null)
+          if (result?.ok) {
+            await sb.from("profiles").update({ last_inactivity_email_sent_at: nowIso }).eq("id", c.userId)
+          }
+        })
+    )
+    sent.inactivity = inactivos.length
   }
 
   return NextResponse.json({ ok: true, date: `${year}-${month}-${day}`, weekday, sent })
