@@ -616,33 +616,26 @@ function OnboardingDetailDrawer({
             actionLoading={busyMarkSigned}
           />
 
-          <TimelineStep
-            label="Email: acceso a Skool"
-            state={emailState(flow?.email_skool_sent_at, flow?.email_skool_error)}
-            error={flow?.email_skool_error}
-            onAction={emailState(flow?.email_skool_sent_at, flow?.email_skool_error) === "error" ? () => onResend("skool") : undefined}
-            actionLabel="Reintentar"
-            actionLoading={busyResendTemplate === "skool"}
-          />
-
-          <TimelineStep
-            label="Email: acceso a Slack"
-            state={emailState(flow?.email_slack_sent_at, flow?.email_slack_error)}
-            error={flow?.email_slack_error}
-            onAction={emailState(flow?.email_slack_sent_at, flow?.email_slack_error) === "error" ? () => onResend("slack") : undefined}
-            actionLabel="Reintentar"
-            actionLoading={busyResendTemplate === "slack"}
-          />
-
-          <TimelineStep
-            label="Email: acceso a la plataforma"
-            state={emailState(flow?.email_platform_sent_at, flow?.email_platform_error)}
-            error={flow?.email_platform_error}
-            onAction={emailState(flow?.email_platform_sent_at, flow?.email_platform_error) === "error" ? () => onResend("platform") : undefined}
-            actionLabel="Reintentar"
-            actionLoading={busyResendTemplate === "platform"}
-            last
-          />
+          {(["skool", "slack", "platform"] as const).map((template, i) => {
+            const sentAt = template === "skool" ? flow?.email_skool_sent_at : template === "slack" ? flow?.email_slack_sent_at : flow?.email_platform_sent_at
+            const emailError = template === "skool" ? flow?.email_skool_error : template === "slack" ? flow?.email_slack_error : flow?.email_platform_error
+            const state = emailState(sentAt, emailError)
+            const label = template === "skool" ? "Email: acceso a Skool" : template === "slack" ? "Email: acceso a Slack" : "Email: acceso a la plataforma"
+            // Reintentar si falló, Reenviar si ya salió bien (por si el cliente dice que no le llegó) — no hay acción mientras está bloqueado o pendiente.
+            const canAct = state === "error" || state === "done"
+            return (
+              <TimelineStep
+                key={template}
+                label={label}
+                state={state}
+                error={emailError}
+                onAction={canAct ? () => onResend(template) : undefined}
+                actionLabel={state === "error" ? "Reintentar" : "Reenviar"}
+                actionLoading={busyResendTemplate === template}
+                last={i === 2}
+              />
+            )
+          })}
         </div>
       </div>
     </>
