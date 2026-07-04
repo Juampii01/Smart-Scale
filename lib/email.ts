@@ -104,6 +104,7 @@ export async function sendWelcomeEmail(payload: {
               <p style="margin:0 0 24px;font-size:15px;color:#525252;line-height:1.6;">
                 Tu cuenta de <strong>Smart Scale</strong> fue creada${payload.program ? ` para el programa <strong>${payload.program}</strong>` : ""}.
                 Desde el dashboard vas a poder ver todas tus métricas, recursos y el progreso de tu negocio en tiempo real.
+                Al tocar el botón de abajo vas a crear tu contraseña y entrar directo.
               </p>
 
               <!-- CTA -->
@@ -112,7 +113,7 @@ export async function sendWelcomeEmail(payload: {
                   <td align="center" style="padding:8px 0 28px;">
                     <a href="${payload.magic_link}"
                        style="display:inline-block;background:#ffde21;color:#1a1a1a;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
-                      Ingresar al dashboard →
+                      Crear mi contraseña →
                     </a>
                   </td>
                 </tr>
@@ -123,7 +124,9 @@ export async function sendWelcomeEmail(payload: {
                   ⚠️ Importante
                 </p>
                 <p style="margin:0;font-size:13px;color:#525252;line-height:1.5;">
-                  Este link es de un solo uso y expira en 24 horas. Si no podés usarlo ahora, podés solicitar uno nuevo desde la pantalla de login con tu email: <strong>${payload.email}</strong>
+                  Este link es de un solo uso y expira en 24 horas. Si expiró o ya lo usaste, entrá a
+                  <strong>smartscale.space/login</strong> con tu email <strong>${payload.email}</strong> y tocá
+                  "¿La olvidaste?" para crear tu contraseña de nuevo.
                 </p>
               </div>
 
@@ -158,10 +161,10 @@ export async function sendWelcomeEmail(payload: {
 
 Tu acceso a Smart Scale está listo.${payload.program ? ` Programa: ${payload.program}.` : ""}
 
-Ingresá al dashboard haciendo click en este link (un solo uso, expira en 24hs):
+Creá tu contraseña haciendo click en este link (un solo uso, expira en 24hs):
 ${payload.magic_link}
 
-Si no podés usarlo, solicitá uno nuevo desde el login con tu email: ${payload.email}
+Si expiró o ya lo usaste, entrá a smartscale.space/login con tu email (${payload.email}) y tocá "¿La olvidaste?" para crear tu contraseña de nuevo.
 
 Smart Scale · ${siteUrl}
 `

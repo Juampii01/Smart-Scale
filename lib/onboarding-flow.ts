@@ -42,7 +42,7 @@ async function sendOnboardingEmail(
     const { data: link } = await sb.auth.admin.generateLink({
       type: "magiclink",
       email,
-      options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://smartscale.space"}/dashboard` },
+      options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://smartscale.space"}/reset-password` },
     })
     magicLink = (link as any)?.properties?.action_link ?? null
   } catch (err) {
