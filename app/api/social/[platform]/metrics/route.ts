@@ -135,7 +135,12 @@ async function igMediaInsights(mediaId: string, token: string): Promise<{ views:
     if (res.ok) return parse(await res.json())
     res = await fetch(`${IG_BASE}/${mediaId}/insights?metric=reach&access_token=${encodeURIComponent(token)}`, { signal: AbortSignal.timeout(8_000) })
     if (res.ok) return parse(await res.json())
-  } catch { /* best-effort */ }
+    console.error(`[social/instagram/metrics] insights fetch failed for media ${mediaId}: HTTP ${res.status}`)
+  } catch (e) {
+    console.error(`[social/instagram/metrics] insights fetch threw for media ${mediaId}:`, e instanceof Error ? e.message : e)
+  }
+  // views:0/reach:0 acá significa "no pudimos traer el insight", no necesariamente
+  // que el post tuvo 0 vistas reales — queda logueado arriba para diferenciarlo.
   return { views: 0, reach: 0 }
 }
 
