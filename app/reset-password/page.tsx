@@ -39,6 +39,10 @@ export default function ResetPasswordPage() {
   const [linkValidated, setLinkValidated] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  // "magiclink" = primer ingreso post-onboarding (crear contraseña, seguir al
+  // dashboard). Cualquier otro caso (recovery, o ambiguo) = flujo clásico de
+  // "olvidé mi contraseña" (desloguear y volver al login).
+  const [linkType, setLinkType] = useState<string | null>(null);
 
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
@@ -62,6 +66,7 @@ export default function ResetPasswordPage() {
       const code = url.searchParams.get("code");
       const tokenHash = url.searchParams.get("token_hash");
       const type = url.searchParams.get("type");
+      setLinkType(type);
 
       const hashParams = window.location.hash ? parseHashParams(window.location.hash) : {};
       const hashHasAccessToken = Boolean(hashParams["access_token"]);
@@ -77,13 +82,15 @@ export default function ResetPasswordPage() {
       }
 
       try {
-        // 0) Recovery link flow: ?token_hash=...&type=recovery
-        if (tokenHash && type === "recovery") {
+        // 0) Token-hash flow: ?token_hash=...&type=recovery|magiclink
+        if (tokenHash && (type === "recovery" || type === "magiclink")) {
           const { data, error } = await supabase.auth.verifyOtp({
             token_hash: tokenHash,
-            type: "recovery",
+            type: type as "recovery" | "magiclink",
           });
           if (error) throw error;
+
+          if (!mounted) return;
 
           if (data?.session?.access_token && data?.session?.refresh_token) {
             await supabase.auth.setSession({
@@ -248,6 +255,12 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    if (linkType === "magiclink") {
+      setInfo("Contraseña creada. Entrando al dashboard...");
+      router.replace("/dashboard");
+      return;
+    }
+
     setInfo("Contraseña actualizada. Redirigiendo al login...");
     await supabase.auth.signOut();
     router.replace("/login");
@@ -289,9 +302,13 @@ export default function ResetPasswordPage() {
             <div className="text-xs font-semibold tracking-[0.35em] text-foreground/70">
               SMART SCALE
             </div>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight">Reseteá tu contraseña</h1>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+              {linkType === "magiclink" ? "Creá tu contraseña" : "Reseteá tu contraseña"}
+            </h1>
             <p className="mt-1 text-sm text-foreground/60">
-              Validá el link y elegí una nueva contraseña.
+              {linkType === "magiclink"
+                ? "Elegí una contraseña para tus próximos ingresos al dashboard."
+                : "Validá el link y elegí una nueva contraseña."}
             </p>
           </div>
 
@@ -346,7 +363,9 @@ export default function ResetPasswordPage() {
                 disabled={loading || !hasSession}
                 className="h-11 w-full rounded-xl bg-foreground text-sm font-semibold text-background transition hover:bg-foreground/90 disabled:opacity-60"
               >
-                {loading ? "Actualizando…" : "Actualizar contraseña"}
+                {loading
+                  ? (linkType === "magiclink" ? "Creando…" : "Actualizando…")
+                  : (linkType === "magiclink" ? "Crear contraseña" : "Actualizar contraseña")}
               </button>
 
               <div className="flex items-center justify-between pt-1">

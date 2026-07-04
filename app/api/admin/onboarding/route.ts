@@ -293,7 +293,7 @@ export async function POST(req: NextRequest) {
         type: "magiclink",
         email,
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/dashboard`
+          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/reset-password`
         }
       })
       magicLink = (link as any)?.properties?.action_link ?? null
