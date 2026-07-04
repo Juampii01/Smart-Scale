@@ -2,6 +2,13 @@
  * Cron diario para suscripciones mensuales:
  *  1. Genera la siguiente cuota cuando la última está paga.
  *  2. Manda alerta a Slack 5 días antes del vencimiento (una vez por cuota).
+ *  3. Manda email al CLIENTE en esos mismos momentos (próximo cobro/pago,
+ *     cuota vencida) — canal independiente del de Slack, con su propio
+ *     tracking (client_alert_sent_at / client_overdue_alert_sent_at) para que
+ *     un fallo de uno no afecte al otro. El email de vencida respeta
+ *     overdue_alert_snoozed_until (el admin lo carga a mano cuando ya arregló
+ *     algo distinto con el cliente) — el aviso de Slack al equipo NO se
+ *     pospone, es solo visibilidad interna.
  *
  * Auth: Vercel Cron envía `Authorization: Bearer ${CRON_SECRET}` automáticamente
  * cuando configuramos `crons` en vercel.json + ENV var CRON_SECRET.
@@ -13,6 +20,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { sendSlackMessage } from "@/lib/slack"
+import { sendUpcomingChargeEmail, sendUpcomingPaymentLinkEmail, sendOverdueInstallmentEmail } from "@/lib/email"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -118,7 +126,7 @@ async function runBillingAlerts() {
   //    ACTIVOS con plan mensual (no le inventamos cuotas a un cliente dado de baja).
   const { data: clients, error: clientsErr } = await supabase
     .from("crm_clients")
-    .select("id, name, installment_amount, status, is_monthly_subscription, program_start")
+    .select("id, name, email, installment_amount, status, is_monthly_subscription, program_start")
 
   if (clientsErr) {
     result.errors.push(`Error cargando clientes: ${clientsErr.message}`)
@@ -184,7 +192,7 @@ async function runBillingAlerts() {
       //    (b) ya vencidas (due_date < hoy)       → si overdue_alert_sent_at IS NULL
       const { data: pending } = await supabase
         .from("crm_installments")
-        .select("id, due_date, amount, alert_sent_at, overdue_alert_sent_at")
+        .select("id, due_date, amount, alert_sent_at, overdue_alert_sent_at, client_alert_sent_at, client_overdue_alert_sent_at, overdue_alert_snoozed_until")
         .eq("client_id", client.id)
         .is("paid_at", null)
 
@@ -221,6 +229,15 @@ async function runBillingAlerts() {
           } else {
             result.errors.push(`[${client.name}] alerta previa: ${r.reason ?? "unknown"}`)
           }
+
+          // Email al cliente — canal independiente del de Slack.
+          if (client.email && !cuota.client_alert_sent_at) {
+            const emailFn = client.is_monthly_subscription ? sendUpcomingChargeEmail : sendUpcomingPaymentLinkEmail
+            const emailResult = await emailFn({ name: client.name, email: client.email, amount: montoNum, dueDate: cuota.due_date }).catch(() => null)
+            if (emailResult?.ok) {
+              await supabase.from("crm_installments").update({ client_alert_sent_at: new Date().toISOString() }).eq("id", cuota.id)
+            }
+          }
         }
 
         // ── (b) Cuota vencida: due_date pasó y sigue impaga, una sola vez ────
@@ -250,6 +267,16 @@ async function runBillingAlerts() {
             result.alertsSent++
           } else {
             result.errors.push(`[${client.name}] alerta vencida: ${r.reason ?? "unknown"}`)
+          }
+
+          // Email al cliente — respeta el snooze que carga el admin a mano
+          // (arreglo manual con el cliente); el Slack de arriba NO se pospone.
+          const snoozed = cuota.overdue_alert_snoozed_until && cuota.overdue_alert_snoozed_until >= todayStr
+          if (client.email && !cuota.client_overdue_alert_sent_at && !snoozed) {
+            const emailResult = await sendOverdueInstallmentEmail({ name: client.name, email: client.email, amount: montoNum, daysOverdue: diasAtraso }).catch(() => null)
+            if (emailResult?.ok) {
+              await supabase.from("crm_installments").update({ client_overdue_alert_sent_at: new Date().toISOString() }).eq("id", cuota.id)
+            }
           }
         }
       }

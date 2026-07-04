@@ -744,3 +744,326 @@ Smart Scale
     text,
   })
 }
+
+// ─── Helpers de formato para las plantillas de cobro/pago ────────────────────
+
+function fmtMoney(n: number) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(n)
+}
+function fmtDateAR(iso: string) {
+  return new Date(iso + "T12:00:00Z").toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })
+}
+
+// ─── Template: próximo cobro (recurrente) ────────────────────────────────────
+
+export async function sendUpcomingChargeEmail(payload: {
+  name:    string
+  email:   string
+  amount:  number
+  dueDate: string   // YYYY-MM-DD
+}): Promise<EmailResult> {
+  const firstName = payload.name.split(" ")[0]
+  const montoFmt = fmtMoney(payload.amount)
+  const venceFmt = fmtDateAR(payload.dueDate)
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Próximo cobro</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+          <tr>
+            <td style="padding-bottom:24px;" align="center">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
+                  <td width="6"></td>
+                  <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
+                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#ffffff;border-radius:16px;border:1px solid #e5e5e5;padding:40px 36px;">
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#a3a3a3;text-transform:uppercase;letter-spacing:0.08em;">
+                Próximo cobro
+              </p>
+              <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#1a1a1a;line-height:1.2;">
+                Hola ${firstName}, se te acerca el cobro
+              </h1>
+              <p style="margin:0 0 24px;font-size:15px;color:#525252;line-height:1.6;">
+                Te vamos a cobrar automáticamente <strong>${montoFmt}</strong> el <strong>${venceFmt}</strong>. No necesitás hacer nada — es tu plan mensual de siempre.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top:20px;" align="center">
+              <p style="margin:0;font-size:12px;color:#a3a3a3;">Smart Scale</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+  const text = `Hola ${firstName},
+
+Te vamos a cobrar automáticamente ${montoFmt} el ${venceFmt}. No necesitás hacer nada.
+
+Smart Scale
+`
+
+  return sendEmail({
+    to:      payload.email,
+    subject: `${firstName}, se te acerca el cobro de ${montoFmt}`,
+    html,
+    text,
+  })
+}
+
+// ─── Template: próximo pago (no recurrente, link manual) ────────────────────
+
+export async function sendUpcomingPaymentLinkEmail(payload: {
+  name:    string
+  email:   string
+  amount:  number
+  dueDate: string
+}): Promise<EmailResult> {
+  const firstName = payload.name.split(" ")[0]
+  const montoFmt = fmtMoney(payload.amount)
+  const venceFmt = fmtDateAR(payload.dueDate)
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Próximo pago</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+          <tr>
+            <td style="padding-bottom:24px;" align="center">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
+                  <td width="6"></td>
+                  <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
+                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#ffffff;border-radius:16px;border:1px solid #e5e5e5;padding:40px 36px;">
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#a3a3a3;text-transform:uppercase;letter-spacing:0.08em;">
+                Próximo pago
+              </p>
+              <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#1a1a1a;line-height:1.2;">
+                Hola ${firstName}, se te acerca tu cuota
+              </h1>
+              <p style="margin:0 0 24px;font-size:15px;color:#525252;line-height:1.6;">
+                Tu cuota de <strong>${montoFmt}</strong> vence el <strong>${venceFmt}</strong>. En los próximos días te vamos a enviar el link de pago por Slack.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top:20px;" align="center">
+              <p style="margin:0;font-size:12px;color:#a3a3a3;">Smart Scale</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+  const text = `Hola ${firstName},
+
+Tu cuota de ${montoFmt} vence el ${venceFmt}. En los próximos días te vamos a enviar el link de pago por Slack.
+
+Smart Scale
+`
+
+  return sendEmail({
+    to:      payload.email,
+    subject: `${firstName}, se te acerca tu cuota de ${montoFmt}`,
+    html,
+    text,
+  })
+}
+
+// ─── Template: pago confirmado ───────────────────────────────────────────────
+
+export async function sendPaymentConfirmedEmail(payload: {
+  name:   string
+  email:  string
+  amount: number
+}): Promise<EmailResult> {
+  const firstName = payload.name.split(" ")[0]
+  const montoFmt = fmtMoney(payload.amount)
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pago confirmado</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+          <tr>
+            <td style="padding-bottom:24px;" align="center">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
+                  <td width="6"></td>
+                  <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
+                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#ffffff;border-radius:16px;border:1px solid #e5e5e5;padding:40px 36px;">
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#a3a3a3;text-transform:uppercase;letter-spacing:0.08em;">
+                Pago confirmado
+              </p>
+              <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#1a1a1a;line-height:1.2;">
+                Gracias ${firstName}, recibimos tu pago ✅
+              </h1>
+              <p style="margin:0 0 24px;font-size:15px;color:#525252;line-height:1.6;">
+                Confirmamos tu pago de <strong>${montoFmt}</strong>. Todo en orden, seguimos trabajando en tu crecimiento 🚀
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top:20px;" align="center">
+              <p style="margin:0;font-size:12px;color:#a3a3a3;">Smart Scale</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+  const text = `Gracias ${firstName},
+
+Confirmamos tu pago de ${montoFmt}. Todo en orden.
+
+Smart Scale
+`
+
+  return sendEmail({
+    to:      payload.email,
+    subject: `Gracias ${firstName}, recibimos tu pago ✅`,
+    html,
+    text,
+  })
+}
+
+// ─── Template: cuota vencida ──────────────────────────────────────────────────
+
+export async function sendOverdueInstallmentEmail(payload: {
+  name:         string
+  email:        string
+  amount:       number
+  daysOverdue:  number
+}): Promise<EmailResult> {
+  const firstName = payload.name.split(" ")[0]
+  const montoFmt = fmtMoney(payload.amount)
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cuota vencida</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+          <tr>
+            <td style="padding-bottom:24px;" align="center">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
+                  <td width="6"></td>
+                  <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
+                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#ffffff;border-radius:16px;border:1px solid #e5e5e5;padding:40px 36px;">
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#a3a3a3;text-transform:uppercase;letter-spacing:0.08em;">
+                Cuota vencida
+              </p>
+              <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#1a1a1a;line-height:1.2;">
+                Hola ${firstName}, tenés una cuota pendiente
+              </h1>
+              <p style="margin:0 0 24px;font-size:15px;color:#525252;line-height:1.6;">
+                Tu cuota de <strong>${montoFmt}</strong> venció hace ${payload.daysOverdue} día${payload.daysOverdue === 1 ? "" : "s"}.
+                Si ya lo charlaste con tu coach, ignorá este mensaje — si no, escribinos para coordinar el pago.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top:20px;" align="center">
+              <p style="margin:0;font-size:12px;color:#a3a3a3;">Smart Scale</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+  const text = `Hola ${firstName},
+
+Tu cuota de ${montoFmt} venció hace ${payload.daysOverdue} día(s). Si ya lo charlaste con tu coach, ignorá este mensaje.
+
+Smart Scale
+`
+
+  return sendEmail({
+    to:      payload.email,
+    subject: `${firstName}, tenés una cuota pendiente de ${montoFmt}`,
+    html,
+    text,
+  })
+}
