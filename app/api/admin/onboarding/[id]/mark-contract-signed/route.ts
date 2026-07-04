@@ -26,8 +26,12 @@ export async function POST(
   const sb = createServiceClient()
   const result = await triggerContractSigned(sb, id)
 
-  if (!result.ok && !result.alreadyProcessed) {
-    return NextResponse.json({ error: result.error ?? "No se pudo marcar el contrato como firmado" }, { status: 500 })
+  // result.error solo viene seteado en fallas genuinas (no existe la fila de
+  // onboarding_flow, o no se encontró el cliente) — que algún email individual
+  // haya fallado NO es una falla de este endpoint, el contrato quedó firmado
+  // igual y el error de cada email ya se ve en el drawer.
+  if (result.error) {
+    return NextResponse.json({ error: result.error }, { status: 500 })
   }
   return NextResponse.json({ ok: true, alreadyProcessed: result.alreadyProcessed })
 }

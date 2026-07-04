@@ -108,9 +108,12 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await triggerContractSigned(sb, crmClientId)
-    await finish(crmClientId, result.ok ? null : (result.error ?? "triggerContractSigned falló"))
+    // result.error solo viene seteado en fallas genuinas (fila/cliente
+    // inexistente) — que algún email individual haya fallado no es un error
+    // de procesamiento del webhook, el contrato quedó firmado igual.
+    await finish(crmClientId, result.error ?? null)
 
-    return NextResponse.json({ ok: result.ok, alreadyProcessed: result.alreadyProcessed })
+    return NextResponse.json({ ok: !result.error, alreadyProcessed: result.alreadyProcessed })
   } catch (err: any) {
     console.error("[webhooks/ghl/contract-signed] error:", err?.message ?? err)
     await finish(null, err?.message ?? "unknown error")
