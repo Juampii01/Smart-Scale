@@ -2,7 +2,9 @@
 // Sends transactional emails using Resend's REST API (no npm package needed).
 // Requires: RESEND_API_KEY + RESEND_FROM_EMAIL in env vars.
 //
-// RESEND_FROM_EMAIL must be a verified domain, e.g. "Smart Scale <hola@smartscale.co>"
+// RESEND_FROM_EMAIL must be a dominio verificado en Resend (resend.com/domains),
+// e.g. "Smart Scale <hola@smartscale.space>" — el dominio en sí no alcanza,
+// Resend rechaza el envío hasta que verifiques los registros DNS (SPF/DKIM).
 // If not configured, all functions return { ok: false, error: "not_configured" }
 // so callers can treat email as optional without crashing.
 
@@ -19,7 +21,7 @@ async function sendEmail(payload: {
   text?:   string
 }): Promise<EmailResult> {
   const apiKey = process.env.RESEND_API_KEY
-  const from   = process.env.RESEND_FROM_EMAIL ?? "Smart Scale <hola@smartscale.co>"
+  const from   = process.env.RESEND_FROM_EMAIL ?? "Smart Scale <hola@smartscale.space>"
 
   if (!apiKey) return { ok: false, error: "RESEND_API_KEY not configured" }
 
