@@ -14,11 +14,12 @@ export async function GET(req: NextRequest) {
 
     const supabase = createServiceClient()
 
-    // Las 3 tablas se leen en paralelo — son independientes.
-    const [clientsRes, installmentsRes, followupsRes] = await Promise.all([
+    // Las 4 tablas se leen en paralelo — son independientes.
+    const [clientsRes, installmentsRes, followupsRes, portalClientsRes] = await Promise.all([
       supabase.from("crm_clients").select("*").order("created_at", { ascending: false }).limit(1000),
       supabase.from("crm_installments").select("*").order("installment_number", { ascending: true }),
       supabase.from("crm_followups").select("*").order("scheduled_date", { ascending: true }),
+      supabase.from("clients").select("id, business_profile").limit(1000),
     ])
 
     if (clientsRes.error)     return NextResponse.json({ error: clientsRes.error.message },     { status: 500 })
@@ -28,6 +29,12 @@ export async function GET(req: NextRequest) {
     const clients      = clientsRes.data
     const installments = installmentsRes.data
     const followups    = followupsRes.data
+
+    // Mapeo business_profile por id (mismo UUID entre crm_clients y clients)
+    const businessProfileById: Record<string, string | null> = {}
+    for (const c of (portalClientsRes.data ?? [])) {
+      businessProfileById[c.id] = c.business_profile ?? null
+    }
 
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -60,6 +67,7 @@ export async function GET(req: NextRequest) {
 
     const result = (clients ?? []).map((client: any) => ({
       ...client,
+      business_profile: businessProfileById[client.id] ?? null,
       installments: installmentsByClient[client.id] ?? [],
       followups:    followupsByClient[client.id]    ?? [],
     }))
@@ -297,8 +305,18 @@ export async function PATCH(req: NextRequest) {
     if (body.program_duration    !== undefined) allowed.program_duration    = Number(body.program_duration) || null
     if (body.is_monthly_subscription !== undefined) allowed.is_monthly_subscription = Boolean(body.is_monthly_subscription)
 
-    const { error } = await supabase.from("crm_clients").update(allowed).eq("id", body.id)
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    const { error: crmErr } = await supabase.from("crm_clients").update(allowed).eq("id", body.id)
+    if (crmErr) return NextResponse.json({ error: crmErr.message }, { status: 500 })
+
+    // business_profile vive en la tabla portal (clients), mismo UUID
+    if (body.business_profile !== undefined) {
+      const { error: portalErr } = await supabase
+        .from("clients")
+        .update({ business_profile: body.business_profile || null })
+        .eq("id", body.id)
+      if (portalErr) return NextResponse.json({ error: portalErr.message }, { status: 500 })
+    }
+
     return NextResponse.json({ success: true })
   } catch (err: any) {
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })

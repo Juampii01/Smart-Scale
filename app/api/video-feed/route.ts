@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { isAdmin } from "@/lib/auth/permissions"
 import Anthropic from "@anthropic-ai/sdk"
 
 export const runtime = "nodejs"
@@ -17,7 +18,7 @@ async function resolveClientScope(supabase: ReturnType<typeof createServiceClien
   const role = String((profile as any)?.role ?? "").toLowerCase()
   const ownClientId = (profile as any)?.client_id ?? null
 
-  if (role === "admin") {
+  if (isAdmin(role)) {
     return { clientId: requestedClientId ?? ownClientId, ok: true as const, role, ownClientId }
   }
   if (!ownClientId) return { ok: false as const, status: 403, message: "Forbidden" }
@@ -57,13 +58,46 @@ function mapIGEdges(edges: any[], username: string) {
   })
 }
 
+// Algunos actors de Apify devuelven 1 objeto PERFIL por username con los posts
+// ANIDADOS (latestPosts/posts), no un array plano. Esto aplana ambos shapes.
+// Sin esto, `instagram-profile-scraper` devolvía 1 item (el perfil) → 0 posts.
+function flattenApifyPosts(items: any[]): any[] {
+  if (!Array.isArray(items)) return []
+  const out: any[] = []
+  for (const it of items) {
+    if (!it || typeof it !== "object") continue
+    const nested =
+      (Array.isArray(it.latestPosts) && it.latestPosts) ||
+      (Array.isArray(it.posts) && it.posts) ||
+      (Array.isArray(it.latestIgtvVideos) && it.latestIgtvVideos) ||
+      null
+    if (nested) { out.push(...nested); continue }
+    const looksLikePost =
+      it.shortCode || it.shortcode || it.code || it.postId ||
+      it.timestamp || it.takenAt || it.taken_at ||
+      it.type === "Video" || it.type === "Image" || it.type === "Sidecar"
+    if (looksLikePost) out.push(it)
+  }
+  return out
+}
+
 async function apifyInstagramProfileFetch(username: string): Promise<any[]> {
   const token = process.env.APIFY_TOKEN
   if (!token) return []
 
   const profileUrl = `https://www.instagram.com/${username}/`
 
-  const attempts: Array<{ actor: string; input: Record<string, any> }> = [
+  // profile-scraper primero (rápido y confiable); api-scraper de respaldo
+  // (devuelve más posts pero suele timeoutear).
+  const attempts: Array<{ actor: string; input: Record<string, any>; timeoutMs: number }> = [
+    {
+      actor: "apify~instagram-profile-scraper",
+      input: {
+        usernames: [username],
+        resultsLimit: 50,
+      },
+      timeoutMs: 40_000,
+    },
     {
       actor: "apify~instagram-api-scraper",
       input: {
@@ -72,13 +106,7 @@ async function apifyInstagramProfileFetch(username: string): Promise<any[]> {
         resultsLimit: 50,
         addParentData: false,
       },
-    },
-    {
-      actor: "apify~instagram-profile-scraper",
-      input: {
-        usernames: [username],
-        resultsLimit: 50,
-      },
+      timeoutMs: 45_000,
     },
     {
       actor: "scrapepilotapi~instagram-profile-post-scraper",
@@ -87,6 +115,7 @@ async function apifyInstagramProfileFetch(username: string): Promise<any[]> {
         maxPosts: 50,
         pinnedMode: "include",
       },
+      timeoutMs: 45_000,
     },
   ]
 
@@ -99,7 +128,7 @@ async function apifyInstagramProfileFetch(username: string): Promise<any[]> {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(attempt.input),
-        signal: AbortSignal.timeout(60_000),
+        signal: AbortSignal.timeout(attempt.timeoutMs),
       })
 
       const raw = await res.text()
@@ -118,14 +147,16 @@ async function apifyInstagramProfileFetch(username: string): Promise<any[]> {
         continue
       }
 
-      const items = Array.isArray(data)
+      const rawItems = Array.isArray(data)
         ? data
         : data?.items ?? data?.results ?? []
 
-      if (Array.isArray(items) && items.length > 0) {
-        console.log("[video-feed][apify] items:", attempt.actor, items.length)
-        return items
+      const posts = flattenApifyPosts(rawItems)
+      if (posts.length > 0) {
+        console.log("[video-feed][apify] items:", attempt.actor, rawItems.length, "→ posts:", posts.length)
+        return posts
       }
+      console.log("[video-feed][apify] sin posts tras aplanar:", attempt.actor, "raw items:", rawItems.length)
     } catch (e) {
       console.log("[video-feed][apify] exception:", attempt.actor, String(e))
     }

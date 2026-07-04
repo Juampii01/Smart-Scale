@@ -23,15 +23,46 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Faltan campos obligatorios." }, { status: 400 })
     }
 
-    // Resolve client name
-    let clientName = client_id
+    // Resolve client name: clients.nombre → clients.name (si no es email) → profiles.name → user.email
+    const isEmail = (s: string) => s.includes("@")
+    let clientName: string = client_id
+
     const { data: clientRow } = await supabase
       .from("clients")
-      .select("nombre")
+      .select("nombre, name")
       .eq("id", client_id)
       .maybeSingle()
 
-    if (clientRow?.nombre) clientName = clientRow.nombre
+    if (clientRow?.nombre && !isEmail(clientRow.nombre)) {
+      clientName = clientRow.nombre
+    } else if (clientRow?.name && !isEmail(clientRow.name)) {
+      clientName = clientRow.name
+    } else {
+      // Fallback: name from the authenticated user's profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("id", user.id)
+        .maybeSingle()
+      if ((profile as any)?.name) {
+        clientName = (profile as any).name
+      } else if (user.email) {
+        clientName = user.email
+      }
+    }
+
+    // ── Persistir en la base (registro en el dashboard) ──────────────────────
+    const { error: insErr } = await supabase.from("cha_ching").insert({
+      client_id,
+      user_id:        user.id,
+      fecha,
+      valor_trato:    Number(valor_trato),
+      cash_collected: Number(cash_collected),
+      proximo_nivel:  proximoObjetivo,
+      notas:          notas || null,
+      submitted_by:   user.email,
+    })
+    if (insErr) console.error("[chi-chang] insert error:", insErr.message)
 
     const nivelEmojiMap: Record<string, string> = {
       "$5K":   "🔴",
@@ -61,7 +92,8 @@ export async function POST(req: NextRequest) {
       timestamp:               new Date().toISOString(),
     }
 
-    const webhookUrl = process.env.ZAPIER_WEBHOOK_CHI_CHANG ?? process.env.NEXT_PUBLIC_ZAPIER_WEBHOOK_CHI_CHANG
+    // Use server-only var — NEXT_PUBLIC_ prefix is not needed for server routes
+    const webhookUrl = process.env.ZAPIER_WEBHOOK_CHI_CHANG
     if (!webhookUrl) {
       console.warn("[chi-chang] No webhook URL configured")
       return NextResponse.json({ ok: true, warning: "Webhook no configurado" })

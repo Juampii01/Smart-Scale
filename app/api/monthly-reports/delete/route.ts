@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { isAdmin } from "@/lib/auth/permissions"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -30,7 +31,7 @@ export async function DELETE(req: NextRequest) {
       .maybeSingle()
 
     const role = (prof as any)?.role as string | undefined
-    if ((role ?? "").toLowerCase() !== "admin") {
+    if (!isAdmin(role)) {
       return NextResponse.json({ error: "Forbidden: admin only" }, { status: 403 })
     }
 

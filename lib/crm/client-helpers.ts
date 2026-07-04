@@ -128,7 +128,7 @@ export async function getCloserSummary(): Promise<
   const { data: closers, error: closersErr } = await supabase
     .from("profiles")
     .select("id, name, role")
-    .in("role", ["setter", "team", "admin"])
+    .in("role", ["setter", "team", "admin", "developer"])
 
   if (closersErr || !closers) return []
 

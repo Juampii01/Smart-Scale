@@ -1,5 +1,7 @@
 "use client"
 
+import { isAdmin as isAdminRole } from "@/lib/auth/permissions"
+
 /**
  * Playbook único del cliente — un solo documento BlockNote por cliente.
  *
@@ -48,7 +50,7 @@ async function authedFetch(path: string, init?: RequestInit) {
 export function ClientPlaybookMainView({ userRole }: { userRole: string | null }) {
   const activeClientId = useActiveClient()
   const role = String(userRole ?? "").toLowerCase()
-  const canManage = role === "admin" || role === "team"
+  const canManage = isAdminRole(role) || role === "team"
 
   const [playbook, setPlaybook] = useState<PlaybookRow | null>(null)
   const [loading,  setLoading]  = useState(true)
@@ -65,6 +67,10 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
 
   const load = useCallback(async () => {
     if (!activeClientId) { setPlaybook(null); setLoading(false); return }
+    // Limpiamos el playbook anterior ANTES de pedir el nuevo, para que el editor
+    // no muestre ni autoguarde contenido del cliente previo mientras carga.
+    setPlaybook(null)
+    lastSavedRef.current = []
     setLoading(true)
     try {
       const res = await authedFetch(`/api/client-playbook-main?client_id=${encodeURIComponent(activeClientId)}`)
@@ -113,20 +119,29 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   }
 
   // ── Editor ──────────────────────────────────────────────────────────────────
-  // Recreamos cuando cambia activeClientId o cuando aparece/desaparece playbook.
-  // Mientras se edita NO recreamos (el ref de last-saved se actualiza, pero
-  // el editor mantiene su estado interno).
+  // El editor SOLO debe inicializarse con contenido del cliente activo. Si el
+  // playbook cargado todavía pertenece a otro cliente (transición al cambiar de
+  // cliente, antes de que termine el load), lo tratamos como "no listo" para no
+  // arrastrar el contenido del cliente anterior — que de otra forma se
+  // autoguardaría sobre el nuevo (bug "modificás uno y se modifican todos").
+  const ready = !!playbook && playbook.client_id === activeClientId
+
+  // Recreamos al cambiar de cliente o cuando llega el contenido real de ESTE
+  // cliente (clave = client_id + updated_at). Mientras se edita NO recreamos:
+  // updated_at no cambia en el autosave (solo actualizamos lastSavedRef).
   const editor = useCreateBlockNote(
     {
-      initialContent: playbook?.content && playbook.content.length > 0
-        ? playbook.content
+      initialContent: ready && playbook!.content.length > 0
+        ? playbook!.content
         : undefined,
     },
-    [activeClientId, playbook ? "loaded" : "empty"],
+    [activeClientId, ready ? `${playbook!.client_id}:${playbook!.updated_at}` : "loading"],
   )
 
   useEffect(() => {
-    if (!editor || !playbook) return
+    // Solo enganchamos el autosave cuando el playbook cargado es el del cliente
+    // activo. Evita guardar contenido de otro cliente durante la transición.
+    if (!editor || !playbook || playbook.client_id !== activeClientId) return
 
     const handler = () => {
       if (ignoreNextChangeRef.current) {
@@ -190,15 +205,16 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
 
   if (!activeClientId) {
     return (
-      <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-sm text-foreground/40">
+      <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-sm text-foreground/40">
         No hay un cliente activo seleccionado.
       </div>
     )
   }
 
-  if (loading) {
+  // loading, o playbook cargado que aún pertenece a otro cliente (transición).
+  if (loading || (playbook && playbook.client_id !== activeClientId)) {
     return (
-      <div className="flex h-[400px] items-center justify-center rounded-2xl border border-foreground/[0.07] bg-card">
+      <div className="flex h-[400px] items-center justify-center rounded-[14px] border border-foreground/[0.07] bg-card">
         <Loader2 className="h-5 w-5 animate-spin text-foreground/40" />
       </div>
     )
@@ -208,7 +224,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   if (!playbook) {
     if (canManage) {
       return (
-        <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-foreground/[0.07] bg-card px-6 py-16 text-center">
+        <div className="flex flex-col items-center justify-center gap-4 rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-16 text-center">
           <Sparkles className="h-10 w-10 text-foreground/20" />
           <div>
             <h3 className="text-base font-bold text-foreground">Playbook aún no creado</h3>
@@ -228,7 +244,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
       )
     }
     return (
-      <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-16 text-center">
+      <div className="flex flex-col items-center justify-center gap-3 rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-16 text-center">
         <FileText className="h-10 w-10 text-foreground/15" />
         <div>
           <h3 className="text-base font-bold text-foreground/70">Tu playbook aún no fue creado</h3>
@@ -243,7 +259,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   // Client playbook reveal button (hidden until clicked)
   if (!canManage && !playbook.visible_to_client) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-foreground/[0.07] bg-card px-6 py-16 text-center">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-16 text-center">
         <FileText className="h-10 w-10 text-foreground/20" />
         <div>
           <h3 className="text-base font-bold text-foreground">Tu playbook está listo</h3>
@@ -264,7 +280,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   }
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
       {/* Save indicator bar */}
       <div className="flex items-center justify-between gap-3 border-b border-foreground/[0.06] px-6 py-2.5">
         <div className="flex items-center gap-2 text-[12px]">

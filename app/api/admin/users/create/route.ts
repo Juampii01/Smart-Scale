@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic"
  * el admin se la comparta al usuario.
  */
 
-const VALID_ROLES = new Set(["admin", "team", "setter", "client"])
+const VALID_ROLES = new Set(["admin", "developer", "team", "setter", "client"])
 
 function generateTempPassword(length = 14): string {
   const chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     if (role === "client" && clientId) {
       const { data: portalClient } = await supabase
         .from("clients")
-        .select("id")
+        .select("id, nombre")
         .eq("id", clientId)
         .maybeSingle()
 
@@ -98,6 +98,18 @@ export async function POST(req: NextRequest) {
             { error: `No se pudo crear el row en \`clients\`: ${bridgeErr.message}` },
             { status: 500 },
           )
+        }
+      } else if (!portalClient.nombre) {
+        // Portal client exists but nombre is null — backfill from crm_clients
+        const { data: crmClient } = await supabase
+          .from("crm_clients")
+          .select("name")
+          .eq("id", clientId)
+          .maybeSingle()
+
+        const crmName = String((crmClient as any)?.name ?? "").trim()
+        if (crmName) {
+          await supabase.from("clients").update({ nombre: crmName }).eq("id", clientId)
         }
       }
     }

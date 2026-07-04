@@ -211,26 +211,33 @@ async function processEvent(event: {
     let result: { ok: boolean; error?: string }
 
     if (event_type === "monthly_report.completed") {
-      // Direct Slack (if configured)
-      result = await handleMonthlyReportCompleted(payload)
-      // Also fire Zapier webhook (non-blocking, don't let it affect result)
+      // Solo Zapier — el Zap postea a Slack.
+      // Se eliminó el Slack directo para evitar duplicados (antes llegaban 3 mensajes).
       if (ZAPIER_WEBHOOK_REPORT) {
-        fetch(ZAPIER_WEBHOOK_REPORT, {
+        result = await fetch(ZAPIER_WEBHOOK_REPORT, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ event_type, ...payload }),
-        }).catch(() => {})
+        })
+          .then(r => r.ok ? { ok: true } : { ok: false, error: `Zapier ${r.status}` })
+          .catch(e => ({ ok: false, error: String(e) }))
+      } else {
+        // Fallback: Slack directo si no hay Zapier configurado
+        result = await handleMonthlyReportCompleted(payload)
       }
     } else if (event_type === "sale.registered") {
-      result = await handleSaleRegistered(payload)
-      // Fire dedicated sale webhook or fall back to report webhook
+      // Solo Zapier — mismo criterio anti-duplicados.
       const saleUrl = ZAPIER_WEBHOOK_SALE ?? ZAPIER_WEBHOOK_REPORT
       if (saleUrl) {
-        fetch(saleUrl, {
+        result = await fetch(saleUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ event_type, ...payload }),
-        }).catch(() => {})
+        })
+          .then(r => r.ok ? { ok: true } : { ok: false, error: `Zapier ${r.status}` })
+          .catch(e => ({ ok: false, error: String(e) }))
+      } else {
+        result = await handleSaleRegistered(payload)
       }
     } else if (event_type === "airtable.sync") {
       // Airtable ya no se usa — completar como no-op para vaciar cola.

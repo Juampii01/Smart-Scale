@@ -91,7 +91,7 @@ function ChannelCard({
   const hasDelta = delta.pct !== null
 
   return (
-    <div className="relative flex flex-col overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors duration-200">
+    <div className="relative flex flex-col overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors duration-200">
       <div className="h-[2px] w-full" style={{ backgroundColor: color, opacity: noData ? 0.2 : 0.7 }} />
 
       <div className="flex-1 p-5 pb-2">
@@ -185,7 +185,7 @@ function GrowthIndexChart({ reports }: { reports: any[] }) {
   const activeChannels = channels.filter(ch => bases[ch.key] > 0)
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-6">
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
       <div className="flex items-start justify-between mb-1">
         <div>
           <h4 className="text-[16px] font-bold text-foreground">Índice de Crecimiento</h4>
@@ -227,7 +227,7 @@ function GrowthIndexChart({ reports }: { reports: any[] }) {
             <Line key={ch.key} type="monotone" dataKey={ch.key} name={ch.label}
               stroke={ch.color} strokeWidth={2.5} connectNulls
               dot={{ fill: ch.color, r: 3, strokeWidth: 0 }}
-              activeDot={{ r: 5, fill: ch.color, strokeWidth: 2, stroke: "#0a0a0b" }}
+              activeDot={{ r: 5, fill: ch.color, strokeWidth: 2, stroke: "var(--card)" }}
             />
           ))}
         </LineChart>
@@ -253,7 +253,7 @@ function ContentVsAudience({ reports }: { reports: any[] }) {
   const avgPosts = data.reduce((s, d) => s + d.posts, 0) / data.length
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-6">
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
       <h4 className="text-[16px] font-bold text-foreground mb-1">Posts vs Seguidores Instagram</h4>
       <p className="text-xs text-foreground/35 mb-5">
         ¿Cuándo publicás más, la audiencia crece? Buscá el patrón entre las barras y la línea.
@@ -314,7 +314,7 @@ function YouTubeTrend({ reports }: { reports: any[] }) {
   }))
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-6">
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
       <h4 className="text-[16px] font-bold text-foreground mb-1">YouTube — Suscriptores vs Vistas</h4>
       <p className="text-xs text-foreground/35 mb-5">¿Las vistas generan suscriptores o son independientes?</p>
       <div className="flex flex-wrap gap-5 mb-4">

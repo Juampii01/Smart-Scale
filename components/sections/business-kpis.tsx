@@ -175,11 +175,8 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
           return (
             <div
               key={kpi.key}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card transition-all duration-200 hover:border-foreground/[0.12] hover:bg-card"
+              className="group relative flex flex-col overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card transition-all duration-200 hover:border-foreground/[0.12] hover:bg-card"
             >
-              {/* Top accent */}
-              <div className={`h-[2px] w-full ${isDown ? "bg-red-500/60" : isUp ? "bg-emerald-500/60" : "bg-foreground/[0.08]"}`} />
-
               <div className="flex-1 p-6 pb-3">
                 {/* Icon + delta */}
                 <div className="mb-5 flex items-start justify-between">

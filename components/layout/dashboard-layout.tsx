@@ -5,16 +5,18 @@ import type React from "react"
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
-import { ChevronDown, LogOut, Menu, User, ShieldCheck, Check, Eye, EyeOff } from "lucide-react"
+import { ChevronDown, LogOut, Menu, User, ShieldCheck, Check, Eye, EyeOff, Camera, Loader2, Coins, Trophy, FileBarChart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MonthSelector } from "@/components/layout/month-selector"
 import { Sidebar } from "@/components/layout/sidebar"
 import { AdminSidebar } from "@/components/layout/admin-sidebar"
+import { PushOptIn } from "@/components/push-optin"
+import { WhatsNew3 } from "@/components/whats-new-3"
 import { AnnualMetricsProvider } from "@/contexts/annual-metrics-context"
 import { NavigationProgress } from "@/components/ui/navigation-progress"
 import { HelpChat } from "@/components/ui/help-chat"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
-import { isSetter, isTeam, SETTER_DEFAULT_LANDING, TEAM_DEFAULT_LANDING } from "@/lib/auth/permissions"
+import { isSetter, isTeam, isAdmin as isAdminRole, SETTER_DEFAULT_LANDING, TEAM_DEFAULT_LANDING } from "@/lib/auth/permissions"
 import { useViewAsRole, setViewAsRole, type ViewAsRole } from "@/lib/auth/view-as"
 
 declare global {
@@ -49,6 +51,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/recursos":   "Biblioteca",
   "/admin/data":         "Adquisition Stats",
   "/admin/leads":        "Leads",
+  "/admin/instagram-access": "Instagram · Acceso a métricas",
   "/admin/setting":      "Setting CRM",
   "/admin/onboarding":   "Onboarding",
   "/admin/payments":     "Pagos",
@@ -57,6 +60,13 @@ const PAGE_TITLES: Record<string, string> = {
   "/admin/clients":      "Clientes",
   "/admin/centro-operativo": "Centro Operativo",
 }
+
+// Accesos rápidos del cliente: llevan directo a cargar cada form.
+const QUICK_ACTIONS: { label: string; short: string; href: string; Icon: typeof Coins }[] = [
+  { label: "Cha-Ching",       short: "Cha-Ching", href: "/chi-chang",    Icon: Coins        },
+  { label: "Monday Win",      short: "Monday",    href: "/monday-win",   Icon: Trophy       },
+  { label: "Reporte Mensual", short: "Reporte",   href: "/report-input", Icon: FileBarChart },
+]
 
 const SelectedMonthContext = createContext<string | null>(null)
 
@@ -76,12 +86,28 @@ export function useActiveClientName() {
   return useContext(ActiveClientNameContext)
 }
 
+// Nombre para el saludo del Overview: el del cliente activo (si admin impersona)
+// o el del propio usuario logueado.
+const GreetingNameContext = createContext<string | null>(null)
+
+export function useGreetingName() {
+  return useContext(GreetingNameContext)
+}
+
 const OwnClientContext = createContext<string | null>(null)
 
 /** El client_id propio del usuario logueado (independiente del activeClient).
  *  Para admins puede diferir; para clientes coincide con activeClient. */
 export function useOwnClient() {
   return useContext(OwnClientContext)
+}
+
+const UserRoleContext = createContext<string | null>(null)
+
+/** El rol del usuario logueado ("admin" | "developer" | "team" | "setter" | "client").
+ *  Útil para gatear UI exclusiva de rol (ej: botón "Testear" solo para developer). */
+export function useUserRole() {
+  return useContext(UserRoleContext)
 }
 
 function getRoleFromAccessToken(token: string | null | undefined): string | null {
@@ -158,9 +184,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [profilesList, setProfilesList] = useState<
     Array<{ id: string; client_id: string; role: string | null; client_name: string }>
   >([])
-  const isAdmin = (userRole ?? "").toLowerCase() === "admin"
+  const isAdmin = isAdminRole(userRole)  // true para "admin" Y "developer"
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const profileMenuRef = useRef<HTMLDivElement | null>(null)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const avatarInputRef = useRef<HTMLInputElement | null>(null)
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
 
@@ -168,6 +197,52 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const viewAsRole: ViewAsRole = useViewAsRole()
   // Si NO es admin, ignoramos viewAs (solo admin puede impersonar)
   const activeViewAs: ViewAsRole = isAdmin ? viewAsRole : null
+
+  // Foto de perfil — cargar al montar
+  useEffect(() => {
+    let active = true
+    ;(async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const res = await fetch("/api/profile/avatar", { headers: { Authorization: `Bearer ${session.access_token}` } })
+      if (!res.ok) return
+      const data = await res.json()
+      if (active && data.url) setAvatarUrl(data.url)
+    })()
+    return () => { active = false }
+  }, [supabase])
+
+  // Refresco en vivo cuando /perfil actualiza nombre o foto (sin recargar)
+  useEffect(() => {
+    const onProfileUpdated = (e: Event) => {
+      const detail = (e as CustomEvent).detail ?? {}
+      if ("name" in detail) setClientDisplayName(detail.name || null)
+      if ("avatarUrl" in detail) setAvatarUrl(detail.avatarUrl ?? null)
+    }
+    window.addEventListener("ss:profile-updated", onProfileUpdated)
+    return () => window.removeEventListener("ss:profile-updated", onProfileUpdated)
+  }, [])
+
+  const handleAvatarUpload = async (file: File) => {
+    if (uploadingAvatar) return
+    setUploadingAvatar(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const fd = new FormData()
+      fd.append("file", file)
+      const res = await fetch("/api/profile/avatar", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: fd,
+      })
+      const data = await res.json()
+      if (res.ok && data.url) setAvatarUrl(data.url)
+      else alert(data.error ?? "Error al subir la foto")
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
 
   // Redirect setter / team que aterrizan en el portal cliente a su landing de admin.
   useEffect(() => {
@@ -192,16 +267,33 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         if (userErr) throw userErr
         if (!user) return
 
+        // Regla: si hay un cliente activo (admin viendo cliente puntual, o cliente propio),
+        // filtramos por ese cliente. Solo cargamos meses globales cuando el admin
+        // no tiene ningún cliente seleccionado (exploración libre sin contexto).
+        let rows: any[] | null = null
         const clientId = activeClientId
-        if (!clientId) return
 
-        const { data: rows, error: rErr } = await supabase
-          .from("monthly_reports")
-          .select("month")
-          .eq("client_id", clientId)
-          .order("month", { ascending: true })
-
-        if (rErr) throw rErr
+        if (clientId) {
+          // Caso 1: hay cliente activo — admin o cliente, misma query
+          const res = await supabase
+            .from("monthly_reports")
+            .select("month")
+            .eq("client_id", clientId)
+            .order("month", { ascending: true })
+          if (res.error) throw res.error
+          rows = res.data
+        } else if (isAdmin) {
+          // Caso 2: admin sin cliente seleccionado — meses globales para explorar
+          const res = await supabase
+            .from("monthly_reports")
+            .select("month")
+            .order("month", { ascending: true })
+          if (res.error) throw res.error
+          rows = res.data
+        } else {
+          // Caso 3: cliente sin client_id vinculado — nada que mostrar
+          return
+        }
 
         const months = Array.from(
           new Set(
@@ -219,9 +311,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         setEnabledMonths(months)
 
-        // Si el mes seleccionado no tiene data, saltamos al más reciente disponible.
-        // Sin persistencia — recarga vuelve a defaultear al mes actual.
-        if (months.length) {
+        // Auto-salto: si el mes seleccionado no tiene data para este cliente,
+        // ir al más reciente disponible. Aplica tanto a clientes como a admins
+        // con cliente activo.
+        if (months.length && clientId) {
           setSelectedMonth((prev) => months.includes(prev) ? prev : months[months.length - 1])
         }
       } catch (err) {
@@ -235,7 +328,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     return () => {
       mounted = false
     }
-  }, [activeClientId])
+  }, [activeClientId, isAdmin])
 
   useEffect(() => {
     const checkSession = async () => {
@@ -281,20 +374,17 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         setOwnClientId(cid ?? null)
         setUserRole(role ?? jwtRole ?? null)
 
-        // For non-admin users, load their display name from clients.nombre
-        const isClientRole = String(role ?? "").toLowerCase() !== "admin"
-        if (isClientRole && cid) {
-          // Try profile name first, then fall back to clients.nombre
-          if (profName) {
-            setClientDisplayName(profName)
-          } else {
-            const { data: clientRow } = await supabase
-              .from("clients")
-              .select("nombre")
-              .eq("id", cid)
-              .maybeSingle()
-            if (clientRow?.nombre) setClientDisplayName(clientRow.nombre)
-          }
+        // Display name: profiles.name tiene prioridad para CUALQUIER rol (lo edita /perfil).
+        // Para clientes sin name propio, fallback a clients.nombre.
+        if (profName) {
+          setClientDisplayName(profName)
+        } else if (!isAdminRole(role) && cid) {
+          const { data: clientRow } = await supabase
+            .from("clients")
+            .select("nombre")
+            .eq("id", cid)
+            .maybeSingle()
+          if (clientRow?.nombre) setClientDisplayName(clientRow.nombre)
         }
 
         // Initialize active client.
@@ -305,7 +395,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         const stored = typeof window !== "undefined" ? window.localStorage.getItem("activeClientId") : null
 
         let nextActive: string | null = null
-        if (normalizedRole === "admin") {
+        if (isAdminRole(normalizedRole)) {
           nextActive = stored ?? cid ?? null
         } else if (normalizedRole === "team" || normalizedRole === "setter") {
           // Setter/team siempre miran el CRM del admin (Ann). Si no tienen client_id propio,
@@ -316,7 +406,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             const { data: adminProfile } = await supabase
               .from("profiles")
               .select("client_id")
-              .eq("role", "admin")
+              .in("role", ["admin", "developer"])
               .not("client_id", "is", null)
               .limit(1)
               .maybeSingle()
@@ -409,9 +499,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     }
 
     const onMouseDown = (e: MouseEvent) => {
-      const el = profileMenuRef.current
-      if (!el) return
-      if (!el.contains(e.target as Node)) setProfileMenuOpen(false)
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) setProfileMenuOpen(false)
     }
 
     document.addEventListener("keydown", onKeyDown)
@@ -442,11 +530,25 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <NavigationProgress />
+      <WhatsNew3 />
       {isAdminMode
         ? <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />
-        : <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin && !activeViewAs} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />}
+        : <Sidebar
+            open={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            isAdmin={isAdmin && !activeViewAs}
+            collapsed={sidebarCollapsed}
+            onToggleCollapsed={toggleSidebarCollapsed}
+            avatarUrl={avatarUrl}
+            displayName={clientDisplayName ?? userEmail}
+            email={userEmail}
+          />}
 
-      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-[margin] duration-200 bg-background ${sidebarCollapsed ? 'lg:ml-[64px]' : 'lg:ml-[220px]'}`}>
+      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-[margin] duration-200 bg-background pt-[env(safe-area-inset-top)] ${
+        isAdminMode
+          ? (sidebarCollapsed ? 'lg:ml-[64px]'  : 'lg:ml-[220px]')              // admin: sidebar pegado
+          : (sidebarCollapsed ? 'lg:ml-[100px] lg:pt-4' : 'lg:ml-[252px] lg:pt-4') // cliente: alineado al sidebar flotante
+      }`}>
 
         {/* "View as" banner — solo admin impersonando otro rol */}
         {activeViewAs && (
@@ -494,37 +596,25 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
             <div className="flex items-center gap-2">
               {!isAdminMode && (
+                <div className="hidden lg:flex items-center gap-1.5 mr-1">
+                  {QUICK_ACTIONS.filter(a => a.href !== pathname).map(({ label, href, Icon }) => (
+                    <button
+                      key={href}
+                      type="button"
+                      onClick={() => router.push(href)}
+                      title={label}
+                      aria-label={label}
+                      className="inline-flex h-9 items-center gap-1.5 rounded-md border border-foreground/[0.10] bg-card px-2.5 text-[13px] font-semibold text-foreground/75 hover:text-foreground hover:border-foreground/[0.18] hover:bg-foreground/[0.04] transition-colors"
+                    >
+                      <Icon className="h-4 w-4 text-[#ffde21]" />
+                      <span className="hidden xl:inline">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {!isAdminMode && (
                 <>
-                  <Button
-                    asChild
-                    size="sm"
-                    className="hidden sm:inline-flex bg-[#ffde21] text-black font-semibold hover:bg-[#ffe84d] border-0 text-xs px-3 h-8"
-                    title="Monday Win"
-                  >
-                    <a href="/monday-win">Monday Win</a>
-                  </Button>
-
-                  <Button
-                    asChild
-                    size="sm"
-                    className="hidden sm:inline-flex bg-[#ffde21] text-black font-semibold hover:bg-[#ffe84d] border-0 text-xs px-3 h-8"
-                    title="Reporte Mensual"
-                  >
-                    <a href="/report-input">Reporte Mensual</a>
-                  </Button>
-
-                  <Button
-                    asChild
-                    size="sm"
-                    className="hidden sm:inline-flex bg-[#ffde21] text-black font-semibold hover:bg-[#ffe84d] border-0 text-xs px-3 h-8 gap-1.5"
-                    title="Cha-Ching"
-                  >
-                    <a href="/chi-chang">
-                      <span className="text-[13px]">💰</span>
-                      Cha-Ching
-                    </a>
-                  </Button>
-
                   <MonthSelector
                     value={selectedMonth}
                     onChange={setSelectedMonth}
@@ -552,9 +642,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           : "Perfil"
                   }
                 >
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10">
-                    <User className="h-4 w-4 text-[#ffde21]" />
-                  </span>
+                  {avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={avatarUrl} alt="Perfil" className="h-7 w-7 rounded-full object-cover border border-[#ffde21]/40" />
+                  ) : (
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10">
+                      <User className="h-4 w-4 text-[#ffde21]" />
+                    </span>
+                  )}
                   <span className="hidden sm:inline text-foreground font-semibold">
                     {activeClientName ?? clientDisplayName ?? userEmail ?? "—"}
                   </span>
@@ -569,9 +664,25 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   >
                     {/* Header — current user */}
                     <div className="flex items-center gap-3 px-4 py-3 bg-foreground/[0.02]">
-                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21] text-[13px] font-bold">
-                        {(clientDisplayName ?? userEmail ?? "?").charAt(0).toUpperCase()}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => avatarInputRef.current?.click()}
+                        className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21] text-[13px] font-bold overflow-hidden group/avatar"
+                        title="Cambiar foto"
+                      >
+                        {avatarUrl
+                          ? <img src={avatarUrl} alt="Perfil" className="h-full w-full object-cover" />
+                          : (clientDisplayName ?? userEmail ?? "?").charAt(0).toUpperCase()}
+                        <span className="absolute inset-0 hidden items-center justify-center bg-black/45 group-hover/avatar:flex">
+                          {uploadingAvatar
+                            ? <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
+                            : <Camera className="h-3.5 w-3.5 text-white" />}
+                        </span>
+                      </button>
+                      <input
+                        ref={avatarInputRef} type="file" accept="image/*" className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAvatarUpload(f); e.target.value = "" }}
+                      />
                       <div className="min-w-0 flex-1">
                         {clientDisplayName && !isAdmin && (
                           <p className="truncate text-sm font-semibold text-foreground">{clientDisplayName}</p>
@@ -694,6 +805,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                     <div className="h-px bg-foreground/[0.07]" />
 
+                    {/* Notificaciones — un solo lugar para todos (equipo y clientes) */}
+                    <div className="px-4 py-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35 mb-2">Notificaciones</p>
+                      <PushOptIn />
+                    </div>
+
+                    <div className="h-px bg-foreground/[0.07]" />
+
                     <button
                       type="button"
                       role="menuitem"
@@ -712,19 +831,45 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
           </div>
+
+          {/* Accesos rápidos — fila scrollable solo en mobile/tablet */}
+          {!isAdminMode && (
+            <div className="lg:hidden flex items-center gap-2 overflow-x-auto px-4 pb-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {QUICK_ACTIONS.filter(a => a.href !== pathname).map(({ short, href, Icon }) => (
+                <button
+                  key={href}
+                  type="button"
+                  onClick={() => router.push(href)}
+                  className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-foreground/[0.10] bg-card px-3 text-[12.5px] font-semibold text-foreground/80 hover:text-foreground active:scale-[0.98] transition-all"
+                >
+                  <Icon className="h-3.5 w-3.5 text-[#ffde21]" />
+                  {short}
+                </button>
+              ))}
+            </div>
+          )}
         </header>
 
-        <ActiveClientContext.Provider value={activeClientId}>
-          <ActiveClientNameContext.Provider value={activeClientName}>
-            <OwnClientContext.Provider value={ownClientId}>
-              <AnnualMetricsProvider>
-                <SelectedMonthContext.Provider value={selectedMonth}>
-                  <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-background">{children}</main>
-                </SelectedMonthContext.Provider>
-              </AnnualMetricsProvider>
-            </OwnClientContext.Provider>
-          </ActiveClientNameContext.Provider>
-        </ActiveClientContext.Provider>
+        <UserRoleContext.Provider value={userRole}>
+          <ActiveClientContext.Provider value={activeClientId}>
+            <ActiveClientNameContext.Provider value={activeClientName}>
+              <GreetingNameContext.Provider value={activeClientName ?? clientDisplayName}>
+              <OwnClientContext.Provider value={ownClientId}>
+                <AnnualMetricsProvider>
+                  <SelectedMonthContext.Provider value={selectedMonth}>
+                    <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-background">
+                      {!isAdminMode && (
+                        <PushOptIn banner prompt="Activá las notificaciones para enterarte de tus llamadas y recordatorios" />
+                      )}
+                      {children}
+                    </main>
+                  </SelectedMonthContext.Provider>
+                </AnnualMetricsProvider>
+              </OwnClientContext.Provider>
+              </GreetingNameContext.Provider>
+            </ActiveClientNameContext.Provider>
+          </ActiveClientContext.Provider>
+        </UserRoleContext.Provider>
       </div>
 
       {/* AI Help Chat — botón flotante visible en todas las páginas del dashboard */}

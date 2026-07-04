@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase"
 import { useActiveClient, useOwnClient } from "@/components/layout/dashboard-layout"
 import { useMarkPageReady } from "@/hooks/use-mark-page-ready"
+import { isAdmin as isAdminRole } from "@/lib/auth/permissions"
 import {
-  Trash2, AlertTriangle, Loader2, FileText, ChevronDown, ChevronUp, X
+  Trash2, AlertTriangle, Loader2, FileText, ChevronDown, ChevronUp, X,
+  DollarSign, TrendingUp, Mail, Youtube, Instagram, Users, MessageSquare,
 } from "lucide-react"
 
 interface MonthlyReport {
@@ -15,19 +17,48 @@ interface MonthlyReport {
   total_revenue: number | null
   cash_collected: number | null
   mrr: number | null
-  new_clients: number | null
-  active_clients: number | null
+  software_costs: number | null
+  variable_costs: number | null
+  ad_spend: number | null
   scheduled_calls: number | null
   attended_calls: number | null
-  ad_spend: number | null
+  qualified_calls: number | null
+  inbound_messages: number | null
+  aplications: number | null
+  new_clients: number | null
+  active_clients: number | null
+  offer_docs_sent: number | null
+  offer_docs_responded: number | null
+  cierres_por_offerdoc: number | null
+  short_followers: number | null
+  short_reach: number | null
+  short_posts: number | null
+  yt_subscribers: number | null
+  yt_new_subscribers: number | null
+  yt_monthly_audience: number | null
+  yt_views: number | null
+  yt_watch_time: number | null
+  yt_videos: number | null
+  email_subscribers: number | null
+  email_new_subscribers: number | null
+  email_sent: number | null
+  email_open_rate: number | null
+  nps_score: number | null
   biggest_win: string | null
   next_focus: string | null
+  support_needed: string | null
+  improvements: string | null
   created_at: string
 }
 
 function fmt(n: number | null | undefined, prefix = "$") {
   if (n == null) return "—"
   return `${prefix}${n.toLocaleString()}`
+}
+
+function fmtNum(n: number | null | undefined) {
+  if (n == null) return "—"
+  return n.toLocaleString()
 }
 
 function fmtMonth(raw: string) {
@@ -40,10 +71,7 @@ function fmtMonth(raw: string) {
 // ─── Confirm Delete Dialog ────────────────────────────────────────────────────
 
 function ConfirmDeleteDialog({
-  month,
-  onConfirm,
-  onCancel,
-  loading,
+  month, onConfirm, onCancel, loading,
 }: {
   month: string
   onConfirm: () => void
@@ -53,26 +81,18 @@ function ConfirmDeleteDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative w-full max-w-sm rounded-2xl border border-red-400 bg-card p-6 shadow-2xl dark:border-red-500/30">
-        <button
-          onClick={onCancel}
-          className="absolute right-4 top-4 text-foreground/30 hover:text-foreground/70 transition-colors"
-        >
+      <div className="relative w-full max-w-sm rounded-[14px] border border-red-400 bg-card p-6 shadow-2xl dark:border-red-500/30">
+        <button onClick={onCancel} className="absolute right-4 top-4 text-foreground/30 hover:text-foreground/70 transition-colors">
           <X className="h-4 w-4" />
         </button>
-
         <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-red-100 border border-red-300 dark:bg-red-500/10 dark:border-red-500/20">
           <AlertTriangle className="h-5 w-5 text-red-700 dark:text-red-400" />
         </div>
-
-        <h3 className="text-sm font-semibold uppercase tracking-widest text-foreground mb-1">
-          Eliminar reporte
-        </h3>
+        <h3 className="text-sm font-semibold uppercase tracking-widest text-foreground mb-1">Eliminar reporte</h3>
         <p className="text-sm text-foreground/50 mb-5">
           Vas a eliminar el reporte de <span className="text-foreground font-medium">{fmtMonth(month)}</span>.
           Esta acción no se puede deshacer.
         </p>
-
         <div className="flex gap-3">
           <button
             onClick={onCancel}
@@ -95,12 +115,53 @@ function ConfirmDeleteDialog({
   )
 }
 
+// ─── Section block inside expanded detail ────────────────────────────────────
+
+function DetailSection({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: React.ElementType
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <div>
+      <div className="flex items-center gap-1.5 mb-2">
+        <Icon className="h-3 w-3 text-foreground/30" />
+        <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">{label}</p>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-3">
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function Stat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div>
+      <p className="text-[10px] text-foreground/30 uppercase tracking-wider mb-0.5">{label}</p>
+      <p className="text-sm font-medium text-foreground/80">{String(value)}</p>
+    </div>
+  )
+}
+
+function TextBlock({ label, value }: { label: string; value: string | null }) {
+  if (!value) return null
+  return (
+    <div className="col-span-2 sm:col-span-3 lg:col-span-4">
+      <p className="text-[10px] text-foreground/30 uppercase tracking-wider mb-0.5">{label}</p>
+      <p className="text-sm text-foreground/70 leading-relaxed">{value}</p>
+    </div>
+  )
+}
+
 // ─── Report Row ───────────────────────────────────────────────────────────────
 
 function ReportRow({
-  report,
-  isAdmin,
-  onDelete,
+  report, isAdmin, onDelete,
 }: {
   report: MonthlyReport
   isAdmin: boolean
@@ -112,7 +173,6 @@ function ReportRow({
     <div className="rounded-xl border border-foreground/[0.06] bg-card overflow-hidden transition-all">
       {/* Main row */}
       <div className="flex items-center gap-3 px-4 py-3.5">
-        {/* Month badge */}
         <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-[#ffde21]/10 border border-[#ffde21]/20">
           <FileText className="h-4 w-4 text-[#ffde21]" />
         </div>
@@ -124,7 +184,6 @@ function ReportRow({
           </p>
         </div>
 
-        {/* Key metrics */}
         <div className="hidden sm:flex items-center gap-6">
           <div className="text-right">
             <p className="text-[10px] text-foreground/30 uppercase tracking-wider">Revenue</p>
@@ -140,7 +199,6 @@ function ReportRow({
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex items-center gap-2 ml-2">
           <button
             onClick={() => setExpanded((v) => !v)}
@@ -162,34 +220,70 @@ function ReportRow({
 
       {/* Expanded detail */}
       {expanded && (
-        <div className="border-t border-foreground/[0.06] px-4 py-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {[
-            { label: "Revenue Total", value: fmt(report.total_revenue) },
-            { label: "Cash Collected", value: fmt(report.cash_collected) },
-            { label: "MRR", value: fmt(report.mrr) },
-            { label: "Ad Spend", value: fmt(report.ad_spend) },
-            { label: "Nuevos Clientes", value: report.new_clients ?? "—" },
-            { label: "Clientes Activos", value: report.active_clients ?? "—" },
-            { label: "Llamadas Agendadas", value: report.scheduled_calls ?? "—" },
-            { label: "Llamadas Atendidas", value: report.attended_calls ?? "—" },
-          ].map(({ label, value }) => (
-            <div key={label}>
-              <p className="text-[10px] text-foreground/30 uppercase tracking-wider mb-0.5">{label}</p>
-              <p className="text-sm font-medium text-foreground/80">{String(value)}</p>
-            </div>
-          ))}
-          {report.biggest_win && (
-            <div className="col-span-2 sm:col-span-3 lg:col-span-4">
-              <p className="text-[10px] text-foreground/30 uppercase tracking-wider mb-0.5">Mayor logro</p>
-              <p className="text-sm text-foreground/70 leading-relaxed">{report.biggest_win}</p>
-            </div>
-          )}
-          {report.next_focus && (
-            <div className="col-span-2 sm:col-span-3 lg:col-span-4">
-              <p className="text-[10px] text-foreground/30 uppercase tracking-wider mb-0.5">Próximo foco</p>
-              <p className="text-sm text-foreground/70 leading-relaxed">{report.next_focus}</p>
-            </div>
-          )}
+        <div className="border-t border-foreground/[0.06] px-4 py-5 space-y-5">
+
+          {/* Financiero */}
+          <DetailSection icon={DollarSign} label="Financiero">
+            <Stat label="Revenue Total"   value={fmt(report.total_revenue)} />
+            <Stat label="Cash Collected"  value={fmt(report.cash_collected)} />
+            <Stat label="MRR"             value={fmt(report.mrr)} />
+            <Stat label="Ad Spend"        value={fmt(report.ad_spend)} />
+            <Stat label="Software Costs"  value={fmt(report.software_costs)} />
+            <Stat label="Variable Costs"  value={fmt(report.variable_costs)} />
+          </DetailSection>
+
+          {/* Ventas */}
+          <DetailSection icon={TrendingUp} label="Ventas">
+            <Stat label="Nuevos Clientes"       value={fmtNum(report.new_clients)} />
+            <Stat label="Clientes Activos"      value={fmtNum(report.active_clients)} />
+            <Stat label="Llamadas Agendadas"    value={fmtNum(report.scheduled_calls)} />
+            <Stat label="Llamadas Atendidas"    value={fmtNum(report.attended_calls)} />
+            <Stat label="Llamadas Calificadas"  value={fmtNum(report.qualified_calls)} />
+            <Stat label="Aplicaciones"          value={fmtNum(report.aplications)} />
+            <Stat label="Offer Docs Enviados"   value={fmtNum(report.offer_docs_sent)} />
+            <Stat label="Offer Docs Resp."      value={fmtNum(report.offer_docs_responded)} />
+            <Stat label="Cierres x Offer Doc"   value={fmtNum(report.cierres_por_offerdoc)} />
+            <Stat label="Mensajes Inbound"      value={fmtNum(report.inbound_messages)} />
+            {report.nps_score != null && (
+              <Stat label="NPS Score" value={report.nps_score} />
+            )}
+          </DetailSection>
+
+          {/* Instagram / Shorts */}
+          <DetailSection icon={Instagram} label="Instagram / Shorts">
+            <Stat label="Seguidores"     value={fmtNum(report.short_followers)} />
+            <Stat label="Alcance"        value={fmtNum(report.short_reach)} />
+            <Stat label="Posts Shorts"   value={fmtNum(report.short_posts)} />
+          </DetailSection>
+
+          {/* YouTube */}
+          <DetailSection icon={Youtube} label="YouTube">
+            <Stat label="Suscriptores"       value={fmtNum(report.yt_subscribers)} />
+            <Stat label="Nuevos Suscript."   value={fmtNum(report.yt_new_subscribers)} />
+            <Stat label="Audiencia Mensual"  value={fmtNum(report.yt_monthly_audience)} />
+            <Stat label="Vistas"             value={fmtNum(report.yt_views)} />
+            <Stat label="Watch Time (hs)"    value={fmtNum(report.yt_watch_time)} />
+            <Stat label="Videos Publicados"  value={fmtNum(report.yt_videos)} />
+          </DetailSection>
+
+          {/* Email */}
+          <DetailSection icon={Mail} label="Email">
+            <Stat label="Total Subscribers"  value={fmtNum(report.email_subscribers)} />
+            <Stat label="Nuevos Suscript."   value={fmtNum(report.email_new_subscribers)} />
+            <Stat label="Emails Sent"        value={fmtNum(report.email_sent)} />
+            {report.email_open_rate != null && (
+              <Stat label="Open Rate" value={`${report.email_open_rate}%`} />
+            )}
+          </DetailSection>
+
+          {/* Reflexión */}
+          <DetailSection icon={MessageSquare} label="Reflexión">
+            <TextBlock label="Mayor logro"         value={report.biggest_win} />
+            <TextBlock label="Próximo foco"        value={report.next_focus} />
+            <TextBlock label="Mejoras del mes"     value={report.improvements} />
+            <TextBlock label="Soporte necesario"   value={report.support_needed} />
+          </DetailSection>
+
         </div>
       )}
     </div>
@@ -209,7 +303,6 @@ export function ReportHistoryView() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [jwt, setJwt] = useState<string | null>(null)
 
-  // Confirm dialog state
   const [pendingDelete, setPendingDelete] = useState<{ id: string; month: string } | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -225,9 +318,15 @@ export function ReportHistoryView() {
       const { data, error: err } = await supabase
         .from("monthly_reports")
         .select(`
-          id, month, total_revenue, cash_collected, mrr, new_clients,
-          active_clients, scheduled_calls, attended_calls, ad_spend,
-          biggest_win, next_focus, created_at
+          id, month, created_at,
+          total_revenue, cash_collected, mrr, ad_spend, software_costs, variable_costs,
+          new_clients, active_clients, scheduled_calls, attended_calls, qualified_calls,
+          inbound_messages, aplications, offer_docs_sent, offer_docs_responded, cierres_por_offerdoc,
+          nps_score,
+          short_followers, short_reach, short_posts,
+          yt_subscribers, yt_new_subscribers, yt_monthly_audience, yt_views, yt_watch_time, yt_videos,
+          email_subscribers, email_new_subscribers, email_sent, email_open_rate,
+          biggest_win, next_focus, improvements, support_needed
         `)
         .eq("client_id", activeClientId)
         .order("month", { ascending: false })
@@ -245,23 +344,18 @@ export function ReportHistoryView() {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
-
       setJwt(session.access_token)
-
       const { data: prof } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", session.user.id)
         .maybeSingle()
-
-      setIsAdmin(((prof as any)?.role ?? "").toLowerCase() === "admin")
+      setIsAdmin(isAdminRole((prof as any)?.role))
     }
     init()
   }, [])
 
-  useEffect(() => {
-    loadReports()
-  }, [loadReports])
+  useEffect(() => { loadReports() }, [loadReports])
 
   const handleDeleteRequest = (id: string) => {
     const report = reports.find((r) => r.id === id)
@@ -277,10 +371,7 @@ export function ReportHistoryView() {
     try {
       const res = await fetch("/api/monthly-reports/delete", {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${jwt}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
         body: JSON.stringify({ id: pendingDelete.id }),
       })
       const json = await res.json()
@@ -298,18 +389,13 @@ export function ReportHistoryView() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.06] bg-card px-6 py-5">
-        <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#ffde21]/60 via-[#ffde21]/30 to-transparent" />
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/70 mb-1">
-              Datos
-            </p>
-            <h2 className="text-xl font-bold text-foreground">Historial de Reportes</h2>
-            <p className="text-sm text-foreground/40 mt-1">
-              {loading ? "Cargando…" : `${reports.length} reporte${reports.length !== 1 ? "s" : ""} encontrado${reports.length !== 1 ? "s" : ""}`}
-            </p>
-          </div>
+      <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card px-6 py-5">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/70 mb-1">Datos</p>
+          <h2 className="text-xl font-bold text-foreground">Historial de Reportes</h2>
+          <p className="text-sm text-foreground/40 mt-1">
+            {loading ? "Cargando…" : `${reports.length} reporte${reports.length !== 1 ? "s" : ""} encontrado${reports.length !== 1 ? "s" : ""}`}
+          </p>
         </div>
       </div>
 
@@ -353,7 +439,6 @@ export function ReportHistoryView() {
         </div>
       )}
 
-      {/* Confirm Delete Dialog */}
       {pendingDelete && (
         <ConfirmDeleteDialog
           month={pendingDelete.month}

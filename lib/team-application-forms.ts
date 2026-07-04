@@ -78,12 +78,12 @@ const SETTER_FORM: RoleForm = {
   role: "setter",
   title: "DM Closer / VA de Ventas",
   subtitle:
-    "Estamos construyendo una base de datos de personas con experiencia real en ventas conversacionales para trabajar con clientes de alto ticket. Leé todo antes de aplicar.",
+    "Acá estamos buscando a un nuevo integrante como DM Closer para Smart Scale. Buscamos a alguien comprometido, que entienda lo que hacemos y sepa manejar conversaciones B2B. Leé todo antes de aplicar.",
   shortLabel: "DM Closer / VA de Ventas",
   sections: [
     CONTACT_SECTION,
     {
-      title: "Filtro inicial",
+      title: "Experiencia",
       fields: [
         {
           id: "experiencia_cerrando",
@@ -113,7 +113,7 @@ const SETTER_FORM: RoleForm = {
       ],
     },
     {
-      title: "Situación actual",
+      title: "Tu Situación Actual",
       fields: [
         {
           id: "situacion_laboral",
@@ -186,13 +186,19 @@ const SETTER_FORM: RoleForm = {
       ],
     },
     {
-      title: "Cierre",
+      title: "La oferta de Ann",
       fields: [
         {
-          id: "trabajo_remoto",
-          label: "¿Tenés experiencia trabajando de forma remota y autogestionada?",
+          id: "entiende_oferta",
+          label: "¿Sabés qué vende Ann y a quién? Contanos brevemente lo que entendés de su oferta.",
+          type: "textarea",
+          required: true,
+        },
+        {
+          id: "experiencia_b2b",
+          label: "¿Tenés experiencia vendiendo B2B (a empresas o negocios)?",
           type: "radio",
-          options: ["Sí, mucha", "Algo", "No, es nuevo para mí"],
+          options: ["Sí", "No"],
           required: true,
         },
       ],

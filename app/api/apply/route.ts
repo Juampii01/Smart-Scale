@@ -56,7 +56,8 @@ export async function POST(req: NextRequest) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
     // ── Webhook a Zapier (fire-and-forget, nunca bloquea la respuesta) ──────────
-    const webhookUrl = process.env.APPLY_WEBHOOK_URL ?? "https://hooks.zapier.com/hooks/catch/17540789/uj9kbbl/"
+    // APPLY_WEBHOOK_URL must be set in Vercel env vars — no hardcoded fallback.
+    const webhookUrl = process.env.APPLY_WEBHOOK_URL
     if (webhookUrl) {
       const payload = new URLSearchParams({
         id:                   data.id,

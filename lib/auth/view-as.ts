@@ -1,5 +1,7 @@
 "use client"
 
+import { isAdmin as isAdminRole } from "@/lib/auth/permissions"
+
 /**
  * Admin "view as" — impersonation visual.
  *
@@ -71,6 +73,6 @@ export function useViewAsRole(): ViewAsRole {
 export function useEffectiveRole(actualRole: string | null): string | null {
   const viewAs = useViewAsRole()
   if (!viewAs) return actualRole
-  if (String(actualRole ?? "").toLowerCase() !== "admin") return actualRole  // safeguard
+  if (!isAdminRole(actualRole)) return actualRole  // safeguard: solo admin/developer pueden impersonar
   return viewAs
 }

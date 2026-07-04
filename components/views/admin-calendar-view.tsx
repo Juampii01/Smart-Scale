@@ -83,7 +83,7 @@ function EventModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-      <div className="w-full max-w-lg rounded-2xl border border-foreground/[0.08] bg-card shadow-2xl">
+      <div className="w-full max-w-lg rounded-[14px] border border-foreground/[0.08] bg-card shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-4">
           <div className="flex items-center gap-2.5">
@@ -294,7 +294,7 @@ export function AdminCalendarView() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
+      <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-5 w-5 animate-spin text-[#ffde21]/40" />
@@ -341,7 +341,7 @@ export function AdminCalendarView() {
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
                         <button onClick={() => handleDelete(ev.id, ev.title)} disabled={deletingId === ev.id}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/20 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-40">
+                          className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/20 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-40">
                           {deletingId === ev.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                         </button>
                       </div>

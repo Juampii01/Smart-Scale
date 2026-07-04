@@ -191,7 +191,7 @@ export function MetricsSection({
           {Object.entries(grouped).map(([category, items]) => (
             <div
               key={category}
-              className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card"
+              className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card"
             >
               {/* Category header */}
               <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-3">

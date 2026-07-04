@@ -30,3 +30,18 @@ next-env.d.ts
 .claude/
 .mcp.json
 supabase/.temp/
+
+# macOS
+.DS_Store
+
+# iCloud sync conflict duplicates (e.g. "page 2.tsx", "route 3.ts")
+*\ [0-9].ts
+*\ [0-9].tsx
+*\ [0-9].js
+*\ [0-9].jsx
+*\ [0-9].sql
+*\ [0-9].png
+*\ [0-9].jpg
+*\ [0-9].pdf
+*\ [0-9].docx
+*\ [0-9]/

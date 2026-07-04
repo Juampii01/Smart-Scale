@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { isAdmin } from "@/lib/auth/permissions"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -23,7 +24,7 @@ async function authorize(jwt: string | null, requestedClientId: string) {
   const ownClientId = (profile as any)?.client_id ?? null
 
   // Admin → puede ver/editar cualquier cliente
-  if (role === "admin") {
+  if (isAdmin(role)) {
     return { ok: true as const, user, role, ownClientId }
   }
 

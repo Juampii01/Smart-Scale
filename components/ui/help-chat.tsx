@@ -17,7 +17,7 @@ const STARTER_QUESTIONS_CLIENT = [
 const STARTER_QUESTIONS_ADMIN = [
   "¿Qué se cobró este mes?",
   "¿Qué falta cobrar en mayo?",
-  "¿Cuánto cobra Fabri de comisión este mes?",
+  "¿Cuánto cobra Steffano de comisión este mes?",
   "Mostrame las cuotas de Pablo Munizaga",
 ]
 

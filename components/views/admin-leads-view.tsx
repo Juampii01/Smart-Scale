@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, Fragment } from "react"
 import { createClient } from "@/lib/supabase"
 import {
   Loader2, Trash2, RefreshCw, Download, X, Star, Plus,
   Instagram, ExternalLink, ChevronRight,
 } from "lucide-react"
+import { PurchasedToggle } from "@/components/admin/purchased-toggle"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -21,13 +22,102 @@ interface Lead {
   rating:     number | null
   niche:      string | null
   notes:      string | null
+  purchased:  boolean
   created_at: string
+  custom_fields?: Record<string, any> | null
+}
+
+// Columna custom (definición compartida, estilo Airtable)
+interface LeadColumn {
+  id:       string
+  key:      string
+  label:    string
+  type:     "text" | "number"
+  position: number
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })
+  const d = new Date(iso)
+  const dd = String(d.getDate()).padStart(2, "0")
+  const mm = String(d.getMonth() + 1).padStart(2, "0")
+  const yy = String(d.getFullYear()).slice(-2)
+  return `${dd}/${mm}/${yy}`
+}
+
+// ─── Instagram: aceptar @usuario O link completo sin romper ─────────────────────
+
+/** href válido tanto si el valor es un @handle como si ya es una URL completa. */
+function igHref(v: string) {
+  const s = v.trim()
+  if (/^https?:\/\//i.test(s)) return s
+  return `https://instagram.com/${s.replace(/^@+/, "")}`
+}
+/** Etiqueta legible: @handle cuando se puede inferir, si no la URL sin protocolo. */
+function igLabel(v: string) {
+  const s = v.trim()
+  if (/^https?:\/\//i.test(s)) {
+    try {
+      const u = new URL(s)
+      const host = u.hostname.replace(/^www\./, "").toLowerCase()
+      const seg  = u.pathname.split("/").filter(Boolean)
+      if (host === "instagram.com" && seg.length === 1 &&
+          !["p", "reel", "reels", "stories", "direct", "explore"].includes(seg[0].toLowerCase())) {
+        return `@${seg[0]}`
+      }
+    } catch { /* URL inválida — se muestra tal cual abajo */ }
+    return s.replace(/^https?:\/\//i, "").replace(/\/+$/, "")
+  }
+  return `@${s.replace(/^@+/, "")}`
+}
+
+// ─── Pills de categoría (monocromo — blanco/negro según tema) ───────────────────
+
+function Pill({ value }: { value: string | null }) {
+  if (!value || !value.trim()) return <span className="text-foreground/25 text-[13px]">—</span>
+  return (
+    <span className="inline-block max-w-[180px] truncate rounded-md border border-foreground/[0.10] bg-foreground/[0.06] px-2 py-0.5 text-[12px] font-medium text-foreground/75 align-middle">
+      {value}
+    </span>
+  )
+}
+
+// ─── Vistas rápidas + agrupación ────────────────────────────────────────────────
+
+type ViewId = "cuatro" | "cinco" | "compraron" | "todos"
+const VIEWS: { id: ViewId; label: string }[] = [
+  { id: "cuatro",    label: "4 estrellas" },
+  { id: "cinco",     label: "5 estrellas" },
+  { id: "compraron", label: "Compraron" },
+  { id: "todos",     label: "Todos" },
+]
+
+type GroupId = "none" | "lead_type" | "niche" | "source" | "status"
+const GROUPS: { id: GroupId; label: string }[] = [
+  { id: "none",      label: "Sin agrupar" },
+  { id: "lead_type", label: "Tipo de lead" },
+  { id: "niche",     label: "Nicho" },
+  { id: "source",    label: "Fuente" },
+  { id: "status",    label: "Estado" },
+]
+
+// ─── Celda editable para columnas custom ────────────────────────────────────────
+
+function CustomCell({ value, type, onSave }: {
+  value: any; type: "text" | "number"; onSave: (v: string) => void
+}) {
+  return (
+    <input
+      type={type === "number" ? "number" : "text"}
+      defaultValue={value ?? ""}
+      onClick={e => e.stopPropagation()}
+      onBlur={e => onSave(e.target.value)}
+      onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
+      placeholder="—"
+      className="w-full min-w-[90px] rounded-lg border border-transparent bg-transparent px-2 py-1 text-[13px] text-foreground placeholder:text-foreground/30 hover:border-foreground/[0.08] focus:border-foreground/20 focus:bg-foreground/[0.03] focus:outline-none transition-all"
+    />
+  )
 }
 
 // ─── Star Rating ──────────────────────────────────────────────────────────────
@@ -52,33 +142,14 @@ function StarRating({
           onClick={() => onChange(star === value ? 0 : star)}
           onMouseEnter={() => setHover(star)}
           onMouseLeave={() => setHover(null)}
-          className="transition-transform hover:scale-110 focus:outline-none focus-visible:scale-110 focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1 rounded-sm"
+          className="transition-transform hover:scale-110 focus:outline-none focus-visible:scale-110 focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-1 rounded-sm"
         >
           <Star className={`${dim} transition-colors ${
-            star <= active ? "fill-amber-400 text-amber-400" : "fill-transparent text-foreground/20"
+            star <= active ? "fill-[#ffde21] text-[#ffde21]" : "fill-transparent text-foreground/25"
           }`} />
         </button>
       ))}
     </div>
-  )
-}
-
-// ─── Inline editable text ─────────────────────────────────────────────────────
-
-function InlineField({ value, placeholder, onSave }: {
-  value:       string | null
-  placeholder: string
-  onSave:      (v: string) => void
-}) {
-  return (
-    <input
-      type="text"
-      defaultValue={value ?? ""}
-      placeholder={placeholder}
-      onBlur={e    => onSave(e.target.value)}
-      onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-      className="w-full rounded-lg border border-transparent bg-transparent px-2 py-1 text-[13px] text-foreground placeholder:text-foreground/45 hover:border-foreground/[0.08] focus:border-foreground/20 focus:bg-foreground/[0.03] focus:outline-none transition-all"
-    />
   )
 }
 
@@ -91,7 +162,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
   onDelete: (id: string) => void
   deleting: boolean
 }) {
-  const ig = lead.instagram?.replace("@", "")
+  const ig = lead.instagram?.trim()
 
   const textField = (label: string, key: keyof Lead, placeholder: string) => (
     <div className="space-y-1.5">
@@ -120,11 +191,11 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => onDelete(lead.id)} disabled={deleting} aria-label="Eliminar lead"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-foreground hover:bg-foreground/[0.08] transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
             <button onClick={onClose} aria-label="Cerrar"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -136,17 +207,17 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
             <StarRating size="md" value={lead.rating}
               onChange={n => onPatch(lead.id, { rating: n || null })} />
             {lead.tag && (
-              <span className="rounded-full border border-amber-500 bg-amber-100 px-3 py-0.5 text-[11px] font-bold text-amber-900 dark:border-[#ffde21]/20 dark:bg-[#ffde21]/[0.06] dark:text-[#ffde21]/70">
+              <span className="rounded-full border border-foreground/[0.12] bg-foreground/[0.06] px-3 py-0.5 text-[11px] font-bold text-foreground/70">
                 {lead.tag}
               </span>
             )}
           </div>
           {ig && (
-            <a href={`https://instagram.com/${ig}`} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 text-[13px] text-pink-700 hover:text-pink-900 dark:text-pink-300/70 dark:hover:text-pink-300 transition-colors">
+            <a href={igHref(ig)} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 text-[13px] text-[#ffde21] hover:text-[#ffe84d] transition-colors">
               <Instagram className="h-4 w-4 shrink-0" />
-              @{ig}
-              <ExternalLink className="h-3 w-3 opacity-50" />
+              <span className="min-w-0 truncate">{igLabel(ig)}</span>
+              <ExternalLink className="h-3 w-3 opacity-50 shrink-0" />
             </a>
           )}
         </div>
@@ -218,7 +289,7 @@ function NewLeadModal({
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-sm rounded-2xl border border-foreground/[0.10] shadow-2xl p-6 space-y-4"
+          className="w-full max-w-sm rounded-[14px] border border-foreground/[0.10] shadow-2xl p-6 space-y-4"
           style={{ backgroundColor: "var(--card)" }}
         >
           <div className="flex items-center justify-between mb-1">
@@ -271,10 +342,77 @@ function NewLeadModal({
           <button
             type="submit"
             disabled={!name.trim() || creating}
-            className="w-full h-10 rounded-xl bg-[#ffde21] text-black text-[13px] font-bold hover:bg-[#ffe84d] transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+            className="w-full h-10 rounded-xl bg-foreground text-background text-[13px] font-bold hover:bg-foreground/90 transition-all disabled:opacity-40 flex items-center justify-center gap-2"
           >
             {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Crear lead
+          </button>
+        </form>
+      </div>
+    </>
+  )
+}
+
+// ─── New Column Modal ─────────────────────────────────────────────────────────
+
+function ColumnModal({ onClose, onCreate, creating }: {
+  onClose: () => void
+  onCreate: (label: string, type: "text" | "number") => Promise<void>
+  creating: boolean
+}) {
+  const [label, setLabel] = useState("")
+  const [type, setType]   = useState<"text" | "number">("text")
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!label.trim()) return
+    await onCreate(label.trim(), type)
+  }
+
+  return (
+    <>
+      <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <form onSubmit={handleSubmit}
+          className="w-full max-w-sm rounded-[14px] border border-foreground/[0.10] shadow-2xl p-6 space-y-4"
+          style={{ backgroundColor: "var(--card)" }}>
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="text-base font-bold text-foreground">Nueva columna</h3>
+            <button type="button" onClick={onClose}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Nombre de la columna *</p>
+            <input
+              autoFocus type="text" value={label} onChange={e => setLabel(e.target.value)}
+              placeholder="ej: Presupuesto, Ciudad, Objeción..."
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Tipo</p>
+            <div className="flex gap-2">
+              {([["text", "Texto"], ["number", "Número"]] as const).map(([val, lbl]) => (
+                <button key={val} type="button" onClick={() => setType(val)}
+                  className={`flex-1 h-9 rounded-xl border text-[13px] font-semibold transition-all ${
+                    type === val
+                      ? "border-foreground/30 bg-foreground/[0.08] text-foreground"
+                      : "border-foreground/[0.08] text-foreground/45 hover:text-foreground hover:border-foreground/20"
+                  }`}>
+                  {lbl}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button type="submit" disabled={!label.trim() || creating}
+            className="w-full h-10 rounded-xl bg-foreground text-background text-[13px] font-bold hover:bg-foreground/90 transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+            {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Crear columna
           </button>
         </form>
       </div>
@@ -290,10 +428,15 @@ export function AdminLeadsView() {
   const [selected,     setSelected]     = useState<Lead | null>(null)
   const [deletingId,   setDeletingId]   = useState<string | null>(null)
   const [search,       setSearch]       = useState("")
-  // -1 = solo 4-5 estrellas (default), 0 = todas, 1-5 = exacto
-  const [filterRating, setFilterRating] = useState<number>(-1)
+  const [view,         setView]         = useState<ViewId>("cuatro")
+  const [groupBy,      setGroupBy]      = useState<GroupId>("none")
+  const [collapsed,    setCollapsed]    = useState<Set<string>>(new Set())
   const [showNewForm,  setShowNewForm]  = useState(false)
   const [creating,     setCreating]     = useState(false)
+  // Columnas custom (estilo Airtable)
+  const [customCols,   setCustomCols]   = useState<LeadColumn[]>([])
+  const [showColModal, setShowColModal] = useState(false)
+  const [creatingCol,  setCreatingCol]  = useState(false)
 
   const getSession = async () => {
     const supabase = createClient()
@@ -315,7 +458,59 @@ export function AdminLeadsView() {
     } finally { setLoading(false) }
   }, [])
 
-  useEffect(() => { fetchLeads() }, [fetchLeads])
+  const fetchCols = useCallback(async () => {
+    try {
+      const session = await getSession()
+      if (!session) return
+      const res = await fetch("/api/admin/lead-columns", {
+        headers: { "Authorization": `Bearer ${session.access_token}` },
+      })
+      if (!res.ok) return
+      const json = await res.json()
+      setCustomCols(json.columns ?? [])
+    } catch { /* tabla aún no migrada — sin columnas custom */ }
+  }, [])
+
+  useEffect(() => { fetchLeads(); fetchCols() }, [fetchLeads, fetchCols])
+
+  const addColumn = async (label: string, type: "text" | "number") => {
+    setCreatingCol(true)
+    try {
+      const session = await getSession()
+      if (!session) return
+      const res = await fetch("/api/admin/lead-columns", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+        body:    JSON.stringify({ label, type }),
+      })
+      const json = await res.json()
+      if (res.ok && json.column) {
+        setCustomCols(prev => [...prev, json.column])
+        setShowColModal(false)
+      } else {
+        alert(json.error ?? "No se pudo crear la columna.")
+      }
+    } finally {
+      setCreatingCol(false)
+    }
+  }
+
+  const deleteColumn = async (col: LeadColumn) => {
+    if (!window.confirm(`¿Eliminar la columna "${col.label}"? Los datos cargados en ella se ocultan.`)) return
+    setCustomCols(prev => prev.filter(c => c.id !== col.id))
+    const session = await getSession()
+    if (!session) return
+    await fetch("/api/admin/lead-columns", {
+      method:  "DELETE",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+      body:    JSON.stringify({ id: col.id }),
+    })
+  }
+
+  const patchCustom = (lead: Lead, key: string, value: string) => {
+    const next = { ...(lead.custom_fields ?? {}), [key]: value === "" ? null : value }
+    patch(lead.id, { custom_fields: next })
+  }
 
   const handleCreate = async (data: Partial<Lead>) => {
     setCreating(true)
@@ -367,9 +562,10 @@ export function AdminLeadsView() {
   }
 
   const exportCsv = () => {
-    const header = ["Nombre","Email","Tag","Desde dónde llegó","Tipo","Estado","Instagram","Rating","Nicho","Notas","Fecha"].join(",")
+    const header = ["Nombre","Email","Tag","Desde dónde llegó","Tipo","Estado","Compró","Instagram","Rating","Nicho","Notas","Fecha", ...customCols.map(c => c.label)].join(",")
     const rows = filtered.map(l =>
-      [l.name, l.email, l.tag, l.source, l.lead_type, l.status, l.instagram, l.rating, l.niche, l.notes, l.created_at]
+      [l.name, l.email, l.tag, l.source, l.lead_type, l.status, l.purchased ? "Sí" : "No", l.instagram, l.rating, l.niche, l.notes, l.created_at,
+        ...customCols.map(c => l.custom_fields?.[c.key])]
         .map(v => `"${String(v ?? "").replace(/"/g, '""')}"`)
         .join(",")
     )
@@ -381,18 +577,68 @@ export function AdminLeadsView() {
   }
 
   const filtered = leads.filter(l => {
-    if (filterRating === -1 && (l.rating === null || l.rating < 4)) return false
-    if (filterRating > 0 && l.rating !== filterRating) return false
+    if (view === "cuatro" && l.rating !== 4) return false
+    if (view === "cinco"  && l.rating !== 5) return false
+    if (view === "compraron"   && !l.purchased) return false
     if (!search.trim()) return true
     const q = search.toLowerCase()
     return [l.name, l.tag, l.instagram, l.niche, l.lead_type, l.source, l.status]
       .some(v => v?.toLowerCase().includes(q))
   })
 
+  // Agrupación (estilo Airtable): [{ key, label, leads }]
+  const groups = (() => {
+    if (groupBy === "none") return [{ key: "__all__", label: "", leads: filtered }]
+    const map = new Map<string, Lead[]>()
+    for (const l of filtered) {
+      const raw = (l[groupBy as keyof Lead] as string | null)?.trim()
+      const key = raw && raw !== "nuevo" ? raw : "Sin asignar"
+      if (!map.has(key)) map.set(key, [])
+      map.get(key)!.push(l)
+    }
+    return Array.from(map.entries())
+      .sort((a, b) => (a[0] === "Sin asignar" ? 1 : b[0] === "Sin asignar" ? -1 : b[1].length - a[1].length))
+      .map(([key, leads]) => ({ key, label: key, leads }))
+  })()
+
+  const toggleGroup = (key: string) =>
+    setCollapsed(prev => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+
   const [webhookUrl, setWebhookUrl] = useState<string | null>(null)
   useEffect(() => {
     setWebhookUrl(`${window.location.origin}/api/webhooks/lead`)
   }, [])
+
+  // Columnas: 10 fijas + N custom + 1 (botón "+" / chevron)
+  const colCount = 8 + customCols.length
+  const headRow = (
+    <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+      {["Nombre","Fecha","Desde dónde","Nicho","Instagram","Rating","Compró"].map(h => (
+        <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">{h}</th>
+      ))}
+      {customCols.map(col => (
+        <th key={col.id} className="group/col px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">
+          <span className="inline-flex items-center gap-1.5">
+            {col.label}
+            <button onClick={() => deleteColumn(col)} title="Eliminar columna"
+              className="opacity-0 group-hover/col:opacity-100 text-foreground/30 hover:text-foreground transition-opacity">
+              <X className="h-3 w-3" />
+            </button>
+          </span>
+        </th>
+      ))}
+      <th className="px-3 py-3 text-left">
+        <button onClick={() => setShowColModal(true)} title="Agregar columna"
+          className="flex h-6 w-6 items-center justify-center rounded-md border border-foreground/[0.12] text-foreground/40 hover:text-foreground hover:border-foreground/30 transition-colors">
+          <Plus className="h-3.5 w-3.5" />
+        </button>
+      </th>
+    </tr>
+  )
 
   return (
     <>
@@ -401,6 +647,14 @@ export function AdminLeadsView() {
           onClose={() => setShowNewForm(false)}
           onCreate={handleCreate}
           creating={creating}
+        />
+      )}
+
+      {showColModal && (
+        <ColumnModal
+          onClose={() => setShowColModal(false)}
+          onCreate={addColumn}
+          creating={creatingCol}
         />
       )}
 
@@ -434,7 +688,7 @@ export function AdminLeadsView() {
             </button>
             <button
               onClick={() => setShowNewForm(true)}
-              className="flex items-center gap-2 h-9 rounded-xl bg-[#ffde21] px-4 text-sm font-bold text-black hover:bg-[#ffe84d] transition-all">
+              className="flex items-center gap-2 h-9 rounded-xl bg-foreground px-4 text-sm font-bold text-background hover:bg-foreground/90 transition-all">
               <Plus className="h-3.5 w-3.5" />
               Nuevo lead
             </button>
@@ -442,12 +696,12 @@ export function AdminLeadsView() {
         </div>
 
         {/* Webhook card */}
-        <div className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-4">
+        <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
           <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-2">
             Webhook URL — ManyChat / Zapier
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-[#ffde21]/70 font-mono truncate" suppressHydrationWarning>
+            <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-foreground/60 font-mono truncate" suppressHydrationWarning>
               {webhookUrl ?? "Cargando…"}
             </code>
             <button
@@ -463,67 +717,61 @@ export function AdminLeadsView() {
           </p>
         </div>
 
-        {/* Search + Star filter row */}
-        <div className="flex flex-wrap items-center gap-3">
-          <input
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar por nombre, tag, nicho, instagram..."
-            className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/20 focus:outline-none flex-1 min-w-[220px] max-w-sm"
-          />
+        {/* Toolbar estilo Airtable: vistas + buscar + agrupar */}
+        <div className="space-y-3">
+          {/* Vistas rápidas */}
+          <div className="flex flex-wrap items-center gap-1.5 border-b border-foreground/[0.06] pb-3">
+            {VIEWS.map(v => (
+              <button
+                key={v.id}
+                onClick={() => setView(v.id)}
+                className={`inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[12.5px] font-semibold transition-all ${
+                  view === v.id
+                    ? "bg-foreground text-background"
+                    : "text-foreground/45 hover:text-foreground hover:bg-foreground/[0.05]"
+                }`}>
+                {(v.id === "cuatro" || v.id === "cinco") && (
+                  <Star className={`h-3 w-3 ${view === v.id ? "fill-background text-background" : "fill-transparent text-foreground/40"}`} />
+                )}
+                {v.label}
+              </button>
+            ))}
+          </div>
 
-          {/* Star filter — solo Todas + 4-5 */}
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => setFilterRating(0)}
-              className={`h-8 rounded-xl border px-3 text-[12px] font-medium transition-all ${
-                filterRating === 0
-                  ? "border-amber-600 bg-amber-500 text-black dark:border-[#ffde21]/40 dark:bg-[#ffde21]/10 dark:text-[#ffde21]"
-                  : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
-              }`}>
-              Todas
-            </button>
-            <button
-              onClick={() => setFilterRating(filterRating === -1 ? 0 : -1)}
-              className={`h-8 rounded-xl border px-3 transition-all flex items-center gap-1 text-[12px] font-bold ${
-                filterRating === -1
-                  ? "border-amber-600 bg-amber-500 text-black shadow-sm dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-300 dark:shadow-none"
-                  : "border-foreground/[0.07] text-foreground/40 hover:text-amber-700 hover:border-amber-400 hover:bg-amber-50 dark:hover:text-amber-300 dark:hover:border-amber-400/30 dark:hover:bg-transparent"
-              }`}>
-              <Star className={`h-3 w-3 ${filterRating === -1 ? "fill-black text-black dark:fill-amber-400 dark:text-amber-400" : "fill-transparent"}`} />
-              4–5
-            </button>
-            {/* Filtros de 1-3 ⭐ removidos: solo nos interesan leads calificados (4-5 ⭐). */}
+          {/* Buscar + agrupar */}
+          <div className="flex flex-wrap items-center gap-3">
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Buscar por nombre, tag, nicho, instagram..."
+              className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/20 focus:outline-none flex-1 min-w-[220px] max-w-sm"
+            />
+            <div className="flex items-center gap-2">
+              <span className="text-[12px] text-foreground/40 whitespace-nowrap">Agrupar por</span>
+              <select
+                value={groupBy}
+                onChange={e => setGroupBy(e.target.value as GroupId)}
+                className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-3 text-[13px] font-medium text-foreground focus:border-foreground/20 focus:outline-none">
+                {GROUPS.map(g => <option key={g.id} value={g.id}>{g.label}</option>)}
+              </select>
+            </div>
+            <span className="ml-auto text-[12px] tabular-nums text-foreground/35">{filtered.length} de {leads.length}</span>
           </div>
         </div>
 
-        {/* Banner explicativo cuando el filtro 4-5 está activo */}
-        {filterRating === -1 && (
-          <div className="flex items-center gap-2.5 rounded-xl border border-amber-500 bg-amber-100 px-4 py-2.5 dark:border-amber-400/20 dark:bg-amber-500/[0.05]">
-            <Star className="h-3.5 w-3.5 fill-amber-600 text-amber-600 shrink-0 dark:fill-amber-400 dark:text-amber-400" />
-            <p className="text-[12px] text-amber-900 flex-1 dark:text-amber-200/80">
-              Mostrando solo leads de <span className="font-bold text-amber-950 dark:font-semibold dark:text-amber-200">4 y 5 estrellas</span>. Tocá <span className="font-bold dark:font-semibold">Todas</span> arriba para ver todos los leads del pipeline.
-            </p>
-          </div>
-        )}
-
         {/* Table */}
-        <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
+        <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
           {loading ? (
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-                    {["Nombre","Email","Tag","Instagram","Rating","Estado","Desde dónde llegó","Tipo","Nicho","Fecha",""].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
+                  {headRow}
                 </thead>
                 <tbody>
                   {Array.from({ length: 8 }).map((_, i) => (
                     <tr key={i} className="border-b border-foreground/[0.04]">
-                      {Array.from({ length: 11 }).map((_, j) => (
+                      {Array.from({ length: colCount }).map((_, j) => (
                         <td key={j} className="px-4 py-4">
                           <div className="h-3 skeleton rounded" style={{ width: `${45 + (i * 13 + j * 7) % 50}%` }} />
                         </td>
@@ -537,81 +785,85 @@ export function AdminLeadsView() {
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-                    {["Nombre","Email","Tag","Instagram","Rating","Estado","Desde dónde llegó","Tipo","Nicho","Fecha",""].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">{h}</th>
-                    ))}
-                  </tr>
+                  {headRow}
                 </thead>
                 <tbody>
                   {!filtered.length ? (
-                    <tr><td colSpan={10} className="py-16 text-center text-sm text-foreground/25">
+                    <tr><td colSpan={colCount} className="py-16 text-center text-sm text-foreground/25">
                       {leads.length ? "No hay leads con esa búsqueda." : "Todavía no hay leads. Conectá ManyChat al webhook."}
                     </td></tr>
-                  ) : filtered.map(lead => (
-                    <tr key={lead.id}
-                      onClick={() => setSelected(lead)}
-                      className="border-b border-foreground/[0.04] cursor-pointer transition-colors group bg-card hover:bg-muted">
+                  ) : groups.map(group => {
+                    const isCollapsed = collapsed.has(group.key)
+                    return (
+                      <Fragment key={group.key}>
+                        {groupBy !== "none" && (
+                          <tr className="border-y border-foreground/[0.06] bg-foreground/[0.03]">
+                            <td colSpan={colCount} className="px-3 py-2">
+                              <button type="button" onClick={() => toggleGroup(group.key)}
+                                className="flex items-center gap-2 focus:outline-none">
+                                <ChevronRight className={`h-3.5 w-3.5 text-foreground/40 transition-transform ${isCollapsed ? "" : "rotate-90"}`} />
+                                {group.label === "Sin asignar"
+                                  ? <span className="text-[12.5px] font-semibold text-foreground/45">Sin asignar</span>
+                                  : <Pill value={group.label} />}
+                                <span className="text-[11px] tabular-nums text-foreground/35">{group.leads.length}</span>
+                              </button>
+                            </td>
+                          </tr>
+                        )}
+                        {!isCollapsed && group.leads.map(lead => (
+                          <tr key={lead.id}
+                            onClick={() => setSelected(lead)}
+                            className="border-b border-foreground/[0.04] cursor-pointer transition-colors group bg-card hover:bg-muted">
 
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className="text-[14px] font-semibold text-foreground">{lead.name ?? <span className="text-foreground/30">—</span>}</span>
-                      </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <span className="text-[14px] font-semibold text-foreground">{lead.name ?? <span className="text-foreground/30">—</span>}</span>
+                            </td>
 
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className="text-[13px] text-foreground/90">{lead.email ?? <span className="text-foreground/30">—</span>}</span>
-                      </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <span className="text-[12px] tabular-nums text-foreground/60">{fmtDate(lead.created_at)}</span>
+                            </td>
 
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        {lead.tag
-                          ? <span className="rounded-full border border-amber-500 bg-amber-100 px-2.5 py-0.5 text-[12px] font-semibold text-amber-900 dark:border-[#ffde21]/20 dark:bg-[#ffde21]/[0.06] dark:text-[#ffde21]/90">{lead.tag}</span>
-                          : <span className="text-foreground/30 text-[13px]">—</span>}
-                      </td>
+                            <td className="px-4 py-3 whitespace-nowrap"><Pill value={lead.source} /></td>
+                            <td className="px-4 py-3 whitespace-nowrap"><Pill value={lead.niche} /></td>
 
-                      <td className="px-4 py-4 whitespace-nowrap" onClick={e => e.stopPropagation()}>
-                        {lead.instagram
-                          ? <a href={`https://instagram.com/${lead.instagram.replace("@","")}`}
-                              target="_blank" rel="noopener noreferrer"
-                              className="flex items-center gap-1.5 text-[13px] text-pink-700 hover:text-pink-900 dark:text-pink-300 dark:hover:text-pink-200 transition-colors">
-                              <Instagram className="h-3.5 w-3.5 shrink-0" />
-                              {lead.instagram}
-                            </a>
-                          : <span className="text-foreground/30 text-[13px]">—</span>}
-                      </td>
+                            <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                              {lead.instagram?.trim()
+                                ? <a href={igHref(lead.instagram)}
+                                    target="_blank" rel="noopener noreferrer"
+                                    className="inline-flex max-w-[200px] items-center gap-1.5 text-[13px] text-[#ffde21] hover:text-[#ffe84d] transition-colors">
+                                    <Instagram className="h-3.5 w-3.5 shrink-0" />
+                                    <span className="min-w-0 truncate">{igLabel(lead.instagram)}</span>
+                                  </a>
+                                : <span className="text-foreground/30 text-[13px]">—</span>}
+                            </td>
 
-                      <td className="px-4 py-4 whitespace-nowrap" onClick={e => e.stopPropagation()}>
-                        <StarRating value={lead.rating}
-                          onChange={n => patch(lead.id, { rating: n || null })} />
-                      </td>
+                            <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                              <StarRating value={lead.rating}
+                                onChange={r => patch(lead.id, { rating: r || null })} />
+                            </td>
 
-                      <td className="px-4 py-4 whitespace-nowrap min-w-[130px]" onClick={e => e.stopPropagation()}>
-                        <InlineField value={lead.status !== "nuevo" ? lead.status : null}
-                          placeholder="estado..." onSave={v => patch(lead.id, { status: v || "nuevo" })} />
-                      </td>
+                            <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                              <PurchasedToggle mono value={!!lead.purchased} onChange={v => patch(lead.id, { purchased: v })} />
+                            </td>
 
-                      <td className="px-4 py-4 whitespace-nowrap min-w-[140px]" onClick={e => e.stopPropagation()}>
-                        <InlineField value={lead.source} placeholder="desde dónde..."
-                          onSave={v => patch(lead.id, { source: v || null })} />
-                      </td>
+                            {customCols.map(col => (
+                              <td key={col.id} className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                                <CustomCell
+                                  value={lead.custom_fields?.[col.key]}
+                                  type={col.type}
+                                  onSave={v => patchCustom(lead, col.key, v)}
+                                />
+                              </td>
+                            ))}
 
-                      <td className="px-4 py-4 whitespace-nowrap min-w-[120px]" onClick={e => e.stopPropagation()}>
-                        <InlineField value={lead.lead_type} placeholder="tipo..."
-                          onSave={v => patch(lead.id, { lead_type: v || null })} />
-                      </td>
-
-                      <td className="px-4 py-4 whitespace-nowrap min-w-[120px]" onClick={e => e.stopPropagation()}>
-                        <InlineField value={lead.niche} placeholder="nicho..."
-                          onSave={v => patch(lead.id, { niche: v || null })} />
-                      </td>
-
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className="text-[12px] text-foreground/60">{fmtDate(lead.created_at)}</span>
-                      </td>
-
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <ChevronRight className="h-4 w-4 text-foreground/25 group-hover:text-foreground/60 transition-colors" />
-                      </td>
-                    </tr>
-                  ))}
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <ChevronRight className="h-4 w-4 text-foreground/25 group-hover:text-foreground/60 transition-colors" />
+                            </td>
+                          </tr>
+                        ))}
+                      </Fragment>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>

@@ -53,11 +53,9 @@ function normalize(s: any): string | null {
   return null
 }
 
-/** Set normalizado de meses con data. Siempre incluye el mes actual + 2025-12 (legacy). */
+/** Set normalizado de meses con data real (monthly_reports). Solo habilita lo que viene de la DB. */
 function buildAvailableSet(enabledMonths?: string[]): Set<string> {
   const set = new Set<string>()
-  set.add(currentMonthYM())
-  set.add("2025-12")
   if (Array.isArray(enabledMonths)) {
     for (const m of enabledMonths) {
       const norm = normalize(m)

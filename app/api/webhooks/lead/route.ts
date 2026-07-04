@@ -10,8 +10,8 @@ export const dynamic = "force-dynamic"
  * Receives a webhook from any CRM (GoHighLevel, ActiveCampaign, HubSpot, Zapier…)
  * when a tag is applied to a lead, and saves the lead to the `leads` table.
  *
- * Optional security: set WEBHOOK_SECRET in your env vars.
- * Then configure your CRM to send the header:  X-Webhook-Secret: <your_secret>
+ * Required: set WEBHOOK_SECRET in Vercel env vars.
+ * Configure your CRM to send the header:  X-Webhook-Secret: <your_secret>
  *
  * The endpoint tries to extract these fields from ANY JSON payload shape:
  *   name, email, phone, instagram, tag, source
@@ -20,19 +20,22 @@ export const dynamic = "force-dynamic"
  */
 export async function POST(req: NextRequest) {
   try {
-    // ── Optional secret verification ────────────────────────────────────────
+    // ── Secret verification (fail-closed) ───────────────────────────────────
     const webhookSecret = process.env.WEBHOOK_SECRET
-    if (webhookSecret) {
-      const incoming =
-        req.headers.get("x-webhook-secret") ??
-        req.headers.get("x-secret") ??
-        req.headers.get("authorization")?.replace("Bearer ", "") ??
-        null
-
-      if (incoming !== webhookSecret) {
-        console.warn("[webhook/lead] invalid secret")
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-      }
+    // If WEBHOOK_SECRET is not configured, reject all requests rather than
+    // silently accepting them. Set the env var in Vercel before deploying.
+    if (!webhookSecret) {
+      console.error("[webhook/lead] WEBHOOK_SECRET not configured — rejecting request")
+      return NextResponse.json({ error: "Service unavailable" }, { status: 503 })
+    }
+    const incoming =
+      req.headers.get("x-webhook-secret") ??
+      req.headers.get("x-secret") ??
+      req.headers.get("authorization")?.replace("Bearer ", "") ??
+      null
+    if (incoming !== webhookSecret) {
+      console.warn("[webhook/lead] invalid secret")
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     // ── Parse body ───────────────────────────────────────────────────────────
@@ -61,13 +64,8 @@ export async function POST(req: NextRequest) {
       raw?.email ??
       null
 
-    const phone =
-      contact?.phone         ??
-      contact?.phone_number  ??
-      contact?.phoneNumber   ??
-      contact?.mobile        ??
-      raw?.phone             ??
-      null
+    // Nota: la tabla `leads` NO tiene columna `phone` (se eliminó a propósito).
+    // El teléfono, si viene en el payload, queda guardado en raw_payload.
 
     const instagram =
       contact?.instagram        ??
@@ -98,7 +96,6 @@ export async function POST(req: NextRequest) {
     const { error } = await supabase.from("leads").insert({
       name:        name        || null,
       email:       email       || null,
-      phone:       phone       || null,
       instagram:   instagram   || null,
       tag:         tag         || null,
       source:      source      || null,

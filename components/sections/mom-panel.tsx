@@ -59,7 +59,7 @@ export function MoMPanel() {
   if (loading) {
     return (
       <section>
-        <div className="h-72 animate-pulse rounded-2xl border border-foreground/[0.07] bg-card" />
+        <div className="h-72 animate-pulse rounded-[14px] border border-foreground/[0.07] bg-card" />
       </section>
     )
   }
@@ -106,7 +106,7 @@ export function MoMPanel() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+      <div className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
         {/* Column headers */}
         <div className="grid grid-cols-[1.4fr_1fr_1.6fr_1fr] border-b border-foreground/[0.06] px-6 py-3">
           <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30">Métrica</span>

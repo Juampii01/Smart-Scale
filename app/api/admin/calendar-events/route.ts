@@ -5,12 +5,14 @@ import { requireInternal, requireAdmin } from "@/lib/auth/api-guards"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-// GET — cualquier usuario autenticado puede leer la agenda
+// GET — cualquier usuario autenticado puede leer la agenda (clientes incluidos)
 export async function GET(req: NextRequest) {
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireInternal(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    if (!jwt) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const supabaseAuth = createServiceClient()
+    const { data: { user } } = await supabaseAuth.auth.getUser(jwt)
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const supabase = createServiceClient()
     const { data, error } = await supabase

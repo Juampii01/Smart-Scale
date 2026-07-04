@@ -8,6 +8,7 @@ import {
   DollarSign, Calendar, Mail,
   MessageCircle, PhoneCall, MoreHorizontal,
   Check, ChevronUp, ChevronDown, ChevronsUpDown, UserX,
+  BarChart3, FileText,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -52,6 +53,7 @@ interface Client {
   is_monthly_subscription: boolean
   status:              "activo" | "en_pausa" | "inactivo" | "completado"
   notes:              string | null
+  business_profile:   string | null
   created_at:         string
   updated_at:         string
   installments:       Installment[]
@@ -178,7 +180,7 @@ function WebhookCard() {
   }
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-4">
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
       <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-2">
         Webhook URL — Zapier / Formulario de onboarding
       </p>
@@ -302,6 +304,269 @@ function InstallmentRow({
 
 // ─── Detail Drawer ────────────────────────────────────────────────────────────
 
+// ─── Client Report Panel ──────────────────────────────────────────────────────
+
+const REPORT_GROUPS = [
+  {
+    key: "business", label: "Business",
+    fields: [
+      { key: "cash_collected",  label: "Cash Collected",     hint: "USD", type: "number" as const },
+      { key: "total_revenue",   label: "Revenue Total",      hint: "USD", type: "number" as const },
+      { key: "mrr",             label: "MRR",                hint: "USD", type: "number" as const },
+      { key: "ad_spend",        label: "Inversión Ads",      hint: "USD", type: "number" as const },
+      { key: "software_costs",  label: "Software",           hint: "USD", type: "number" as const },
+      { key: "variable_costs",  label: "Costos variables",   hint: "USD", type: "number" as const },
+    ],
+  },
+  {
+    key: "sales", label: "Sales",
+    fields: [
+      { key: "new_clients",           label: "Nuevos clientes",      type: "number" as const },
+      { key: "active_clients",        label: "Clientes activos",     type: "number" as const },
+      { key: "scheduled_calls",       label: "Llamadas agendadas",   type: "number" as const },
+      { key: "attended_calls",        label: "Llamadas atendidas",   type: "number" as const },
+      { key: "qualified_calls",       label: "Llamadas calificadas", type: "number" as const },
+      { key: "aplications",           label: "Aplicaciones",         type: "number" as const },
+      { key: "inbound_messages",      label: "Mensajes entrantes",   type: "number" as const },
+      { key: "offer_docs_sent",       label: "OfferDocs enviados",   type: "number" as const },
+      { key: "offer_docs_responded",  label: "OfferDocs respondidos",type: "number" as const },
+      { key: "cierres_por_offerdoc",  label: "Cierres OfferDoc",     type: "number" as const },
+    ],
+  },
+  {
+    key: "social", label: "Contenido & Social",
+    fields: [
+      { key: "short_followers",       label: "Seguidores",           type: "number" as const },
+      { key: "short_reach",           label: "Alcance",              type: "number" as const },
+      { key: "short_posts",           label: "Posts publicados",     type: "number" as const },
+      { key: "yt_subscribers",        label: "YouTube Suscriptores", type: "number" as const },
+      { key: "yt_new_subscribers",    label: "YouTube Nuevos subs",  type: "number" as const },
+      { key: "yt_views",              label: "YouTube Vistas",       type: "number" as const },
+      { key: "yt_videos",             label: "YouTube Videos",       type: "number" as const },
+      { key: "email_subscribers",     label: "Email lista",          type: "number" as const },
+      { key: "email_new_subscribers", label: "Email nuevos",         type: "number" as const },
+    ],
+  },
+  {
+    key: "reflection", label: "Reflection",
+    fields: [
+      { key: "biggest_win",    label: "Mayor logro del mes",  type: "text" as const },
+      { key: "next_focus",     label: "Próximo enfoque",      type: "text" as const },
+      { key: "support_needed", label: "Soporte necesario",    type: "text" as const },
+      { key: "improvements",   label: "Mejoras",              type: "text" as const },
+      { key: "nps_score",      label: "NPS (1–10)",           type: "nps"  as const },
+    ],
+  },
+]
+
+function ClientReportPanel({ clientId }: { clientId: string }) {
+  const [reports,  setReports]  = useState<any[]>([])
+  const [loadingR, setLoadingR] = useState(true)
+  const [selMonth, setSelMonth] = useState(() => new Date().toISOString().slice(0, 7))
+  const [values,   setValues]   = useState<Record<string, string>>({})
+  const [saving,   setSaving]   = useState(false)
+  const [saved,    setSaved]    = useState(false)
+  const [saveErr,  setSaveErr]  = useState<string | null>(null)
+
+  const getSession = useCallback(async () => {
+    const { data: { session } } = await createClient().auth.getSession()
+    return session
+  }, [])
+
+  // Load all reports for this client
+  useEffect(() => {
+    let cancelled = false
+    setLoadingR(true)
+    getSession().then(async session => {
+      if (!session || cancelled) { setLoadingR(false); return }
+      try {
+        const res  = await fetch(`/api/admin/reports?client_id=${clientId}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        const data = await res.json()
+        if (!cancelled) setReports(data.reports ?? [])
+      } catch {}
+      finally { if (!cancelled) setLoadingR(false) }
+    })
+    return () => { cancelled = true }
+  }, [clientId, getSession])
+
+  // Populate form when month selection or reports change
+  useEffect(() => {
+    const existing = reports.find(r => r.month?.slice(0, 7) === selMonth)
+    if (existing) {
+      const pre: Record<string, string> = {}
+      for (const g of REPORT_GROUPS) {
+        for (const f of g.fields) {
+          const v = existing[f.key]
+          if (v !== null && v !== undefined && v !== "") pre[f.key] = String(v)
+        }
+      }
+      setValues(pre)
+    } else {
+      setValues({})
+    }
+    setSaved(false); setSaveErr(null)
+  }, [selMonth, reports])
+
+  // Month list: all months with data + current month (newest first)
+  const monthList = useMemo(() => {
+    const now = new Date().toISOString().slice(0, 7)
+    const set = new Set<string>()
+    reports.forEach(r => { const m = r.month?.slice(0, 7); if (m) set.add(m) })
+    set.add(now)
+    return [...set].sort().reverse()
+  }, [reports])
+
+  const setValue = (k: string, v: string) => setValues(p => ({ ...p, [k]: v }))
+  const hasData  = (m: string) => reports.some(r => r.month?.slice(0, 7) === m)
+  const fmtMonth = (m: string) => {
+    try { return new Date(`${m}-01`).toLocaleDateString("es-AR", { month: "short", year: "2-digit" }) }
+    catch { return m }
+  }
+
+  const save = async () => {
+    setSaving(true); setSaved(false); setSaveErr(null)
+    try {
+      const session = await getSession()
+      if (!session) { setSaveErr("Sesión expirada"); return }
+      const body: Record<string, unknown> = { client_id: clientId, month: selMonth }
+      for (const [k, v] of Object.entries(values)) {
+        if (v !== "" && v !== null) body[k] = v
+      }
+      const res  = await fetch("/api/monthly-reports/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify(body),
+      })
+      const data = await res.json()
+      if (!res.ok) { setSaveErr(data.error ?? "Error al guardar"); return }
+      setReports(prev => {
+        const idx = prev.findIndex(r => r.month?.slice(0, 7) === selMonth)
+        return idx >= 0 ? prev.map((r, i) => i === idx ? data.report : r) : [...prev, data.report]
+      })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } finally { setSaving(false) }
+  }
+
+  if (loadingR) {
+    return <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-foreground/30" /></div>
+  }
+
+  return (
+    <div className="flex flex-col" style={{ height: "calc(100% - 1px)" }}>
+      {/* Month selector */}
+      <div className="border-b border-foreground/[0.06] px-6 py-4 shrink-0">
+        <p className="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-foreground/25">Mes del reporte</p>
+        <div className="flex gap-1.5 overflow-x-auto pb-1">
+          {monthList.map(m => (
+            <button key={m} onClick={() => setSelMonth(m)}
+              className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                selMonth === m
+                  ? "bg-[#ffde21] text-black"
+                  : "border border-foreground/[0.08] bg-foreground/[0.04] text-foreground/50 hover:text-foreground hover:border-foreground/20"
+              }`}>
+              {fmtMonth(m)}
+              <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${hasData(m) ? "bg-emerald-500" : "bg-foreground/20"}`} />
+            </button>
+          ))}
+        </div>
+        <p className="mt-1.5 text-[10px] text-foreground/25 flex items-center gap-3">
+          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />cargado</span>
+          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-foreground/20" />vacío</span>
+        </p>
+      </div>
+
+      {/* Scrollable form */}
+      <div className="flex-1 overflow-y-auto divide-y divide-foreground/[0.05]">
+        {REPORT_GROUPS.map(group => (
+          <div key={group.key} className="px-6 py-4 space-y-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/30">{group.label}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {group.fields.map(field => {
+                if (field.type === "text") {
+                  return (
+                    <div key={field.key} className="col-span-2 space-y-1">
+                      <label className="block text-[10px] font-semibold uppercase tracking-wider text-foreground/40">{field.label}</label>
+                      <textarea
+                        value={values[field.key] ?? ""}
+                        onChange={e => setValue(field.key, e.target.value)}
+                        rows={2}
+                        placeholder="—"
+                        className="w-full resize-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-foreground/20 focus:border-[#ffde21]/40 focus:outline-none"
+                      />
+                    </div>
+                  )
+                }
+                if (field.type === "nps") {
+                  return (
+                    <div key={field.key} className="col-span-2 space-y-1.5">
+                      <label className="block text-[10px] font-semibold uppercase tracking-wider text-foreground/40">{field.label}</label>
+                      <div className="flex gap-1 flex-wrap">
+                        {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                          <button key={n} type="button" onClick={() => setValue(field.key, String(n))}
+                            className={`h-8 w-8 rounded-lg text-xs font-bold transition-all ${
+                              values[field.key] === String(n)
+                                ? "bg-[#ffde21] text-black"
+                                : "border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:border-[#ffde21]/30"
+                            }`}>
+                            {n}
+                          </button>
+                        ))}
+                        {values[field.key] && (
+                          <button type="button" onClick={() => setValue(field.key, "")}
+                            className="ml-1 text-xs text-foreground/25 hover:text-foreground/50">limpiar</button>
+                        )}
+                      </div>
+                    </div>
+                  )
+                }
+                return (
+                  <div key={field.key} className="space-y-1">
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-foreground/40 truncate">
+                      {field.label}
+                      {"hint" in field && (field as any).hint && (
+                        <span className="ml-1 normal-case font-normal text-foreground/25 tracking-normal">({(field as any).hint})</span>
+                      )}
+                    </label>
+                    <input
+                      type="number"
+                      value={values[field.key] ?? ""}
+                      onChange={e => setValue(field.key, e.target.value)}
+                      placeholder="0"
+                      min={0}
+                      step="any"
+                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm font-semibold text-foreground placeholder:text-foreground/20 focus:border-[#ffde21]/40 focus:outline-none"
+                    />
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Save bar (sticky) */}
+      <div className="shrink-0 border-t border-foreground/[0.06] bg-card px-6 py-3 flex items-center gap-3">
+        <button onClick={save} disabled={saving}
+          className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] active:scale-95 disabled:opacity-50">
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+          {saving ? "Guardando…" : "Guardar reporte"}
+        </button>
+        {saved && (
+          <span className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 className="h-4 w-4" /> Guardado
+          </span>
+        )}
+        {saveErr && <span className="text-xs text-red-700 dark:text-red-400">{saveErr}</span>}
+      </div>
+    </div>
+  )
+}
+
+// ─── Detail Drawer ────────────────────────────────────────────────────────────
+
 function DetailDrawer({
   client,
   onClose,
@@ -329,6 +594,7 @@ function DetailDrawer({
   deleting:            boolean
   offboarding:         boolean
 }) {
+  const [drawerTab,        setDrawerTab]          = useState<"crm" | "reports">("crm")
   const [showFollowupForm, setShowFollowupForm]   = useState(false)
   const [fuDate,           setFuDate]             = useState(todayStr())
   const [fuType,           setFuType]             = useState<Followup["type"]>("whatsapp")
@@ -394,6 +660,19 @@ function DetailDrawer({
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            {/* Marcar programa finalizado — visible si aún no está finalizado/inactivo */}
+            {client.status !== "completado" && client.status !== "inactivo" && (
+              <button
+                onClick={() => onPatchClient(client.id, { status: "completado" })}
+                disabled={offboarding || deleting}
+                aria-label="Marcar programa finalizado"
+                title="Marca el programa como finalizado (completado)"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-sky-300/50 px-2.5 text-[11px] font-semibold text-sky-700 hover:bg-sky-100/60 dark:border-sky-500/25 dark:text-sky-300 dark:hover:bg-sky-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                <span>Finalizar programa</span>
+              </button>
+            )}
             {/* Dar de baja — solo visible si está activo/en_pausa */}
             {client.status !== "inactivo" && (
               <button
@@ -418,7 +697,37 @@ function DetailDrawer({
           </div>
         </div>
 
-        {/* Scrollable body */}
+        {/* Tab nav */}
+        <div className="flex gap-1 border-b border-foreground/[0.06] px-6 py-2.5" style={{ backgroundColor: "var(--card)" }}>
+          <button onClick={() => setDrawerTab("crm")}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+              drawerTab === "crm"
+                ? "bg-foreground/[0.08] text-foreground"
+                : "text-foreground/40 hover:text-foreground/70"
+            }`}>
+            <FileText className="h-3.5 w-3.5" />
+            CRM
+          </button>
+          <button onClick={() => setDrawerTab("reports")}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+              drawerTab === "reports"
+                ? "bg-foreground/[0.08] text-foreground"
+                : "text-foreground/40 hover:text-foreground/70"
+            }`}>
+            <BarChart3 className="h-3.5 w-3.5" />
+            Reportes
+          </button>
+        </div>
+
+        {/* Reports tab */}
+        {drawerTab === "reports" && (
+          <div className="flex-1 overflow-hidden" style={{ backgroundColor: "var(--card)" }}>
+            <ClientReportPanel clientId={client.id} />
+          </div>
+        )}
+
+        {/* Scrollable body (CRM tab) */}
+        {drawerTab === "crm" && (
         <div className="flex-1 overflow-y-auto" style={{ backgroundColor: "var(--card)" }}>
 
           {/* Section 1: Info fields */}
@@ -551,6 +860,20 @@ function DetailDrawer({
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) (e.target as HTMLTextAreaElement).blur() }}
                 className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <p className={labelCls}>Perfil del negocio (Ann AI)</p>
+              <textarea
+                key={client.id}
+                defaultValue={client.business_profile ?? ""}
+                placeholder={"Nicho, qué vende, avatar, contexto clave para Ann AI.\nEj: coach de nutrición para mujeres 30-45 años, vende programa grupal de 3 meses ($1.500), audiencia en Instagram."}
+                rows={4}
+                onBlur={e => onPatchClient(client.id, { business_profile: e.target.value || null } as any)}
+                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) (e.target as HTMLTextAreaElement).blur() }}
+                className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
+              />
+              <p className="text-[11px] text-foreground/40">Ann AI usa esto para hablar del negocio específico del cliente desde el primer mensaje.</p>
             </div>
           </div>
 
@@ -736,8 +1059,10 @@ function DetailDrawer({
           </div>
 
         </div>
+        )} {/* end drawerTab === "crm" */}
 
-        {/* Footer with summary */}
+        {/* Footer with summary (CRM tab only) */}
+        {drawerTab === "crm" && (
         <div className="border-t border-foreground/[0.06] px-6 py-3" style={{ backgroundColor: "var(--card)" }}>
           <div className="flex items-center gap-4 text-[11px] text-foreground/30">
             <span>
@@ -756,6 +1081,7 @@ function DetailDrawer({
             </span>
           </div>
         </div>
+        )} {/* end footer CRM tab */}
 
       </div>
     </>
@@ -764,20 +1090,28 @@ function DetailDrawer({
 
 // ─── Summary Cards ────────────────────────────────────────────────────────────
 
-function SummaryCards({ clients }: { clients: Client[] }) {
-  const today = todayStr()
-  const now = new Date()
-  const currentMonth = now.getMonth()
-  const currentYear  = now.getFullYear()
+function SummaryCards({ clients, viewMonth }: { clients: Client[], viewMonth: string }) {
+  const today    = todayStr()
+  const nowStr   = new Date().toISOString().slice(0, 7)
+  const isCurrentMonth = viewMonth === nowStr
+
+  const [viewYear, viewMon] = viewMonth.split("-").map(Number)
+  const vm = viewMon - 1  // JS months 0-indexed
 
   const activeCount = clients.filter(c => c.status === "activo").length
+
+  // Clientes nuevos ese mes (program_start en el mes visto)
+  const newClientsCount = clients.filter(c => {
+    const d = new Date(c.program_start + (c.program_start.length === 10 ? "T12:00:00" : ""))
+    return d.getMonth() === vm && d.getFullYear() === viewYear
+  }).length
 
   const cobradoEsteMes = clients.reduce((sum, c) =>
     sum + c.installments
       .filter(i => {
         if (!i.paid_at) return false
         const d = new Date(i.paid_at)
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+        return d.getMonth() === vm && d.getFullYear() === viewYear
       })
       .reduce((s, i) => s + i.amount, 0)
   , 0)
@@ -787,7 +1121,7 @@ function SummaryCards({ clients }: { clients: Client[] }) {
       .filter(i => {
         if (i.paid_at) return false
         const d = new Date(i.due_date + "T12:00:00")
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+        return d.getMonth() === vm && d.getFullYear() === viewYear
       })
       .reduce((s, i) => s + i.amount, 0)
   , 0)
@@ -804,29 +1138,35 @@ function SummaryCards({ clients }: { clients: Client[] }) {
       icon:  <Users className="h-4 w-4" />,
     },
     {
-      label: "Cobrado este mes",
+      label: `Nuevos clientes`,
+      value: String(newClientsCount),
+      color: newClientsCount > 0 ? "text-[#ffde21]" : "text-foreground/50",
+      icon:  <Users className="h-4 w-4" />,
+    },
+    {
+      label: "Cobrado",
       value: fmtMoney(cobradoEsteMes),
       color: "text-emerald-700 dark:text-emerald-300",
       icon:  <DollarSign className="h-4 w-4" />,
     },
     {
-      label: "Por cobrar este mes",
+      label: isCurrentMonth ? "Por cobrar" : "Sin cobrar",
       value: fmtMoney(porCobrarEsteMes),
       color: "text-amber-700 dark:text-amber-300",
       icon:  <Clock className="h-4 w-4" />,
     },
-    {
+    ...(isCurrentMonth ? [{
       label: "Follow-ups hoy",
       value: String(followupsHoy),
-      color: followupsHoy > 0 ? "text-[#ffde21]" : "text-foreground/50",
+      color: followupsHoy > 0 ? "text-[#ffde21]" : "text-foreground/50" as string,
       icon:  <Calendar className="h-4 w-4" />,
-    },
+    }] : []),
   ]
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {cards.map(card => (
-        <div key={card.label} className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-4">
+        <div key={card.label} className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-foreground/25">{card.icon}</span>
             <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30">{card.label}</p>
@@ -840,17 +1180,24 @@ function SummaryCards({ clients }: { clients: Client[] }) {
 
 // ─── New Cash / Old Cash ──────────────────────────────────────────────────────
 
-function CashSection({ clients }: { clients: Client[] }) {
-  const now          = new Date()
-  const currentMonth = now.getMonth()
-  const currentYear  = now.getFullYear()
+function fmtShortMonth(due_date: string) {
+  return new Date(due_date + "T12:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "short" })
+}
+
+function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: string }) {
+  const [showVencido,   setShowVencido]   = useState(true)
+  const [showPendiente, setShowPendiente] = useState(false)
+
+  const [viewYear, viewMon] = viewMonth.split("-").map(Number)
+  const currentMonth = viewMon - 1  // JS months 0-indexed
+  const currentYear  = viewYear
 
   // Exclude churned/inactive clients from all cash calculations
   const activeClients = clients.filter(c => c.status !== "inactivo")
 
-  // New Cash: clients whose created_at is this month
+  // New Cash: clients whose program_start is the viewed month
   const newClients = activeClients.filter(c => {
-    const d = new Date(c.created_at)
+    const d = new Date(c.program_start + (c.program_start.length === 10 ? "T12:00:00" : ""))
     return d.getMonth() === currentMonth && d.getFullYear() === currentYear
   })
 
@@ -862,7 +1209,7 @@ function CashSection({ clients }: { clients: Client[] }) {
 
   // Old Cash: installments due this month from pre-existing clients
   const oldClients = activeClients.filter(c => {
-    const d = new Date(c.created_at)
+    const d = new Date(c.program_start + (c.program_start.length === 10 ? "T12:00:00" : ""))
     return !(d.getMonth() === currentMonth && d.getFullYear() === currentYear)
   })
 
@@ -880,18 +1227,47 @@ function CashSection({ clients }: { clients: Client[] }) {
   , 0)
 
   // Pendiente: cuotas con vencimiento en ESTE mes que todavía no se pagaron
-  // → criterio independiente: no es expected - cobrado (serían métricas mezcladas)
   const oldCashPendiente = oldClients.reduce((sum, c) =>
     sum + c.installments
       .filter(i => {
-        if (i.paid_at) return false   // ya pagada → no es pendiente
+        if (i.paid_at) return false
         const d = new Date(i.due_date + "T12:00:00")
         return d.getMonth() === currentMonth && d.getFullYear() === currentYear
       })
       .reduce((s, i) => s + i.amount, 0)
   , 0)
 
-  // Expected = lo que vence este mes (referencia para el % de cobranza)
+  // Vencido: cuotas de meses ANTERIORES al visto que siguen sin pagar (con detalle por cliente)
+  const vencidoByClient = oldClients
+    .map(c => {
+      const items = c.installments
+        .filter(i => {
+          if (i.paid_at) return false
+          const d = new Date(i.due_date + "T12:00:00")
+          return d.getFullYear() < currentYear || (d.getFullYear() === currentYear && d.getMonth() < currentMonth)
+        })
+        .sort((a, b) => a.due_date.localeCompare(b.due_date))
+      return items.length > 0 ? { name: c.name, items, total: items.reduce((s, i) => s + i.amount, 0) } : null
+    })
+    .filter((x): x is { name: string; items: Installment[]; total: number } => x !== null)
+    .sort((a, b) => a.name.localeCompare(b.name))
+
+  const oldCashVencido = vencidoByClient.reduce((s, c) => s + c.total, 0)
+
+  // Pendiente: cuotas de ESTE mes sin pagar (con detalle por cliente)
+  const pendienteDetails = oldClients
+    .flatMap(c =>
+      c.installments
+        .filter(i => {
+          if (i.paid_at) return false
+          const d = new Date(i.due_date + "T12:00:00")
+          return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+        })
+        .map(i => ({ name: c.name, due_date: i.due_date, amount: i.amount }))
+    )
+    .sort((a, b) => a.due_date.localeCompare(b.due_date))
+
+  // Expected = lo que vence este mes (para el % de cobranza)
   const oldCashExpected = oldClients.reduce((sum, c) =>
     sum + c.installments
       .filter(i => {
@@ -900,14 +1276,15 @@ function CashSection({ clients }: { clients: Client[] }) {
       })
       .reduce((s, i) => s + i.amount, 0)
   , 0)
-  // Cuotas de mayo ya cobradas (para progress bar coherente)
-  const oldCashCobradoDeMayo = oldCashExpected - oldCashPendiente
-  const pct = oldCashExpected > 0 ? Math.min(100, (oldCashCobradoDeMayo / oldCashExpected) * 100) : 0
+  const oldCashCobradoDelMes = oldCashExpected - oldCashPendiente
+  const pct = oldCashExpected > 0 ? Math.min(100, (oldCashCobradoDelMes / oldCashExpected) * 100) : 0
 
-  const monthName = now.toLocaleDateString("es-AR", { month: "long", year: "numeric" })
+  const [vmY, vmM] = viewMonth.split("-").map(Number)
+  const monthName = new Date(Date.UTC(vmY, vmM - 1, 15)).toLocaleDateString("es-AR", { month: "long", year: "numeric" })
+  const shortMonthName = monthName.split(" ")[0]
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card px-5 py-5">
+    <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-5">
       <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-4">
         Cash — {monthName}
       </p>
@@ -922,38 +1299,106 @@ function CashSection({ clients }: { clients: Client[] }) {
               ? `${newClients.length} cliente${newClients.length !== 1 ? "s" : ""} nuevo${newClients.length !== 1 ? "s" : ""} este mes`
               : "Sin clientes nuevos este mes"}
           </p>
+          {newClients.length > 0 && (
+            <div className="mt-2 space-y-1">
+              {newClients.map(c => {
+                const first = c.installments.find(i => i.installment_number === 1)
+                return (
+                  <div key={c.id} className="flex items-center justify-between text-[11px]">
+                    <span className="text-foreground/50 truncate max-w-[140px]">{c.name}</span>
+                    <span className="text-foreground/60 tabular-nums shrink-0">{fmtMoney(first?.amount ?? c.installment_amount)}</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
 
         {/* Old Cash */}
-        <div>
-          <p className="text-[11px] text-foreground/35 mb-1 font-semibold uppercase tracking-wider">Old Cash</p>
-          <p className="text-3xl font-bold text-foreground tabular-nums">{fmtMoney(oldCashCobrado)}</p>
-          <p className="text-[11px] text-foreground/30 mt-0.5">recibido de clientes anteriores</p>
-          <div className="mt-2.5 space-y-2">
-            {/* Pendiente: cuotas de este mes sin pagar */}
-            {oldCashPendiente > 0 && (
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] text-foreground/35 uppercase tracking-wider font-semibold">
-                  Pendiente ({monthName.split(" ")[0]})
-                </span>
-                <span className="text-[13px] font-semibold text-amber-700 dark:text-amber-300 tabular-nums">
-                  {fmtMoney(oldCashPendiente)}
-                </span>
-              </div>
-            )}
-            {/* Progress bar: % de cuotas de este mes cobradas */}
-            {oldCashExpected > 0 && (
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-1.5 rounded-full bg-foreground/[0.06] overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-                <span className="text-[10px] text-foreground/35 shrink-0 tabular-nums">{Math.round(pct)}% del mes</span>
-              </div>
-            )}
+        <div className="space-y-3">
+          <div>
+            <p className="text-[11px] text-foreground/35 mb-1 font-semibold uppercase tracking-wider">Old Cash</p>
+            <p className="text-3xl font-bold text-foreground tabular-nums">{fmtMoney(oldCashCobrado)}</p>
+            <p className="text-[11px] text-foreground/30 mt-0.5">recibido de clientes anteriores</p>
           </div>
+
+          {/* Vencido expandible */}
+          {oldCashVencido > 0 && (
+            <div className="rounded-xl border border-red-500/20 bg-red-50 dark:bg-red-500/[0.06] overflow-hidden">
+              <button
+                onClick={() => setShowVencido(v => !v)}
+                className="w-full flex items-center justify-between px-3 py-2 text-left"
+              >
+                <span className="text-[11px] font-bold uppercase tracking-wider text-red-700 dark:text-red-400">
+                  ⚠ Vencido meses anteriores
+                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[13px] font-bold text-red-700 dark:text-red-400 tabular-nums">{fmtMoney(oldCashVencido)}</span>
+                  <ChevronDown className={`h-3.5 w-3.5 text-red-500 transition-transform ${showVencido ? "rotate-180" : ""}`} />
+                </div>
+              </button>
+              {showVencido && (
+                <div className="border-t border-red-500/10 px-3 py-2 space-y-2">
+                  {vencidoByClient.map(({ name, items, total }) => (
+                    <div key={name}>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[12px] font-semibold text-foreground/80 truncate max-w-[160px]">{name}</span>
+                        <span className="text-[12px] font-bold text-red-700 dark:text-red-400 tabular-nums shrink-0">{fmtMoney(total)}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-x-3 mt-0.5">
+                        {items.map(i => (
+                          <span key={i.id} className="text-[10px] text-foreground/40">
+                            {fmtShortMonth(i.due_date)} · {fmtMoney(i.amount)}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Pendiente mes actual expandible */}
+          {oldCashPendiente > 0 && (
+            <div className="rounded-xl border border-amber-500/20 bg-amber-50 dark:bg-amber-500/[0.06] overflow-hidden">
+              <button
+                onClick={() => setShowPendiente(v => !v)}
+                className="w-full flex items-center justify-between px-3 py-2 text-left"
+              >
+                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 capitalize">
+                  Pendiente {shortMonthName}
+                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[13px] font-semibold text-amber-700 dark:text-amber-300 tabular-nums">{fmtMoney(oldCashPendiente)}</span>
+                  <ChevronDown className={`h-3.5 w-3.5 text-amber-500 transition-transform ${showPendiente ? "rotate-180" : ""}`} />
+                </div>
+              </button>
+              {showPendiente && (
+                <div className="border-t border-amber-500/10 px-3 py-2 space-y-1.5">
+                  {pendienteDetails.map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] text-foreground/60 truncate max-w-[150px]">{item.name}</span>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="text-[10px] text-foreground/35">vence {fmtShortMonth(item.due_date)}</span>
+                        <span className="text-[12px] font-semibold text-amber-700 dark:text-amber-300 tabular-nums">{fmtMoney(item.amount)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Progress bar */}
+          {oldCashExpected > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-1.5 rounded-full bg-foreground/[0.06] overflow-hidden">
+                <div className="h-full rounded-full bg-emerald-500 transition-all duration-500" style={{ width: `${pct}%` }} />
+              </div>
+              <span className="text-[10px] text-foreground/35 shrink-0 tabular-nums">{Math.round(pct)}% del mes</span>
+            </div>
+          )}
         </div>
 
       </div>
@@ -1055,6 +1500,19 @@ export function AdminClientsView() {
   const [search,        setSearch]       = useState("")
   const [sortKey,       setSortKey]      = useState<SortKey>("created_at")
   const [sortDir,       setSortDir]      = useState<"asc" | "desc">("desc")
+  const [viewMonth,     setViewMonth]    = useState<string>(() => new Date().toISOString().slice(0, 7))
+
+  const currentMonthStr = new Date().toISOString().slice(0, 7)
+
+  // Usa Date.UTC para evitar bugs de timezone (UTC-3 convierte "YYYY-MM-01" a mes anterior)
+  const shiftMonth = (m: string, delta: number) => {
+    const [y, mo] = m.split("-").map(Number)
+    return new Date(Date.UTC(y, mo - 1 + delta, 1)).toISOString().slice(0, 7)
+  }
+  const viewMonthLabel = (() => {
+    const [y, mo] = viewMonth.split("-").map(Number)
+    return new Date(Date.UTC(y, mo - 1, 15)).toLocaleDateString("es-AR", { month: "long", year: "numeric" })
+  })()
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -1332,11 +1790,36 @@ export function AdminClientsView() {
         {/* Webhook card */}
         <WebhookCard />
 
+        {/* Month navigation */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setViewMonth(m => shiftMonth(m, -1))}
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all">
+            <ChevronDown className="h-4 w-4 rotate-90" />
+          </button>
+          <span className="min-w-[130px] text-center text-sm font-semibold capitalize text-foreground">
+            {viewMonthLabel}
+          </span>
+          <button
+            onClick={() => setViewMonth(m => shiftMonth(m, 1))}
+            disabled={viewMonth >= currentMonthStr}
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+            <ChevronDown className="h-4 w-4 -rotate-90" />
+          </button>
+          {viewMonth !== currentMonthStr && (
+            <button
+              onClick={() => setViewMonth(currentMonthStr)}
+              className="rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-xs font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all">
+              Hoy
+            </button>
+          )}
+        </div>
+
         {/* Summary cards */}
-        <SummaryCards clients={clients} />
+        <SummaryCards clients={clients} viewMonth={viewMonth} />
 
         {/* New Cash / Old Cash */}
-        <CashSection clients={clients} />
+        <CashSection clients={clients} viewMonth={viewMonth} />
 
         {/* Error message */}
         {error && (
@@ -1381,7 +1864,7 @@ export function AdminClientsView() {
         </div>
 
         {/* Table */}
-        <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
+        <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
           {loading ? (
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
               <table className="w-full border-collapse">

@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { isAdmin } from "@/lib/auth/permissions"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -30,7 +31,7 @@ async function requireProspeccionAccess(jwt: string | null): Promise<AuthCtx | n
   const { data: profile } = await supabase
     .from("profiles").select("role").eq("id", user.id).maybeSingle()
   const role = String((profile as any)?.role ?? "").toLowerCase()
-  if (role !== "admin" && role !== "setter") return null
+  if (!isAdmin(role) && role !== "setter") return null
   return { userId: user.id, role: role as "admin" | "setter" }
 }
 
@@ -80,7 +81,7 @@ export async function POST(req: NextRequest) {
     if (!title?.trim()) return NextResponse.json({ error: "title is required" }, { status: 400 })
 
     // Setter solo crea como propietario. Admin puede pasar setter_id explícito.
-    const ownerId = (ctx.role === "admin" && typeof setter_id === "string" && setter_id)
+    const ownerId = (isAdmin(ctx.role) && typeof setter_id === "string" && setter_id)
       ? setter_id
       : ctx.userId
 

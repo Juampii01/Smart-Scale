@@ -143,16 +143,11 @@ async function processEvent(
 // ─── Route handler ────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  // Auth: accept service role header OR EVENTS_PROCESS_SECRET
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""
+  // Auth: EVENTS_PROCESS_SECRET — dedicated secret, never the service role key.
   const processSecret = process.env.EVENTS_PROCESS_SECRET ?? ""
   const authHeader = req.headers.get("authorization") ?? ""
 
-  const isAuthorized =
-    (serviceKey && authHeader === `Bearer ${serviceKey}`) ||
-    (processSecret && authHeader === `Bearer ${processSecret}`)
-
-  if (!isAuthorized) {
+  if (!processSecret || authHeader !== `Bearer ${processSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 

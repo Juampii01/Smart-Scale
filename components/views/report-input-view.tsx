@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase"
-import { useOwnClient, useActiveClient, useActiveClientName, useSelectedMonth } from "@/components/layout/dashboard-layout"
-import { CheckCircle, AlertCircle, Loader2, AlertTriangle, History, FileText, Eye } from "lucide-react"
+import { useOwnClient, useActiveClient, useActiveClientName, useSelectedMonth, useUserRole } from "@/components/layout/dashboard-layout"
+import { isDeveloper } from "@/lib/auth/permissions"
+import { fakeMonthlyReport } from "@/lib/dev-test-data"
+import { CheckCircle, AlertCircle, Loader2, AlertTriangle, History, FileText, Eye, FlaskConical, Sparkles } from "lucide-react"
 import { ReportHistoryView } from "@/components/views/report-history-view"
 
 // ─── Field definitions ────────────────────────────────────────────────────────
@@ -37,6 +39,7 @@ const FIELD_GROUPS = [
       { key: "cierres_por_offerdoc", label: "Cierres por OfferDoc",   type: "number" },
       { key: "new_clients",          label: "Nuevos Clientes",        type: "number", highlight: true },
       { key: "active_clients",       label: "Clientes Activos",       type: "number" },
+      { key: "case_studies",         label: "Casos de Éxito",         type: "number", hint: "total acumulado" },
     ],
   },
   {
@@ -67,8 +70,10 @@ const FIELD_GROUPS = [
     label: "Email",
     color: "bg-blue-500",
     fields: [
-      { key: "email_subscribers",     label: "Suscriptores",         type: "number" },
+      { key: "email_subscribers",     label: "Total Subscribers",    type: "number" },
       { key: "email_new_subscribers", label: "Nuevos Suscriptores",  type: "number" },
+      { key: "email_sent",            label: "Emails Sent",          type: "number" },
+      { key: "email_open_rate",       label: "Open Rate (%)",        type: "number" },
     ],
   },
   {
@@ -87,6 +92,87 @@ const FIELD_GROUPS = [
 
 type FormValues = Record<string, string>
 
+// ─── Celebration overlay ──────────────────────────────────────────────────────
+
+function CelebrationOverlay({
+  name,
+  month,
+  onClose,
+}: {
+  name: string | null
+  month: string
+  onClose: () => void
+}) {
+  const [secs, setSecs] = useState(5)
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setSecs(s => {
+        if (s <= 1) { clearInterval(t); onClose(); return 0 }
+        return s - 1
+      })
+    }, 1000)
+    return () => clearInterval(t)
+  }, [onClose])
+
+  const monthLabel = (() => {
+    try {
+      return new Date(month.length === 7 ? `${month}-01` : month)
+        .toLocaleDateString("es-AR", { month: "long", year: "numeric" })
+    } catch { return month }
+  })()
+
+  const firstName = name?.split(" ")[0] ?? null
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md"
+      onClick={onClose}
+    >
+      <div
+        className="relative mx-4 w-full max-w-sm overflow-hidden rounded-[14px] border border-foreground/[0.10] bg-card shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+
+        <div className="relative space-y-6 px-8 py-10 text-center">
+          {/* Animated icon */}
+          <div className="relative mx-auto w-fit">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#ffde21]/10 ring-4 ring-[#ffde21]/20">
+              <CheckCircle className="h-10 w-10 text-[#ffde21]" style={{ animation: "bounce 1.5s infinite" }} />
+            </div>
+            <Sparkles className="absolute -right-1 -top-1 h-5 w-5 animate-pulse text-[#ffde21]/70" />
+            <Sparkles className="absolute -bottom-1 -left-1 h-4 w-4 animate-pulse text-[#ffde21]/40" style={{ animationDelay: "0.6s" }} />
+          </div>
+
+          {/* Message */}
+          <div className="space-y-2">
+            <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
+              {firstName ? `¡Felicitaciones, ${firstName}!` : "¡Reporte completado!"}
+            </h2>
+            <p className="text-sm leading-relaxed text-foreground/60">
+              Tu reporte de{" "}
+              <span className="font-semibold capitalize text-foreground">{monthLabel}</span>{" "}
+              está guardado.
+            </p>
+            <p className="text-xs text-foreground/35">
+              Seguís construyendo tu Ecosistema Circular. 🔥
+            </p>
+          </div>
+
+          {/* CTA with countdown */}
+          <button
+            onClick={onClose}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-7 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] active:scale-95"
+          >
+            Continuar
+            <span className="text-xs font-normal text-black/40">({secs}s)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Confirm overwrite dialog ─────────────────────────────────────────────────
 
 function ConfirmOverwriteDialog({
@@ -100,9 +186,7 @@ function ConfirmOverwriteDialog({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="relative overflow-hidden rounded-2xl border border-amber-400 bg-card shadow-2xl w-full max-w-md mx-4 dark:border-amber-400/20">
-        <div className="h-[2px] w-full bg-gradient-to-r from-amber-500/20 via-amber-500/60 to-amber-500/20" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(251,191,36,0.04),transparent_55%)]" />
+      <div className="relative overflow-hidden rounded-[14px] border border-amber-200 dark:border-amber-400/20 bg-card shadow-2xl w-full max-w-md mx-4">
         <div className="relative p-6 space-y-5">
           <div className="flex items-start gap-3">
             <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-100 ring-1 ring-amber-400 dark:bg-amber-500/10 dark:ring-amber-500/20">
@@ -147,6 +231,8 @@ export function ReportInputView() {
   const ownClientId    = useOwnClient()
   const activeClientId = useActiveClient()
   const activeName     = useActiveClientName()
+  const userRole       = useUserRole()
+  const canTest        = isDeveloper(userRole)
   const isViewingOther = !!ownClientId && !!activeClientId && ownClientId !== activeClientId
   const ctxMonth = useSelectedMonth()
   const [tab, setTab] = useState<"form" | "history">("form")
@@ -161,6 +247,7 @@ export function ReportInputView() {
   const [existingData, setExistingData] = useState<Record<string, any> | null>(null)
   const [loadingExisting, setLoadingExisting] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [showCelebration, setShowCelebration] = useState(false)
 
   // Load existing report for selected client+month
   useEffect(() => {
@@ -199,8 +286,9 @@ export function ReportInputView() {
     setValues((prev) => ({ ...prev, [key]: val }))
   }
 
-  // Called after confirmation (or directly if no existing data)
-  const doSave = async () => {
+  // Called after confirmation (or directly if no existing data).
+  // Acepta un set de valores explícito (usado por el botón "Testear").
+  const doSave = async (valuesOverride?: FormValues) => {
     setShowConfirm(false)
     setStatus("loading")
     setMessage("")
@@ -216,7 +304,7 @@ export function ReportInputView() {
       }
 
       const body: Record<string, unknown> = { client_id: ownClientId, month }
-      for (const [key, raw] of Object.entries(values)) {
+      for (const [key, raw] of Object.entries(valuesOverride ?? values)) {
         if (raw !== "" && raw !== null && raw !== undefined) body[key] = raw
       }
 
@@ -239,6 +327,7 @@ export function ReportInputView() {
 
       setStatus("success")
       setExistingData(data.report)
+      setShowCelebration(true)
       const eventsMsg = data.events_enqueued > 0
         ? ` ${data.events_enqueued} notificación(es) enviadas.`
         : ""
@@ -270,10 +359,26 @@ export function ReportInputView() {
     doSave()
   }
 
+  // Solo developer: llena el form con datos ficticios y guarda directo
+  // (sin pasar por el diálogo de confirmación de sobreescritura).
+  const handleTest = async () => {
+    if (!ownClientId || !month || status === "loading") return
+    const fake = fakeMonthlyReport()
+    setValues(fake)
+    await doSave(fake)
+  }
+
   const isUpdate = Boolean(existingData)
 
   return (
     <>
+      {showCelebration && (
+        <CelebrationOverlay
+          name={activeName}
+          month={month}
+          onClose={() => setShowCelebration(false)}
+        />
+      )}
       {/* Tab switcher */}
       <div className="flex gap-1 mb-8 rounded-xl border border-foreground/[0.06] bg-card p-1 w-fit">
         <button
@@ -308,7 +413,7 @@ export function ReportInputView() {
       {showConfirm && (
         <ConfirmOverwriteDialog
           month={month}
-          onConfirm={doSave}
+          onConfirm={() => doSave()}
           onCancel={() => setShowConfirm(false)}
         />
       )}
@@ -329,7 +434,7 @@ export function ReportInputView() {
 
         {/* Aviso si admin está viendo otro cliente */}
         {isViewingOther && (
-          <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
+          <div className="flex items-start gap-3 rounded-[14px] border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
             <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Aviso · este reporte es tuyo</p>
@@ -341,7 +446,7 @@ export function ReportInputView() {
         )}
 
         {/* Month + client selector */}
-        <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card p-5">
+        <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card p-5">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
           <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -380,7 +485,7 @@ export function ReportInputView() {
 
         {/* Field groups */}
         {FIELD_GROUPS.map((group) => (
-          <div key={group.key} className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+          <div key={group.key} className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
             <div className="flex items-center justify-between border-b border-foreground/[0.05] px-5 py-3">
               <div className="flex items-center gap-2">
                 <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
@@ -396,7 +501,7 @@ export function ReportInputView() {
 
                 if (isNps) {
                   return (
-                    <div key={field.key} className="sm:col-span-2 lg:col-span-3 flex flex-col gap-2 rounded-2xl border border-[#ffde21]/15 bg-[#ffde21]/[0.03] p-5">
+                    <div key={field.key} className="sm:col-span-2 lg:col-span-3 flex flex-col gap-2 rounded-[14px] border border-[#ffde21]/15 bg-[#ffde21]/[0.03] p-5">
                       <label className="text-xs font-semibold uppercase tracking-widest text-foreground/65">
                         {field.label}
                         <span className="ml-1.5 text-foreground/35 normal-case tracking-normal font-normal">— del 1 al 10</span>
@@ -493,6 +598,18 @@ export function ReportInputView() {
             {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
             {status === "loading" ? "Guardando…" : isUpdate ? "Actualizar reporte" : "Guardar reporte"}
           </button>
+          {canTest && (
+            <button
+              type="button"
+              onClick={handleTest}
+              disabled={status === "loading" || !ownClientId}
+              title="Solo developer: guarda un reporte con datos ficticios"
+              className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/[0.04] px-5 py-2.5 text-sm font-bold text-foreground/70 transition hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FlaskConical className="h-4 w-4" />
+              Testear
+            </button>
+          )}
           <p className="text-xs text-foreground/25">
             Los datos se guardan primero en Supabase. Las notificaciones van en segundo plano.
           </p>

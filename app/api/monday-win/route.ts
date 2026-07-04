@@ -23,15 +23,47 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Faltan campos obligatorios." }, { status: 400 })
     }
 
-    // Resolve client name from clients.nombre
-    let clientName = client_id
+    // Resolve client name: clients.nombre → clients.name (si no es email) → profiles.name → user.email
+    const isEmail = (s: string) => s.includes("@")
+    let clientName: string = client_id
+
     const { data: clientRow } = await supabase
       .from("clients")
-      .select("nombre")
+      .select("nombre, name")
       .eq("id", client_id)
       .maybeSingle()
 
-    if (clientRow?.nombre) clientName = clientRow.nombre
+    if (clientRow?.nombre && !isEmail(clientRow.nombre)) {
+      clientName = clientRow.nombre
+    } else if (clientRow?.name && !isEmail(clientRow.name)) {
+      clientName = clientRow.name
+    } else {
+      // Fallback: name from the authenticated user's profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("id", user.id)
+        .maybeSingle()
+      if ((profile as any)?.name) {
+        clientName = (profile as any).name
+      } else if (user.email) {
+        clientName = user.email
+      }
+    }
+
+    // ── Persistir en la base (registro en el dashboard) ──────────────────────
+    const { error: insErr } = await supabase.from("monday_wins").insert({
+      client_id,
+      user_id:       user.id,
+      fecha,
+      logro_1,
+      logro_2:       logro_2 || null,
+      logro_3:       logro_3 || null,
+      una_sola_cosa,
+      bloqueo,
+      submitted_by:  user.email,
+    })
+    if (insErr) console.error("[monday-win] insert error:", insErr.message)
 
     // Build Zapier payload
     const payload = {
@@ -48,8 +80,8 @@ export async function POST(req: NextRequest) {
       timestamp:        new Date().toISOString(),
     }
 
-    // Send to Zapier
-    const webhookUrl = process.env.NEXT_PUBLIC_ZAPIER_WEBHOOK_MONDAY_WIN
+    // Send to Zapier — use server-only var (no NEXT_PUBLIC_ prefix)
+    const webhookUrl = process.env.ZAPIER_WEBHOOK_MONDAY_WIN
     if (!webhookUrl) {
       console.warn("[monday-win] No webhook URL configured")
       return NextResponse.json({ ok: true, warning: "Webhook no configurado" })

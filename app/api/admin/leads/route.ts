@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
+import { isAdmin } from "@/lib/auth/permissions"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -42,11 +43,11 @@ async function requireAdmin(jwt: string | null) {
   if (error || !user) return null
   const { data: profile } = await supabase
     .from("profiles").select("role").eq("id", user.id).maybeSingle()
-  if (!profile || String(profile.role ?? "").toLowerCase() !== "admin") return null
+  if (!profile || !isAdmin(profile?.role)) return null
   return user
 }
 
-const SELECT_FIELDS = "id, name, email, tag, source, lead_type, status, instagram, rating, niche, notes, created_at"
+const SELECT_FIELDS = "id, name, email, tag, source, lead_type, status, instagram, rating, niche, notes, purchased, created_at"
 
 /** GET — all leads ordered by created_at desc. Lectura: admin OR team. */
 export async function GET(req: NextRequest) {
@@ -56,11 +57,20 @@ export async function GET(req: NextRequest) {
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     const supabase = createServiceClient()
-    const { data, error } = await supabase
+    // Intentamos traer custom_fields; si la migración aún no se aplicó, reintentamos sin ella.
+    let { data, error } = await supabase
       .from("leads")
-      .select(SELECT_FIELDS)
+      .select(SELECT_FIELDS + ", custom_fields")
       .order("created_at", { ascending: false })
       .limit(1000)
+
+    if (error) {
+      ({ data, error } = await supabase
+        .from("leads")
+        .select(SELECT_FIELDS)
+        .order("created_at", { ascending: false })
+        .limit(1000))
+    }
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ leads: data ?? [] })
@@ -83,7 +93,7 @@ export async function PATCH(req: NextRequest) {
     const { id, ...updates } = body
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
-    const PATCHABLE = ["status", "source", "lead_type", "niche", "notes", "rating", "instagram", "email", "tag", "name"]
+    const PATCHABLE = ["status", "source", "lead_type", "niche", "notes", "rating", "instagram", "email", "tag", "name", "purchased", "custom_fields"]
     const allowed: Record<string, any> = { updated_at: new Date().toISOString() }
     for (const key of PATCHABLE) {
       if (updates[key] !== undefined) allowed[key] = updates[key]

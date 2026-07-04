@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { createPortal } from "react-dom"
 import {
   Youtube, Instagram, Copy, Check, ChevronDown,
-  Sparkles, Clock, User, FileText, ExternalLink, FileVideo, X, Maximize2, Loader2, Eye,
+  Sparkles, Clock, User, FileText, ExternalLink, FileVideo, X, Maximize2, Loader2, Eye, AlertCircle,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { AiLoading } from "@/components/ui/ai-loading"
@@ -19,6 +19,7 @@ interface TranscriptResult {
   duration: string | null
   transcript: string
   summary: string
+  warning?: string | null
 }
 
 interface HistoryItem {
@@ -97,7 +98,7 @@ function SummaryBlock({ text }: { text: string }) {
       {sections.map((s, i) => {
         const cfg = s.header ? SECTIONS[s.header] : null
         return (
-          <div key={i} className={`rounded-2xl border overflow-hidden ${cfg ? cfg.border : "border-foreground/[0.07]"}`}>
+          <div key={i} className={`rounded-[14px] border overflow-hidden ${cfg ? cfg.border : "border-foreground/[0.07]"}`}>
             {s.header && cfg && (
               <div className={`flex items-center gap-2.5 px-4 py-3 ${cfg.bg} border-b ${cfg.border}`}>
                 <span className="text-base leading-none">{cfg.icon}</span>
@@ -287,7 +288,7 @@ function DetailModal({
         </div>
 
         <div className="max-h-[calc(85vh-76px)] overflow-y-auto px-6 py-5">
-          <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-5 py-5">
+          <div className="rounded-[14px] border border-foreground/[0.07] bg-foreground/[0.02] px-5 py-5">
             <p className="whitespace-pre-wrap text-[15px] leading-8 text-foreground/72 font-light">
               {data.content}
             </p>
@@ -414,7 +415,7 @@ export function TranscriptView() {
 
       {/* Banner si admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
+        <div className="flex items-start gap-3 rounded-[14px] border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
           <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Viendo otro cliente</p>
@@ -426,7 +427,7 @@ export function TranscriptView() {
       )}
 
       {/* ── New Transcription form ── */}
-      <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
+      <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
         <div className="flex items-center gap-3 px-6 py-5">
           <FileVideo className="h-4 w-4 text-foreground/50 shrink-0" />
           <h2 className="text-[15px] font-bold text-foreground">Nueva Transcripción</h2>
@@ -552,9 +553,16 @@ export function TranscriptView() {
       {/* ── Result ── */}
       {result && (
         <div className="space-y-5">
+          {/* Aviso cuando el análisis con IA no se pudo generar (ej. servicio sobrecargado) */}
+          {result.warning && (
+            <div className="flex items-start gap-2.5 rounded-[14px] border border-amber-400 bg-amber-100 px-4 py-3 dark:border-amber-400/20 dark:bg-amber-500/[0.06]">
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-amber-700 dark:text-amber-400" />
+              <p className="text-[13px] text-amber-900 dark:text-amber-200/80 leading-relaxed">{result.warning}</p>
+            </div>
+          )}
+
           {/* Meta card */}
-          <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
-            <div className="h-[2px] w-full bg-gradient-to-r from-red-500/0 via-red-500/50 to-red-500/0" />
+          <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
             <div className="px-6 py-5 flex flex-wrap items-center gap-5 justify-between">
               <button
                 onClick={() => setResult(null)}
@@ -567,7 +575,7 @@ export function TranscriptView() {
                 <div className="flex-shrink-0 w-28 h-16 rounded-xl overflow-hidden border border-foreground/[0.07] bg-foreground/[0.03]">
                   {result.thumbnail
                     ? <img src={result.thumbnail} alt={result.title ?? ""} className="w-full h-full object-cover" />
-                    : <div className="flex h-full items-center justify-center"><Youtube className="h-5 w-5 text-red-400/40" /></div>}
+                    : <div className="flex h-full items-center justify-center"><Youtube className="h-5 w-5 text-red-500/40" /></div>}
                 </div>
                 <div className="min-w-0">
                   {result.title && <p className="text-sm font-semibold text-foreground leading-snug line-clamp-2">{result.title}</p>}
@@ -597,9 +605,8 @@ export function TranscriptView() {
 
           {/* ── Transcript (primary) ── */}
           {(outputType === "transcript" || outputType === "both") && (
-            <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.10] bg-card">
+            <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.10] bg-card">
               {/* yellow top accent — this is the main product */}
-              <div className="h-[2px] w-full bg-gradient-to-r from-[#ffde21]/0 via-[#ffde21]/60 to-[#ffde21]/0" />
               <div className="flex items-center justify-between px-6 py-4 border-b border-foreground/[0.06]">
                 <div className="flex items-center gap-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ffde21]/10 border border-[#ffde21]/20">
@@ -628,7 +635,7 @@ export function TranscriptView() {
 
               {/* Full transcript body — scrollable, no preview truncation */}
               <div className="px-6 py-5">
-                <div className="max-h-[520px] overflow-y-auto rounded-2xl border border-foreground/[0.07] bg-card px-5 py-5 scrollbar-thin">
+                <div className="max-h-[520px] overflow-y-auto rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-5 scrollbar-thin">
                   <p className="text-[15px] text-foreground/75 leading-[1.9] whitespace-pre-wrap font-light tracking-[0.01em]">
                     {result.transcript}
                   </p>
@@ -639,7 +646,7 @@ export function TranscriptView() {
 
           {/* ── AI Analysis (secondary) ── */}
           {(outputType === "summary" || outputType === "both") && result.summary && (
-            <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.06] bg-card">
+            <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card">
               <div className="flex items-center gap-3 border-b border-foreground/[0.05] px-6 py-3.5">
                 <Sparkles className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
                 <div className="flex-1 min-w-0">
@@ -659,11 +666,11 @@ export function TranscriptView() {
         <h2 className="text-[15px] font-bold text-foreground px-1">Tus Transcripciones</h2>
 
         {historyLoading ? (
-          <div className="rounded-2xl border border-foreground/[0.07] bg-card px-6 py-10 text-center">
+          <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-10 text-center">
             <p className="text-sm text-foreground/25">Cargando…</p>
           </div>
         ) : history.length === 0 ? (
-          <div className="rounded-2xl border border-foreground/[0.07] bg-card px-6 py-14 flex flex-col items-center gap-3">
+          <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-14 flex flex-col items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
               <FileText className="h-5 w-5 text-foreground/20" />
             </div>

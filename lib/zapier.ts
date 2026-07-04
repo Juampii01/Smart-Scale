@@ -11,6 +11,8 @@
 //   Trigger: "Webhooks by Zapier → Catch Hook"
 //   Actions: Slack message
 
+import { resolveTeamName } from "@/lib/team"
+
 export interface ZapierResult {
   ok: boolean
   error?: string
@@ -177,6 +179,146 @@ export async function zapierEODSubmitted(payload: {
   }
 
   const message = lines.join("\n")
+
+  return postWebhook(url, { ...payload, message })
+}
+
+// ─── Fire: task events (Kanban) ───────────────────────────────────────────────
+// Un solo webhook para todos los eventos del tablero de tareas.
+//   ZAPIER_WEBHOOK_TAREAS → catch hook que postea a Slack usando {{message}}
+
+const COLUMN_LABELS: Record<string, string> = {
+  "por-hacer":  "Por hacer",
+  "en-proceso": "En proceso",
+  "listo":      "Listo",
+}
+
+/** "2026-06-11" → "11 de junio" */
+function formatDueDateEs(iso?: string | null): string | null {
+  if (!iso) return null
+  const d = new Date(iso.slice(0, 10) + "T00:00:00")
+  if (isNaN(d.getTime())) return null
+  const meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"]
+  return `${d.getDate()} de ${meses[d.getMonth()]}`
+}
+
+/** Resuelve el nombre de quien ejecutó la acción a partir de su email/id. */
+const prettyActor = (idOrEmail?: string): string | null => resolveTeamName(idOrEmail)
+
+export type TaskEventType =
+  | "task.created"
+  | "task.moved"
+  | "task.completed"
+  | "task.assigned"
+  | "task.review"
+
+const PRIORITY_META: Record<string, { dot: string; label: string }> = {
+  "urgente":    { dot: "🔴", label: "Urgente" },
+  "importante": { dot: "🟡", label: "Importante" },
+  "con-tiempo": { dot: "🟢", label: "Con tiempo" },
+}
+
+export async function zapierTaskEvent(payload: {
+  event_type:   TaskEventType
+  task_id:      string
+  title:        string
+  triggered_by: string                // quién hizo la acción (email)
+  assigned_to?: string | null
+  from_column?: string | null         // para task.moved
+  to_column?:   string | null         // para task.moved / completed / created
+  label?:       string | null         // etiqueta descriptiva (texto libre)
+  priority?:    string | null         // urgente | importante | con-tiempo
+  due_date?:    string | null         // ISO
+}): Promise<ZapierResult> {
+  const url = process.env.ZAPIER_WEBHOOK_TAREAS
+  if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_TAREAS not configured" }
+
+  const isUrgent = payload.priority === "urgente"
+  const dueLabel = formatDueDateEs(payload.due_date)
+  const toCol    = payload.to_column   ? (COLUMN_LABELS[payload.to_column]   ?? payload.to_column)   : null
+  const fromCol  = payload.from_column ? (COLUMN_LABELS[payload.from_column] ?? payload.from_column) : null
+
+  // Etiqueta descriptiva (texto libre que puso quien la creó)
+  const labelTxt = payload.label && payload.label.trim() ? payload.label.trim() : null
+  const showLabel = labelTxt ? `🏷 ${labelTxt}` : null
+  // Prioridad visible (salvo urgente, que tiene banner propio)
+  const prio = payload.priority ? PRIORITY_META[payload.priority] : null
+  const showPriority = prio && payload.priority !== "urgente" ? `${prio.dot} ${prio.label}` : null
+
+  // Línea de metadatos: solo incluye lo que existe, separado por " · "
+  const meta = (parts: (string | false | null | undefined)[]) =>
+    parts.filter(Boolean).join("  ·  ")
+
+  const actor = prettyActor(payload.triggered_by)
+
+  let message = ""
+  switch (payload.event_type) {
+    case "task.created": {
+      const metaLine = meta([
+        payload.assigned_to && `👤 ${payload.assigned_to}`,
+        dueLabel            && `📅 ${dueLabel}`,
+        showPriority,
+        showLabel,
+      ])
+      message = `🆕  *Nueva tarea*${toCol ? `  ·  _${toCol}_` : ""}\n`
+      message += `> *${payload.title}*`
+      if (metaLine) message += `\n> ${metaLine}`
+      if (actor)    message += `\n_creada por ${actor}_`
+      break
+    }
+
+    case "task.assigned": {
+      const metaLine = meta([
+        dueLabel && `📅 ${dueLabel}`,
+        showPriority,
+        showLabel,
+      ])
+      message = `🎯  *Tarea asignada a ${payload.assigned_to}*\n`
+      message += `> *${payload.title}*`
+      if (metaLine) message += `\n> ${metaLine}`
+      if (actor)    message += `\n_asignada por ${actor}_`
+      break
+    }
+
+    case "task.moved": {
+      const metaLine = meta([
+        payload.assigned_to && `👤 ${payload.assigned_to}`,
+        showLabel,
+      ])
+      message = `🔀  *Tarea movida*\n`
+      message += `> *${payload.title}*\n`
+      message += `> ${fromCol ? `${fromCol}  →  ` : ""}*${toCol}*`
+      if (metaLine) message += `  ·  ${metaLine}`
+      if (actor)    message += `\n_movida por ${actor}_`
+      break
+    }
+
+    case "task.review": {
+      const metaLine = meta([
+        payload.assigned_to && `👤 ${payload.assigned_to}`,
+        showPriority,
+        showLabel,
+      ])
+      message = `👀  *Para revisar* — Ann\n`
+      message += `> *${payload.title}*`
+      if (metaLine) message += `\n> ${metaLine}`
+      message += `\n_Revisá y pasala a Listo cuando esté_`
+      if (actor) message += `\n_envió a revisión: ${actor}_`
+      break
+    }
+
+    case "task.completed": {
+      const metaLine = meta([payload.assigned_to && `👤 ${payload.assigned_to}`, showLabel])
+      message = `✅  *Tarea completada*\n`
+      message += `> *${payload.title}*`
+      if (metaLine) message += `\n> ${metaLine}`
+      if (actor)    message += `\n_completada por ${actor}_`
+      break
+    }
+  }
+
+  // Banner para urgentes — resalta arriba de todo
+  if (isUrgent) message = `🚨  *URGENTE*  🚨\n${message}`
 
   return postWebhook(url, { ...payload, message })
 }

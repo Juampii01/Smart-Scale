@@ -288,42 +288,48 @@ export function AdminSettingView() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Setting CRM</h1>
           <p className="text-sm text-foreground/40 mt-0.5">Métricas diarias de setter · click en celdas para editar</p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button onClick={() => changMonth(-1)} className="h-9 w-9 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes anterior">
-            <ChevronLeft className="h-4 w-4" />
-          </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Selector de mes — ocupa toda la fila en mobile */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button onClick={() => changMonth(-1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes anterior">
+              <ChevronLeft className="h-4 w-4" />
+            </button>
 
-          <div className="px-4 py-2 rounded-lg border border-foreground/10 min-w-[220px] text-center">
-            <span className="text-sm font-bold text-foreground">{monthLabel(month)}</span>
+            <div className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-foreground/10 min-w-0 sm:min-w-[220px] text-center">
+              <span className="text-sm font-bold text-foreground">{monthLabel(month)}</span>
+            </div>
+
+            <button onClick={() => changMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
 
-          <button onClick={() => changMonth(1)} className="h-9 w-9 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
-            <ChevronRight className="h-4 w-4" />
-          </button>
+          {/* Acciones */}
+          <div className="flex items-center gap-2">
+            <button onClick={() => loadLogs(month)} disabled={loading} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors disabled:opacity-40" title="Recargar">
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            </button>
 
-          <button onClick={() => loadLogs(month)} disabled={loading} className="h-9 w-9 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors disabled:opacity-40" title="Recargar">
-            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-          </button>
+            <button onClick={exportCsv} className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg border border-foreground/10 hover:bg-foreground/5 text-sm font-medium transition-colors" title="Descargar CSV">
+              <Download className="h-3.5 w-3.5" />
+              CSV
+            </button>
 
-          <button onClick={exportCsv} className="h-9 px-3 flex items-center gap-1.5 rounded-lg border border-foreground/10 hover:bg-foreground/5 text-sm font-medium transition-colors" title="Descargar CSV">
-            <Download className="h-3.5 w-3.5" />
-            CSV
-          </button>
-
-          <button
-            onClick={() => setEodOpen(true)}
-            className="h-9 px-3 flex items-center gap-1.5 rounded-lg bg-[#ffde21] hover:bg-[#ffe84d] text-black text-sm font-bold transition-colors"
-            title="Cargar datos diarios"
-          >
-            <PlusCircle className="h-3.5 w-3.5" />
-            EOD
-          </button>
+            <button
+              onClick={() => setEodOpen(true)}
+              className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg bg-[#ffde21] hover:bg-[#ffe84d] text-black text-sm font-bold transition-colors"
+              title="Cargar datos diarios"
+            >
+              <PlusCircle className="h-3.5 w-3.5" />
+              EOD
+            </button>
+          </div>
         </div>
       </div>
 
@@ -421,11 +427,53 @@ export function AdminSettingView() {
             </div>
 
             {logs.length === 0 ? (
-              <div className="rounded-2xl border border-foreground/10 py-12 text-center">
+              <div className="rounded-[14px] border border-foreground/10 py-12 text-center">
                 <p className="text-sm text-foreground/40">Sin registros cargados para este mes</p>
               </div>
             ) : (
-              <div className="overflow-hidden rounded-2xl border border-foreground/10 bg-card">
+              <>
+              {/* Mobile / tablet: cards apilados (sin scroll horizontal) */}
+              <div className="md:hidden space-y-2.5">
+                {logs.map(log => (
+                  <button
+                    key={log.id}
+                    type="button"
+                    onClick={() => setEditingLog(log)}
+                    className="w-full text-left rounded-[14px] border border-foreground/10 bg-card p-4 transition-colors hover:bg-foreground/[0.03] active:scale-[0.99]"
+                  >
+                    <div className="mb-3 flex items-center justify-between gap-2">
+                      <span className="text-[13px] font-semibold text-foreground">{dateLabel(log.date)}</span>
+                      <span className="truncate text-[12px] text-foreground/55">{log.setter_name || "—"}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {COLUMNS.map(col => (
+                        <div key={col.key} className="rounded-lg border border-foreground/[0.06] bg-foreground/[0.02] px-2.5 py-2">
+                          <p className="truncate text-[9px] font-bold uppercase tracking-wider text-foreground/35" title={col.label}>{col.short}</p>
+                          <p className="mt-0.5 text-[15px] font-bold tabular-nums text-foreground/85">
+                            {log[col.key] != null ? log[col.key] : "—"}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </button>
+                ))}
+
+                {/* Total del mes */}
+                <div className="rounded-[14px] border-2 border-[#ffde21]/30 bg-foreground/[0.04] p-4">
+                  <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-foreground/60">Total del mes</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {COLUMNS.map(col => (
+                      <div key={`m-total-${col.key}`} className="rounded-lg bg-foreground/[0.03] px-2.5 py-2">
+                        <p className="truncate text-[9px] font-bold uppercase tracking-wider text-foreground/35" title={col.label}>{col.short}</p>
+                        <p className="mt-0.5 text-[15px] font-bold tabular-nums text-foreground">{monthTotals[col.key]}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop: tabla completa */}
+              <div className="hidden md:block overflow-hidden rounded-[14px] border border-foreground/10 bg-card">
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead>
@@ -484,6 +532,7 @@ export function AdminSettingView() {
                   </table>
                 </div>
               </div>
+              </>
             )}
           </div>
         </>
