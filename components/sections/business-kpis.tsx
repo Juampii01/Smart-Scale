@@ -1,8 +1,9 @@
 "use client"
 
 import { useMemo } from "react"
-import { TrendingDown, TrendingUp, DollarSign, Wallet, Repeat, Megaphone, Users, UserPlus } from "lucide-react"
-import { useSelectedMonth } from "@/components/layout/dashboard-layout"
+import Link from "next/link"
+import { TrendingDown, TrendingUp, DollarSign, Wallet, Repeat, Megaphone, Users, UserPlus, BarChart3 } from "lucide-react"
+import { useSelectedMonth, useActiveClient, useOwnClient } from "@/components/layout/dashboard-layout"
 import { useMonthlyReports } from "@/hooks/use-monthly-reports"
 import { useMarkPageReady } from "@/hooks/use-mark-page-ready"
 import { useMinLoading } from "@/hooks/use-min-loading"
@@ -68,6 +69,10 @@ const KPI_DEFS = [
 export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: string }) {
   const ctxMonth    = useSelectedMonth()
   const effectiveMonth = (propMonth ?? ctxMonth ?? "").slice(0, 7)
+
+  const activeClientId = useActiveClient()
+  const ownClientId    = useOwnClient()
+  const isOwn = !ownClientId || !activeClientId || ownClientId === activeClientId
 
   const { reports, loading } = useMonthlyReports()
   const showSkeleton = useMinLoading(loading)
@@ -142,8 +147,20 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
         )}
       </div>
 
-      {!current && (
-        <p className="text-foreground/40 mb-4 text-sm">No hay reporte cargado para este mes.</p>
+      {!current && !showSkeleton && (
+        <div className="mb-6 flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-12 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
+            <BarChart3 className="h-5 w-5 text-foreground/20" />
+          </div>
+          <p className="text-sm text-foreground/40">
+            {isOwn ? "No hay reporte cargado para este mes." : "Este cliente no tiene reporte para este mes."}
+          </p>
+          {isOwn && (
+            <Link href="/report-input" className="text-sm font-medium text-[#ffde21] transition-colors hover:text-[#ffe84d]">
+              Cargar reporte mensual →
+            </Link>
+          )}
+        </div>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

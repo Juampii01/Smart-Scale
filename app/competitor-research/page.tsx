@@ -7,8 +7,19 @@ import { createClient } from "@/lib/supabase"
 import { AiLoading } from "@/components/ui/ai-loading"
 import {
   Youtube, Instagram, ExternalLink, Copy, ChevronDown, ChevronUp,
-  Trash2, Search, X, Zap, AlertTriangle, Eye,
+  Trash2, Search, X, Zap, AlertTriangle, Eye, RefreshCw,
 } from "lucide-react"
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/** Start of current UTC week (Monday 00:00:00Z) */
+function startOfCurrentWeekUTC(): Date {
+  const now = new Date()
+  const dow = now.getUTCDay() || 7          // 1=Mon … 7=Sun
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - dow + 1))
+}
+
+const WEEKLY_LIMIT = 3
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -203,6 +214,9 @@ function AnalysisCard({ item, onDelete, deletingId }: {
     minute: "2-digit",
   })
 
+  // Badge "Esta semana" if the analysis was created in the current UTC week
+  const isThisWeek = new Date(item.created_at) >= startOfCurrentWeekUTC()
+
   return (
     <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
       {/* Header row */}
@@ -224,6 +238,12 @@ function AnalysisCard({ item, onDelete, deletingId }: {
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 inline-block" />
               Completado
             </span>
+            {isThisWeek && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#ffde21]/30 bg-[#ffde21]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#ffde21]/80">
+                <Zap className="h-2.5 w-2.5" />
+                Esta semana
+              </span>
+            )}
           </div>
           {item.channel_name && (
             <p className="mt-0.5 text-[13px] font-medium text-foreground/70 truncate">{item.channel_name}</p>
@@ -300,7 +320,17 @@ function CompetitorResearchContent() {
       const res = await fetch(`/api/content-research?client_id=${encodeURIComponent(activeClientId)}`, { headers: { "Authorization": `Bearer ${session.access_token}` } })
       if (!res.ok) return
       const data = await res.json()
-      setHistory(data.items ?? [])
+      const items: HistoryItem[] = data.items ?? []
+      setHistory(items)
+
+      // Derive weekly usage from the returned items — no extra API call needed.
+      // The backend returns the last 20 items ordered by created_at DESC;
+      // since the limit is 3/week, this window is always enough.
+      const weekStart = startOfCurrentWeekUTC()
+      const thisWeekCount = items.filter(
+        item => new Date(item.created_at) >= weekStart
+      ).length
+      setWeekUsage({ used: thisWeekCount, limit: WEEKLY_LIMIT })
     } catch { } finally { setHistoryLoading(false) }
   }, [activeClientId])
 
@@ -331,16 +361,16 @@ function CompetitorResearchContent() {
 
       if (!res.ok) { setError(data.error ?? "Error al investigar."); return }
 
-      // Update monthly usage counter
+      // Update weekly usage counter from the API response (authoritative value)
       if (data.used != null && data.limit != null) {
         setWeekUsage({ used: data.used, limit: data.limit })
       }
 
-      // If result came from cache, show a notice
+      // If result came from cache, show a notice and DON'T increment local counter
       if (data.cached) setCachedNotice(true)
 
       setChannelUrl("")
-      fetchHistory()
+      fetchHistory()  // re-fetches history and re-derives weekly count
     } catch (err: any) {
       setError(err?.message ?? "Error inesperado. Intentá de nuevo.")
     } finally { setLoading(false) }
@@ -455,13 +485,20 @@ function CompetitorResearchContent() {
             </button>
           </form>
 
-          {/* Usage counter */}
+          {/* Usage counter — visible as soon as history loads */}
           {weekUsage && !limitReached && (
             <div className="flex items-center gap-2 rounded-xl border border-foreground/[0.06] bg-foreground/[0.03] px-4 py-2.5">
               <Zap className="h-3.5 w-3.5 text-[#ffde21]/60 shrink-0" />
               <span className="text-xs text-foreground/40">
-                Análisis esta semana: <span className={`font-semibold ${weekUsage.used >= weekUsage.limit ? "text-red-700 dark:text-red-400" : "text-foreground/70"}`}>{weekUsage.used}</span>
-                <span className="text-foreground/25"> / {weekUsage.limit}</span>
+                Análisis esta semana:{" "}
+                <span className={`font-semibold ${weekUsage.used >= weekUsage.limit ? "text-red-700 dark:text-red-400" : "text-foreground/70"}`}>
+                  {weekUsage.used} de {weekUsage.limit}
+                </span>
+                {weekUsage.used < weekUsage.limit && (
+                  <span className="text-foreground/25">
+                    {" — "}se renuevan el próximo lunes
+                  </span>
+                )}
               </span>
             </div>
           )}
@@ -492,8 +529,19 @@ function CompetitorResearchContent() {
 
           {/* Generic error */}
           {error && (
-            <div className="rounded-xl border border-red-500/20 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
-              {error}
+            <div className="flex items-start gap-3 rounded-xl border border-red-500/20 bg-red-50 dark:bg-red-500/10 px-4 py-3">
+              <p className="flex-1 text-sm text-red-700 dark:text-red-300">{error}</p>
+              {channelUrl.trim() && (
+                <button
+                  type="button"
+                  onClick={() => { document.querySelector<HTMLFormElement>("form")?.requestSubmit() }}
+                  disabled={loading}
+                  className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-red-400/40 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-700 transition-all hover:bg-red-100 disabled:opacity-40 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300"
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  Reintentar
+                </button>
+              )}
             </div>
           )}
         </div>
