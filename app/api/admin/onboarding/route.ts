@@ -87,6 +87,7 @@ export async function POST(req: NextRequest) {
     const programStart    = body.program_start       ? String(body.program_start)               : new Date().toISOString().slice(0, 10)
     const requestedSetterId = body.setter_id           ? String(body.setter_id)                   : null
     const formaPago       = body.forma_pago          ? String(body.forma_pago).trim()           : null
+    const leadId          = body.lead_id             ? String(body.lead_id)                     : null
     const programDuration = body.program_duration != null ? Math.max(1, Math.min(24, Number(body.program_duration))) : null
 
     // ── 1. Enhanced validations ────────────────────────────────────────────
@@ -191,6 +192,7 @@ export async function POST(req: NextRequest) {
         notes:              notesLines.join(" | ") || null,
         forma_pago:         formaPago,
         ...(finalSetterId ? { setter_id: finalSetterId } : {}),
+        ...(leadId ? { lead_id: leadId } : {}),
       })
       .select("id")
       .single()

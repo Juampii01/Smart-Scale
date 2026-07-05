@@ -1,9 +1,9 @@
 /**
  * GET /api/admin/omni/briefing
  *
- * Devuelve el briefing diario más reciente guardado por el cron
- * (/api/cron/omni-daily-briefing), para mostrarlo en la vista sin tener que
- * volver a llamar a Claude.
+ * Devuelve el briefing diario más reciente de cada tipo (community, leads)
+ * guardado por el cron (/api/cron/omni-daily-briefing), para mostrarlo en la
+ * vista sin tener que volver a llamar a Claude.
  */
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
@@ -18,12 +18,24 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   const sb = createServiceClient()
-  const { data } = await sb
-    .from("omni_daily_briefings")
-    .select("date, findings, messages_analyzed, created_at")
-    .order("date", { ascending: false })
-    .limit(1)
-    .maybeSingle()
 
-  return NextResponse.json({ briefing: data ?? null })
+  const [{ data: community }, { data: leads }] = await Promise.all([
+    sb.from("omni_daily_briefings")
+      .select("date, findings, messages_analyzed, created_at")
+      .eq("type", "community")
+      .order("date", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    sb.from("omni_daily_briefings")
+      .select("date, findings, messages_analyzed, created_at")
+      .eq("type", "leads")
+      .order("date", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ])
+
+  return NextResponse.json({
+    briefing:       community ?? null, // se mantiene por compatibilidad con la UI existente
+    leadsBriefing:  leads ?? null,
+  })
 }

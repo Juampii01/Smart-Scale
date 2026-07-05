@@ -161,6 +161,7 @@ export function AdminOmniView() {
   const [analyzeMsg,        setAnalyzeMsg]        = useState<string | null>(null)
 
   const [dailyBriefing, setDailyBriefing] = useState<DailyBriefing | null>(null)
+  const [leadsBriefing, setLeadsBriefing] = useState<DailyBriefing | null>(null)
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [chatInput,    setChatInput]    = useState("")
@@ -207,6 +208,7 @@ export function AdminOmniView() {
     if (!res.ok) return
     const json = await res.json()
     setDailyBriefing(json.briefing ?? null)
+    setLeadsBriefing(json.leadsBriefing ?? null)
   }, [getAuthHeader])
 
   const fetchChatHistory = useCallback(async () => {
@@ -543,9 +545,18 @@ export function AdminOmniView() {
       {/* Briefing diario (guardado por el cron) */}
       {dailyBriefing && (
         <FindingsSection
-          title="Briefing de hoy"
+          title="Briefing de hoy — Comunidad"
           subtitle={`${fmtDateOnly(dailyBriefing.date)} · ${dailyBriefing.messages_analyzed} mensajes`}
           findings={dailyBriefing.findings}
+        />
+      )}
+
+      {/* Briefing diario de leads vs. cierres (guardado por el cron) */}
+      {leadsBriefing && (
+        <FindingsSection
+          title="Briefing de hoy — Leads y cierres"
+          subtitle={`${fmtDateOnly(leadsBriefing.date)} · ${leadsBriefing.messages_analyzed} leads`}
+          findings={leadsBriefing.findings}
         />
       )}
 

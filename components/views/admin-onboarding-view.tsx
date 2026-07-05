@@ -42,6 +42,12 @@ interface SetterProfile {
   name: string | null
 }
 
+interface LeadOption {
+  id:        string
+  name:      string
+  instagram: string | null
+}
+
 type OnboardingEmailTemplate = "skool" | "slack" | "platform"
 
 // ─── Etapa resumida (para el punto de color en la card + los filtros) ────────
@@ -195,11 +201,12 @@ function SuccessModal({
 // ─── Onboarding Form ──────────────────────────────────────────────────────────
 
 function OnboardingForm({
-  setters, onSuccess, onCancel,
+  setters, leadOptions, onSuccess, onCancel,
 }: {
-  setters:   SetterProfile[]
-  onSuccess: (data: { name: string; email: string; tempPassword: string | null; magicLink: string | null }) => void
-  onCancel:  () => void
+  setters:     SetterProfile[]
+  leadOptions: LeadOption[]
+  onSuccess:   (data: { name: string; email: string; tempPassword: string | null; magicLink: string | null }) => void
+  onCancel:    () => void
 }) {
   const supabase = createClient()
 
@@ -219,10 +226,13 @@ function OnboardingForm({
     program_duration:  "6",
     setter_id:         "",
     forma_pago:        "",
+    lead_id:           "",
   })
   const [saving,  setSaving]  = useState(false)
   const [error,   setError]   = useState<string | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
+  const [leadQuery, setLeadQuery] = useState("")
+  const [leadPickerOpen, setLeadPickerOpen] = useState(false)
 
   useEffect(() => {
     // Load user's role to determine if setter_id should be auto-assigned
@@ -284,6 +294,7 @@ function OnboardingForm({
           program_duration: Number(fields.program_duration) || 6,
           setter_id:        fields.setter_id || null,
           forma_pago:       fields.forma_pago.trim() || null,
+          lead_id:          fields.lead_id || null,
         }),
       })
 
@@ -333,6 +344,56 @@ function OnboardingForm({
                 <Phone className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/30" />
                 <input className={cn(inputCls, "pl-8")} placeholder="+54 11 1234-5678" value={fields.phone} onChange={set("phone")} />
               </div>
+            </div>
+            <div className="relative">
+              <label className={labelCls}>Lead de origen (opcional)</label>
+              <input
+                className={inputCls}
+                placeholder="Buscar por nombre o instagram..."
+                value={fields.lead_id ? (leadOptions.find(l => l.id === fields.lead_id)?.name ?? "") : leadQuery}
+                onChange={e => {
+                  setLeadQuery(e.target.value)
+                  if (fields.lead_id) setFields(prev => ({ ...prev, lead_id: "" }))
+                  setLeadPickerOpen(true)
+                }}
+                onFocus={() => setLeadPickerOpen(true)}
+                onBlur={() => setTimeout(() => setLeadPickerOpen(false), 150)}
+              />
+              {fields.lead_id && (
+                <button
+                  type="button"
+                  onClick={() => { setFields(prev => ({ ...prev, lead_id: "" })); setLeadQuery("") }}
+                  className="absolute right-2.5 top-[34px] text-foreground/30 hover:text-foreground"
+                  aria-label="Quitar lead vinculado"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+              {leadPickerOpen && leadQuery.trim().length > 0 && !fields.lead_id && (
+                <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-border bg-card shadow-lg">
+                  {leadOptions
+                    .filter(l =>
+                      l.name.toLowerCase().includes(leadQuery.toLowerCase()) ||
+                      (l.instagram ?? "").toLowerCase().includes(leadQuery.toLowerCase())
+                    )
+                    .slice(0, 8)
+                    .map(l => (
+                      <button
+                        key={l.id}
+                        type="button"
+                        onMouseDown={() => { setFields(prev => ({ ...prev, lead_id: l.id })); setLeadQuery(""); setLeadPickerOpen(false) }}
+                        className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[13px] text-foreground hover:bg-foreground/[0.05]"
+                      >
+                        <span className="truncate">{l.name}</span>
+                        {l.instagram && <span className="shrink-0 text-[11px] text-foreground/40">{l.instagram}</span>}
+                      </button>
+                    ))}
+                  {leadOptions.filter(l => l.name.toLowerCase().includes(leadQuery.toLowerCase())).length === 0 && (
+                    <p className="px-3 py-2 text-[12px] text-foreground/40">Sin resultados</p>
+                  )}
+                </div>
+              )}
+              <p className="mt-1 text-[10px] text-foreground/30">Vincula este cliente a su lead de origen para el análisis de Omni.</p>
             </div>
           </div>
         </div>
@@ -659,6 +720,7 @@ export function AdminOnboardingView() {
   const [view,       setView]       = useState<"list" | "form">("list")
   const [clients,    setClients]    = useState<OnboardingClient[]>([])
   const [setters,    setSetters]    = useState<SetterProfile[]>([])
+  const [leadOptions, setLeadOptions] = useState<LeadOption[]>([])
   const [loading,    setLoading]    = useState(true)
   const [success,    setSuccess]    = useState<{ name: string; email: string; tempPassword: string | null; magicLink: string | null } | null>(null)
   const [activeView, setActiveView] = useState<OnboardingViewId>("todos")
@@ -692,6 +754,16 @@ export function AdminOnboardingView() {
       .select("id, name")
       .in("role", ["setter", "admin", "team"])
       .then(({ data }) => setSetters((data as SetterProfile[]) ?? []))
+  }, []) // inicial solamente
+
+  // Cargar leads recientes para vincular el onboarding a su lead de origen
+  useEffect(() => {
+    supabase
+      .from("leads")
+      .select("id, name, instagram")
+      .order("created_at", { ascending: false })
+      .limit(300)
+      .then(({ data }) => setLeadOptions((data as LeadOption[]) ?? []))
   }, []) // inicial solamente
 
   useEffect(() => { loadClients() }, [loadClients])
@@ -792,6 +864,7 @@ export function AdminOnboardingView() {
       {view === "form" && (
         <OnboardingForm
           setters={setters}
+          leadOptions={leadOptions}
           onSuccess={handleSuccess}
           onCancel={() => setView("list")}
         />
