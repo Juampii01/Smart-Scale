@@ -8,7 +8,7 @@ import {
   DollarSign, Calendar, Mail,
   MessageCircle, PhoneCall, MoreHorizontal,
   Check, ChevronUp, ChevronDown, ChevronsUpDown, UserX,
-  BarChart3, FileText,
+  BarChart3, FileText, Sparkles,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -601,8 +601,10 @@ function DetailDrawer({
   onDeleteFollowup,
   onDeleteClient,
   onOffboard,
+  onSendRenewalEmail,
   deleting,
   offboarding,
+  sendingRenewal,
 }: {
   client:              Client
   onClose:             () => void
@@ -615,7 +617,9 @@ function DetailDrawer({
   onDeleteFollowup:    (followupId: string) => Promise<void>
   onDeleteClient:      (id: string) => Promise<void>
   onOffboard:          (id: string) => Promise<void>
+  onSendRenewalEmail:  (id: string) => Promise<void>
   deleting:            boolean
+  sendingRenewal:      boolean
   offboarding:         boolean
 }) {
   const [drawerTab,        setDrawerTab]          = useState<"crm" | "reports">("crm")
@@ -703,6 +707,19 @@ function DetailDrawer({
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 <span>Finalizar programa</span>
+              </button>
+            )}
+            {/* Enviar email de renovación a mano — sin esperar la ventana de 7 días del cron */}
+            {client.status === "activo" && client.email && (
+              <button
+                onClick={() => onSendRenewalEmail(client.id)}
+                disabled={sendingRenewal || offboarding || deleting}
+                aria-label="Enviar email de renovación"
+                title="Manda el email de renovación ahora, sin esperar al aviso automático"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-emerald-300/50 px-2.5 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-100/60 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40"
+              >
+                {sendingRenewal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                {!sendingRenewal && <span>Enviar renovación</span>}
               </button>
             )}
             {/* Dar de baja — solo visible si está activo/en_pausa */}
@@ -1530,6 +1547,7 @@ export function AdminClientsView() {
   const [selected,      setSelected]     = useState<Client | null>(null)
   const [deletingId,    setDeletingId]   = useState<string | null>(null)
   const [offboardingId, setOffboardingId] = useState<string | null>(null)
+  const [sendingRenewalId, setSendingRenewalId] = useState<string | null>(null)
   const [filterStatus,  setFilterStatus] = useState<string>("todos")
   const [search,        setSearch]       = useState("")
   const [sortKey,       setSortKey]      = useState<SortKey>("created_at")
@@ -1766,6 +1784,25 @@ export function AdminClientsView() {
     setOffboardingId(null)
   }
 
+  const handleSendRenewalEmail = async (id: string) => {
+    const client = clients.find(c => c.id === id)
+    const name = client?.name ?? "este cliente"
+    if (!window.confirm(`¿Enviar el email de renovación a ${name} ahora?`)) return
+    setSendingRenewalId(id)
+    const session = await getSession()
+    if (!session) { setSendingRenewalId(null); return }
+    const res = await fetch("/api/admin/clients", {
+      method:  "PATCH",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+      body:    JSON.stringify({ type: "trigger_renewal_email", id }),
+    })
+    const json = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      alert(json?.error ?? "No se pudo enviar el email de renovación")
+    }
+    setSendingRenewalId(null)
+  }
+
   const handleDeleteClient = async (id: string) => {
     const client = clients.find(c => c.id === id)
     const name = client?.name ?? "este cliente"
@@ -1819,8 +1856,10 @@ export function AdminClientsView() {
           onDeleteFollowup={handleDeleteFollowup}
           onDeleteClient={handleDeleteClient}
           onOffboard={handleOffboardClient}
+          onSendRenewalEmail={handleSendRenewalEmail}
           deleting={deletingId === selected.id}
           offboarding={offboardingId === selected.id}
+          sendingRenewal={sendingRenewalId === selected.id}
         />
       )}
 

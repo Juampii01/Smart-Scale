@@ -9,6 +9,10 @@
  *     overdue_alert_snoozed_until (el admin lo carga a mano cuando ya arregló
  *     algo distinto con el cliente) — el aviso de Slack al equipo NO se
  *     pospone, es solo visibilidad interna.
+ *  4. Manda email de renovación cuando al programa (program_start +
+ *     program_duration meses) le quedan ≤7 días — una sola vez por cliente
+ *     (renewal_email_sent_at). También se puede disparar a mano desde
+ *     /admin/clients sin esperar a la ventana de días.
  *
  * Auth: Vercel Cron envía `Authorization: Bearer ${CRON_SECRET}` automáticamente
  * cuando configuramos `crons` en vercel.json + ENV var CRON_SECRET.
@@ -20,13 +24,14 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { sendSlackMessage } from "@/lib/slack"
-import { sendUpcomingChargeEmail, sendUpcomingPaymentLinkEmail, sendOverdueInstallmentEmail } from "@/lib/email"
+import { sendUpcomingChargeEmail, sendUpcomingPaymentLinkEmail, sendOverdueInstallmentEmail, sendRenewalEmail } from "@/lib/email"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
 
 const ALERT_DAYS_BEFORE = 5
+const RENEWAL_ALERT_DAYS_BEFORE = 7
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -126,7 +131,7 @@ async function runBillingAlerts() {
   //    ACTIVOS con plan mensual (no le inventamos cuotas a un cliente dado de baja).
   const { data: clients, error: clientsErr } = await supabase
     .from("crm_clients")
-    .select("id, name, email, installment_amount, status, is_monthly_subscription, program_start")
+    .select("id, name, email, installment_amount, status, is_monthly_subscription, program_start, program_duration, renewal_email_sent_at")
 
   if (clientsErr) {
     result.errors.push(`Error cargando clientes: ${clientsErr.message}`)
@@ -183,6 +188,21 @@ async function runBillingAlerts() {
             result.errors.push(`[${client.name}] first insert error: ${insErr.message}`)
           } else {
             result.installmentsCreated++
+          }
+        }
+      }
+
+      // 3.5. Email de renovación — al programa le quedan ≤7 días, una sola vez.
+      //      Solo para clientes activos con email y con program_start/duration cargados.
+      if (client.status === "activo" && client.email && client.program_start && client.program_duration && !client.renewal_email_sent_at) {
+        const programEnd = addMonths(client.program_start, client.program_duration)
+        const daysUntilEnd = daysBetween(programEnd, today)
+        if (daysUntilEnd <= RENEWAL_ALERT_DAYS_BEFORE) {
+          const emailResult = await sendRenewalEmail({ name: client.name, email: client.email }).catch(() => null)
+          if (emailResult?.ok) {
+            await supabase.from("crm_clients").update({ renewal_email_sent_at: new Date().toISOString() }).eq("id", client.id)
+          } else {
+            result.errors.push(`[${client.name}] email renovación: ${emailResult?.error ?? "unknown"}`)
           }
         }
       }
