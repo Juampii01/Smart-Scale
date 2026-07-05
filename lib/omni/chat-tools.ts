@@ -76,6 +76,25 @@ Necesitás pasar al menos uno de los dos (query o participant). Devuelve con qui
       required: [],
     },
   },
+  {
+    name: "search_leads",
+    description: `Busca leads por nombre/instagram, o trae los más recientes. Para cada lead devuelve además, si ya se convirtió en cliente, cómo cerró (pago único/cuotas, monto, cuotas pagadas) — útil para preguntas del tipo "¿qué leads de baja calificación cerraron?" o "¿cómo cerró tal persona?".
+Sin "query": trae los leads más recientes (default 20). Con "query": filtra por nombre o instagram.`,
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        query: {
+          type: "string",
+          description: "Nombre o instagram a buscar (parcial, no case-sensitive). Opcional — sin esto trae los más recientes.",
+        },
+        limit: {
+          type: "number",
+          description: "Máximo de leads a devolver. Default 20, máximo 50.",
+        },
+      },
+      required: [],
+    },
+  },
 ]
 
 export async function executeOmniChatTool(
@@ -184,6 +203,54 @@ export async function executeOmniChatTool(
     }))
 
     return JSON.stringify(results)
+  }
+
+  if (name === "search_leads") {
+    const query: string = String(input.query ?? "").trim()
+    const limit = Math.min(Number(input.limit) || 20, 50)
+
+    let q = sb
+      .from("leads")
+      .select("id, name, rating, source, lead_type, niche, tag, notes, purchased, instagram, created_at")
+      .order("created_at", { ascending: false })
+      .limit(limit)
+
+    if (query) q = q.or(`name.ilike.%${query}%,instagram.ilike.%${query}%`)
+
+    const { data: leads, error } = await q
+    if (error) return `Error BD: ${error.message}`
+    if (!leads || leads.length === 0) return query ? `No se encontraron leads que coincidan con "${query}"` : "No hay leads cargados."
+
+    const leadIds = leads.map((l: any) => l.id)
+    const { data: clients } = await sb
+      .from("crm_clients")
+      .select("id, name, lead_id, is_monthly_subscription, num_installments, total_amount")
+      .in("lead_id", leadIds)
+
+    const clientsByLeadId = new Map((clients ?? []).map((c: any) => [c.lead_id, c]))
+
+    return JSON.stringify(
+      leads.map((l: any) => {
+        const client = clientsByLeadId.get(l.id)
+        return {
+          nombre: l.name,
+          instagram: l.instagram,
+          rating: l.rating,
+          fuente: l.source,
+          tipo: l.lead_type,
+          nicho: l.niche,
+          tag: l.tag,
+          notas: l.notes,
+          compro: l.purchased,
+          cierre: client
+            ? {
+                pago: client.is_monthly_subscription ? "suscripción mensual" : client.num_installments <= 1 ? "pago único" : `${client.num_installments} cuotas`,
+                monto_total: client.total_amount,
+              }
+            : null,
+        }
+      }),
+    )
   }
 
   return `Herramienta "${name}" no reconocida.`
