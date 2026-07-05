@@ -709,13 +709,14 @@ function DetailDrawer({
                 <span>Finalizar programa</span>
               </button>
             )}
-            {/* Enviar email de renovación a mano — sin esperar la ventana de 7 días del cron */}
-            {client.status === "activo" && client.email && (
+            {/* Enviar email de renovación a mano — sin esperar la ventana de 7 días del cron.
+                Siempre visible (aunque deshabilitado) para que no parezca que falta construirlo. */}
+            {client.status === "activo" && (
               <button
                 onClick={() => onSendRenewalEmail(client.id)}
-                disabled={sendingRenewal || offboarding || deleting}
+                disabled={sendingRenewal || offboarding || deleting || !client.email}
                 aria-label="Enviar email de renovación"
-                title="Manda el email de renovación ahora, sin esperar al aviso automático"
+                title={client.email ? "Manda el email de renovación ahora, sin esperar al aviso automático" : "Este cliente no tiene email cargado — completalo arriba para poder enviarle"}
                 className="flex h-8 items-center gap-1.5 rounded-lg border border-emerald-300/50 px-2.5 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-100/60 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40"
               >
                 {sendingRenewal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
