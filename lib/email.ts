@@ -1067,3 +1067,102 @@ Smart Scale
     text,
   })
 }
+
+// ─── Template: renovación de programa ────────────────────────────────────────
+
+export async function sendRenewalEmail(payload: {
+  name:  string
+  email: string
+}): Promise<EmailResult> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://app.smartscale.co"
+  const firstName = payload.name.split(" ")[0]
+  const renewalUrl = `${siteUrl}/renovacion`
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Próximo nivel</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+          <tr>
+            <td style="padding-bottom:24px;" align="center">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
+                  <td width="6"></td>
+                  <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
+                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#ffffff;border-radius:16px;border:1px solid #e5e5e5;padding:40px 36px;">
+              <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#a3a3a3;text-transform:uppercase;letter-spacing:0.08em;">
+                Próximo nivel
+              </p>
+              <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#1a1a1a;line-height:1.2;">
+                Hola ${firstName}, ¿cómo estás?
+              </h1>
+              <p style="margin:0 0 16px;font-size:15px;color:#525252;line-height:1.6;">
+                Ya estamos entrando en la etapa final de tu recorrido dentro del programa, y queríamos darte la posibilidad de continuar trabajando junto a nosotros.
+              </p>
+              <p style="margin:0 0 24px;font-size:15px;color:#525252;line-height:1.6;">
+                Sabemos que este proceso te permitió incorporar herramientas, claridad y estructura para seguir creciendo tu negocio, por lo que creemos que puede ser un muy buen momento para evaluar cuál es el próximo paso más adecuado para vos.
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding:8px 0 24px;">
+                    <a href="${renewalUrl}"
+                       style="display:inline-block;background:#ffde21;color:#1a1a1a;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+                      Ver opciones para continuar →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:0;font-size:14px;color:#525252;line-height:1.6;">
+                Cuando tengas oportunidad de verlo, contanos qué te parece y conversamos juntos cuál de las alternativas se adapta mejor a tus objetivos y a la etapa en la que te encontrás actualmente.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top:20px;" align="center">
+              <p style="margin:0;font-size:12px;color:#a3a3a3;">Smart Scale</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+
+  const text = `Hola ${firstName}, ¿cómo estás?
+
+Ya estamos entrando en la etapa final de tu recorrido dentro del programa, y queríamos darte la posibilidad de continuar trabajando junto a nosotros.
+
+Sabemos que este proceso te permitió incorporar herramientas, claridad y estructura para seguir creciendo tu negocio, por lo que creemos que puede ser un muy buen momento para evaluar cuál es el próximo paso más adecuado para vos.
+
+Estas son las opciones para continuar: ${renewalUrl}
+
+Cuando tengas oportunidad de verlo, contanos qué te parece.
+
+Smart Scale
+`
+
+  return sendEmail({
+    to:      payload.email,
+    subject: `${firstName}, tu próximo nivel te espera`,
+    html,
+    text,
+  })
+}

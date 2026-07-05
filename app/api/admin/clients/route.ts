@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireAdmin } from "@/lib/auth/api-guards"
-import { sendPaymentConfirmedEmail } from "@/lib/email"
+import { sendPaymentConfirmedEmail, sendRenewalEmail } from "@/lib/email"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -191,6 +191,26 @@ export async function PATCH(req: NextRequest) {
       ])
       if (updateRes.error) return NextResponse.json({ error: updateRes.error.message }, { status: 500 })
       if (deleteRes.error) return NextResponse.json({ error: deleteRes.error.message }, { status: 500 })
+      return NextResponse.json({ success: true })
+    }
+
+    // Disparar el email de renovación a mano — mismo template que manda el cron
+    // automáticamente 7 días antes de que termine el programa, pero sin esperar
+    // esa ventana (para el caso de avisarle a alguien ya mismo).
+    if (body.type === "trigger_renewal_email") {
+      if (!body.id) return NextResponse.json({ error: "id is required" }, { status: 400 })
+      const { data: client, error: fetchErr } = await supabase
+        .from("crm_clients")
+        .select("name, email")
+        .eq("id", body.id)
+        .maybeSingle()
+      if (fetchErr) return NextResponse.json({ error: fetchErr.message }, { status: 500 })
+      if (!client?.email) return NextResponse.json({ error: "El cliente no tiene email cargado" }, { status: 400 })
+
+      const result = await sendRenewalEmail({ name: client.name, email: client.email })
+      if (!result.ok) return NextResponse.json({ error: result.error ?? "No se pudo enviar el email" }, { status: 500 })
+
+      await supabase.from("crm_clients").update({ renewal_email_sent_at: new Date().toISOString() }).eq("id", body.id)
       return NextResponse.json({ success: true })
     }
 
