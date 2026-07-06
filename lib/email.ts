@@ -83,7 +83,7 @@ export async function sendWelcomeEmail(payload: {
                   <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
                   <td width="6"></td>
                   <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
-                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                    <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">Scale</span>
                   </td>
                 </tr>
               </table>
@@ -208,7 +208,7 @@ export async function sendSkoolAccessEmail(payload: {
                   <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
                   <td width="6"></td>
                   <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
-                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                    <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">Scale</span>
                   </td>
                 </tr>
               </table>
@@ -296,7 +296,7 @@ export async function sendSlackAccessEmail(payload: {
                   <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
                   <td width="6"></td>
                   <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
-                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                    <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">Scale</span>
                   </td>
                 </tr>
               </table>
@@ -386,7 +386,7 @@ export async function sendCredentialsToAdmin(payload: {
                   <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
                   <td width="6"></td>
                   <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
-                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                    <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">Scale</span>
                   </td>
                 </tr>
               </table>
@@ -514,7 +514,7 @@ export async function sendMondayWinReminderEmail(payload: {
                   <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
                   <td width="6"></td>
                   <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
-                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                    <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">Scale</span>
                   </td>
                 </tr>
               </table>
@@ -600,7 +600,7 @@ export async function sendMonthlyReportReminderEmail(payload: {
                   <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
                   <td width="6"></td>
                   <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
-                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                    <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">Scale</span>
                   </td>
                 </tr>
               </table>
@@ -687,7 +687,7 @@ export async function sendInactivityReminderEmail(payload: {
                   <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
                   <td width="6"></td>
                   <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
-                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                    <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">Scale</span>
                   </td>
                 </tr>
               </table>
@@ -786,7 +786,7 @@ export async function sendUpcomingChargeEmail(payload: {
                   <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
                   <td width="6"></td>
                   <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
-                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                    <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">Scale</span>
                   </td>
                 </tr>
               </table>
@@ -865,7 +865,7 @@ export async function sendUpcomingPaymentLinkEmail(payload: {
                   <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
                   <td width="6"></td>
                   <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
-                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                    <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">Scale</span>
                   </td>
                 </tr>
               </table>
@@ -942,7 +942,7 @@ export async function sendPaymentConfirmedEmail(payload: {
                   <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
                   <td width="6"></td>
                   <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
-                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                    <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">Scale</span>
                   </td>
                 </tr>
               </table>
@@ -1020,7 +1020,7 @@ export async function sendOverdueInstallmentEmail(payload: {
                   <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
                   <td width="6"></td>
                   <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
-                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                    <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">Scale</span>
                   </td>
                 </tr>
               </table>
@@ -1098,7 +1098,7 @@ export async function sendRenewalEmail(payload: {
                   <td style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">Smart</td>
                   <td width="6"></td>
                   <td style="background:#1a1a1a;border-radius:6px;padding:4px 10px;">
-                    <span style="font-size:22px;font-weight:700;color:#ffde21;letter-spacing:-0.5px;">Scale</span>
+                    <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">Scale</span>
                   </td>
                 </tr>
               </table>
