@@ -72,7 +72,13 @@ export async function getClientActivitySnapshot(sb: SB): Promise<ClientActivity[
       .map((r: any) => r.client_id)
   )
 
-  return rows.map(p => {
+  return rows.filter(p => {
+    // Excluir clientes offboardeados (login baneado) — ya no tiene sentido
+    // pedirles que carguen el Monday Win o el reporte, ni avisarles que hace
+    // rato no entran: no van a poder volver a entrar nunca.
+    const bannedUntil = (usersById.get(p.id) as any)?.banned_until
+    return !bannedUntil || new Date(bannedUntil) <= new Date()
+  }).map(p => {
     const authUser = usersById.get(p.id)
     const lastSignInAt = authUser?.last_sign_in_at ?? null
     const daysSinceLogin = lastSignInAt
