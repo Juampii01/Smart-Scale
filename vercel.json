@@ -11,7 +11,7 @@
     },
     {
       "path": "/api/cron/reminders",
-      "schedule": "0 13 * * *"
+      "schedule": "0 11 * * *"
     },
     {
       "path": "/api/cron/call-reminders",
