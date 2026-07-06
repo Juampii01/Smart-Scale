@@ -222,35 +222,40 @@ async function runBillingAlerts() {
         const montoFmt  = fmtMoney(montoNum)
         const venceFmt  = fmtDateAR(cuota.due_date)
 
-        // ── (a) Aviso previo: 0–5 días antes, una sola vez ──────────────────
-        if (daysUntil >= 0 && daysUntil <= ALERT_DAYS_BEFORE && !cuota.alert_sent_at) {
-          const dayLabel = daysUntil === 0 ? "hoy" : daysUntil === 1 ? "mañana" : `en ${daysUntil} días`
-          const mensaje = `⏰ *Cobro mensual ${dayLabel}*\n• Cliente: *${client.name}*\n• Monto: *${montoFmt}*\n• Vence: ${venceFmt}`
+        // ── (a) Aviso previo: 0–5 días antes ────────────────────────────────
+        if (daysUntil >= 0 && daysUntil <= ALERT_DAYS_BEFORE) {
+          // Slack al equipo — una sola vez
+          if (!cuota.alert_sent_at) {
+            const dayLabel = daysUntil === 0 ? "hoy" : daysUntil === 1 ? "mañana" : `en ${daysUntil} días`
+            const mensaje = `⏰ *Cobro mensual ${dayLabel}*\n• Cliente: *${client.name}*\n• Monto: *${montoFmt}*\n• Vence: ${venceFmt}`
 
-          const blocks = [
-            { type: "header", text: { type: "plain_text", text: `⏰ Cobro mensual ${dayLabel}`, emoji: true } },
-            { type: "section", fields: [
-              { type: "mrkdwn", text: `*Cliente:*\n${client.name}` },
-              { type: "mrkdwn", text: `*Monto:*\n${montoFmt}` },
-              { type: "mrkdwn", text: `*Vence:*\n${venceFmt}` },
-              { type: "mrkdwn", text: `*Días restantes:*\n${daysUntil === 0 ? "Hoy" : daysUntil}` },
-            ]},
-            { type: "context", elements: [{ type: "mrkdwn", text: "Plan mensual auto-renovable · Smart Scale Internal" }] },
-          ]
+            const blocks = [
+              { type: "header", text: { type: "plain_text", text: `⏰ Cobro mensual ${dayLabel}`, emoji: true } },
+              { type: "section", fields: [
+                { type: "mrkdwn", text: `*Cliente:*\n${client.name}` },
+                { type: "mrkdwn", text: `*Monto:*\n${montoFmt}` },
+                { type: "mrkdwn", text: `*Vence:*\n${venceFmt}` },
+                { type: "mrkdwn", text: `*Días restantes:*\n${daysUntil === 0 ? "Hoy" : daysUntil}` },
+              ]},
+              { type: "context", elements: [{ type: "mrkdwn", text: "Plan mensual auto-renovable · Smart Scale Internal" }] },
+            ]
 
-          const r = await sendBillingAlert(
-            { tipo: "proximo", cliente: client.name, monto: montoNum, monto_fmt: montoFmt,
-              vencimiento: cuota.due_date, vence_fmt: venceFmt, dias: daysUntil, mensaje },
-            blocks, mensaje,
-          )
-          if (r.ok) {
-            await supabase.from("crm_installments").update({ alert_sent_at: new Date().toISOString() }).eq("id", cuota.id)
-            result.alertsSent++
-          } else {
-            result.errors.push(`[${client.name}] alerta previa: ${r.reason ?? "unknown"}`)
+            const r = await sendBillingAlert(
+              { tipo: "proximo", cliente: client.name, monto: montoNum, monto_fmt: montoFmt,
+                vencimiento: cuota.due_date, vence_fmt: venceFmt, dias: daysUntil, mensaje },
+              blocks, mensaje,
+            )
+            if (r.ok) {
+              await supabase.from("crm_installments").update({ alert_sent_at: new Date().toISOString() }).eq("id", cuota.id)
+              result.alertsSent++
+            } else {
+              result.errors.push(`[${client.name}] alerta previa: ${r.reason ?? "unknown"}`)
+            }
           }
 
-          // Email al cliente — canal independiente del de Slack.
+          // Email al cliente — canal independiente del de Slack: reintenta cada
+          // día (dentro de la ventana) hasta que salga, aunque el Slack ya
+          // se haya mandado antes.
           if (client.email && !cuota.client_alert_sent_at) {
             const emailFn = client.is_monthly_subscription ? sendUpcomingChargeEmail : sendUpcomingPaymentLinkEmail
             const emailResult = await emailFn({ name: client.name, email: client.email, amount: montoNum, dueDate: cuota.due_date }).catch(() => null)
@@ -260,37 +265,43 @@ async function runBillingAlerts() {
           }
         }
 
-        // ── (b) Cuota vencida: due_date pasó y sigue impaga, una sola vez ────
-        else if (daysUntil < 0 && !cuota.overdue_alert_sent_at) {
+        // ── (b) Cuota vencida: due_date pasó y sigue impaga ──────────────────
+        else if (daysUntil < 0) {
           const diasAtraso = Math.abs(daysUntil)
-          const atrasoLabel = diasAtraso === 1 ? "hace 1 día" : `hace ${diasAtraso} días`
-          const mensaje = `🔴 *Cuota VENCIDA ${atrasoLabel}*\n• Cliente: *${client.name}*\n• Monto: *${montoFmt}*\n• Venció: ${venceFmt}\n_Pendiente de cobro._`
 
-          const blocks = [
-            { type: "header", text: { type: "plain_text", text: `🔴 Cuota vencida ${atrasoLabel}`, emoji: true } },
-            { type: "section", fields: [
-              { type: "mrkdwn", text: `*Cliente:*\n${client.name}` },
-              { type: "mrkdwn", text: `*Monto:*\n${montoFmt}` },
-              { type: "mrkdwn", text: `*Venció:*\n${venceFmt}` },
-              { type: "mrkdwn", text: `*Atraso:*\n${diasAtraso} día${diasAtraso === 1 ? "" : "s"}` },
-            ]},
-            { type: "context", elements: [{ type: "mrkdwn", text: "Pendiente de cobro · Smart Scale Internal" }] },
-          ]
+          // Slack al equipo — una sola vez
+          if (!cuota.overdue_alert_sent_at) {
+            const atrasoLabel = diasAtraso === 1 ? "hace 1 día" : `hace ${diasAtraso} días`
+            const mensaje = `🔴 *Cuota VENCIDA ${atrasoLabel}*\n• Cliente: *${client.name}*\n• Monto: *${montoFmt}*\n• Venció: ${venceFmt}\n_Pendiente de cobro._`
 
-          const r = await sendBillingAlert(
-            { tipo: "vencido", cliente: client.name, monto: montoNum, monto_fmt: montoFmt,
-              vencimiento: cuota.due_date, vence_fmt: venceFmt, dias: diasAtraso, mensaje },
-            blocks, mensaje,
-          )
-          if (r.ok) {
-            await supabase.from("crm_installments").update({ overdue_alert_sent_at: new Date().toISOString() }).eq("id", cuota.id)
-            result.alertsSent++
-          } else {
-            result.errors.push(`[${client.name}] alerta vencida: ${r.reason ?? "unknown"}`)
+            const blocks = [
+              { type: "header", text: { type: "plain_text", text: `🔴 Cuota vencida ${atrasoLabel}`, emoji: true } },
+              { type: "section", fields: [
+                { type: "mrkdwn", text: `*Cliente:*\n${client.name}` },
+                { type: "mrkdwn", text: `*Monto:*\n${montoFmt}` },
+                { type: "mrkdwn", text: `*Venció:*\n${venceFmt}` },
+                { type: "mrkdwn", text: `*Atraso:*\n${diasAtraso} día${diasAtraso === 1 ? "" : "s"}` },
+              ]},
+              { type: "context", elements: [{ type: "mrkdwn", text: "Pendiente de cobro · Smart Scale Internal" }] },
+            ]
+
+            const r = await sendBillingAlert(
+              { tipo: "vencido", cliente: client.name, monto: montoNum, monto_fmt: montoFmt,
+                vencimiento: cuota.due_date, vence_fmt: venceFmt, dias: diasAtraso, mensaje },
+              blocks, mensaje,
+            )
+            if (r.ok) {
+              await supabase.from("crm_installments").update({ overdue_alert_sent_at: new Date().toISOString() }).eq("id", cuota.id)
+              result.alertsSent++
+            } else {
+              result.errors.push(`[${client.name}] alerta vencida: ${r.reason ?? "unknown"}`)
+            }
           }
 
-          // Email al cliente — respeta el snooze que carga el admin a mano
-          // (arreglo manual con el cliente); el Slack de arriba NO se pospone.
+          // Email al cliente — canal independiente del de Slack: reintenta
+          // cada día hasta que salga, aunque el Slack ya se haya mandado antes.
+          // Respeta el snooze que carga el admin a mano (arreglo manual con el
+          // cliente); el Slack de arriba NO se pospone.
           const snoozed = cuota.overdue_alert_snoozed_until && cuota.overdue_alert_snoozed_until >= todayStr
           if (client.email && !cuota.client_overdue_alert_sent_at && !snoozed) {
             const emailResult = await sendOverdueInstallmentEmail({ name: client.name, email: client.email, amount: montoNum, daysOverdue: diasAtraso }).catch(() => null)
