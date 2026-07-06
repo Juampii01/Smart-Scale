@@ -53,10 +53,20 @@ export async function getClientActivitySnapshot(sb: SB): Promise<ClientActivity[
   const rows = (profiles ?? []) as { id: string; client_id: string; name: string | null; last_inactivity_email_sent_at: string | null }[]
   if (rows.length === 0) return []
 
-  // Último login + email — vía Admin API. Con el tamaño actual de la base
-  // (decenas de clientes) una sola página alcanza sin necesidad de paginar.
+  // Email — vía Admin API. Con el tamaño actual de la base (decenas de
+  // clientes) una sola página alcanza sin necesidad de paginar.
   const { data: usersPage } = await sb.auth.admin.listUsers({ perPage: 1000 })
   const usersById = new Map((usersPage?.users ?? []).map(u => [u.id, u]))
+
+  // Última actividad real — auth.users.last_sign_in_at solo se actualiza en
+  // un login fresco; con sesión persistente (refresh token) alguien puede
+  // usar la app todos los días y ese campo no se mueve nunca más. La función
+  // get_last_session_activity() lee auth.sessions.refreshed_at, que sí
+  // refleja actividad real (se actualiza en cada refresh de token).
+  const { data: sessionActivity } = await sb.rpc("get_last_session_activity")
+  const lastActiveByUser = new Map(
+    ((sessionActivity ?? []) as { user_id: string; last_active_at: string }[]).map(r => [r.user_id, r.last_active_at])
+  )
 
   const { year, month, day, weekday } = miamiNow()
 
@@ -80,7 +90,7 @@ export async function getClientActivitySnapshot(sb: SB): Promise<ClientActivity[
     return !bannedUntil || new Date(bannedUntil) <= new Date()
   }).map(p => {
     const authUser = usersById.get(p.id)
-    const lastSignInAt = authUser?.last_sign_in_at ?? null
+    const lastSignInAt = lastActiveByUser.get(p.id) ?? authUser?.last_sign_in_at ?? null
     const daysSinceLogin = lastSignInAt
       ? Math.floor((Date.now() - new Date(lastSignInAt).getTime()) / 86_400_000)
       : null
