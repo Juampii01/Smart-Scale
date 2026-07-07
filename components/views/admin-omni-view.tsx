@@ -4,7 +4,8 @@ import { useEffect, useState, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   Sparkles, MessageCircle, FileText, Megaphone, DollarSign, Cog,
-  Instagram, Slack, RefreshCw, Loader2, CheckCircle2, Wand2, Quote, Send, Bot,
+  Instagram, Slack, RefreshCw, Loader2, CheckCircle2, Wand2, Quote,
+  Activity, AlertTriangle, Clock, Star, TrendingUp,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase"
@@ -69,11 +70,23 @@ interface SlackFinding {
   severidad:   "alta" | "media" | "baja"
 }
 
-const SEVERITY_STYLES: Record<SlackFinding["severidad"], string> = {
+interface ProspectRisk {
+  prospecto: string
+  estado:    "en_riesgo" | "irremontable"
+  situacion: string
+  principio: string
+  evidencia: string
+  accion:    string
+  severidad: "alta" | "media" | "baja"
+}
+
+const SEVERITY_STYLES: Record<"alta" | "media" | "baja", string> = {
   alta:  "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
   media: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
   baja:  "bg-foreground/[0.06] text-foreground/50",
 }
+
+const IRREMONTABLE_STYLE = "bg-foreground/[0.10] text-foreground/60 dark:bg-foreground/[0.08] dark:text-foreground/50"
 
 function fmtDateTime(iso: string | null): string {
   if (!iso) return "nunca"
@@ -92,9 +105,21 @@ interface DailyBriefing {
   messages_analyzed: number
 }
 
-interface ChatMessage {
-  role:    "user" | "assistant"
-  content: string
+interface ProspectingBriefing {
+  date:              string
+  findings:          ProspectRisk[]
+  messages_analyzed: number
+}
+
+interface ProspectingMetrics {
+  activeConversations:     number
+  staleConversations:      number
+  avgResponseMinutes:      number | null
+  ratingDistribution:      Record<string, number>
+  leadsAnalyzed:           number
+  conversionRate:          number | null
+  ratingDistributionToday: Record<string, number>
+  leadsToday:              number
 }
 
 function FindingsSection({ title, subtitle, findings }: { title: string; subtitle?: string; findings: SlackFinding[] }) {
@@ -139,6 +164,182 @@ function FindingsSection({ title, subtitle, findings }: { title: string; subtitl
   )
 }
 
+function StatCard({ icon: Icon, label, value, sublabel, tone }: {
+  icon: React.ComponentType<{ className?: string }>
+  label: string
+  value: string
+  sublabel?: string
+  tone?: "warn"
+}) {
+  return (
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+      <div className="flex items-center gap-2">
+        <span className={cn(
+          "flex h-7 w-7 items-center justify-center rounded-lg",
+          tone === "warn" ? "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400" : "bg-foreground/[0.05] text-foreground/50",
+        )}>
+          <Icon className="h-3.5 w-3.5" />
+        </span>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground/40">{label}</p>
+      </div>
+      <p className="mt-2.5 text-2xl font-bold tracking-tight text-foreground">{value}</p>
+      {sublabel && <p className="mt-0.5 text-[11.5px] text-foreground/40">{sublabel}</p>}
+    </div>
+  )
+}
+
+function ProspectingMetricsSection({ metrics }: { metrics: ProspectingMetrics | null }) {
+  if (!metrics) {
+    return (
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[0, 1, 2, 3].map(i => (
+          <div key={i} className="h-[92px] animate-pulse rounded-2xl border border-foreground/[0.07] bg-foreground/[0.03]" />
+        ))}
+      </div>
+    )
+  }
+
+  const ratings = [5, 4, 3, 2, 1]
+
+  return (
+    <div className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          icon={Activity}
+          label="Conversaciones activas"
+          value={String(metrics.activeConversations)}
+          sublabel="últimos 30 días"
+        />
+        <StatCard
+          icon={AlertTriangle}
+          label="Estancadas"
+          value={String(metrics.staleConversations)}
+          sublabel="el lead escribió y no se le respondió hace +24hs"
+          tone={metrics.staleConversations > 0 ? "warn" : undefined}
+        />
+        <StatCard
+          icon={Clock}
+          label="Tiempo de respuesta"
+          value={metrics.avgResponseMinutes == null ? "—" : metrics.avgResponseMinutes < 60
+            ? `${metrics.avgResponseMinutes}m`
+            : `${(metrics.avgResponseMinutes / 60).toFixed(1)}h`}
+          sublabel="promedio de Ann"
+        />
+        <StatCard
+          icon={TrendingUp}
+          label="Conversión"
+          value={metrics.conversionRate == null ? "—" : `${metrics.conversionRate.toFixed(0)}%`}
+          sublabel={`${metrics.leadsAnalyzed} leads, últimos 60 días`}
+        />
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <RatingBreakdown title="Leads por rating (hoy)" subtitle={`${metrics.leadsToday} leads`} distribution={metrics.ratingDistributionToday} ratings={ratings} />
+        <RatingBreakdown title="Leads por rating (60 días)" subtitle={`${metrics.leadsAnalyzed} leads`} distribution={metrics.ratingDistribution} ratings={ratings} />
+      </div>
+    </div>
+  )
+}
+
+function RatingBreakdown({ title, subtitle, distribution, ratings }: {
+  title: string
+  subtitle: string
+  distribution: Record<string, number>
+  ratings: number[]
+}) {
+  const maxRating = Math.max(1, ...ratings.map(r => distribution[String(r)] ?? 0))
+  return (
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <Star className="h-3.5 w-3.5 text-foreground/40" />
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground/40">{title}</p>
+        <span className="ml-auto text-[11px] text-foreground/30">{subtitle}</span>
+      </div>
+      <div className="space-y-1.5">
+        {ratings.map(r => {
+          const count = distribution[String(r)] ?? 0
+          const pct = Math.round((count / maxRating) * 100)
+          return (
+            <div key={r} className="flex items-center gap-2">
+              <span className="w-10 shrink-0 text-[11px] text-foreground/40">{r}★</span>
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-foreground/[0.06]">
+                <div className="h-full rounded-full bg-[#ffde21]" style={{ width: `${pct}%` }} />
+              </div>
+              <span className="w-6 shrink-0 text-right text-[11px] text-foreground/40">{count}</span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function ProspectRiskSection({ briefing, analyzing, onRefresh }: {
+  briefing:  ProspectingBriefing | null
+  analyzing: boolean
+  onRefresh: () => void
+}) {
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+          Riesgos de prospección
+          {briefing && (
+            <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">
+              {fmtDateOnly(briefing.date)} · {briefing.messages_analyzed} conversaciones analizadas
+            </span>
+          )}
+        </p>
+        <button
+          onClick={onRefresh}
+          disabled={analyzing}
+          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+        >
+          <RefreshCw className={cn("h-3 w-3", analyzing && "animate-spin")} />
+          Actualizar
+        </button>
+      </div>
+      {!briefing ? (
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+          Todavía no corrió el análisis de riesgo de prospección — corré "Actualizar" o esperá al briefing diario.
+        </div>
+      ) : briefing.findings.length === 0 ? (
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+          Ningún prospecto activo en riesgo hoy, según los principios de Ann.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {briefing.findings.map((f, i) => (
+            <div key={i} className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-[14px] font-semibold text-foreground">@{f.prospecto}</h3>
+                <span className={cn(
+                  "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                  f.estado === "irremontable" ? IRREMONTABLE_STYLE : SEVERITY_STYLES[f.severidad],
+                )}>
+                  {f.estado === "irremontable" ? "irremontable" : f.severidad}
+                </span>
+              </div>
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-foreground/60">{f.situacion}</p>
+              <p className="mt-2 text-[12px] font-semibold text-foreground/50">Principio: <span className="font-normal text-foreground/60">{f.principio}</span></p>
+              <div className="mt-2 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
+                <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
+                <p className="text-[12px] italic text-foreground/50">{f.evidencia}</p>
+              </div>
+              <div className={cn(
+                "mt-2.5 rounded-lg border px-2.5 py-2",
+                f.estado === "irremontable" ? "border-foreground/[0.10] bg-foreground/[0.03]" : "border-[#ffde21]/25 bg-[#ffde21]/[0.06]",
+              )}>
+                <p className="text-[12px] font-semibold text-foreground/80">{f.estado === "irremontable" ? "Aprendizaje: " : ""}{f.accion}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function AdminOmniView() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -160,13 +361,11 @@ export function AdminOmniView() {
   const [analyzing,         setAnalyzing]         = useState(false)
   const [analyzeMsg,        setAnalyzeMsg]        = useState<string | null>(null)
 
-  const [dailyBriefing, setDailyBriefing] = useState<DailyBriefing | null>(null)
-  const [leadsBriefing, setLeadsBriefing] = useState<DailyBriefing | null>(null)
-
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
-  const [chatInput,    setChatInput]    = useState("")
-  const [chatSending,  setChatSending]  = useState(false)
-  const [chatLoaded,   setChatLoaded]   = useState(false)
+  const [dailyBriefing,       setDailyBriefing]       = useState<DailyBriefing | null>(null)
+  const [leadsBriefing,       setLeadsBriefing]       = useState<DailyBriefing | null>(null)
+  const [prospectingBriefing, setProspectingBriefing] = useState<ProspectingBriefing | null>(null)
+  const [prospectingMetrics,  setProspectingMetrics]  = useState<ProspectingMetrics | null>(null)
+  const [prospectingAnalyzing, setProspectingAnalyzing] = useState(false)
 
   const getAuthHeader = useCallback(async () => {
     const supabase = createClient()
@@ -209,17 +408,15 @@ export function AdminOmniView() {
     const json = await res.json()
     setDailyBriefing(json.briefing ?? null)
     setLeadsBriefing(json.leadsBriefing ?? null)
+    setProspectingBriefing(json.prospectingBriefing ?? null)
   }, [getAuthHeader])
 
-  const fetchChatHistory = useCallback(async () => {
+  const fetchProspectingMetrics = useCallback(async () => {
     const headers = await getAuthHeader()
     if (!headers) return
-    const res = await fetch("/api/admin/omni/chat", { headers })
-    if (res.ok) {
-      const json = await res.json()
-      setChatMessages(json.messages ?? [])
-    }
-    setChatLoaded(true)
+    const res = await fetch("/api/admin/omni/prospecting-metrics", { headers })
+    if (!res.ok) return
+    setProspectingMetrics(await res.json())
   }, [getAuthHeader])
 
   useEffect(() => {
@@ -241,13 +438,13 @@ export function AdminOmniView() {
     fetchSlackStatus()
     fetchSlackUserStatus()
     fetchDailyBriefing()
-    fetchChatHistory()
+    fetchProspectingMetrics()
 
     if (searchParams.get("omni_ig_success")) setIgSyncMsg("Instagram conectado — ya podés sincronizar.")
     if (searchParams.get("omni_ig_error"))   setIgSyncMsg(`Error al conectar Instagram (${searchParams.get("omni_ig_error")}).`)
     if (searchParams.get("omni_slack_success")) setSlackSyncMsg("Slack conectado como Ann — ya podés sincronizar.")
     if (searchParams.get("omni_slack_error"))   setSlackSyncMsg(`Error al conectar Slack (${searchParams.get("omni_slack_error")}).`)
-  }, [allowed, fetchIgStatus, fetchSlackStatus, fetchSlackUserStatus, fetchDailyBriefing, fetchChatHistory, searchParams])
+  }, [allowed, fetchIgStatus, fetchSlackStatus, fetchSlackUserStatus, fetchDailyBriefing, fetchProspectingMetrics, searchParams])
 
   const connectInstagram = async () => {
     setIgLoading(true)
@@ -331,27 +528,18 @@ export function AdminOmniView() {
     }
   }
 
-  const sendChatMessage = async () => {
-    const text = chatInput.trim()
-    if (!text || chatSending) return
-    setChatInput("")
-    setChatMessages(prev => [...prev, { role: "user", content: text }])
-    setChatSending(true)
+  const analyzeProspecting = async () => {
+    setProspectingAnalyzing(true)
     try {
       const headers = await getAuthHeader()
       if (!headers) return
-      const res = await fetch("/api/admin/omni/chat", {
-        method:  "POST",
-        headers: { ...headers, "Content-Type": "application/json" },
-        body:    JSON.stringify({ message: text }),
-      })
+      const res = await fetch("/api/admin/omni/prospecting/analyze", { method: "POST", headers })
       const json = await res.json()
-      setChatMessages(prev => [...prev, {
-        role: "assistant",
-        content: res.ok ? json.reply : (json.error ?? "Error al responder"),
-      }])
+      if (res.ok) {
+        setProspectingBriefing(json)
+      }
     } finally {
-      setChatSending(false)
+      setProspectingAnalyzing(false)
     }
   }
 
@@ -485,62 +673,14 @@ export function AdminOmniView() {
         </p>
       </div>
 
-      {/* Preguntale a Omni */}
+      {/* Prospección — métricas visibles, sin preguntar nada */}
       <div>
-        <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">Preguntale a Omni</p>
-        <div className="rounded-2xl border border-foreground/[0.07] bg-card">
-          <div className="max-h-[420px] min-h-[160px] overflow-y-auto p-4 space-y-3">
-            {!chatLoaded ? (
-              <div className="flex items-center justify-center py-6">
-                <Loader2 className="h-4 w-4 animate-spin text-foreground/30" />
-              </div>
-            ) : chatMessages.length === 0 ? (
-              <p className="py-6 text-center text-[13px] text-foreground/35">
-                Preguntale algo sobre la comunidad — ej: "¿cómo cerró Andrés?" o "qué objeciones aparecieron esta semana".
-              </p>
-            ) : (
-              chatMessages.map((m, i) => (
-                <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
-                  <div className={cn(
-                    "max-w-[85%] rounded-2xl px-3.5 py-2 text-[13px] leading-relaxed whitespace-pre-wrap",
-                    m.role === "user"
-                      ? "bg-[#ffde21] text-black"
-                      : "bg-foreground/[0.05] text-foreground/80",
-                  )}>
-                    {m.content}
-                  </div>
-                </div>
-              ))
-            )}
-            {chatSending && (
-              <div className="flex justify-start">
-                <div className="flex items-center gap-1.5 rounded-2xl bg-foreground/[0.05] px-3.5 py-2 text-foreground/40">
-                  <Bot className="h-3.5 w-3.5" />
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-2 border-t border-foreground/[0.07] p-3">
-            <input
-              type="text"
-              value={chatInput}
-              onChange={e => setChatInput(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChatMessage() } }}
-              placeholder="Preguntale a Omni…"
-              disabled={chatSending}
-              className="flex-1 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none disabled:opacity-50"
-            />
-            <button
-              onClick={sendChatMessage}
-              disabled={chatSending || !chatInput.trim()}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#ffde21] text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
-            >
-              <Send className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
+        <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">Prospección</p>
+        <ProspectingMetricsSection metrics={prospectingMetrics} />
       </div>
+
+      {/* Riesgos de prospección — detectados solos por el cron diario */}
+      <ProspectRiskSection briefing={prospectingBriefing} analyzing={prospectingAnalyzing} onRefresh={analyzeProspecting} />
 
       {/* Briefing diario (guardado por el cron) */}
       {dailyBriefing && (
