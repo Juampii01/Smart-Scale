@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import {
   Sparkles, MessageCircle, FileText, Megaphone, DollarSign, Cog,
   Instagram, Slack, RefreshCw, Loader2, CheckCircle2, Wand2, Quote,
-  Activity, AlertTriangle, Clock, Star, TrendingUp,
+  Activity, AlertTriangle, Clock, Star, TrendingUp, LayoutDashboard,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase"
@@ -431,7 +431,7 @@ export function AdminOmniView() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [allowed, setAllowed] = useState<boolean | null>(null) // null = verificando
-  const [activeTab, setActiveTab] = useState<"conversaciones" | "comunidad">("conversaciones")
+  const [activeTab, setActiveTab] = useState<"resumen" | "conversaciones" | "comunidad">("resumen")
 
   const [igStatus,   setIgStatus]   = useState<IgStatus | null | undefined>(undefined) // undefined = cargando
   const [igLoading,  setIgLoading]  = useState(false)
@@ -686,6 +686,16 @@ export function AdminOmniView() {
       {/* Tabs */}
       <div className="flex gap-1 border-b border-foreground/[0.07]">
         <button
+          onClick={() => setActiveTab("resumen")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
+            activeTab === "resumen" ? "border-[#ffde21] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+          )}
+        >
+          <LayoutDashboard className="h-3.5 w-3.5" />
+          Resumen
+        </button>
+        <button
           onClick={() => setActiveTab("conversaciones")}
           className={cn(
             "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
@@ -694,6 +704,7 @@ export function AdminOmniView() {
         >
           <Instagram className="h-3.5 w-3.5" />
           Conversaciones
+          {conversations && <span className="text-foreground/30">{conversations.length}</span>}
         </button>
         <button
           onClick={() => setActiveTab("comunidad")}
@@ -706,6 +717,30 @@ export function AdminOmniView() {
           Comunidad
         </button>
       </div>
+
+      {activeTab === "resumen" && (
+        <div className="space-y-8">
+
+          {/* Prospección — métricas visibles, sin preguntar nada */}
+          <div>
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">Prospección</p>
+            <ProspectingMetricsSection metrics={prospectingMetrics} />
+          </div>
+
+          {/* Riesgos de prospección — análisis en bloque, cron diario o "Actualizar" */}
+          <ProspectRiskSection briefing={prospectingBriefing} analyzing={prospectingAnalyzing} onRefresh={analyzeProspecting} />
+
+          {/* Briefing diario de leads vs. cierres (guardado por el cron) */}
+          {leadsBriefing && (
+            <FindingsSection
+              title="Briefing de hoy — Leads y cierres"
+              subtitle={`${fmtDateOnly(leadsBriefing.date)} · ${leadsBriefing.messages_analyzed} leads`}
+              findings={leadsBriefing.findings}
+            />
+          )}
+
+        </div>
+      )}
 
       {activeTab === "conversaciones" && (
         <div className="space-y-8">
@@ -754,16 +789,10 @@ export function AdminOmniView() {
             </p>
           </div>
 
-          {/* Prospección — métricas visibles, sin preguntar nada */}
-          <div>
-            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">Prospección</p>
-            <ProspectingMetricsSection metrics={prospectingMetrics} />
-          </div>
-
           {/* Todas las conversaciones — elegís cuál analizar */}
           <div>
             <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
-              Conversaciones
+              Todas las conversaciones
               {conversations && <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">{conversations.length}</span>}
             </p>
             {conversations === null ? (
@@ -789,18 +818,6 @@ export function AdminOmniView() {
               </div>
             )}
           </div>
-
-          {/* Riesgos de prospección — análisis en bloque, cron diario o "Actualizar" */}
-          <ProspectRiskSection briefing={prospectingBriefing} analyzing={prospectingAnalyzing} onRefresh={analyzeProspecting} />
-
-          {/* Briefing diario de leads vs. cierres (guardado por el cron) */}
-          {leadsBriefing && (
-            <FindingsSection
-              title="Briefing de hoy — Leads y cierres"
-              subtitle={`${fmtDateOnly(leadsBriefing.date)} · ${leadsBriefing.messages_analyzed} leads`}
-              findings={leadsBriefing.findings}
-            />
-          )}
 
         </div>
       )}
