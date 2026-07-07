@@ -123,7 +123,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
           </div>
         )}
 
-        {/* Omni — sistema de IA (destacado, solo el dueño del proyecto) */}
+        {/* Omni — sistema de IA (destacado, solo dueño del proyecto + Ann) */}
         {isOmniOwner && (
           <div className="px-3 pt-1">
             <Link href="/admin/omni" onClick={onClose}>
