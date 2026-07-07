@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireOmniOwner } from "@/lib/auth/api-guards"
 import { OMNI_CHAT_TOOLS, executeOmniChatTool } from "@/lib/omni/chat-tools"
+import { buildOmniSystemPrompt } from "@/lib/omni/system-prompt"
 import Anthropic from "@anthropic-ai/sdk"
 
 export const runtime = "nodejs"
@@ -38,13 +39,18 @@ async function getOrCreateConversation(sb: ReturnType<typeof createServiceClient
   return { id: (created as any).id, messages: [] as SimpleMessage[] }
 }
 
-function buildSystemPrompt(): string {
+async function buildSystemPrompt(sb: ReturnType<typeof createServiceClient>): Promise<string> {
   const todayStr = new Date().toISOString().slice(0, 10)
-  return `Sos el asistente de Omni, el sistema de IA interno del piloto con Ann. Tenés acceso a dos fuentes vía herramientas (tools): los mensajes de la comunidad de Slack, y los DMs de Instagram de la cuenta conectada.
+  const stylePrompt = await buildOmniSystemPrompt(sb, "ann")
+  return `${stylePrompt}
+
+---
+
+## Herramientas disponibles (chat reactivo)
 
 Fecha actual: ${todayStr}.
 
-Tu trabajo: responder preguntas de Juampi (el dueño del proyecto) sobre la comunidad y las conversaciones de Instagram — patrones, personas puntuales, objeciones, qué pasó en tal canal o con tal lead, etc. Cuando necesités datos reales, usá las herramientas — no inventes nada.
+Tenés acceso a fuentes de datos vía herramientas (tools): los mensajes de la comunidad de Slack, los DMs de Instagram de la cuenta conectada, y leads/cierres. Tu trabajo: responder preguntas de Juampi (el dueño del proyecto) sobre la comunidad y las conversaciones — patrones, personas puntuales, objeciones, qué pasó en tal canal o con tal lead, etc. — aplicando el estilo de feedback de arriba. Cuando necesités datos reales, usá las herramientas — no inventes nada.
 
 REGLAS:
 1. Si te preguntan sobre algo que pasó en Slack (una persona, un tema, un evento), SIEMPRE usá search_slack_messages antes de responder — probá más de un término si hace falta (nombre, apodo, palabra clave del tema).
@@ -95,6 +101,13 @@ export async function POST(req: NextRequest) {
 
   const anthropic = new Anthropic({ apiKey })
 
+  let systemPrompt: string
+  try {
+    systemPrompt = await buildSystemPrompt(sb)
+  } catch (e) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : "Error armando el contexto de Omni" }, { status: 500 })
+  }
+
   // Historial agéntico de esta sola llamada: contexto previo simple + la pregunta nueva.
   // El tool-calling interno (tool_use/tool_result) NUNCA se persiste — solo el
   // texto final de cada turno queda en omni_chat_conversations.
@@ -112,7 +125,7 @@ export async function POST(req: NextRequest) {
       const response = await anthropic.messages.create({
         model:      "claude-sonnet-4-5",
         max_tokens: 1200,
-        system:     buildSystemPrompt(),
+        system:     systemPrompt,
         tools:      OMNI_CHAT_TOOLS,
         messages:   history,
       })
