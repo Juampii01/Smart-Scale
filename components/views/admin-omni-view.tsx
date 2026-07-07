@@ -90,6 +90,25 @@ interface ConversationAnalysisData {
   analyzed_at: string
 }
 
+interface ChannelAnalysisData {
+  estado:      "sano" | "en_riesgo"
+  situacion:   string
+  principio:   string
+  evidencia:   string
+  accion:      string
+  severidad:   "alta" | "media" | "baja"
+  analyzed_at: string
+}
+
+interface ChannelItem {
+  id:                string
+  name:              string
+  is_client_channel: boolean
+  message_count:     number
+  synced_at:         string | null
+  analysis:          ChannelAnalysisData | null
+}
+
 interface ConversationItem {
   id:                    string
   participant_username:  string | null
@@ -427,6 +446,61 @@ function ConversationListCard({ conversation, analyzing, onAnalyze }: {
   )
 }
 
+function ChannelListCard({ channel, analyzing, onAnalyze }: {
+  channel:   ChannelItem
+  analyzing: boolean
+  onAnalyze: () => void
+}) {
+  const a = channel.analysis
+  const badgeStyle = a ? (a.estado === "sano" ? SANO_STYLE : SEVERITY_STYLES[a.severidad]) : ""
+
+  return (
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <h3 className="text-[14px] font-semibold text-foreground">#{channel.name}</h3>
+            {channel.is_client_channel && (
+              <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-foreground/50">
+                cliente
+              </span>
+            )}
+          </div>
+          <p className="mt-1 text-[12px] text-foreground/40">{channel.message_count} mensajes sincronizados</p>
+        </div>
+        <button
+          onClick={onAnalyze}
+          disabled={analyzing || channel.message_count === 0}
+          className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+        >
+          {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
+          {a ? "Re-analizar" : "Analizar"}
+        </button>
+      </div>
+
+      {a && (
+        <div className="mt-3 border-t border-foreground/[0.07] pt-3">
+          <div className="flex items-center gap-2">
+            <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", badgeStyle)}>
+              {a.estado === "en_riesgo" ? a.severidad : a.estado}
+            </span>
+            <span className="text-[11px] text-foreground/30">analizado {fmtDateTime(a.analyzed_at)}</span>
+          </div>
+          <p className="mt-1.5 text-[12.5px] leading-relaxed text-foreground/60">{a.situacion}</p>
+          <p className="mt-1.5 text-[12px] font-semibold text-foreground/50">Principio: <span className="font-normal text-foreground/60">{a.principio}</span></p>
+          <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
+            <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
+            <p className="text-[12px] italic text-foreground/50">{a.evidencia}</p>
+          </div>
+          <div className="mt-1.5 rounded-lg border border-[#ffde21]/25 bg-[#ffde21]/[0.06] px-2.5 py-2">
+            <p className="text-[12px] font-semibold text-foreground/80">{a.accion}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function AdminOmniView() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -457,6 +531,9 @@ export function AdminOmniView() {
 
   const [conversations,     setConversations]     = useState<ConversationItem[] | null>(null)
   const [analyzingConvoId,  setAnalyzingConvoId]  = useState<string | null>(null)
+
+  const [channels,          setChannels]          = useState<ChannelItem[] | null>(null)
+  const [analyzingChannelId, setAnalyzingChannelId] = useState<string | null>(null)
 
   const getAuthHeader = useCallback(async () => {
     const supabase = createClient()
@@ -519,6 +596,15 @@ export function AdminOmniView() {
     setConversations(json.conversations ?? [])
   }, [getAuthHeader])
 
+  const fetchChannels = useCallback(async () => {
+    const headers = await getAuthHeader()
+    if (!headers) return
+    const res = await fetch("/api/admin/omni/slack/channels", { headers })
+    if (!res.ok) return
+    const json = await res.json()
+    setChannels(json.channels ?? [])
+  }, [getAuthHeader])
+
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then((res: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
@@ -540,12 +626,13 @@ export function AdminOmniView() {
     fetchDailyBriefing()
     fetchProspectingMetrics()
     fetchConversations()
+    fetchChannels()
 
     if (searchParams.get("omni_ig_success")) setIgSyncMsg("Instagram conectado — ya podés sincronizar.")
     if (searchParams.get("omni_ig_error"))   setIgSyncMsg(`Error al conectar Instagram (${searchParams.get("omni_ig_error")}).`)
     if (searchParams.get("omni_slack_success")) setSlackSyncMsg("Slack conectado como Ann — ya podés sincronizar.")
     if (searchParams.get("omni_slack_error"))   setSlackSyncMsg(`Error al conectar Slack (${searchParams.get("omni_slack_error")}).`)
-  }, [allowed, fetchIgStatus, fetchSlackStatus, fetchSlackUserStatus, fetchDailyBriefing, fetchProspectingMetrics, fetchConversations, searchParams])
+  }, [allowed, fetchIgStatus, fetchSlackStatus, fetchSlackUserStatus, fetchDailyBriefing, fetchProspectingMetrics, fetchConversations, fetchChannels, searchParams])
 
   const connectInstagram = async () => {
     setIgLoading(true)
@@ -603,6 +690,7 @@ export function AdminOmniView() {
       if (res.ok) {
         setSlackSyncMsg(`Listo — ${json.channelsSynced} canales, ${json.messagesSynced} mensajes.`)
         fetchSlackStatus()
+        fetchChannels()
       } else {
         setSlackSyncMsg(json.error ?? "Error al sincronizar")
       }
@@ -657,6 +745,21 @@ export function AdminOmniView() {
       }
     } finally {
       setAnalyzingConvoId(null)
+    }
+  }
+
+  const analyzeChannel = async (id: string) => {
+    setAnalyzingChannelId(id)
+    try {
+      const headers = await getAuthHeader()
+      if (!headers) return
+      const res = await fetch(`/api/admin/omni/slack/channels/${id}/analyze`, { method: "POST", headers })
+      const json = await res.json()
+      if (res.ok) {
+        setChannels(prev => (prev ?? []).map(c => c.id === id ? { ...c, analysis: json } : c))
+      }
+    } finally {
+      setAnalyzingChannelId(null)
     }
   }
 
@@ -880,6 +983,36 @@ export function AdminOmniView() {
             <p className="mt-2 text-[12px] text-foreground/35">
               Requiere los scopes de lectura agregados al bot de Slack — ver la conversación del setup para el detalle.
             </p>
+          </div>
+
+          {/* Todos los canales — elegís cuál analizar */}
+          <div>
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+              Todos los canales
+              {channels && <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">{channels.length}</span>}
+            </p>
+            {channels === null ? (
+              <div className="space-y-3">
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="h-[70px] animate-pulse rounded-2xl border border-foreground/[0.07] bg-foreground/[0.03]" />
+                ))}
+              </div>
+            ) : channels.length === 0 ? (
+              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+                No hay canales sincronizados todavía.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {channels.map(c => (
+                  <ChannelListCard
+                    key={c.id}
+                    channel={c}
+                    analyzing={analyzingChannelId === c.id}
+                    onAnalyze={() => analyzeChannel(c.id)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Briefing diario (guardado por el cron) */}
