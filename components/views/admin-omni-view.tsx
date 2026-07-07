@@ -80,6 +80,27 @@ interface ProspectRisk {
   severidad: "alta" | "media" | "baja"
 }
 
+interface ConversationAnalysisData {
+  estado:      "sano" | "en_riesgo" | "irremontable"
+  situacion:   string
+  principio:   string
+  evidencia:   string
+  accion:      string
+  severidad:   "alta" | "media" | "baja"
+  analyzed_at: string
+}
+
+interface ConversationItem {
+  id:                    string
+  participant_username:  string | null
+  last_message_at:       string | null
+  last_message_from:     string | null
+  last_message_preview:  string | null
+  lead_rating:           number | null
+  is_customer:           boolean
+  analysis:              ConversationAnalysisData | null
+}
+
 const SEVERITY_STYLES: Record<"alta" | "media" | "baja", string> = {
   alta:  "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
   media: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
@@ -87,6 +108,7 @@ const SEVERITY_STYLES: Record<"alta" | "media" | "baja", string> = {
 }
 
 const IRREMONTABLE_STYLE = "bg-foreground/[0.10] text-foreground/60 dark:bg-foreground/[0.08] dark:text-foreground/50"
+const SANO_STYLE = "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
 
 function fmtDateTime(iso: string | null): string {
   if (!iso) return "nunca"
@@ -283,7 +305,7 @@ function ProspectRiskSection({ briefing, analyzing, onRefresh }: {
     <div>
       <div className="mb-3 flex items-center justify-between gap-3">
         <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
-          Riesgos de prospección
+          Riesgos de prospección (en bloque)
           {briefing && (
             <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">
               {fmtDateOnly(briefing.date)} · {briefing.messages_analyzed} conversaciones analizadas
@@ -340,10 +362,76 @@ function ProspectRiskSection({ briefing, analyzing, onRefresh }: {
   )
 }
 
+function ConversationListCard({ conversation, analyzing, onAnalyze }: {
+  conversation: ConversationItem
+  analyzing:    boolean
+  onAnalyze:    () => void
+}) {
+  const a = conversation.analysis
+  const badgeStyle = a
+    ? a.estado === "irremontable" ? IRREMONTABLE_STYLE : a.estado === "sano" ? SANO_STYLE : SEVERITY_STYLES[a.severidad]
+    : ""
+
+  return (
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <h3 className="text-[14px] font-semibold text-foreground">@{conversation.participant_username ?? "desconocido"}</h3>
+            {conversation.is_customer && (
+              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                cliente
+              </span>
+            )}
+            {conversation.lead_rating != null && (
+              <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] font-bold text-foreground/50">{conversation.lead_rating}★</span>
+            )}
+          </div>
+          <p className="mt-1 text-[12px] text-foreground/40">
+            {conversation.last_message_from === "lead" ? "Último mensaje del prospecto" : "Último mensaje de Ann"} · {fmtDateTime(conversation.last_message_at)}
+          </p>
+          {conversation.last_message_preview && (
+            <p className="mt-1.5 line-clamp-2 text-[12.5px] text-foreground/60">{conversation.last_message_preview}</p>
+          )}
+        </div>
+        <button
+          onClick={onAnalyze}
+          disabled={analyzing}
+          className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+        >
+          {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
+          {a ? "Re-analizar" : "Analizar"}
+        </button>
+      </div>
+
+      {a && (
+        <div className="mt-3 border-t border-foreground/[0.07] pt-3">
+          <div className="flex items-center gap-2">
+            <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", badgeStyle)}>
+              {a.estado === "en_riesgo" ? a.severidad : a.estado}
+            </span>
+            <span className="text-[11px] text-foreground/30">analizado {fmtDateTime(a.analyzed_at)}</span>
+          </div>
+          <p className="mt-1.5 text-[12.5px] leading-relaxed text-foreground/60">{a.situacion}</p>
+          <p className="mt-1.5 text-[12px] font-semibold text-foreground/50">Principio: <span className="font-normal text-foreground/60">{a.principio}</span></p>
+          <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
+            <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
+            <p className="text-[12px] italic text-foreground/50">{a.evidencia}</p>
+          </div>
+          <div className="mt-1.5 rounded-lg border border-[#ffde21]/25 bg-[#ffde21]/[0.06] px-2.5 py-2">
+            <p className="text-[12px] font-semibold text-foreground/80">{a.accion}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function AdminOmniView() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [allowed, setAllowed] = useState<boolean | null>(null) // null = verificando
+  const [activeTab, setActiveTab] = useState<"conversaciones" | "comunidad">("conversaciones")
 
   const [igStatus,   setIgStatus]   = useState<IgStatus | null | undefined>(undefined) // undefined = cargando
   const [igLoading,  setIgLoading]  = useState(false)
@@ -366,6 +454,9 @@ export function AdminOmniView() {
   const [prospectingBriefing, setProspectingBriefing] = useState<ProspectingBriefing | null>(null)
   const [prospectingMetrics,  setProspectingMetrics]  = useState<ProspectingMetrics | null>(null)
   const [prospectingAnalyzing, setProspectingAnalyzing] = useState(false)
+
+  const [conversations,     setConversations]     = useState<ConversationItem[] | null>(null)
+  const [analyzingConvoId,  setAnalyzingConvoId]  = useState<string | null>(null)
 
   const getAuthHeader = useCallback(async () => {
     const supabase = createClient()
@@ -419,6 +510,15 @@ export function AdminOmniView() {
     setProspectingMetrics(await res.json())
   }, [getAuthHeader])
 
+  const fetchConversations = useCallback(async () => {
+    const headers = await getAuthHeader()
+    if (!headers) return
+    const res = await fetch("/api/admin/omni/prospecting/conversations", { headers })
+    if (!res.ok) return
+    const json = await res.json()
+    setConversations(json.conversations ?? [])
+  }, [getAuthHeader])
+
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then((res: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
@@ -439,12 +539,13 @@ export function AdminOmniView() {
     fetchSlackUserStatus()
     fetchDailyBriefing()
     fetchProspectingMetrics()
+    fetchConversations()
 
     if (searchParams.get("omni_ig_success")) setIgSyncMsg("Instagram conectado — ya podés sincronizar.")
     if (searchParams.get("omni_ig_error"))   setIgSyncMsg(`Error al conectar Instagram (${searchParams.get("omni_ig_error")}).`)
     if (searchParams.get("omni_slack_success")) setSlackSyncMsg("Slack conectado como Ann — ya podés sincronizar.")
     if (searchParams.get("omni_slack_error"))   setSlackSyncMsg(`Error al conectar Slack (${searchParams.get("omni_slack_error")}).`)
-  }, [allowed, fetchIgStatus, fetchSlackStatus, fetchSlackUserStatus, fetchDailyBriefing, fetchProspectingMetrics, searchParams])
+  }, [allowed, fetchIgStatus, fetchSlackStatus, fetchSlackUserStatus, fetchDailyBriefing, fetchProspectingMetrics, fetchConversations, searchParams])
 
   const connectInstagram = async () => {
     setIgLoading(true)
@@ -471,6 +572,7 @@ export function AdminOmniView() {
       setIgSyncMsg(res.ok
         ? `Listo — ${json.conversationsSynced} conversaciones, ${json.messagesSynced} mensajes.`
         : (json.error ?? "Error al sincronizar"))
+      if (res.ok) fetchConversations()
     } finally {
       setIgSyncing(false)
     }
@@ -543,6 +645,21 @@ export function AdminOmniView() {
     }
   }
 
+  const analyzeConversation = async (id: string) => {
+    setAnalyzingConvoId(id)
+    try {
+      const headers = await getAuthHeader()
+      if (!headers) return
+      const res = await fetch(`/api/admin/omni/prospecting/conversations/${id}/analyze`, { method: "POST", headers })
+      const json = await res.json()
+      if (res.ok) {
+        setConversations(prev => (prev ?? []).map(c => c.id === id ? { ...c, analysis: json } : c))
+      }
+    } finally {
+      setAnalyzingConvoId(null)
+    }
+  }
+
   if (!allowed) return null
 
   return (
@@ -566,10 +683,32 @@ export function AdminOmniView() {
         </p>
       </div>
 
-      {/* Conexiones */}
-      <div>
-        <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">Conexiones</p>
-        <div className="grid gap-3 sm:grid-cols-2">
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-foreground/[0.07]">
+        <button
+          onClick={() => setActiveTab("conversaciones")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
+            activeTab === "conversaciones" ? "border-[#ffde21] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+          )}
+        >
+          <Instagram className="h-3.5 w-3.5" />
+          Conversaciones
+        </button>
+        <button
+          onClick={() => setActiveTab("comunidad")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
+            activeTab === "comunidad" ? "border-[#ffde21] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+          )}
+        >
+          <Slack className="h-3.5 w-3.5" />
+          Comunidad
+        </button>
+      </div>
+
+      {activeTab === "conversaciones" && (
+        <div className="space-y-8">
 
           {/* Instagram */}
           <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
@@ -610,7 +749,64 @@ export function AdminOmniView() {
               )}
             </div>
             {igSyncMsg && <p className="mt-2 text-[11.5px] text-foreground/45">{igSyncMsg}</p>}
+            <p className="mt-2 text-[12px] text-foreground/35">
+              Requiere el permiso de mensajes habilitado en Meta (Instagram) — ver la conversación del setup para el detalle.
+            </p>
           </div>
+
+          {/* Prospección — métricas visibles, sin preguntar nada */}
+          <div>
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">Prospección</p>
+            <ProspectingMetricsSection metrics={prospectingMetrics} />
+          </div>
+
+          {/* Todas las conversaciones — elegís cuál analizar */}
+          <div>
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+              Conversaciones
+              {conversations && <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">{conversations.length}</span>}
+            </p>
+            {conversations === null ? (
+              <div className="space-y-3">
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="h-[84px] animate-pulse rounded-2xl border border-foreground/[0.07] bg-foreground/[0.03]" />
+                ))}
+              </div>
+            ) : conversations.length === 0 ? (
+              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+                No hay conversaciones sincronizadas todavía.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {conversations.map(c => (
+                  <ConversationListCard
+                    key={c.id}
+                    conversation={c}
+                    analyzing={analyzingConvoId === c.id}
+                    onAnalyze={() => analyzeConversation(c.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Riesgos de prospección — análisis en bloque, cron diario o "Actualizar" */}
+          <ProspectRiskSection briefing={prospectingBriefing} analyzing={prospectingAnalyzing} onRefresh={analyzeProspecting} />
+
+          {/* Briefing diario de leads vs. cierres (guardado por el cron) */}
+          {leadsBriefing && (
+            <FindingsSection
+              title="Briefing de hoy — Leads y cierres"
+              subtitle={`${fmtDateOnly(leadsBriefing.date)} · ${leadsBriefing.messages_analyzed} leads`}
+              findings={leadsBriefing.findings}
+            />
+          )}
+
+        </div>
+      )}
+
+      {activeTab === "comunidad" && (
+        <div className="space-y-8">
 
           {/* Slack */}
           <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
@@ -664,45 +860,26 @@ export function AdminOmniView() {
             </div>
             {slackSyncMsg && <p className="mt-2 text-[11.5px] text-foreground/45">{slackSyncMsg}</p>}
             {analyzeMsg && <p className="mt-1 text-[11.5px] text-foreground/45">{analyzeMsg}</p>}
+            <p className="mt-2 text-[12px] text-foreground/35">
+              Requiere los scopes de lectura agregados al bot de Slack — ver la conversación del setup para el detalle.
+            </p>
           </div>
 
+          {/* Briefing diario (guardado por el cron) */}
+          {dailyBriefing && (
+            <FindingsSection
+              title="Briefing de hoy — Comunidad"
+              subtitle={`${fmtDateOnly(dailyBriefing.date)} · ${dailyBriefing.messages_analyzed} mensajes`}
+              findings={dailyBriefing.findings}
+            />
+          )}
+
+          {/* Hallazgos de comunidad (análisis manual) */}
+          {communityFindings && (
+            <FindingsSection title="Hallazgos — Comunidad" findings={communityFindings} />
+          )}
+
         </div>
-        <p className="mt-2 text-[12px] text-foreground/35">
-          Requiere el permiso de mensajes habilitado en Meta (Instagram) y los scopes de lectura
-          agregados al bot de Slack — ver la conversación del setup para el detalle de cada uno.
-        </p>
-      </div>
-
-      {/* Prospección — métricas visibles, sin preguntar nada */}
-      <div>
-        <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">Prospección</p>
-        <ProspectingMetricsSection metrics={prospectingMetrics} />
-      </div>
-
-      {/* Riesgos de prospección — detectados solos por el cron diario */}
-      <ProspectRiskSection briefing={prospectingBriefing} analyzing={prospectingAnalyzing} onRefresh={analyzeProspecting} />
-
-      {/* Briefing diario (guardado por el cron) */}
-      {dailyBriefing && (
-        <FindingsSection
-          title="Briefing de hoy — Comunidad"
-          subtitle={`${fmtDateOnly(dailyBriefing.date)} · ${dailyBriefing.messages_analyzed} mensajes`}
-          findings={dailyBriefing.findings}
-        />
-      )}
-
-      {/* Briefing diario de leads vs. cierres (guardado por el cron) */}
-      {leadsBriefing && (
-        <FindingsSection
-          title="Briefing de hoy — Leads y cierres"
-          subtitle={`${fmtDateOnly(leadsBriefing.date)} · ${leadsBriefing.messages_analyzed} leads`}
-          findings={leadsBriefing.findings}
-        />
-      )}
-
-      {/* Hallazgos de comunidad (análisis manual) */}
-      {communityFindings && (
-        <FindingsSection title="Hallazgos — Comunidad" findings={communityFindings} />
       )}
 
       {/* Módulos */}
