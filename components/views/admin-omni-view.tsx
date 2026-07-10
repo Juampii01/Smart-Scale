@@ -163,6 +163,18 @@ interface ProspectingMetrics {
   leadsToday:              number
 }
 
+interface UnansweredItem {
+  nombre:              string
+  last_message_at:     string
+  horas_sin_responder: number
+}
+
+interface UnansweredBriefing {
+  date:              string
+  findings:          { instagram: UnansweredItem[]; slack: UnansweredItem[] }
+  messages_analyzed: number
+}
+
 function FindingsSection({ title, subtitle, findings }: { title: string; subtitle?: string; findings: SlackFinding[] }) {
   return (
     <div>
@@ -381,6 +393,90 @@ function ProspectRiskSection({ briefing, analyzing, onRefresh }: {
   )
 }
 
+function fmtHoursSince(h: number): string {
+  return h < 24 ? `${h}h` : `${Math.floor(h / 24)}d ${h % 24}h`
+}
+
+function UnansweredSummarySection({ briefing, analyzing, onRefresh }: {
+  briefing:  UnansweredBriefing | null
+  analyzing: boolean
+  onRefresh: () => void
+}) {
+  const instagram = briefing?.findings.instagram ?? []
+  const slack      = briefing?.findings.slack ?? []
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+          Conversaciones sin responder
+          {briefing && (
+            <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">
+              {fmtDateOnly(briefing.date)} · {briefing.messages_analyzed} pendientes
+            </span>
+          )}
+        </p>
+        <button
+          onClick={onRefresh}
+          disabled={analyzing}
+          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+        >
+          {analyzing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
+          Hacer resumen
+        </button>
+      </div>
+
+      {!briefing ? (
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+          Todavía no corrió el resumen — corré "Hacer resumen" o esperá al de las 19hs (hora Miami).
+        </div>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <Instagram className="h-3.5 w-3.5 text-foreground/40" />
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground/40">Instagram</p>
+              <span className="ml-auto text-[11px] text-foreground/30">{instagram.length}</span>
+            </div>
+            {instagram.length === 0 ? (
+              <p className="text-[12.5px] text-foreground/35">Todo respondido.</p>
+            ) : (
+              <div className="space-y-1.5">
+                {instagram.map(item => (
+                  <div key={item.nombre} className="flex items-center justify-between gap-2 text-[12.5px]">
+                    <span className="truncate text-foreground/70">@{item.nombre}</span>
+                    <span className="shrink-0 text-foreground/35">{fmtHoursSince(item.horas_sin_responder)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <Slack className="h-3.5 w-3.5 text-foreground/40" />
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground/40">Slack</p>
+              <span className="ml-auto text-[11px] text-foreground/30">{slack.length}</span>
+            </div>
+            {slack.length === 0 ? (
+              <p className="text-[12.5px] text-foreground/35">Todo respondido.</p>
+            ) : (
+              <div className="space-y-1.5">
+                {slack.map(item => (
+                  <div key={item.nombre} className="flex items-center justify-between gap-2 text-[12.5px]">
+                    <span className="truncate text-foreground/70">#{item.nombre}</span>
+                    <span className="shrink-0 text-foreground/35">{fmtHoursSince(item.horas_sin_responder)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function ConversationListCard({ conversation, analyzing, onAnalyze }: {
   conversation: ConversationItem
   analyzing:    boolean
@@ -529,6 +625,9 @@ export function AdminOmniView() {
   const [prospectingMetrics,  setProspectingMetrics]  = useState<ProspectingMetrics | null>(null)
   const [prospectingAnalyzing, setProspectingAnalyzing] = useState(false)
 
+  const [unansweredBriefing,  setUnansweredBriefing]  = useState<UnansweredBriefing | null>(null)
+  const [unansweredAnalyzing, setUnansweredAnalyzing] = useState(false)
+
   const [conversations,     setConversations]     = useState<ConversationItem[] | null>(null)
   const [analyzingConvoId,  setAnalyzingConvoId]  = useState<string | null>(null)
 
@@ -577,6 +676,7 @@ export function AdminOmniView() {
     setDailyBriefing(json.briefing ?? null)
     setLeadsBriefing(json.leadsBriefing ?? null)
     setProspectingBriefing(json.prospectingBriefing ?? null)
+    setUnansweredBriefing(json.unansweredBriefing ?? null)
   }, [getAuthHeader])
 
   const fetchProspectingMetrics = useCallback(async () => {
@@ -733,6 +833,21 @@ export function AdminOmniView() {
     }
   }
 
+  const analyzeUnanswered = async () => {
+    setUnansweredAnalyzing(true)
+    try {
+      const headers = await getAuthHeader()
+      if (!headers) return
+      const res = await fetch("/api/admin/omni/unanswered-summary/analyze", { method: "POST", headers })
+      const json = await res.json()
+      if (res.ok) {
+        setUnansweredBriefing(json)
+      }
+    } finally {
+      setUnansweredAnalyzing(false)
+    }
+  }
+
   const analyzeConversation = async (id: string) => {
     setAnalyzingConvoId(id)
     try {
@@ -823,6 +938,9 @@ export function AdminOmniView() {
 
       {activeTab === "resumen" && (
         <div className="space-y-8">
+
+          {/* Conversaciones sin responder — cron de las 19hs (Miami) o a demanda */}
+          <UnansweredSummarySection briefing={unansweredBriefing} analyzing={unansweredAnalyzing} onRefresh={analyzeUnanswered} />
 
           {/* Prospección — métricas visibles, sin preguntar nada */}
           <div>
