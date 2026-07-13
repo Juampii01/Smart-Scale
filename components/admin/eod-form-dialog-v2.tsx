@@ -34,6 +34,7 @@ const FIELD_GROUPS = [
       { key: "offer_docs_sent",       label: "Offer docs enviados",     hint: "Documentos enviados" },
       { key: "offer_doc_responses",   label: "Respuestas a offer doc",  hint: "Respondieron el doc" },
       { key: "calls_done",            label: "Llamadas hechas",         hint: "Calls completadas" },
+      { key: "cierres",               label: "Cierres",                 hint: "Contratos cerrados hoy" },
     ],
   },
 ] as const
@@ -47,6 +48,7 @@ type FieldKey =
   | "offer_docs_sent"
   | "offer_doc_responses"
   | "calls_done"
+  | "cierres"
 
 type FormValues = Record<FieldKey, string>
 
@@ -76,6 +78,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
     offer_docs_sent:            "",
     offer_doc_responses:        "",
     calls_done:                 "",
+    cierres:                    "",
   })
   const [status,   setStatus]   = useState<"idle" | "saving" | "saved" | "error">("idle")
   const [errorMsg, setErrorMsg] = useState("")
@@ -108,6 +111,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
               offer_docs_sent:            String(existing.offer_docs_sent            ?? ""),
               offer_doc_responses:        String(existing.offer_doc_responses        ?? ""),
               calls_done:                 String(existing.calls_done                 ?? ""),
+              cierres:                    String(existing.cierres                    ?? ""),
             })
             setNotes(existing.notes ?? "")
           } else {
@@ -120,6 +124,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
               offer_docs_sent:            "",
               offer_doc_responses:        "",
               calls_done:                 "",
+              cierres:                    "",
             })
             setNotes("")
           }

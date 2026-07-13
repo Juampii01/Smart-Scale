@@ -34,7 +34,7 @@ const ALL_FIELDS = [
   "new_conversations_inbound", "new_conversations_outbound", "outbound_replies",
   "conversations_replied", "qualified_leads",
   "offer_docs_sent", "offer_doc_responses", "calls_done",
-  "inbound_applications",
+  "inbound_applications", "cierres",
   "notes", "created_at", "updated_at",
 ].join(", ")
 
@@ -42,7 +42,7 @@ const NUMERIC_FIELDS = [
   "new_conversations_inbound", "new_conversations_outbound", "outbound_replies",
   "conversations_replied", "qualified_leads",
   "offer_docs_sent", "offer_doc_responses", "calls_done",
-  "inbound_applications",
+  "inbound_applications", "cierres",
 ] as const
 
 function sanitizeInt(v: any): number {
@@ -173,6 +173,7 @@ export async function POST(req: NextRequest) {
       offer_doc_responses:        row.offer_doc_responses        ?? 0,
       calls_done:                 row.calls_done                 ?? 0,
       inbound_applications:       row.inbound_applications       ?? 0,
+      cierres:                    row.cierres                    ?? 0,
       notes:                      row.notes                      ?? "",
     }).then(result => {
       if (!result.ok) console.error("Zapier EOD webhook failed:", result.error)
