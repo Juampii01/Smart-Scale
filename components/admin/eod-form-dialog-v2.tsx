@@ -163,16 +163,26 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { setStatus("error"); setErrorMsg("Sin sesión"); return }
 
-      const body: Record<string, any> = { date, notes: notes || null }
+      const fields: Record<string, any> = {}
       for (const [k, v] of Object.entries(values)) {
-        body[k] = v !== "" ? Number(v) : 0
+        fields[k] = v !== "" ? Number(v) : 0
       }
 
-      const res = await fetch("/api/admin/setting/log", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify(body),
-      })
+      // Modo edición (logId presente): PATCH por id — preserva el setter_id
+      // original de la fila. Si acá se hiciera POST (upsert por setter_id+date),
+      // un admin editando el registro de OTRO setter crearía una fila nueva a
+      // su propio nombre en vez de actualizar la fila original.
+      const res = logId
+        ? await fetch("/api/admin/setting/log", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+            body: JSON.stringify({ id: logId, ...fields, notes: notes || null }),
+          })
+        : await fetch("/api/admin/setting/log", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+            body: JSON.stringify({ date, notes: notes || null, ...fields }),
+          })
       const json = await res.json()
       if (!res.ok) { setStatus("error"); setErrorMsg(json?.error ?? "Error al guardar"); return }
 
