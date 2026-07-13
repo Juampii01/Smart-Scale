@@ -1,11 +1,12 @@
 /**
- * Lógica compartida de la secuencia de onboarding — la usan el webhook de GHL
- * (contrato firmado), el botón de override manual, y el botón de reintento
- * de un email individual en la UI, para no duplicar la lógica entre triggers.
+ * Lógica compartida de la secuencia de onboarding — la usan el webhook de
+ * SignNow (contrato firmado), el botón de override manual, y el botón de
+ * reintento de un email individual en la UI, para no duplicar la lógica
+ * entre triggers.
  *
  * triggerContractSigned():
  *   1. Idempotente — si onboarding_flow.contract_signed_at ya está seteado,
- *      no hace nada (evita reenviar los 3 emails si GHL reintenta el webhook).
+ *      no hace nada (evita reenviar los 3 emails si SignNow reintenta el webhook).
  *   2. Marca el contrato como firmado.
  *   3. Dispara los 3 emails (Skool, Slack, Plataforma) y guarda el resultado
  *      de cada uno (sent_at o error) en onboarding_flow.
