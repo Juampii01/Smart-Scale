@@ -146,6 +146,7 @@ export async function zapierEODSubmitted(payload: {
   offer_doc_responses:         number
   calls_done:                  number
   inbound_applications:        number
+  cierres:                     number
   notes:                       string
 }): Promise<ZapierResult> {
   const url = process.env.ZAPIER_WEBHOOK_EOD
@@ -172,6 +173,7 @@ export async function zapierEODSubmitted(payload: {
     `  • Offer docs enviados: *${payload.offer_docs_sent}*`,
     `  • Respuestas a offer doc: *${payload.offer_doc_responses}*`,
     `  • Llamadas completadas: *${payload.calls_done}*`,
+    `  • Cierres: *${payload.cierres}*`,
   ]
 
   if (payload.notes) {

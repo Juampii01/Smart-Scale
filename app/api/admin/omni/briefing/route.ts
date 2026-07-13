@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
 
   const sb = createServiceClient()
 
-  const [{ data: community }, { data: leads }] = await Promise.all([
+  const [{ data: community }, { data: leads }, { data: prospecting }, { data: unanswered }] = await Promise.all([
     sb.from("omni_daily_briefings")
       .select("date, findings, messages_analyzed, created_at")
       .eq("type", "community")
@@ -32,10 +32,24 @@ export async function GET(req: NextRequest) {
       .order("date", { ascending: false })
       .limit(1)
       .maybeSingle(),
+    sb.from("omni_daily_briefings")
+      .select("date, findings, messages_analyzed, created_at")
+      .eq("type", "prospecting")
+      .order("date", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    sb.from("omni_daily_briefings")
+      .select("date, findings, messages_analyzed, created_at")
+      .eq("type", "unanswered")
+      .order("date", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ])
 
   return NextResponse.json({
-    briefing:       community ?? null, // se mantiene por compatibilidad con la UI existente
-    leadsBriefing:  leads ?? null,
+    briefing:            community ?? null, // se mantiene por compatibilidad con la UI existente
+    leadsBriefing:       leads ?? null,
+    prospectingBriefing: prospecting ?? null,
+    unansweredBriefing:  unanswered ?? null,
   })
 }

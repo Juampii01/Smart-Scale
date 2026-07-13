@@ -34,6 +34,9 @@ supabase/.temp/
 # macOS
 .DS_Store
 
+# backup de un .git corrupto (pack roto por sync de iCloud), reemplazado el 10/07/2026
+.git.corrupted-backup-*/
+
 # iCloud sync conflict duplicates (e.g. "page 2.tsx", "route 3.ts")
 *\ [0-9].ts
 *\ [0-9].tsx

@@ -123,7 +123,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
           </div>
         )}
 
-        {/* Omni — sistema de IA (destacado, solo el dueño del proyecto) */}
+        {/* Ann AI (ex Omni) — sistema de IA (destacado, acceso restringido) */}
         {isOmniOwner && (
           <div className="px-3 pt-1">
             <Link href="/admin/omni" onClick={onClose}>
@@ -135,8 +135,8 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
               )}>
                 <Sparkles className="h-4 w-4 flex-shrink-0" />
                 <div className="min-w-0 leading-none">
-                  <p className="text-[13px] font-bold">Omni</p>
-                  <p className="mt-1 text-[10px] text-foreground/40">Sistema IA · Ann</p>
+                  <p className="text-[13px] font-bold">Ann AI</p>
+                  <p className="mt-1 text-[10px] text-foreground/40">Sistema IA</p>
                 </div>
               </div>
             </Link>

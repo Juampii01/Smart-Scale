@@ -3,7 +3,7 @@ import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
 import { notifyClientOnboarded } from "@/lib/slack"
 import { sendWelcomeEmail, sendCredentialsToAdmin } from "@/lib/email"
-import { createGHLContact, parseFullName, formatPhoneForGHL } from "@/lib/ghl"
+import { sendContractForSignature } from "@/lib/signnow"
 import { zapierClientOnboarded } from "@/lib/zapier"
 
 export const runtime = "nodejs"
@@ -81,6 +81,7 @@ export async function POST(req: NextRequest) {
     const email    = String(body.email ?? "").trim().toLowerCase()
     const instagram       = body.instagram ? String(body.instagram).trim() : null
     const phone           = body.phone     ? String(body.phone).trim()    : null
+    const address         = body.address   ? String(body.address).trim() : null
     const program         = body.program   ? String(body.program).trim()  : null
     const totalAmount     = body.total_amount != null ? Number(body.total_amount) : 0
     const cuotas          = body.cuotas ?? {}
@@ -182,6 +183,7 @@ export async function POST(req: NextRequest) {
         email,
         instagram,
         phone,
+        address,
         programa:           program,
         program_start:      programStart,
         installment_amount: perInstallmentAmount,
@@ -205,7 +207,7 @@ export async function POST(req: NextRequest) {
 
     // Fila de tracking del onboarding (etapas: contrato firmado, emails
     // enviados) — se crea para TODO cliente nuevo desde ya, sin esperar al
-    // contrato. ghl_contact_id se completa más abajo cuando resuelva GHL.
+    // contrato. signnow_document_id se completa más abajo cuando resuelva SignNow.
     try {
       await supabase.from("onboarding_flow").insert({ crm_client_id: clientId })
     } catch (err) {
@@ -345,12 +347,10 @@ export async function POST(req: NextRequest) {
       setterName = (setter as any)?.name ?? null
     }
 
-    // ── 11. Create contact in GHL (fire-and-forget) ────────────────────────
-    const { firstName, lastName } = parseFullName(name)
-
+    // ── 11. Enviar contrato para firma vía SignNow (fire-and-forget) ───────
     // Para pago único (solo total_amount sin cuotas individuales),
-    // armar cuota_1 = total_amount para que mes_1 se llene en GHL
-    const cuotasForGHL = cuotasWithValues.length > 0
+    // armar cuota_1 = total_amount (queda como "pago_entrada" en el documento)
+    const cuotasForSignNow = cuotasWithValues.length > 0
       ? Object.fromEntries(cuotasWithValues) as Record<string, number>
       : (totalAmount > 0 ? { cuota_1: totalAmount } : {})
 
@@ -358,31 +358,25 @@ export async function POST(req: NextRequest) {
       ? Number(cuotasWithValues[0][1])
       : totalAmount
 
-    createGHLContact({
-      firstName,
-      lastName,
-      email,
-      phone:          formatPhoneForGHL(phone),
-      source:         "Smart Scale",
-      tags:           ["smart-scale", "onboarded"],
+    sendContractForSignature({
+      clienteNombre: name,
+      clienteEmail:  email,
+      clienteAddress: address,
       program,
       totalAmount,
       primerPago,
-      cuotas:         cuotasForGHL,
-      cantidadPagos:  numInstallments,
-      cantidadMeses:  programDuration ?? numInstallments,
-      setterName,
+      cuotas:        cuotasForSignNow,
+      cantidadMeses: programDuration ?? numInstallments,
     }).then(result => {
-      // Guarda el contact.id de GHL en onboarding_flow — permite matchear el
-      // webhook de "contrato firmado" por id además de por email.
-      const ghlContactId = result?.contact?.id
-      if (ghlContactId) {
+      // Guarda el document_id de SignNow en onboarding_flow — permite
+      // matchear el webhook de "contrato firmado" por id.
+      if (result?.document_id) {
         return supabase.from("onboarding_flow")
-          .update({ ghl_contact_id: ghlContactId, updated_at: new Date().toISOString() })
+          .update({ signnow_document_id: result.document_id, updated_at: new Date().toISOString() })
           .eq("crm_client_id", clientId)
       }
     }).catch(err => {
-      console.error("GHL sync failed (non-blocking):", err)
+      console.error("SignNow sync failed (non-blocking):", err)
     })
 
     // ── 12. Send credentials to admin (fire-and-forget) ────────────────────

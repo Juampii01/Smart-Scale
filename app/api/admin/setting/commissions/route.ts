@@ -5,18 +5,19 @@ import { requireInternal } from "@/lib/auth/api-guards"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-const COMMISSION_RATE = 0.05  // 5% sobre todo el cash cobrado (new + old)
+const DEFAULT_COMMISSION_RATE = 0.05  // 5% — usado si el setter no tiene profiles.commission_rate propio
 
 interface SetterCommissions {
   setter_id: string
   setter_name: string | null
+  commission_rate: number    // tasa efectiva de este setter (0.05 = 5%)
   new_count: number          // clientes que CERRARON este mes (program_start en el mes)
   paid_count: number         // clientes que pagaron alguna cuota este mes (nuevos + viejos)
   mrr_total: number          // Revenue = valor de contrato SOLO de los cierres nuevos del mes
   new_cash: number           // cash de este mes proveniente de cierres de este mes
   old_cash: number           // cash de este mes proveniente de cierres de meses anteriores
   cash_collected: number     // new_cash + old_cash (base de la comisión)
-  commission_earned: number  // cash_collected * 5%
+  commission_earned: number  // cash_collected * commission_rate
 }
 
 /** GET — métricas de comisión de un setter o de todos
@@ -72,13 +73,18 @@ export async function GET(req: NextRequest) {
     const setterIds = new Set<string>()
     for (const c of clients) if ((c as any).setter_id) setterIds.add((c as any).setter_id)
 
-    const setterProfiles = new Map<string, string | null>()
+    const setterProfiles = new Map<string, { name: string | null; commission_rate: number | null }>()
     if (setterIds.size > 0) {
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, name")
+        .select("id, name, commission_rate")
         .in("id", Array.from(setterIds))
-      for (const p of profiles ?? []) setterProfiles.set((p as any).id, (p as any).name ?? null)
+      for (const p of profiles ?? []) {
+        setterProfiles.set((p as any).id, {
+          name: (p as any).name ?? null,
+          commission_rate: (p as any).commission_rate != null ? Number((p as any).commission_rate) : null,
+        })
+      }
     }
 
     // Ventana del mes [monthStart, monthEndExclusive)
@@ -87,11 +93,11 @@ export async function GET(req: NextRequest) {
     const monthEndExclusive = new Date(y, m, 1)
 
     const setterMap = new Map<string, SetterCommissions>()
-    const ensure = (sid: string, name: string | null): SetterCommissions => {
+    const ensure = (sid: string, name: string | null, rate: number): SetterCommissions => {
       let rec = setterMap.get(sid)
       if (!rec) {
         rec = {
-          setter_id: sid, setter_name: name,
+          setter_id: sid, setter_name: name, commission_rate: rate,
           new_count: 0, paid_count: 0, mrr_total: 0,
           new_cash: 0, old_cash: 0, cash_collected: 0, commission_earned: 0,
         }
@@ -128,8 +134,13 @@ export async function GET(req: NextRequest) {
       const contractValue = Number((client as any).total_amount ?? 0) ||
         (Number((client as any).installment_amount ?? 0) * Number((client as any).num_installments ?? 1))
 
-      const groupName = rawSid ? (setterProfiles.get(rawSid) ?? null) : rawSetterText
-      const rec = ensure(groupKey, groupName)
+      const profile = rawSid ? setterProfiles.get(rawSid) : null
+      const groupName = rawSid ? (profile?.name ?? null) : rawSetterText
+      // Setters de texto (sin perfil) no tienen dónde guardar una tasa propia
+      // todavía — usan el default. Los con perfil usan profiles.commission_rate
+      // si está seteado, si no también caen al default.
+      const groupRate = (profile?.commission_rate != null ? profile.commission_rate / 100 : DEFAULT_COMMISSION_RATE)
+      const rec = ensure(groupKey, groupName, groupRate)
       if (isNew) {
         rec.new_count += 1
         rec.mrr_total += contractValue
@@ -143,7 +154,7 @@ export async function GET(req: NextRequest) {
     // Totales finales por setter
     for (const rec of setterMap.values()) {
       rec.cash_collected = rec.new_cash + rec.old_cash
-      rec.commission_earned = rec.cash_collected * COMMISSION_RATE
+      rec.commission_earned = rec.cash_collected * rec.commission_rate
     }
 
     const commissions = Array.from(setterMap.values())

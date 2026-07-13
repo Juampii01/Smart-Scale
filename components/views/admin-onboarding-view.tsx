@@ -214,6 +214,7 @@ function OnboardingForm({
     name:              "",
     email:             "",
     phone:             "",
+    address:           "",
     program:           "",
     total_amount:      "",
     cuota_1:           "",
@@ -280,6 +281,7 @@ function OnboardingForm({
           name:         fields.name.trim(),
           email:        fields.email.trim(),
           phone:        fields.phone.trim()     || null,
+          address:      fields.address.trim()   || null,
           program:      fields.program.trim()   || null,
           total_amount: fields.total_amount ? Number(fields.total_amount) : 0,
           cuotas: {
@@ -345,6 +347,10 @@ function OnboardingForm({
                 <input className={cn(inputCls, "pl-8")} placeholder="+54 11 1234-5678" value={fields.phone} onChange={set("phone")} />
               </div>
             </div>
+            <div>
+              <label className={labelCls}>Domicilio</label>
+              <input className={inputCls} placeholder="Calle 123, Ciudad" value={fields.address} onChange={set("address")} />
+            </div>
             <div className="relative">
               <label className={labelCls}>Lead de origen (opcional)</label>
               <input
@@ -393,7 +399,7 @@ function OnboardingForm({
                   )}
                 </div>
               )}
-              <p className="mt-1 text-[10px] text-foreground/30">Vincula este cliente a su lead de origen para el análisis de Omni.</p>
+              <p className="mt-1 text-[10px] text-foreground/30">Vincula este cliente a su lead de origen para el análisis de Ann AI.</p>
             </div>
           </div>
         </div>

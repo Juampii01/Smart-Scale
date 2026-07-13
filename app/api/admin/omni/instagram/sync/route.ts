@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     .maybeSingle()
 
   if (!conn) {
-    return NextResponse.json({ error: "Instagram de Omni no está conectado" }, { status: 400 })
+    return NextResponse.json({ error: "Instagram de Ann AI no está conectado" }, { status: 400 })
   }
 
   const accessToken = decryptToken((conn as any).access_token)

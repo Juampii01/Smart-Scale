@@ -8,7 +8,7 @@ import { isOmniOwnerEmail } from "@/lib/omni/owner"
  * Uso:
  *   const user = await requireAdmin(jwt)        // solo admin (datos sensibles)
  *   const user = await requireInternal(jwt)     // admin OR team (datos no sensibles)
- *   const user = await requireOmniOwner(jwt)    // solo el dueño del proyecto (piloto Omni)
+ *   const user = await requireOmniOwner(jwt)    // solo dueño del proyecto + Ann (piloto Omni)
  *   if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
  */
 
@@ -37,7 +37,7 @@ export async function requireInternal(jwt: string | null) {
   return ctx.user
 }
 
-/** Ann es admin también — esto NO chequea rol, chequea la identidad exacta del dueño. */
+/** No chequea rol — chequea identidad exacta (allowlist de OMNI_ALLOWED_EMAILS). */
 export async function requireOmniOwner(jwt: string | null) {
   const ctx = await getProfile(jwt)
   if (!ctx || !isOmniOwnerEmail(ctx.user.email)) return null

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase"
 interface CommissionData {
   setter_id: string
   setter_name: string | null
+  commission_rate: number
   new_count: number
   paid_count: number
   mrr_total: number
@@ -115,7 +116,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
           <CommissionCard label="Revenue" value={formatCurrency(c.mrr_total)} />
           <CommissionCard label="New Cash" value={formatCurrency(c.new_cash)} />
           <CommissionCard label="Old Cash" value={formatCurrency(c.old_cash)} small />
-          <CommissionCard label="Comisión (5%)" value={formatCurrency(c.commission_earned)} highlight />
+          <CommissionCard label={`Comisión (${c.commission_rate * 100}%)`} value={formatCurrency(c.commission_earned)} highlight />
         </div>
       </div>
     )

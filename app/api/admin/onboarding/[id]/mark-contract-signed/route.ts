@@ -1,7 +1,7 @@
 /**
  * POST /api/admin/onboarding/[id]/mark-contract-signed
  *
- * Override manual — para cuando el webhook de GHL no se disparó y hay que
+ * Override manual — para cuando el webhook de SignNow no se disparó y hay que
  * desbloquear el flujo a mano. `id` es el crm_client_id. Llama a la misma
  * triggerContractSigned() que usa el webhook, así que es idempotente.
  */

@@ -3,6 +3,7 @@
 // (/api/cron/omni-daily-briefing). Un solo lugar para el prompt y el parseo.
 
 import { createServiceClient } from "@/lib/supabase-service"
+import { buildOmniSystemPrompt } from "@/lib/omni/system-prompt"
 import Anthropic from "@anthropic-ai/sdk"
 
 const MAX_MESSAGES   = 1500
@@ -35,6 +36,13 @@ export async function runCommunityAnalysis(
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) throw new CommunityAnalysisError("Falta ANTHROPIC_API_KEY en el servidor", 503)
 
+  let systemPrompt: string
+  try {
+    systemPrompt = await buildOmniSystemPrompt(sb, "ann")
+  } catch (e) {
+    throw new CommunityAnalysisError(e instanceof Error ? e.message : "Error armando el contexto de Ann AI", 500)
+  }
+
   const { data: rows, error } = await sb
     .from("omni_slack_messages")
     .select("body, user_name, posted_at, omni_slack_channels(name)")
@@ -62,7 +70,7 @@ export async function runCommunityAnalysis(
     .map(([channel, lines]) => `#${channel}\n${lines.join("\n")}`)
     .join("\n\n---\n\n")
 
-  const prompt = `Sos un analista que ayuda a Ann, dueña de una comunidad de coaching online, a entender qué está pasando en su comunidad de Slack. Te paso el historial reciente de mensajes de sus canales (compartidos + de clientes puntuales).
+  const prompt = `Te paso el historial reciente de mensajes de los canales de Slack de la comunidad (compartidos + de clientes puntuales).
 
 ${transcript}
 
@@ -88,6 +96,7 @@ Respondé SOLO con un JSON array de hallazgos. Si no hay nada relevante, devolv�
     msg = await anthropic.messages.create({
       model: "claude-sonnet-4-5",
       max_tokens: 3000,
+      system: systemPrompt,
       messages: [{ role: "user", content: prompt }],
     })
   } catch (e) {

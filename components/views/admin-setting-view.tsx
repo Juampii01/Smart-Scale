@@ -18,6 +18,7 @@ type FieldKey =
   | "offer_docs_sent"
   | "offer_doc_responses"
   | "calls_done"
+  | "cierres"
 
 interface LogEntry {
   id: string
@@ -32,6 +33,7 @@ interface LogEntry {
   offer_docs_sent: number | null
   offer_doc_responses: number | null
   calls_done: number | null
+  cierres?: number | null
 }
 
 const COLUMNS: { key: FieldKey; label: string; short: string }[] = [
@@ -42,6 +44,7 @@ const COLUMNS: { key: FieldKey; label: string; short: string }[] = [
   { key: "offer_docs_sent",            label: "Docs Sent",    short: "DOCS" },
   { key: "offer_doc_responses",        label: "Doc Resp.",    short: "DOC RESP" },
   { key: "calls_done",                 label: "Llamadas",     short: "LLAMADAS" },
+  { key: "cierres",                    label: "Cierres",      short: "CIERRES" },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -172,6 +175,7 @@ export function AdminSettingView() {
   const [userId, setUserId] = useState<string>("")
   const [eodOpen, setEodOpen] = useState(false)
   const [editingLog, setEditingLog] = useState<LogEntry | null>(null)
+  const [onboardingsCount, setOnboardingsCount] = useState<number | null>(null)
 
   // Cargar los logs del mes seleccionado
   const loadLogs = useCallback(async (ym: string) => {
@@ -193,9 +197,26 @@ export function AdminSettingView() {
     }
   }, [])
 
+  // Cargar la cantidad real de onboardings completados ese mes (contract_signed_at)
+  const loadOnboardingsCount = useCallback(async (ym: string) => {
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const res = await fetch(`/api/admin/setting/onboardings-count?month=${encodeURIComponent(ym)}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const json = await res.json()
+      setOnboardingsCount(res.ok ? (json.count ?? 0) : null)
+    } catch {
+      setOnboardingsCount(null)
+    }
+  }, [])
+
   useEffect(() => {
     loadLogs(month)
-  }, [month, loadLogs])
+    loadOnboardingsCount(month)
+  }, [month, loadLogs, loadOnboardingsCount])
 
   // Load user profile
   useEffect(() => {
@@ -226,6 +247,7 @@ export function AdminSettingView() {
       offer_docs_sent:            0,
       offer_doc_responses:        0,
       calls_done:                 0,
+      cierres:                    0,
     }
     for (const log of logs) {
       for (const col of COLUMNS) {
@@ -252,8 +274,9 @@ export function AdminSettingView() {
       qualification:        pct(leads, totalConv),
       docResponseRate:      pct(docResp, docs),
       callRate:             pct(calls, docResp),
+      onboardingRate:       onboardingsCount != null ? pct(onboardingsCount, monthTotals.cierres) : "—",
     }
-  }, [monthTotals])
+  }, [monthTotals, onboardingsCount])
 
   const handleSaved = useCallback((logId: string, field: FieldKey, val: number | null) => {
     setLogs(prev =>
@@ -372,7 +395,7 @@ export function AdminSettingView() {
               </div>
 
               {/* Totales */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 mb-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-4">
                 {[
                   { label: "Inbound",     value: monthTotals.new_conversations_inbound },
                   { label: "Outbound",    value: monthTotals.new_conversations_outbound },
@@ -381,6 +404,7 @@ export function AdminSettingView() {
                   { label: "Docs",        value: monthTotals.offer_docs_sent },
                   { label: "Doc Resp.",   value: monthTotals.offer_doc_responses },
                   { label: "Calls",       value: monthTotals.calls_done },
+                  { label: "Cierres",     value: monthTotals.cierres },
                 ].map(m => (
                   <div
                     key={m.label}
@@ -400,12 +424,13 @@ export function AdminSettingView() {
               </div>
 
               {/* Funnel rates */}
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2">
                 {[
                   { label: "Outbound Response", value: rates.outboundResponseRate, hint: "resp. outbound / contactos outbound" },
                   { label: "Qualification",     value: rates.qualification,        hint: "leads / total conversaciones" },
                   { label: "Doc Response",      value: rates.docResponseRate,      hint: "doc resp / docs" },
                   { label: "Call Rate",         value: rates.callRate,             hint: "calls / doc resp" },
+                  { label: "Onboarding Rate",   value: rates.onboardingRate,       hint: `onboardings reales (${onboardingsCount ?? "—"}) / cierres cargados` },
                 ].map(m => (
                   <div key={m.label} className="rounded-xl border border-foreground/10 bg-foreground/[0.02] px-3 py-2.5">
                     <p className="text-[10px] uppercase tracking-wider text-foreground/40">{m.label}</p>

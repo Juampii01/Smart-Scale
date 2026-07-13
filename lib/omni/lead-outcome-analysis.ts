@@ -9,10 +9,13 @@
 // involucrados, no canales de Slack.
 
 import { createServiceClient } from "@/lib/supabase-service"
+import { buildOmniSystemPrompt } from "@/lib/omni/system-prompt"
 import Anthropic from "@anthropic-ai/sdk"
 import type { SlackFinding } from "@/lib/omni/community-analysis"
 
 const LOOKBACK_DAYS = 60
+const MAX_LEADS     = 500
+const MAX_CLIENTS   = 500
 
 export interface LeadOutcomeAnalysisResult {
   findings:      SlackFinding[]
@@ -33,6 +36,13 @@ export async function runLeadOutcomeAnalysis(
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) throw new LeadOutcomeAnalysisError("Falta ANTHROPIC_API_KEY en el servidor", 503)
 
+  let systemPrompt: string
+  try {
+    systemPrompt = await buildOmniSystemPrompt(sb, "ann")
+  } catch (e) {
+    throw new LeadOutcomeAnalysisError(e instanceof Error ? e.message : "Error armando el contexto de Ann AI", 500)
+  }
+
   const sinceIso = new Date(Date.now() - LOOKBACK_DAYS * 86_400_000).toISOString()
 
   const { data: leads, error: leadsErr } = await sb
@@ -40,6 +50,7 @@ export async function runLeadOutcomeAnalysis(
     .select("id, name, rating, source, lead_type, niche, tag, notes, purchased, created_at")
     .gte("created_at", sinceIso)
     .order("created_at", { ascending: false })
+    .limit(MAX_LEADS)
 
   if (leadsErr) throw new LeadOutcomeAnalysisError(leadsErr.message, 500)
 
@@ -49,6 +60,7 @@ export async function runLeadOutcomeAnalysis(
     .gte("created_at", sinceIso)
     .not("lead_id", "is", null)
     .order("created_at", { ascending: false })
+    .limit(MAX_CLIENTS)
 
   if (clientsErr) throw new LeadOutcomeAnalysisError(clientsErr.message, 500)
 
@@ -102,7 +114,7 @@ export async function runLeadOutcomeAnalysis(
     compro: l.purchased,
   }))
 
-  const prompt = `Sos un analista que ayuda a Ann, dueña de un programa de coaching online, a entender qué tan calificados están llegando sus leads y si hay patrones entre cómo entra alguien y cómo termina cerrando (o no cerrando).
+  const prompt = `Te paso datos de leads y de cómo terminaron cerrando (o no cerrando), para que evalúes qué tan calificados están llegando y si hay patrones entre cómo entra alguien y cómo termina cerrando.
 
 LEADS de los últimos ${LOOKBACK_DAYS} días (${leadsSummary.length}):
 ${JSON.stringify(leadsSummary, null, 1)}
@@ -133,6 +145,7 @@ Respondé SOLO con un JSON array de hallazgos. Si no hay nada relevante, devolv�
     msg = await anthropic.messages.create({
       model: "claude-sonnet-4-5",
       max_tokens: 3000,
+      system: systemPrompt,
       messages: [{ role: "user", content: prompt }],
     })
   } catch (e) {

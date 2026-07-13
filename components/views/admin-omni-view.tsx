@@ -4,7 +4,8 @@ import { useEffect, useState, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   Sparkles, MessageCircle, FileText, Megaphone, DollarSign, Cog,
-  Instagram, Slack, RefreshCw, Loader2, CheckCircle2, Wand2, Quote, Send, Bot,
+  Instagram, Slack, RefreshCw, Loader2, CheckCircle2, Wand2, Quote,
+  Activity, AlertTriangle, Clock, Star, TrendingUp, LayoutDashboard,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase"
@@ -69,11 +70,64 @@ interface SlackFinding {
   severidad:   "alta" | "media" | "baja"
 }
 
-const SEVERITY_STYLES: Record<SlackFinding["severidad"], string> = {
+interface ProspectRisk {
+  prospecto: string
+  estado:    "en_riesgo" | "irremontable"
+  situacion: string
+  principio: string
+  evidencia: string
+  accion:    string
+  severidad: "alta" | "media" | "baja"
+}
+
+interface ConversationAnalysisData {
+  estado:      "sano" | "en_riesgo" | "irremontable"
+  situacion:   string
+  principio:   string
+  evidencia:   string
+  accion:      string
+  severidad:   "alta" | "media" | "baja"
+  analyzed_at: string
+}
+
+interface ChannelAnalysisData {
+  estado:      "sano" | "en_riesgo"
+  situacion:   string
+  principio:   string
+  evidencia:   string
+  accion:      string
+  severidad:   "alta" | "media" | "baja"
+  analyzed_at: string
+}
+
+interface ChannelItem {
+  id:                string
+  name:              string
+  is_client_channel: boolean
+  message_count:     number
+  synced_at:         string | null
+  analysis:          ChannelAnalysisData | null
+}
+
+interface ConversationItem {
+  id:                    string
+  participant_username:  string | null
+  last_message_at:       string | null
+  last_message_from:     string | null
+  last_message_preview:  string | null
+  lead_rating:           number | null
+  is_customer:           boolean
+  analysis:              ConversationAnalysisData | null
+}
+
+const SEVERITY_STYLES: Record<"alta" | "media" | "baja", string> = {
   alta:  "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
   media: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
   baja:  "bg-foreground/[0.06] text-foreground/50",
 }
+
+const IRREMONTABLE_STYLE = "bg-foreground/[0.10] text-foreground/60 dark:bg-foreground/[0.08] dark:text-foreground/50"
+const SANO_STYLE = "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
 
 function fmtDateTime(iso: string | null): string {
   if (!iso) return "nunca"
@@ -92,9 +146,33 @@ interface DailyBriefing {
   messages_analyzed: number
 }
 
-interface ChatMessage {
-  role:    "user" | "assistant"
-  content: string
+interface ProspectingBriefing {
+  date:              string
+  findings:          ProspectRisk[]
+  messages_analyzed: number
+}
+
+interface ProspectingMetrics {
+  activeConversations:     number
+  staleConversations:      number
+  avgResponseMinutes:      number | null
+  ratingDistribution:      Record<string, number>
+  leadsAnalyzed:           number
+  conversionRate:          number | null
+  ratingDistributionToday: Record<string, number>
+  leadsToday:              number
+}
+
+interface UnansweredItem {
+  nombre:              string
+  last_message_at:     string
+  horas_sin_responder: number
+}
+
+interface UnansweredBriefing {
+  date:              string
+  findings:          { instagram: UnansweredItem[]; slack: UnansweredItem[] }
+  messages_analyzed: number
 }
 
 function FindingsSection({ title, subtitle, findings }: { title: string; subtitle?: string; findings: SlackFinding[] }) {
@@ -139,10 +217,400 @@ function FindingsSection({ title, subtitle, findings }: { title: string; subtitl
   )
 }
 
+function StatCard({ icon: Icon, label, value, sublabel, tone }: {
+  icon: React.ComponentType<{ className?: string }>
+  label: string
+  value: string
+  sublabel?: string
+  tone?: "warn"
+}) {
+  return (
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+      <div className="flex items-center gap-2">
+        <span className={cn(
+          "flex h-7 w-7 items-center justify-center rounded-lg",
+          tone === "warn" ? "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400" : "bg-foreground/[0.05] text-foreground/50",
+        )}>
+          <Icon className="h-3.5 w-3.5" />
+        </span>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground/40">{label}</p>
+      </div>
+      <p className="mt-2.5 text-2xl font-bold tracking-tight text-foreground">{value}</p>
+      {sublabel && <p className="mt-0.5 text-[11.5px] text-foreground/40">{sublabel}</p>}
+    </div>
+  )
+}
+
+function ProspectingMetricsSection({ metrics }: { metrics: ProspectingMetrics | null }) {
+  if (!metrics) {
+    return (
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[0, 1, 2, 3].map(i => (
+          <div key={i} className="h-[92px] animate-pulse rounded-2xl border border-foreground/[0.07] bg-foreground/[0.03]" />
+        ))}
+      </div>
+    )
+  }
+
+  const ratings = [5, 4, 3, 2, 1]
+
+  return (
+    <div className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          icon={Activity}
+          label="Conversaciones activas"
+          value={String(metrics.activeConversations)}
+          sublabel="últimos 30 días"
+        />
+        <StatCard
+          icon={AlertTriangle}
+          label="Estancadas"
+          value={String(metrics.staleConversations)}
+          sublabel="el lead escribió y no se le respondió hace +24hs"
+          tone={metrics.staleConversations > 0 ? "warn" : undefined}
+        />
+        <StatCard
+          icon={Clock}
+          label="Tiempo de respuesta"
+          value={metrics.avgResponseMinutes == null ? "—" : metrics.avgResponseMinutes < 60
+            ? `${metrics.avgResponseMinutes}m`
+            : `${(metrics.avgResponseMinutes / 60).toFixed(1)}h`}
+          sublabel="promedio de Ann"
+        />
+        <StatCard
+          icon={TrendingUp}
+          label="Conversión"
+          value={metrics.conversionRate == null ? "—" : `${metrics.conversionRate.toFixed(0)}%`}
+          sublabel={`${metrics.leadsAnalyzed} leads, últimos 60 días`}
+        />
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <RatingBreakdown title="Leads por rating (hoy)" subtitle={`${metrics.leadsToday} leads`} distribution={metrics.ratingDistributionToday} ratings={ratings} />
+        <RatingBreakdown title="Leads por rating (60 días)" subtitle={`${metrics.leadsAnalyzed} leads`} distribution={metrics.ratingDistribution} ratings={ratings} />
+      </div>
+    </div>
+  )
+}
+
+function RatingBreakdown({ title, subtitle, distribution, ratings }: {
+  title: string
+  subtitle: string
+  distribution: Record<string, number>
+  ratings: number[]
+}) {
+  const maxRating = Math.max(1, ...ratings.map(r => distribution[String(r)] ?? 0))
+  return (
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <Star className="h-3.5 w-3.5 text-foreground/40" />
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground/40">{title}</p>
+        <span className="ml-auto text-[11px] text-foreground/30">{subtitle}</span>
+      </div>
+      <div className="space-y-1.5">
+        {ratings.map(r => {
+          const count = distribution[String(r)] ?? 0
+          const pct = Math.round((count / maxRating) * 100)
+          return (
+            <div key={r} className="flex items-center gap-2">
+              <span className="w-10 shrink-0 text-[11px] text-foreground/40">{r}★</span>
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-foreground/[0.06]">
+                <div className="h-full rounded-full bg-[#ffde21]" style={{ width: `${pct}%` }} />
+              </div>
+              <span className="w-6 shrink-0 text-right text-[11px] text-foreground/40">{count}</span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
+  briefing:  ProspectingBriefing | null
+  analyzing: boolean
+  error:     string | null
+  onRefresh: () => void
+}) {
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+          Riesgos de prospección (en bloque)
+          {briefing && (
+            <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">
+              {fmtDateOnly(briefing.date)} · {briefing.messages_analyzed} conversaciones analizadas
+            </span>
+          )}
+        </p>
+        <button
+          onClick={onRefresh}
+          disabled={analyzing}
+          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+        >
+          <RefreshCw className={cn("h-3 w-3", analyzing && "animate-spin")} />
+          Actualizar
+        </button>
+      </div>
+      {error && (
+        <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{error}</p>
+      )}
+      {!briefing ? (
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+          Todavía no corrió el análisis de riesgo de prospección — corré "Actualizar" o esperá al briefing diario.
+        </div>
+      ) : briefing.findings.length === 0 ? (
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+          Ningún prospecto activo en riesgo hoy, según los principios de Ann.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {briefing.findings.map((f, i) => (
+            <div key={i} className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-[14px] font-semibold text-foreground">@{f.prospecto}</h3>
+                <span className={cn(
+                  "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                  f.estado === "irremontable" ? IRREMONTABLE_STYLE : SEVERITY_STYLES[f.severidad],
+                )}>
+                  {f.estado === "irremontable" ? "irremontable" : f.severidad}
+                </span>
+              </div>
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-foreground/60">{f.situacion}</p>
+              <p className="mt-2 text-[12px] font-semibold text-foreground/50">Principio: <span className="font-normal text-foreground/60">{f.principio}</span></p>
+              <div className="mt-2 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
+                <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
+                <p className="text-[12px] italic text-foreground/50">{f.evidencia}</p>
+              </div>
+              <div className={cn(
+                "mt-2.5 rounded-lg border px-2.5 py-2",
+                f.estado === "irremontable" ? "border-foreground/[0.10] bg-foreground/[0.03]" : "border-[#ffde21]/25 bg-[#ffde21]/[0.06]",
+              )}>
+                <p className="text-[12px] font-semibold text-foreground/80">{f.estado === "irremontable" ? "Aprendizaje: " : ""}{f.accion}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function fmtHoursSince(h: number): string {
+  return h < 24 ? `${h}h` : `${Math.floor(h / 24)}d ${h % 24}h`
+}
+
+function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
+  briefing:  UnansweredBriefing | null
+  analyzing: boolean
+  error:     string | null
+  onRefresh: () => void
+}) {
+  const instagram = briefing?.findings.instagram ?? []
+  const slack      = briefing?.findings.slack ?? []
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+          Conversaciones sin responder
+          {briefing && (
+            <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">
+              {fmtDateOnly(briefing.date)} · {briefing.messages_analyzed} pendientes
+            </span>
+          )}
+        </p>
+        <button
+          onClick={onRefresh}
+          disabled={analyzing}
+          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+        >
+          {analyzing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
+          Hacer resumen
+        </button>
+      </div>
+
+      {error && (
+        <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{error}</p>
+      )}
+
+      {!briefing ? (
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+          Todavía no corrió el resumen — corré "Hacer resumen" o esperá al de las 19hs (hora Miami).
+        </div>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <Instagram className="h-3.5 w-3.5 text-foreground/40" />
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground/40">Instagram</p>
+              <span className="ml-auto text-[11px] text-foreground/30">{instagram.length}</span>
+            </div>
+            {instagram.length === 0 ? (
+              <p className="text-[12.5px] text-foreground/35">Todo respondido.</p>
+            ) : (
+              <div className="space-y-1.5">
+                {instagram.map(item => (
+                  <div key={item.nombre} className="flex items-center justify-between gap-2 text-[12.5px]">
+                    <span className="truncate text-foreground/70">@{item.nombre}</span>
+                    <span className="shrink-0 text-foreground/35">{fmtHoursSince(item.horas_sin_responder)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <Slack className="h-3.5 w-3.5 text-foreground/40" />
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground/40">Slack</p>
+              <span className="ml-auto text-[11px] text-foreground/30">{slack.length}</span>
+            </div>
+            {slack.length === 0 ? (
+              <p className="text-[12.5px] text-foreground/35">Todo respondido.</p>
+            ) : (
+              <div className="space-y-1.5">
+                {slack.map(item => (
+                  <div key={item.nombre} className="flex items-center justify-between gap-2 text-[12.5px]">
+                    <span className="truncate text-foreground/70">#{item.nombre}</span>
+                    <span className="shrink-0 text-foreground/35">{fmtHoursSince(item.horas_sin_responder)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ConversationListCard({ conversation, analyzing, onAnalyze }: {
+  conversation: ConversationItem
+  analyzing:    boolean
+  onAnalyze:    () => void
+}) {
+  const a = conversation.analysis
+  const badgeStyle = a
+    ? a.estado === "irremontable" ? IRREMONTABLE_STYLE : a.estado === "sano" ? SANO_STYLE : SEVERITY_STYLES[a.severidad]
+    : ""
+
+  return (
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <h3 className="text-[14px] font-semibold text-foreground">@{conversation.participant_username ?? "desconocido"}</h3>
+            {conversation.is_customer && (
+              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                cliente
+              </span>
+            )}
+            {conversation.lead_rating != null && (
+              <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] font-bold text-foreground/50">{conversation.lead_rating}★</span>
+            )}
+          </div>
+          <p className="mt-1 text-[12px] text-foreground/40">
+            {conversation.last_message_from === "lead" ? "Último mensaje del prospecto" : "Último mensaje de Ann"} · {fmtDateTime(conversation.last_message_at)}
+          </p>
+          {conversation.last_message_preview && (
+            <p className="mt-1.5 line-clamp-2 text-[12.5px] text-foreground/60">{conversation.last_message_preview}</p>
+          )}
+        </div>
+        <button
+          onClick={onAnalyze}
+          disabled={analyzing}
+          className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+        >
+          {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
+          {a ? "Re-analizar" : "Analizar"}
+        </button>
+      </div>
+
+      {a && (
+        <div className="mt-3 border-t border-foreground/[0.07] pt-3">
+          <div className="flex items-center gap-2">
+            <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", badgeStyle)}>
+              {a.estado === "en_riesgo" ? a.severidad : a.estado}
+            </span>
+            <span className="text-[11px] text-foreground/30">analizado {fmtDateTime(a.analyzed_at)}</span>
+          </div>
+          <p className="mt-1.5 text-[12.5px] leading-relaxed text-foreground/60">{a.situacion}</p>
+          <p className="mt-1.5 text-[12px] font-semibold text-foreground/50">Principio: <span className="font-normal text-foreground/60">{a.principio}</span></p>
+          <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
+            <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
+            <p className="text-[12px] italic text-foreground/50">{a.evidencia}</p>
+          </div>
+          <div className="mt-1.5 rounded-lg border border-[#ffde21]/25 bg-[#ffde21]/[0.06] px-2.5 py-2">
+            <p className="text-[12px] font-semibold text-foreground/80">{a.accion}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ChannelListCard({ channel, analyzing, onAnalyze }: {
+  channel:   ChannelItem
+  analyzing: boolean
+  onAnalyze: () => void
+}) {
+  const a = channel.analysis
+  const badgeStyle = a ? (a.estado === "sano" ? SANO_STYLE : SEVERITY_STYLES[a.severidad]) : ""
+
+  return (
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <h3 className="text-[14px] font-semibold text-foreground">#{channel.name}</h3>
+            {channel.is_client_channel && (
+              <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-foreground/50">
+                cliente
+              </span>
+            )}
+          </div>
+          <p className="mt-1 text-[12px] text-foreground/40">{channel.message_count} mensajes sincronizados</p>
+        </div>
+        <button
+          onClick={onAnalyze}
+          disabled={analyzing || channel.message_count === 0}
+          className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+        >
+          {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
+          {a ? "Re-analizar" : "Analizar"}
+        </button>
+      </div>
+
+      {a && (
+        <div className="mt-3 border-t border-foreground/[0.07] pt-3">
+          <div className="flex items-center gap-2">
+            <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", badgeStyle)}>
+              {a.estado === "en_riesgo" ? a.severidad : a.estado}
+            </span>
+            <span className="text-[11px] text-foreground/30">analizado {fmtDateTime(a.analyzed_at)}</span>
+          </div>
+          <p className="mt-1.5 text-[12.5px] leading-relaxed text-foreground/60">{a.situacion}</p>
+          <p className="mt-1.5 text-[12px] font-semibold text-foreground/50">Principio: <span className="font-normal text-foreground/60">{a.principio}</span></p>
+          <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
+            <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
+            <p className="text-[12px] italic text-foreground/50">{a.evidencia}</p>
+          </div>
+          <div className="mt-1.5 rounded-lg border border-[#ffde21]/25 bg-[#ffde21]/[0.06] px-2.5 py-2">
+            <p className="text-[12px] font-semibold text-foreground/80">{a.accion}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function AdminOmniView() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [allowed, setAllowed] = useState<boolean | null>(null) // null = verificando
+  const [activeTab, setActiveTab] = useState<"resumen" | "conversaciones" | "comunidad">("resumen")
 
   const [igStatus,   setIgStatus]   = useState<IgStatus | null | undefined>(undefined) // undefined = cargando
   const [igLoading,  setIgLoading]  = useState(false)
@@ -160,13 +628,26 @@ export function AdminOmniView() {
   const [analyzing,         setAnalyzing]         = useState(false)
   const [analyzeMsg,        setAnalyzeMsg]        = useState<string | null>(null)
 
-  const [dailyBriefing, setDailyBriefing] = useState<DailyBriefing | null>(null)
-  const [leadsBriefing, setLeadsBriefing] = useState<DailyBriefing | null>(null)
+  const [dailyBriefing,       setDailyBriefing]       = useState<DailyBriefing | null>(null)
+  const [leadsBriefing,       setLeadsBriefing]       = useState<DailyBriefing | null>(null)
+  const [prospectingBriefing, setProspectingBriefing] = useState<ProspectingBriefing | null>(null)
+  const [prospectingMetrics,  setProspectingMetrics]  = useState<ProspectingMetrics | null>(null)
+  const [prospectingAnalyzing, setProspectingAnalyzing] = useState(false)
+  const [prospectingError,    setProspectingError]     = useState<string | null>(null)
 
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
-  const [chatInput,    setChatInput]    = useState("")
-  const [chatSending,  setChatSending]  = useState(false)
-  const [chatLoaded,   setChatLoaded]   = useState(false)
+  const [unansweredBriefing,  setUnansweredBriefing]  = useState<UnansweredBriefing | null>(null)
+  const [unansweredAnalyzing, setUnansweredAnalyzing] = useState(false)
+  const [unansweredError,     setUnansweredError]     = useState<string | null>(null)
+
+  const [conversations,      setConversations]      = useState<ConversationItem[] | null>(null)
+  // Set (no un id único) para soportar analizar varias conversaciones en
+  // paralelo sin que el botón de una se "libere" mientras la suya sigue en vuelo.
+  const [analyzingConvoIds,  setAnalyzingConvoIds]  = useState<Set<string>>(new Set())
+  const [conversationsError, setConversationsError] = useState<string | null>(null)
+
+  const [channels,           setChannels]           = useState<ChannelItem[] | null>(null)
+  const [analyzingChannelIds, setAnalyzingChannelIds] = useState<Set<string>>(new Set())
+  const [channelsError,      setChannelsError]      = useState<string | null>(null)
 
   const getAuthHeader = useCallback(async () => {
     const supabase = createClient()
@@ -209,17 +690,34 @@ export function AdminOmniView() {
     const json = await res.json()
     setDailyBriefing(json.briefing ?? null)
     setLeadsBriefing(json.leadsBriefing ?? null)
+    setProspectingBriefing(json.prospectingBriefing ?? null)
+    setUnansweredBriefing(json.unansweredBriefing ?? null)
   }, [getAuthHeader])
 
-  const fetchChatHistory = useCallback(async () => {
+  const fetchProspectingMetrics = useCallback(async () => {
     const headers = await getAuthHeader()
     if (!headers) return
-    const res = await fetch("/api/admin/omni/chat", { headers })
-    if (res.ok) {
-      const json = await res.json()
-      setChatMessages(json.messages ?? [])
-    }
-    setChatLoaded(true)
+    const res = await fetch("/api/admin/omni/prospecting-metrics", { headers })
+    if (!res.ok) return
+    setProspectingMetrics(await res.json())
+  }, [getAuthHeader])
+
+  const fetchConversations = useCallback(async () => {
+    const headers = await getAuthHeader()
+    if (!headers) return
+    const res = await fetch("/api/admin/omni/prospecting/conversations", { headers })
+    if (!res.ok) return
+    const json = await res.json()
+    setConversations(json.conversations ?? [])
+  }, [getAuthHeader])
+
+  const fetchChannels = useCallback(async () => {
+    const headers = await getAuthHeader()
+    if (!headers) return
+    const res = await fetch("/api/admin/omni/slack/channels", { headers })
+    if (!res.ok) return
+    const json = await res.json()
+    setChannels(json.channels ?? [])
   }, [getAuthHeader])
 
   useEffect(() => {
@@ -241,13 +739,15 @@ export function AdminOmniView() {
     fetchSlackStatus()
     fetchSlackUserStatus()
     fetchDailyBriefing()
-    fetchChatHistory()
+    fetchProspectingMetrics()
+    fetchConversations()
+    fetchChannels()
 
     if (searchParams.get("omni_ig_success")) setIgSyncMsg("Instagram conectado — ya podés sincronizar.")
     if (searchParams.get("omni_ig_error"))   setIgSyncMsg(`Error al conectar Instagram (${searchParams.get("omni_ig_error")}).`)
     if (searchParams.get("omni_slack_success")) setSlackSyncMsg("Slack conectado como Ann — ya podés sincronizar.")
     if (searchParams.get("omni_slack_error"))   setSlackSyncMsg(`Error al conectar Slack (${searchParams.get("omni_slack_error")}).`)
-  }, [allowed, fetchIgStatus, fetchSlackStatus, fetchSlackUserStatus, fetchDailyBriefing, fetchChatHistory, searchParams])
+  }, [allowed, fetchIgStatus, fetchSlackStatus, fetchSlackUserStatus, fetchDailyBriefing, fetchProspectingMetrics, fetchConversations, fetchChannels, searchParams])
 
   const connectInstagram = async () => {
     setIgLoading(true)
@@ -258,6 +758,8 @@ export function AdminOmniView() {
       const json = await res.json()
       if (res.ok && json.url) window.location.href = json.url
       else setIgSyncMsg(json.error ?? "No se pudo iniciar la conexión")
+    } catch {
+      setIgSyncMsg("Error de red al conectar Instagram")
     } finally {
       setIgLoading(false)
     }
@@ -274,6 +776,9 @@ export function AdminOmniView() {
       setIgSyncMsg(res.ok
         ? `Listo — ${json.conversationsSynced} conversaciones, ${json.messagesSynced} mensajes.`
         : (json.error ?? "Error al sincronizar"))
+      if (res.ok) fetchConversations()
+    } catch {
+      setIgSyncMsg("Error de red al sincronizar Instagram")
     } finally {
       setIgSyncing(false)
     }
@@ -288,6 +793,8 @@ export function AdminOmniView() {
       const json = await res.json()
       if (res.ok && json.url) window.location.href = json.url
       else setSlackSyncMsg(json.error ?? "No se pudo iniciar la conexión")
+    } catch {
+      setSlackSyncMsg("Error de red al conectar Slack")
     } finally {
       setSlackConnecting(false)
     }
@@ -304,9 +811,12 @@ export function AdminOmniView() {
       if (res.ok) {
         setSlackSyncMsg(`Listo — ${json.channelsSynced} canales, ${json.messagesSynced} mensajes.`)
         fetchSlackStatus()
+        fetchChannels()
       } else {
         setSlackSyncMsg(json.error ?? "Error al sincronizar")
       }
+    } catch {
+      setSlackSyncMsg("Error de red al sincronizar Slack")
     } finally {
       setSlackSyncing(false)
     }
@@ -326,32 +836,90 @@ export function AdminOmniView() {
       } else {
         setAnalyzeMsg(json.error ?? "Error al analizar")
       }
+    } catch {
+      setAnalyzeMsg("Error de red al analizar")
     } finally {
       setAnalyzing(false)
     }
   }
 
-  const sendChatMessage = async () => {
-    const text = chatInput.trim()
-    if (!text || chatSending) return
-    setChatInput("")
-    setChatMessages(prev => [...prev, { role: "user", content: text }])
-    setChatSending(true)
+  const analyzeProspecting = async () => {
+    setProspectingAnalyzing(true)
+    setProspectingError(null)
     try {
       const headers = await getAuthHeader()
-      if (!headers) return
-      const res = await fetch("/api/admin/omni/chat", {
-        method:  "POST",
-        headers: { ...headers, "Content-Type": "application/json" },
-        body:    JSON.stringify({ message: text }),
-      })
+      if (!headers) { setProspectingError("Sesión vencida — recargá la página e iniciá sesión de nuevo."); return }
+      const res = await fetch("/api/admin/omni/prospecting/analyze", { method: "POST", headers })
       const json = await res.json()
-      setChatMessages(prev => [...prev, {
-        role: "assistant",
-        content: res.ok ? json.reply : (json.error ?? "Error al responder"),
-      }])
+      if (res.ok) {
+        setProspectingBriefing(json)
+      } else {
+        setProspectingError(json.error ?? `Error al actualizar (${res.status})`)
+      }
+    } catch (e) {
+      setProspectingError(e instanceof Error ? e.message : "Error de red al actualizar")
     } finally {
-      setChatSending(false)
+      setProspectingAnalyzing(false)
+    }
+  }
+
+  const analyzeUnanswered = async () => {
+    setUnansweredAnalyzing(true)
+    setUnansweredError(null)
+    try {
+      const headers = await getAuthHeader()
+      if (!headers) { setUnansweredError("Sesión vencida — recargá la página e iniciá sesión de nuevo."); return }
+      const res = await fetch("/api/admin/omni/unanswered-summary/analyze", { method: "POST", headers })
+      const json = await res.json()
+      if (res.ok) {
+        setUnansweredBriefing(json)
+      } else {
+        setUnansweredError(json.error ?? `Error al hacer el resumen (${res.status})`)
+      }
+    } catch (e) {
+      setUnansweredError(e instanceof Error ? e.message : "Error de red al hacer el resumen")
+    } finally {
+      setUnansweredAnalyzing(false)
+    }
+  }
+
+  const analyzeConversation = async (id: string) => {
+    setAnalyzingConvoIds(prev => new Set(prev).add(id))
+    setConversationsError(null)
+    try {
+      const headers = await getAuthHeader()
+      if (!headers) { setConversationsError("Sesión vencida — recargá la página e iniciá sesión de nuevo."); return }
+      const res = await fetch(`/api/admin/omni/prospecting/conversations/${id}/analyze`, { method: "POST", headers })
+      const json = await res.json()
+      if (res.ok) {
+        setConversations(prev => (prev ?? []).map(c => c.id === id ? { ...c, analysis: json } : c))
+      } else {
+        setConversationsError(json.error ?? `No se pudo analizar (${res.status})`)
+      }
+    } catch (e) {
+      setConversationsError(e instanceof Error ? e.message : "Error de red al analizar")
+    } finally {
+      setAnalyzingConvoIds(prev => { const next = new Set(prev); next.delete(id); return next })
+    }
+  }
+
+  const analyzeChannel = async (id: string) => {
+    setAnalyzingChannelIds(prev => new Set(prev).add(id))
+    setChannelsError(null)
+    try {
+      const headers = await getAuthHeader()
+      if (!headers) { setChannelsError("Sesión vencida — recargá la página e iniciá sesión de nuevo."); return }
+      const res = await fetch(`/api/admin/omni/slack/channels/${id}/analyze`, { method: "POST", headers })
+      const json = await res.json()
+      if (res.ok) {
+        setChannels(prev => (prev ?? []).map(c => c.id === id ? { ...c, analysis: json } : c))
+      } else {
+        setChannelsError(json.error ?? `No se pudo analizar (${res.status})`)
+      }
+    } catch (e) {
+      setChannelsError(e instanceof Error ? e.message : "Error de red al analizar")
+    } finally {
+      setAnalyzingChannelIds(prev => { const next = new Set(prev); next.delete(id); return next })
     }
   }
 
@@ -367,7 +935,7 @@ export function AdminOmniView() {
             <Sparkles className="h-5 w-5 text-[#ffde21]" />
           </span>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">Omni</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">Ann AI</h1>
             <p className="text-sm text-foreground/40">Sistema operativo de IA · Piloto con Ann</p>
           </div>
         </div>
@@ -378,10 +946,70 @@ export function AdminOmniView() {
         </p>
       </div>
 
-      {/* Conexiones */}
-      <div>
-        <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">Conexiones</p>
-        <div className="grid gap-3 sm:grid-cols-2">
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-foreground/[0.07]">
+        <button
+          onClick={() => setActiveTab("resumen")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
+            activeTab === "resumen" ? "border-[#ffde21] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+          )}
+        >
+          <LayoutDashboard className="h-3.5 w-3.5" />
+          Resumen
+        </button>
+        <button
+          onClick={() => setActiveTab("conversaciones")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
+            activeTab === "conversaciones" ? "border-[#ffde21] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+          )}
+        >
+          <Instagram className="h-3.5 w-3.5" />
+          Conversaciones
+          {conversations && <span className="text-foreground/30">{conversations.length}</span>}
+        </button>
+        <button
+          onClick={() => setActiveTab("comunidad")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
+            activeTab === "comunidad" ? "border-[#ffde21] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+          )}
+        >
+          <Slack className="h-3.5 w-3.5" />
+          Comunidad
+        </button>
+      </div>
+
+      {activeTab === "resumen" && (
+        <div className="space-y-8">
+
+          {/* Conversaciones sin responder — cron de las 19hs (Miami) o a demanda */}
+          <UnansweredSummarySection briefing={unansweredBriefing} analyzing={unansweredAnalyzing} error={unansweredError} onRefresh={analyzeUnanswered} />
+
+          {/* Prospección — métricas visibles, sin preguntar nada */}
+          <div>
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">Prospección</p>
+            <ProspectingMetricsSection metrics={prospectingMetrics} />
+          </div>
+
+          {/* Riesgos de prospección — análisis en bloque, cron diario o "Actualizar" */}
+          <ProspectRiskSection briefing={prospectingBriefing} analyzing={prospectingAnalyzing} error={prospectingError} onRefresh={analyzeProspecting} />
+
+          {/* Briefing diario de leads vs. cierres (guardado por el cron) */}
+          {leadsBriefing && (
+            <FindingsSection
+              title="Briefing de hoy — Leads y cierres"
+              subtitle={`${fmtDateOnly(leadsBriefing.date)} · ${leadsBriefing.messages_analyzed} leads`}
+              findings={leadsBriefing.findings}
+            />
+          )}
+
+        </div>
+      )}
+
+      {activeTab === "conversaciones" && (
+        <div className="space-y-8">
 
           {/* Instagram */}
           <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
@@ -422,7 +1050,49 @@ export function AdminOmniView() {
               )}
             </div>
             {igSyncMsg && <p className="mt-2 text-[11.5px] text-foreground/45">{igSyncMsg}</p>}
+            <p className="mt-2 text-[12px] text-foreground/35">
+              Requiere el permiso de mensajes habilitado en Meta (Instagram) — ver la conversación del setup para el detalle.
+            </p>
           </div>
+
+          {/* Todas las conversaciones — elegís cuál analizar */}
+          <div>
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+              Todas las conversaciones
+              {conversations && <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">{conversations.length}</span>}
+            </p>
+            {conversationsError && (
+              <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{conversationsError}</p>
+            )}
+            {conversations === null ? (
+              <div className="space-y-3">
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="h-[84px] animate-pulse rounded-2xl border border-foreground/[0.07] bg-foreground/[0.03]" />
+                ))}
+              </div>
+            ) : conversations.length === 0 ? (
+              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+                No hay conversaciones sincronizadas todavía.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {conversations.map(c => (
+                  <ConversationListCard
+                    key={c.id}
+                    conversation={c}
+                    analyzing={analyzingConvoIds.has(c.id)}
+                    onAnalyze={() => analyzeConversation(c.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+        </div>
+      )}
+
+      {activeTab === "comunidad" && (
+        <div className="space-y-8">
 
           {/* Slack */}
           <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
@@ -476,93 +1146,59 @@ export function AdminOmniView() {
             </div>
             {slackSyncMsg && <p className="mt-2 text-[11.5px] text-foreground/45">{slackSyncMsg}</p>}
             {analyzeMsg && <p className="mt-1 text-[11.5px] text-foreground/45">{analyzeMsg}</p>}
+            <p className="mt-2 text-[12px] text-foreground/35">
+              Requiere los scopes de lectura agregados al bot de Slack — ver la conversación del setup para el detalle.
+            </p>
           </div>
 
-        </div>
-        <p className="mt-2 text-[12px] text-foreground/35">
-          Requiere el permiso de mensajes habilitado en Meta (Instagram) y los scopes de lectura
-          agregados al bot de Slack — ver la conversación del setup para el detalle de cada uno.
-        </p>
-      </div>
-
-      {/* Preguntale a Omni */}
-      <div>
-        <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">Preguntale a Omni</p>
-        <div className="rounded-2xl border border-foreground/[0.07] bg-card">
-          <div className="max-h-[420px] min-h-[160px] overflow-y-auto p-4 space-y-3">
-            {!chatLoaded ? (
-              <div className="flex items-center justify-center py-6">
-                <Loader2 className="h-4 w-4 animate-spin text-foreground/30" />
+          {/* Todos los canales — elegís cuál analizar */}
+          <div>
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+              Todos los canales
+              {channels && <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">{channels.length}</span>}
+            </p>
+            {channelsError && (
+              <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{channelsError}</p>
+            )}
+            {channels === null ? (
+              <div className="space-y-3">
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="h-[70px] animate-pulse rounded-2xl border border-foreground/[0.07] bg-foreground/[0.03]" />
+                ))}
               </div>
-            ) : chatMessages.length === 0 ? (
-              <p className="py-6 text-center text-[13px] text-foreground/35">
-                Preguntale algo sobre la comunidad — ej: "¿cómo cerró Andrés?" o "qué objeciones aparecieron esta semana".
-              </p>
+            ) : channels.length === 0 ? (
+              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+                No hay canales sincronizados todavía.
+              </div>
             ) : (
-              chatMessages.map((m, i) => (
-                <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
-                  <div className={cn(
-                    "max-w-[85%] rounded-2xl px-3.5 py-2 text-[13px] leading-relaxed whitespace-pre-wrap",
-                    m.role === "user"
-                      ? "bg-[#ffde21] text-black"
-                      : "bg-foreground/[0.05] text-foreground/80",
-                  )}>
-                    {m.content}
-                  </div>
-                </div>
-              ))
-            )}
-            {chatSending && (
-              <div className="flex justify-start">
-                <div className="flex items-center gap-1.5 rounded-2xl bg-foreground/[0.05] px-3.5 py-2 text-foreground/40">
-                  <Bot className="h-3.5 w-3.5" />
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                </div>
+              <div className="space-y-3">
+                {channels.map(c => (
+                  <ChannelListCard
+                    key={c.id}
+                    channel={c}
+                    analyzing={analyzingChannelIds.has(c.id)}
+                    onAnalyze={() => analyzeChannel(c.id)}
+                  />
+                ))}
               </div>
             )}
           </div>
-          <div className="flex items-center gap-2 border-t border-foreground/[0.07] p-3">
-            <input
-              type="text"
-              value={chatInput}
-              onChange={e => setChatInput(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChatMessage() } }}
-              placeholder="Preguntale a Omni…"
-              disabled={chatSending}
-              className="flex-1 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none disabled:opacity-50"
+
+          {/* Briefing diario (guardado por el cron) */}
+          {dailyBriefing && (
+            <FindingsSection
+              title="Briefing de hoy — Comunidad"
+              subtitle={`${fmtDateOnly(dailyBriefing.date)} · ${dailyBriefing.messages_analyzed} mensajes`}
+              findings={dailyBriefing.findings}
             />
-            <button
-              onClick={sendChatMessage}
-              disabled={chatSending || !chatInput.trim()}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#ffde21] text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
-            >
-              <Send className="h-4 w-4" />
-            </button>
-          </div>
+          )}
+
+          {/* Hallazgos de comunidad (análisis manual) */}
+          {communityFindings && (
+            <FindingsSection title="Hallazgos — Comunidad" findings={communityFindings} />
+          )}
+
         </div>
-      </div>
-
-      {/* Briefing diario (guardado por el cron) */}
-      {dailyBriefing && (
-        <FindingsSection
-          title="Briefing de hoy — Comunidad"
-          subtitle={`${fmtDateOnly(dailyBriefing.date)} · ${dailyBriefing.messages_analyzed} mensajes`}
-          findings={dailyBriefing.findings}
-        />
-      )}
-
-      {/* Briefing diario de leads vs. cierres (guardado por el cron) */}
-      {leadsBriefing && (
-        <FindingsSection
-          title="Briefing de hoy — Leads y cierres"
-          subtitle={`${fmtDateOnly(leadsBriefing.date)} · ${leadsBriefing.messages_analyzed} leads`}
-          findings={leadsBriefing.findings}
-        />
-      )}
-
-      {/* Hallazgos de comunidad (análisis manual) */}
-      {communityFindings && (
-        <FindingsSection title="Hallazgos — Comunidad" findings={communityFindings} />
       )}
 
       {/* Módulos */}

@@ -274,13 +274,14 @@ function NewLeadModal({
 }) {
   const [name,      setName]      = useState("")
   const [instagram, setInstagram] = useState("")
-  const [tag,       setTag]       = useState("")
+  const [source,    setSource]    = useState("")
+  const [niche,     setNiche]     = useState("")
   const [rating,    setRating]    = useState<number>(0)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim()) return
-    await onCreate({ name: name.trim(), instagram: instagram || null, tag: tag || null, rating: rating || null })
+    await onCreate({ name: name.trim(), instagram: instagram || null, source: source || null, niche: niche || null, rating: rating || null })
   }
 
   return (
@@ -324,12 +325,23 @@ function NewLeadModal({
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Tag</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Desde dónde llegó</p>
             <input
               type="text"
-              value={tag}
-              onChange={e => setTag(e.target.value)}
-              placeholder="ej: HOT, Cold, DM..."
+              value={source}
+              onChange={e => setSource(e.target.value)}
+              placeholder="ej: Instagram, Podcast, Referido..."
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Nicho</p>
+            <input
+              type="text"
+              value={niche}
+              onChange={e => setNiche(e.target.value)}
+              placeholder="ej: Fitness, Finanzas, Coaches..."
               className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
             />
           </div>
@@ -516,16 +528,18 @@ export function AdminLeadsView() {
     setCreating(true)
     try {
       const session = await getSession()
-      if (!session) return
+      if (!session) { alert("Tu sesión venció — recargá la página e iniciá sesión de nuevo."); return }
       const res = await fetch("/api/admin/leads", {
         method:  "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
         body:    JSON.stringify(data),
       })
-      const json = await res.json()
+      const json = await res.json().catch(() => ({}))
       if (res.ok && json.lead) {
         setLeads(prev => [json.lead, ...prev])
         setShowNewForm(false)
+      } else {
+        alert(json.error ?? `No se pudo crear el lead (${res.status}).`)
       }
     } finally {
       setCreating(false)
@@ -549,16 +563,26 @@ export function AdminLeadsView() {
     const name = lead?.name?.trim() || "este lead"
     if (!window.confirm(`¿Eliminar a ${name}? Esta acción no se puede deshacer.`)) return
     setDeletingId(id)
-    const session = await getSession()
-    if (!session) { setDeletingId(null); return }
-    await fetch("/api/admin/leads", {
-      method:  "DELETE",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-      body:    JSON.stringify({ id }),
-    })
-    setLeads(prev => prev.filter(l => l.id !== id))
-    if (selected?.id === id) setSelected(null)
-    setDeletingId(null)
+    try {
+      const session = await getSession()
+      if (!session) { alert("Tu sesión venció — recargá la página e iniciá sesión de nuevo."); return }
+      const res = await fetch("/api/admin/leads", {
+        method:  "DELETE",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+        body:    JSON.stringify({ id }),
+      })
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}))
+        alert(json.error ?? `No se pudo eliminar el lead (${res.status}).`)
+        return
+      }
+      setLeads(prev => prev.filter(l => l.id !== id))
+      if (selected?.id === id) setSelected(null)
+    } catch {
+      alert("Error de red al eliminar el lead.")
+    } finally {
+      setDeletingId(null)
+    }
   }
 
   const exportCsv = () => {
