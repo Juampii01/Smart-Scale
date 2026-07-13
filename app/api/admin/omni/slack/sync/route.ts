@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     .maybeSingle()
 
   if (!conn) {
-    return NextResponse.json({ error: "Slack de Omni no está conectado (falta autorizar como Ann)" }, { status: 400 })
+    return NextResponse.json({ error: "Slack de Ann AI no está conectado (falta autorizar como Ann)" }, { status: 400 })
   }
   const token = decryptToken((conn as any).access_token)
 

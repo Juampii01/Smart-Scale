@@ -47,7 +47,7 @@ async function runUnansweredSummary() {
     return { ok: false, error: upsertError.message }
   }
 
-  const title = "🌙 Omni — Conversaciones sin responder"
+  const title = "🌙 Ann AI — Conversaciones sin responder"
   const body = totalUnanswered === 0
     ? "Todo respondido — nada pendiente hoy."
     : `${summary.instagram.length} en Instagram, ${summary.slack.length} en Slack sin responder.`

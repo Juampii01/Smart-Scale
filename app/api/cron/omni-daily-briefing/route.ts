@@ -60,7 +60,7 @@ async function runCommunityBriefing(sb: ReturnType<typeof createServiceClient>, 
   }
 
   const highCount = result.findings.filter(f => f.severidad === "alta").length
-  const title = "☀️ Briefing diario de Omni — Comunidad"
+  const title = "☀️ Briefing diario de Ann AI — Comunidad"
   const body = result.findings.length === 0
     ? "No se encontraron patrones nuevos en la comunidad hoy."
     : `${result.findings.length} hallazgos (${highCount} de severidad alta) en ${result.messagesAnalyzed} mensajes.`
@@ -97,7 +97,7 @@ async function runLeadsBriefing(sb: ReturnType<typeof createServiceClient>, toda
   }
 
   const highCount = result.findings.filter(f => f.severidad === "alta").length
-  const title = "📈 Briefing diario de Omni — Leads y cierres"
+  const title = "📈 Briefing diario de Ann AI — Leads y cierres"
   const body = result.findings.length === 0
     ? "Sin patrones nuevos entre leads y cierres hoy."
     : `${result.findings.length} hallazgos (${highCount} de severidad alta) en ${result.leadsAnalyzed} leads.`
@@ -134,7 +134,7 @@ async function runProspectingRiskBriefing(sb: ReturnType<typeof createServiceCli
   }
 
   const highCount = result.findings.filter(f => f.severidad === "alta").length
-  const title = "🚨 Omni — Riesgos de prospección"
+  const title = "🚨 Ann AI — Riesgos de prospección"
   const body = result.findings.length === 0
     ? "Ningún prospecto activo en riesgo hoy."
     : `${result.findings.length} prospectos en riesgo (${highCount} de severidad alta) de ${result.conversationsAnalyzed} conversaciones.`

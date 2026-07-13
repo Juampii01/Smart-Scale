@@ -41,7 +41,7 @@ export async function analyzeOneConversation(
   try {
     systemPrompt = await buildOmniSystemPrompt(sb, "ann")
   } catch (e) {
-    throw new ConversationAnalysisError(e instanceof Error ? e.message : "Error armando el contexto de Omni", 500)
+    throw new ConversationAnalysisError(e instanceof Error ? e.message : "Error armando el contexto de Ann AI", 500)
   }
 
   const { data: conversation, error: convError } = await sb

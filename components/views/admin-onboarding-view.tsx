@@ -393,7 +393,7 @@ function OnboardingForm({
                   )}
                 </div>
               )}
-              <p className="mt-1 text-[10px] text-foreground/30">Vincula este cliente a su lead de origen para el análisis de Omni.</p>
+              <p className="mt-1 text-[10px] text-foreground/30">Vincula este cliente a su lead de origen para el análisis de Ann AI.</p>
             </div>
           </div>
         </div>

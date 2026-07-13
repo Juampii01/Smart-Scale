@@ -40,7 +40,7 @@ export async function runCommunityAnalysis(
   try {
     systemPrompt = await buildOmniSystemPrompt(sb, "ann")
   } catch (e) {
-    throw new CommunityAnalysisError(e instanceof Error ? e.message : "Error armando el contexto de Omni", 500)
+    throw new CommunityAnalysisError(e instanceof Error ? e.message : "Error armando el contexto de Ann AI", 500)
   }
 
   const { data: rows, error } = await sb

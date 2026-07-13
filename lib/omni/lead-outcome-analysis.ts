@@ -40,7 +40,7 @@ export async function runLeadOutcomeAnalysis(
   try {
     systemPrompt = await buildOmniSystemPrompt(sb, "ann")
   } catch (e) {
-    throw new LeadOutcomeAnalysisError(e instanceof Error ? e.message : "Error armando el contexto de Omni", 500)
+    throw new LeadOutcomeAnalysisError(e instanceof Error ? e.message : "Error armando el contexto de Ann AI", 500)
   }
 
   const sinceIso = new Date(Date.now() - LOOKBACK_DAYS * 86_400_000).toISOString()

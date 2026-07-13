@@ -935,7 +935,7 @@ export function AdminOmniView() {
             <Sparkles className="h-5 w-5 text-[#ffde21]" />
           </span>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">Omni</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">Ann AI</h1>
             <p className="text-sm text-foreground/40">Sistema operativo de IA · Piloto con Ann</p>
           </div>
         </div>
