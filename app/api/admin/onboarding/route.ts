@@ -81,6 +81,7 @@ export async function POST(req: NextRequest) {
     const email    = String(body.email ?? "").trim().toLowerCase()
     const instagram       = body.instagram ? String(body.instagram).trim() : null
     const phone           = body.phone     ? String(body.phone).trim()    : null
+    const address         = body.address   ? String(body.address).trim() : null
     const program         = body.program   ? String(body.program).trim()  : null
     const totalAmount     = body.total_amount != null ? Number(body.total_amount) : 0
     const cuotas          = body.cuotas ?? {}
@@ -182,6 +183,7 @@ export async function POST(req: NextRequest) {
         email,
         instagram,
         phone,
+        address,
         programa:           program,
         program_start:      programStart,
         installment_amount: perInstallmentAmount,
@@ -359,6 +361,7 @@ export async function POST(req: NextRequest) {
     sendContractForSignature({
       clienteNombre: name,
       clienteEmail:  email,
+      clienteAddress: address,
       program,
       totalAmount,
       primerPago,

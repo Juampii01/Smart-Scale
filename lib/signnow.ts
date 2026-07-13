@@ -32,8 +32,9 @@ function resolveTemplateId(program: string | null | undefined): string | null {
 }
 
 export interface SignNowContractData {
-  clienteNombre: string
-  clienteEmail:  string
+  clienteNombre:  string
+  clienteEmail:   string
+  clienteAddress?: string | null   // si no viene, el cliente completa "address1" él mismo al firmar
   program?:       string | null   // "Smart Scale Grupal" | "Smart Scale Híbrido" — define la plantilla
   totalAmount?:   number
   primerPago?:    number
@@ -159,8 +160,11 @@ async function registerContractWebhook(documentId: string, token: string): Promi
   }
 }
 
-async function inviteSigner(documentId: string, signer: { email: string; name: string }, token: string): Promise<boolean> {
+async function inviteSigner(documentId: string, signer: { email: string }, token: string): Promise<boolean> {
   try {
+    // subject/message personalizado requiere un plan de SignNow superior al
+    // actual ("Upgrade your subscription plan to personalize invite subject
+    // and message") — se omiten, usa el texto default de SignNow.
     const response = await fetch(`${SIGNNOW_API_BASE}/document/${documentId}/invite`, {
       method: "POST",
       headers: {
@@ -168,10 +172,8 @@ async function inviteSigner(documentId: string, signer: { email: string; name: s
         "Content-Type":  "application/json",
       },
       body: JSON.stringify({
-        to:      [{ email: signer.email, role: SIGNNOW_ROLE_NAME, order: 1 }],
-        from:    SIGNNOW_USERNAME,
-        subject: "Contrato Smart Scale — firmá para continuar",
-        message: `Hola ${signer.name}, adjunto tu contrato para revisar y firmar.`,
+        to:   [{ email: signer.email, role: SIGNNOW_ROLE_NAME, order: 1 }],
+        from: SIGNNOW_USERNAME,
       }),
     })
     if (!response.ok) {
@@ -209,13 +211,19 @@ export async function sendContractForSignature(data: SignNowContractData): Promi
     if (!documentId) return null
 
     // Nombres exactos de los Smart Fields de la plantilla (ver ACUERDO PROGRAMA
-    // SMART SCALE STRATEGY). "address1" no se prefillea — el cliente lo
-    // completa él mismo al firmar. "mes_1" no existe como campo propio: el
-    // pago del mes 1 ya se muestra en "pago_entrada".
+    // SMART SCALE STRATEGY). "address1" solo se prefillea si vino del
+    // onboarding — si no, el cliente lo completa él mismo al firmar.
+    // "mes_1" no existe como campo propio: el pago del mes 1 ya se muestra en
+    // "pago_entrada". SignNow no permite dos campos con el mismo nombre en el
+    // mismo documento (ni con "Duplicate"), así que "name" (intro) y
+    // "name_firma" (bloque de firma) son dos campos independientes que
+    // reciben el mismo valor.
     const fields: Record<string, string> = {
-      name:  data.clienteNombre,
-      email: data.clienteEmail,
+      name:       data.clienteNombre,
+      name_firma: data.clienteNombre,
+      email:      data.clienteEmail,
     }
+    if (data.clienteAddress) fields.address1 = data.clienteAddress
     if (data.totalAmount)   fields.pago_total = String(data.totalAmount)
     if (data.primerPago)    fields.pago_entrada = String(data.primerPago)
     if (data.cantidadMeses) fields.cantidad_de_meses_de_programa = String(data.cantidadMeses)
@@ -229,7 +237,7 @@ export async function sendContractForSignature(data: SignNowContractData): Promi
 
     await registerContractWebhook(documentId, token)
 
-    const invited = await inviteSigner(documentId, { email: data.clienteEmail, name: data.clienteNombre }, token)
+    const invited = await inviteSigner(documentId, { email: data.clienteEmail }, token)
     if (!invited) return null
 
     return { document_id: documentId }
