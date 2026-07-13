@@ -528,16 +528,18 @@ export function AdminLeadsView() {
     setCreating(true)
     try {
       const session = await getSession()
-      if (!session) return
+      if (!session) { alert("Tu sesión venció — recargá la página e iniciá sesión de nuevo."); return }
       const res = await fetch("/api/admin/leads", {
         method:  "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
         body:    JSON.stringify(data),
       })
-      const json = await res.json()
+      const json = await res.json().catch(() => ({}))
       if (res.ok && json.lead) {
         setLeads(prev => [json.lead, ...prev])
         setShowNewForm(false)
+      } else {
+        alert(json.error ?? `No se pudo crear el lead (${res.status}).`)
       }
     } finally {
       setCreating(false)
@@ -561,16 +563,26 @@ export function AdminLeadsView() {
     const name = lead?.name?.trim() || "este lead"
     if (!window.confirm(`¿Eliminar a ${name}? Esta acción no se puede deshacer.`)) return
     setDeletingId(id)
-    const session = await getSession()
-    if (!session) { setDeletingId(null); return }
-    await fetch("/api/admin/leads", {
-      method:  "DELETE",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-      body:    JSON.stringify({ id }),
-    })
-    setLeads(prev => prev.filter(l => l.id !== id))
-    if (selected?.id === id) setSelected(null)
-    setDeletingId(null)
+    try {
+      const session = await getSession()
+      if (!session) { alert("Tu sesión venció — recargá la página e iniciá sesión de nuevo."); return }
+      const res = await fetch("/api/admin/leads", {
+        method:  "DELETE",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+        body:    JSON.stringify({ id }),
+      })
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}))
+        alert(json.error ?? `No se pudo eliminar el lead (${res.status}).`)
+        return
+      }
+      setLeads(prev => prev.filter(l => l.id !== id))
+      if (selected?.id === id) setSelected(null)
+    } catch {
+      alert("Error de red al eliminar el lead.")
+    } finally {
+      setDeletingId(null)
+    }
   }
 
   const exportCsv = () => {

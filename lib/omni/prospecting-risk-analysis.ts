@@ -72,7 +72,17 @@ export async function runProspectingRiskAnalysis(
     ? await sb.from("leads").select("id, name, instagram, rating, niche, notes, purchased").in("instagram", usernames)
     : { data: [] }
 
-  const leadsByUsername = new Map((leads ?? []).map((l: any) => [String(l.instagram ?? "").toLowerCase(), l]))
+  // Si hay leads duplicados con el mismo instagram (ej: doble alta desde
+  // Airtable/ManyChat), preferimos quedarnos con la fila purchased=true —
+  // si no, un duplicado sin comprar puede tapar la exclusión de "ya es
+  // cliente" y el prospecto sigue apareciendo en riesgo aunque ya cerró.
+  const leadsByUsername = new Map<string, any>()
+  for (const l of (leads ?? []) as any[]) {
+    const key = String(l.instagram ?? "").toLowerCase()
+    if (!key) continue
+    const existing = leadsByUsername.get(key)
+    if (!existing || (!existing.purchased && l.purchased)) leadsByUsername.set(key, l)
+  }
   const purchasedLeadIds = new Set((leads ?? []).filter((l: any) => l.purchased).map((l: any) => l.id))
 
   const activeConversations = conversations.filter(c => {
@@ -85,23 +95,29 @@ export async function runProspectingRiskAnalysis(
     return { findings: [], conversationsAnalyzed: 0 }
   }
 
+  // Fetch por-conversación (no un límite global compartido): si una sola
+  // conversación tiene mucha actividad reciente, un límite global ordenado
+  // por sent_at descendente puede acaparar el buffer y dejar a otra
+  // conversación activa con transcript vacío.
   const conversationIds = activeConversations.map(c => (c as any).id)
-  const { data: messages, error: msgError } = await sb
-    .from("omni_messages")
-    .select("conversation_id, sender, body, sent_at")
-    .in("conversation_id", conversationIds)
-    .not("body", "is", null)
-    .order("sent_at", { ascending: false })
-    .limit(MAX_MESSAGES_PER_CONVO * activeConversations.length)
-
-  if (msgError) throw new ProspectingRiskError(msgError.message, 500)
-
-  const messagesByConvo = new Map<string, any[]>()
-  for (const m of [...(messages ?? [])].reverse()) {
-    const list = messagesByConvo.get((m as any).conversation_id) ?? []
-    if (list.length < MAX_MESSAGES_PER_CONVO) list.push(m)
-    messagesByConvo.set((m as any).conversation_id, list)
+  let messageResults: { id: string; messages: any[] }[]
+  try {
+    messageResults = await Promise.all(conversationIds.map(async (id: string) => {
+      const { data, error } = await sb
+        .from("omni_messages")
+        .select("sender, body, sent_at")
+        .eq("conversation_id", id)
+        .not("body", "is", null)
+        .order("sent_at", { ascending: false })
+        .limit(MAX_MESSAGES_PER_CONVO)
+      if (error) throw new Error(error.message)
+      return { id, messages: [...(data ?? [])].reverse() }
+    }))
+  } catch (e) {
+    throw new ProspectingRiskError(e instanceof Error ? e.message : "Error trayendo mensajes de las conversaciones", 500)
   }
+
+  const messagesByConvo = new Map(messageResults.map(r => [r.id, r.messages]))
 
   const transcripts = activeConversations.map(c => {
     const username = (c as any).participant_username ?? "desconocido"

@@ -49,6 +49,13 @@ async function getUnansweredInstagram(sb: ReturnType<typeof createServiceClient>
 }
 
 async function getUnansweredSlack(sb: ReturnType<typeof createServiceClient>): Promise<UnansweredItem[]> {
+  const { data: channels } = await sb
+    .from("omni_slack_channels")
+    .select("id, name")
+    .eq("is_client_channel", true)
+
+  if (!channels || channels.length === 0) return [] // nada que revisar — no llamamos a Slack para nada
+
   const { data: conn } = await sb
     .from("omni_slack_user_connection")
     .select("slack_user_id, access_token")
@@ -58,16 +65,28 @@ async function getUnansweredSlack(sb: ReturnType<typeof createServiceClient>): P
 
   if (!conn) return [] // Slack de Omni no conectado — nada que reportar acá
 
-  const token = decryptToken((conn as any).access_token)
-  const annNameByUserId = await resolveOmniSlackUserNames(token, [(conn as any).slack_user_id])
-  const annName = annNameByUserId.get((conn as any).slack_user_id)
+  let annName: string | undefined
+  try {
+    const token = decryptToken((conn as any).access_token)
+    const annNameByUserId = await resolveOmniSlackUserNames(token, [(conn as any).slack_user_id])
+    annName = annNameByUserId.get((conn as any).slack_user_id)
+  } catch (e) {
+    // Si falla la API de Slack (rate limit, token vencido, etc.) no tiramos
+    // abajo todo el resumen — devolvemos vacío para Slack y seguimos con
+    // Instagram, que es independiente.
+    console.error("[omni/unanswered-summary] error resolviendo nombre de Ann en Slack:", e instanceof Error ? e.message : e)
+    return []
+  }
 
-  const { data: channels } = await sb
-    .from("omni_slack_channels")
-    .select("id, name")
-    .eq("is_client_channel", true)
-
-  if (!channels || channels.length === 0) return []
+  // resolveOmniSlackUserNames no tira excepción si Slack responde ok:false
+  // (rate limit, user_not_found, etc.) — solo deja el Map vacío. Sin annName
+  // no podemos distinguir "Ann respondió" de "no respondió", así que TODOS
+  // los canales caerían como falso positivo de "sin responder". Mejor no
+  // reportar nada de Slack esa corrida que reportar mal.
+  if (annName == null) {
+    console.error("[omni/unanswered-summary] no se pudo resolver el nombre de Ann en Slack (users.info no devolvió datos) — se omite Slack en este resumen")
+    return []
+  }
 
   const results = await Promise.all(channels.map(async (ch: any) => {
     const { data: lastMsg } = await sb

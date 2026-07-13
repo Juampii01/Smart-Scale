@@ -35,14 +35,20 @@ export async function GET(req: NextRequest) {
   const conversationIds = (conversations ?? []).map((c: any) => c.id)
   const usernames = (conversations ?? []).map((c: any) => c.participant_username).filter(Boolean)
 
-  const [{ data: lastMessages }, { data: analyses }, { data: leads }] = await Promise.all([
-    conversationIds.length > 0
-      ? sb.from("omni_messages")
-          .select("conversation_id, sender, body, sent_at")
-          .in("conversation_id", conversationIds)
-          .order("sent_at", { ascending: false })
-          .limit(MAX_CONVERSATIONS * 3)
-      : Promise.resolve({ data: [] as any[] }),
+  // Un fetch por conversación (no un límite global compartido): con un solo
+  // límite global ordenado por sent_at, una conversación muy activa puede
+  // acaparar el buffer y dejar a otras sin preview aunque sean recientes.
+  const [lastMessageResults, { data: analyses }, { data: leads }] = await Promise.all([
+    Promise.all(conversationIds.map(async (id: string) => {
+      const { data } = await sb
+        .from("omni_messages")
+        .select("body")
+        .eq("conversation_id", id)
+        .order("sent_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      return { id, body: (data as any)?.body ?? null }
+    })),
     conversationIds.length > 0
       ? sb.from("omni_conversation_analyses").select("*").in("conversation_id", conversationIds)
       : Promise.resolve({ data: [] as any[] }),
@@ -51,18 +57,13 @@ export async function GET(req: NextRequest) {
       : Promise.resolve({ data: [] as any[] }),
   ])
 
-  const lastMessageByConvo = new Map<string, any>()
-  for (const m of lastMessages ?? []) {
-    if (!lastMessageByConvo.has((m as any).conversation_id)) {
-      lastMessageByConvo.set((m as any).conversation_id, m)
-    }
-  }
+  const lastMessageByConvo = new Map(lastMessageResults.map(r => [r.id, r.body]))
 
   const analysisByConvo = new Map((analyses ?? []).map((a: any) => [a.conversation_id, a]))
   const leadByUsername = new Map((leads ?? []).map((l: any) => [String(l.instagram ?? "").toLowerCase(), l]))
 
   const result = (conversations ?? []).map((c: any) => {
-    const lastMessage = lastMessageByConvo.get(c.id)
+    const lastMessageBody = lastMessageByConvo.get(c.id)
     const analysis = analysisByConvo.get(c.id)
     const lead = c.participant_username ? leadByUsername.get(String(c.participant_username).toLowerCase()) : null
 
@@ -71,7 +72,7 @@ export async function GET(req: NextRequest) {
       participant_username: c.participant_username,
       last_message_at:     c.last_message_at,
       last_message_from:   c.last_message_from,
-      last_message_preview: lastMessage?.body ? String(lastMessage.body).slice(0, 140) : null,
+      last_message_preview: lastMessageBody ? String(lastMessageBody).slice(0, 140) : null,
       lead_rating:         lead?.rating ?? null,
       is_customer:         !!lead?.purchased,
       analysis:            analysis ? {

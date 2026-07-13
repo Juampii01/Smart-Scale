@@ -327,9 +327,10 @@ function RatingBreakdown({ title, subtitle, distribution, ratings }: {
   )
 }
 
-function ProspectRiskSection({ briefing, analyzing, onRefresh }: {
+function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
   briefing:  ProspectingBriefing | null
   analyzing: boolean
+  error:     string | null
   onRefresh: () => void
 }) {
   return (
@@ -352,6 +353,9 @@ function ProspectRiskSection({ briefing, analyzing, onRefresh }: {
           Actualizar
         </button>
       </div>
+      {error && (
+        <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{error}</p>
+      )}
       {!briefing ? (
         <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
           Todavía no corrió el análisis de riesgo de prospección — corré "Actualizar" o esperá al briefing diario.
@@ -397,9 +401,10 @@ function fmtHoursSince(h: number): string {
   return h < 24 ? `${h}h` : `${Math.floor(h / 24)}d ${h % 24}h`
 }
 
-function UnansweredSummarySection({ briefing, analyzing, onRefresh }: {
+function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
   briefing:  UnansweredBriefing | null
   analyzing: boolean
+  error:     string | null
   onRefresh: () => void
 }) {
   const instagram = briefing?.findings.instagram ?? []
@@ -425,6 +430,10 @@ function UnansweredSummarySection({ briefing, analyzing, onRefresh }: {
           Hacer resumen
         </button>
       </div>
+
+      {error && (
+        <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{error}</p>
+      )}
 
       {!briefing ? (
         <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
@@ -624,15 +633,21 @@ export function AdminOmniView() {
   const [prospectingBriefing, setProspectingBriefing] = useState<ProspectingBriefing | null>(null)
   const [prospectingMetrics,  setProspectingMetrics]  = useState<ProspectingMetrics | null>(null)
   const [prospectingAnalyzing, setProspectingAnalyzing] = useState(false)
+  const [prospectingError,    setProspectingError]     = useState<string | null>(null)
 
   const [unansweredBriefing,  setUnansweredBriefing]  = useState<UnansweredBriefing | null>(null)
   const [unansweredAnalyzing, setUnansweredAnalyzing] = useState(false)
+  const [unansweredError,     setUnansweredError]     = useState<string | null>(null)
 
-  const [conversations,     setConversations]     = useState<ConversationItem[] | null>(null)
-  const [analyzingConvoId,  setAnalyzingConvoId]  = useState<string | null>(null)
+  const [conversations,      setConversations]      = useState<ConversationItem[] | null>(null)
+  // Set (no un id único) para soportar analizar varias conversaciones en
+  // paralelo sin que el botón de una se "libere" mientras la suya sigue en vuelo.
+  const [analyzingConvoIds,  setAnalyzingConvoIds]  = useState<Set<string>>(new Set())
+  const [conversationsError, setConversationsError] = useState<string | null>(null)
 
-  const [channels,          setChannels]          = useState<ChannelItem[] | null>(null)
-  const [analyzingChannelId, setAnalyzingChannelId] = useState<string | null>(null)
+  const [channels,           setChannels]           = useState<ChannelItem[] | null>(null)
+  const [analyzingChannelIds, setAnalyzingChannelIds] = useState<Set<string>>(new Set())
+  const [channelsError,      setChannelsError]      = useState<string | null>(null)
 
   const getAuthHeader = useCallback(async () => {
     const supabase = createClient()
@@ -743,6 +758,8 @@ export function AdminOmniView() {
       const json = await res.json()
       if (res.ok && json.url) window.location.href = json.url
       else setIgSyncMsg(json.error ?? "No se pudo iniciar la conexión")
+    } catch {
+      setIgSyncMsg("Error de red al conectar Instagram")
     } finally {
       setIgLoading(false)
     }
@@ -760,6 +777,8 @@ export function AdminOmniView() {
         ? `Listo — ${json.conversationsSynced} conversaciones, ${json.messagesSynced} mensajes.`
         : (json.error ?? "Error al sincronizar"))
       if (res.ok) fetchConversations()
+    } catch {
+      setIgSyncMsg("Error de red al sincronizar Instagram")
     } finally {
       setIgSyncing(false)
     }
@@ -774,6 +793,8 @@ export function AdminOmniView() {
       const json = await res.json()
       if (res.ok && json.url) window.location.href = json.url
       else setSlackSyncMsg(json.error ?? "No se pudo iniciar la conexión")
+    } catch {
+      setSlackSyncMsg("Error de red al conectar Slack")
     } finally {
       setSlackConnecting(false)
     }
@@ -794,6 +815,8 @@ export function AdminOmniView() {
       } else {
         setSlackSyncMsg(json.error ?? "Error al sincronizar")
       }
+    } catch {
+      setSlackSyncMsg("Error de red al sincronizar Slack")
     } finally {
       setSlackSyncing(false)
     }
@@ -813,6 +836,8 @@ export function AdminOmniView() {
       } else {
         setAnalyzeMsg(json.error ?? "Error al analizar")
       }
+    } catch {
+      setAnalyzeMsg("Error de red al analizar")
     } finally {
       setAnalyzing(false)
     }
@@ -820,14 +845,19 @@ export function AdminOmniView() {
 
   const analyzeProspecting = async () => {
     setProspectingAnalyzing(true)
+    setProspectingError(null)
     try {
       const headers = await getAuthHeader()
-      if (!headers) return
+      if (!headers) { setProspectingError("Sesión vencida — recargá la página e iniciá sesión de nuevo."); return }
       const res = await fetch("/api/admin/omni/prospecting/analyze", { method: "POST", headers })
       const json = await res.json()
       if (res.ok) {
         setProspectingBriefing(json)
+      } else {
+        setProspectingError(json.error ?? `Error al actualizar (${res.status})`)
       }
+    } catch (e) {
+      setProspectingError(e instanceof Error ? e.message : "Error de red al actualizar")
     } finally {
       setProspectingAnalyzing(false)
     }
@@ -835,46 +865,61 @@ export function AdminOmniView() {
 
   const analyzeUnanswered = async () => {
     setUnansweredAnalyzing(true)
+    setUnansweredError(null)
     try {
       const headers = await getAuthHeader()
-      if (!headers) return
+      if (!headers) { setUnansweredError("Sesión vencida — recargá la página e iniciá sesión de nuevo."); return }
       const res = await fetch("/api/admin/omni/unanswered-summary/analyze", { method: "POST", headers })
       const json = await res.json()
       if (res.ok) {
         setUnansweredBriefing(json)
+      } else {
+        setUnansweredError(json.error ?? `Error al hacer el resumen (${res.status})`)
       }
+    } catch (e) {
+      setUnansweredError(e instanceof Error ? e.message : "Error de red al hacer el resumen")
     } finally {
       setUnansweredAnalyzing(false)
     }
   }
 
   const analyzeConversation = async (id: string) => {
-    setAnalyzingConvoId(id)
+    setAnalyzingConvoIds(prev => new Set(prev).add(id))
+    setConversationsError(null)
     try {
       const headers = await getAuthHeader()
-      if (!headers) return
+      if (!headers) { setConversationsError("Sesión vencida — recargá la página e iniciá sesión de nuevo."); return }
       const res = await fetch(`/api/admin/omni/prospecting/conversations/${id}/analyze`, { method: "POST", headers })
       const json = await res.json()
       if (res.ok) {
         setConversations(prev => (prev ?? []).map(c => c.id === id ? { ...c, analysis: json } : c))
+      } else {
+        setConversationsError(json.error ?? `No se pudo analizar (${res.status})`)
       }
+    } catch (e) {
+      setConversationsError(e instanceof Error ? e.message : "Error de red al analizar")
     } finally {
-      setAnalyzingConvoId(null)
+      setAnalyzingConvoIds(prev => { const next = new Set(prev); next.delete(id); return next })
     }
   }
 
   const analyzeChannel = async (id: string) => {
-    setAnalyzingChannelId(id)
+    setAnalyzingChannelIds(prev => new Set(prev).add(id))
+    setChannelsError(null)
     try {
       const headers = await getAuthHeader()
-      if (!headers) return
+      if (!headers) { setChannelsError("Sesión vencida — recargá la página e iniciá sesión de nuevo."); return }
       const res = await fetch(`/api/admin/omni/slack/channels/${id}/analyze`, { method: "POST", headers })
       const json = await res.json()
       if (res.ok) {
         setChannels(prev => (prev ?? []).map(c => c.id === id ? { ...c, analysis: json } : c))
+      } else {
+        setChannelsError(json.error ?? `No se pudo analizar (${res.status})`)
       }
+    } catch (e) {
+      setChannelsError(e instanceof Error ? e.message : "Error de red al analizar")
     } finally {
-      setAnalyzingChannelId(null)
+      setAnalyzingChannelIds(prev => { const next = new Set(prev); next.delete(id); return next })
     }
   }
 
@@ -940,7 +985,7 @@ export function AdminOmniView() {
         <div className="space-y-8">
 
           {/* Conversaciones sin responder — cron de las 19hs (Miami) o a demanda */}
-          <UnansweredSummarySection briefing={unansweredBriefing} analyzing={unansweredAnalyzing} onRefresh={analyzeUnanswered} />
+          <UnansweredSummarySection briefing={unansweredBriefing} analyzing={unansweredAnalyzing} error={unansweredError} onRefresh={analyzeUnanswered} />
 
           {/* Prospección — métricas visibles, sin preguntar nada */}
           <div>
@@ -949,7 +994,7 @@ export function AdminOmniView() {
           </div>
 
           {/* Riesgos de prospección — análisis en bloque, cron diario o "Actualizar" */}
-          <ProspectRiskSection briefing={prospectingBriefing} analyzing={prospectingAnalyzing} onRefresh={analyzeProspecting} />
+          <ProspectRiskSection briefing={prospectingBriefing} analyzing={prospectingAnalyzing} error={prospectingError} onRefresh={analyzeProspecting} />
 
           {/* Briefing diario de leads vs. cierres (guardado por el cron) */}
           {leadsBriefing && (
@@ -1016,6 +1061,9 @@ export function AdminOmniView() {
               Todas las conversaciones
               {conversations && <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">{conversations.length}</span>}
             </p>
+            {conversationsError && (
+              <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{conversationsError}</p>
+            )}
             {conversations === null ? (
               <div className="space-y-3">
                 {[0, 1, 2].map(i => (
@@ -1032,7 +1080,7 @@ export function AdminOmniView() {
                   <ConversationListCard
                     key={c.id}
                     conversation={c}
-                    analyzing={analyzingConvoId === c.id}
+                    analyzing={analyzingConvoIds.has(c.id)}
                     onAnalyze={() => analyzeConversation(c.id)}
                   />
                 ))}
@@ -1109,6 +1157,9 @@ export function AdminOmniView() {
               Todos los canales
               {channels && <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">{channels.length}</span>}
             </p>
+            {channelsError && (
+              <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{channelsError}</p>
+            )}
             {channels === null ? (
               <div className="space-y-3">
                 {[0, 1, 2].map(i => (
@@ -1125,7 +1176,7 @@ export function AdminOmniView() {
                   <ChannelListCard
                     key={c.id}
                     channel={c}
-                    analyzing={analyzingChannelId === c.id}
+                    analyzing={analyzingChannelIds.has(c.id)}
                     onAnalyze={() => analyzeChannel(c.id)}
                   />
                 ))}

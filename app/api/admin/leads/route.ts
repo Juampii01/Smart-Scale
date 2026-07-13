@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
-import { isAdmin } from "@/lib/auth/permissions"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -35,17 +34,6 @@ export const dynamic = "force-dynamic"
   -- alter table leads drop column if exists email;
   -- alter table leads drop column if exists phone;
 */
-
-async function requireAdmin(jwt: string | null) {
-  if (!jwt) return null
-  const supabase = createServiceClient()
-  const { data: { user }, error } = await supabase.auth.getUser(jwt)
-  if (error || !user) return null
-  const { data: profile } = await supabase
-    .from("profiles").select("role").eq("id", user.id).maybeSingle()
-  if (!profile || !isAdmin(profile?.role)) return null
-  return user
-}
 
 const SELECT_FIELDS = "id, name, email, tag, source, lead_type, status, instagram, rating, niche, notes, purchased, created_at"
 
@@ -147,11 +135,11 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/** DELETE — remove a lead */
+/** DELETE — remove a lead. admin/team/setter, mismo criterio que GET/PATCH/POST. */
 export async function DELETE(req: NextRequest) {
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
+    const user = await requireInternal(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     let body: any

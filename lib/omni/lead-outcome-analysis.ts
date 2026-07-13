@@ -14,6 +14,8 @@ import Anthropic from "@anthropic-ai/sdk"
 import type { SlackFinding } from "@/lib/omni/community-analysis"
 
 const LOOKBACK_DAYS = 60
+const MAX_LEADS     = 500
+const MAX_CLIENTS   = 500
 
 export interface LeadOutcomeAnalysisResult {
   findings:      SlackFinding[]
@@ -48,6 +50,7 @@ export async function runLeadOutcomeAnalysis(
     .select("id, name, rating, source, lead_type, niche, tag, notes, purchased, created_at")
     .gte("created_at", sinceIso)
     .order("created_at", { ascending: false })
+    .limit(MAX_LEADS)
 
   if (leadsErr) throw new LeadOutcomeAnalysisError(leadsErr.message, 500)
 
@@ -57,6 +60,7 @@ export async function runLeadOutcomeAnalysis(
     .gte("created_at", sinceIso)
     .not("lead_id", "is", null)
     .order("created_at", { ascending: false })
+    .limit(MAX_CLIENTS)
 
   if (clientsErr) throw new LeadOutcomeAnalysisError(clientsErr.message, 500)
 
