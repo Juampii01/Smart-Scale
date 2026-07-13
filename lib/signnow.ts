@@ -16,21 +16,29 @@ const SIGNNOW_CLIENT_ID     = process.env.SIGNNOW_CLIENT_ID
 const SIGNNOW_CLIENT_SECRET = process.env.SIGNNOW_CLIENT_SECRET
 const SIGNNOW_USERNAME      = process.env.SIGNNOW_USERNAME
 const SIGNNOW_PASSWORD      = process.env.SIGNNOW_PASSWORD
-const SIGNNOW_TEMPLATE_ID   = process.env.SIGNNOW_TEMPLATE_ID
 const SIGNNOW_ROLE_NAME     = process.env.SIGNNOW_ROLE_NAME || "Cliente"
 const SIGNNOW_WEBHOOK_SECRET = process.env.SIGNNOW_WEBHOOK_SECRET
 const SIGNNOW_API_BASE      = "https://api.signnow.com"
 
+// Hay una plantilla distinta por programa — son contratos casi idénticos,
+// el Híbrido solo agrega la cláusula de la llamada 1:1 mensual con Ann.
+const SIGNNOW_TEMPLATE_ID_GRUPAL  = process.env.SIGNNOW_TEMPLATE_ID_GRUPAL
+const SIGNNOW_TEMPLATE_ID_HIBRIDO = process.env.SIGNNOW_TEMPLATE_ID_HIBRIDO
+
+function resolveTemplateId(program: string | null | undefined): string | null {
+  if (program === "Smart Scale Híbrido") return SIGNNOW_TEMPLATE_ID_HIBRIDO ?? null
+  if (program === "Smart Scale Grupal")  return SIGNNOW_TEMPLATE_ID_GRUPAL ?? null
+  return null
+}
+
 export interface SignNowContractData {
   clienteNombre: string
   clienteEmail:  string
-  program?:       string | null
+  program?:       string | null   // "Smart Scale Grupal" | "Smart Scale Híbrido" — define la plantilla
   totalAmount?:   number
   primerPago?:    number
-  cuotas?:        Record<string, number | null>   // cuota_1..cuota_6
+  cuotas?:        Record<string, number | null>   // cuota_1..cuota_6 (cuota_1 no se manda: ya cubierta por pago_entrada)
   cantidadMeses?: number
-  cantidadPagos?: number
-  setterName?:    string | null
 }
 
 /** OAuth2 password grant — ver docs.signnow.com/docs/signnow/authentication */
@@ -65,9 +73,9 @@ async function getAccessToken(): Promise<string | null> {
   }
 }
 
-async function createDocumentFromTemplate(documentName: string, token: string): Promise<string | null> {
+async function createDocumentFromTemplate(templateId: string, documentName: string, token: string): Promise<string | null> {
   try {
-    const response = await fetch(`${SIGNNOW_API_BASE}/template/${SIGNNOW_TEMPLATE_ID}/copy`, {
+    const response = await fetch(`${SIGNNOW_API_BASE}/template/${templateId}/copy`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`,
@@ -182,8 +190,14 @@ async function inviteSigner(documentId: string, signer: { email: string; name: s
  *  prefillea, registra el webhook de "firmado", y manda la invitación.
  *  Fire-and-forget desde el caller — nunca lanza. */
 export async function sendContractForSignature(data: SignNowContractData): Promise<{ document_id: string } | null> {
-  if (!SIGNNOW_CLIENT_ID || !SIGNNOW_CLIENT_SECRET || !SIGNNOW_USERNAME || !SIGNNOW_PASSWORD || !SIGNNOW_TEMPLATE_ID) {
+  if (!SIGNNOW_CLIENT_ID || !SIGNNOW_CLIENT_SECRET || !SIGNNOW_USERNAME || !SIGNNOW_PASSWORD) {
     console.warn("SignNow credentials not configured")
+    return null
+  }
+
+  const templateId = resolveTemplateId(data.program)
+  if (!templateId) {
+    console.warn(`SignNow: no hay plantilla configurada para program="${data.program}"`)
     return null
   }
 
@@ -191,21 +205,22 @@ export async function sendContractForSignature(data: SignNowContractData): Promi
     const token = await getAccessToken()
     if (!token) return null
 
-    const documentId = await createDocumentFromTemplate(`Contrato — ${data.clienteNombre}`, token)
+    const documentId = await createDocumentFromTemplate(templateId, `Contrato — ${data.clienteNombre}`, token)
     if (!documentId) return null
 
+    // Nombres exactos de los Smart Fields de la plantilla (ver ACUERDO PROGRAMA
+    // SMART SCALE STRATEGY). "address1" no se prefillea — el cliente lo
+    // completa él mismo al firmar. "mes_1" no existe como campo propio: el
+    // pago del mes 1 ya se muestra en "pago_entrada".
     const fields: Record<string, string> = {
-      cliente_nombre:      data.clienteNombre,
-      cliente_email:       data.clienteEmail,
+      name:  data.clienteNombre,
+      email: data.clienteEmail,
     }
-    if (data.program)        fields.programa            = data.program
-    if (data.totalAmount)    fields.pago_total           = String(data.totalAmount)
-    if (data.primerPago)     fields.pago_entrada         = String(data.primerPago)
-    if (data.setterName)     fields.setter               = data.setterName
-    if (data.cantidadPagos)  fields.cantidad_de_pagos    = String(data.cantidadPagos)
-    if (data.cantidadMeses)  fields.cantidad_de_meses    = String(data.cantidadMeses)
+    if (data.totalAmount)   fields.pago_total = String(data.totalAmount)
+    if (data.primerPago)    fields.pago_entrada = String(data.primerPago)
+    if (data.cantidadMeses) fields.cantidad_de_meses_de_programa = String(data.cantidadMeses)
     if (data.cuotas) {
-      for (let i = 1; i <= 6; i++) {
+      for (let i = 2; i <= 6; i++) {
         const val = data.cuotas[`cuota_${i}`]
         if (val != null && val > 0) fields[`mes_${i}`] = String(val)
       }

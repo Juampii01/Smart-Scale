@@ -347,7 +347,7 @@ export async function POST(req: NextRequest) {
 
     // ── 11. Enviar contrato para firma vía SignNow (fire-and-forget) ───────
     // Para pago único (solo total_amount sin cuotas individuales),
-    // armar cuota_1 = total_amount para que mes_1 se llene en el documento
+    // armar cuota_1 = total_amount (queda como "pago_entrada" en el documento)
     const cuotasForSignNow = cuotasWithValues.length > 0
       ? Object.fromEntries(cuotasWithValues) as Record<string, number>
       : (totalAmount > 0 ? { cuota_1: totalAmount } : {})
@@ -363,9 +363,7 @@ export async function POST(req: NextRequest) {
       totalAmount,
       primerPago,
       cuotas:        cuotasForSignNow,
-      cantidadPagos: numInstallments,
       cantidadMeses: programDuration ?? numInstallments,
-      setterName,
     }).then(result => {
       // Guarda el document_id de SignNow en onboarding_flow — permite
       // matchear el webhook de "contrato firmado" por id.
