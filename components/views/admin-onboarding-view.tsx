@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import { createClient } from "@/lib/supabase"
 import {
   UserPlus, Loader2, Check, Copy, X, ChevronRight,
@@ -115,6 +116,9 @@ function SuccessModal({
   name: string; email: string; tempPassword: string | null; magicLink: string | null; onClose: () => void
 }) {
   const [copied, setCopied] = useState<"password" | "magic" | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => { setMounted(true) }, [])
 
   function copy(text: string, type: "password" | "magic") {
     navigator.clipboard.writeText(text).then(() => {
@@ -123,7 +127,14 @@ function SuccessModal({
     })
   }
 
-  return (
+  if (!mounted) return null
+
+  // Portal directo a document.body — el contenedor de la vista tiene la
+  // animación .page-enter (transform: translateY), y cualquier transform en
+  // un ancestro rompe el posicionamiento de "fixed" (queda relativo a ese
+  // ancestro en vez del viewport completo), lo que hacía que este modal
+  // apareciera corrido hacia abajo en vez de centrado en pantalla.
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="relative z-10 w-full max-w-md rounded-[14px] border border-border bg-card p-6 shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
@@ -194,7 +205,8 @@ function SuccessModal({
           Listo
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 

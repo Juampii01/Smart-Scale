@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse, after } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
 import { notifyClientOnboarded } from "@/lib/slack"
@@ -358,7 +358,11 @@ export async function POST(req: NextRequest) {
       ? Number(cuotasWithValues[0][1])
       : totalAmount
 
-    sendContractForSignature({
+    // after(): Vercel apaga la función serverless apenas se manda la
+    // respuesta — sin esto, el trabajo en segundo plano (acá: 5 llamadas
+    // seguidas a la API de SignNow) se puede cortar a mitad de camino sin
+    // ningún error ni log. after() le avisa a la plataforma que espere.
+    after(() => sendContractForSignature({
       clienteNombre: name,
       clienteEmail:  email,
       clienteAddress: address,
@@ -377,17 +381,17 @@ export async function POST(req: NextRequest) {
       }
     }).catch(err => {
       console.error("SignNow sync failed (non-blocking):", err)
-    })
+    }))
 
     // ── 12. Send credentials to admin (fire-and-forget) ────────────────────
     if (caller && (caller as any).email) {
-      sendCredentialsToAdmin({
+      after(() => sendCredentialsToAdmin({
         admin_email:   (caller as any).email,
         client_name:   name,
         client_email:  email,
         temp_password: tempPassword,
         program,
-      }).catch(() => {/* no bloquear si Resend falla */})
+      }).catch(() => {/* no bloquear si Resend falla */}))
     }
 
     // ── 13. Zapier → Slack notification (fire-and-forget) ─────────────────
@@ -397,7 +401,7 @@ export async function POST(req: NextRequest) {
       ? cuotas
       : (totalAmount > 0 ? { cuota_1: totalAmount } : cuotas)
 
-    zapierClientOnboarded({
+    after(() => zapierClientOnboarded({
       event_type:       "client.onboarded",
       client_id:        clientId,
       client_name:      name,
@@ -415,7 +419,7 @@ export async function POST(req: NextRequest) {
     }).then(result => {
       if (!result.ok) console.error("Zapier onboarding webhook failed:", result.error)
       else console.log("Zapier onboarding webhook sent OK")
-    }).catch(err => console.error("Zapier onboarding webhook error:", err?.message))
+    }).catch(err => console.error("Zapier onboarding webhook error:", err?.message)))
 
     // ── Success response ────────────────────────────────────────────────────
     return NextResponse.json({
