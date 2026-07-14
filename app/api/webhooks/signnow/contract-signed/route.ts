@@ -5,11 +5,14 @@
  * vía lib/signnow.ts al crear cada contrato) y dispara los 3 emails de
  * onboarding vía lib/onboarding-flow.ts. Reemplaza al webhook de GHL.
  *
- * El payload real de SignNow todavía no se confirmó con un evento real — por
- * eso: (a) se guarda SIEMPRE crudo en signnow_webhook_events antes de
- * intentar parsear nada, y (b) la extracción del document_id prueba varios
- * paths posibles en vez de asumir uno solo (mismo patrón que se usó para el
- * webhook de GHL en su momento).
+ * Payload real confirmado (evento document.complete, 14/07/2026):
+ *   { meta: { event, timestamp, environment, access_token, callback_url,
+ *             initiator_id },
+ *     content: { user_id, document_id, document_name } }
+ * El document_id vive en content.document_id (plano, no anidado). Se guarda
+ * SIEMPRE crudo en signnow_webhook_events antes de parsear, y la extracción
+ * prueba ese path primero — se dejan los paths alternativos como fallback
+ * por si SignNow cambia el shape en otro tipo de evento.
  *
  * Auth: header `x-webhook-secret` o `Authorization: Bearer` con
  * SIGNNOW_WEBHOOK_SECRET — mismo patrón fail-closed que el resto de webhooks
@@ -70,7 +73,8 @@ export async function POST(req: NextRequest) {
     .single()
   const logId = (logRow as any)?.id as string | undefined
 
-  const documentId = pickDeep(body, "document_id", "meta.document_id", "content.document.id", "id")
+  // Payload real confirmado (evento document.complete): { content: { document_id }, meta: {...} }
+  const documentId = pickDeep(body, "content.document_id", "document_id", "meta.document_id", "content.document.id", "id")
 
   async function finish(matchedClient: string | null, error: string | null) {
     if (logId) {
