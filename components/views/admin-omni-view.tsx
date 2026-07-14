@@ -120,6 +120,33 @@ interface ConversationItem {
   analysis:              ConversationAnalysisData | null
 }
 
+interface ProspectingContextData {
+  workflow_inbound:  string
+  workflow_outbound: string
+  notas_generales:   string
+  updated_at:        string | null
+}
+
+interface ProspectingPattern {
+  id:                    string
+  conversation_id:       string | null
+  participant_username:  string | null
+  situacion:             string
+  enfoque:               string
+  resultado:             "cerro" | "no_cerro" | "pendiente"
+  correccion:            string | null
+  created_at:            string
+}
+
+const RESULTADO_STYLES: Record<ProspectingPattern["resultado"], string> = {
+  cerro:     "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400",
+  no_cerro:  "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
+  pendiente: "bg-foreground/[0.06] text-foreground/50",
+}
+const RESULTADO_LABELS: Record<ProspectingPattern["resultado"], string> = {
+  cerro: "cerró", no_cerro: "no cerró", pendiente: "pendiente",
+}
+
 const SEVERITY_STYLES: Record<"alta" | "media" | "baja", string> = {
   alta:  "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
   media: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
@@ -486,15 +513,44 @@ function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
   )
 }
 
-function ConversationListCard({ conversation, analyzing, onAnalyze }: {
+function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorrection }: {
   conversation: ConversationItem
   analyzing:    boolean
   onAnalyze:    () => void
+  onSubmitCorrection: (data: { situacion: string; enfoque: string; resultado: ProspectingPattern["resultado"]; correccion: string }) => Promise<boolean>
 }) {
   const a = conversation.analysis
   const badgeStyle = a
     ? a.estado === "irremontable" ? IRREMONTABLE_STYLE : a.estado === "sano" ? SANO_STYLE : SEVERITY_STYLES[a.severidad]
     : ""
+
+  const [correcting,  setCorrecting]  = useState(false)
+  const [situacion,   setSituacion]   = useState("")
+  const [enfoque,     setEnfoque]     = useState("")
+  const [resultado,   setResultado]   = useState<ProspectingPattern["resultado"]>("pendiente")
+  const [correccion,  setCorreccion]  = useState("")
+  const [submitting,  setSubmitting]  = useState(false)
+  const [saved,       setSaved]       = useState(false)
+
+  function openCorrecting() {
+    setSituacion(a?.situacion ?? "")
+    setEnfoque("")
+    setResultado("pendiente")
+    setCorreccion("")
+    setSaved(false)
+    setCorrecting(true)
+  }
+
+  async function submitCorrecting() {
+    if (!situacion.trim() || !enfoque.trim()) return
+    setSubmitting(true)
+    const ok = await onSubmitCorrection({ situacion, enfoque, resultado, correccion })
+    setSubmitting(false)
+    if (ok) {
+      setSaved(true)
+      setTimeout(() => setCorrecting(false), 1000)
+    }
+  }
 
   return (
     <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
@@ -518,14 +574,24 @@ function ConversationListCard({ conversation, analyzing, onAnalyze }: {
             <p className="mt-1.5 line-clamp-2 text-[12.5px] text-foreground/60">{conversation.last_message_preview}</p>
           )}
         </div>
-        <button
-          onClick={onAnalyze}
-          disabled={analyzing}
-          className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
-        >
-          {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
-          {a ? "Re-analizar" : "Analizar"}
-        </button>
+        <div className="flex shrink-0 items-center gap-1.5">
+          {a && (
+            <button
+              onClick={() => (correcting ? setCorrecting(false) : openCorrecting())}
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[12px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all"
+            >
+              Corregir
+            </button>
+          )}
+          <button
+            onClick={onAnalyze}
+            disabled={analyzing}
+            className="flex h-8 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+          >
+            {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
+            {a ? "Re-analizar" : "Analizar"}
+          </button>
+        </div>
       </div>
 
       {a && (
@@ -544,6 +610,77 @@ function ConversationListCard({ conversation, analyzing, onAnalyze }: {
           </div>
           <div className="mt-1.5 rounded-lg border border-[#ffde21]/25 bg-[#ffde21]/[0.06] px-2.5 py-2">
             <p className="text-[12px] font-semibold text-foreground/80">{a.accion}</p>
+          </div>
+        </div>
+      )}
+
+      {correcting && (
+        <div className="mt-3 space-y-2.5 rounded-xl border border-foreground/[0.10] bg-foreground/[0.02] p-3">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/40">Registrar patrón de prospección</p>
+          <div>
+            <label className="text-[11px] font-semibold text-foreground/50">Situación</label>
+            <textarea
+              value={situacion}
+              onChange={e => setSituacion(e.target.value)}
+              rows={2}
+              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+            />
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-foreground/50">Qué enfoque/mensaje se usó</label>
+            <textarea
+              value={enfoque}
+              onChange={e => setEnfoque(e.target.value)}
+              rows={2}
+              placeholder="Ej: le mandé el offer doc directo sin agendar llamada"
+              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+            />
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-foreground/50">Resultado</label>
+            <div className="mt-1 flex gap-1.5">
+              {(["cerro", "no_cerro", "pendiente"] as const).map(r => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => setResultado(r)}
+                  className={cn(
+                    "rounded-lg px-2.5 py-1 text-[11.5px] font-semibold transition-all",
+                    resultado === r ? RESULTADO_STYLES[r] : "bg-foreground/[0.04] text-foreground/40 hover:text-foreground/60"
+                  )}
+                >
+                  {RESULTADO_LABELS[r]}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-foreground/50">Corrección para la IA (opcional)</label>
+            <textarea
+              value={correccion}
+              onChange={e => setCorreccion(e.target.value)}
+              rows={2}
+              placeholder="Ej: acá la IA sugirió esperar 4 semanas, pero este tipo de lead se enfría en días"
+              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+            />
+          </div>
+          <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setCorrecting(false)}
+              className="h-8 rounded-lg px-3 text-[12px] font-medium text-foreground/50 hover:text-foreground transition-all"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={submitCorrecting}
+              disabled={submitting || !situacion.trim() || !enfoque.trim()}
+              className="flex h-8 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+            >
+              {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : saved ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
+              {saved ? "Guardado" : "Guardar patrón"}
+            </button>
           </div>
         </div>
       )}
@@ -606,11 +743,92 @@ function ChannelListCard({ channel, analyzing, onAnalyze }: {
   )
 }
 
+/** Patrón cargado suelto, sin partir de un análisis de conversación puntual. */
+function NewPatternForm({ onSubmit, onDone }: {
+  onSubmit: (data: { situacion: string; enfoque: string; resultado: ProspectingPattern["resultado"]; correccion?: string }) => Promise<boolean>
+  onDone:   () => void
+}) {
+  const [situacion,  setSituacion]  = useState("")
+  const [enfoque,    setEnfoque]    = useState("")
+  const [resultado,  setResultado]  = useState<ProspectingPattern["resultado"]>("pendiente")
+  const [correccion, setCorreccion] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+
+  async function submit() {
+    if (!situacion.trim() || !enfoque.trim()) return
+    setSubmitting(true)
+    const ok = await onSubmit({ situacion, enfoque, resultado, correccion: correccion || undefined })
+    setSubmitting(false)
+    if (ok) onDone()
+  }
+
+  return (
+    <div className="mb-3 space-y-2.5 rounded-xl border border-foreground/[0.10] bg-foreground/[0.02] p-3">
+      <div>
+        <label className="text-[11px] font-semibold text-foreground/50">Situación</label>
+        <textarea
+          value={situacion}
+          onChange={e => setSituacion(e.target.value)}
+          rows={2}
+          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+        />
+      </div>
+      <div>
+        <label className="text-[11px] font-semibold text-foreground/50">Qué enfoque/mensaje se usó</label>
+        <textarea
+          value={enfoque}
+          onChange={e => setEnfoque(e.target.value)}
+          rows={2}
+          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+        />
+      </div>
+      <div>
+        <label className="text-[11px] font-semibold text-foreground/50">Resultado</label>
+        <div className="mt-1 flex gap-1.5">
+          {(["cerro", "no_cerro", "pendiente"] as const).map(r => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => setResultado(r)}
+              className={cn(
+                "rounded-lg px-2.5 py-1 text-[11.5px] font-semibold transition-all",
+                resultado === r ? RESULTADO_STYLES[r] : "bg-foreground/[0.04] text-foreground/40 hover:text-foreground/60"
+              )}
+            >
+              {RESULTADO_LABELS[r]}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <label className="text-[11px] font-semibold text-foreground/50">Corrección para la IA (opcional)</label>
+        <textarea
+          value={correccion}
+          onChange={e => setCorreccion(e.target.value)}
+          rows={2}
+          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+        />
+      </div>
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={submit}
+          disabled={submitting || !situacion.trim() || !enfoque.trim()}
+          className="flex h-8 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+        >
+          {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+          Guardar patrón
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export function AdminOmniView() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [allowed, setAllowed] = useState<boolean | null>(null) // null = verificando
-  const [activeTab, setActiveTab] = useState<"resumen" | "conversaciones" | "comunidad">("resumen")
+  const [activeTab, setActiveTab] = useState<"resumen" | "conversaciones" | "comunidad" | "prospeccion">("resumen")
 
   const [igStatus,   setIgStatus]   = useState<IgStatus | null | undefined>(undefined) // undefined = cargando
   const [igLoading,  setIgLoading]  = useState(false)
@@ -648,6 +866,15 @@ export function AdminOmniView() {
   const [channels,           setChannels]           = useState<ChannelItem[] | null>(null)
   const [analyzingChannelIds, setAnalyzingChannelIds] = useState<Set<string>>(new Set())
   const [channelsError,      setChannelsError]      = useState<string | null>(null)
+
+  const [prospectingContext,        setProspectingContext]        = useState<ProspectingContextData | null>(null)
+  const [prospectingContextSaving,  setProspectingContextSaving]  = useState(false)
+  const [prospectingContextMsg,     setProspectingContextMsg]     = useState<string | null>(null)
+  const [prospectingContextError,   setProspectingContextError]   = useState<string | null>(null)
+
+  const [patterns,      setPatterns]      = useState<ProspectingPattern[] | null>(null)
+  const [patternsError, setPatternsError] = useState<string | null>(null)
+  const [newPatternOpen, setNewPatternOpen] = useState(false)
 
   const getAuthHeader = useCallback(async () => {
     const supabase = createClient()
@@ -720,6 +947,82 @@ export function AdminOmniView() {
     setChannels(json.channels ?? [])
   }, [getAuthHeader])
 
+  const fetchProspectingContext = useCallback(async () => {
+    setProspectingContextError(null)
+    try {
+      const headers = await getAuthHeader()
+      if (!headers) { setProspectingContextError("Sesión vencida — recargá la página."); return }
+      const res = await fetch("/api/admin/omni/prospecting/context", { headers })
+      const json = await res.json()
+      if (res.ok) setProspectingContext(json.context)
+      else setProspectingContextError(json.error ?? `No se pudo cargar el contexto (${res.status})`)
+    } catch (e) {
+      setProspectingContextError(e instanceof Error ? e.message : "Error de red")
+    }
+  }, [getAuthHeader])
+
+  const saveProspectingContext = async () => {
+    if (!prospectingContext) return
+    setProspectingContextSaving(true)
+    setProspectingContextMsg(null)
+    setProspectingContextError(null)
+    try {
+      const headers = await getAuthHeader()
+      if (!headers) { setProspectingContextError("Sesión vencida — recargá la página."); return }
+      const res = await fetch("/api/admin/omni/prospecting/context", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...headers },
+        body: JSON.stringify(prospectingContext),
+      })
+      const json = await res.json()
+      if (res.ok) setProspectingContextMsg("Guardado ✓")
+      else setProspectingContextError(json.error ?? `No se pudo guardar (${res.status})`)
+    } catch (e) {
+      setProspectingContextError(e instanceof Error ? e.message : "Error de red al guardar")
+    } finally {
+      setProspectingContextSaving(false)
+      setTimeout(() => setProspectingContextMsg(null), 2000)
+    }
+  }
+
+  const fetchPatterns = useCallback(async () => {
+    setPatternsError(null)
+    try {
+      const headers = await getAuthHeader()
+      if (!headers) { setPatternsError("Sesión vencida — recargá la página."); return }
+      const res = await fetch("/api/admin/omni/prospecting/patterns", { headers })
+      const json = await res.json()
+      if (res.ok) setPatterns(json.patterns ?? [])
+      else setPatternsError(json.error ?? `No se pudieron cargar los patrones (${res.status})`)
+    } catch (e) {
+      setPatternsError(e instanceof Error ? e.message : "Error de red")
+    }
+  }, [getAuthHeader])
+
+  const createPattern = async (data: {
+    conversation_id?: string | null
+    participant_username?: string | null
+    situacion: string
+    enfoque: string
+    resultado: ProspectingPattern["resultado"]
+    correccion?: string
+  }): Promise<boolean> => {
+    try {
+      const headers = await getAuthHeader()
+      if (!headers) return false
+      const res = await fetch("/api/admin/omni/prospecting/patterns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...headers },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) return false
+      await fetchPatterns()
+      return true
+    } catch {
+      return false
+    }
+  }
+
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then((res: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
@@ -742,12 +1045,14 @@ export function AdminOmniView() {
     fetchProspectingMetrics()
     fetchConversations()
     fetchChannels()
+    fetchProspectingContext()
+    fetchPatterns()
 
     if (searchParams.get("omni_ig_success")) setIgSyncMsg("Instagram conectado — ya podés sincronizar.")
     if (searchParams.get("omni_ig_error"))   setIgSyncMsg(`Error al conectar Instagram (${searchParams.get("omni_ig_error")}).`)
     if (searchParams.get("omni_slack_success")) setSlackSyncMsg("Slack conectado como Ann — ya podés sincronizar.")
     if (searchParams.get("omni_slack_error"))   setSlackSyncMsg(`Error al conectar Slack (${searchParams.get("omni_slack_error")}).`)
-  }, [allowed, fetchIgStatus, fetchSlackStatus, fetchSlackUserStatus, fetchDailyBriefing, fetchProspectingMetrics, fetchConversations, fetchChannels, searchParams])
+  }, [allowed, fetchIgStatus, fetchSlackStatus, fetchSlackUserStatus, fetchDailyBriefing, fetchProspectingMetrics, fetchConversations, fetchChannels, fetchProspectingContext, fetchPatterns, searchParams])
 
   const connectInstagram = async () => {
     setIgLoading(true)
@@ -979,6 +1284,17 @@ export function AdminOmniView() {
           <Slack className="h-3.5 w-3.5" />
           Comunidad
         </button>
+        <button
+          onClick={() => setActiveTab("prospeccion")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
+            activeTab === "prospeccion" ? "border-[#ffde21] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+          )}
+        >
+          <TrendingUp className="h-3.5 w-3.5" />
+          Prospección
+          {patterns && <span className="text-foreground/30">{patterns.length}</span>}
+        </button>
       </div>
 
       {activeTab === "resumen" && (
@@ -1082,6 +1398,11 @@ export function AdminOmniView() {
                     conversation={c}
                     analyzing={analyzingConvoIds.has(c.id)}
                     onAnalyze={() => analyzeConversation(c.id)}
+                    onSubmitCorrection={data => createPattern({
+                      conversation_id:       c.id,
+                      participant_username:  c.participant_username,
+                      ...data,
+                    })}
                   />
                 ))}
               </div>
@@ -1197,6 +1518,122 @@ export function AdminOmniView() {
           {communityFindings && (
             <FindingsSection title="Hallazgos — Comunidad" findings={communityFindings} />
           )}
+
+        </div>
+      )}
+
+      {activeTab === "prospeccion" && (
+        <div className="space-y-8">
+
+          {/* Contexto de prospección — workflow propio, separado del Cerebro de Ann */}
+          <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+            <p className="text-[14px] font-semibold text-foreground">Tu contexto de prospección</p>
+            <p className="mt-0.5 text-[12px] text-foreground/40">
+              Separado del Cerebro de Ann — esto ajusta cómo se redacta el feedback de cada análisis de conversación (traducido a lenguaje simple, con foco en pasar de conversación a offer doc), sin tocar el criterio base de Ann.
+            </p>
+            {prospectingContextError && (
+              <p className="mt-2 text-[12px] text-red-700 dark:text-red-400">{prospectingContextError}</p>
+            )}
+            {prospectingContext === null ? (
+              <div className="mt-3 h-32 animate-pulse rounded-xl bg-foreground/[0.03]" />
+            ) : (
+              <div className="mt-3 space-y-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-foreground/50">Workflow inbound</label>
+                  <textarea
+                    value={prospectingContext.workflow_inbound}
+                    onChange={e => setProspectingContext({ ...prospectingContext, workflow_inbound: e.target.value })}
+                    rows={3}
+                    placeholder="Cómo trabajás los leads que llegan solos (DMs, formularios, etc.)"
+                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-foreground/50">Workflow outbound</label>
+                  <textarea
+                    value={prospectingContext.workflow_outbound}
+                    onChange={e => setProspectingContext({ ...prospectingContext, workflow_outbound: e.target.value })}
+                    rows={3}
+                    placeholder="Cómo contactás vos a los leads (prospección activa)"
+                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-foreground/50">Notas generales</label>
+                  <textarea
+                    value={prospectingContext.notas_generales}
+                    onChange={e => setProspectingContext({ ...prospectingContext, notas_generales: e.target.value })}
+                    rows={2}
+                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+                  />
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={saveProspectingContext}
+                    disabled={prospectingContextSaving}
+                    className="flex h-8 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+                  >
+                    {prospectingContextSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                    Guardar
+                  </button>
+                  {prospectingContextMsg && <span className="text-[12px] text-emerald-700 dark:text-emerald-400">{prospectingContextMsg}</span>}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Patrones registrados — corpus estructurado situación → enfoque → resultado */}
+          <div>
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+                Patrones registrados
+                {patterns && <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">{patterns.length}</span>}
+              </p>
+              <button
+                onClick={() => setNewPatternOpen(v => !v)}
+                className="flex h-7 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all"
+              >
+                {newPatternOpen ? "Cancelar" : "+ Nuevo patrón"}
+              </button>
+            </div>
+
+            {newPatternOpen && (
+              <NewPatternForm onSubmit={createPattern} onDone={() => setNewPatternOpen(false)} />
+            )}
+
+            {patternsError && (
+              <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{patternsError}</p>
+            )}
+            {patterns === null ? (
+              <div className="space-y-2">
+                {[0, 1].map(i => <div key={i} className="h-16 animate-pulse rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]" />)}
+              </div>
+            ) : patterns.length === 0 ? (
+              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+                Todavía no hay patrones registrados — se van sumando desde el botón "Corregir" en cada análisis, o sueltos con "+ Nuevo patrón".
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {patterns.map(p => (
+                  <div key={p.id} className="rounded-xl border border-foreground/[0.07] bg-card p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", RESULTADO_STYLES[p.resultado])}>
+                        {RESULTADO_LABELS[p.resultado]}
+                      </span>
+                      <span className="text-[11px] text-foreground/30">{fmtDateTime(p.created_at)}</span>
+                    </div>
+                    <p className="mt-1.5 text-[12.5px] text-foreground/70"><span className="font-semibold text-foreground/50">Situación:</span> {p.situacion}</p>
+                    <p className="mt-1 text-[12.5px] text-foreground/70"><span className="font-semibold text-foreground/50">Enfoque:</span> {p.enfoque}</p>
+                    {p.correccion && (
+                      <p className="mt-1.5 rounded-lg bg-[#ffde21]/[0.06] px-2.5 py-1.5 text-[12px] text-foreground/70">
+                        <span className="font-semibold">Corrección:</span> {p.correccion}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
         </div>
       )}
