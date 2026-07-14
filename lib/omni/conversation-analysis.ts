@@ -7,6 +7,7 @@
 
 import { createServiceClient } from "@/lib/supabase-service"
 import { buildOmniSystemPrompt } from "@/lib/omni/system-prompt"
+import { buildProspectingContextBlock } from "@/lib/omni/prospecting-context"
 import Anthropic from "@anthropic-ai/sdk"
 
 const MAX_MESSAGES = 60
@@ -43,6 +44,9 @@ export async function analyzeOneConversation(
   } catch (e) {
     throw new ConversationAnalysisError(e instanceof Error ? e.message : "Error armando el contexto de Ann AI", 500)
   }
+
+  const prospectingBlock = await buildProspectingContextBlock(sb)
+  const fullSystemPrompt = prospectingBlock ? `${systemPrompt}\n\n---\n\n${prospectingBlock}` : systemPrompt
 
   const { data: conversation, error: convError } = await sb
     .from("omni_conversations")
@@ -104,7 +108,7 @@ Sin markdown, sin texto adicional, solo el JSON.`
     msg = await anthropic.messages.create({
       model: "claude-sonnet-4-5",
       max_tokens: 1000,
-      system: systemPrompt,
+      system: fullSystemPrompt,
       messages: [{ role: "user", content: prompt }],
     })
   } catch (e) {
