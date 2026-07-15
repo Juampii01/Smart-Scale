@@ -76,15 +76,22 @@ export async function analyzeOneConversation(
     throw new ConversationAnalysisError("Esta conversación no tiene mensajes sincronizados", 400)
   }
 
-  const lines = [...messages].reverse().map((m: any) => `${m.sender === "ann" ? "Ann" : username ?? "el prospecto"}: ${String(m.body ?? "").slice(0, 300)}`)
+  const lines = [...messages].reverse().map((m: any) => {
+    const date = m.sent_at ? new Date(m.sent_at).toISOString().slice(0, 10) : "fecha desconocida"
+    return `[${date}] ${m.sender === "ann" ? "Ann" : username ?? "el prospecto"}: ${String(m.body ?? "").slice(0, 300)}`
+  })
   const leadInfo = lead
     ? `(lead: rating ${(lead as any).rating ?? "sin rating"}, nicho ${(lead as any).niche ?? "sin nicho"}${(lead as any).purchased ? ", YA ES CLIENTE" : ""}${(lead as any).notes ? `, notas: ${(lead as any).notes}` : ""})`
     : "(sin lead asociado en el CRM)"
 
-  const prompt = `Te paso UNA conversación puntual de Instagram DM que el usuario eligió revisar ${leadInfo}:
+  const today = new Date().toISOString().slice(0, 10)
+
+  const prompt = `Hoy es ${today}. Te paso UNA conversación puntual de Instagram DM que el usuario eligió revisar ${leadInfo}, con la fecha real de cada mensaje entre corchetes:
 
 @${username ?? "desconocido"}
 ${lines.join("\n")}
+
+Si mencionás hace cuánto no responde el prospecto o cuánto silencio hubo, calculalo con la fecha del último mensaje de arriba contra la fecha de hoy (${today}) — nunca estimes ni inventes un intervalo.
 
 Evaluá esta conversación puntual contra los principios de Ann que tenés arriba (capa 1) y decidí su estado:
 - "sano": va bien, no hay nada que corregir hoy.
