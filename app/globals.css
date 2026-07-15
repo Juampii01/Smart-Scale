@@ -20,7 +20,7 @@
   --secondary-foreground: #0b0b0d;
   --muted: #eef0f3;
   --muted-foreground: rgba(11, 11, 13, 0.60);
-  --accent: #ffde21;
+  --accent: #dafc69;
   --accent-foreground: #0a0a0b;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: #ffffff;
@@ -45,14 +45,14 @@
   /* ── Design system tokens (light) ─────────────────────────────────────────
      Mapeo light-mode del design system. El look oscuro vive en .dark con el
      hex exacto del spec; acá derivamos equivalentes claros legibles (gotcha #2).
-     El acento sigue siendo el amarillo brand (--accent: #ffde21, arriba). */
+     El acento sigue siendo el amarillo brand (--accent: #dafc69, arriba). */
   --surface:       #ffffff;
   --elevated:      #f7f8fa;
   --text-2:        rgba(11, 18, 25, 0.62);
   --text-3:        rgba(11, 18, 25, 0.42);
   --border-hover:  rgba(15, 18, 25, 0.16);
-  --accent-hover:  #ffe84d;
-  --accent-soft:   #fff7cc;
+  --accent-hover:  #f2ffc0;
+  --accent-soft:   #f2ffc0;
   --on-accent:     #1a1a1e;   /* texto SIEMPRE oscuro sobre el amarillo */
   --success:       #0f8a6b;  --success-soft: #d9f2ea;
   --danger:        #c0492b;  --danger-soft:  #fbe6df;
@@ -68,26 +68,25 @@
    - Cards/popovers: shadow más visible para depth
    - Sidebar: separador y bg diferenciado del background principal
    ───────────────────────────────────────────────────────────────────────── */
-:root:not(.dark) button[class*="bg-[#ffde21]"],
-:root:not(.dark) a[class*="bg-[#ffde21]"],
-:root:not(.dark) [class*="bg-[#ffde21]"][role="button"],
-:root:not(.dark) button[class*="bg-[#ffe46b]"],
-:root:not(.dark) button[class*="bg-[#ffe84d]"],
-:root:not(.dark) a[class*="bg-[#ffe46b]"] {
-  border: 1px solid rgba(180, 130, 0, 0.30) !important;
-  box-shadow: 0 1px 2px rgba(120, 90, 0, 0.10), 0 4px 12px rgba(255, 200, 0, 0.22);
+:root:not(.dark) button[class*="bg-[#dafc69]"],
+:root:not(.dark) a[class*="bg-[#dafc69]"],
+:root:not(.dark) [class*="bg-[#dafc69]"][role="button"],
+:root:not(.dark) button[class*="bg-[#f2ffc0]"],
+:root:not(.dark) a[class*="bg-[#f2ffc0]"] {
+  border: 1px solid rgba(76, 102, 6, 0.30) !important;
+  box-shadow: 0 1px 2px rgba(76, 102, 6, 0.10), 0 4px 12px rgba(147, 188, 30, 0.22);
 }
 
-:root:not(.dark) button[class*="bg-[#ffde21]"]:hover,
-:root:not(.dark) a[class*="bg-[#ffde21]"]:hover {
+:root:not(.dark) button[class*="bg-[#dafc69]"]:hover,
+:root:not(.dark) a[class*="bg-[#dafc69]"]:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(120, 90, 0, 0.12), 0 8px 20px rgba(255, 200, 0, 0.28);
+  box-shadow: 0 2px 4px rgba(76, 102, 6, 0.12), 0 8px 20px rgba(147, 188, 30, 0.28);
 }
 
-:root:not(.dark) button[class*="bg-[#ffde21]"]:active,
-:root:not(.dark) a[class*="bg-[#ffde21]"]:active {
+:root:not(.dark) button[class*="bg-[#dafc69]"]:active,
+:root:not(.dark) a[class*="bg-[#dafc69]"]:active {
   transform: translateY(1px);
-  box-shadow: 0 1px 2px rgba(120, 90, 0, 0.10);
+  box-shadow: 0 1px 2px rgba(76, 102, 6, 0.10);
 }
 
 /* Cards (rounded-2xl/xl con bg-card) en light: sombra suave y clara para depth */
@@ -126,49 +125,49 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   LIGHT MODE: yellow accents legibles
+   LIGHT MODE: lima accents legibles
    ─────────────────────────────────────────────────────────────────────────
-   El amarillo brand (#ffde21) sobre blanco es ilegible cuando se usa
-   como TEXTO o como bg translúcido. Lo cambiamos a amber-700 (#a16207)
-   que mantiene la familia de color pero con contraste suficiente.
-   El bg-[#ffde21] SÓLIDO (botones) queda intacto — esos sí se ven bien.
+   El lima brand (#dafc69) sobre blanco es ilegible cuando se usa
+   como TEXTO o como bg translúcido — no llega a 3:1 de contraste.
+   Lo cambiamos a foreground (negro) para texto/bordes finos.
+   El bg-[#dafc69] SÓLIDO (botones) queda intacto — con el borde/sombra
+   de arriba se ve bien sobre blanco.
    ───────────────────────────────────────────────────────────────────────── */
 
-/* Texto amarillo → negro (foreground) para máxima legibilidad */
-:root:not(.dark) [class*="text-[#ffde21]"],
-:root:not(.dark) [class*="text-[#ffe46b]"],
-:root:not(.dark) [class*="text-[#ffe84d]"] {
+/* Texto lima → negro (foreground) para máxima legibilidad */
+:root:not(.dark) [class*="text-[#dafc69]"],
+:root:not(.dark) [class*="text-[#f2ffc0]"] {
   color: var(--foreground) !important;
 }
 
-/* Backgrounds amarillos TRANSLÚCIDOS (badges, hover states) → gris muy sutil */
-:root:not(.dark) [class*="bg-[#ffde21]/["],
-:root:not(.dark) [class*="bg-[#ffde21]/0"],
-:root:not(.dark) [class*="bg-[#ffde21]/1"] {
+/* Backgrounds lima TRANSLÚCIDOS (badges, hover states) → gris muy sutil */
+:root:not(.dark) [class*="bg-[#dafc69]/["],
+:root:not(.dark) [class*="bg-[#dafc69]/0"],
+:root:not(.dark) [class*="bg-[#dafc69]/1"] {
   background-color: rgba(0, 0, 0, 0.04) !important;
 }
 
-/* Borders amarillos → border default (sutil pero visible) */
-:root:not(.dark) [class*="border-[#ffde21]/"] {
+/* Borders lima → border default (sutil pero visible) */
+:root:not(.dark) [class*="border-[#dafc69]/"] {
   border-color: rgba(0, 0, 0, 0.15) !important;
 }
-:root:not(.dark) [class*="border-[#ffde21]"]:not([class*="/"]) {
+:root:not(.dark) [class*="border-[#dafc69]"]:not([class*="/"]) {
   border-color: var(--foreground) !important;
 }
 
-/* Decorative dots/dividers amarillos sólidos pequeños siguen siendo brand,
-   no se tocan (bg-[#ffde21] sin opacidad permanece amarillo intenso) */
+/* Decorative dots/dividers lima sólidos pequeños siguen siendo brand,
+   no se tocan (bg-[#dafc69] sin opacidad permanece lima intenso) */
 
 /* ─────────────────────────────────────────────────────────────────────────
    DARK MODE — preserva exactamente el look actual del dashboard
    (#0a0a0b base, #111113 elevated, etc.)
    ───────────────────────────────────────────────────────────────────────── */
 .dark {
-  --background: #0a0a0c;
+  --background: #0a0a0a;
   --foreground: #ffffff;
-  --card: #141519;
+  --card: #131313;
   --card-foreground: #ffffff;
-  --popover: #141519;
+  --popover: #131313;
   --popover-foreground: #ffffff;
   --primary: #ffffff;
   --primary-foreground: #0a0a0b;
@@ -176,7 +175,7 @@
   --secondary-foreground: #ffffff;
   --muted: rgba(255, 255, 255, 0.06);
   --muted-foreground: rgba(255, 255, 255, 0.6);
-  --accent: #ffde21;
+  --accent: #dafc69;
   --accent-foreground: #0a0a0b;
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
@@ -188,9 +187,9 @@
   --chart-3: oklch(0.82 0.22 70.08);
   --chart-4: oklch(0.7 0.28 303.9);
   --chart-5: oklch(0.72 0.26 16.439);
-  --sidebar: #0c0c0f;
+  --sidebar: #0a0a0a;
   --sidebar-foreground: #ffffff;
-  --sidebar-primary: #ffde21;
+  --sidebar-primary: #dafc69;
   --sidebar-primary-foreground: #0a0a0b;
   --sidebar-accent: rgba(255, 255, 255, 0.06);
   --sidebar-accent-foreground: #ffffff;
@@ -198,20 +197,21 @@
   --sidebar-ring: rgba(255, 255, 255, 0.3);
 
   /* ── Design system tokens (dark — hex exacto del spec) ───────────────────── */
-  --surface:       #141519;
-  --elevated:      #1c1d22;
+  --surface:       #131313;
+  --elevated:      #161616;
   --text-2:        #9a9a96;
   --text-3:        #6a6a66;
   --border-hover:  #34343a;
-  --accent-hover:  #ffe84d;
-  --accent-soft:   #33300a;
-  --on-accent:     #1a1a1e;
+  --accent-hover:  #f2ffc0;
+  --accent-soft:   #1c2410;
+  --on-accent:     #0a0a0a;
   --success:       #5dcaa5;  --success-soft: #13332a;
   --danger:        #f0997b;  --danger-soft:  #3a1e16;
 }
 
 @theme inline {
-  --font-sans: var(--font-space-grotesk), var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-inter), var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-inter-tight), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-instrument-serif), ui-serif, Georgia, "Times New Roman", serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --color-background: var(--background);
@@ -278,13 +278,20 @@
   body {
     @apply bg-background text-foreground;
   }
-  /* Design system: títulos en la sans de display (Geist), sin serif.
-     Jerarquía fuerte via tamaño/peso + tracking ajustado, no via familia. */
+  /* Design system: títulos en Inter Tight (manual de marca), sin serif.
+     Jerarquía fuerte via tamaño/peso + tracking ajustado. */
   h1, h2 {
-    font-family: var(--font-sans);
-    letter-spacing: -0.02em;
-    font-weight: 600;
+    font-family: var(--font-display);
+    letter-spacing: -0.03em;
+    font-weight: 800;
   }
+}
+
+/* ── Isotipo Smart Scale (orbit mark) ───────────────────────────────────── */
+@keyframes ss-spin { to { transform: rotate(360deg); } }
+@keyframes ss-pulse {
+  0%       { box-shadow: 0 0 0 0 rgba(218, 252, 105, 0.35); }
+  70%, 100% { box-shadow: 0 0 0 8px rgba(218, 252, 105, 0); }
 }
 
 /* ── Page transition ───────────────────────────────────────────────────── */
@@ -312,10 +319,10 @@
 .progress-shimmer {
   background: linear-gradient(
     90deg,
-    #ffde21 0%,
-    #fff176 40%,
-    #ffde21 60%,
-    #f59e0b 100%
+    #dafc69 0%,
+    #f2ffc0 40%,
+    #dafc69 60%,
+    #a9d42f 100%
   );
   background-size: 200% auto;
   animation: progress-shimmer 1.2s linear infinite;

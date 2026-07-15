@@ -582,7 +582,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <h1 className="text-base sm:text-lg font-bold text-foreground leading-tight tracking-tight flex items-center gap-2">
                   {pageTitle}
                   {isAdminMode && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-[#ffde21]/30 bg-[#ffde21]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#ffde21]">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#dafc69]">
                       <ShieldCheck className="h-2.5 w-2.5" />
                       Internal
                     </span>
@@ -606,7 +606,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       aria-label={label}
                       className="inline-flex h-9 items-center gap-1.5 rounded-md border border-foreground/[0.10] bg-card px-2.5 text-[13px] font-semibold text-foreground/75 hover:text-foreground hover:border-foreground/[0.18] hover:bg-foreground/[0.04] transition-colors"
                     >
-                      <Icon className="h-4 w-4 text-[#ffde21]" />
+                      <Icon className="h-4 w-4 text-[#dafc69]" />
                       <span className="hidden xl:inline">{label}</span>
                     </button>
                   ))}
@@ -644,16 +644,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 >
                   {avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={avatarUrl} alt="Perfil" className="h-7 w-7 rounded-full object-cover border border-[#ffde21]/40" />
+                    <img src={avatarUrl} alt="Perfil" className="h-7 w-7 rounded-full object-cover border border-[#dafc69]/40" />
                   ) : (
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10">
-                      <User className="h-4 w-4 text-[#ffde21]" />
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10">
+                      <User className="h-4 w-4 text-[#dafc69]" />
                     </span>
                   )}
                   <span className="hidden sm:inline text-foreground font-semibold">
                     {activeClientName ?? clientDisplayName ?? userEmail ?? "—"}
                   </span>
-                  <ChevronDown className="h-4 w-4 opacity-80 text-[#ffde21]" />
+                  <ChevronDown className="h-4 w-4 opacity-80 text-[#dafc69]" />
                 </Button>
 
                 {profileMenuOpen && (
@@ -667,7 +667,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <button
                         type="button"
                         onClick={() => avatarInputRef.current?.click()}
-                        className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21] text-[13px] font-bold overflow-hidden group/avatar"
+                        className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10 text-[#dafc69] text-[13px] font-bold overflow-hidden group/avatar"
                         title="Cambiar foto"
                       >
                         {avatarUrl
@@ -709,7 +709,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                   role="menuitem"
                                   className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
                                     isActive
-                                      ? "bg-[#ffde21]/15 text-foreground"
+                                      ? "bg-[#dafc69]/15 text-foreground"
                                       : "text-foreground hover:bg-foreground/[0.06]"
                                   } ${!isSelectable ? "opacity-40 cursor-not-allowed hover:bg-transparent" : ""}`}
                                   disabled={!isSelectable}
@@ -723,7 +723,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                 >
                                   <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
                                     isActive
-                                      ? "bg-[#ffde21] text-black"
+                                      ? "bg-[#dafc69] text-black"
                                       : "bg-foreground/[0.08] text-foreground/70"
                                   }`}>
                                     {initial}
@@ -842,7 +842,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   onClick={() => router.push(href)}
                   className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-foreground/[0.10] bg-card px-3 text-[12.5px] font-semibold text-foreground/80 hover:text-foreground active:scale-[0.98] transition-all"
                 >
-                  <Icon className="h-3.5 w-3.5 text-[#ffde21]" />
+                  <Icon className="h-3.5 w-3.5 text-[#dafc69]" />
                   {short}
                 </button>
               ))}

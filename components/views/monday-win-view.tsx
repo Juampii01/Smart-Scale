@@ -13,7 +13,7 @@ function Field({ label, required, hint, children }: { label: string; required?: 
     <div className="flex flex-col gap-2">
       <label className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">
         {label}
-        {required && <span className="ml-1 text-[#ffde21]">*</span>}
+        {required && <span className="ml-1 text-[#dafc69]">*</span>}
       </label>
       {hint && <p className="text-[11px] text-foreground/25 -mt-1">{hint}</p>}
       {children}
@@ -21,7 +21,7 @@ function Field({ label, required, hint, children }: { label: string; required?: 
   )
 }
 
-const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2.5 text-sm font-medium text-foreground placeholder:text-foreground/20 focus:border-[#ffde21]/40 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20 transition-all"
+const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2.5 text-sm font-medium text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/20 transition-all"
 const textareaCls = inputCls + " resize-none"
 
 export function MondayWinView() {
@@ -126,11 +126,11 @@ export function MondayWinView() {
       {/* Tab switcher */}
       <div className="flex gap-1 mb-6 rounded-xl border border-foreground/[0.06] bg-card p-1 w-fit">
         <button type="button" onClick={() => setTab("form")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "form" ? "bg-[#ffde21] text-black" : "text-foreground/40 hover:text-foreground/70"}`}>
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "form" ? "bg-[#dafc69] text-black" : "text-foreground/40 hover:text-foreground/70"}`}>
           <FileText className="h-3.5 w-3.5" /> Cargar
         </button>
         <button type="button" onClick={() => setTab("history")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "history" ? "bg-[#ffde21] text-black" : "text-foreground/40 hover:text-foreground/70"}`}>
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "history" ? "bg-[#dafc69] text-black" : "text-foreground/40 hover:text-foreground/70"}`}>
           <History className="h-3.5 w-3.5" /> Historial
         </button>
       </div>
@@ -142,11 +142,11 @@ export function MondayWinView() {
       {/* Header */}
       <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-5">
         <div className="flex items-center gap-4">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#ffde21]/10 ring-1 ring-[#ffde21]/20">
-            <Star className="h-5 w-5 text-[#ffde21]" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#dafc69]/10 ring-1 ring-[#dafc69]/20">
+            <Star className="h-5 w-5 text-[#dafc69]" />
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/70 mb-0.5">Semanal</p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#dafc69]/70 mb-0.5">Semanal</p>
             <h2 className="text-lg font-bold text-foreground">Monday Win</h2>
             <p className="text-xs text-foreground/30 mt-0.5">Compartí tus logros y enfoque de la semana.</p>
           </div>
@@ -155,10 +155,10 @@ export function MondayWinView() {
 
       {/* Aviso si admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-start gap-3 rounded-[14px] border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
-          <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 rounded-[14px] border border-[#dafc69]/25 bg-[#dafc69]/[0.05] px-4 py-3">
+          <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Aviso · este Monday Win es tuyo</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Aviso · este Monday Win es tuyo</p>
             <p className="text-[13px] text-foreground/75 mt-0.5">
               Estás navegando como <span className="font-semibold text-foreground">{activeName ?? "otro cliente"}</span>, pero este formulario siempre se guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
             </p>
@@ -169,7 +169,7 @@ export function MondayWinView() {
       {/* Fields */}
       <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card">
         <div className="flex items-center gap-2 border-b border-foreground/[0.05] px-5 py-3">
-          <span className="h-3 w-[2px] rounded-full bg-[#ffde21]" />
+          <span className="h-3 w-[2px] rounded-full bg-[#dafc69]" />
           <span className="text-xs font-semibold uppercase tracking-widest text-foreground/40">Semana en revisión</span>
         </div>
         <div className="p-5 space-y-5">
@@ -220,7 +220,7 @@ export function MondayWinView() {
 
       <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card">
         <div className="flex items-center gap-2 border-b border-foreground/[0.05] px-5 py-3">
-          <span className="h-3 w-[2px] rounded-full bg-[#ffde21]" />
+          <span className="h-3 w-[2px] rounded-full bg-[#dafc69]" />
           <span className="text-xs font-semibold uppercase tracking-widest text-foreground/40">Esta semana</span>
         </div>
         <div className="p-5 space-y-5">
@@ -269,7 +269,7 @@ export function MondayWinView() {
         <button
           type="submit"
           disabled={status === "loading" || !ownClientId}
-          className="flex items-center gap-2 rounded-xl bg-[#ffde21] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
           {status === "loading" ? "Enviando…" : "Enviar Monday Win"}

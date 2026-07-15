@@ -57,8 +57,8 @@ export default function LoginPage() {
 
         {/* Background glow */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute top-0 left-0 h-[500px] w-[500px] rounded-full bg-[#ffde21]/[0.06] blur-[140px]" />
-          <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-[#ffde21]/[0.03] blur-[120px]" />
+          <div className="absolute top-0 left-0 h-[500px] w-[500px] rounded-full bg-[#dafc69]/[0.06] blur-[140px]" />
+          <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-[#dafc69]/[0.03] blur-[120px]" />
         </div>
 
         {/* Grid overlay */}
@@ -82,14 +82,14 @@ export default function LoginPage() {
         {/* Center: Hero text */}
         <div className="relative space-y-6">
           <div className="flex items-center gap-2.5">
-            <span className="h-[3px] w-8 rounded-full bg-[#ffde21]" />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#ffde21]/70">Portal 2.0</span>
+            <span className="h-[3px] w-8 rounded-full bg-[#dafc69]" />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#dafc69]/70">Portal 2.0</span>
           </div>
 
           <h2 className="text-4xl font-bold leading-[1.15] tracking-tight text-foreground">
             Tu negocio,<br />
             bajo control.<br />
-            <span className="text-[#ffde21]">En tiempo real.</span>
+            <span className="text-[#dafc69]">En tiempo real.</span>
           </h2>
 
           <p className="max-w-sm text-sm leading-relaxed text-foreground/35">
@@ -151,7 +151,7 @@ export default function LoginPage() {
                 Email
               </label>
               <input
-                className="h-12 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm text-foreground outline-none placeholder:text-foreground/20 transition-all focus:border-[#ffde21]/50 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-[#ffde21]/10"
+                className="h-12 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm text-foreground outline-none placeholder:text-foreground/20 transition-all focus:border-[#dafc69]/50 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-[#dafc69]/10"
                 placeholder="tu@email.com"
                 type="email"
                 value={email}
@@ -168,13 +168,13 @@ export default function LoginPage() {
                 </label>
                 <a
                   href="/forgot-password"
-                  className="text-[11px] text-foreground/30 transition hover:text-[#ffde21]"
+                  className="text-[11px] text-foreground/30 transition hover:text-[#dafc69]"
                 >
                   ¿La olvidaste?
                 </a>
               </div>
               <input
-                className="h-12 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm text-foreground outline-none placeholder:text-foreground/20 transition-all focus:border-[#ffde21]/50 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-[#ffde21]/10"
+                className="h-12 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm text-foreground outline-none placeholder:text-foreground/20 transition-all focus:border-[#dafc69]/50 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-[#dafc69]/10"
                 placeholder="••••••••"
                 type="password"
                 value={password}
@@ -193,7 +193,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 h-12 w-full rounded-xl bg-[#ffde21] text-sm font-bold text-black transition-all hover:bg-[#ffe84d] hover:shadow-lg hover:shadow-[#ffde21]/20 disabled:opacity-50 active:scale-[0.98]"
+              className="mt-2 h-12 w-full rounded-xl bg-[#dafc69] text-sm font-bold text-black transition-all hover:bg-[#f2ffc0] hover:shadow-lg hover:shadow-[#dafc69]/20 disabled:opacity-50 active:scale-[0.98]"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

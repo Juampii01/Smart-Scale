@@ -343,7 +343,7 @@ function RatingBreakdown({ title, subtitle, distribution, ratings }: {
             <div key={r} className="flex items-center gap-2">
               <span className="w-10 shrink-0 text-[11px] text-foreground/40">{r}★</span>
               <div className="h-2 flex-1 overflow-hidden rounded-full bg-foreground/[0.06]">
-                <div className="h-full rounded-full bg-[#ffde21]" style={{ width: `${pct}%` }} />
+                <div className="h-full rounded-full bg-[#dafc69]" style={{ width: `${pct}%` }} />
               </div>
               <span className="w-6 shrink-0 text-right text-[11px] text-foreground/40">{count}</span>
             </div>
@@ -412,7 +412,7 @@ function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
               </div>
               <div className={cn(
                 "mt-2.5 rounded-lg border px-2.5 py-2",
-                f.estado === "irremontable" ? "border-foreground/[0.10] bg-foreground/[0.03]" : "border-[#ffde21]/25 bg-[#ffde21]/[0.06]",
+                f.estado === "irremontable" ? "border-foreground/[0.10] bg-foreground/[0.03]" : "border-[#dafc69]/25 bg-[#dafc69]/[0.06]",
               )}>
                 <p className="text-[12px] font-semibold text-foreground/80">{f.estado === "irremontable" ? "Aprendizaje: " : ""}{f.accion}</p>
               </div>
@@ -523,6 +523,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
   const badgeStyle = a
     ? a.estado === "irremontable" ? IRREMONTABLE_STYLE : a.estado === "sano" ? SANO_STYLE : SEVERITY_STYLES[a.severidad]
     : ""
+  const isStale = !!(a && conversation.last_message_at && new Date(conversation.last_message_at).getTime() > new Date(a.analyzed_at).getTime())
 
   const [correcting,  setCorrecting]  = useState(false)
   const [situacion,   setSituacion]   = useState("")
@@ -586,7 +587,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
           <button
             onClick={onAnalyze}
             disabled={analyzing}
-            className="flex h-8 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+            className="flex h-8 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
           >
             {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
             {a ? "Re-analizar" : "Analizar"}
@@ -601,6 +602,11 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               {a.estado === "en_riesgo" ? a.severidad : a.estado}
             </span>
             <span className="text-[11px] text-foreground/30">analizado {fmtDateTime(a.analyzed_at)}</span>
+            {isStale && (
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
+                desactualizado, hay mensajes nuevos
+              </span>
+            )}
           </div>
           <p className="mt-1.5 text-[12.5px] leading-relaxed text-foreground/60">{a.situacion}</p>
           <p className="mt-1.5 text-[12px] font-semibold text-foreground/50">Principio: <span className="font-normal text-foreground/60">{a.principio}</span></p>
@@ -608,7 +614,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
             <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
             <p className="text-[12px] italic text-foreground/50">{a.evidencia}</p>
           </div>
-          <div className="mt-1.5 rounded-lg border border-[#ffde21]/25 bg-[#ffde21]/[0.06] px-2.5 py-2">
+          <div className="mt-1.5 rounded-lg border border-[#dafc69]/25 bg-[#dafc69]/[0.06] px-2.5 py-2">
             <p className="text-[12px] font-semibold text-foreground/80">{a.accion}</p>
           </div>
         </div>
@@ -623,7 +629,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               value={situacion}
               onChange={e => setSituacion(e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
             />
           </div>
           <div>
@@ -633,7 +639,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               onChange={e => setEnfoque(e.target.value)}
               rows={2}
               placeholder="Ej: le mandé el offer doc directo sin agendar llamada"
-              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
             />
           </div>
           <div>
@@ -661,7 +667,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               onChange={e => setCorreccion(e.target.value)}
               rows={2}
               placeholder="Ej: acá la IA sugirió esperar 4 semanas, pero este tipo de lead se enfría en días"
-              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
             />
           </div>
           <div className="flex items-center justify-end gap-2">
@@ -676,7 +682,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               type="button"
               onClick={submitCorrecting}
               disabled={submitting || !situacion.trim() || !enfoque.trim()}
-              className="flex h-8 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+              className="flex h-8 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
             >
               {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : saved ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
               {saved ? "Guardado" : "Guardar patrón"}
@@ -713,7 +719,7 @@ function ChannelListCard({ channel, analyzing, onAnalyze }: {
         <button
           onClick={onAnalyze}
           disabled={analyzing || channel.message_count === 0}
-          className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+          className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
         >
           {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
           {a ? "Re-analizar" : "Analizar"}
@@ -734,7 +740,7 @@ function ChannelListCard({ channel, analyzing, onAnalyze }: {
             <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
             <p className="text-[12px] italic text-foreground/50">{a.evidencia}</p>
           </div>
-          <div className="mt-1.5 rounded-lg border border-[#ffde21]/25 bg-[#ffde21]/[0.06] px-2.5 py-2">
+          <div className="mt-1.5 rounded-lg border border-[#dafc69]/25 bg-[#dafc69]/[0.06] px-2.5 py-2">
             <p className="text-[12px] font-semibold text-foreground/80">{a.accion}</p>
           </div>
         </div>
@@ -770,7 +776,7 @@ function NewPatternForm({ onSubmit, onDone }: {
           value={situacion}
           onChange={e => setSituacion(e.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
         />
       </div>
       <div>
@@ -779,7 +785,7 @@ function NewPatternForm({ onSubmit, onDone }: {
           value={enfoque}
           onChange={e => setEnfoque(e.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
         />
       </div>
       <div>
@@ -806,7 +812,7 @@ function NewPatternForm({ onSubmit, onDone }: {
           value={correccion}
           onChange={e => setCorreccion(e.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
         />
       </div>
       <div className="flex justify-end">
@@ -814,7 +820,7 @@ function NewPatternForm({ onSubmit, onDone }: {
           type="button"
           onClick={submit}
           disabled={submitting || !situacion.trim() || !enfoque.trim()}
-          className="flex h-8 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+          className="flex h-8 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
         >
           {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
           Guardar patrón
@@ -1236,8 +1242,8 @@ export function AdminOmniView() {
       {/* Hero */}
       <div>
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#ffde21]/25 bg-[#ffde21]/[0.12]">
-            <Sparkles className="h-5 w-5 text-[#ffde21]" />
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#dafc69]/25 bg-[#dafc69]/[0.12]">
+            <Sparkles className="h-5 w-5 text-[#dafc69]" />
           </span>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">Ann AI</h1>
@@ -1257,7 +1263,7 @@ export function AdminOmniView() {
           onClick={() => setActiveTab("resumen")}
           className={cn(
             "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
-            activeTab === "resumen" ? "border-[#ffde21] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+            activeTab === "resumen" ? "border-[#dafc69] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
           )}
         >
           <LayoutDashboard className="h-3.5 w-3.5" />
@@ -1267,7 +1273,7 @@ export function AdminOmniView() {
           onClick={() => setActiveTab("conversaciones")}
           className={cn(
             "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
-            activeTab === "conversaciones" ? "border-[#ffde21] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+            activeTab === "conversaciones" ? "border-[#dafc69] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
           )}
         >
           <Instagram className="h-3.5 w-3.5" />
@@ -1278,7 +1284,7 @@ export function AdminOmniView() {
           onClick={() => setActiveTab("comunidad")}
           className={cn(
             "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
-            activeTab === "comunidad" ? "border-[#ffde21] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+            activeTab === "comunidad" ? "border-[#dafc69] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
           )}
         >
           <Slack className="h-3.5 w-3.5" />
@@ -1288,7 +1294,7 @@ export function AdminOmniView() {
           onClick={() => setActiveTab("prospeccion")}
           className={cn(
             "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
-            activeTab === "prospeccion" ? "border-[#ffde21] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+            activeTab === "prospeccion" ? "border-[#dafc69] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
           )}
         >
           <TrendingUp className="h-3.5 w-3.5" />
@@ -1348,7 +1354,7 @@ export function AdminOmniView() {
                 <button
                   onClick={connectInstagram}
                   disabled={igLoading}
-                  className="flex h-8 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
                 >
                   {igLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   Conectar Instagram
@@ -1438,7 +1444,7 @@ export function AdminOmniView() {
                 <button
                   onClick={connectSlack}
                   disabled={slackConnecting}
-                  className="flex h-8 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
                 >
                   {slackConnecting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   Conectar como Ann
@@ -1458,7 +1464,7 @@ export function AdminOmniView() {
                 <button
                   onClick={analyzeSlack}
                   disabled={analyzing}
-                  className="flex h-8 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
                 >
                   {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
                   Analizar
@@ -1545,7 +1551,7 @@ export function AdminOmniView() {
                     onChange={e => setProspectingContext({ ...prospectingContext, workflow_inbound: e.target.value })}
                     rows={3}
                     placeholder="Cómo trabajás los leads que llegan solos (DMs, formularios, etc.)"
-                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
                   />
                 </div>
                 <div>
@@ -1555,7 +1561,7 @@ export function AdminOmniView() {
                     onChange={e => setProspectingContext({ ...prospectingContext, workflow_outbound: e.target.value })}
                     rows={3}
                     placeholder="Cómo contactás vos a los leads (prospección activa)"
-                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
                   />
                 </div>
                 <div>
@@ -1564,14 +1570,14 @@ export function AdminOmniView() {
                     value={prospectingContext.notas_generales}
                     onChange={e => setProspectingContext({ ...prospectingContext, notas_generales: e.target.value })}
                     rows={2}
-                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#ffde21]/40"
+                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
                   />
                 </div>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={saveProspectingContext}
                     disabled={prospectingContextSaving}
-                    className="flex h-8 items-center gap-1.5 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+                    className="flex h-8 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
                   >
                     {prospectingContextSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                     Guardar
@@ -1625,7 +1631,7 @@ export function AdminOmniView() {
                     <p className="mt-1.5 text-[12.5px] text-foreground/70"><span className="font-semibold text-foreground/50">Situación:</span> {p.situacion}</p>
                     <p className="mt-1 text-[12.5px] text-foreground/70"><span className="font-semibold text-foreground/50">Enfoque:</span> {p.enfoque}</p>
                     {p.correccion && (
-                      <p className="mt-1.5 rounded-lg bg-[#ffde21]/[0.06] px-2.5 py-1.5 text-[12px] text-foreground/70">
+                      <p className="mt-1.5 rounded-lg bg-[#dafc69]/[0.06] px-2.5 py-1.5 text-[12px] text-foreground/70">
                         <span className="font-semibold">Corrección:</span> {p.correccion}
                       </p>
                     )}
@@ -1649,19 +1655,19 @@ export function AdminOmniView() {
                 key={m.key}
                 className={cn(
                   "rounded-2xl border p-4",
-                  isPiloto ? "border-[#ffde21]/25 bg-[#ffde21]/[0.04]" : "border-foreground/[0.07] bg-card",
+                  isPiloto ? "border-[#dafc69]/25 bg-[#dafc69]/[0.04]" : "border-foreground/[0.07] bg-card",
                 )}
               >
                 <div className="flex items-center justify-between">
                   <span className={cn(
                     "flex h-8 w-8 items-center justify-center rounded-lg",
-                    isPiloto ? "bg-[#ffde21]/[0.12] text-[#ffde21]" : "bg-foreground/[0.05] text-foreground/40",
+                    isPiloto ? "bg-[#dafc69]/[0.12] text-[#dafc69]" : "bg-foreground/[0.05] text-foreground/40",
                   )}>
                     <m.icon className="h-4 w-4" />
                   </span>
                   <span className={cn(
                     "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
-                    isPiloto ? "bg-[#ffde21]/[0.12] text-[#ffde21]" : "bg-foreground/[0.05] text-foreground/40",
+                    isPiloto ? "bg-[#dafc69]/[0.12] text-[#dafc69]" : "bg-foreground/[0.05] text-foreground/40",
                   )}>
                     {isPiloto ? "Piloto" : "Próximamente"}
                   </span>

@@ -4,13 +4,13 @@ import { useState } from "react"
 import { Check, AlertCircle, Loader2, Instagram, ShieldCheck } from "lucide-react"
 
 const inputCls =
-  "w-full rounded-xl border border-foreground/[0.10] bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/30 focus:border-[#ffde21]/45 focus:outline-none focus:ring-1 focus:ring-[#ffde21]/20 transition-all"
+  "w-full rounded-xl border border-foreground/[0.10] bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/30 focus:border-[#dafc69]/45 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/20 transition-all"
 
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
     <label className="block text-[13px] font-semibold text-foreground/60 mb-2 tracking-wide">
       {children}
-      {required && <span className="ml-1 text-[#ffde21]">*</span>}
+      {required && <span className="ml-1 text-[#dafc69]">*</span>}
     </label>
   )
 }
@@ -52,7 +52,7 @@ export default function ConectarInstagramPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "var(--background)" }}>
         <div className="max-w-md w-full text-center space-y-7 px-2">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#ffde21]">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#dafc69]">
             <Check className="h-10 w-10 text-black" strokeWidth={3} />
           </div>
           <div className="space-y-3">
@@ -61,19 +61,19 @@ export default function ConectarInstagramPage() {
               Vamos a configurar el acceso a las métricas de tu Instagram. En breve te va a llegar una invitación de Meta para aceptar.
             </p>
           </div>
-          <div className="rounded-2xl border border-[#ffde21]/15 p-6 text-left space-y-3" style={{ backgroundColor: "var(--card)" }}>
-            <p className="text-[11px] font-black text-[#ffde21]/60 uppercase tracking-[0.2em]">Próximos pasos</p>
+          <div className="rounded-2xl border border-[#dafc69]/15 p-6 text-left space-y-3" style={{ backgroundColor: "var(--card)" }}>
+            <p className="text-[11px] font-black text-[#dafc69]/60 uppercase tracking-[0.2em]">Próximos pasos</p>
             <ul className="space-y-2.5 text-[13px] text-foreground/55">
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ffde21] shrink-0" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" />
                 Te agregamos como tester en nuestra herramienta de Meta
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ffde21] shrink-0" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" />
                 Recibís una invitación en Instagram / Meta — aceptala
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ffde21] shrink-0" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" />
                 Tus métricas empiezan a verse en el portal de Smart Scale
               </li>
             </ul>
@@ -103,9 +103,9 @@ export default function ConectarInstagramPage() {
       <div className="mx-auto max-w-xl px-4 sm:px-5 pb-20 pt-8 sm:pt-12 space-y-6">
         {/* Hero */}
         <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#ffde21]/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
-            <Instagram className="h-3.5 w-3.5 text-[#ffde21]" />
-            <span className="text-[11px] font-bold text-[#ffde21] uppercase tracking-[0.18em]">Conectá tu Instagram</span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#dafc69]/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
+            <Instagram className="h-3.5 w-3.5 text-[#dafc69]" />
+            <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">Conectá tu Instagram</span>
           </div>
           <h1 className="text-[26px] sm:text-[34px] font-black text-foreground leading-[1.1] tracking-tight">
             Dejanos traer las métricas de tu Instagram
@@ -118,7 +118,7 @@ export default function ConectarInstagramPage() {
 
         {/* Requisito: cuenta profesional */}
         <div className="flex items-start gap-3 rounded-xl border border-foreground/[0.08] px-4 py-3.5" style={{ backgroundColor: "var(--card)" }}>
-          <ShieldCheck className="h-4 w-4 text-[#ffde21] shrink-0 mt-0.5" />
+          <ShieldCheck className="h-4 w-4 text-[#dafc69] shrink-0 mt-0.5" />
           <p className="text-[12.5px] text-foreground/55 leading-relaxed">
             <span className="font-semibold text-foreground/75">Tu cuenta tiene que ser Profesional</span> (Business o Creator).
             Si todavía no lo es, cambiala desde Instagram → Configuración → Tipo de cuenta y herramientas → Cambiar a cuenta profesional.
@@ -148,7 +148,7 @@ export default function ConectarInstagramPage() {
           <button
             type="submit"
             disabled={loading || !name.trim() || !instagram.trim()}
-            className="w-full h-12 rounded-xl bg-[#ffde21] text-black text-[14px] font-bold hover:bg-[#ffe84d] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full h-12 rounded-xl bg-[#dafc69] text-black text-[14px] font-bold hover:bg-[#f2ffc0] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {loading ? "Enviando…" : "Conectar mi Instagram"}

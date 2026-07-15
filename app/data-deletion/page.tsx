@@ -50,7 +50,7 @@ export default function DataDeletionPage() {
           <p className="text-[14px] leading-relaxed">
             Para eliminar tu cuenta de Smart Scale y todos los datos asociados (perfil, métricas, integraciones
             conectadas), escribinos a{" "}
-            <a href="mailto:support@smartscale.space" className="text-[#ffde21] hover:underline">support@smartscale.space</a>{" "}
+            <a href="mailto:support@smartscale.space" className="text-[#dafc69] hover:underline">support@smartscale.space</a>{" "}
             desde el email asociado a tu cuenta, con el asunto "Eliminar mi cuenta".
           </p>
           <p className="text-[14px] leading-relaxed">
@@ -76,7 +76,7 @@ export default function DataDeletionPage() {
         <section className="space-y-2.5">
           <h2 className="text-[15px] font-bold text-foreground">4. Contacto</h2>
           <p className="text-[14px] leading-relaxed">
-            <a href="mailto:support@smartscale.space" className="text-[#ffde21] hover:underline">support@smartscale.space</a>
+            <a href="mailto:support@smartscale.space" className="text-[#dafc69] hover:underline">support@smartscale.space</a>
           </p>
         </section>
       </div>

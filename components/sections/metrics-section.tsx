@@ -174,7 +174,7 @@ export function MetricsSection({
           className={cn(
             "w-full sm:w-[260px] h-8 rounded-xl text-xs",
             "bg-foreground/[0.04] text-foreground placeholder:text-foreground/25 border-foreground/8",
-            "focus-visible:ring-1 focus-visible:ring-[#ffde21]/30 focus-visible:border-[#ffde21]/30"
+            "focus-visible:ring-1 focus-visible:ring-[#dafc69]/30 focus-visible:border-[#dafc69]/30"
           )}
         />
       </div>
@@ -196,7 +196,7 @@ export function MetricsSection({
               {/* Category header */}
               <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-3">
                 <div className="flex items-center gap-2">
-                  <span className="h-3 w-[2px] rounded-full bg-[#ffde21]/60" />
+                  <span className="h-3 w-[2px] rounded-full bg-[#dafc69]/60" />
                   <span className="text-xs font-semibold uppercase tracking-widest text-foreground/50">{category}</span>
                 </div>
                 <span className="text-[10px] text-foreground/25 tabular-nums">{items.length} campos</span>

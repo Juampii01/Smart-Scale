@@ -112,7 +112,7 @@ export async function sendWelcomeEmail(payload: {
                 <tr>
                   <td align="center" style="padding:8px 0 28px;">
                     <a href="${payload.magic_link}"
-                       style="display:inline-block;background:#1a1a1a;color:#ffde21;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+                       style="display:inline-block;background:#1a1a1a;color:#dafc69;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
                       Crear mi contraseña →
                     </a>
                   </td>
@@ -229,7 +229,7 @@ export async function sendSkoolAccessEmail(payload: {
                 <tr>
                   <td align="center" style="padding:8px 0 8px;">
                     <a href="${skoolLink}"
-                       style="display:inline-block;background:#1a1a1a;color:#ffde21;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+                       style="display:inline-block;background:#1a1a1a;color:#dafc69;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
                       Unirme a Skool →
                     </a>
                   </td>
@@ -317,7 +317,7 @@ export async function sendSlackAccessEmail(payload: {
                 <tr>
                   <td align="center" style="padding:8px 0 8px;">
                     <a href="${slackLink}"
-                       style="display:inline-block;background:#1a1a1a;color:#ffde21;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+                       style="display:inline-block;background:#1a1a1a;color:#dafc69;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
                       Unirme a Slack →
                     </a>
                   </td>
@@ -442,7 +442,7 @@ export async function sendCredentialsToAdmin(payload: {
                 </p>
               </div>
 
-              <a href="${siteUrl}/admin/onboarding" style="display:inline-block;background:#1a1a1a;color:#ffde21;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+              <a href="${siteUrl}/admin/onboarding" style="display:inline-block;background:#1a1a1a;color:#dafc69;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
                 Volver a onboarding →
               </a>
 
@@ -535,7 +535,7 @@ export async function sendMondayWinReminderEmail(payload: {
                 <tr>
                   <td align="center" style="padding:8px 0 8px;">
                     <a href="${siteUrl}/monday-win"
-                       style="display:inline-block;background:#1a1a1a;color:#ffde21;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+                       style="display:inline-block;background:#1a1a1a;color:#dafc69;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
                       Cargar mi Monday Win →
                     </a>
                   </td>
@@ -621,7 +621,7 @@ export async function sendMonthlyReportReminderEmail(payload: {
                 <tr>
                   <td align="center" style="padding:8px 0 8px;">
                     <a href="${siteUrl}/report-input"
-                       style="display:inline-block;background:#1a1a1a;color:#ffde21;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+                       style="display:inline-block;background:#1a1a1a;color:#dafc69;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
                       Cargar mi reporte →
                     </a>
                   </td>
@@ -709,7 +709,7 @@ export async function sendInactivityReminderEmail(payload: {
                 <tr>
                   <td align="center" style="padding:8px 0 8px;">
                     <a href="${siteUrl}/dashboard"
-                       style="display:inline-block;background:#1a1a1a;color:#ffde21;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+                       style="display:inline-block;background:#1a1a1a;color:#dafc69;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
                       Entrar al dashboard →
                     </a>
                   </td>
@@ -1122,7 +1122,7 @@ export async function sendRenewalEmail(payload: {
                 <tr>
                   <td align="center" style="padding:8px 0 24px;">
                     <a href="${renewalUrl}"
-                       style="display:inline-block;background:#1a1a1a;color:#ffde21;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
+                       style="display:inline-block;background:#1a1a1a;color:#dafc69;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
                       Ver opciones para continuar →
                     </a>
                   </td>

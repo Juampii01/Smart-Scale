@@ -87,7 +87,7 @@ export function ChaChingHistoryView() {
         </div>
         <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
           <div className="flex items-center gap-1.5 text-foreground/35 mb-1.5"><Wallet className="h-3 w-3" /><span className="text-[10px] font-semibold uppercase tracking-widest">Cash total</span></div>
-          <p className="text-xl font-bold text-[#ffde21] tabular-nums">{fmtMoney(totals.totalCash)}</p>
+          <p className="text-xl font-bold text-[#dafc69] tabular-nums">{fmtMoney(totals.totalCash)}</p>
         </div>
         <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
           <div className="flex items-center gap-1.5 text-foreground/35 mb-1.5"><DollarSign className="h-3 w-3" /><span className="text-[10px] font-semibold uppercase tracking-widest">Cash este mes</span></div>
@@ -104,8 +104,8 @@ export function ChaChingHistoryView() {
         {items.map((d) => (
           <div key={d.id} className="px-5 py-3.5">
             <div className="flex items-center gap-4">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#ffde21]/10 border border-[#ffde21]/20">
-                <DollarSign className="h-4 w-4 text-[#ffde21]" />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#dafc69]/10 border border-[#dafc69]/20">
+                <DollarSign className="h-4 w-4 text-[#dafc69]" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-foreground tabular-nums">{fmtMoney(d.valor_trato)}</p>
@@ -113,12 +113,12 @@ export function ChaChingHistoryView() {
               </div>
               <div className="text-right">
                 <p className="text-[10px] uppercase tracking-widest text-foreground/30">Cash</p>
-                <p className="text-[13px] font-bold text-[#ffde21] tabular-nums">{fmtMoney(d.cash_collected)}</p>
+                <p className="text-[13px] font-bold text-[#dafc69] tabular-nums">{fmtMoney(d.cash_collected)}</p>
               </div>
             </div>
             {d.notas && (
               <div className="mt-3 flex items-start gap-2 rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3.5 py-2.5">
-                <Quote className="h-3.5 w-3.5 shrink-0 text-[#ffde21]/60 mt-0.5" />
+                <Quote className="h-3.5 w-3.5 shrink-0 text-[#dafc69]/60 mt-0.5" />
                 <p className="text-[12.5px] text-foreground/70 leading-relaxed whitespace-pre-wrap">{d.notas}</p>
               </div>
             )}

@@ -111,7 +111,7 @@ export function PushOptIn({ banner = false, prompt }: { banner?: boolean; prompt
     <button
       onClick={enable} disabled={state === "working"}
       className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition active:scale-95 disabled:opacity-50 shrink-0"
-      style={{ backgroundColor: "#ffde21", color: "#000" }}
+      style={{ backgroundColor: "#dafc69", color: "#000" }}
     >
       {state === "working" ? <Loader2 size={14} className="animate-spin" /> : <BellRing size={14} />}
       Activar notificaciones
@@ -121,8 +121,8 @@ export function PushOptIn({ banner = false, prompt }: { banner?: boolean; prompt
   if (banner) {
     return (
       <div className="flex items-center gap-3 rounded-xl border px-4 py-3 mb-4"
-        style={{ borderColor: "color-mix(in srgb, #ffde21 35%, var(--border))", backgroundColor: "color-mix(in srgb, #ffde21 8%, transparent)" }}>
-        <Bell size={18} className="shrink-0" style={{ color: "#ffde21" }} />
+        style={{ borderColor: "color-mix(in srgb, #dafc69 35%, var(--border))", backgroundColor: "color-mix(in srgb, #dafc69 8%, transparent)" }}>
+        <Bell size={18} className="shrink-0" style={{ color: "#dafc69" }} />
         <div className="flex-1 min-w-0">
           <p className="text-[13px] font-semibold text-foreground">{prompt ?? "Activá las notificaciones"}</p>
           {msg && <p className="text-[11px] mt-0.5" style={{ color: "var(--muted-foreground)" }}>{msg}</p>}

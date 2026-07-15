@@ -260,7 +260,7 @@ function ContentVsAudience({ reports }: { reports: any[] }) {
       </p>
       <div className="flex flex-wrap gap-5 mb-4">
         <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-sm bg-[#ffde21]" />
+          <span className="h-2.5 w-2.5 rounded-sm bg-[#dafc69]" />
           <span className="text-[11px] text-foreground/50">Posts publicados</span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -281,8 +281,8 @@ function ContentVsAudience({ reports }: { reports: any[] }) {
             tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}K` : String(v)}
             domain={[0, 'auto']} />
           {avgPosts > 0 && (
-            <ReferenceLine yAxisId="posts" y={avgPosts} stroke="#ffde2140" strokeDasharray="4 3"
-              label={{ value: "avg", position: "insideTopLeft", fill: "#ffde2150", fontSize: 9 }} />
+            <ReferenceLine yAxisId="posts" y={avgPosts} stroke="#dafc6940" strokeDasharray="4 3"
+              label={{ value: "avg", position: "insideTopLeft", fill: "#dafc6950", fontSize: 9 }} />
           )}
           <Tooltip {...tooltipBase}
             formatter={(v: number, name: string) => [
@@ -290,7 +290,7 @@ function ContentVsAudience({ reports }: { reports: any[] }) {
             ]}
           />
           <Bar yAxisId="posts" dataKey="posts" name="Posts publicados"
-            fill="#ffde21" fillOpacity={0.75} radius={[4,4,0,0]} maxBarSize={36} />
+            fill="#dafc69" fillOpacity={0.75} radius={[4,4,0,0]} maxBarSize={36} />
           <Line yAxisId="followers" type="monotone" dataKey="followers" name="Seguidores IG"
             stroke="#818cf8" strokeWidth={2.5}
             dot={{ fill: "#818cf8", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
@@ -450,7 +450,7 @@ export function ChannelsView() {
             {isOwn ? "No hay reporte para este mes." : "Este cliente no tiene reporte para este mes."}
           </p>
           {isOwn && (
-            <Link href="/report-input" className="text-sm font-medium text-[#ffde21] transition-colors hover:text-[#ffe84d]">
+            <Link href="/report-input" className="text-sm font-medium text-[#dafc69] transition-colors hover:text-[#f2ffc0]">
               Cargar reporte mensual →
             </Link>
           )}

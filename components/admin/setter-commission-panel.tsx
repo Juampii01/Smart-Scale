@@ -108,7 +108,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
     return (
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Mi comisión — <span className="text-[#ffde21]">{monthLabel(month)}</span></h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Mi comisión — <span className="text-[#dafc69]">{monthLabel(month)}</span></h3>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <CommissionCard label="Nuevos" value={String(c.new_count)} />
@@ -128,14 +128,14 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Comisiones del equipo — <span className="text-[#ffde21]">{monthLabel(month)}</span></h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Comisiones del equipo — <span className="text-[#dafc69]">{monthLabel(month)}</span></h3>
       </div>
 
       {/* Summary card */}
-      <div className="rounded-2xl border border-[#ffde21]/30 bg-[#ffde21]/5 px-4 py-3">
+      <div className="rounded-2xl border border-[#dafc69]/30 bg-[#dafc69]/5 px-4 py-3">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-foreground">Total en comisiones</span>
-          <span className="text-lg font-bold text-[#ffde21]">{formatCurrency(totalCommission)}</span>
+          <span className="text-lg font-bold text-[#dafc69]">{formatCurrency(totalCommission)}</span>
         </div>
       </div>
 
@@ -149,7 +149,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
               <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Cuotas</th>
               <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Revenue</th>
               <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">New Cash</th>
-              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80 text-[#ffde21]/70">Old Cash</th>
+              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80 text-[#dafc69]/70">Old Cash</th>
               <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Comisión</th>
             </tr>
           </thead>
@@ -171,10 +171,10 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
                 <td className="px-4 py-2.5 text-right text-foreground/80 tabular-nums">
                   {c.new_cash > 0 ? formatCurrency(c.new_cash) : "—"}
                 </td>
-                <td className="px-4 py-2.5 text-right text-[#ffde21]/60 text-xs tabular-nums">
+                <td className="px-4 py-2.5 text-right text-[#dafc69]/60 text-xs tabular-nums">
                   {c.old_cash > 0 ? formatCurrency(c.old_cash) : "—"}
                 </td>
-                <td className="px-4 py-2.5 text-right font-semibold text-[#ffde21] tabular-nums">
+                <td className="px-4 py-2.5 text-right font-semibold text-[#dafc69] tabular-nums">
                   {formatCurrency(c.commission_earned)}
                 </td>
               </tr>
@@ -190,7 +190,7 @@ function CommissionCard({ label, value, highlight, small }: { label: string; val
   return (
     <div className={`rounded-xl border px-3 py-3 text-center ${
       highlight
-        ? "border-[#ffde21]/30 bg-[#ffde21]/5"
+        ? "border-[#dafc69]/30 bg-[#dafc69]/5"
         : "border-foreground/[0.07] bg-card"
     }`}>
       <div className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50">
@@ -199,7 +199,7 @@ function CommissionCard({ label, value, highlight, small }: { label: string; val
       <div className={`mt-1.5 font-bold ${
         small ? "text-sm" : "text-lg"
       } ${
-        highlight ? "text-[#ffde21]" : "text-foreground"
+        highlight ? "text-[#dafc69]" : "text-foreground"
       }`}>
         {value}
       </div>

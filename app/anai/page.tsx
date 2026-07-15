@@ -273,7 +273,7 @@ function AnaiContent() {
 
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 pb-4">
-        <div className="relative flex h-11 w-11 items-center justify-center rounded-[14px] bg-[#ffde21]">
+        <div className="relative flex h-11 w-11 items-center justify-center rounded-[14px] bg-[#dafc69]">
           <Sparkles className="h-5 w-5 text-black" />
         </div>
         <div className="flex-1 min-w-0">
@@ -296,7 +296,7 @@ function AnaiContent() {
         <button
           onClick={newConversation}
           disabled={creatingConv || atMonthLimit}
-          className="flex items-center gap-1.5 rounded-xl bg-[#ffde21] px-3 py-1.5 text-xs font-bold text-black transition hover:bg-[#ffe46b] active:scale-95 disabled:opacity-40 shrink-0"
+          className="flex items-center gap-1.5 rounded-xl bg-[#dafc69] px-3 py-1.5 text-xs font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95 disabled:opacity-40 shrink-0"
         >
           {creatingConv ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
           Nueva
@@ -376,8 +376,8 @@ function AnaiContent() {
       <div ref={scrollRef} className="flex-1 overflow-y-auto rounded-[14px] border border-foreground/[0.07] bg-card p-5 space-y-5">
         {empty ? (
           <div className="flex h-full flex-col items-center justify-center text-center px-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-[#ffde21]/10 border border-[#ffde21]/20 mb-4">
-              <Sparkles className="h-6 w-6 text-[#ffde21]" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-[#dafc69]/10 border border-[#dafc69]/20 mb-4">
+              <Sparkles className="h-6 w-6 text-[#dafc69]" />
             </div>
             <p className="text-[15px] font-bold text-foreground">Preguntale lo que quieras sobre {internal ? "el negocio" : "tu negocio"}</p>
             <p className="text-[13px] text-foreground/40 mt-1 max-w-sm">Ann AI cruza la metodología de Ann con {internal ? "los datos reales del cliente" : "tus datos reales"}.</p>
@@ -389,7 +389,7 @@ function AnaiContent() {
               <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">
                 {suggestions.map(s => (
                   <button key={s} onClick={() => send(s)}
-                    className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-left text-[12.5px] text-foreground/70 transition-all hover:border-[#ffde21]/30 hover:bg-[#ffde21]/[0.04] hover:text-foreground">
+                    className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-left text-[12.5px] text-foreground/70 transition-all hover:border-[#dafc69]/30 hover:bg-[#dafc69]/[0.04] hover:text-foreground">
                     {s}
                   </button>
                 ))}
@@ -400,7 +400,7 @@ function AnaiContent() {
           messages.map((m, i) => (
             <div key={i} className={`flex gap-3 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
               <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                m.role === "user" ? "bg-foreground/[0.06]" : "bg-[#ffde21]"
+                m.role === "user" ? "bg-foreground/[0.06]" : "bg-[#dafc69]"
               }`}>
                 {m.role === "user"
                   ? <User className="h-4 w-4 text-foreground/50" />
@@ -409,7 +409,7 @@ function AnaiContent() {
               <div className={`min-w-0 max-w-[82%] ${m.role === "user" ? "text-right" : ""}`}>
                 <div className={`inline-block rounded-2xl px-4 py-2.5 text-[13.5px] leading-relaxed ${
                   m.role === "user"
-                    ? "bg-[#ffde21] text-black font-medium whitespace-pre-wrap"
+                    ? "bg-[#dafc69] text-black font-medium whitespace-pre-wrap"
                     : "bg-foreground/[0.04] text-foreground/90"
                 }`}>
                   {m.role === "user" ? m.content : (
@@ -426,7 +426,7 @@ function AnaiContent() {
                         h2:         ({ children }) => <h2 className="mb-1.5 text-sm font-bold text-foreground">{children}</h2>,
                         h3:         ({ children }) => <h3 className="mb-1 text-[13px] font-semibold text-foreground/80">{children}</h3>,
                         hr:         () => <hr className="my-3 border-foreground/[0.08]" />,
-                        blockquote: ({ children }) => <blockquote className="border-l-2 border-[#ffde21]/40 pl-3 text-foreground/60 italic">{children}</blockquote>,
+                        blockquote: ({ children }) => <blockquote className="border-l-2 border-[#dafc69]/40 pl-3 text-foreground/60 italic">{children}</blockquote>,
                         code:       ({ children }) => <code className="rounded bg-foreground/[0.07] px-1 py-0.5 text-[12px] font-mono">{children}</code>,
                         table:      ({ children }) => (
                           <div className="my-2 overflow-x-auto rounded-xl border border-foreground/[0.08]">
@@ -455,7 +455,7 @@ function AnaiContent() {
 
         {loading && (
           <div className="flex gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#ffde21]">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#dafc69]">
               <Sparkles className="h-4 w-4 text-black" />
             </div>
             <div className="flex items-center gap-2 rounded-2xl bg-foreground/[0.04] px-4 py-2.5 text-[13px] text-foreground/50">
@@ -517,7 +517,7 @@ function AnaiContent() {
         <button
           type="submit"
           disabled={loading || !input.trim() || atMsgLimit || atMonthLimit}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#ffde21] text-black transition hover:bg-[#ffe46b] disabled:opacity-40"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#dafc69] text-black transition hover:bg-[#f2ffc0] disabled:opacity-40"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </button>
@@ -538,10 +538,10 @@ function ConvItem({
     <button
       onClick={onSelect}
       className={`group flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-foreground/[0.04] ${
-        active ? "bg-[#ffde21]/[0.06]" : ""
+        active ? "bg-[#dafc69]/[0.06]" : ""
       }`}
     >
-      <MessageSquare className={`h-3.5 w-3.5 shrink-0 ${active ? "text-[#ffde21]/70" : "text-foreground/25"}`} />
+      <MessageSquare className={`h-3.5 w-3.5 shrink-0 ${active ? "text-[#dafc69]/70" : "text-foreground/25"}`} />
       <div className="flex-1 min-w-0">
         <p className={`truncate text-[12.5px] font-medium ${active ? "text-foreground" : "text-foreground/70"}`}>
           {conv.title}

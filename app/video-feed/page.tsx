@@ -76,11 +76,11 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
 
   return (
     <div className={`group relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-200 ${
-      isTop ? "border-[#ffde21]/30 shadow-[0_0_20px_rgba(255,222,33,0.05)]" : "border-foreground/[0.07]"
+      isTop ? "border-[#dafc69]/30 shadow-[0_0_20px_rgba(255,222,33,0.05)]" : "border-foreground/[0.07]"
     } bg-card`}>
 
       {isTop && (
-        <div className="absolute top-2.5 left-2.5 z-10 rounded-lg bg-[#ffde21] px-2 py-0.5 text-[10px] font-bold text-black shadow-sm">
+        <div className="absolute top-2.5 left-2.5 z-10 rounded-lg bg-[#dafc69] px-2 py-0.5 text-[10px] font-bold text-black shadow-sm">
           {mult.toFixed(1)}x
         </div>
       )}
@@ -128,8 +128,8 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
         {post.analysis && (
           <div className="border-t border-foreground/[0.05] pt-2 mt-auto">
             <button onClick={() => setExpanded(v => !v)} className="flex w-full items-center gap-1.5 text-left">
-              <Sparkles className="h-2.5 w-2.5 text-[#ffde21]/50" />
-              <span className="text-[9px] font-semibold uppercase tracking-widest text-[#ffde21]/50 flex-1">Análisis IA</span>
+              <Sparkles className="h-2.5 w-2.5 text-[#dafc69]/50" />
+              <span className="text-[9px] font-semibold uppercase tracking-widest text-[#dafc69]/50 flex-1">Análisis IA</span>
               {expanded ? <ChevronUp className="h-3 w-3 text-foreground/20" /> : <ChevronDown className="h-3 w-3 text-foreground/20" />}
             </button>
             {expanded && (
@@ -219,7 +219,7 @@ function ConnectForm({ onConnect, clientId }: { onConnect: (account: Account) =>
               <button
                 type="submit"
                 disabled={!url.trim() || loading}
-                className="h-11 w-full rounded-xl bg-[#ffde21] text-sm font-bold text-black hover:bg-[#ffe46b] disabled:opacity-40 transition"
+                className="h-11 w-full rounded-xl bg-[#dafc69] text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition"
               >
                 {loading ? "Cargando tu perfil…" : "Conectar Instagram"}
               </button>
@@ -280,7 +280,7 @@ function FeedView({ account, onRefresh }: {
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-foreground">@{account.channel_name}</span>
             <a href={account.channel_url} target="_blank" rel="noopener noreferrer"
-              className="text-foreground/25 hover:text-[#ffde21] transition-colors">
+              className="text-foreground/25 hover:text-[#dafc69] transition-colors">
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
@@ -311,7 +311,7 @@ function FeedView({ account, onRefresh }: {
           <button key={f} onClick={() => setFilter(f)}
             className={`h-8 rounded-lg px-4 text-xs font-semibold transition-all ${
               filter === f
-                ? "bg-[#ffde21] text-black"
+                ? "bg-[#dafc69] text-black"
                 : "border border-foreground/[0.07] bg-foreground/[0.03] text-foreground/40 hover:text-foreground/70"
             }`}>
             {f === "all" ? "Todos" : "Top Performing"}
@@ -328,7 +328,7 @@ function FeedView({ account, onRefresh }: {
       ) : (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
           <p className="text-sm text-foreground/30">No hay publicaciones que superen el umbral.</p>
-          <button onClick={() => setFilter("all")} className="text-xs text-[#ffde21]/60 hover:text-[#ffde21] transition-colors">
+          <button onClick={() => setFilter("all")} className="text-xs text-[#dafc69]/60 hover:text-[#dafc69] transition-colors">
             Ver todas →
           </button>
         </div>
@@ -396,10 +396,10 @@ function VideoFeedContent() {
     <div className="px-4 py-10 max-w-7xl mx-auto space-y-6">
       {/* Banner si admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
-          <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 rounded-2xl border border-[#dafc69]/25 bg-[#dafc69]/[0.05] px-4 py-3">
+          <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Viendo otro cliente</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>
             <p className="text-[13px] text-foreground/75 mt-0.5">
               Estás viendo el video feed de <span className="font-semibold text-foreground">{activeName ?? "(sin nombre)"}</span>. Cualquier conexión o refresh se guarda en su cuenta.
             </p>

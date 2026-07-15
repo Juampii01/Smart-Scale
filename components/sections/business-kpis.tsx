@@ -56,7 +56,7 @@ function fmtNumber(v: any) {
 // ─── KPI definitions ──────────────────────────────────────────────────────────
 
 const KPI_DEFS = [
-  { key: "cash_collected",  label: "Cash Collected",      money: true,  icon: Wallet,     color: "#ffde21" },
+  { key: "cash_collected",  label: "Cash Collected",      money: true,  icon: Wallet,     color: "#dafc69" },
   { key: "total_revenue",   label: "Total Revenue",        money: true,  icon: DollarSign, color: "#fb923c" },
   { key: "mrr",             label: "MRR",                  money: true,  icon: Repeat,     color: "#60a5fa" },
   { key: "ad_spend",        label: "Gasto Publicitario",   money: true,  icon: Megaphone,  color: "#ef4444" },
@@ -156,7 +156,7 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
             {isOwn ? "No hay reporte cargado para este mes." : "Este cliente no tiene reporte para este mes."}
           </p>
           {isOwn && (
-            <Link href="/report-input" className="text-sm font-medium text-[#ffde21] transition-colors hover:text-[#ffe84d]">
+            <Link href="/report-input" className="text-sm font-medium text-[#dafc69] transition-colors hover:text-[#f2ffc0]">
               Cargar reporte mensual →
             </Link>
           )}

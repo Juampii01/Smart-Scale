@@ -129,7 +129,7 @@ export default function DevLogsPage() {
 
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 border-b border-white/[0.07] bg-[#0f0f11] px-5 py-3">
-        <Terminal className="h-4 w-4 text-[#ffde21] shrink-0" />
+        <Terminal className="h-4 w-4 text-[#dafc69] shrink-0" />
         <span className="font-bold text-white tracking-tight">Dev Logs</span>
 
         {/* Live indicator */}
@@ -237,7 +237,7 @@ export default function DevLogsPage() {
 
                     {/* Route */}
                     {l.route && (
-                      <span className="shrink-0 text-[#ffde21]/50 text-[11px]">
+                      <span className="shrink-0 text-[#dafc69]/50 text-[11px]">
                         [{l.route}]
                       </span>
                     )}

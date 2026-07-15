@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
+import { BrandLogo } from "@/components/theme/brand-logo"
 
 interface SidebarProps {
   open: boolean
@@ -137,10 +138,9 @@ export function Sidebar({
       >
         {/* Logo (sin línea divisoria) */}
         <div className="flex h-16 flex-shrink-0 items-center justify-between pl-5 pr-3">
-          <a href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-            <span className="text-foreground text-xl font-bold tracking-tight leading-none">Smart</span>
-            <span className="rounded-md bg-foreground px-2 py-1 text-xl font-bold tracking-tight text-background shadow-sm leading-none">Scale</span>
-            <span className="self-start rounded-full bg-[#ffde21]/15 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-[#ffde21] leading-none">3.0</span>
+          <a href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+            <BrandLogo />
+            <span className="self-start rounded-full bg-[#dafc69] px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-[#0a0a0a] leading-none">3.0</span>
           </a>
           <button
             className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-foreground/50 hover:text-foreground hover:bg-foreground/10 transition-all"
@@ -197,7 +197,7 @@ export function Sidebar({
                                 <div className={cn(
                                   "py-1.5 px-2 rounded-md text-[12px] transition-colors duration-150",
                                   pathname === child.href
-                                    ? "text-[#ffde21] font-semibold"
+                                    ? "text-[#dafc69] font-semibold"
                                     : "text-foreground/50 hover:text-foreground/90 hover:bg-foreground/[0.04]"
                                 )}>
                                   {child.name}
@@ -216,7 +216,7 @@ export function Sidebar({
                       <div className={cn(
                         "flex items-center gap-2.5 rounded-lg py-[7px] px-3 transition-all duration-150",
                         isActive
-                          ? "bg-foreground/[0.07] text-[#ffde21]"
+                          ? "bg-foreground/[0.07] text-[#dafc69]"
                           : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
                       )}>
                         <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
@@ -252,16 +252,16 @@ export function Sidebar({
               className={cn(
                 "group/profile flex w-full items-center gap-2.5 rounded-lg border px-2.5 py-2 transition-all duration-150",
                 pathname === "/perfil"
-                  ? "border-[#ffde21]/30 bg-[#ffde21]/[0.08]"
+                  ? "border-[#dafc69]/30 bg-[#dafc69]/[0.08]"
                   : "border-foreground/[0.06] bg-foreground/[0.02] hover:bg-foreground/[0.05]"
               )}
             >
-              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10 text-[13px] font-bold text-[#ffde21]">
+              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10 text-[13px] font-bold text-[#dafc69]">
                 {avatarUrl
                   ? <img src={avatarUrl} alt="Perfil" className="h-full w-full object-cover" />
-                  : <User className="h-4 w-4 text-[#ffde21]" />}
+                  : <User className="h-4 w-4 text-[#dafc69]" />}
                 <span className={cn(
-                  "absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#ffde21] ring-2 ring-card",
+                  "absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#dafc69] ring-2 ring-card",
                   avatarUrl && "opacity-0 group-hover/profile:opacity-100 transition-opacity"
                 )}>
                   <Pencil className="h-2.5 w-2.5 text-black" />

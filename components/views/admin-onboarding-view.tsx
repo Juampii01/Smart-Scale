@@ -165,7 +165,7 @@ function SuccessModal({
                   href={magicLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 text-[12px] text-[#ffde21] hover:text-[#ffe84d] break-all line-clamp-2 underline"
+                  className="flex-1 text-[12px] text-[#dafc69] hover:text-[#f2ffc0] break-all line-clamp-2 underline"
                 >
                   {magicLink}
                 </a>
@@ -200,7 +200,7 @@ function SuccessModal({
 
         <button
           onClick={onClose}
-          className="mt-4 w-full rounded-xl bg-[#ffde21] py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe84d]"
+          className="mt-4 w-full rounded-xl bg-[#dafc69] py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0]"
         >
           Listo
         </button>
@@ -323,14 +323,14 @@ function OnboardingForm({
     }
   }
 
-  const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 text-[13px] text-foreground placeholder:text-foreground/25 outline-none transition-all focus:border-[#ffde21]/40 focus:bg-foreground/[0.05] focus:ring-2 focus:ring-[#ffde21]/10"
+  const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 text-[13px] text-foreground placeholder:text-foreground/25 outline-none transition-all focus:border-[#dafc69]/40 focus:bg-foreground/[0.05] focus:ring-2 focus:ring-[#dafc69]/10"
   const labelCls = "block text-[10px] font-semibold uppercase tracking-widest text-foreground/40 mb-1.5"
 
   return (
     <div className="rounded-[14px] border border-border bg-card p-6">
       <div className="mb-6 flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ffde21]/10 border border-[#ffde21]/20">
-          <UserPlus className="h-4 w-4 text-[#ffde21]" />
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#dafc69]/10 border border-[#dafc69]/20">
+          <UserPlus className="h-4 w-4 text-[#dafc69]" />
         </span>
         <div>
           <h2 className="font-bold text-foreground">Nuevo onboarding</h2>
@@ -342,7 +342,7 @@ function OnboardingForm({
 
         {/* Datos personales */}
         <div>
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#ffde21]/60">Datos del cliente</p>
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#dafc69]/60">Datos del cliente</p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={labelCls}>Nombre completo *</label>
@@ -418,7 +418,7 @@ function OnboardingForm({
 
         {/* Programa */}
         <div>
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#ffde21]/60">Programa</p>
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#dafc69]/60">Programa</p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="sm:col-span-2">
               <label className={labelCls}>Programa *</label>
@@ -474,7 +474,7 @@ function OnboardingForm({
 
         {/* Cuotas */}
         <div>
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#ffde21]/60">Cuotas (llenar las que correspondan)</p>
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#dafc69]/60">Cuotas (llenar las que correspondan)</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
             {[1, 2, 3, 4, 5, 6].map(i => (
               <div key={i}>
@@ -516,7 +516,7 @@ function OnboardingForm({
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 rounded-xl bg-[#ffde21] px-5 py-2 text-[13px] font-bold text-black transition hover:bg-[#ffe84d] disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-5 py-2 text-[13px] font-bold text-black transition hover:bg-[#f2ffc0] disabled:opacity-50"
           >
             {saving
               ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Creando…</>
@@ -861,7 +861,7 @@ export function AdminOnboardingView() {
           {view === "list" ? (
             <button
               onClick={() => setView("form")}
-              className="flex items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2 text-[13px] font-bold text-black transition hover:bg-[#ffe84d]"
+              className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2 text-[13px] font-bold text-black transition hover:bg-[#f2ffc0]"
             >
               <UserPlus className="h-3.5 w-3.5" />
               Nuevo onboarding
@@ -922,7 +922,7 @@ export function AdminOnboardingView() {
               <p className="mt-1 text-[12px] text-foreground/30">Creá el primero con el botón de arriba.</p>
               <button
                 onClick={() => setView("form")}
-                className="mt-4 flex items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2 text-[13px] font-bold text-black transition hover:bg-[#ffe84d]"
+                className="mt-4 flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2 text-[13px] font-bold text-black transition hover:bg-[#f2ffc0]"
               >
                 <UserPlus className="h-3.5 w-3.5" />
                 Nuevo onboarding

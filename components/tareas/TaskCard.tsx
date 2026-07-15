@@ -135,7 +135,7 @@ export function TaskCard({ task, onClick, onComplete, isOverlay = false }: TaskC
             <span>{pct}%</span>
           </div>
           <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: "var(--muted)" }}>
-            <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: pct === 100 ? "#22C55E" : "#ffde21" }} />
+            <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: pct === 100 ? "#22C55E" : "#dafc69" }} />
           </div>
         </div>
       )}

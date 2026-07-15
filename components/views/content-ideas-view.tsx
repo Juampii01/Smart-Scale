@@ -93,7 +93,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
         </div>
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-2 rounded-[8px] bg-[#ffde21] px-4 py-2 text-[13px] font-semibold text-black hover:bg-[#ffe84d] transition-colors"
+          className="flex items-center gap-2 rounded-[8px] bg-[#dafc69] px-4 py-2 text-[13px] font-semibold text-black hover:bg-[#f2ffc0] transition-colors"
         >
           <Plus className="h-4 w-4" />
           Add Idea

@@ -125,8 +125,8 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
         {/* Header */}
         <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5">
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10">
-              <UserPlus className="h-4 w-4 text-[#ffde21]" />
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10">
+              <UserPlus className="h-4 w-4 text-[#dafc69]" />
             </span>
             <div>
               <h2 className="text-base font-bold text-foreground">Nuevo usuario</h2>
@@ -178,7 +178,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
               </button>
               <button
                 onClick={handleClose}
-                className="flex-1 rounded-xl bg-[#ffde21] px-4 py-2.5 text-sm font-bold text-black hover:bg-[#ffe84d] transition-colors"
+                className="flex-1 rounded-xl bg-[#dafc69] px-4 py-2.5 text-sm font-bold text-black hover:bg-[#f2ffc0] transition-colors"
               >
                 Listo
               </button>
@@ -203,7 +203,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="usuario@email.com"
-                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-[#ffde21]/50 focus:ring-2 focus:ring-[#ffde21]/10"
+                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:ring-2 focus:ring-[#dafc69]/10"
               />
             </div>
 
@@ -216,7 +216,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Nombre del usuario"
-                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-[#ffde21]/50 focus:ring-2 focus:ring-[#ffde21]/10"
+                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:ring-2 focus:ring-[#dafc69]/10"
               />
             </div>
 
@@ -232,7 +232,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                     onClick={() => setRole(opt.value)}
                     className={`rounded-xl border px-3 py-2.5 text-left transition-colors ${
                       role === opt.value
-                        ? "border-[#ffde21] bg-[#ffde21]/[0.08] text-foreground"
+                        ? "border-[#dafc69] bg-[#dafc69]/[0.08] text-foreground"
                         : "border-border bg-foreground/[0.02] text-foreground/70 hover:border-foreground/20 hover:text-foreground"
                     }`}
                   >
@@ -255,7 +255,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                   value={clientId}
                   onChange={e => setClientId(e.target.value)}
                   disabled={loadingClients}
-                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none focus:border-[#ffde21]/50 focus:ring-2 focus:ring-[#ffde21]/10 disabled:opacity-50"
+                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none focus:border-[#dafc69]/50 focus:ring-2 focus:ring-[#dafc69]/10 disabled:opacity-50"
                 >
                   <option value="">— Sin cliente asociado —</option>
                   {clients.map(c => (
@@ -276,7 +276,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                   type="checkbox"
                   checked={autoPassword}
                   onChange={(e) => setAutoPassword(e.target.checked)}
-                  className="h-3.5 w-3.5 accent-[#ffde21]"
+                  className="h-3.5 w-3.5 accent-[#dafc69]"
                 />
                 Generar contraseña temporal automática
               </label>
@@ -288,7 +288,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                   placeholder="Contraseña (mín 8 caracteres)"
                   minLength={8}
                   required
-                  className="mt-2 h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-[#ffde21]/50 focus:ring-2 focus:ring-[#ffde21]/10"
+                  className="mt-2 h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:ring-2 focus:ring-[#dafc69]/10"
                 />
               )}
             </div>
@@ -305,7 +305,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
               <button
                 type="submit"
                 disabled={loading || !email || !role}
-                className="flex-1 rounded-xl bg-[#ffde21] px-4 py-2.5 text-sm font-bold text-black hover:bg-[#ffe84d] disabled:opacity-50 transition-colors"
+                className="flex-1 rounded-xl bg-[#dafc69] px-4 py-2.5 text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors"
               >
                 {loading ? "Creando…" : "Crear usuario"}
               </button>

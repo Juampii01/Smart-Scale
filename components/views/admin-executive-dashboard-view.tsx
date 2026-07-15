@@ -151,8 +151,8 @@ function SectionHeader({
   return (
     <div className="flex items-start justify-between mb-4">
       <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ffde21]/[0.1] border border-[#ffde21]/20">
-          <Icon className="h-4 w-4 text-[#ffde21]" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#dafc69]/[0.1] border border-[#dafc69]/20">
+          <Icon className="h-4 w-4 text-[#dafc69]" />
         </div>
         <div>
           <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/40">{subtitle}</p>
@@ -362,7 +362,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
           subtitle="performance del período"
           badge={
             <div className="flex gap-5">
-              <Stat value={data.totals.total_conversations} label="total conv." colorClass="text-[#ffde21]" />
+              <Stat value={data.totals.total_conversations} label="total conv." colorClass="text-[#dafc69]" />
               <Stat value={data.totals.cierres}             label="cierres" />
               <Stat value={data.totals.cierre_amount}       label="monto"   format="currency" />
             </div>
@@ -384,7 +384,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
                       key={c.key}
                       className={cn(
                         "pb-2 text-right font-semibold px-2 whitespace-nowrap",
-                        c.highlight ? "text-[#ffde21]/70" : "text-foreground/40",
+                        c.highlight ? "text-[#dafc69]/70" : "text-foreground/40",
                       )}
                     >
                       {c.label}
@@ -401,7 +401,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
                         key={c.key}
                         className={cn(
                           "py-2.5 px-2 text-right tabular-nums",
-                          c.highlight ? "font-bold text-[#ffde21]" : "text-foreground/80",
+                          c.highlight ? "font-bold text-[#dafc69]" : "text-foreground/80",
                           c.key === "cierre_amount" && "font-semibold text-foreground",
                         )}
                       >
@@ -423,7 +423,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
                         key={c.key}
                         className={cn(
                           "py-2.5 px-2 text-right tabular-nums font-bold",
-                          c.highlight ? "text-[#ffde21]" : "text-foreground",
+                          c.highlight ? "text-[#dafc69]" : "text-foreground",
                         )}
                       >
                         {c.key === "cierre_amount"
@@ -631,7 +631,7 @@ export function AdminExecutiveDashboardView() {
               className={cn(
                 "rounded-lg px-4 py-1.5 text-[13px] font-semibold transition-all",
                 range === r
-                  ? "bg-[#ffde21] text-black shadow-sm"
+                  ? "bg-[#dafc69] text-black shadow-sm"
                   : "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05]",
               )}
             >

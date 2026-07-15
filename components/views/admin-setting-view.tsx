@@ -128,7 +128,7 @@ function EditableCell({
   if (saving) {
     return (
       <td className="whitespace-nowrap px-3 py-2.5 text-center">
-        <Loader2 className="inline h-3 w-3 animate-spin text-[#ffde21]/40" />
+        <Loader2 className="inline h-3 w-3 animate-spin text-[#dafc69]/40" />
       </td>
     )
   }
@@ -146,7 +146,7 @@ function EditableCell({
             if (e.key === "Enter") save()
             if (e.key === "Escape") cancel()
           }}
-          className="w-16 rounded-lg border border-[#ffde21]/40 bg-[#ffde21]/[0.07] px-2 py-1.5 text-center text-[12px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#ffde21]/60"
+          className="w-16 rounded-lg border border-[#dafc69]/40 bg-[#dafc69]/[0.07] px-2 py-1.5 text-center text-[12px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#dafc69]/60"
         />
       </td>
     )
@@ -346,7 +346,7 @@ export function AdminSettingView() {
 
             <button
               onClick={() => setEodOpen(true)}
-              className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg bg-[#ffde21] hover:bg-[#ffe84d] text-black text-sm font-bold transition-colors"
+              className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg bg-[#dafc69] hover:bg-[#f2ffc0] text-black text-sm font-bold transition-colors"
               title="Cargar datos diarios"
             >
               <PlusCircle className="h-3.5 w-3.5" />
@@ -381,7 +381,7 @@ export function AdminSettingView() {
 
       {loading ? (
         <div className="flex items-center justify-center py-24">
-          <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />
+          <Loader2 className="h-6 w-6 animate-spin text-[#dafc69]/40" />
         </div>
       ) : (
         <>
@@ -390,7 +390,7 @@ export function AdminSettingView() {
             <div>
               <div className="mb-4">
                 <h2 className="text-xs font-bold uppercase tracking-widest text-foreground/50">
-                  Cómo viene <span className="text-[#ffde21]">{monthLabel(month)}</span>
+                  Cómo viene <span className="text-[#dafc69]">{monthLabel(month)}</span>
                 </h2>
               </div>
 
@@ -409,14 +409,14 @@ export function AdminSettingView() {
                   <div
                     key={m.label}
                     className={`rounded-xl border px-3 py-2.5 ${"highlight" in m && m.highlight
-                      ? "border-[#ffde21]/30 bg-[#ffde21]/[0.06]"
+                      ? "border-[#dafc69]/30 bg-[#dafc69]/[0.06]"
                       : "border-foreground/10 bg-card"
                     }`}
                   >
-                    <p className={`text-[10px] uppercase tracking-wider mb-1 ${"highlight" in m && m.highlight ? "text-[#ffde21]/70" : "text-foreground/40"}`}>
+                    <p className={`text-[10px] uppercase tracking-wider mb-1 ${"highlight" in m && m.highlight ? "text-[#dafc69]/70" : "text-foreground/40"}`}>
                       {m.label}
                     </p>
-                    <p className={`text-2xl font-bold tabular-nums ${"highlight" in m && m.highlight ? "text-[#ffde21]" : "text-foreground"}`}>
+                    <p className={`text-2xl font-bold tabular-nums ${"highlight" in m && m.highlight ? "text-[#dafc69]" : "text-foreground"}`}>
                       {m.value}
                     </p>
                   </div>
@@ -484,7 +484,7 @@ export function AdminSettingView() {
                 ))}
 
                 {/* Total del mes */}
-                <div className="rounded-[14px] border-2 border-[#ffde21]/30 bg-foreground/[0.04] p-4">
+                <div className="rounded-[14px] border-2 border-[#dafc69]/30 bg-foreground/[0.04] p-4">
                   <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-foreground/60">Total del mes</p>
                   <div className="grid grid-cols-3 gap-2">
                     {COLUMNS.map(col => (
@@ -542,7 +542,7 @@ export function AdminSettingView() {
                       ))}
 
                       {/* Fila de totales */}
-                      <tr className="border-t-2 border-[#ffde21]/30 bg-foreground/[0.05] font-bold">
+                      <tr className="border-t-2 border-[#dafc69]/30 bg-foreground/[0.05] font-bold">
                         <td className="sticky left-0 z-10 bg-foreground/[0.05] px-4 py-3 text-[12px] uppercase tracking-wide text-foreground/70">
                           Total
                         </td>

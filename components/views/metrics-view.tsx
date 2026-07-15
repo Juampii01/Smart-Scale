@@ -82,8 +82,8 @@ function HealthRadar({ reports }: { reports: any[] }) {
           <Radar
             name="Este mes"
             dataKey="A"
-            stroke="#ffde21"
-            fill="#ffde21"
+            stroke="#dafc69"
+            fill="#dafc69"
             fillOpacity={0.15}
             strokeWidth={2}
           />
@@ -96,7 +96,7 @@ function HealthRadar({ reports }: { reports: any[] }) {
 // ─── Summary KPI strip ────────────────────────────────────────────────────────
 
 const SUMMARY_KPIS = [
-  { key: "cash_collected",  label: "Cash Collected",  money: true,  color: "#ffde21" },
+  { key: "cash_collected",  label: "Cash Collected",  money: true,  color: "#dafc69" },
   { key: "total_revenue",   label: "Total Revenue",    money: true,  color: "#fb923c" },
   { key: "mrr",             label: "MRR",              money: true,  color: "#60a5fa" },
   { key: "new_clients",     label: "Nuevos Clientes",  money: false, color: "#4ade80" },
@@ -161,7 +161,7 @@ function RollingTrend({ reports }: { reports: any[] }) {
       <p className="text-xs text-foreground/35 mb-5">Cash Collected, Total Revenue y MRR en el tiempo</p>
       <div className="flex flex-wrap gap-5 mb-4">
         {[
-          { label: "Cash Collected", color: "#ffde21" },
+          { label: "Cash Collected", color: "#dafc69" },
           { label: "Total Revenue",  color: "#fb923c" },
           { label: "MRR",            color: "#60a5fa" },
         ].map(l => (
@@ -174,7 +174,7 @@ function RollingTrend({ reports }: { reports: any[] }) {
       <ResponsiveContainer width="100%" height={220}>
         <AreaChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
           <defs>
-            {[["cash","#ffde21"],["revenue","#fb923c"],["mrr","#60a5fa"]].map(([key, color]) => (
+            {[["cash","#dafc69"],["revenue","#fb923c"],["mrr","#60a5fa"]].map(([key, color]) => (
               <linearGradient key={key} id={`grad_all_${key}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%"  stopColor={color} stopOpacity={0.2} />
                 <stop offset="95%" stopColor={color} stopOpacity={0}   />
@@ -186,7 +186,7 @@ function RollingTrend({ reports }: { reports: any[] }) {
           <YAxis stroke="transparent" tick={{ fill: "rgba(255,255,255,0.30)", fontSize: 10 }} tickLine={false} axisLine={false}
             tickFormatter={v => v >= 1000 ? `$${(v/1000).toFixed(0)}K` : `$${v}`} width={48} />
           <Tooltip {...tooltipStyle} formatter={(v: number, name: string) => [fmtVal(v, true), name]} />
-          <Area type="monotone" dataKey="cash"    name="Cash Collected" stroke="#ffde21" strokeWidth={2} fill="url(#grad_all_cash)"    dot={false} />
+          <Area type="monotone" dataKey="cash"    name="Cash Collected" stroke="#dafc69" strokeWidth={2} fill="url(#grad_all_cash)"    dot={false} />
           <Area type="monotone" dataKey="revenue" name="Total Revenue"  stroke="#fb923c" strokeWidth={2} fill="url(#grad_all_revenue)" dot={false} />
           <Area type="monotone" dataKey="mrr"     name="MRR"           stroke="#60a5fa" strokeWidth={2} fill="url(#grad_all_mrr)"     dot={false} />
         </AreaChart>

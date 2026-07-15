@@ -43,7 +43,7 @@ export function AdminCentroOperativoView() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
-            <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+            <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
             <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Centro Operativo</h1>
           </div>
           <p className="text-xs text-foreground/30 ml-[18px]">
@@ -54,7 +54,7 @@ export function AdminCentroOperativoView() {
         {isAdmin(effectiveRole) && (
           <button
             onClick={() => setNewUserOpen(true)}
-            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2 text-sm font-bold text-black hover:bg-[#ffe84d] transition-colors"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2 text-sm font-bold text-black hover:bg-[#f2ffc0] transition-colors"
             title="Crear cuenta de usuario interna"
           >
             <UserPlus className="h-4 w-4" />
@@ -83,7 +83,7 @@ export function AdminCentroOperativoView() {
               <Icon className="h-3.5 w-3.5" />
               {t.label}
               {active && (
-                <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#ffde21] rounded-full" />
+                <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#dafc69] rounded-full" />
               )}
             </button>
           )

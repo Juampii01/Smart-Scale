@@ -14,6 +14,7 @@ import { createClient } from "@/lib/supabase"
 import { canAccessAdminPath, isAdmin } from "@/lib/auth/permissions"
 import { useEffectiveRole } from "@/lib/auth/view-as"
 import { isOmniOwnerEmail } from "@/lib/omni/owner"
+import { BrandLogo } from "@/components/theme/brand-logo"
 
 interface AdminSidebarProps {
   open: boolean
@@ -93,9 +94,8 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
         {/* Logo + INTERNAL badge (sin línea divisoria) */}
         <div className="flex-shrink-0 px-5 pt-4 pb-3">
           <div className="flex items-center justify-between">
-            <a href="/admin/clients" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-              <span className="text-foreground text-xl font-bold tracking-tight leading-none">Smart</span>
-              <span className="rounded-md bg-foreground px-2 py-1 text-xl font-bold tracking-tight text-background shadow-sm leading-none">Scale</span>
+            <a href="/admin/clients" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+              <BrandLogo />
             </a>
             <button
               className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-foreground/50 hover:text-foreground hover:bg-foreground/10 transition-all"
@@ -105,7 +105,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
               <X className="h-4 w-4" />
             </button>
           </div>
-          <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-[#ffde21]/30 bg-[#ffde21]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#ffde21]">
+          <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#dafc69]">
             <ShieldCheck className="h-2.5 w-2.5" />
             Internal
           </span>
@@ -130,8 +130,8 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
               <div className={cn(
                 "flex items-center gap-2.5 rounded-lg border px-3 py-2 transition-all",
                 pathname === "/admin/omni"
-                  ? "border-[#ffde21]/45 bg-[#ffde21]/[0.14] text-[#ffde21]"
-                  : "border-[#ffde21]/20 bg-[#ffde21]/[0.06] text-[#ffde21]/90 hover:bg-[#ffde21]/[0.12] hover:border-[#ffde21]/40"
+                  ? "border-[#dafc69]/45 bg-[#dafc69]/[0.14] text-[#dafc69]"
+                  : "border-[#dafc69]/20 bg-[#dafc69]/[0.06] text-[#dafc69]/90 hover:bg-[#dafc69]/[0.12] hover:border-[#dafc69]/40"
               )}>
                 <Sparkles className="h-4 w-4 flex-shrink-0" />
                 <div className="min-w-0 leading-none">
@@ -156,7 +156,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
                   <div className={cn(
                     "flex items-center gap-2.5 rounded-lg py-[7px] px-3 transition-all duration-150",
                     isActive
-                      ? "bg-foreground/[0.07] text-[#ffde21]"
+                      ? "bg-foreground/[0.07] text-[#dafc69]"
                       : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
                   )}>
                     <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
@@ -182,7 +182,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
                       <div className={cn(
                         "flex items-center gap-2.5 rounded-lg py-[7px] px-3 transition-all duration-150",
                         isActive
-                          ? "bg-foreground/[0.07] text-[#ffde21]"
+                          ? "bg-foreground/[0.07] text-[#dafc69]"
                           : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
                       )}>
                         <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
@@ -200,10 +200,10 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
 
         {/* Footer — sin línea divisoria */}
         <div className="flex-shrink-0 p-3">
-          <div className="flex items-center gap-2.5 rounded-[14px] bg-[#ffde21]/[0.07] px-3 py-2.5 border border-[#ffde21]/15">
-            <ShieldCheck className="h-3.5 w-3.5 text-[#ffde21]/80 shrink-0" />
+          <div className="flex items-center gap-2.5 rounded-[14px] bg-[#dafc69]/[0.07] px-3 py-2.5 border border-[#dafc69]/15">
+            <ShieldCheck className="h-3.5 w-3.5 text-[#dafc69]/80 shrink-0" />
             <div>
-              <p className="text-[10px] font-bold text-[#ffde21]/80 tracking-widest uppercase">Smart Scale Internal</p>
+              <p className="text-[10px] font-bold text-[#dafc69]/80 tracking-widest uppercase">Smart Scale Internal</p>
               <p className="text-[10px] text-foreground/30 mt-0.5">Admin only</p>
             </div>
           </div>

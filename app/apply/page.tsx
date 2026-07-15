@@ -15,7 +15,7 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
   return (
     <label className="block text-[13px] font-semibold text-foreground/60 mb-2 tracking-wide">
       {children}
-      {required && <span className="ml-1 text-[#ffde21]">*</span>}
+      {required && <span className="ml-1 text-[#dafc69]">*</span>}
     </label>
   )
 }
@@ -32,7 +32,7 @@ function SectionCard({ children }: { children: React.ReactNode }) {
 function SectionHeader({ number, title, subtitle }: { number: string; title: string; subtitle?: string }) {
   return (
     <div className="flex items-start gap-4 pb-1">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#ffde21] text-[13px] font-black text-black mt-0.5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#dafc69] text-[13px] font-black text-black mt-0.5">
         {number}
       </div>
       <div>
@@ -92,7 +92,7 @@ function RadioGroup({ options, value, onChange }: {
       {options.map(opt => (
         <label key={opt} className="flex items-center gap-3 cursor-pointer group" onClick={() => onChange(opt)}>
           <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-            value === opt ? "border-[#ffde21] bg-[#ffde21]" : "border-foreground/20 group-hover:border-foreground/40"
+            value === opt ? "border-[#dafc69] bg-[#dafc69]" : "border-foreground/20 group-hover:border-foreground/40"
           }`}>
             {value === opt && <span className="h-2 w-2 rounded-full bg-black" />}
           </span>
@@ -164,7 +164,7 @@ export default function ApplyPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "var(--background)" }}>
         <div className="max-w-md w-full text-center space-y-6 sm:space-y-8 px-2">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#ffde21]">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#dafc69]">
             <Check className="h-10 w-10 text-black" strokeWidth={3} />
           </div>
           <div className="space-y-3">
@@ -173,19 +173,19 @@ export default function ApplyPage() {
               Revisamos cada aplicación personalmente. Si hay match, te contactamos por Instagram.
             </p>
           </div>
-          <div className="rounded-2xl border border-[#ffde21]/15 p-6 text-left space-y-3" style={{ backgroundColor: "var(--card)" }}>
-            <p className="text-[11px] font-black text-[#ffde21]/60 uppercase tracking-[0.2em]">Próximos pasos</p>
+          <div className="rounded-2xl border border-[#dafc69]/15 p-6 text-left space-y-3" style={{ backgroundColor: "var(--card)" }}>
+            <p className="text-[11px] font-black text-[#dafc69]/60 uppercase tracking-[0.2em]">Próximos pasos</p>
             <ul className="space-y-2.5 text-[13px] text-foreground/55">
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ffde21] shrink-0" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" />
                 Revisamos tu aplicación en detalle
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ffde21] shrink-0" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" />
                 Si tu aplicación es aprobada, te contactamos por Instagram
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#ffde21] shrink-0" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" />
                 Si no hay match, también te avisamos
               </li>
             </ul>
@@ -216,9 +216,9 @@ export default function ApplyPage() {
       <div className="mx-auto max-w-2xl px-4 sm:px-5 pb-20 sm:pb-28 pt-8 sm:pt-12 space-y-4 sm:space-y-5">
         {/* ── Hero */}
         <div className="space-y-5 pb-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#ffde21]/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
-            <span className="h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse" />
-            <span className="text-[11px] font-bold text-[#ffde21] uppercase tracking-[0.18em]">Smart Scale™</span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#dafc69]/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
+            <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69] animate-pulse" />
+            <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">Smart Scale™</span>
           </div>
           <h1 className="text-[28px] sm:text-[38px] font-black text-foreground leading-[1.1] tracking-tight">
             Aplicá a<br />Smart Scale
@@ -379,15 +379,15 @@ export default function ApplyPage() {
               onClick={() => setForm(f => ({ ...f, terms_accepted: !f.terms_accepted }))}>
               <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all ${
                 form.terms_accepted
-                  ? "border-[#ffde21] bg-[#ffde21]"
+                  ? "border-[#dafc69] bg-[#dafc69]"
                   : "border-foreground/20 group-hover:border-foreground/40"
               }`}>
                 {form.terms_accepted && <Check className="h-3 w-3 text-black" strokeWidth={3} />}
               </span>
               <span className="text-[14px] text-foreground/60 leading-relaxed group-hover:text-foreground/80 transition-colors">
                 He leído y acepto los{" "}
-                <span className="text-[#ffde21] hover:underline">Términos y Condiciones</span>
-                <span className="text-[#ffde21] ml-1">*</span>
+                <span className="text-[#dafc69] hover:underline">Términos y Condiciones</span>
+                <span className="text-[#dafc69] ml-1">*</span>
               </span>
             </label>
           </SectionCard>
@@ -414,7 +414,7 @@ export default function ApplyPage() {
             type="submit"
             disabled={loading}
             className="w-full flex items-center justify-center gap-3 h-14 rounded-2xl text-[16px] font-black text-black hover:opacity-90 active:scale-[0.98] disabled:opacity-50 transition-all"
-            style={{ backgroundColor: "#ffde21" }}
+            style={{ backgroundColor: "#dafc69" }}
           >
             {loading ? (
               <><Loader2 className="h-5 w-5 animate-spin" /> Enviando...</>

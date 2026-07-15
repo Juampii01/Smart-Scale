@@ -114,7 +114,7 @@ function RevenueTooltip({ active, payload }: any) {
 // ─── KPI secundarios ──────────────────────────────────────────────────────────
 
 const SECONDARY: { key: keyof MonthlyReport; label: string; money: boolean; color: string }[] = [
-  { key: "cash_collected",  label: "Cash Collected",      money: true,  color: "#ffde21" },
+  { key: "cash_collected",  label: "Cash Collected",      money: true,  color: "#dafc69" },
   { key: "mrr",             label: "MRR",                  money: true,  color: "#60a5fa" },
   { key: "ad_spend",        label: "Gasto Publicitario",   money: true,  color: "#ef4444" },
   { key: "new_clients",     label: "Nuevos Clientes",      money: false, color: "#4ade80" },
@@ -201,7 +201,7 @@ export function OverviewHero() {
                     onClick={() => setRange(r.id)}
                     className={cn(
                       "rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors",
-                      range === r.id ? "bg-[#ffde21] text-black" : "text-foreground/45 hover:text-foreground/70"
+                      range === r.id ? "bg-[#dafc69] text-black" : "text-foreground/45 hover:text-foreground/70"
                     )}
                   >
                     {r.label}
@@ -234,8 +234,8 @@ export function OverviewHero() {
                 <AreaChart data={chartData} margin={{ top: 8, right: 6, left: 6, bottom: 0 }}>
                   <defs>
                     <linearGradient id="ovh_rev" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%"   stopColor="#ffde21" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#ffde21" stopOpacity={0} />
+                      <stop offset="0%"   stopColor="#dafc69" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="#dafc69" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis
@@ -243,11 +243,11 @@ export function OverviewHero() {
                     tick={{ fontSize: 11, fill: "currentColor" }} minTickGap={20} dy={6}
                   />
                   <YAxis hide domain={[0, "dataMax"]} />
-                  <Tooltip content={<RevenueTooltip />} cursor={{ stroke: "#ffde21", strokeOpacity: 0.3, strokeWidth: 1 }} />
+                  <Tooltip content={<RevenueTooltip />} cursor={{ stroke: "#dafc69", strokeOpacity: 0.3, strokeWidth: 1 }} />
                   <Area
-                    type="monotone" dataKey="v" stroke="#ffde21" strokeWidth={2.5}
+                    type="monotone" dataKey="v" stroke="#dafc69" strokeWidth={2.5}
                     fill="url(#ovh_rev)" dot={false}
-                    activeDot={{ r: 4, fill: "#ffde21", stroke: "var(--card)", strokeWidth: 2 }}
+                    activeDot={{ r: 4, fill: "#dafc69", stroke: "var(--card)", strokeWidth: 2 }}
                     isAnimationActive={false}
                   />
                 </AreaChart>

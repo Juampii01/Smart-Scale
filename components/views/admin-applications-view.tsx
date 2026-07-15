@@ -87,7 +87,7 @@ function DetailLink({ label, value }: { label: string; value?: string | null }) 
     <div className="space-y-1">
       <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">{label}</p>
       <a href={value} target="_blank" rel="noopener noreferrer"
-        className="flex items-center gap-1.5 text-[13px] text-[#ffde21]/70 hover:text-[#ffde21] transition-colors truncate">
+        className="flex items-center gap-1.5 text-[13px] text-[#dafc69]/70 hover:text-[#dafc69] transition-colors truncate">
         <Link2 className="h-3.5 w-3.5 shrink-0" />
         {value}
       </a>
@@ -126,11 +126,11 @@ function DetailDrawer({
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => onDelete(app.id)} disabled={deleting} aria-label="Eliminar aplicación"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
             <button onClick={onClose} aria-label="Cerrar"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -142,7 +142,7 @@ function DetailDrawer({
             <select
               value={app.status}
               onChange={e => onStatusChange(app.id, e.target.value)}
-              className={`h-8 cursor-pointer appearance-none rounded-lg border px-3 pr-7 text-[12px] font-bold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[app.status]}`}
+              className={`h-8 cursor-pointer appearance-none rounded-lg border px-3 pr-7 text-[12px] font-bold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[app.status]}`}
             >
               <option value="nueva">Nueva</option>
               <option value="revisada">Revisada</option>
@@ -170,7 +170,7 @@ function DetailDrawer({
 
           {/* Contacto */}
           <section className="space-y-3">
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#ffde21]/50">Contacto</h3>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#dafc69]/50">Contacto</h3>
             <div className="grid grid-cols-1 gap-3">
               {app.email && (
                 <div className="flex items-center gap-2">
@@ -201,7 +201,7 @@ function DetailDrawer({
 
           {/* Negocio */}
           <section className="space-y-3">
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#ffde21]/50">Negocio</h3>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#dafc69]/50">Negocio</h3>
             <div className="space-y-3">
               <DetailLink label="Canal corto" value={app.short_content_link} />
               <DetailLink label="YouTube / Podcast" value={app.youtube_podcast_link} />
@@ -210,7 +210,7 @@ function DetailDrawer({
 
           {/* Métricas */}
           <section className="space-y-3">
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#ffde21]/50">Métricas</h3>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#dafc69]/50">Métricas</h3>
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: "Lista de emails",   value: app.email_list_size },
@@ -228,7 +228,7 @@ function DetailDrawer({
 
           {/* Objetivos */}
           <section className="space-y-3">
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#ffde21]/50">Objetivos y Bloqueos</h3>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#dafc69]/50">Objetivos y Bloqueos</h3>
             <div className="space-y-3">
               <DetailRow label="Objetivo de ingresos" value={app.income_goal} />
               <DetailRow label="Principal bloqueo" value={app.main_blocker} />
@@ -237,7 +237,7 @@ function DetailDrawer({
 
           {/* Por qué vos */}
           <section className="space-y-3">
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#ffde21]/50">¿Por qué vos?</h3>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#dafc69]/50">¿Por qué vos?</h3>
             <div className="space-y-3">
               <DetailRow label="Superpoderes" value={app.superpowers} />
               <DetailRow label="Aporte a Smart Scale" value={app.contribution} />
@@ -440,7 +440,7 @@ export function AdminApplicationsView() {
               <button key={s} onClick={() => setFilterStatus(s)}
                 className={`h-8 rounded-xl border px-3 text-[12px] font-medium capitalize transition-all ${
                   filterStatus === s
-                    ? "border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21]"
+                    ? "border-[#dafc69]/40 bg-[#dafc69]/10 text-[#dafc69]"
                     : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
                 }`}>
                 {s}
@@ -454,7 +454,7 @@ export function AdminApplicationsView() {
         <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />
+              <Loader2 className="h-6 w-6 animate-spin text-[#dafc69]/40" />
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -511,7 +511,7 @@ export function AdminApplicationsView() {
                         <select
                           value={app.status}
                           onChange={e => handleStatusChange(app.id, e.target.value)}
-                          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[11px] font-semibold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[app.status]}`}
+                          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[11px] font-semibold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[app.status]}`}
                         >
                           <option value="nueva">Nueva</option>
                           <option value="revisada">Revisada</option>

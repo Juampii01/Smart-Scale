@@ -125,7 +125,7 @@ export function SettingDailyCRMView({ logs }: SettingDailyCRMViewProps) {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as "date" | "setter")}
-            className="px-3 py-2 rounded-lg border border-border bg-foreground/[0.03] text-sm font-medium outline-none focus:border-[#ffde21]/50"
+            className="px-3 py-2 rounded-lg border border-border bg-foreground/[0.03] text-sm font-medium outline-none focus:border-[#dafc69]/50"
           >
             <option value="date">Ordenar por Fecha</option>
             <option value="setter">Ordenar por Setter</option>

@@ -36,7 +36,7 @@ export default function PrivacyPage() {
             Smart Scale ("Smart Scale", "nosotros") es una plataforma de analytics y CRM para coaches y creadores de
             infoproductos. Al día de esta política, Smart Scale opera sin una entidad legal constituida separada — el
             responsable del tratamiento de los datos descriptos acá es su equipo operador, contactable en{" "}
-            <a href="mailto:support@smartscale.space" className="text-[#ffde21] hover:underline">support@smartscale.space</a>.
+            <a href="mailto:support@smartscale.space" className="text-[#dafc69] hover:underline">support@smartscale.space</a>.
           </p>
         </section>
 
@@ -124,7 +124,7 @@ export default function PrivacyPage() {
           <h2 className="text-[15px] font-bold text-foreground">8. Eliminación de datos</h2>
           <p className="text-[14px] leading-relaxed">
             Los detalles del proceso de eliminación están en nuestra{" "}
-            <Link href="/data-deletion" className="text-[#ffde21] hover:underline">página de instrucciones de eliminación de datos</Link>.
+            <Link href="/data-deletion" className="text-[#dafc69] hover:underline">página de instrucciones de eliminación de datos</Link>.
           </p>
         </section>
 
@@ -132,7 +132,7 @@ export default function PrivacyPage() {
           <h2 className="text-[15px] font-bold text-foreground">9. Tus derechos</h2>
           <p className="text-[14px] leading-relaxed">
             Podés solicitar acceso, corrección o eliminación de tus datos en cualquier momento escribiendo a{" "}
-            <a href="mailto:support@smartscale.space" className="text-[#ffde21] hover:underline">support@smartscale.space</a>.
+            <a href="mailto:support@smartscale.space" className="text-[#dafc69] hover:underline">support@smartscale.space</a>.
           </p>
         </section>
 
@@ -147,7 +147,7 @@ export default function PrivacyPage() {
         <section className="space-y-2.5">
           <h2 className="text-[15px] font-bold text-foreground">11. Contacto</h2>
           <p className="text-[14px] leading-relaxed">
-            <a href="mailto:support@smartscale.space" className="text-[#ffde21] hover:underline">support@smartscale.space</a>
+            <a href="mailto:support@smartscale.space" className="text-[#dafc69] hover:underline">support@smartscale.space</a>
           </p>
         </section>
       </div>

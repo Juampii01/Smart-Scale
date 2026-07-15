@@ -25,7 +25,7 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
   return (
     <label className="block text-[13px] font-semibold text-foreground/60 mb-2 tracking-wide leading-snug">
       {children}
-      {required && <span className="ml-1 text-[#ffde21]">*</span>}
+      {required && <span className="ml-1 text-[#dafc69]">*</span>}
     </label>
   )
 }
@@ -48,7 +48,7 @@ function SectionCard({ children }: { children: React.ReactNode }) {
 function SectionHeader({ number, title }: { number: string; title: string }) {
   return (
     <div className="flex items-start gap-4 pb-1">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#ffde21] text-[13px] font-black text-black mt-0.5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#dafc69] text-[13px] font-black text-black mt-0.5">
         {number}
       </div>
       <h2 className="text-[18px] font-bold text-foreground leading-tight pt-1.5">{title}</h2>
@@ -91,7 +91,7 @@ function RadioGroup({
       {options.map(opt => (
         <label key={opt} className="flex items-center gap-3 cursor-pointer group" onClick={() => onChange(opt)}>
           <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-            value === opt ? "border-[#ffde21] bg-[#ffde21]" : "border-foreground/20 group-hover:border-foreground/40"
+            value === opt ? "border-[#dafc69] bg-[#dafc69]" : "border-foreground/20 group-hover:border-foreground/40"
           }`}>
             {value === opt && <span className="h-2 w-2 rounded-full bg-black" />}
           </span>
@@ -128,7 +128,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
               No encontramos el puesto <span className="font-mono text-amber-300">{rol}</span>. Puede que el link esté desactualizado o el puesto haya sido cerrado.
             </p>
           </div>
-          <a href="/" className="inline-block rounded-xl bg-[#ffde21] px-5 py-2.5 text-[13px] font-bold text-black hover:bg-[#ffe46b] transition">
+          <a href="/" className="inline-block rounded-xl bg-[#dafc69] px-5 py-2.5 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition">
             Volver al inicio
           </a>
         </div>
@@ -200,7 +200,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "var(--background)" }}>
         <div className="max-w-md w-full text-center space-y-6 sm:space-y-8 px-2">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#ffde21]">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#dafc69]">
             <Check className="h-10 w-10 text-black" strokeWidth={3} />
           </div>
           <div className="space-y-3">
@@ -235,9 +235,9 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
 
         {/* Hero */}
         <div className="space-y-5 pb-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#ffde21]/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
-            <span className="h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse" />
-            <span className="text-[11px] font-bold text-[#ffde21] uppercase tracking-[0.18em]">Smart Scale Team</span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#dafc69]/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
+            <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69] animate-pulse" />
+            <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">Smart Scale Team</span>
           </div>
           <h1 className="text-[28px] sm:text-[38px] font-black text-foreground leading-[1.1] tracking-tight">
             {form.title}
@@ -301,7 +301,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
           <button
             type="submit"
             disabled={loading || !!gated}
-            className="w-full rounded-2xl bg-[#ffde21] px-6 py-4 text-[15px] font-black text-black transition hover:bg-[#ffe46b] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full rounded-2xl bg-[#dafc69] px-6 py-4 text-[15px] font-black text-black transition hover:bg-[#f2ffc0] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {loading ? "Enviando…" : gated ? "Aplicación bloqueada" : "Enviar aplicación"}
           </button>

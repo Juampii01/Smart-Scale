@@ -178,7 +178,7 @@ function SessionRow({ occ }: { occ: Occurrence }) {
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[12px] text-foreground/45">
           <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />{fullDate(date)}</span>
           {ev.time && <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" />{ev.time} · {ev.tz_label}</span>}
-          {localTime && <span className="text-[#ffde21]/80 font-semibold">Tu hora: {localTime}</span>}
+          {localTime && <span className="text-[#dafc69]/80 font-semibold">Tu hora: {localTime}</span>}
           {ev.passcode && <span className="text-foreground/35">Código <span className="font-mono text-foreground/60">{ev.passcode}</span></span>}
         </div>
       </div>
@@ -187,7 +187,7 @@ function SessionRow({ occ }: { occ: Occurrence }) {
       <div className="shrink-0 self-center">
         {ev.zoom_url ? (
           <a href={ev.zoom_url} target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-[8px] bg-[#ffde21] px-3.5 py-2 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-colors whitespace-nowrap">
+            className="inline-flex items-center gap-1.5 rounded-[8px] bg-[#dafc69] px-3.5 py-2 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-colors whitespace-nowrap">
             Unirse <ExternalLink className="h-3.5 w-3.5" />
           </a>
         ) : (
@@ -207,9 +207,9 @@ function PasscodeBox({ value }: { value: string }) {
       type="button"
       onClick={async (e) => { e.preventDefault(); try { await navigator.clipboard.writeText(value); setCopied(true); setTimeout(() => setCopied(false), 1800) } catch {} }}
       title="Copiar contraseña"
-      className="inline-flex items-center gap-2 rounded-[8px] border border-[#ffde21]/25 bg-[#ffde21]/[0.06] px-2.5 py-1.5 transition-colors hover:bg-[#ffde21]/[0.12]"
+      className="inline-flex items-center gap-2 rounded-[8px] border border-[#dafc69]/25 bg-[#dafc69]/[0.06] px-2.5 py-1.5 transition-colors hover:bg-[#dafc69]/[0.12]"
     >
-      <Lock className="h-3 w-3 text-[#ffde21]/70" />
+      <Lock className="h-3 w-3 text-[#dafc69]/70" />
       <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">Contraseña</span>
       <span className="font-mono text-[13px] font-semibold text-foreground">{value}</span>
       {copied
@@ -254,7 +254,7 @@ function RecordingRow({ rec }: { rec: Recording }) {
           </a>
         )}
         <a href={rec.recording_url} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-[8px] bg-[#ffde21] px-3.5 py-2 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-colors whitespace-nowrap">
+          className="inline-flex items-center gap-1.5 rounded-[8px] bg-[#dafc69] px-3.5 py-2 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-colors whitespace-nowrap">
           <Play className="h-3.5 w-3.5" /> Ver
         </a>
       </div>
@@ -364,11 +364,11 @@ export function CalendarView() {
               className={cn(
                 "relative flex items-center gap-2 pb-3 px-4 text-[14px] font-semibold transition-colors",
                 tab === id
-                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#ffde21] after:rounded-full"
+                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#dafc69] after:rounded-full"
                   : "text-foreground/40 hover:text-foreground/70"
               )}>
               {label}
-              <span className={cn("rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums", tab === id ? "bg-[#ffde21] text-black" : "bg-foreground/[0.06] text-foreground/40")}>{count}</span>
+              <span className={cn("rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums", tab === id ? "bg-[#dafc69] text-black" : "bg-foreground/[0.06] text-foreground/40")}>{count}</span>
             </button>
           ))}
         </div>
@@ -382,7 +382,7 @@ export function CalendarView() {
 
       {/* Content */}
       {loading ? (
-        <div className="flex items-center justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-[#ffde21]/40" /></div>
+        <div className="flex items-center justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-[#dafc69]/40" /></div>
       ) : error ? (
         <div className="rounded-[14px] border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-700 dark:text-red-400">{error}</div>
       ) : tab === "recordings" ? (
@@ -423,10 +423,10 @@ export function CalendarView() {
               {featured.map((o, i) => {
                 const localTime = o.ev.time ? toUserLocalTime(o.ev.time) : null
                 return (
-                  <div key={`${o.ev.id}-${i}`} className="rounded-[14px] border border-[#ffde21]/20 bg-[#ffde21]/[0.04] p-5">
+                  <div key={`${o.ev.id}-${i}`} className="rounded-[14px] border border-[#dafc69]/20 bg-[#dafc69]/[0.04] p-5">
                     <div className="flex items-center gap-2 mb-2">
                       <StatusPill status={o.ev.status} />
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-[#ffde21]/80">Próxima</span>
+                      <span className="text-[11px] font-semibold uppercase tracking-wider text-[#dafc69]/80">Próxima</span>
                     </div>
                     <p className="text-[16px] font-bold text-foreground leading-tight">{o.ev.title}</p>
                     <p className="text-[12px] text-foreground/45 mt-1">
@@ -435,7 +435,7 @@ export function CalendarView() {
                     </p>
                     {o.ev.zoom_url && (
                       <a href={o.ev.zoom_url} target="_blank" rel="noopener noreferrer"
-                        className="mt-3 inline-flex items-center gap-1.5 rounded-[8px] bg-[#ffde21] px-4 py-2 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-colors">
+                        className="mt-3 inline-flex items-center gap-1.5 rounded-[8px] bg-[#dafc69] px-4 py-2 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-colors">
                         Unirse a la sesión <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                     )}
@@ -470,12 +470,12 @@ export function CalendarView() {
       <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-5 space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <span className="inline-flex items-center rounded-full border border-[#ffde21]/25 bg-[#ffde21]/[0.08] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-[#ffde21] mb-1">Mensual · 1:1</span>
+            <span className="inline-flex items-center rounded-full border border-[#dafc69]/25 bg-[#dafc69]/[0.08] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-[#dafc69] mb-1">Mensual · 1:1</span>
             <h3 className="text-[15px] font-bold text-foreground leading-tight">Llamada con Ann</h3>
             <p className="text-[12px] text-foreground/40 mt-0.5">Sesión privada mensual · 1 llamada por mes</p>
           </div>
           <a href="https://calendly.com/strategystudio-mkt/ann-s-privat-link" target="_blank" rel="noreferrer"
-            className="shrink-0 flex items-center gap-1.5 rounded-[8px] bg-[#ffde21] px-4 py-2 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-colors">
+            className="shrink-0 flex items-center gap-1.5 rounded-[8px] bg-[#dafc69] px-4 py-2 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-colors">
             <Calendar className="h-3.5 w-3.5" />
             Agendar llamada
           </a>
@@ -488,7 +488,7 @@ export function CalendarView() {
             "Si no se agenda en ese período, no se traslada al mes siguiente.",
           ].map(t => (
             <li key={t} className="flex items-start gap-2 list-none text-[11px] text-foreground/35">
-              <span className="mt-1.5 h-1 w-1 rounded-full bg-[#ffde21]/40 shrink-0" />
+              <span className="mt-1.5 h-1 w-1 rounded-full bg-[#dafc69]/40 shrink-0" />
               {t}
             </li>
           ))}

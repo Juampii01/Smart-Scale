@@ -77,9 +77,9 @@ function BookingContent() {
           {/* Left: copy */}
           <div className="space-y-8">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#ffde21]/25 bg-[#ffde21]/[0.07] px-4 py-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#ffde21]/70 shrink-0" />
-              <span className="text-[11px] font-bold text-[#ffde21] uppercase tracking-[0.18em]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#dafc69]/25 bg-[#dafc69]/[0.07] px-4 py-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69]/70 shrink-0" />
+              <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">
                 Smart Scale · Opción Sync
               </span>
             </div>
@@ -98,8 +98,8 @@ function BookingContent() {
             <ul className="space-y-3">
               {features.map((f, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#ffde21]/15 shrink-0">
-                    <Check className="h-3 w-3 text-[#ffde21]" />
+                  <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#dafc69]/15 shrink-0">
+                    <Check className="h-3 w-3 text-[#dafc69]" />
                   </span>
                   <span className="text-[14px] text-foreground/70">{f}</span>
                 </li>
@@ -125,7 +125,7 @@ function BookingContent() {
           <div className="lg:sticky lg:top-24">
             <div className="relative overflow-hidden rounded-3xl border border-foreground/[0.08] bg-card shadow-2xl shadow-black/20">
               {/* Gradient top */}
-              <div className="h-[3px] w-full bg-gradient-to-r from-[#ffde21]/80 via-[#ffde21] to-[#ffde21]/80" />
+              <div className="h-[3px] w-full bg-gradient-to-r from-[#dafc69]/80 via-[#dafc69] to-[#dafc69]/80" />
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.06),transparent_60%)]" />
 
               <div className="relative p-8 space-y-7">
@@ -147,7 +147,7 @@ function BookingContent() {
                 <div className="rounded-2xl border border-foreground/[0.06] bg-foreground/[0.02] p-4 space-y-2.5">
                   {features.slice(0, 3).map((f, i) => (
                     <div key={i} className="flex items-center gap-2.5 text-[12px] text-foreground/55">
-                      <Zap className="h-3 w-3 text-[#ffde21]/70 shrink-0" />
+                      <Zap className="h-3 w-3 text-[#dafc69]/70 shrink-0" />
                       {f}
                     </div>
                   ))}
@@ -159,7 +159,7 @@ function BookingContent() {
                     href={stripeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-[#ffde21] py-4 text-[15px] font-black text-black hover:bg-[#ffe84d] transition-all duration-200 shadow-lg shadow-[#ffde21]/20 hover:shadow-[#ffde21]/30 hover:scale-[1.01]"
+                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-[#dafc69] py-4 text-[15px] font-black text-black hover:bg-[#f2ffc0] transition-all duration-200 shadow-lg shadow-[#dafc69]/20 hover:shadow-[#dafc69]/30 hover:scale-[1.01]"
                   >
                     {cta}
                     <ArrowRight className="h-4 w-4" />
@@ -199,7 +199,7 @@ export default function BookingPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="h-6 w-6 rounded-full border-2 border-[#ffde21]/40 border-t-[#ffde21] animate-spin" />
+        <div className="h-6 w-6 rounded-full border-2 border-[#dafc69]/40 border-t-[#dafc69] animate-spin" />
       </div>
     }>
       <BookingContent />

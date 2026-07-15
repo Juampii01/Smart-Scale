@@ -92,7 +92,7 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
   const inputCls = "h-8 rounded-lg border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground placeholder:text-foreground/20 focus:border-foreground/20 focus:outline-none w-full"
 
   return (
-    <tr className="border-b border-[#ffde21]/10 bg-[#ffde21]/[0.03]">
+    <tr className="border-b border-[#dafc69]/10 bg-[#dafc69]/[0.03]">
       <td className="px-4 py-2.5"><input value={name}  onChange={e => setName(e.target.value)}  placeholder="Nombre completo *" className={inputCls} /></td>
       <td className="px-4 py-2.5"><input value={email} onChange={e => setEmail(e.target.value)} placeholder="email@ejemplo.com"  className={inputCls} /></td>
       <td className="px-4 py-2.5">
@@ -100,7 +100,7 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
       </td>
       <td className="px-4 py-2.5">
         <select value={status} onChange={e => setStatus(e.target.value as Payment["status"])}
-          className="h-8 w-full appearance-none rounded-lg border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1">
+          className="h-8 w-full appearance-none rounded-lg border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1">
           <option value="aceptado">Aceptado</option>
           <option value="rechazado">Rechazado</option>
           <option value="pendiente">Pendiente</option>
@@ -118,10 +118,10 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
       <td className="px-4 py-2.5 whitespace-nowrap">
         <div className="flex items-center gap-1.5">
           <button onClick={handleSave} disabled={saving || !name.trim() || !amount.trim()} aria-label="Guardar"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#ffde21] text-black hover:bg-[#ffe84d] disabled:opacity-40 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1">
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#dafc69] text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1">
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
           </button>
-          <button onClick={onCancel} aria-label="Cancelar" className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.08] text-foreground/40 hover:text-foreground transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
+          <button onClick={onCancel} aria-label="Cancelar" className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.08] text-foreground/40 hover:text-foreground transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -246,7 +246,7 @@ export function AdminPaymentsView() {
         <select
           value={p.status}
           onChange={e => handleStatusChange(p.id, e.target.value)}
-          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[11px] font-semibold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[p.status]}`}
+          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[11px] font-semibold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[p.status]}`}
         >
           <option value="aceptado">Aceptado</option>
           <option value="rechazado">Rechazado</option>
@@ -295,13 +295,13 @@ export function AdminPaymentsView() {
             <button
               onClick={() => setViewMode("mes")}
               title="Vista por mes"
-              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${viewMode === "mes" ? "bg-[#ffde21] text-black" : "text-foreground/40 hover:text-foreground"}`}>
+              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${viewMode === "mes" ? "bg-[#dafc69] text-black" : "text-foreground/40 hover:text-foreground"}`}>
               <CalendarDays className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={() => setViewMode("tabla")}
               title="Vista tabla"
-              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${viewMode === "tabla" ? "bg-[#ffde21] text-black" : "text-foreground/40 hover:text-foreground"}`}>
+              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${viewMode === "tabla" ? "bg-[#dafc69] text-black" : "text-foreground/40 hover:text-foreground"}`}>
               <LayoutList className="h-3.5 w-3.5" />
             </button>
           </div>
@@ -316,12 +316,12 @@ export function AdminPaymentsView() {
             CSV
           </button>
           <button onClick={() => setShowLinkDialog(true)}
-            className="flex items-center gap-2 h-9 rounded-xl border border-[#ffde21]/30 bg-[#ffde21]/[0.08] px-4 text-sm font-semibold text-[#ffde21] hover:bg-[#ffde21]/15 transition-all">
+            className="flex items-center gap-2 h-9 rounded-xl border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-4 text-sm font-semibold text-[#dafc69] hover:bg-[#dafc69]/15 transition-all">
             <Link2 className="h-3.5 w-3.5" />
             Link de pago
           </button>
           <button onClick={() => setAdding(true)} disabled={adding}
-            className="flex items-center gap-2 h-9 rounded-xl bg-[#ffde21] px-4 text-sm font-bold text-black hover:bg-[#ffe84d] disabled:opacity-50 transition-all">
+            className="flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-4 text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-all">
             <Plus className="h-4 w-4" />
             Nuevo pago
           </button>
@@ -348,7 +348,7 @@ export function AdminPaymentsView() {
           <button key={s} onClick={() => setFilterStatus(s)}
             className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium capitalize transition-all ${
               filterStatus === s
-                ? "border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21]"
+                ? "border-[#dafc69]/40 bg-[#dafc69]/10 text-[#dafc69]"
                 : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
             }`}>
             {s}
@@ -384,7 +384,7 @@ export function AdminPaymentsView() {
       )}
 
       {loading ? (
-        <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" /></div>
+        <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-[#dafc69]/40" /></div>
       ) : viewMode === "mes" ? (
 
         /* ── Vista por mes ─────────────────────────────────────────────── */

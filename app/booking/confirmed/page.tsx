@@ -48,12 +48,12 @@ function ConfirmedContent() {
         >
           {/* Glow */}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,222,33,0.18),transparent_65%)]" />
-          <div className="h-[3px] w-full bg-gradient-to-r from-[#ffde21]/40 via-[#ffde21] to-[#ffde21]/40" />
+          <div className="h-[3px] w-full bg-gradient-to-r from-[#dafc69]/40 via-[#dafc69] to-[#dafc69]/40" />
 
           <div className="relative px-8 py-7 flex flex-col sm:flex-row items-center sm:items-start gap-5">
             {/* Check icon */}
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#ffde21]/15 border border-[#ffde21]/30">
-              <CheckCircle2 className="h-7 w-7 text-[#ffde21]" />
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#dafc69]/15 border border-[#dafc69]/30">
+              <CheckCircle2 className="h-7 w-7 text-[#dafc69]" />
             </div>
 
             {/* Text */}
@@ -69,13 +69,13 @@ function ConfirmedContent() {
 
             {/* Stats pills */}
             <div className="sm:ml-auto flex items-center gap-3 shrink-0">
-              <div className="flex items-center gap-1.5 rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.07] px-3 py-2">
-                <Clock className="h-3.5 w-3.5 text-[#ffde21]/60" />
-                <span className="text-[12px] font-semibold text-[#ffde21]/80">45 min</span>
+              <div className="flex items-center gap-1.5 rounded-xl border border-[#dafc69]/20 bg-[#dafc69]/[0.07] px-3 py-2">
+                <Clock className="h-3.5 w-3.5 text-[#dafc69]/60" />
+                <span className="text-[12px] font-semibold text-[#dafc69]/80">45 min</span>
               </div>
-              <div className="flex items-center gap-1.5 rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.07] px-3 py-2">
-                <CalendarDays className="h-3.5 w-3.5 text-[#ffde21]/60" />
-                <span className="text-[12px] font-semibold text-[#ffde21]/80">1:1 con Ann</span>
+              <div className="flex items-center gap-1.5 rounded-xl border border-[#dafc69]/20 bg-[#dafc69]/[0.07] px-3 py-2">
+                <CalendarDays className="h-3.5 w-3.5 text-[#dafc69]/60" />
+                <span className="text-[12px] font-semibold text-[#dafc69]/80">1:1 con Ann</span>
               </div>
             </div>
           </div>
@@ -89,9 +89,9 @@ function ConfirmedContent() {
         >
           {calendlyUrl ? (
             <div className="overflow-hidden rounded-3xl border border-foreground/[0.08] shadow-2xl shadow-black/20">
-              <div className="h-[3px] w-full bg-gradient-to-r from-[#ffde21]/40 via-[#ffde21] to-[#ffde21]/40" />
+              <div className="h-[3px] w-full bg-gradient-to-r from-[#dafc69]/40 via-[#dafc69] to-[#dafc69]/40" />
               <iframe
-                src={`${calendlyUrl}?hide_gdpr_banner=1&background_color=111111&text_color=ffffff&primary_color=ffde21`}
+                src={`${calendlyUrl}?hide_gdpr_banner=1&background_color=111111&text_color=ffffff&primary_color=dafc69`}
                 width="100%"
                 height="680"
                 frameBorder="0"
@@ -120,7 +120,7 @@ export default function BookingConfirmedPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="h-6 w-6 rounded-full border-2 border-[#ffde21]/40 border-t-[#ffde21] animate-spin" />
+        <div className="h-6 w-6 rounded-full border-2 border-[#dafc69]/40 border-t-[#dafc69] animate-spin" />
       </div>
     }>
       <ConfirmedContent />
