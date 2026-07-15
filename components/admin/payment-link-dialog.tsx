@@ -88,7 +88,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
 
   if (!open) return null
 
-  const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 focus:border-[#ffde21]/40 focus:outline-none transition-all"
+  const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 focus:border-[#dafc69]/40 focus:outline-none transition-all"
   const labelCls = "text-[10px] font-bold uppercase tracking-widest text-foreground/30 mb-1.5 block"
 
   return (
@@ -98,7 +98,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+            <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
             <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">
               Crear link de pago
             </h2>
@@ -119,11 +119,11 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                   Link creado ✓
                 </p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 truncate rounded-lg bg-foreground/[0.05] px-3 py-2 text-[12px] font-mono text-[#ffde21]/80">
+                  <code className="flex-1 truncate rounded-lg bg-foreground/[0.05] px-3 py-2 text-[12px] font-mono text-[#dafc69]/80">
                     {result.paymentUrl}
                   </code>
                   <button onClick={copyLink}
-                    className="shrink-0 flex items-center gap-1.5 h-8 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] transition-all">
+                    className="shrink-0 flex items-center gap-1.5 h-8 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all">
                     {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                     {copied ? "Copiado" : "Copiar"}
                   </button>
@@ -163,7 +163,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                   <button key={t} onClick={() => setType(t)}
                     className={`flex-1 py-2 text-[12px] font-semibold transition-all ${
                       type === t
-                        ? "bg-[#ffde21]/10 text-[#ffde21]"
+                        ? "bg-[#dafc69]/10 text-[#dafc69]"
                         : "text-foreground/40 hover:text-foreground"
                     }`}>
                     {t === "once" ? "Pago único" : "Cuotas mensuales"}
@@ -193,7 +193,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                 <div>
                   <label className={labelCls}>Cantidad de cuotas *</label>
                   <select value={installments} onChange={e => setInstallments(e.target.value)}
-                    className="w-full appearance-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-[#ffde21]/40 focus:outline-none">
+                    className="w-full appearance-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-[#dafc69]/40 focus:outline-none">
                     {[1,2,3,4,5,6,8,10,12].map(n => (
                       <option key={n} value={n}>{n} {n === 1 ? "cuota" : "cuotas"}{amount ? ` — Total $${Number(amount) * n}` : ""}</option>
                     ))}
@@ -242,7 +242,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
 
               {/* CTA */}
               <button onClick={handleCreate} disabled={loading || !amount}
-                className="w-full h-10 rounded-xl bg-[#ffde21] text-[13px] font-bold text-black hover:bg-[#ffe84d] disabled:opacity-40 transition-all flex items-center justify-center gap-2">
+                className="w-full h-10 rounded-xl bg-[#dafc69] text-[13px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition-all flex items-center justify-center gap-2">
                 {loading
                   ? <><Loader2 className="h-4 w-4 animate-spin" /> Creando...</>
                   : <><Link2 className="h-4 w-4" /> Crear link de Stripe</>

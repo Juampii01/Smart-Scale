@@ -60,13 +60,13 @@ export function AdminPushView() {
     } catch { setState("error"); setMsg("Error de red.") }
   }
 
-  const inputCls = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/40 outline-none focus:border-[#ffde21]/60 transition-colors"
+  const inputCls = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/40 outline-none focus:border-[#dafc69]/60 transition-colors"
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
       <div className="flex items-center gap-3">
-        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#ffde21]/15">
-          <Bell className="h-6 w-6 text-[#ffde21]" />
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#dafc69]/15">
+          <Bell className="h-6 w-6 text-[#dafc69]" />
         </span>
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-foreground leading-none">Notificaciones</h1>
@@ -100,8 +100,8 @@ export function AdminPushView() {
             const active = audience === a.key
             return (
               <button key={a.key} onClick={() => setAudience(a.key)}
-                className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${active ? "border-[#ffde21]/40 bg-[#ffde21]/[0.08]" : "border-border bg-background/40 hover:bg-foreground/[0.04]"}`}>
-                <a.Icon className={`h-4 w-4 mt-0.5 shrink-0 ${active ? "text-[#ffde21]" : "text-foreground/40"}`} />
+                className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${active ? "border-[#dafc69]/40 bg-[#dafc69]/[0.08]" : "border-border bg-background/40 hover:bg-foreground/[0.04]"}`}>
+                <a.Icon className={`h-4 w-4 mt-0.5 shrink-0 ${active ? "text-[#dafc69]" : "text-foreground/40"}`} />
                 <div className="min-w-0">
                   <p className="text-[13px] font-semibold text-foreground">{a.label}</p>
                   <p className="text-[11px] text-foreground/45">{a.desc}</p>
@@ -125,7 +125,7 @@ export function AdminPushView() {
       )}
 
       <button onClick={send} disabled={state === "sending"}
-        className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe84d] active:scale-[0.98] disabled:opacity-50">
+        className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-[0.98] disabled:opacity-50">
         {state === "sending" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         Enviar notificación
       </button>

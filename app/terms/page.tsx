@@ -108,7 +108,7 @@ export default function TermsPage() {
         <section className="space-y-2.5">
           <h2 className="text-[15px] font-bold text-foreground">10. Contacto</h2>
           <p className="text-[14px] leading-relaxed">
-            <a href="mailto:support@smartscale.space" className="text-[#ffde21] hover:underline">support@smartscale.space</a>
+            <a href="mailto:support@smartscale.space" className="text-[#dafc69] hover:underline">support@smartscale.space</a>
           </p>
         </section>
       </div>

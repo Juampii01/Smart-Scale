@@ -235,7 +235,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
           <button
             onClick={createPlaybook}
             disabled={creating}
-            className="inline-flex items-center gap-2 h-9 rounded-xl bg-[#ffde21] px-4 text-[13px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-50"
+            className="inline-flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-4 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-50"
           >
             {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             Crear playbook
@@ -270,7 +270,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
         <button
           onClick={revealPlaybook}
           disabled={revealing}
-          className="inline-flex items-center gap-2 h-9 rounded-xl bg-[#ffde21] px-4 text-[13px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-50"
+          className="inline-flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-4 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-50"
         >
           {revealing ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
           Revelar playbook

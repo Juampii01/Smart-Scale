@@ -190,7 +190,7 @@ export function AdminImportView() {
                 }}
                 className={`h-7 rounded-lg px-3 text-[12px] font-semibold transition-all ${
                   year === y
-                    ? "bg-[#ffde21] text-black"
+                    ? "bg-[#dafc69] text-black"
                     : "text-foreground/40 hover:text-foreground"
                 }`}
               >
@@ -202,7 +202,7 @@ export function AdminImportView() {
           <button
             onClick={handleImport}
             disabled={saving || filledCount === 0}
-            className="flex items-center gap-2 h-9 rounded-xl bg-[#ffde21] px-5 text-[13px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-40"
+            className="flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-5 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
           >
             {saving
               ? <Loader2 className="h-4 w-4 animate-spin" />
@@ -302,7 +302,7 @@ export function AdminImportView() {
                         : hasError
                           ? <AlertCircle className="h-4 w-4 text-red-400 mx-auto" title={errors[row.month]} />
                           : hasData
-                            ? <div className="h-1.5 w-1.5 rounded-full bg-[#ffde21]/60 mx-auto" />
+                            ? <div className="h-1.5 w-1.5 rounded-full bg-[#dafc69]/60 mx-auto" />
                             : null}
                     </td>
                   </tr>
@@ -335,7 +335,7 @@ export function AdminImportView() {
             <div key={from} className="flex items-center gap-1.5 text-[11px]">
               <span className="text-foreground/35">{from}</span>
               <span className="text-foreground/20">→</span>
-              <span className="text-[#ffde21]/60 font-medium">{to}</span>
+              <span className="text-[#dafc69]/60 font-medium">{to}</span>
             </div>
           ))}
         </div>

@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono, Instrument_Serif, Space_Grotesk } from "next/font/google"
+import { Geist, Geist_Mono, Instrument_Serif, Inter, Inter_Tight } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import { PwaRegister } from "@/components/pwa-register"
@@ -12,11 +12,19 @@ const geistSans = Geist({
   display: "swap",
 })
 
-// Fuente principal del UI — estética Scale20 (grotesca geométrica).
-const spaceGrotesk = Space_Grotesk({
+// Fuente principal del UI — manual de marca Smart Scale (Inter / Inter Tight).
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-space-grotesk",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+  display: "swap",
+})
+
+// Fuente de display — títulos, cifras grandes (Inter Tight 700-900).
+const interTight = Inter_Tight({
+  subsets: ["latin"],
+  weight: ["600", "700", "800", "900"],
+  variable: "--font-inter-tight",
   display: "swap",
 })
 
@@ -68,7 +76,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#ffde21",
+  themeColor: "#dafc69",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -83,7 +91,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${spaceGrotesk.variable} ${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable}`}
+      className={`${inter.variable} ${interTight.variable} ${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable}`}
     >
       <body className={`font-sans antialiased`}>
         <ThemeProvider>

@@ -88,7 +88,7 @@ export function ReflectionCardSkeleton() {
 export function SectionHeaderSkeleton() {
   return (
     <div className="mb-5 flex items-center gap-2.5">
-      <div className="h-4 w-[3px] rounded-full bg-[#ffde21]/30" />
+      <div className="h-4 w-[3px] rounded-full bg-[#dafc69]/30" />
       <Sk className="h-2.5 w-40" />
     </div>
   )

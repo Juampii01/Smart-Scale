@@ -82,7 +82,7 @@ export function ContentVaultView({ channel }: { channel: Channel }) {
           <p className="text-[13px] text-foreground/50 mt-0.5">{items.length} {items.length === 1 ? "guardado" : "guardados"}</p>
         </div>
         <button onClick={() => setOpen(true)}
-          className="flex items-center gap-2 rounded-[8px] bg-[#ffde21] px-4 py-2 text-[13px] font-semibold text-black hover:bg-[#ffe84d] transition-colors">
+          className="flex items-center gap-2 rounded-[8px] bg-[#dafc69] px-4 py-2 text-[13px] font-semibold text-black hover:bg-[#f2ffc0] transition-colors">
           <Plus className="h-4 w-4" /> Guardar {itemLabel}
         </button>
       </div>
@@ -110,7 +110,7 @@ export function ContentVaultView({ channel }: { channel: Channel }) {
             <div key={item.id} className="group relative rounded-[14px] border border-foreground/[0.07] bg-card p-4 hover:border-foreground/[0.12] transition-colors">
               <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button onClick={() => toggleFav(item)} title="Favorito"
-                  className={cn("h-6 w-6 flex items-center justify-center rounded-md hover:bg-foreground/[0.06]", item.favorite ? "text-[#ffde21]" : "text-foreground/30")}>
+                  className={cn("h-6 w-6 flex items-center justify-center rounded-md hover:bg-foreground/[0.06]", item.favorite ? "text-[#dafc69]" : "text-foreground/30")}>
                   <Star className="h-3.5 w-3.5" fill={item.favorite ? "currentColor" : "none"} />
                 </button>
                 <button onClick={() => handleRemove(item.id)}
@@ -120,7 +120,7 @@ export function ContentVaultView({ channel }: { channel: Channel }) {
               </div>
               <div className="flex items-center gap-2 mb-2">
                 <Icon className="h-3.5 w-3.5" style={{ color: iconColor }} />
-                {item.favorite && <Star className="h-3 w-3 text-[#ffde21]" fill="currentColor" />}
+                {item.favorite && <Star className="h-3 w-3 text-[#dafc69]" fill="currentColor" />}
               </div>
               <p className="text-[14px] font-semibold text-foreground leading-snug mb-1 line-clamp-2">{item.title || "Sin título"}</p>
               <a href={item.url} target="_blank" rel="noopener noreferrer"

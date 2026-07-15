@@ -216,7 +216,7 @@ export function CorrelationChart() {
           title="Cash vs Cierres"
           insight="¿Cada cliente que cerraste se refleja en el cash? Si los cierres suben pero el cash no, hay un problema de pricing o de condiciones."
           data={data}
-          barKey="cash"    barLabel="Cash Collected" barColor="#ffde21"
+          barKey="cash"    barLabel="Cash Collected" barColor="#dafc69"
           lineKey="clients" lineLabel="Nuevos Clientes" lineColor="#4ade80"
           fmtBar={fmtMoney}
           fmtLine={(v) => String(v)}
@@ -227,7 +227,7 @@ export function CorrelationChart() {
           title="Cash vs Instagram"
           insight="¿El crecimiento en seguidores precede al cash? Normalmente hay un lag de 1-3 meses entre la audiencia y los ingresos."
           data={data}
-          barKey="cash"  barLabel="Cash Collected"      barColor="#ffde21"
+          barKey="cash"  barLabel="Cash Collected"      barColor="#dafc69"
           lineKey="ig"   lineLabel="Seguidores IG"       lineColor="#818cf8"
           fmtBar={fmtMoney}
           fmtLine={fmtNum}

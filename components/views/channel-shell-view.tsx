@@ -33,7 +33,7 @@ export function ChannelShellView({
             "flex items-center gap-2 rounded-[8px] px-4 py-2 text-[13px] font-semibold transition-all",
             comingSoon
               ? "bg-foreground/[0.05] text-foreground/30 cursor-not-allowed"
-              : "bg-[#ffde21] text-black hover:bg-[#ffe84d]"
+              : "bg-[#dafc69] text-black hover:bg-[#f2ffc0]"
           )}
         >
           {actionLabel}

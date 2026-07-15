@@ -446,14 +446,14 @@ export function KanbanBoard() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
-            <CheckSquare className="h-6 w-6 text-[#ffde21]" />
+            <CheckSquare className="h-6 w-6 text-[#dafc69]" />
             Tareas
           </h1>
           <p className="text-sm text-foreground/40 mt-1">Tablero compartido · Ann · Steffano · Juan</p>
         </div>
         <button
           onClick={() => openCreateModal()}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] active:scale-95"
+          className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95"
         >
           <Plus className="h-4 w-4" />
           Nueva tarea

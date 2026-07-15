@@ -161,7 +161,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
       ) : !status?.connected ? (
         <div className="mt-6 rounded-[14px] border border-border bg-card p-8 text-center">
           <p className="text-sm text-foreground/60 mb-4">Tu cuenta de {brand.name} todavía no está conectada.</p>
-          <button onClick={handleConnect} disabled={busy} className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe84d] active:scale-[0.98] disabled:opacity-50">
+          <button onClick={handleConnect} disabled={busy} className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-[0.98] disabled:opacity-50">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
             Conectar {brand.name}
           </button>
@@ -202,7 +202,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
           {metrics && metrics.current.length > 0 && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {metrics.current.map((s, i) => (
-                <div key={s.label} className={`rounded-[14px] border p-4 ${i === 0 ? "border-[#ffde21]/30 bg-[#ffde21]/[0.06]" : "border-border bg-card"}`}>
+                <div key={s.label} className={`rounded-[14px] border p-4 ${i === 0 ? "border-[#dafc69]/30 bg-[#dafc69]/[0.06]" : "border-border bg-card"}`}>
                   <p className="text-[11px] font-medium uppercase tracking-wide text-foreground/45">{s.label}</p>
                   <p className="mt-1 text-2xl font-bold text-foreground tabular-nums">{s.value}</p>
                 </div>
@@ -230,7 +230,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                       onClick={() => setBucketKey(b.key)}
                       className={`rounded-lg border px-3 py-1.5 text-[13px] font-medium transition ${
                         b.key === bucketKey
-                          ? "border-[#ffde21]/40 bg-[#ffde21]/[0.12] text-foreground"
+                          ? "border-[#dafc69]/40 bg-[#dafc69]/[0.12] text-foreground"
                           : "border-border bg-card text-foreground/60 hover:bg-foreground/[0.05]"
                       }`}
                     >

@@ -73,7 +73,7 @@ export function MondayWinsHistoryView() {
       {items.map((w) => (
         <div key={w.id} className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
           <div className="flex items-center gap-2.5 border-b border-foreground/[0.05] px-5 py-3">
-            <Star className="h-3.5 w-3.5 text-[#ffde21]" />
+            <Star className="h-3.5 w-3.5 text-[#dafc69]" />
             <span className="text-[13px] font-semibold text-foreground">{fmtDate(w.fecha)}</span>
           </div>
           <div className="p-5 space-y-4">
@@ -83,7 +83,7 @@ export function MondayWinsHistoryView() {
               <ul className="space-y-1.5">
                 {[w.logro_1, w.logro_2, w.logro_3].filter(Boolean).map((l, i) => (
                   <li key={i} className="flex gap-2 text-[13px] text-foreground/80">
-                    <span className="text-[#ffde21] font-bold">{i + 1}.</span>
+                    <span className="text-[#dafc69] font-bold">{i + 1}.</span>
                     <span>{l}</span>
                   </li>
                 ))}
@@ -91,10 +91,10 @@ export function MondayWinsHistoryView() {
             </div>
 
             {w.una_sola_cosa && (
-              <div className="rounded-xl border border-[#ffde21]/20 bg-[#ffde21]/[0.04] px-4 py-3">
+              <div className="rounded-xl border border-[#dafc69]/20 bg-[#dafc69]/[0.04] px-4 py-3">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <Target className="h-3 w-3 text-[#ffde21]" />
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/80">Una sola cosa</p>
+                  <Target className="h-3 w-3 text-[#dafc69]" />
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[#dafc69]/80">Una sola cosa</p>
                 </div>
                 <p className="text-[13px] text-foreground/85">{w.una_sola_cosa}</p>
               </div>

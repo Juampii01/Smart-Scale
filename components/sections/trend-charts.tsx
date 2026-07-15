@@ -41,7 +41,7 @@ const CHARTS = [
     subtitle: "Total cash collected over time",
     type:     "bar"  as const,
     format:   "money" as const,
-    color:    "#ffde21",
+    color:    "#dafc69",
     gradId:   "grad_cash",
   },
   {
@@ -306,7 +306,7 @@ export function TrendCharts() {
           {isOwn ? "Todavía no tenés reportes cargados." : "Este cliente todavía no tiene reportes cargados."}
         </p>
         {isOwn && (
-          <Link href="/report-input" className="text-sm font-medium text-[#ffde21] transition-colors hover:text-[#ffe84d]">
+          <Link href="/report-input" className="text-sm font-medium text-[#dafc69] transition-colors hover:text-[#f2ffc0]">
             Cargar primer reporte →
           </Link>
         )}
@@ -317,7 +317,7 @@ export function TrendCharts() {
   return (
     <section className="space-y-5">
       <div className="flex items-center gap-2.5">
-        <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+        <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
         <h2 className="text-sm font-bold uppercase tracking-widest text-foreground/80">Analytics</h2>
         <span className="ml-auto text-xs text-foreground/30 tabular-nums">{rows.length} meses</span>
       </div>

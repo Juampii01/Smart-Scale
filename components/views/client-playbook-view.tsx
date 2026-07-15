@@ -137,7 +137,7 @@ function TreeRow({
 
   return (
     <>
-      {showLineAbove && <div className="h-0.5 bg-[#ffde21] mx-2 rounded-full" />}
+      {showLineAbove && <div className="h-0.5 bg-[#dafc69] mx-2 rounded-full" />}
 
       <div
         draggable={canCreate}
@@ -212,7 +212,7 @@ function TreeRow({
         )}
       </div>
 
-      {showLineBelow && <div className="h-0.5 bg-[#ffde21] mx-2 rounded-full" />}
+      {showLineBelow && <div className="h-0.5 bg-[#dafc69] mx-2 rounded-full" />}
 
       {isExpanded && hasChildren && (
         <div>

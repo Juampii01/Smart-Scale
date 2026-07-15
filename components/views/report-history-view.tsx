@@ -173,8 +173,8 @@ function ReportRow({
     <div className="rounded-xl border border-foreground/[0.06] bg-card overflow-hidden transition-all">
       {/* Main row */}
       <div className="flex items-center gap-3 px-4 py-3.5">
-        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-[#ffde21]/10 border border-[#ffde21]/20">
-          <FileText className="h-4 w-4 text-[#ffde21]" />
+        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-[#dafc69]/10 border border-[#dafc69]/20">
+          <FileText className="h-4 w-4 text-[#dafc69]" />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -195,7 +195,7 @@ function ReportRow({
           </div>
           <div className="text-right">
             <p className="text-[10px] text-foreground/30 uppercase tracking-wider">Nuevos</p>
-            <p className="text-sm font-semibold text-[#ffde21]">{report.new_clients ?? "—"}</p>
+            <p className="text-sm font-semibold text-[#dafc69]">{report.new_clients ?? "—"}</p>
           </div>
         </div>
 
@@ -391,7 +391,7 @@ export function ReportHistoryView() {
       {/* Header */}
       <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card px-6 py-5">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#ffde21]/70 mb-1">Datos</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#dafc69]/70 mb-1">Datos</p>
           <h2 className="text-xl font-bold text-foreground">Historial de Reportes</h2>
           <p className="text-sm text-foreground/40 mt-1">
             {loading ? "Cargando…" : `${reports.length} reporte${reports.length !== 1 ? "s" : ""} encontrado${reports.length !== 1 ? "s" : ""}`}

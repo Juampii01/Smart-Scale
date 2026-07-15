@@ -29,7 +29,7 @@ export function ToolsSection({
     <section className={cn("space-y-5", className)}>
       <div>
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+          <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
           <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">{title}</h2>
         </div>
         {subtitle && (
@@ -51,16 +51,16 @@ export function ToolsSection({
             <div className="relative p-5 space-y-4">
               {/* Header row */}
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#ffde21]/10 ring-1 ring-[#ffde21]/15">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#dafc69]/10 ring-1 ring-[#dafc69]/15">
                   {variant === "gpt" ? (
-                    <Sparkles className="h-5 w-5 text-[#ffde21]" />
+                    <Sparkles className="h-5 w-5 text-[#dafc69]" />
                   ) : (
-                    <FileText className="h-5 w-5 text-[#ffde21]" />
+                    <FileText className="h-5 w-5 text-[#dafc69]" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground tracking-tight leading-tight">{t.name}</p>
-                  <p className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-[#ffde21]/60">
+                  <p className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-[#dafc69]/60">
                     {variant === "gpt" ? "AI Tool" : "Form"}
                   </p>
                 </div>
@@ -90,7 +90,7 @@ export function ToolsSection({
                 <Button
                   asChild
                   size="sm"
-                  className="h-7 rounded-lg bg-[#ffde21] px-3 text-xs font-bold text-black hover:bg-[#ffe46b]"
+                  className="h-7 rounded-lg bg-[#dafc69] px-3 text-xs font-bold text-black hover:bg-[#f2ffc0]"
                 >
                   <Link href={t.href} target="_blank" rel="noreferrer">
                     {variant === "gpt" ? "Abrir →" : "Abrir →"}

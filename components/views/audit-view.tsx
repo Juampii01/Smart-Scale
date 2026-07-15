@@ -122,7 +122,7 @@ function renderInline(text: string, key: string) {
       // [label](url)
       nodes.push(
         <a key={`ml-${key}-${m.index}`} href={m[3]} target="_blank" rel="noreferrer"
-          className="inline-flex items-center gap-1 font-medium text-[#ffde21] hover:text-[#ffe46b] underline underline-offset-2 transition-colors">
+          className="inline-flex items-center gap-1 font-medium text-[#dafc69] hover:text-[#f2ffc0] underline underline-offset-2 transition-colors">
           {m[2]}
         </a>
       )
@@ -137,7 +137,7 @@ function renderInline(text: string, key: string) {
         <Fragment key={`arr-${key}-${m.index}`}>
           {" → "}
           <a href={url} target="_blank" rel="noreferrer"
-            className="inline-flex items-center gap-1 font-medium text-[#ffde21] hover:text-[#ffe46b] underline underline-offset-2 transition-colors">
+            className="inline-flex items-center gap-1 font-medium text-[#dafc69] hover:text-[#f2ffc0] underline underline-offset-2 transition-colors">
             {label}
           </a>
         </Fragment>
@@ -147,7 +147,7 @@ function renderInline(text: string, key: string) {
       const url = m[8]
       nodes.push(
         <a key={`url-${key}-${m.index}`} href={url} target="_blank" rel="noreferrer"
-          className="font-medium text-[#ffde21] hover:text-[#ffe46b] underline underline-offset-2 transition-colors break-all">
+          className="font-medium text-[#dafc69] hover:text-[#f2ffc0] underline underline-offset-2 transition-colors break-all">
           {url.replace(/^https?:\/\//, "")}
         </a>
       )
@@ -197,7 +197,7 @@ function renderDiagnosisContent(content: string) {
     if (line.startsWith("- ")) {
       return (
         <div key={`bullet-${k}`} className="flex items-start gap-3 text-sm leading-7 text-foreground/60">
-          <span className="mt-2.5 h-1 w-1 rounded-full bg-[#ffde21]/60 flex-shrink-0" />
+          <span className="mt-2.5 h-1 w-1 rounded-full bg-[#dafc69]/60 flex-shrink-0" />
           <span>{renderInline(line.replace(/^-\s+/, ""), k)}</span>
         </div>
       )
@@ -668,7 +668,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
       {/* Header */}
       <div>
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+          <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
           <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Auditoría Estratégica</h1>
         </div>
         <p className="text-xs text-foreground/30 ml-[18px]">Evaluación del Ecosistema Circular · {selectedMonth}</p>
@@ -744,7 +744,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                       >
                         {/* ID + statement */}
                         <div className="flex items-start gap-3">
-                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-foreground/[0.08] bg-foreground/[0.05] px-2 text-[12px] font-bold text-[#ffde21] flex-shrink-0">
+                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-foreground/[0.08] bg-foreground/[0.05] px-2 text-[12px] font-bold text-[#dafc69] flex-shrink-0">
                             {item.id}
                           </span>
                           <p className="text-[14px] leading-snug text-foreground/80 pt-0.5">
@@ -799,7 +799,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
             <button
               onClick={generateAIResponse}
               disabled={loading || selectedAnswersCount === 0}
-              className="rounded-xl bg-[#ffde21] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-xl bg-[#dafc69] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] disabled:opacity-50 disabled:cursor-not-allowed"
               title={selectedAnswersCount === 0 ? "Respondé al menos una pregunta para generar el diagnóstico" : undefined}
             >
               {loading ? "Generando…" : "Generar Diagnóstico Estratégico"}
@@ -917,7 +917,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                       key={item.request_id}
                       className={`flex flex-col h-full justify-between rounded-[14px] border p-5 transition-all duration-200 ${
                         isActiveDiagnosis
-                          ? "border-[#ffde21]/30 bg-[#ffde21]/[0.04]"
+                          ? "border-[#dafc69]/30 bg-[#dafc69]/[0.04]"
                           : "border-foreground/[0.07] bg-foreground/[0.02] hover:border-foreground/15"
                       }`}
                     >
@@ -975,7 +975,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                           disabled={!item.result}
                           className={`rounded-xl px-4 py-2 text-xs font-bold transition-all duration-150 ${
                             isActiveDiagnosis
-                              ? "bg-[#ffde21] text-black"
+                              ? "bg-[#dafc69] text-black"
                               : "border border-foreground/[0.08] bg-foreground/[0.04] text-foreground/70 hover:bg-foreground/[0.08] hover:text-foreground"
                           } disabled:cursor-not-allowed disabled:opacity-40`}
                         >

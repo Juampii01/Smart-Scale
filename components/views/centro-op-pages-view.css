@@ -8,7 +8,7 @@
   --bn-colors-hovered-text:       var(--foreground);
   --bn-colors-hovered-background: rgba(127,127,127,0.08);
   --bn-colors-selected-text:      #000;
-  --bn-colors-selected-background:#ffde21;
+  --bn-colors-selected-background:#dafc69;
   --bn-colors-disabled-text:      rgba(127,127,127,0.4);
   --bn-colors-disabled-background:transparent;
   --bn-colors-border:             rgba(127,127,127,0.18);
@@ -85,7 +85,7 @@
 
 /* Quote */
 .centro-op-bn blockquote {
-  border-left: 3px solid #ffde21;
+  border-left: 3px solid #dafc69;
   padding-left: 1rem;
   color: var(--foreground);
   opacity: 0.85;

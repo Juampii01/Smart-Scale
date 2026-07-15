@@ -322,7 +322,7 @@ export function ProgramChecklistView() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+          <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
           <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Program Journey Checklist</h1>
           {loading && <Loader2 className="h-3.5 w-3.5 text-foreground/40 animate-spin" />}
         </div>
@@ -331,10 +331,10 @@ export function ProgramChecklistView() {
 
       {/* Banner de "viendo cliente" — solo cuando admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-center gap-3 rounded-[14px] border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
-          <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0" />
+        <div className="flex items-center gap-3 rounded-[14px] border border-[#dafc69]/25 bg-[#dafc69]/[0.05] px-4 py-3">
+          <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Viendo otro cliente</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>
             <p className="text-[13px] text-foreground/75 mt-0.5">
               Estás viendo el checklist de <span className="font-semibold text-foreground">{activeClientName ?? "(sin nombre)"}</span>. Los cambios que hagas se guardan en su cuenta.
             </p>
@@ -389,7 +389,7 @@ export function ProgramChecklistView() {
                       className="h-1.5 rounded-full transition-all duration-500"
                       style={{
                         width: `${monthPct}%`,
-                        backgroundColor: monthPct === 100 ? "#34d399" : "#ffde21",
+                        backgroundColor: monthPct === 100 ? "#34d399" : "#dafc69",
                       }}
                     />
                   </div>
@@ -414,7 +414,7 @@ export function ProgramChecklistView() {
                       <ChevronDown
                         className={`h-3.5 w-3.5 flex-shrink-0 text-foreground/30 transition-transform duration-200 ${isWeekOpen ? "rotate-0" : "-rotate-90"}`}
                       />
-                      <span className="h-4 w-[3px] rounded-full bg-[#ffde21]/60 flex-shrink-0" />
+                      <span className="h-4 w-[3px] rounded-full bg-[#dafc69]/60 flex-shrink-0" />
                       <span className="flex-1 text-[13px] font-semibold text-foreground/70">{week.title}</span>
                       <span className="text-[11px] text-foreground/30 tabular-nums flex-shrink-0">
                         {weekDone}/{week.tasks.length}
@@ -440,7 +440,7 @@ export function ProgramChecklistView() {
                         <div
                           key={task.label}
                           className={`grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-t border-foreground/[0.04] transition-colors duration-150 ${
-                            isDone ? "bg-[#ffde21]/[0.02]" : "hover:bg-foreground/[0.015]"
+                            isDone ? "bg-[#dafc69]/[0.02]" : "hover:bg-foreground/[0.015]"
                           }`}
                         >
                           {/* STATUS */}
@@ -508,7 +508,7 @@ export function ProgramChecklistView() {
                                 href={task.link}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1.5 text-[11px] text-foreground/35 hover:text-[#ffde21] transition-colors truncate max-w-full"
+                                className="inline-flex items-center gap-1.5 text-[11px] text-foreground/35 hover:text-[#dafc69] transition-colors truncate max-w-full"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <ExternalLink className="h-3 w-3 flex-shrink-0" />

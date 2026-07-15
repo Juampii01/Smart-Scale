@@ -102,7 +102,7 @@ function ExpandCell({ label, content, preview, yellow }: { label: string; conten
     <>
       <button
         onClick={e => { e.stopPropagation(); setOpen(true) }}
-        className={`block w-full text-left text-sm leading-snug line-clamp-2 overflow-hidden hover:opacity-80 transition-opacity ${yellow ? "text-[#ffde21]/80 font-medium" : "text-foreground/60"}`}
+        className={`block w-full text-left text-sm leading-snug line-clamp-2 overflow-hidden hover:opacity-80 transition-opacity ${yellow ? "text-[#dafc69]/80 font-medium" : "text-foreground/60"}`}
       >
         {preview ?? content.slice(0, 90)}{content.length > 90 ? "…" : ""}
       </button>
@@ -128,7 +128,7 @@ function VideoRow({ video, channelName, platform }: { video: VideoResult; channe
       {/* URL */}
       <td className="px-4 py-4" onClick={e => e.stopPropagation()}>
         <a href={video.video_url} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-sm text-[#ffde21] hover:text-[#ffe84d] transition-colors">
+          className="inline-flex items-center gap-1 text-sm text-[#dafc69] hover:text-[#f2ffc0] transition-colors">
           Ver <ExternalLink className="h-3.5 w-3.5" />
         </a>
       </td>
@@ -142,7 +142,7 @@ function VideoRow({ video, channelName, platform }: { video: VideoResult; channe
       </td>
       {/* VIEWS */}
       <td className="px-4 py-4 text-right whitespace-nowrap">
-        <span className="text-sm font-bold text-[#ffde21] tabular-nums">{fmt(video.views)}</span>
+        <span className="text-sm font-bold text-[#dafc69] tabular-nums">{fmt(video.views)}</span>
       </td>
       {/* DURATION */}
       <td className="px-4 py-4 text-center whitespace-nowrap">
@@ -224,8 +224,8 @@ function AnalysisCard({ item, onDelete, deletingId }: {
         {/* Platform icon */}
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-foreground/[0.07] bg-card">
           {isInstagram
-            ? <Instagram className="h-[18px] w-[18px] text-[#ffde21]" />
-            : <Youtube className="h-[18px] w-[18px] text-[#ffde21]" />}
+            ? <Instagram className="h-[18px] w-[18px] text-[#dafc69]" />
+            : <Youtube className="h-[18px] w-[18px] text-[#dafc69]" />}
         </div>
 
         {/* Info */}
@@ -239,7 +239,7 @@ function AnalysisCard({ item, onDelete, deletingId }: {
               Completado
             </span>
             {isThisWeek && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-[#ffde21]/30 bg-[#ffde21]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#ffde21]/80">
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#dafc69]/30 bg-[#dafc69]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#dafc69]/80">
                 <Zap className="h-2.5 w-2.5" />
                 Esta semana
               </span>
@@ -396,10 +396,10 @@ function CompetitorResearchContent() {
 
       {/* Banner si admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-start gap-3 rounded-2xl border border-[#ffde21]/25 bg-[#ffde21]/[0.05] px-4 py-3">
-          <Eye className="h-4 w-4 text-[#ffde21] flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 rounded-2xl border border-[#dafc69]/25 bg-[#dafc69]/[0.05] px-4 py-3">
+          <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/80">Viendo otro cliente</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>
             <p className="text-[13px] text-foreground/75 mt-0.5">
               Estás viendo las investigaciones de <span className="font-semibold text-foreground">{activeName ?? "(sin nombre)"}</span>. Cualquier nueva investigación se guarda en su cuenta.
             </p>
@@ -469,7 +469,7 @@ function CompetitorResearchContent() {
             <button
               type="submit"
               disabled={!channelUrl.trim() || loading}
-              className="inline-flex items-center gap-2 h-10 rounded-xl bg-[#ffde21] px-5 text-sm font-bold text-black hover:bg-[#ffe46b] disabled:opacity-40 transition"
+              className="inline-flex items-center gap-2 h-10 rounded-xl bg-[#dafc69] px-5 text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition"
             >
               {loading ? (
                 <>
@@ -488,7 +488,7 @@ function CompetitorResearchContent() {
           {/* Usage counter — visible as soon as history loads */}
           {weekUsage && !limitReached && (
             <div className="flex items-center gap-2 rounded-xl border border-foreground/[0.06] bg-foreground/[0.03] px-4 py-2.5">
-              <Zap className="h-3.5 w-3.5 text-[#ffde21]/60 shrink-0" />
+              <Zap className="h-3.5 w-3.5 text-[#dafc69]/60 shrink-0" />
               <span className="text-xs text-foreground/40">
                 Análisis esta semana:{" "}
                 <span className={`font-semibold ${weekUsage.used >= weekUsage.limit ? "text-red-700 dark:text-red-400" : "text-foreground/70"}`}>

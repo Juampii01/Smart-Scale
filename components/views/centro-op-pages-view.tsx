@@ -592,7 +592,7 @@ export function CentroOpPagesView({ userRole }: { userRole: string | null }) {
               <button
                 onClick={() => createPage(null)}
                 disabled={creating}
-                className="inline-flex items-center gap-2 h-9 rounded-xl bg-[#ffde21] px-4 text-[13px] font-bold text-black hover:bg-[#ffe84d] transition-all disabled:opacity-50"
+                className="inline-flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-4 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-50"
               >
                 <Plus className="h-4 w-4" /> Nueva página
               </button>

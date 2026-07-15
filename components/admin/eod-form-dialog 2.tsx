@@ -162,8 +162,8 @@ export function EodFormDialog({ open, onClose, initialDate, onSaved }: EodFormDi
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-border bg-popover px-6 py-4">
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10">
-              <Sunset className="h-5 w-5 text-[#ffde21]" />
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10">
+              <Sunset className="h-5 w-5 text-[#dafc69]" />
             </span>
             <div>
               <h2 className="text-base font-bold text-foreground">
@@ -187,13 +187,13 @@ export function EodFormDialog({ open, onClose, initialDate, onSaved }: EodFormDi
 
           {/* Selector de fecha */}
           <div className="flex items-center gap-3 pb-4 border-b border-border">
-            <Calendar className="h-4 w-4 text-[#ffde21]" />
+            <Calendar className="h-4 w-4 text-[#dafc69]" />
             <input
               type="date"
               value={date}
               max={todayISO()}
               onChange={e => setDate(e.target.value)}
-              className="h-9 rounded-lg border border-border bg-foreground/[0.03] px-3 text-sm font-semibold text-foreground outline-none focus:border-[#ffde21]/50"
+              className="h-9 rounded-lg border border-border bg-foreground/[0.03] px-3 text-sm font-semibold text-foreground outline-none focus:border-[#dafc69]/50"
             />
             {isExisting && (
               <span className="inline-flex items-center gap-1 rounded-full border border-foreground/15 bg-foreground/[0.04] px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-foreground/55">
@@ -213,10 +213,10 @@ export function EodFormDialog({ open, onClose, initialDate, onSaved }: EodFormDi
                 {FIELDS.map(({ key, label, icon: Icon, hint }) => (
                   <label
                     key={key}
-                    className="rounded-xl border border-border bg-foreground/[0.02] px-4 py-3 hover:border-[#ffde21]/30 transition-colors cursor-text block"
+                    className="rounded-xl border border-border bg-foreground/[0.02] px-4 py-3 hover:border-[#dafc69]/30 transition-colors cursor-text block"
                   >
                     <div className="flex items-center gap-2 mb-1.5">
-                      <Icon className="h-3.5 w-3.5 text-[#ffde21]" />
+                      <Icon className="h-3.5 w-3.5 text-[#dafc69]" />
                       <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/65">
                         {label}
                       </span>
@@ -245,7 +245,7 @@ export function EodFormDialog({ open, onClose, initialDate, onSaved }: EodFormDi
                   onChange={e => setNotes(e.target.value)}
                   rows={2}
                   placeholder="Algo relevante: nichos, copies, observaciones…"
-                  className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-[#ffde21]/50 resize-none"
+                  className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-[#dafc69]/50 resize-none"
                 />
               </div>
             </>
@@ -283,7 +283,7 @@ export function EodFormDialog({ open, onClose, initialDate, onSaved }: EodFormDi
               <button
                 type="submit"
                 disabled={saving || loading || totalLoaded === 0}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-5 py-2.5 text-sm font-bold text-black hover:bg-[#ffe84d] disabled:opacity-50 transition-colors"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-5 py-2.5 text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 {saving ? "Guardando…" : (isExisting ? "Actualizar" : "Guardar día")}

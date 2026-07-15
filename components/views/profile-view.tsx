@@ -155,14 +155,14 @@ export function ProfileView() {
     else { setPwState("ok"); setPwMsg("Contraseña actualizada"); setPwCurrent(""); setPw1(""); setPw2("") }
   }
 
-  const inputCls = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/40 outline-none focus:border-[#ffde21]/60 transition-colors"
+  const inputCls = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/40 outline-none focus:border-[#dafc69]/60 transition-colors"
   const labelCls = "block text-[13px] font-medium text-foreground/70 mb-1.5"
 
   const Btn = ({ onClick, disabled, state, children }: { onClick: () => void; disabled?: boolean; state: SaveState; children: React.ReactNode }) => (
     <button
       onClick={onClick}
       disabled={disabled || state === "saving"}
-      className="inline-flex items-center gap-1.5 rounded-lg bg-[#ffde21] px-4 py-2 text-sm font-bold text-black transition hover:bg-[#ffe84d] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+      className="inline-flex items-center gap-1.5 rounded-lg bg-[#dafc69] px-4 py-2 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {state === "saving" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : state === "ok" ? <Check className="h-3.5 w-3.5" /> : null}
       {children}
@@ -197,11 +197,11 @@ export function ProfileView() {
             type="button"
             onClick={() => fileRef.current?.click()}
             title="Cambiar foto"
-            className="group relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#ffde21]/40 bg-[#ffde21]/10"
+            className="group relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10"
           >
             {avatarUrl
               ? <img src={avatarUrl} alt="Perfil" className="h-full w-full object-cover" />
-              : <User className="h-8 w-8 text-[#ffde21]" />}
+              : <User className="h-8 w-8 text-[#dafc69]" />}
             <span className="absolute inset-0 hidden items-center justify-center bg-black/45 group-hover:flex">
               {photoBusy ? <Loader2 className="h-5 w-5 animate-spin text-white" /> : <Camera className="h-5 w-5 text-white" />}
             </span>
@@ -235,7 +235,7 @@ export function ProfileView() {
 
       {/* Nombre */}
       <section className="rounded-[14px] border border-border bg-card p-5">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-4"><UserRound className="h-4 w-4 text-[#ffde21]" /> Nombre</h2>
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-4"><UserRound className="h-4 w-4 text-[#dafc69]" /> Nombre</h2>
         <label className={labelCls}>Tu nombre</label>
         <input className={inputCls} value={name} onChange={(e) => { setName(e.target.value); setNameState("idle"); setNameMsg(null) }} placeholder="Cómo querés que te llamemos" maxLength={60} />
         <Msg state={nameState} msg={nameMsg} />
@@ -246,7 +246,7 @@ export function ProfileView() {
 
       {/* Email */}
       <section className="rounded-[14px] border border-border bg-card p-5">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-4"><Mail className="h-4 w-4 text-[#ffde21]" /> Email</h2>
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-4"><Mail className="h-4 w-4 text-[#dafc69]" /> Email</h2>
         <label className={labelCls}>Email de inicio de sesión</label>
         <input className={inputCls} type="email" value={email} onChange={(e) => { setEmail(e.target.value); setEmailState("idle"); setEmailMsg(null) }} placeholder="tu@email.com" />
         <Msg state={emailState} msg={emailMsg} />
@@ -257,7 +257,7 @@ export function ProfileView() {
 
       {/* Contraseña */}
       <section className="rounded-[14px] border border-border bg-card p-5">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-4"><Lock className="h-4 w-4 text-[#ffde21]" /> Contraseña</h2>
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-4"><Lock className="h-4 w-4 text-[#dafc69]" /> Contraseña</h2>
         <div className="space-y-3">
           <div>
             <label className={labelCls}>Contraseña actual</label>

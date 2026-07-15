@@ -137,7 +137,7 @@ function EditableCell({
 
   if (saving) return (
     <td className={`whitespace-nowrap px-4 py-2.5 text-right ${groupBorder}`}>
-      <Loader2 className="inline h-3 w-3 animate-spin text-[#ffde21]/40" />
+      <Loader2 className="inline h-3 w-3 animate-spin text-[#dafc69]/40" />
     </td>
   )
 
@@ -150,7 +150,7 @@ function EditableCell({
         onChange={e => setDraft(e.target.value)}
         onBlur={save}
         onKeyDown={e => { if (e.key === "Enter") save(); if (e.key === "Escape") cancel() }}
-        className="w-28 rounded-lg border border-[#ffde21]/40 bg-[#ffde21]/[0.07] px-2.5 py-1.5 text-right text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#ffde21]/60"
+        className="w-28 rounded-lg border border-[#dafc69]/40 bg-[#dafc69]/[0.07] px-2.5 py-1.5 text-right text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#dafc69]/60"
       />
     </td>
   )
@@ -260,7 +260,7 @@ export function AdminDataView() {
       <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
         {loading ? (
           <div className="flex items-center justify-center py-24">
-            <Loader2 className="h-6 w-6 animate-spin text-[#ffde21]/40" />
+            <Loader2 className="h-6 w-6 animate-spin text-[#dafc69]/40" />
           </div>
         ) : !months.length ? (
           <div className="py-24 text-center">
@@ -276,7 +276,7 @@ export function AdminDataView() {
                 <tr className="border-b border-foreground/[0.04]">
                   <th
                     rowSpan={2}
-                    className="sticky left-0 z-20 border-r-2 border-[#ffde21]/30 bg-card px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-[#ffde21]/70 align-bottom min-w-[140px]"
+                    className="sticky left-0 z-20 border-r-2 border-[#dafc69]/30 bg-card px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/70 align-bottom min-w-[140px]"
                   >
                     Mes
                   </th>
@@ -307,7 +307,7 @@ export function AdminDataView() {
               <tbody>
                 {months.map(m => (
                   <tr key={m} className="border-b border-foreground/[0.03] hover:bg-foreground/[0.02] transition-colors group">
-                    <td className="sticky left-0 z-10 border-r-2 border-[#ffde21]/30 bg-card px-5 py-2.5 text-[13px] font-bold text-[#ffde21] whitespace-nowrap group-hover:bg-muted transition-colors">
+                    <td className="sticky left-0 z-10 border-r-2 border-[#dafc69]/30 bg-card px-5 py-2.5 text-[13px] font-bold text-[#dafc69] whitespace-nowrap group-hover:bg-muted transition-colors">
                       {fmtMonthLabel(m)}
                     </td>
                     {SECTION_GROUPS.map(group =>

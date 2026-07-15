@@ -48,7 +48,7 @@ const STATUS_STYLE: Record<Status, string> = {
 }
 
 const ROLE_BADGE: Record<string, string> = {
-  setter: "bg-amber-200 text-amber-900 border-amber-500 dark:bg-[#ffde21]/10 dark:text-[#ffde21] dark:border-[#ffde21]/20",
+  setter: "bg-amber-200 text-amber-900 border-amber-500 dark:bg-[#dafc69]/10 dark:text-[#dafc69] dark:border-[#dafc69]/20",
 }
 
 function fullName(app: TeamApplication) {
@@ -98,7 +98,7 @@ function DetailDrawer({
             </div>
             <h2 className="text-xl font-bold text-foreground truncate">{fullName(app)}</h2>
           </div>
-          <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
+          <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -107,7 +107,7 @@ function DetailDrawer({
 
           {/* Status + delete row */}
           <section className="space-y-3">
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#ffde21]/50">Estado</h3>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#dafc69]/50">Estado</h3>
             <div className="flex flex-wrap gap-2">
               {STATUS_LIST.map(s => (
                 <button
@@ -135,7 +135,7 @@ function DetailDrawer({
 
           {/* Contacto */}
           <section className="space-y-3">
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#ffde21]/50">Contacto</h3>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#dafc69]/50">Contacto</h3>
             <div className="space-y-2">
               {app.email && (
                 <a href={`mailto:${app.email}`} className="flex items-center gap-2.5 text-[13px] text-foreground/70 hover:text-foreground">
@@ -163,7 +163,7 @@ function DetailDrawer({
 
             return (
               <section key={`s-${sIdx}`} className="space-y-3">
-                <h3 className="text-[11px] font-black uppercase tracking-widest text-[#ffde21]/50">{section.title}</h3>
+                <h3 className="text-[11px] font-black uppercase tracking-widest text-[#dafc69]/50">{section.title}</h3>
                 <div className="space-y-3">
                   {fieldsToShow.map(field => (
                     <DetailRow
@@ -179,13 +179,13 @@ function DetailDrawer({
 
           {/* Notas */}
           <section className="space-y-3">
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#ffde21]/50">Notas internas</h3>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#dafc69]/50">Notas internas</h3>
             <textarea
               value={app.notes ?? ""}
               onChange={e => onNotesChange(app.id, e.target.value)}
               placeholder="Notas privadas sobre este candidato…"
               rows={4}
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-[13px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-[#ffde21]/40 transition-all resize-none"
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-[13px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-[#dafc69]/40 transition-all resize-none"
             />
           </section>
         </div>

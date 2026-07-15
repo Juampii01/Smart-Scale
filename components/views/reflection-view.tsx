@@ -157,7 +157,7 @@ export function ReflectionView() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="h-4 w-[3px] rounded-full bg-[#ffde21]" />
+          <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
           <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Reflexión Estratégica</h1>
         </div>
         <p className="text-foreground/30 text-xs ml-[18px]">Insights del mes · {selectedMonth}</p>
@@ -169,7 +169,7 @@ export function ReflectionView() {
           <p className="text-sm text-foreground/40 mb-3">No hay reflexión cargada para este mes.</p>
           <a
             href="/report-input"
-            className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-4 py-2 text-[13px] font-bold text-black hover:bg-[#ffe46b] transition"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition"
           >
             Cargar reporte mensual →
           </a>
@@ -189,8 +189,8 @@ export function ReflectionView() {
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.03),transparent_60%)]" />
                 <div className="relative">
                   <div className="flex items-center gap-2.5 mb-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ffde21]/10 ring-1 ring-[#ffde21]/15">
-                      <Icon className="h-4 w-4 text-[#ffde21]" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#dafc69]/10 ring-1 ring-[#dafc69]/15">
+                      <Icon className="h-4 w-4 text-[#dafc69]" />
                     </div>
                     <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35">{item.title}</p>
                   </div>
@@ -203,7 +203,7 @@ export function ReflectionView() {
                       {item.numeric > 0 ? `+${item.numeric}` : item.numeric}
                     </p>
                   ) : isEmpty ? (
-                    <a href="/report-input" className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#ffde21]/70 hover:text-[#ffde21] transition">
+                    <a href="/report-input" className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#dafc69]/70 hover:text-[#dafc69] transition">
                       Agregar →
                     </a>
                   ) : (

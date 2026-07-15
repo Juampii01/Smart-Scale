@@ -186,7 +186,7 @@ function WebhookCard() {
         Webhook URL — Zapier / Formulario de onboarding
       </p>
       <div className="flex items-center gap-2">
-        <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-[#ffde21]/70 font-mono truncate" suppressHydrationWarning>
+        <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-[#dafc69]/70 font-mono truncate" suppressHydrationWarning>
           {url ?? "Cargando…"}
         </code>
         <button onClick={copy} disabled={!url}
@@ -264,7 +264,7 @@ function InstallmentRow({
                     if (e.key === "Escape") { setRawValue(String(inst.amount)); setEditing(false) }
                   }}
                   disabled={saving}
-                  className="w-24 rounded-lg border border-[#ffde21]/40 bg-[#ffde21]/[0.05] px-2 py-0.5 text-[13px] font-semibold text-foreground focus:outline-none focus:border-[#ffde21]/70 disabled:opacity-50"
+                  className="w-24 rounded-lg border border-[#dafc69]/40 bg-[#dafc69]/[0.05] px-2 py-0.5 text-[13px] font-semibold text-foreground focus:outline-none focus:border-[#dafc69]/70 disabled:opacity-50"
                 />
                 {saving && <Loader2 className="h-3 w-3 animate-spin text-foreground/40" />}
               </div>
@@ -274,7 +274,7 @@ function InstallmentRow({
                 title={inst.status === "pagado" ? "No se puede editar una cuota ya pagada" : "Click para editar el monto"}
                 className={`text-[13px] font-semibold text-foreground rounded px-1 -mx-1 transition-all ${
                   inst.status !== "pagado"
-                    ? "hover:bg-[#ffde21]/10 hover:text-[#ffde21] cursor-pointer"
+                    ? "hover:bg-[#dafc69]/10 hover:text-[#dafc69] cursor-pointer"
                     : "cursor-default"
                 }`}
               >
@@ -486,7 +486,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
             <button key={m} onClick={() => setSelMonth(m)}
               className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
                 selMonth === m
-                  ? "bg-[#ffde21] text-black"
+                  ? "bg-[#dafc69] text-black"
                   : "border border-foreground/[0.08] bg-foreground/[0.04] text-foreground/50 hover:text-foreground hover:border-foreground/20"
               }`}>
               {fmtMonth(m)}
@@ -516,7 +516,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                         onChange={e => setValue(field.key, e.target.value)}
                         rows={2}
                         placeholder="—"
-                        className="w-full resize-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-foreground/20 focus:border-[#ffde21]/40 focus:outline-none"
+                        className="w-full resize-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none"
                       />
                     </div>
                   )
@@ -530,8 +530,8 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                           <button key={n} type="button" onClick={() => setValue(field.key, String(n))}
                             className={`h-8 w-8 rounded-lg text-xs font-bold transition-all ${
                               values[field.key] === String(n)
-                                ? "bg-[#ffde21] text-black"
-                                : "border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:border-[#ffde21]/30"
+                                ? "bg-[#dafc69] text-black"
+                                : "border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:border-[#dafc69]/30"
                             }`}>
                             {n}
                           </button>
@@ -559,7 +559,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                       placeholder="0"
                       min={0}
                       step="any"
-                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm font-semibold text-foreground placeholder:text-foreground/20 focus:border-[#ffde21]/40 focus:outline-none"
+                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm font-semibold text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none"
                     />
                   </div>
                 )
@@ -572,7 +572,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
       {/* Save bar (sticky) */}
       <div className="shrink-0 border-t border-foreground/[0.06] bg-card px-6 py-3 flex items-center gap-3">
         <button onClick={save} disabled={saving}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#ffde21] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe46b] active:scale-95 disabled:opacity-50">
+          className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95 disabled:opacity-50">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
           {saving ? "Guardando…" : "Guardar reporte"}
         </button>
@@ -683,7 +683,7 @@ function DetailDrawer({
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-foreground truncate">{client.name}</h2>
               {client.is_monthly_subscription && (
-                <span className="inline-flex items-center rounded-full border border-[#ffde21]/30 bg-[#ffde21]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#ffde21] shrink-0">
+                <span className="inline-flex items-center rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#dafc69] shrink-0">
                   Mensual
                 </span>
               )}
@@ -703,7 +703,7 @@ function DetailDrawer({
                 disabled={offboarding || deleting}
                 aria-label="Marcar programa finalizado"
                 title="Marca el programa como finalizado (completado)"
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-sky-300/50 px-2.5 text-[11px] font-semibold text-sky-700 hover:bg-sky-100/60 dark:border-sky-500/25 dark:text-sky-300 dark:hover:bg-sky-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-sky-300/50 px-2.5 text-[11px] font-semibold text-sky-700 hover:bg-sky-100/60 dark:border-sky-500/25 dark:text-sky-300 dark:hover:bg-sky-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 <span>Finalizar programa</span>
@@ -717,7 +717,7 @@ function DetailDrawer({
                 disabled={sendingRenewal || offboarding || deleting || !client.email}
                 aria-label="Enviar email de renovación"
                 title={client.email ? "Manda el email de renovación ahora, sin esperar al aviso automático" : "Este cliente no tiene email cargado — completalo arriba para poder enviarle"}
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-emerald-300/50 px-2.5 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-100/60 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-emerald-300/50 px-2.5 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-100/60 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
               >
                 {sendingRenewal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
                 {!sendingRenewal && <span>Enviar renovación</span>}
@@ -730,18 +730,18 @@ function DetailDrawer({
                 disabled={offboarding || deleting}
                 aria-label="Dar de baja"
                 title="Dar de baja: marca inactivo y elimina cuotas pendientes"
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-amber-300/40 px-2.5 text-[11px] font-semibold text-amber-700 hover:bg-amber-100/60 dark:border-amber-500/25 dark:text-amber-400 dark:hover:bg-amber-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-amber-300/40 px-2.5 text-[11px] font-semibold text-amber-700 hover:bg-amber-100/60 dark:border-amber-500/25 dark:text-amber-400 dark:hover:bg-amber-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
               >
                 {offboarding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserX className="h-3.5 w-3.5" />}
                 {!offboarding && <span>Dar de baja</span>}
               </button>
             )}
             <button onClick={() => onDeleteClient(client.id)} disabled={deleting || offboarding} aria-label="Eliminar cliente"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
             <button onClick={onClose} aria-label="Cerrar"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffde21]/40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -878,7 +878,7 @@ function DetailDrawer({
                 id={`monthly-${client.id}`}
                 defaultChecked={!!client.is_monthly_subscription}
                 onChange={e => onPatchClient(client.id, { is_monthly_subscription: e.target.checked } as any)}
-                className="mt-0.5 h-4 w-4 rounded border-foreground/20 bg-foreground/[0.05] accent-[#ffde21] cursor-pointer"
+                className="mt-0.5 h-4 w-4 rounded border-foreground/20 bg-foreground/[0.05] accent-[#dafc69] cursor-pointer"
               />
               <label htmlFor={`monthly-${client.id}`} className="flex-1 cursor-pointer">
                 <p className="text-[13px] font-semibold text-foreground">Plan mensual auto-renovable</p>
@@ -965,7 +965,7 @@ function DetailDrawer({
                   <select
                     value={client.program_duration ?? client.num_installments}
                     onChange={e => onPatchClient(client.id, { program_duration: Number(e.target.value) } as any)}
-                    className="h-6 rounded-lg border border-foreground/[0.1] bg-foreground/[0.04] px-2 text-[11px] font-semibold text-foreground focus:border-[#ffde21]/40 focus:outline-none"
+                    className="h-6 rounded-lg border border-foreground/[0.1] bg-foreground/[0.04] px-2 text-[11px] font-semibold text-foreground focus:border-[#dafc69]/40 focus:outline-none"
                   >
                     {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => (
                       <option key={m} value={m}>{m} {m === 1 ? "mes" : "meses"}</option>
@@ -984,7 +984,7 @@ function DetailDrawer({
             {/* Progress bar */}
             <div className="h-1.5 rounded-full bg-foreground/[0.06] overflow-hidden">
               <div
-                className="h-full rounded-full bg-[#ffde21] transition-all duration-500"
+                className="h-full rounded-full bg-[#dafc69] transition-all duration-500"
                 style={{ width: `${client.num_installments > 0 ? (paidCount / client.num_installments) * 100 : 0}%` }}
               />
             </div>
@@ -1016,14 +1016,14 @@ function DetailDrawer({
               <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Seguimientos</p>
               <button
                 onClick={() => setShowFollowupForm(v => !v)}
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.08] text-foreground/40 hover:text-[#ffde21] hover:border-[#ffde21]/30 transition-all">
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.08] text-foreground/40 hover:text-[#dafc69] hover:border-[#dafc69]/30 transition-all">
                 <Plus className="h-3.5 w-3.5" />
               </button>
             </div>
 
             {/* Add followup form */}
             {showFollowupForm && (
-              <div className="rounded-xl border border-[#ffde21]/15 bg-[#ffde21]/[0.02] p-3 space-y-3">
+              <div className="rounded-xl border border-[#dafc69]/15 bg-[#dafc69]/[0.02] p-3 space-y-3">
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <p className={labelCls}>Fecha</p>
@@ -1046,7 +1046,7 @@ function DetailDrawer({
                   className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none" />
                 <div className="flex items-center gap-2">
                   <button onClick={handleSaveFollowup} disabled={savingFu || !fuDate}
-                    className="flex items-center gap-1.5 h-7 rounded-lg bg-[#ffde21] px-3 text-[12px] font-bold text-black hover:bg-[#ffe84d] disabled:opacity-40 transition-all">
+                    className="flex items-center gap-1.5 h-7 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition-all">
                     {savingFu ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                     Guardar
                   </button>
@@ -1088,7 +1088,7 @@ function DetailDrawer({
                           {fu.type}
                         </span>
                         {fu.scheduled_date === todayStr() && !fu.completed && (
-                          <span className="rounded-full bg-[#ffde21]/10 border border-[#ffde21]/20 px-2 py-0.5 text-[10px] font-bold text-[#ffde21]">hoy</span>
+                          <span className="rounded-full bg-[#dafc69]/10 border border-[#dafc69]/20 px-2 py-0.5 text-[10px] font-bold text-[#dafc69]">hoy</span>
                         )}
                       </div>
                       {fu.notes && (
@@ -1192,7 +1192,7 @@ function SummaryCards({ clients, viewMonth }: { clients: Client[], viewMonth: st
     {
       label: `Nuevos clientes`,
       value: String(newClientsCount),
-      color: newClientsCount > 0 ? "text-[#ffde21]" : "text-foreground/50",
+      color: newClientsCount > 0 ? "text-[#dafc69]" : "text-foreground/50",
       icon:  <Users className="h-4 w-4" />,
     },
     {
@@ -1210,7 +1210,7 @@ function SummaryCards({ clients, viewMonth }: { clients: Client[], viewMonth: st
     ...(isCurrentMonth ? [{
       label: "Follow-ups hoy",
       value: String(followupsHoy),
-      color: followupsHoy > 0 ? "text-[#ffde21]" : "text-foreground/50" as string,
+      color: followupsHoy > 0 ? "text-[#dafc69]" : "text-foreground/50" as string,
       icon:  <Calendar className="h-4 w-4" />,
     }] : []),
   ]
@@ -1345,7 +1345,7 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
         {/* New Cash */}
         <div>
           <p className="text-[11px] text-foreground/35 mb-1 font-semibold uppercase tracking-wider">New Cash</p>
-          <p className="text-3xl font-bold text-[#ffde21] tabular-nums">{fmtMoney(newCash)}</p>
+          <p className="text-3xl font-bold text-[#dafc69] tabular-nums">{fmtMoney(newCash)}</p>
           <p className="text-[12px] text-foreground/30 mt-1.5">
             {newClients.length > 0
               ? `${newClients.length} cliente${newClients.length !== 1 ? "s" : ""} nuevo${newClients.length !== 1 ? "s" : ""} este mes`
@@ -1470,7 +1470,7 @@ function InstallmentProgress({ client }: { client: Client }) {
       <span className="text-[12px] text-foreground/60 tabular-nums">{paid}/{total} pagadas</span>
       <div className="h-1.5 w-24 rounded-full bg-foreground/[0.06] overflow-hidden">
         <div
-          className="h-full rounded-full bg-[#ffde21] transition-all duration-500"
+          className="h-full rounded-full bg-[#dafc69] transition-all duration-500"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -1527,7 +1527,7 @@ function SortableTh({
     >
       <span className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
         active
-          ? "bg-[#ffde21]/15 text-[#ffde21] ring-1 ring-[#ffde21]/25"
+          ? "bg-[#dafc69]/15 text-[#dafc69] ring-1 ring-[#dafc69]/25"
           : "text-foreground/40 hover:bg-foreground/[0.06] hover:text-foreground/75"
       }`}>
         {label}
@@ -1935,7 +1935,7 @@ export function AdminClientsView() {
               <button key={key} onClick={() => setFilterStatus(key)}
                 className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium transition-all ${
                   filterStatus === key
-                    ? "border-[#ffde21]/40 bg-[#ffde21]/10 text-[#ffde21]"
+                    ? "border-[#dafc69]/40 bg-[#dafc69]/10 text-[#dafc69]"
                     : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
                 }`}>
                 {label}
@@ -2032,7 +2032,7 @@ export function AdminClientsView() {
                                 <p className="text-[13px] font-semibold text-foreground">{client.name}</p>
                                 {client.is_monthly_subscription && (
                                   <span
-                                    className="inline-flex items-center rounded-full border border-[#ffde21]/30 bg-[#ffde21]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#ffde21]"
+                                    className="inline-flex items-center rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#dafc69]"
                                     title="Plan mensual auto-renovable"
                                   >
                                     Mensual
@@ -2114,7 +2114,7 @@ export function AdminClientsView() {
                                   {fmtDateShort(nextFu.scheduled_date)}
                                 </span>
                                 {nextFu.scheduled_date === today && (
-                                  <span className="h-1.5 w-1.5 rounded-full bg-[#ffde21] animate-pulse" />
+                                  <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69] animate-pulse" />
                                 )}
                               </div>
                             ) : (
