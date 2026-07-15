@@ -4,29 +4,32 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ─────────────────────────────────────────────────────────────────────────
-   LIGHT MODE — blanco con contraste fuerte (no diluido)
+   LIGHT MODE — "Papel", manual de marca Smart Scale
    ───────────────────────────────────────────────────────────────────────── */
 :root {
-  /* Light 3.0 — fondo blanco nítido + superficies blanco puro con sombra para profundidad */
-  --background: #ffffff;
-  --foreground: #0b0b0d;
+  /* Papel — fondo crema tenue (no blanco puro) + superficies blancas para depth.
+     El lima brillante (#dafc69) no se lee sobre este fondo, así que el acento
+     se parte en dos: relleno oliva (#93bc1e) y tinta oscura (#4c6606) para
+     texto/línea — regla explícita del manual de marca. */
+  --background: #f1f2eb;
+  --foreground: #171c10;
   --card: #ffffff;
-  --card-foreground: #0b0b0d;
+  --card-foreground: #171c10;
   --popover: #ffffff;
-  --popover-foreground: #0b0b0d;
-  --primary: #0a0a0b;
+  --popover-foreground: #171c10;
+  --primary: #171c10;
   --primary-foreground: #ffffff;
-  --secondary: #eef0f3;
-  --secondary-foreground: #0b0b0d;
-  --muted: #eef0f3;
-  --muted-foreground: rgba(11, 11, 13, 0.60);
-  --accent: #dafc69;
-  --accent-foreground: #0a0a0b;
+  --secondary: #eaebe2;
+  --secondary-foreground: #171c10;
+  --muted: #eaebe2;
+  --muted-foreground: rgba(23, 28, 16, 0.62);
+  --accent: #93bc1e;
+  --accent-foreground: #0a0a0a;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: #ffffff;
-  --border: rgba(15, 18, 25, 0.09);
-  --input: rgba(15, 18, 25, 0.12);
-  --ring: rgba(0, 0, 0, 0.30);
+  --border: rgba(23, 28, 16, 0.09);
+  --input: rgba(23, 28, 16, 0.12);
+  --ring: rgba(23, 28, 16, 0.30);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -34,26 +37,25 @@
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #0b0b0d;
-  --sidebar-primary: #0a0a0b;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f0f1f4;
-  --sidebar-accent-foreground: #0b0b0d;
-  --sidebar-border: rgba(15, 18, 25, 0.08);
-  --sidebar-ring: rgba(0, 0, 0, 0.30);
+  --sidebar-foreground: #171c10;
+  --sidebar-primary: #93bc1e;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #eaebe2;
+  --sidebar-accent-foreground: #171c10;
+  --sidebar-border: rgba(23, 28, 16, 0.08);
+  --sidebar-ring: rgba(23, 28, 16, 0.30);
 
-  /* ── Design system tokens (light) ─────────────────────────────────────────
+  /* ── Design system tokens (light — "Papel") ────────────────────────────────
      Mapeo light-mode del design system. El look oscuro vive en .dark con el
-     hex exacto del spec; acá derivamos equivalentes claros legibles (gotcha #2).
-     El acento sigue siendo el amarillo brand (--accent: #dafc69, arriba). */
+     hex exacto del spec; acá va el hex exacto del tema "Papel" del manual. */
   --surface:       #ffffff;
-  --elevated:      #f7f8fa;
-  --text-2:        rgba(11, 18, 25, 0.62);
-  --text-3:        rgba(11, 18, 25, 0.42);
-  --border-hover:  rgba(15, 18, 25, 0.16);
-  --accent-hover:  #f2ffc0;
-  --accent-soft:   #f2ffc0;
-  --on-accent:     #1a1a1e;   /* texto SIEMPRE oscuro sobre el amarillo */
+  --elevated:      #fafaf6;
+  --text-2:        rgba(23, 28, 16, 0.62);
+  --text-3:        rgba(23, 28, 16, 0.42);
+  --border-hover:  rgba(23, 28, 16, 0.16);
+  --accent-hover:  #a4cc3d;
+  --accent-soft:   #eaf0da;
+  --on-accent:     #0a0a0a;   /* texto SIEMPRE tinta oscura sobre el relleno */
   --success:       #0f8a6b;  --success-soft: #d9f2ea;
   --danger:        #c0492b;  --danger-soft:  #fbe6df;
 
@@ -64,7 +66,8 @@
 
 /* ─────────────────────────────────────────────────────────────────────────
    LIGHT MODE polish — solo aplica fuera de .dark
-   - Yellow buttons: borde negro fuerte + shadow para dominancia
+   - Botones de acento: el relleno pasa a oliva (#93bc1e), nunca lima puro
+     (regla del manual: el lima brillante no se lee sobre el fondo "Papel")
    - Cards/popovers: shadow más visible para depth
    - Sidebar: separador y bg diferenciado del background principal
    ───────────────────────────────────────────────────────────────────────── */
@@ -73,12 +76,14 @@
 :root:not(.dark) [class*="bg-[#dafc69]"][role="button"],
 :root:not(.dark) button[class*="bg-[#f2ffc0]"],
 :root:not(.dark) a[class*="bg-[#f2ffc0]"] {
+  background-color: #93bc1e !important;
   border: 1px solid rgba(76, 102, 6, 0.30) !important;
   box-shadow: 0 1px 2px rgba(76, 102, 6, 0.10), 0 4px 12px rgba(147, 188, 30, 0.22);
 }
 
 :root:not(.dark) button[class*="bg-[#dafc69]"]:hover,
 :root:not(.dark) a[class*="bg-[#dafc69]"]:hover {
+  background-color: #a4cc3d !important;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(76, 102, 6, 0.12), 0 8px 20px rgba(147, 188, 30, 0.28);
 }
@@ -87,6 +92,12 @@
 :root:not(.dark) a[class*="bg-[#dafc69]"]:active {
   transform: translateY(1px);
   box-shadow: 0 1px 2px rgba(76, 102, 6, 0.10);
+}
+
+/* Badges/dots/isotipo (spans) con bg-[#dafc69]: solo el relleno oliva,
+   sin borde/sombra de "botón" — son elementos decorativos, no CTAs. */
+:root:not(.dark) span[class*="bg-[#dafc69]"] {
+  background-color: #93bc1e !important;
 }
 
 /* Cards (rounded-2xl/xl con bg-card) en light: sombra suave y clara para depth */
@@ -125,38 +136,37 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   LIGHT MODE: lima accents legibles
+   LIGHT MODE: lima accents legibles ("Papel")
    ─────────────────────────────────────────────────────────────────────────
-   El lima brand (#dafc69) sobre blanco es ilegible cuando se usa
-   como TEXTO o como bg translúcido — no llega a 3:1 de contraste.
-   Lo cambiamos a foreground (negro) para texto/bordes finos.
-   El bg-[#dafc69] SÓLIDO (botones) queda intacto — con el borde/sombra
-   de arriba se ve bien sobre blanco.
+   El lima brand (#dafc69) sobre el fondo "Papel" es ilegible cuando se usa
+   como TEXTO, LÍNEA o bg translúcido — no llega a 3:1 de contraste.
+   Regla del manual: ahí va la tinta oscura (#4c6606), nunca el lima pleno.
+   El bg-[#dafc69] SÓLIDO (botones/badges) pasa a relleno oliva (#93bc1e)
+   más arriba en "LIGHT MODE polish".
    ───────────────────────────────────────────────────────────────────────── */
 
-/* Texto lima → negro (foreground) para máxima legibilidad */
+/* Texto lima → tinta oscura (acc-ink) para máxima legibilidad */
 :root:not(.dark) [class*="text-[#dafc69]"],
 :root:not(.dark) [class*="text-[#f2ffc0]"] {
-  color: var(--foreground) !important;
+  color: #4c6606 !important;
 }
 
-/* Backgrounds lima TRANSLÚCIDOS (badges, hover states) → gris muy sutil */
+/* Backgrounds lima TRANSLÚCIDOS (badges, hover states) → wash oliva sutil */
 :root:not(.dark) [class*="bg-[#dafc69]/["],
 :root:not(.dark) [class*="bg-[#dafc69]/0"],
 :root:not(.dark) [class*="bg-[#dafc69]/1"] {
-  background-color: rgba(0, 0, 0, 0.04) !important;
+  background-color: rgba(76, 102, 6, 0.08) !important;
 }
 
-/* Borders lima → border default (sutil pero visible) */
+/* Borders lima → tinta oscura translúcida/sólida */
 :root:not(.dark) [class*="border-[#dafc69]/"] {
-  border-color: rgba(0, 0, 0, 0.15) !important;
+  border-color: rgba(76, 102, 6, 0.30) !important;
 }
 :root:not(.dark) [class*="border-[#dafc69]"]:not([class*="/"]) {
-  border-color: var(--foreground) !important;
+  border-color: #4c6606 !important;
 }
-
-/* Decorative dots/dividers lima sólidos pequeños siguen siendo brand,
-   no se tocan (bg-[#dafc69] sin opacidad permanece lima intenso) */
+/* Cubre también los puntos del isotipo (orbit mark), que usan border-[#dafc69]
+   sin opacidad en el atributo de color (la opacidad la da una clase aparte). */
 
 /* ─────────────────────────────────────────────────────────────────────────
    DARK MODE — preserva exactamente el look actual del dashboard
