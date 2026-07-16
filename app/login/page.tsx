@@ -15,19 +15,29 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  async function redirectByRole(userId: string) {
+  async function redirectByRole(userId: string): Promise<string | null> {
     const { data: prof } = await supabase
       .from("profiles")
-      .select("role")
+      .select("role, active")
       .eq("id", userId)
       .maybeSingle();
+
+    if ((prof as any)?.active === false) {
+      await supabase.auth.signOut();
+      return "Tu cuenta fue desactivada. Contactá a tu equipo de Smart Scale.";
+    }
+
     const role = (prof as any)?.role ?? null;
     router.replace(getDefaultLandingForRole(role));
+    return null;
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.user) redirectByRole(data.session.user.id);
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (data.session?.user) {
+        const err = await redirectByRole(data.session.user.id);
+        if (err) setErrorMsg(err);
+      }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -40,8 +50,12 @@ export default function LoginPage() {
     setLoading(false);
     if (error) { setErrorMsg(error.message); return; }
     const { data } = await supabase.auth.getSession();
-    if (data.session?.user) await redirectByRole(data.session.user.id);
-    else setErrorMsg("No se pudo obtener la sesión. Intenta nuevamente.");
+    if (data.session?.user) {
+      const err = await redirectByRole(data.session.user.id);
+      if (err) setErrorMsg(err);
+    } else {
+      setErrorMsg("No se pudo obtener la sesión. Intenta nuevamente.");
+    }
   }
 
   return (
