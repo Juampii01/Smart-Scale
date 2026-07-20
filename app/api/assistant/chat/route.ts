@@ -15,7 +15,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { rateLimit } from "@/lib/rate-limit"
 import { isInternal } from "@/lib/auth/permissions"
-import { getToolDefinitions, executeTool } from "@/lib/assistant/tools"
+import { getToolDefinitions, executeTool, buildKnowledgeIndexBlock } from "@/lib/assistant/tools"
 import { MAX_MESSAGES_PER_CONVERSATION } from "@/app/api/assistant/conversations/route"
 import { log } from "@/lib/logger"
 import Anthropic from "@anthropic-ai/sdk"
@@ -177,6 +177,23 @@ export async function POST(req: NextRequest) {
       .filter((m: any) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
       .map((m: any) => ({ role: m.role, content: m.content }))
 
+    const scope = { isInternal: internal, ownClientId }
+
+    // ── Cerebro de Ann: siempre presente, no solo cuando el modelo decide buscar ──
+    const knowledgeIndex = await buildKnowledgeIndexBlock(sb)
+
+    const lastUserMessage = [...messages].reverse().find((m) => m.role === "user")
+    const lastUserText = typeof lastUserMessage?.content === "string" ? lastUserMessage.content.trim() : ""
+
+    let proactiveKnowledge = ""
+    if (lastUserText) {
+      const proactive = await executeTool(sb, "search_knowledge", { query: lastUserText, limit: 2 }, scope)
+      if (Array.isArray(proactive) && proactive.length > 0) {
+        const blocks = proactive.map((k: any) => `[${k.pillar}] ${k.title}:\n${k.content}`).join("\n\n")
+        proactiveKnowledge = `Contexto ya recuperado del Cerebro de Ann para este mensaje (no hace falta volver a buscar esto, salvo que necesites otro tema):\n${blocks}`
+      }
+    }
+
     const baseSystem = internal
       ? systemPromptInternal(activeClientId, activeClientName, internalClientProfile)
       : systemPromptClient(activeClientName, businessProfile, lastReport)
@@ -184,13 +201,13 @@ export async function POST(req: NextRequest) {
     const system: Anthropic.TextBlockParam[] = [
       {
         type: "text",
-        text: baseSystem,
+        text: knowledgeIndex ? `${baseSystem}\n\n${knowledgeIndex}` : baseSystem,
         cache_control: { type: "ephemeral" },
       },
+      ...(proactiveKnowledge ? [{ type: "text" as const, text: proactiveKnowledge }] : []),
     ]
 
     const tools = getToolDefinitions(internal)
-    const scope = { isInternal: internal, ownClientId }
     const toolsUsed: string[] = []
 
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
