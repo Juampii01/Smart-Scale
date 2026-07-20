@@ -17,6 +17,7 @@ import { rateLimit } from "@/lib/rate-limit"
 import { isInternal } from "@/lib/auth/permissions"
 import { getToolDefinitions, executeTool, buildKnowledgeIndexBlock } from "@/lib/assistant/tools"
 import { MAX_MESSAGES_PER_CONVERSATION } from "@/app/api/assistant/conversations/route"
+import { buildOmniSystemPrompt } from "@/lib/omni/system-prompt"
 import { log } from "@/lib/logger"
 import Anthropic from "@anthropic-ai/sdk"
 
@@ -29,31 +30,56 @@ const MAX_TOOL_ROUNDS = 3   // reducido de 6 — máx 3 herramientas por pregunt
 const MAX_HISTORY     = 12  // últimos 12 mensajes de contexto
 const MAX_TOKENS      = 900 // salida máxima por respuesta
 
-// Sistema compacto — menos tokens de entrada, mismo resultado
-function systemPromptInternal(clientId: string | null, clientName: string | null, businessProfile: string | null = null): string {
+// Fallback defensivo — solo se usa si buildOmniSystemPrompt("ann") falla (fila
+// omni_client_profiles borrada/incompleta). El chat, a diferencia de un job
+// batch, no se puede caer por esto.
+const FALLBACK_CORE_INTERNAL = `Sos Ann AI, analista interna de Smart Scale (coaching escala negocios online).
+Español rioplatense. Directo, sin relleno.
+
+Pilares: F=Fascinate (audiencia) · E=Educate (nurturing) · T=Transform (oferta/casos) · I=Invite (prospección).
+Diagnóstico = pilar flojo + dato que lo prueba + acción concreta.`
+
+const FALLBACK_CORE_CLIENT = `Sos Ann AI, asistente personal de negocios en Smart Scale.
+Español rioplatense, cálido pero directo.
+
+Pilares: F=Fascinate · E=Educate · T=Transform · I=Invite.`
+
+// Coda de "modo chat": annCore trae el criterio real de Ann (mismo que usan
+// los motores de análisis), pero está escrito para generar un feedback
+// estructurado de 4 pasos — acá aclaramos que en una charla en vivo no hay
+// que forzar ese formato en cada mensaje.
+function chatCoda(details: string): string {
+  return `
+
+---
+
+## Modo chat
+
+Estás en una conversación en vivo, no generando un reporte. NO sigas la "Estructura obligatoria de todo feedback" de arriba para saludos, preguntas simples o intercambios casuales — conversá natural y directo. Cuando sí das feedback sustancial sobre el negocio, mantené el criterio de las 3 capas (principio → evidencia → acción) pero de forma breve, como en una charla, no como un informe con encabezados. Respuestas cortas: máx 120 palabras o 4 bullets, un foco de acción por respuesta.
+
+${details}`
+}
+
+function systemPromptInternal(annCore: string, clientId: string | null, clientName: string | null, businessProfile: string | null = null): string {
   const ctx = clientId
     ? `Cliente activo: ${clientName ?? "(sin nombre)"} (id: ${clientId}).`
     : "Sin cliente seleccionado — usá list_clients si te piden uno."
 
   const bizCtx = businessProfile ? `\nNegocio del cliente: ${businessProfile}` : ""
 
-  return `Sos Ann AI, analista interna de Smart Scale (coaching escala negocios online).
-Español rioplatense. Directo, sin relleno. Respuestas cortas: máx 120 palabras o 4 bullets. Un foco de acción.
-
-Pilares: F=Fascinate (audiencia) · E=Educate (nurturing) · T=Transform (oferta/casos) · I=Invite (prospección).
-Diagnóstico = pilar flojo + dato que lo prueba + acción concreta.
-
-Reglas: usá tools para números (nunca inventes). Si necesitás metodología, usá search_knowledge con término puntual. ${ctx}${bizCtx}`
+  return annCore + chatCoda(`Reglas: usá tools para números (nunca inventes). Si necesitás metodología, usá search_knowledge con término puntual. ${ctx}${bizCtx}`)
 }
 
 const BUSINESS_PROFILE_INTAKE = `
 El perfil de negocio de este cliente todavía está vacío. Antes de dar cualquier feedback sustancial sobre su negocio, hacé 2-3 preguntas breves y conversacionales (de a una por mensaje, no todas juntas) para entender: a qué se dedica, qué vende/ofrece, y quién es su cliente ideal. Si ya te dio esa info en mensajes anteriores de esta misma conversación, no se la vuelvas a pedir. En cuanto tengas lo suficiente, sintetizalo en un párrafo de 2-4 líneas y llamá a la tool save_business_profile con ese resumen — no se lo vuelvas a preguntar después de guardarlo.`
 
 function systemPromptClient(
+  annCore: string,
   clientName: string | null,
   businessProfile: string | null,
   lastReport: Record<string, any> | null,
 ): string {
+  const who = `Estás charlando con ${clientName ?? "el/la dueño/a de este negocio"}.`
   const biz = businessProfile ? `\nNegocio: ${businessProfile}` : ""
 
   const rep = lastReport
@@ -62,11 +88,7 @@ function systemPromptClient(
 
   const intake = businessProfile ? "" : BUSINESS_PROFILE_INTAKE
 
-  return `Sos Ann AI, asistente personal de ${clientName ?? "el/la dueño/a"} en Smart Scale.
-Español rioplatense, cálido pero directo. Respuestas cortas: máx 120 palabras o 4 bullets. Un foco de acción.${biz}${rep}
-
-Pilares: F=Fascinate · E=Educate · T=Transform · I=Invite.
-Reglas: usá tools para números reales. Si necesitás metodología usá search_knowledge. Solo hablás de SU negocio — nada de otros clientes ni sistema interno.${intake}`
+  return annCore + chatCoda(`${who}${biz}${rep}\nReglas: usá tools para números reales. Si necesitás metodología usá search_knowledge. Solo hablás de SU negocio — nada de otros clientes ni sistema interno.${intake}`)
 }
 
 export async function POST(req: NextRequest) {
@@ -179,8 +201,15 @@ export async function POST(req: NextRequest) {
 
     const scope = { isInternal: internal, ownClientId }
 
-    // ── Cerebro de Ann: siempre presente, no solo cuando el modelo decide buscar ──
-    const knowledgeIndex = await buildKnowledgeIndexBlock(sb)
+    // ── Criterio de Ann: el mismo prompt de 3 capas que usan los motores de análisis ──
+    const [annCoreResult, knowledgeIndex] = await Promise.all([
+      buildOmniSystemPrompt(sb, "ann").catch(async (e: any) => {
+        await log.error("ann-ai/chat", "buildOmniSystemPrompt falló, uso fallback", { message: e?.message })
+        return null
+      }),
+      buildKnowledgeIndexBlock(sb),
+    ])
+    const annCore = annCoreResult ?? (internal ? FALLBACK_CORE_INTERNAL : FALLBACK_CORE_CLIENT)
 
     const lastUserMessage = [...messages].reverse().find((m) => m.role === "user")
     const lastUserText = typeof lastUserMessage?.content === "string" ? lastUserMessage.content.trim() : ""
@@ -195,8 +224,8 @@ export async function POST(req: NextRequest) {
     }
 
     const baseSystem = internal
-      ? systemPromptInternal(activeClientId, activeClientName, internalClientProfile)
-      : systemPromptClient(activeClientName, businessProfile, lastReport)
+      ? systemPromptInternal(annCore, activeClientId, activeClientName, internalClientProfile)
+      : systemPromptClient(annCore, activeClientName, businessProfile, lastReport)
 
     const system: Anthropic.TextBlockParam[] = [
       {
