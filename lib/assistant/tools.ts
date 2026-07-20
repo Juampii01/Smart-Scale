@@ -89,6 +89,23 @@ export function getToolDefinitions(isInternal: boolean) {
     })
   }
 
+  // save_business_profile: solo para cliente — guarda el contexto de su negocio
+  // una sola vez (intake conversacional), nunca editable por el modelo interno.
+  if (!isInternal) {
+    tools.push({
+      name: "save_business_profile",
+      description:
+        "Guarda el resumen del negocio del cliente (a qué se dedica, qué vende/ofrece, quién es su cliente ideal) para no tener que volver a preguntarlo en el futuro. Usala solo después de haber juntado esa info en la conversación.",
+      input_schema: {
+        type: "object" as const,
+        properties: {
+          profile_text: { type: "string", description: "Resumen del negocio en 2-4 líneas: a qué se dedica, qué vende, quién es su cliente ideal" },
+        },
+        required: ["profile_text"],
+      },
+    })
+  }
+
   return tools
 }
 
@@ -188,7 +205,32 @@ export async function executeTool(
       return results
     }
 
+    case "save_business_profile": {
+      if (scope.isInternal) return { error: "No disponible." }
+      if (!scope.ownClientId) return { error: "Sin cliente vinculado." }
+      const text = String(input.profile_text ?? "").trim()
+      if (!text) return { error: "Perfil vacío." }
+      const { error } = await sb.from("clients").update({ business_profile: text }).eq("id", scope.ownClientId)
+      if (error) return { error: error.message }
+      return { ok: true }
+    }
+
     default:
       return { error: `Tool desconocida: ${name}` }
   }
+}
+
+// ─── Índice del Cerebro de Ann — siempre inyectado, no solo cuando el modelo busca ──
+
+export async function buildKnowledgeIndexBlock(sb: SB): Promise<string> {
+  const { data, error } = await sb
+    .from("ann_knowledge")
+    .select("title, pillar")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true })
+
+  if (error || !data || data.length === 0) return ""
+
+  const lines = data.map((k: any) => `- [${k.pillar}] ${k.title}`).join("\n")
+  return `Índice del Cerebro de Ann (usá search_knowledge con el título o tema exacto para traer el contenido completo):\n${lines}`
 }
