@@ -46,6 +46,9 @@ Diagnóstico = pilar flojo + dato que lo prueba + acción concreta.
 Reglas: usá tools para números (nunca inventes). Si necesitás metodología, usá search_knowledge con término puntual. ${ctx}${bizCtx}`
 }
 
+const BUSINESS_PROFILE_INTAKE = `
+El perfil de negocio de este cliente todavía está vacío. Antes de dar cualquier feedback sustancial sobre su negocio, hacé 2-3 preguntas breves y conversacionales (de a una por mensaje, no todas juntas) para entender: a qué se dedica, qué vende/ofrece, y quién es su cliente ideal. Si ya te dio esa info en mensajes anteriores de esta misma conversación, no se la vuelvas a pedir. En cuanto tengas lo suficiente, sintetizalo en un párrafo de 2-4 líneas y llamá a la tool save_business_profile con ese resumen — no se lo vuelvas a preguntar después de guardarlo.`
+
 function systemPromptClient(
   clientName: string | null,
   businessProfile: string | null,
@@ -57,11 +60,13 @@ function systemPromptClient(
     ? `\nContexto reciente (${lastReport.month ?? ""}): revenue $${lastReport.total_revenue ?? "n/d"} · MRR $${lastReport.mrr ?? "n/d"}${lastReport.next_focus ? ` · foco: "${lastReport.next_focus}"` : ""}`
     : "\nEs nuevo en el programa — aún no tiene reportes cargados."
 
+  const intake = businessProfile ? "" : BUSINESS_PROFILE_INTAKE
+
   return `Sos Ann AI, asistente personal de ${clientName ?? "el/la dueño/a"} en Smart Scale.
 Español rioplatense, cálido pero directo. Respuestas cortas: máx 120 palabras o 4 bullets. Un foco de acción.${biz}${rep}
 
 Pilares: F=Fascinate · E=Educate · T=Transform · I=Invite.
-Reglas: usá tools para números reales. Si necesitás metodología usá search_knowledge. Solo hablás de SU negocio — nada de otros clientes ni sistema interno.`
+Reglas: usá tools para números reales. Si necesitás metodología usá search_knowledge. Solo hablás de SU negocio — nada de otros clientes ni sistema interno.${intake}`
 }
 
 export async function POST(req: NextRequest) {
