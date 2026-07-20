@@ -87,7 +87,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Scalekit",
     items: [
-      { name: "Ann AI",        href: "/anai",          icon: Brain    },
+      { name: "Ann AI",        href: "/ann-ai",        icon: Brain    },
       { name: "Claude Skills", href: "/claude-skills", icon: Sparkles },
       { name: "GPTs",          href: "/tools",         icon: Bot      },
     ],
