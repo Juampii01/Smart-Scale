@@ -24,7 +24,7 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
 
-const MODEL          = process.env.ANAI_MODEL ?? "claude-haiku-4-5-20251001"
+const MODEL          = process.env.ANAI_MODEL ?? "claude-sonnet-4-5"
 const MAX_TOOL_ROUNDS = 3   // reducido de 6 — máx 3 herramientas por pregunta
 const MAX_HISTORY     = 12  // últimos 12 mensajes de contexto
 const MAX_TOKENS      = 900 // salida máxima por respuesta
