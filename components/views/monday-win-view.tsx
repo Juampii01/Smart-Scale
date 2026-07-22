@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { createClient } from "@/lib/supabase"
 import { useOwnClient, useActiveClient, useActiveClientName, useUserRole } from "@/components/layout/dashboard-layout"
 import { isDeveloper } from "@/lib/auth/permissions"
@@ -45,6 +45,17 @@ export function MondayWinView() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [message, setMessage] = useState("")
   const [tab, setTab] = useState<"form" | "history">("form")
+  const statusRef = useRef<HTMLDivElement>(null)
+
+  // El form se vacía apenas se confirma el envío (más abajo) — si el aviso de
+  // éxito/error queda fuera de la pantalla (mobile, o si venía escribiendo
+  // arriba), parece que el contenido "desapareció" sin explicación y termina
+  // reenviando el mismo Monday Win varias veces. Lo traemos a la vista siempre.
+  useEffect(() => {
+    if (status === "success" || status === "error") {
+      statusRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+    }
+  }, [status])
 
   // Envío real. Acepta un payload explícito (usado por el botón "Testear")
   // o lee el estado del form cuando no se pasa nada.
@@ -252,7 +263,7 @@ export function MondayWinView() {
 
       {/* Status */}
       {status !== "idle" && status !== "loading" && (
-        <div className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${
+        <div ref={statusRef} className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${
           status === "success"
             ? "border-emerald-400 bg-emerald-100 text-emerald-900 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200"
             : "border-red-400 bg-red-100 text-red-900 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-200"

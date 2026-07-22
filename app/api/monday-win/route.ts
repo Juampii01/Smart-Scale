@@ -63,7 +63,10 @@ export async function POST(req: NextRequest) {
       bloqueo,
       submitted_by:  user.email,
     })
-    if (insErr) console.error("[monday-win] insert error:", insErr.message)
+    if (insErr) {
+      console.error("[monday-win] insert error:", insErr.message)
+      return NextResponse.json({ error: "No se pudo guardar el Monday Win. Probá de nuevo." }, { status: 500 })
+    }
 
     // Build Zapier payload
     const payload = {
