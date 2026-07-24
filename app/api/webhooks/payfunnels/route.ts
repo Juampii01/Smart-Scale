@@ -49,8 +49,12 @@ const TIERS: Tier[] = [
 function normalizeProgram(raw: any): string | null {
   const s = String(raw ?? "").trim().toLowerCase()
   if (!s) return null
-  if (s.includes("hibrido") || s.includes("híbrido")) return "Smart Scale Híbrido"
+  const isHybrid = s.includes("hybrid") || s.includes("hibrido") || s.includes("híbrido")
+  if (isHybrid) return "Smart Scale Híbrido"
   if (s.includes("grupal")) return "Smart Scale Grupal"
+  // invoiceTitle real de PayFunnels (vía relay de la landing): "Smart Scale"
+  // / "Smart Scale/ two" — sin "hybrid" en el título es el plan Grupal.
+  if (s.includes("smart scale")) return "Smart Scale Grupal"
   return null
 }
 
