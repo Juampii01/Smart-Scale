@@ -1,24 +1,28 @@
 /**
  * POST /api/webhooks/payfunnels
  *
- * Recibe la notificación de pago completado de PayFunnels y dispara el
- * onboarding automático completo — misma secuencia que el alta manual en
+ * Recibe la notificación de pago completado y dispara el onboarding
+ * automático completo — misma secuencia que el alta manual en
  * app/api/admin/onboarding/route.ts (crm_clients, onboarding_flow,
  * crm_installments, cuenta del dashboard, contrato por SignNow).
  *
- * PayFunnels no manda un identificador de producto/plan en el webhook, así
- * que el plan pagado se infiere por el monto exacto cobrado — los 4 links de
- * pago vigentes tienen montos distintos entre sí:
- *   Grupal 1 pago $3.000 · Grupal 2 cuotas $1.750 c/u
- *   Híbrido 1 pago $6.500 · Híbrido 2 cuotas $3.500 c/u
- * Si el monto no matchea ninguno (ej. cambió un precio en PayFunnels sin
- * avisar acá), el pago se loguea igual y se avisa por Slack — no se crea un
- * cliente a medias.
+ * Quién llama a este endpoint: PayFunnels solo soporta una URL de webhook
+ * global por cuenta, y ya está pensada para apuntar a la landing/checkout
+ * (proyecto separado, strategycoach.us) — así que en la práctica quien nos
+ * llama es la LANDING, reenviando el evento después de procesarlo ella, no
+ * PayFunnels directo. Por eso el `program` viene explícito en el body la
+ * mayoría de las veces: la landing ya sabe con certeza qué link/botón usó
+ * el cliente. El monto solo se usa como respaldo (inferido contra los 4
+ * montos vigentes) si no viene `program`, por ejemplo si en algún momento
+ * SÍ apuntan PayFunnels acá directo.
  *
- * Auth: PayFunnels solo permite una URL de callback global sin headers
- * custom, así que el secreto va en la query string (?secret=...), con
- * fallback a header por si acaso — mismo patrón que
- * app/api/webhooks/recording/route.ts.
+ * Si no se puede resolver ni por program ni por monto, el pago se loguea
+ * igual y se avisa por Slack — nunca se crea un cliente a medias.
+ *
+ * Auth: acepta el secreto en la query string (?secret=...) — por si el
+ * emisor es PayFunnels directo, que no manda headers custom — o en el
+ * header x-webhook-secret/Authorization si el emisor es la landing (que sí
+ * puede mandar headers).
  */
 import { NextRequest, NextResponse, after } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
@@ -31,11 +35,50 @@ export const dynamic = "force-dynamic"
 
 const ALBERTO_CLIENT_ID = "09314097-df56-450f-980e-38ec1e61f246"
 
-const PRICE_MAP: Record<number, { program: string; installments: number; totalAmount: number }> = {
-  3000: { program: "Smart Scale Grupal",  installments: 1, totalAmount: 3000 },
-  6500: { program: "Smart Scale Híbrido", installments: 1, totalAmount: 6500 },
-  1750: { program: "Smart Scale Grupal",  installments: 2, totalAmount: 3500 },
-  3500: { program: "Smart Scale Híbrido", installments: 2, totalAmount: 7000 },
+interface Tier { program: string; installments: number; totalAmount: number; perInstallment: number }
+
+const TIERS: Tier[] = [
+  { program: "Smart Scale Grupal",  installments: 1, totalAmount: 3000, perInstallment: 3000 },
+  { program: "Smart Scale Grupal",  installments: 2, totalAmount: 3500, perInstallment: 1750 },
+  { program: "Smart Scale Híbrido", installments: 1, totalAmount: 6500, perInstallment: 6500 },
+  { program: "Smart Scale Híbrido", installments: 2, totalAmount: 7000, perInstallment: 3500 },
+]
+
+/** Normaliza variantes de nombre de programa (la landing puede mandar labels
+ *  distintos a los que usa el resto del código, ver app/apply/page.tsx). */
+function normalizeProgram(raw: any): string | null {
+  const s = String(raw ?? "").trim().toLowerCase()
+  if (!s) return null
+  if (s.includes("hibrido") || s.includes("híbrido")) return "Smart Scale Híbrido"
+  if (s.includes("grupal")) return "Smart Scale Grupal"
+  return null
+}
+
+/** Resuelve el tier priorizando el `program` explícito (+ cantidad de cuotas
+ *  si viene) que ya conoce quien nos llama; el monto es solo el respaldo. */
+function resolveTier(body: Record<string, any>, amount: number | null): Tier | null {
+  const explicitProgram = normalizeProgram(pick(body, "program", "programa", "plan"))
+  if (explicitProgram) {
+    const rawInstallments = toNum(pick(body, "installments", "num_installments", "cuotas", "cantidad_cuotas"))
+    const wantedInstallments = rawInstallments != null ? Math.round(rawInstallments) : null
+
+    if (wantedInstallments != null) {
+      const exact = TIERS.find(t => t.program === explicitProgram && t.installments === wantedInstallments)
+      if (exact) return exact
+    }
+    if (amount != null) {
+      const byAmount = TIERS.find(t => t.program === explicitProgram && Math.round(t.perInstallment) === Math.round(amount))
+      if (byAmount) return byAmount
+    }
+    // Programa conocido pero sin forma de saber cuotas — default a 1 pago.
+    return TIERS.find(t => t.program === explicitProgram && t.installments === 1) ?? null
+  }
+
+  // Sin program explícito (ej. PayFunnels pegando directo): inferir todo por el monto.
+  if (amount != null) {
+    return TIERS.find(t => Math.round(t.perInstallment) === Math.round(amount)) ?? null
+  }
+  return null
 }
 
 // ─── Helpers (mismo patrón que app/api/webhooks/client/route.ts) ──────────────
@@ -132,9 +175,13 @@ export async function POST(req: NextRequest) {
     const name  = String(pick(body, "name", "nombre", "full_name", "customer_name") ?? "").trim()
     const email = String(pick(body, "email", "customer_email") ?? "").trim().toLowerCase()
     const amount = toNum(pick(body, "amount", "monto", "total_charged", "amount_charged", "paid_amount"))
+    const hasProgram = normalizeProgram(pick(body, "program", "programa", "plan")) != null
 
-    if (!name || !email || amount == null) {
-      const reason = `Faltan datos básicos (name=${!!name}, email=${!!email}, amount=${amount})`
+    // amount solo es estrictamente necesario si no vino un program explícito
+    // (ej. la landing no llegó a mandarlo por algún motivo) — con program
+    // presente, alcanza con name/email para resolver el tier.
+    if (!name || !email || (!hasProgram && amount == null)) {
+      const reason = `Faltan datos básicos (name=${!!name}, email=${!!email}, program=${hasProgram}, amount=${amount})`
       await finish(null, reason)
       await sendSlackMessage(
         [{ type: "section", text: { type: "mrkdwn", text: `⚠️ *Webhook de PayFunnels con datos incompletos*\n${reason}\nRevisar \`payfunnels_webhook_events\` (id: ${logId ?? "?"}).` } }],
@@ -143,14 +190,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, warning: reason })
     }
 
-    // ── Mapear el monto al plan correspondiente ─────────────────────────────
-    const tier = PRICE_MAP[Math.round(amount)]
+    // ── Resolver el plan (program explícito de la landing, o inferido por monto) ─
+    const tier = resolveTier(body, amount)
     if (!tier) {
-      const reason = `Monto no reconocido: $${amount} (no matchea ninguno de los 4 planes vigentes)`
+      const reason = `No se pudo resolver el plan (program=${hasProgram ? pick(body, "program", "programa", "plan") : "no vino"}, monto=${amount != null ? `$${amount}` : "no vino"})`
       await finish(null, reason)
       await sendSlackMessage(
-        [{ type: "section", text: { type: "mrkdwn", text: `⚠️ *Pago de PayFunnels con monto no reconocido*\n*Cliente:* ${name} (${email})\n*Monto:* $${amount}\nNo matchea ninguno de los 4 planes — revisar y cargar a mano en /admin/onboarding.` } }],
-        `⚠️ Pago de PayFunnels con monto no reconocido: $${amount} (${name})`,
+        [{ type: "section", text: { type: "mrkdwn", text: `⚠️ *Pago de PayFunnels sin plan reconocido*\n*Cliente:* ${name} (${email})\n${reason}\nRevisar y cargar a mano en /admin/onboarding.` } }],
+        `⚠️ Pago de PayFunnels sin plan reconocido (${name})`,
       ).catch(() => null)
       return NextResponse.json({ ok: true, warning: reason })
     }
@@ -169,7 +216,7 @@ export async function POST(req: NextRequest) {
 
     // ── Crear cliente (misma secuencia que el alta manual) ──────────────────
     const programStart = new Date().toISOString().slice(0, 10)
-    const perInstallmentAmount = tier.installments > 1 ? amount : tier.totalAmount
+    const perInstallmentAmount = tier.perInstallment
 
     const { data: crmClient, error: crmErr } = await sb
       .from("crm_clients")
