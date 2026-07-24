@@ -35,13 +35,30 @@ export const dynamic = "force-dynamic"
 
 const ALBERTO_CLIENT_ID = "09314097-df56-450f-980e-38ec1e61f246"
 
-interface Tier { program: string; installments: number; totalAmount: number; perInstallment: number }
+// Duración fija del programa (confirmado) — independiente de si el pago
+// inicial es en 1 o 2 partes. La mensualidad recurrente de $500 arranca
+// apenas termina el pago inicial y corre hasta completar los 6 meses.
+const PROGRAM_DURATION = 6
+const RECURRING_MONTHLY = 500
+
+interface Tier {
+  program:        string
+  installments:   number    // cuotas del pago INICIAL (1 o 2) — no la duración del programa
+  perInstallment: number    // monto de cada cuota inicial
+  schedule:       number[]  // cuota_1..cuota_6 — el pago inicial + los meses de $500 recurrente
+}
+
+function buildSchedule(initial: number[]): number[] {
+  const schedule = [...initial]
+  while (schedule.length < PROGRAM_DURATION) schedule.push(RECURRING_MONTHLY)
+  return schedule
+}
 
 const TIERS: Tier[] = [
-  { program: "Smart Scale Grupal",  installments: 1, totalAmount: 3000, perInstallment: 3000 },
-  { program: "Smart Scale Grupal",  installments: 2, totalAmount: 3500, perInstallment: 1750 },
-  { program: "Smart Scale Híbrido", installments: 1, totalAmount: 6500, perInstallment: 6500 },
-  { program: "Smart Scale Híbrido", installments: 2, totalAmount: 7000, perInstallment: 3500 },
+  { program: "Smart Scale Grupal",  installments: 1, perInstallment: 3000, schedule: buildSchedule([3000]) },
+  { program: "Smart Scale Grupal",  installments: 2, perInstallment: 1750, schedule: buildSchedule([1750, 1750]) },
+  { program: "Smart Scale Híbrido", installments: 1, perInstallment: 6500, schedule: buildSchedule([6500]) },
+  { program: "Smart Scale Híbrido", installments: 2, perInstallment: 3500, schedule: buildSchedule([3500, 3500]) },
 ]
 
 /** Normaliza variantes de nombre de programa (la landing puede mandar labels
@@ -221,6 +238,7 @@ export async function POST(req: NextRequest) {
     // ── Crear cliente (misma secuencia que el alta manual) ──────────────────
     const programStart = new Date().toISOString().slice(0, 10)
     const perInstallmentAmount = tier.perInstallment
+    const totalAmount = tier.schedule.reduce((sum, v) => sum + v, 0)
 
     const { data: crmClient, error: crmErr } = await sb
       .from("crm_clients")
@@ -231,10 +249,10 @@ export async function POST(req: NextRequest) {
         program_start:      programStart,
         installment_amount: perInstallmentAmount,
         num_installments:   tier.installments,
-        program_duration:   tier.installments,
-        total_amount:       tier.totalAmount,
+        program_duration:   PROGRAM_DURATION,
+        total_amount:       totalAmount,
         status:             "activo",
-        notes:              `Alta automática vía PayFunnels — Programa: ${tier.program}`,
+        notes:              `Alta automática vía PayFunnels — Programa: ${tier.program} (pago inicial ${tier.installments === 1 ? "único" : "en 2 partes"} + $${RECURRING_MONTHLY}/mes hasta completar ${PROGRAM_DURATION} meses)`,
         forma_pago:         "PayFunnels",
       })
       .select("id")
@@ -253,11 +271,16 @@ export async function POST(req: NextRequest) {
       console.error("[payfunnels] onboarding_flow insert failed (non-blocking):", err)
     }
 
-    const installmentsToInsert = Array.from({ length: tier.installments }, (_, idx) => ({
+    // Las 6 cuotas del programa completo: el pago inicial (1 o 2 partes) +
+    // los meses de $500 recurrente. Solo la primera se marca pagada acá —
+    // PayFunnels cobra el resto por su cuenta (o el equipo las marca a mano
+    // a medida que se acreditan), este webhook solo dispara una vez por
+    // cliente nuevo (ver dedup por email más arriba).
+    const installmentsToInsert = tier.schedule.map((amt, idx) => ({
       client_id:          clientId,
       installment_number: idx + 1,
       due_date:           addMonths(programStart, idx),
-      amount:             perInstallmentAmount,
+      amount:             amt,
       paid_at:            idx === 0 ? new Date().toISOString() : null,
     }))
     const { error: instErr } = await sb.from("crm_installments").insert(installmentsToInsert)
@@ -322,15 +345,26 @@ export async function POST(req: NextRequest) {
       console.error("[payfunnels] playbook copy failed (non-blocking):", err)
     }
 
+    // Cuotas para el contrato: cuota_1 va aparte como "pago_entrada" (primerPago,
+    // lo excluye sendContractForSignature de este objeto) — acá solo cuota_2..6,
+    // que cubren tanto el resto del pago inicial (si son 2 partes) como los
+    // meses de $500 recurrente hasta completar el programa.
+    const cuotasForContract: Record<string, number> = {}
+    for (let i = 1; i < tier.schedule.length; i++) cuotasForContract[`cuota_${i + 1}`] = tier.schedule[i]
+
+    // Cronograma completo (con cuota_1) para mostrar en Slack/Zapier.
+    const fullScheduleCuotas: Record<string, number> = {}
+    tier.schedule.forEach((amt, idx) => { fullScheduleCuotas[`cuota_${idx + 1}`] = amt })
+
     // ── Contrato por SignNow (fire-and-forget, sobrevive el corte de la función) ─
     after(() => sendContractForSignature({
       clienteNombre: name,
       clienteEmail:  email,
       program:       tier.program,
-      totalAmount:   tier.totalAmount,
-      primerPago:    perInstallmentAmount,
-      cuotas:        tier.installments > 1 ? { cuota_1: perInstallmentAmount, cuota_2: perInstallmentAmount } : { cuota_1: tier.totalAmount },
-      cantidadMeses: tier.installments,
+      totalAmount,
+      primerPago:    tier.schedule[0],
+      cuotas:        cuotasForContract,
+      cantidadMeses: PROGRAM_DURATION,
     }).then(result => {
       if (result?.document_id) {
         return sb.from("onboarding_flow")
@@ -344,8 +378,8 @@ export async function POST(req: NextRequest) {
       name,
       email,
       program:       tier.program,
-      total_amount:  tier.totalAmount,
-      cuotas:        tier.installments > 1 ? { cuota_1: perInstallmentAmount, cuota_2: perInstallmentAmount } : { cuota_1: tier.totalAmount },
+      total_amount:  totalAmount,
+      cuotas:        fullScheduleCuotas,
       program_start: programStart,
       temp_password: tempPassword,
       magic_link:    magicLink ?? undefined,
@@ -357,8 +391,8 @@ export async function POST(req: NextRequest) {
       client_name:   name,
       email,
       program:       tier.program,
-      total_amount:  tier.totalAmount,
-      cuotas:        tier.installments > 1 ? { cuota_1: perInstallmentAmount, cuota_2: perInstallmentAmount } : { cuota_1: tier.totalAmount },
+      total_amount:  totalAmount,
+      cuotas:        fullScheduleCuotas,
       program_start: programStart,
       temp_password: tempPassword,
       magic_link:    magicLink,
