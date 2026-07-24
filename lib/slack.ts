@@ -318,3 +318,37 @@ export async function notifyClientOnboarded(payload: {
   // 3. Post the message
   return postToChannel(channelId, blocks, `🎉 ${payload.name} onboarded — ${mrrFmt} MRR`)
 }
+
+// ─── Notification: registro del webhook de firma de contrato falló ───────────
+
+/**
+ * SignNow puede rechazar el registro del webhook por documento (ej. el plan
+ * de cuenta no incluye Webhooks 2.0) sin que el resto del flujo de envío se
+ * entere — el contrato se manda igual, pero cuando el cliente lo firme nunca
+ * va a llegar el callback automático. Avisamos apenas se detecta, no cuando
+ * alguien nota semanas después que el onboarding automático nunca disparó.
+ */
+export async function notifyContractWebhookRegistrationFailed(payload: {
+  client_name: string
+  document_id: string
+}): Promise<SlackResult> {
+  const blocks = [
+    header("⚠️ Webhook de firma no se pudo registrar"),
+    section(
+      `El contrato de *${payload.client_name}* se mandó a firmar, pero SignNow rechazó el registro del webhook automático para este documento.`
+    ),
+    fields([
+      { title: "Cliente", value: payload.client_name },
+      { title: "Document ID", value: payload.document_id },
+    ]),
+    divider(),
+    context(
+      "Cuando firme, el onboarding automático (Skool/Slack/plataforma) NO se va a disparar solo — hay que confirmarlo a mano desde /admin/applications o reintentar el registro del webhook. Smart Scale Portal 2.0"
+    ),
+  ]
+
+  return sendSlackMessage(
+    blocks,
+    `⚠️ Webhook de firma no registrado para ${payload.client_name} (document_id ${payload.document_id})`
+  )
+}
