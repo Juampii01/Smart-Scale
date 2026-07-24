@@ -3,9 +3,13 @@
 // Zapier routes a Slack message (y cualquier otra integración configurada).
 //
 // Required env vars:
-//   ZAPIER_WEBHOOK_REPORT   → fires when a monthly report is saved
-//   ZAPIER_WEBHOOK_SALE     → fires when new_clients increases (optional — falls back to ZAPIER_WEBHOOK_REPORT)
-//   ZAPIER_WEBHOOK_EOD      → fires when a setter submits an EOD
+//   ZAPIER_WEBHOOK_REPORT             → fires when a monthly report is saved
+//   ZAPIER_WEBHOOK_SALE               → fires when new_clients increases (optional — falls back to ZAPIER_WEBHOOK_REPORT)
+//   ZAPIER_WEBHOOK_EOD                → fires when a setter submits an EOD
+//   ZAPIER_WEBHOOK_ONBOARDING_STATUS  → fires on cada cambio de estado del onboarding
+//                                        (contrato firmado, accesos enviados) — separado
+//                                        de ZAPIER_WEBHOOK_ONBOARDING, que solo dispara
+//                                        una vez al crear el cliente.
 //
 // Zapier Zap setup:
 //   Trigger: "Webhooks by Zapier → Catch Hook"
@@ -321,6 +325,30 @@ export async function zapierTaskEvent(payload: {
 
   // Banner para urgentes — resalta arriba de todo
   if (isUrgent) message = `🚨  *URGENTE*  🚨\n${message}`
+
+  return postWebhook(url, { ...payload, message })
+}
+
+// ─── Fire: cambio de estado del onboarding ────────────────────────────────────
+// Separado de zapierClientOnboarded (que solo dispara una vez, al crear el
+// cliente) — este cubre los pasos siguientes del mismo onboarding, para que
+// el equipo vea en Slack en qué etapa está cada cliente sin tener que
+// revisar /admin/onboarding a mano.
+
+export type OnboardingStatusEvent = "contract_signed" | "onboarding_completed"
+
+export async function zapierOnboardingStatusChanged(payload: {
+  event_type:   OnboardingStatusEvent
+  client_id:    string
+  client_name:  string
+  client_email: string
+}): Promise<ZapierResult> {
+  const url = process.env.ZAPIER_WEBHOOK_ONBOARDING_STATUS
+  if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_ONBOARDING_STATUS not configured" }
+
+  const message = payload.event_type === "contract_signed"
+    ? `✍️  *Contrato firmado* — ${payload.client_name}\n${payload.client_email}\nSe están enviando los accesos (Skool, Slack, Plataforma)...`
+    : `🎉  *Onboarding completo* — ${payload.client_name}\nLos 3 accesos (Skool, Slack, Plataforma) se enviaron correctamente. Cliente listo para arrancar.`
 
   return postWebhook(url, { ...payload, message })
 }

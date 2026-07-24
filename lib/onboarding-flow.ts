@@ -19,6 +19,7 @@
 import { createServiceClient } from "@/lib/supabase-service"
 import { sendSkoolAccessEmail, sendSlackAccessEmail, sendWelcomeEmail, type EmailResult } from "@/lib/email"
 import { sendPushToNames } from "@/lib/push"
+import { zapierOnboardingStatusChanged } from "@/lib/zapier"
 
 export type OnboardingEmailTemplate = "skool" | "slack" | "platform"
 
@@ -61,7 +62,7 @@ export async function resendOnboardingEmail(
 ): Promise<EmailResult> {
   const { data: flow } = await sb
     .from("onboarding_flow")
-    .select("id")
+    .select("id, email_skool_sent_at, email_slack_sent_at, email_platform_sent_at")
     .eq("crm_client_id", crmClientId)
     .maybeSingle()
   if (!flow) return { ok: false, error: "No existe fila de onboarding_flow para este cliente" }
@@ -82,6 +83,24 @@ export async function resendOnboardingEmail(
     [`email_${template}_error`]:   result.ok ? null : result.error ?? "unknown error",
     updated_at: new Date().toISOString(),
   }).eq("id", (flow as any).id)
+
+  // Si este reintento manual completó el último de los 3 emails pendientes,
+  // avisar que el onboarding quedó completo — mismo aviso que dispara
+  // triggerContractSigned cuando los 3 salen bien de una.
+  if (result.ok) {
+    const flowRow = flow as any
+    const allDone = (["skool", "slack", "platform"] as const).every(t =>
+      t === template ? true : !!flowRow[`email_${t}_sent_at`]
+    )
+    if (allDone) {
+      await zapierOnboardingStatusChanged({
+        event_type:   "onboarding_completed",
+        client_id:    crmClientId,
+        client_name:  name,
+        client_email: email,
+      }).catch(() => {})
+    }
+  }
 
   return result
 }
@@ -120,6 +139,13 @@ export async function triggerContractSigned(
     .update({ contract_signed_at: now, updated_at: now })
     .eq("id", (flow as any).id)
 
+  await zapierOnboardingStatusChanged({
+    event_type:   "contract_signed",
+    client_id:    crmClientId,
+    client_name:  name,
+    client_email: email,
+  }).catch(() => {})
+
   const [skoolResult, slackResult, platformResult] = await Promise.all([
     sendOnboardingEmail(sb, "skool", name, email),
     sendOnboardingEmail(sb, "slack", name, email),
@@ -147,6 +173,13 @@ export async function triggerContractSigned(
       title: "⚠️ Falló un email de onboarding",
       body:  `${name}: no se pudo enviar ${failed.join(", ")}. Revisá /admin/onboarding.`,
       url:   "/admin/onboarding",
+    }).catch(() => {})
+  } else {
+    await zapierOnboardingStatusChanged({
+      event_type:   "onboarding_completed",
+      client_id:    crmClientId,
+      client_name:  name,
+      client_email: email,
     }).catch(() => {})
   }
 
