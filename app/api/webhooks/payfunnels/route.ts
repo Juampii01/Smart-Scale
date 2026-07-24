@@ -146,25 +146,13 @@ function addMonths(dateStr: string, months: number): string {
 
 function authorize(req: NextRequest): boolean {
   const secret = process.env.PAYFUNNELS_WEBHOOK_SECRET
-  if (!secret) {
-    console.error("[payfunnels][auth] PAYFUNNELS_WEBHOOK_SECRET no está seteada en este entorno")
-    return false
-  }
+  if (!secret) return false
   const incoming =
     req.nextUrl.searchParams.get("secret") ??
     req.headers.get("x-webhook-secret") ??
     req.headers.get("authorization")?.replace("Bearer ", "") ??
     null
-  const ok = incoming === secret
-  // TEMPORAL — diagnóstico del 401 persistente. Sacar una vez resuelto.
-  console.error("[payfunnels][auth]", JSON.stringify({
-    ok,
-    incoming_len: incoming?.length ?? null,
-    secret_len: secret.length,
-    incoming_preview: incoming ? `${incoming.slice(0, 6)}...${incoming.slice(-4)}` : null,
-    secret_preview: `${secret.slice(0, 6)}...${secret.slice(-4)}`,
-  }))
-  return ok
+  return incoming === secret
 }
 
 export async function POST(req: NextRequest) {
