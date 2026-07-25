@@ -35,6 +35,11 @@ export const dynamic = "force-dynamic"
 
 const ALBERTO_CLIENT_ID = "09314097-df56-450f-980e-38ec1e61f246"
 
+// Setter por defecto para las ventas que entran solas por este webhook (no
+// hay un setter humano "cerrando" la venta acá, así que se le asigna a
+// Steffano — confirmado explícitamente por el usuario).
+const DEFAULT_SETTER_ID = "a1eb5074-1017-476e-9b99-ee3d5e3bf062" // Steffano Leiva
+
 // Duración fija del programa (confirmado) — independiente de si el pago
 // inicial es en 1 o 2 partes. La mensualidad recurrente de $500 arranca
 // apenas termina el pago inicial y corre hasta completar los 6 meses.
@@ -254,6 +259,7 @@ export async function POST(req: NextRequest) {
         status:             "activo",
         notes:              `Alta automática vía PayFunnels — Programa: ${tier.program} (pago inicial ${tier.installments === 1 ? "único" : "en 2 partes"} + $${RECURRING_MONTHLY}/mes hasta completar ${PROGRAM_DURATION} meses)`,
         forma_pago:         "PayFunnels",
+        setter_id:          DEFAULT_SETTER_ID,
       })
       .select("id")
       .single()
@@ -381,6 +387,7 @@ export async function POST(req: NextRequest) {
       total_amount:  totalAmount,
       cuotas:        fullScheduleCuotas,
       program_start: programStart,
+      setter_name:   "Steffano Leiva",
       temp_password: tempPassword,
       magic_link:    magicLink ?? undefined,
     }).catch(err => console.error("[payfunnels] Slack onboarding notify failed:", err)))
@@ -394,6 +401,7 @@ export async function POST(req: NextRequest) {
       total_amount:  totalAmount,
       cuotas:        fullScheduleCuotas,
       program_start: programStart,
+      setter_name:   "Steffano Leiva",
       temp_password: tempPassword,
       magic_link:    magicLink,
     }).catch(err => console.error("[payfunnels] Zapier onboarding notify failed:", err?.message)))
