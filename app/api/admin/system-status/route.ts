@@ -53,7 +53,7 @@ const JOB_REGISTRY: RegistryEntry[] = [
   { key: "ann-chat", name: "Ann (asistente del cliente)", description: "Chat con acceso al playbook y a los datos reales de cada cliente — le da consejos a medida, no genéricos.", trigger: "a demanda (desde el portal del cliente)", bucket: "consultores", source: "static", sourceKey: "ann-chat", staticStatus: "ok" },
 
   // ─── Constructores ──────────────────────────────────────────────────────
-  { key: "builder", name: "Constructor de agentes", description: "Un agente que escribe código y arma features nuevas sin depender de una sesión manual de Claude Code.", trigger: "próximamente", bucket: "constructores", source: "static", sourceKey: "builder", staticStatus: "idle" },
+  { key: "builder", name: "Constructor de agentes", description: "Agente y sandbox ya creados (Managed Agents) — falta conectar un token de GitHub para que pueda pushear y abrir PRs contra este repo.", trigger: "configurado, falta credencial de GitHub", bucket: "constructores", source: "static", sourceKey: "builder", staticStatus: "idle" },
 
   // ─── Automatizaciones (webhooks + notificadores, disparados por evento) ──
   { key: "webhook-payment", name: "Webhook: Pagos (Stripe)", description: "Recibe confirmaciones de pago de Stripe (vía Zapier) y las guarda.", trigger: "on-demand", bucket: "automatizaciones", source: "system_job_runs", sourceKey: "webhook:payment" },
