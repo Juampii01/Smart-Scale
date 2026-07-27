@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { Cog, MessageCircle, Wand2, Zap, ChevronDown } from "lucide-react"
+import { Cog, MessageCircle, Wand2, Zap, ChevronDown, Bot } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 import { SectionHeader } from "@/components/ui/section-header"
@@ -93,6 +93,9 @@ function StatusCard({ item }: { item: StatusItem }) {
 export function AdminSystemStatusPanel() {
   const [data, setData] = useState<StatusPayload | null>(null)
   const [error, setError] = useState<string | null>(null)
+  // Colapsado por default — es una sección larga (4 buckets, ~20+ items) y no
+  // debe tapar el acceso a los tabs de abajo (Conversaciones, Comunidad, etc.)
+  const [open, setOpen] = useState(false)
 
   const fetchStatus = useCallback(async () => {
     const supabase = createClient()
@@ -110,33 +113,58 @@ export function AdminSystemStatusPanel() {
 
   useEffect(() => { fetchStatus() }, [fetchStatus])
 
-  if (error) {
-    return <p className="text-[12px] text-foreground/40">{error}</p>
-  }
-  if (!data) {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-24 rounded-xl border border-foreground/[0.07] bg-card animate-pulse" />
-        ))}
-      </div>
-    )
-  }
+  const allItems = data ? [...data.asistentes, ...data.consultores, ...data.constructores, ...data.automatizaciones] : []
+  const needsDecisionCount = allItems.filter(i => i.needsDecision).length
+  const errorCount = allItems.filter(i => i.status === "error").length
 
   return (
-    <div className="space-y-6">
-      {BUCKETS.map(({ key, title, icon, subtitle }) => {
-        const items = data[key]
-        if (items.length === 0) return null
-        return (
-          <div key={key}>
-            <SectionHeader icon={icon} title={title} subtitle={subtitle} className="mb-3" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {items.map(item => <StatusCard key={item.key} item={item} />)}
+    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-5">
+      <button type="button" onClick={() => setOpen(v => !v)} className="w-full text-left">
+        <SectionHeader
+          icon={Bot}
+          title="Agentes"
+          subtitle="Asistentes, Consultores, Constructores y Automatizaciones — estado del sistema"
+          action={
+            <div className="flex items-center gap-2.5">
+              {data && (
+                <span className="text-[11px] text-foreground/40 hidden sm:inline">
+                  {allItems.length} procesos
+                </span>
+              )}
+              {errorCount > 0 && <StatusPill variant="error">{errorCount} con error</StatusPill>}
+              {needsDecisionCount > 0 && <StatusPill variant="warning">{needsDecisionCount} necesita decisión</StatusPill>}
+              <ChevronDown className={cn("h-4 w-4 text-foreground/40 transition-transform shrink-0", open && "rotate-180")} />
             </div>
+          }
+        />
+      </button>
+
+      {open && (
+        error ? (
+          <p className="text-[12px] text-foreground/40 mt-5">{error}</p>
+        ) : !data ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-24 rounded-xl border border-foreground/[0.07] bg-card animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-6 mt-5">
+            {BUCKETS.map(({ key, title, icon, subtitle }) => {
+              const items = data[key]
+              if (items.length === 0) return null
+              return (
+                <div key={key}>
+                  <SectionHeader icon={icon} title={title} subtitle={subtitle} className="mb-3" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {items.map(item => <StatusCard key={item.key} item={item} />)}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         )
-      })}
+      )}
     </div>
   )
 }
