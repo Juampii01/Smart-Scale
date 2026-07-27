@@ -9,11 +9,21 @@ import { Stat } from "@/components/ui/stat"
 import {
   TrendingUp, RefreshCw, MessageSquareText,
   CalendarClock, AlertTriangle, Clock, Users, DollarSign,
+  ChevronLeft, ChevronRight,
 } from "lucide-react"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Range = "7d" | "14d" | "30d"
+function currentMonthISO(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+}
+
+function monthLabel(ym: string): string {
+  const [y, m] = ym.split("-")
+  const date = new Date(Number(y), Number(m) - 1, 1)
+  return date.toLocaleDateString("es-AR", { month: "long", year: "numeric" }).toUpperCase()
+}
 
 interface NewCashClient {
   id: string
@@ -63,8 +73,9 @@ interface QuotaItem {
 }
 
 interface DashboardData {
-  range: string
+  month: string
   period_start: string
+  period_end: string
   new_cash: {
     client_count: number
     total_contracted: number
@@ -101,11 +112,6 @@ const fmtDate = (s: string) => {
   return d.toLocaleDateString("es-AR", { day: "numeric", month: "short", timeZone: "UTC" })
 }
 
-const RANGE_LABELS: Record<Range, string> = {
-  "7d":  "7 días",
-  "14d": "14 días",
-  "30d": "30 días",
-}
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 
@@ -450,8 +456,8 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
       <div className="p-5">
         <SectionHeader
           icon={CalendarClock}
-          title="Cuotas Próximas"
-          subtitle="vencidas y por vencer"
+          title="Cuotas del Mes"
+          subtitle="vencido de antes + lo que vence este mes"
           badge={
             <div className="flex gap-4">
               {data.overdue_count > 0 && (
@@ -459,7 +465,7 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                   colorClass="text-red-700 dark:text-red-400" />
               )}
               {data.upcoming_count > 0 && (
-                <Stat value={data.upcoming_total} label="próximas" format="currency" />
+                <Stat value={data.upcoming_total} label="del mes" format="currency" />
               )}
             </div>
           }
@@ -517,7 +523,7 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                 <div className="flex items-center gap-2 mb-2.5">
                   <Clock className="h-3.5 w-3.5 text-foreground/50" />
                   <span className="text-[11px] font-bold uppercase tracking-wider text-foreground/50">
-                    Próximas ({data.upcoming_count}) — {fmt(data.upcoming_total)}
+                    Del mes ({data.upcoming_count}) — {fmt(data.upcoming_total)}
                   </span>
                 </div>
                 <div className="overflow-x-auto -mx-1">
@@ -569,16 +575,22 @@ export function AdminExecutiveDashboardView() {
   const router       = useRouter()
   const pathname     = usePathname()
 
-  const range = ((searchParams.get("range") ?? "30d") as Range)
+  const month = searchParams.get("month") ?? currentMonthISO()
   const [data,    setData]    = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState<string | null>(null)
 
-  const setRange = useCallback((r: Range) => {
+  const setMonth = useCallback((ym: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    params.set("range", r)
+    params.set("month", ym)
     router.push(`${pathname}?${params.toString()}`)
   }, [searchParams, router, pathname])
+
+  const changeMonth = useCallback((delta: number) => {
+    const [y, m] = month.split("-").map(Number)
+    const newDate = new Date(y, m - 1 + delta, 1)
+    setMonth(`${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, "0")}`)
+  }, [month, setMonth])
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -588,7 +600,7 @@ export function AdminExecutiveDashboardView() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { setError("No autorizado"); return }
 
-      const res = await fetch(`/api/admin/executive-dashboard?range=${range}`, {
+      const res = await fetch(`/api/admin/executive-dashboard?month=${month}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
       const json = await res.json()
@@ -599,7 +611,7 @@ export function AdminExecutiveDashboardView() {
     } finally {
       setLoading(false)
     }
-  }, [range])
+  }, [month])
 
   useEffect(() => { fetchData() }, [fetchData])
 
@@ -607,7 +619,7 @@ export function AdminExecutiveDashboardView() {
   const periodLabel = (() => {
     if (!data) return ""
     const start = new Date(data.period_start + "T00:00:00Z")
-    const end   = new Date()
+    const end   = new Date(data.period_end + "T00:00:00Z")
     return `${start.toLocaleDateString("es-AR", { day: "numeric", month: "short", timeZone: "UTC" })} – ${end.toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}`
   })()
 
@@ -622,22 +634,17 @@ export function AdminExecutiveDashboardView() {
           )}
         </div>
 
-        {/* Range filter */}
-        <div className="flex items-center gap-1 rounded-xl border border-foreground/[0.07] bg-card p-1">
-          {(["7d", "14d", "30d"] as Range[]).map(r => (
-            <button
-              key={r}
-              onClick={() => setRange(r)}
-              className={cn(
-                "rounded-lg px-4 py-1.5 text-[13px] font-semibold transition-all",
-                range === r
-                  ? "bg-[#dafc69] text-black shadow-sm"
-                  : "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05]",
-              )}
-            >
-              {RANGE_LABELS[r]}
-            </button>
-          ))}
+        {/* Month pager */}
+        <div className="flex items-center gap-2">
+          <button onClick={() => changeMonth(-1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes anterior">
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <div className="px-4 py-2 rounded-lg border border-foreground/10 min-w-[200px] text-center">
+            <span className="text-sm font-bold text-foreground">{monthLabel(month)}</span>
+          </div>
+          <button onClick={() => changeMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
 

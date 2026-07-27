@@ -5,20 +5,31 @@ import { requireAdmin } from "@/lib/auth/api-guards"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-function getRangeDays(range: string): number {
-  if (range === "7d")  return 7
-  if (range === "14d") return 14
-  return 30
+/** Límites de un mes calendario (YYYY-MM) en UTC — endIso/endDate son el límite EXCLUSIVO
+ *  (primer día del mes siguiente), lastDayDate es el último día real del mes (para mostrar). */
+function monthBounds(ym: string) {
+  const [y, m] = ym.split("-").map(Number)
+  const start   = new Date(Date.UTC(y, m - 1, 1))
+  const end     = new Date(Date.UTC(y, m, 1))
+  const lastDay = new Date(Date.UTC(y, m, 0))
+  return {
+    startIso:    start.toISOString(),
+    endIso:      end.toISOString(),
+    startDate:   start.toISOString().slice(0, 10),
+    endDate:     end.toISOString().slice(0, 10),
+    lastDayDate: lastDay.toISOString().slice(0, 10),
+  }
 }
 
 /**
- * GET /api/admin/executive-dashboard?range=7d|14d|30d
+ * GET /api/admin/executive-dashboard?month=YYYY-MM
  *
- * Devuelve 4 bloques consolidados para el Dashboard Ejecutivo:
- *  1. new_cash     — clientes nuevos + sus cuotas cobradas/pendientes en el período
- *  2. old_cash     — cuotas cobradas en el período de clientes que ya existían antes
- *  3. setting      — métricas de setting diarias + cierres, agrupadas por setter
- *  4. upcoming_quotas — cuotas vencidas (sin pagar) + próximas a vencer
+ * Devuelve 4 bloques consolidados para el Dashboard Ejecutivo, todos acotados
+ * al mes calendario pedido (default: mes actual):
+ *  1. new_cash     — clientes nuevos ese mes + sus cuotas cobradas/pendientes
+ *  2. old_cash     — cuotas cobradas ese mes de clientes que ya existían antes
+ *  3. setting      — métricas de setting diarias + cierres ese mes, por setter
+ *  4. upcoming_quotas — vencido (cuotas sin pagar de ANTES del mes) + del mes (sin pagar, due_date dentro del mes)
  *
  * Solo admin.
  */
@@ -29,18 +40,9 @@ export async function GET(req: NextRequest) {
     if (!caller) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     const { searchParams } = new URL(req.url)
-    const range = searchParams.get("range") ?? "30d"
-    const days  = getRangeDays(range)
-
-    const now         = new Date()
-    const periodStart = new Date(now)
-    periodStart.setUTCDate(periodStart.getUTCDate() - days)
-    const periodStartIso  = periodStart.toISOString()
-    const periodStartDate = periodStart.toISOString().slice(0, 10)
-    const today           = now.toISOString().slice(0, 10)
-    const upcomingEnd     = new Date(now)
-    upcomingEnd.setUTCDate(upcomingEnd.getUTCDate() + days)
-    const upcomingEndStr  = upcomingEnd.toISOString().slice(0, 10)
+    const month = searchParams.get("month") ?? new Date().toISOString().slice(0, 7)
+    const { startIso, endIso, startDate, endDate, lastDayDate } = monthBounds(month)
+    const today = new Date().toISOString().slice(0, 10)
 
     const supabase = createServiceClient()
 
@@ -54,25 +56,28 @@ export async function GET(req: NextRequest) {
       overdueRes,
       upcomingRes,
     ] = await Promise.all([
-      // 1. Clientes creados en el período
+      // 1. Clientes creados en el mes
       supabase
         .from("crm_clients")
         .select("id, name, total_amount, installment_amount, num_installments, created_at, program_start, setter_id, programa")
-        .gte("created_at", periodStartIso)
+        .gte("created_at", startIso)
+        .lt("created_at", endIso)
         .order("created_at", { ascending: false }),
 
-      // 2. Cuotas cobradas en el período (con info del cliente)
+      // 2. Cuotas cobradas en el mes (con info del cliente)
       supabase
         .from("crm_installments")
         .select("id, client_id, amount, paid_at, installment_number, crm_clients!inner(id, name, created_at)")
-        .gte("paid_at", periodStartIso)
+        .gte("paid_at", startIso)
+        .lt("paid_at", endIso)
         .order("paid_at", { ascending: false }),
 
-      // 3. Logs de setting en el período
+      // 3. Logs de setting del mes
       supabase
         .from("setting_daily_logs")
         .select("setter_id, new_conversations_inbound, new_conversations_outbound, outbound_replies, qualified_leads, offer_docs_sent, offer_doc_responses, calls_done, cash_collected")
-        .gte("date", periodStartDate),
+        .gte("date", startDate)
+        .lt("date", endDate),
 
       // 4. Perfiles de setters
       supabase
@@ -80,28 +85,29 @@ export async function GET(req: NextRequest) {
         .select("id, name")
         .eq("role", "setter"),
 
-      // 5. Cierres (clientes con setter asignado en el período)
+      // 5. Cierres (clientes con setter asignado, creados en el mes)
       supabase
         .from("crm_clients")
         .select("id, setter_id, name, total_amount")
-        .gte("created_at", periodStartIso)
+        .gte("created_at", startIso)
+        .lt("created_at", endIso)
         .not("setter_id", "is", null),
 
-      // 6. Cuotas vencidas sin pagar
+      // 6. Vencido — cuotas sin pagar con due_date ANTES del mes (backlog)
       supabase
         .from("crm_installments")
         .select("id, client_id, amount, due_date, installment_number, crm_clients!inner(id, name)")
-        .lt("due_date", today)
+        .lt("due_date", startDate)
         .is("paid_at", null)
         .order("due_date", { ascending: true })
         .limit(100),
 
-      // 7. Cuotas próximas sin pagar (dentro del rango)
+      // 7. Del mes — cuotas sin pagar con due_date DENTRO del mes
       supabase
         .from("crm_installments")
         .select("id, client_id, amount, due_date, installment_number, crm_clients!inner(id, name)")
-        .gte("due_date", today)
-        .lte("due_date", upcomingEndStr)
+        .gte("due_date", startDate)
+        .lt("due_date", endDate)
         .is("paid_at", null)
         .order("due_date", { ascending: true })
         .limit(100),
@@ -157,11 +163,11 @@ export async function GET(req: NextRequest) {
     })
 
     // ── Bloque 2: Old Cash ───────────────────────────────────────────────────
-    // Cuotas cobradas en el período de clientes creados ANTES del período
+    // Cuotas cobradas en el mes de clientes creados ANTES del mes
     const allPaidInPeriod = paidInPeriodRes.data ?? []
     const oldCashItems    = allPaidInPeriod.filter(i => {
       const clientCreatedAt = (i.crm_clients as any)?.created_at
-      return clientCreatedAt && new Date(clientCreatedAt) < new Date(periodStartIso)
+      return clientCreatedAt && new Date(clientCreatedAt) < new Date(startIso)
     })
     const oldCashTotal = oldCashItems.reduce((s, i) => s + Number(i.amount), 0)
 
@@ -289,8 +295,9 @@ export async function GET(req: NextRequest) {
     }))
 
     return NextResponse.json({
-      range,
-      period_start: periodStartDate,
+      month,
+      period_start: startDate,
+      period_end:   lastDayDate,
       new_cash: {
         client_count:     newCashClients.length,
         total_contracted: newCashTotalContracted,
