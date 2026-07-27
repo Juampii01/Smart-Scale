@@ -23,29 +23,44 @@ interface AdminSidebarProps {
   onToggleCollapsed?: () => void
 }
 
-const ADMIN_NAV_ITEMS = [
+// El sidebar se organiza en 4 sectores — cada uno con su propio label, para
+// que cada rol entienda de un vistazo qué es "lo suyo" (mismo criterio que
+// ya filtra canAccessAdminPath por rol, solo se reagrupa visualmente).
+const FOUNDER_NAV_ITEMS = [
   { name: "Dashboard",         href: "/admin/executive-dashboard", icon: LayoutDashboard },
   { name: "Adquisition Stats", href: "/admin/data",             icon: Table2 },
-  { name: "Leads",            href: "/admin/leads",             icon: Users2 },
-  { name: "Setting",          href: "/admin/setting",           icon: MessageSquareText },
-  { name: "Onboarding",       href: "/admin/onboarding",        icon: UserPlus },
   { name: "Pagos",            href: "/admin/payments",          icon: DollarSign },
   { name: "Clientes",         href: "/admin/clients",           icon: UserCheck },
-  { name: "Aplicaciones",     href: "/admin/applications",      icon: ClipboardList },
   { name: "Contratación",     href: "/admin/team-applications", icon: Briefcase },
-  { name: "Centro Operativo", href: "/admin/centro-operativo",  icon: Layers },
-  { name: "Cerebro de Ann",   href: "/admin/ann-knowledge",     icon: Brain },
-  { name: "Tareas",           href: "/admin/tareas",            icon: CheckSquare },
   { name: "Notificaciones",   href: "/admin/notificaciones",    icon: Bell },
 ]
 
-// Sección "Desarrollador" — herramientas técnicas, al final del sidebar.
-const DEV_NAV_ITEMS = [
-  { name: "Agenda",     href: "/admin/agenda",              icon: CalendarDays },
-  { name: "Conexiones", href: "/admin/conexiones",          icon: Share2 },
-  { name: "Actividad",  href: "/admin/actividad-clientes",  icon: Activity },
-  { name: "Dev Logs",   href: "/admin/dev-logs",            icon: Terminal },
-  { name: "Instagram",  href: "/admin/instagram-access",    icon: Instagram },
+const PROSPECCION_NAV_ITEMS = [
+  { name: "Leads",       href: "/admin/leads",        icon: Users2 },
+  { name: "Setting",     href: "/admin/setting",      icon: MessageSquareText },
+  { name: "Onboarding",  href: "/admin/onboarding",   icon: UserPlus },
+  { name: "Aplicaciones", href: "/admin/applications", icon: ClipboardList },
+]
+
+const OPERACIONES_NAV_ITEMS = [
+  { name: "Centro Operativo", href: "/admin/centro-operativo", icon: Layers },
+  { name: "Tareas",           href: "/admin/tareas",           icon: CheckSquare },
+]
+
+const DESARROLLADOR_NAV_ITEMS = [
+  { name: "Cerebro de Ann", href: "/admin/ann-knowledge",       icon: Brain },
+  { name: "Agenda",         href: "/admin/agenda",              icon: CalendarDays },
+  { name: "Conexiones",     href: "/admin/conexiones",          icon: Share2 },
+  { name: "Actividad",      href: "/admin/actividad-clientes",  icon: Activity },
+  { name: "Dev Logs",       href: "/admin/dev-logs",            icon: Terminal },
+  { name: "Instagram",      href: "/admin/instagram-access",    icon: Instagram },
+]
+
+const NAV_SECTIONS = [
+  { title: "Founder",       items: FOUNDER_NAV_ITEMS },
+  { title: "Prospección",   items: PROSPECCION_NAV_ITEMS },
+  { title: "Operaciones",   items: OPERACIONES_NAV_ITEMS },
+  { title: "Desarrollador", items: DESARROLLADOR_NAV_ITEMS },
 ]
 
 export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
@@ -68,13 +83,11 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
   // Si admin está en modo "view as setter/team", el sidebar se filtra como ese rol
   const effectiveRole = useEffectiveRole(userRole === undefined ? null : userRole)
 
-  const visibleItems = userRole === undefined
+  const visibleSections = userRole === undefined
     ? []
-    : ADMIN_NAV_ITEMS.filter(item => canAccessAdminPath(effectiveRole, item.href))
-
-  const visibleDevItems = userRole === undefined
-    ? []
-    : DEV_NAV_ITEMS.filter(item => canAccessAdminPath(effectiveRole, item.href))
+    : NAV_SECTIONS
+        .map(section => ({ ...section, items: section.items.filter(item => canAccessAdminPath(effectiveRole, item.href)) }))
+        .filter(section => section.items.length > 0)
 
   return (
     <>
@@ -145,37 +158,13 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-4 px-3">
-          <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/35">
-            Smart Scale CRM
-          </p>
-          <div className="space-y-0.5">
-            {visibleItems.map(item => {
-              const isActive = pathname === item.href
-              return (
-                <Link key={item.name} href={item.href} onClick={onClose}>
-                  <div className={cn(
-                    "flex items-center gap-2.5 rounded-lg py-[7px] px-3 transition-all duration-150",
-                    isActive
-                      ? "bg-foreground/[0.07] text-[#dafc69]"
-                      : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
-                  )}>
-                    <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
-                    <span className={cn("text-[13px] leading-none", isActive ? "font-semibold" : "font-medium")}>
-                      {item.name}
-                    </span>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-
-          {visibleDevItems.length > 0 && (
-            <>
-              <p className="px-3 mt-5 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/35">
-                Desarrollador
+          {visibleSections.map((section, i) => (
+            <div key={section.title} className={i > 0 ? "mt-5" : undefined}>
+              <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/35">
+                {section.title}
               </p>
               <div className="space-y-0.5">
-                {visibleDevItems.map(item => {
+                {section.items.map(item => {
                   const isActive = pathname === item.href
                   return (
                     <Link key={item.name} href={item.href} onClick={onClose}>
@@ -194,8 +183,8 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
                   )
                 })}
               </div>
-            </>
-          )}
+            </div>
+          ))}
         </nav>
 
         {/* Footer — sin línea divisoria */}
