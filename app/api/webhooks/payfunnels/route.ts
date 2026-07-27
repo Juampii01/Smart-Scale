@@ -29,6 +29,7 @@ import { createServiceClient } from "@/lib/supabase-service"
 import { sendContractForSignature } from "@/lib/signnow"
 import { notifyClientOnboarded, sendSlackMessage } from "@/lib/slack"
 import { zapierClientOnboarded } from "@/lib/zapier"
+import { logJobRun } from "@/lib/system-log"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -213,6 +214,7 @@ export async function POST(req: NextRequest) {
         [{ type: "section", text: { type: "mrkdwn", text: `⚠️ *Webhook de PayFunnels con datos incompletos*\n${reason}\nRevisar \`payfunnels_webhook_events\` (id: ${logId ?? "?"}).` } }],
         "⚠️ Webhook de PayFunnels con datos incompletos",
       ).catch(() => null)
+      await logJobRun(sb, "webhook:payfunnels", "error", reason)
       return NextResponse.json({ ok: true, warning: reason })
     }
 
@@ -225,6 +227,7 @@ export async function POST(req: NextRequest) {
         [{ type: "section", text: { type: "mrkdwn", text: `⚠️ *Pago de PayFunnels sin plan reconocido*\n*Cliente:* ${name} (${email})\n${reason}\nRevisar y cargar a mano en /admin/onboarding.` } }],
         `⚠️ Pago de PayFunnels sin plan reconocido (${name})`,
       ).catch(() => null)
+      await logJobRun(sb, "webhook:payfunnels", "error", reason)
       return NextResponse.json({ ok: true, warning: reason })
     }
 
@@ -237,6 +240,7 @@ export async function POST(req: NextRequest) {
 
     if (existing) {
       await finish((existing as any).id, "Ya existía un crm_client con este email — pago duplicado o reintento, no se creó uno nuevo.")
+      await logJobRun(sb, "webhook:payfunnels", "ok", `duplicado — ${email}`)
       return NextResponse.json({ ok: true, client_id: (existing as any).id, duplicate: true })
     }
 
@@ -266,6 +270,7 @@ export async function POST(req: NextRequest) {
 
     if (crmErr || !crmClient) {
       await finish(null, `Error creando crm_clients: ${crmErr?.message}`)
+      await logJobRun(sb, "webhook:payfunnels", "error", `crm_clients: ${crmErr?.message}`)
       return NextResponse.json({ ok: false, error: crmErr?.message }, { status: 500 })
     }
 
@@ -295,6 +300,7 @@ export async function POST(req: NextRequest) {
     const { error: portalErr } = await sb.from("clients").insert({ id: clientId, name })
     if (portalErr) {
       await finish(clientId, `Error creando fila de portal (clients): ${portalErr.message}`)
+      await logJobRun(sb, "webhook:payfunnels", "error", `clients (portal): ${portalErr.message}`)
       return NextResponse.json({ ok: false, error: portalErr.message }, { status: 500 })
     }
 
@@ -309,6 +315,7 @@ export async function POST(req: NextRequest) {
 
     if (authErr || !created?.user) {
       await finish(clientId, `Error creando cuenta de auth: ${authErr?.message}`)
+      await logJobRun(sb, "webhook:payfunnels", "error", `auth.users: ${authErr?.message}`)
       return NextResponse.json({ ok: false, error: authErr?.message ?? "Error al crear la cuenta" }, { status: 500 })
     }
 
@@ -407,10 +414,12 @@ export async function POST(req: NextRequest) {
     }).catch(err => console.error("[payfunnels] Zapier onboarding notify failed:", err?.message)))
 
     await finish(clientId, null)
+    await logJobRun(sb, "webhook:payfunnels", "ok", `${name} — ${tier.program}`)
     return NextResponse.json({ ok: true, client_id: clientId, program: tier.program })
   } catch (err: any) {
     console.error("[payfunnels] webhook error:", err)
     await finish(null, err?.message ?? "Error interno").catch(() => null)
+    await logJobRun(sb, "webhook:payfunnels", "error", err?.message ?? "Error interno")
     // 200 igual — evita reintentos en cadena de PayFunnels; el error queda logueado.
     return NextResponse.json({ ok: false, error: err?.message ?? "Error interno" })
   }

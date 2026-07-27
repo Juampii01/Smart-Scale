@@ -16,13 +16,20 @@
 //   Actions: Slack message
 
 import { resolveTeamName } from "@/lib/team"
+import { createServiceClient } from "@/lib/supabase-service"
+import { logJobRun } from "@/lib/system-log"
 
 export interface ZapierResult {
   ok: boolean
   error?: string
 }
 
-async function postWebhook(url: string, payload: Record<string, unknown>): Promise<ZapierResult> {
+// jobName identifica cada función exportada de este archivo para el panel
+// "Estado del Sistema" (/admin/omni) — así se ve, por función, cuándo disparó
+// por última vez y si falló. Las que nunca se llaman (código muerto) van a
+// mostrar naturalmente "nunca corrió" sin ninguna lógica extra.
+async function postWebhook(url: string, payload: Record<string, unknown>, jobName: string): Promise<ZapierResult> {
+  const sb = createServiceClient()
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -31,11 +38,16 @@ async function postWebhook(url: string, payload: Record<string, unknown>): Promi
     })
     if (!res.ok) {
       const body = await res.text().catch(() => "")
-      return { ok: false, error: `Zapier returned ${res.status}: ${body}` }
+      const error = `Zapier returned ${res.status}: ${body}`
+      await logJobRun(sb, `zapier:${jobName}`, "error", error)
+      return { ok: false, error }
     }
+    await logJobRun(sb, `zapier:${jobName}`, "ok")
     return { ok: true }
   } catch (err: any) {
-    return { ok: false, error: err?.message ?? "Unknown error" }
+    const error = err?.message ?? "Unknown error"
+    await logJobRun(sb, `zapier:${jobName}`, "error", error)
+    return { ok: false, error }
   }
 }
 
@@ -63,7 +75,7 @@ export async function zapierReportCompleted(payload: {
 }): Promise<ZapierResult> {
   const url = process.env.ZAPIER_WEBHOOK_REPORT
   if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_REPORT not configured" }
-  return postWebhook(url, payload)
+  return postWebhook(url, payload, "zapierReportCompleted")
 }
 
 // ─── Fire: client onboarded ──────────────────────────────────────────────────
@@ -114,7 +126,7 @@ export async function zapierClientOnboarded(payload: {
   }
 
   console.log("Zapier onboarding payload:", JSON.stringify(flat))
-  return postWebhook(url, flat)
+  return postWebhook(url, flat, "zapierClientOnboarded")
 }
 
 // ─── Fire: sale registered ────────────────────────────────────────────────────
@@ -132,7 +144,7 @@ export async function zapierSaleRegistered(payload: {
   // Use dedicated sale webhook if set, otherwise fall back to report webhook
   const url = process.env.ZAPIER_WEBHOOK_SALE ?? process.env.ZAPIER_WEBHOOK_REPORT
   if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_SALE not configured" }
-  return postWebhook(url, payload)
+  return postWebhook(url, payload, "zapierSaleRegistered")
 }
 
 // ─── Fire: EOD submitted ──────────────────────────────────────────────────────
@@ -186,7 +198,7 @@ export async function zapierEODSubmitted(payload: {
 
   const message = lines.join("\n")
 
-  return postWebhook(url, { ...payload, message })
+  return postWebhook(url, { ...payload, message }, "zapierEODSubmitted")
 }
 
 // ─── Fire: task events (Kanban) ───────────────────────────────────────────────
@@ -326,7 +338,7 @@ export async function zapierTaskEvent(payload: {
   // Banner para urgentes — resalta arriba de todo
   if (isUrgent) message = `🚨  *URGENTE*  🚨\n${message}`
 
-  return postWebhook(url, { ...payload, message })
+  return postWebhook(url, { ...payload, message }, "zapierTaskEvent")
 }
 
 // ─── Fire: cambio de estado del onboarding ────────────────────────────────────
@@ -350,5 +362,5 @@ export async function zapierOnboardingStatusChanged(payload: {
     ? `✍️  *Contrato firmado* — ${payload.client_name}\n${payload.client_email}\nSe están enviando los accesos (Skool, Slack, Plataforma)...`
     : `🎉  *Onboarding completo* — ${payload.client_name}\nLos 3 accesos (Skool, Slack, Plataforma) se enviaron correctamente. Cliente listo para arrancar.`
 
-  return postWebhook(url, { ...payload, message })
+  return postWebhook(url, { ...payload, message }, "zapierOnboardingStatusChanged")
 }

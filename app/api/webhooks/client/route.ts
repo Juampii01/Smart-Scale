@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { logJobRun } from "@/lib/system-log"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -159,6 +160,7 @@ export async function POST(req: NextRequest) {
 
     if (clientErr || !client) {
       console.error("crm_clients insert error", clientErr)
+      await logJobRun(supabase, "webhook:client", "error", clientErr?.message ?? "Error inserting client")
       return NextResponse.json({ error: clientErr?.message ?? "Error inserting client" }, { status: 500 })
     }
 
@@ -180,9 +182,11 @@ export async function POST(req: NextRequest) {
       // Client was created — don't fail completely, just log
     }
 
+    await logJobRun(supabase, "webhook:client", "ok", name)
     return NextResponse.json({ success: true, client_id: client.id })
   } catch (err: any) {
     console.error("webhook/client error", err)
+    await logJobRun(createServiceClient(), "webhook:client", "error", err?.message ?? "Internal error")
     return NextResponse.json({ error: err?.message ?? "Internal error" }, { status: 500 })
   }
 }
