@@ -12,6 +12,8 @@
  * falla o todavía no está configurado.
  */
 
+import { notifyContractWebhookRegistrationFailed } from "@/lib/slack"
+
 const SIGNNOW_CLIENT_ID     = process.env.SIGNNOW_CLIENT_ID
 const SIGNNOW_CLIENT_SECRET = process.env.SIGNNOW_CLIENT_SECRET
 const SIGNNOW_USERNAME      = process.env.SIGNNOW_USERNAME
@@ -235,7 +237,13 @@ export async function sendContractForSignature(data: SignNowContractData): Promi
     }
     await prefillDocumentFields(documentId, fields, token)
 
-    await registerContractWebhook(documentId, token)
+    const webhookRegistered = await registerContractWebhook(documentId, token)
+    if (!webhookRegistered) {
+      await notifyContractWebhookRegistrationFailed({
+        client_name: data.clienteNombre,
+        document_id: documentId,
+      }).catch(() => null)
+    }
 
     const invited = await inviteSigner(documentId, { email: data.clienteEmail }, token)
     if (!invited) return null

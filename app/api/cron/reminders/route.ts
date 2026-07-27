@@ -17,6 +17,7 @@ import { createServiceClient } from "@/lib/supabase-service"
 import { sendPushToUsers } from "@/lib/push"
 import { sendMondayWinReminderEmail, sendMonthlyReportReminderEmail, sendInactivityReminderEmail } from "@/lib/email"
 import { getClientActivitySnapshot, miamiNow } from "@/lib/client-activity"
+import { logJobRun } from "@/lib/system-log"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -38,7 +39,10 @@ export async function GET(req: NextRequest) {
   const sent: Record<string, number> = {}
 
   const activity = await getClientActivitySnapshot(sb)
-  if (activity.length === 0) return NextResponse.json({ ok: true, note: "sin clientes" })
+  if (activity.length === 0) {
+    await logJobRun(sb, "reminders", "ok", "sin clientes")
+    return NextResponse.json({ ok: true, note: "sin clientes" })
+  }
 
   // ── 🏆 Monday Win (lunes) ────────────────────────────────────────────────
   if (weekday === "Mon") {
@@ -102,5 +106,6 @@ export async function GET(req: NextRequest) {
     sent.inactivity = inactivos.length
   }
 
+  await logJobRun(sb, "reminders", "ok", JSON.stringify(sent))
   return NextResponse.json({ ok: true, date: `${year}-${month}-${day}`, weekday, sent })
 }

@@ -1,13 +1,12 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { createPortal } from "react-dom"
 import {
   Youtube, Instagram, Copy, Check, ChevronDown,
   Sparkles, Clock, User, FileText, ExternalLink, FileVideo, X, Maximize2, Loader2, Eye, AlertCircle,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
-import { AiLoading } from "@/components/ui/ai-loading"
 import { useActiveClient, useActiveClientName, useOwnClient } from "@/components/layout/dashboard-layout"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -44,6 +43,18 @@ interface DetailModalData {
   title: string
   content: string
   kind: "transcript" | "summary"
+}
+
+// Un envío independiente — permite tener varios procesándose en paralelo sin
+// que uno bloquee a los demás.
+interface TranscriptJob {
+  id:         string
+  url:        string
+  platform:   "youtube" | "instagram"
+  outputType: "transcript" | "summary" | "both"
+  status:     "processing" | "error" | "done"
+  error?:     string
+  result?:    TranscriptResult
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -311,15 +322,12 @@ export function TranscriptView() {
   const [url, setUrl] = useState("")
   const [platform, setPlatform] = useState<"youtube" | "instagram">("youtube")
   const [outputType, setOutputType] = useState<"transcript" | "summary" | "both">("both")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [result, setResult] = useState<TranscriptResult | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
+  const [jobs, setJobs] = useState<TranscriptJob[]>([])
   const [transcriptModal, setTranscriptModal] = useState<TranscriptModalData | null>(null)
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [historyLoading, setHistoryLoading] = useState(true)
   const [detailModal, setDetailModal] = useState<DetailModalData | null>(null)
-  // Tracks the last submitted URL so the retry button can re-trigger the same request
-  const lastUrlRef = useRef<string>("")
 
   const isIG = isInstagramUrl(url)
   const isIGReel = isInstagramReel(url)
@@ -341,73 +349,88 @@ export function TranscriptView() {
 
   useEffect(() => { fetchHistory() }, [fetchHistory])
 
-  // Core transcription logic — called both from the form submit and the retry button
-  const doTranscribe = useCallback(async (targetUrl: string) => {
-    if (!targetUrl.trim() || loading) return
+  // Core transcription logic — corre un job independiente sin bloquear el resto.
+  const doTranscribe = useCallback((targetUrl: string, jobPlatform: "youtube" | "instagram", jobOutputType: "transcript" | "summary" | "both") => {
+    const jobId = crypto.randomUUID()
+    setJobs(prev => [{ id: jobId, url: targetUrl, platform: jobPlatform, outputType: jobOutputType, status: "processing" }, ...prev])
 
-    if (platform === "youtube" && !isYouTubeUrl(targetUrl)) {
-      setError("Ingresá una URL válida de YouTube.")
-      return
-    }
-    if (platform === "instagram" && !isInstagramUrl(targetUrl)) {
-      setError("Ingresá una URL válida de Instagram.")
-      return
+    const updateJob = (patch: Partial<TranscriptJob>) => {
+      setJobs(prev => prev.map(j => j.id === jobId ? { ...j, ...patch } : j))
     }
 
-    lastUrlRef.current = targetUrl
-    setLoading(true); setError(null); setResult(null); setTranscriptModal(null)
-    try {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { setError("Sesión expirada."); return }
-
-      const res = await fetch("/api/transcript", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-        body: JSON.stringify({ url: targetUrl, platform, client_id: activeClientId }),
-      })
-
-      // Parse JSON safely — a Vercel timeout (504) returns an HTML body that fails json()
-      let data: any = {}
+    ;(async () => {
       try {
-        data = await res.json()
-      } catch {
-        if (res.status === 504 || res.status === 524) {
-          setError("El servidor tardó demasiado en responder. Esto suele pasar con videos muy largos. Probá con un video más corto o intentá de nuevo.")
-        } else {
-          setError(`Error del servidor (${res.status}). Intentá de nuevo en unos instantes.`)
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) { updateJob({ status: "error", error: "Sesión expirada." }); return }
+
+        const res = await fetch("/api/transcript", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+          body: JSON.stringify({ url: targetUrl, platform: jobPlatform, client_id: activeClientId }),
+        })
+
+        // Parse JSON safely — a Vercel timeout (504) returns an HTML body that fails json()
+        let data: any = {}
+        try {
+          data = await res.json()
+        } catch {
+          const msg = res.status === 504 || res.status === 524
+            ? "El servidor tardó demasiado en responder. Esto suele pasar con videos muy largos. Probá con un video más corto o intentá de nuevo."
+            : `Error del servidor (${res.status}). Intentá de nuevo en unos instantes.`
+          updateJob({ status: "error", error: msg })
+          return
         }
-        return
-      }
 
-      if (!res.ok) {
-        // 422 = sin transcript (video privado, sin subtítulos, etc.)
-        setError(data.error ?? "Error al procesar el video.")
-        return
-      }
+        if (!res.ok) {
+          // 422 = sin transcript (video privado, sin subtítulos, etc.)
+          updateJob({ status: "error", error: data.error ?? "Error al procesar el video." })
+          return
+        }
 
-      setResult(data)
-      setUrl("")
-      setPlatform("youtube")
-      fetchHistory()
-    } catch (err: any) {
-      setError(err?.message ?? "Error inesperado. Intentá de nuevo.")
-    } finally {
-      setLoading(false)
-    }
-  }, [loading, platform, activeClientId, fetchHistory])
+        updateJob({ status: "done", result: data })
+        fetchHistory()
+      } catch (err: any) {
+        updateJob({ status: "error", error: err?.message ?? "Error inesperado. Intentá de nuevo." })
+      }
+    })()
+  }, [activeClientId, fetchHistory])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    doTranscribe(url.trim())
+    const targetUrl = url.trim()
+    if (!targetUrl) return
+
+    if (platform === "youtube" && !isYouTubeUrl(targetUrl)) {
+      setFormError("Ingresá una URL válida de YouTube.")
+      return
+    }
+    if (platform === "instagram" && !isInstagramUrl(targetUrl)) {
+      setFormError("Ingresá una URL válida de Instagram.")
+      return
+    }
+    if (jobs.some(j => j.url === targetUrl && j.status === "processing")) {
+      setFormError("Esa URL ya se está procesando.")
+      return
+    }
+
+    setFormError(null)
+    doTranscribe(targetUrl, platform, outputType)
+    setUrl("")
   }
 
-  const handleRetry = () => {
-    // Re-use the last attempted URL (preserved in state unless it was a success)
-    doTranscribe(url.trim() || lastUrlRef.current)
+  const retryJob = (job: TranscriptJob) => {
+    setJobs(prev => prev.filter(j => j.id !== job.id))
+    doTranscribe(job.url, job.platform, job.outputType)
   }
 
-  const wordCount = result ? result.transcript.split(/\s+/).filter(Boolean).length : 0
+  const dismissJob = (jobId: string) => {
+    setJobs(prev => prev.filter(j => j.id !== jobId))
+  }
+
+  const processingJobs = jobs.filter(j => j.status === "processing")
+  const errorJobs      = jobs.filter(j => j.status === "error")
+  const doneJobs       = jobs.filter(j => j.status === "done" && j.result)
 
 
   return (
@@ -444,10 +467,8 @@ export function TranscriptView() {
                   onChange={e => {
                     setPlatform(e.target.value as "youtube" | "instagram")
                     setUrl("")
-                    setError(null)
-                    setResult(null)
+                    setFormError(null)
                   }}
-                  disabled={loading}
                   className="h-11 w-full appearance-none cursor-pointer rounded-xl border border-foreground/[0.08] bg-card px-4 pr-10 text-sm text-foreground/80 focus:border-foreground/20 focus:outline-none disabled:opacity-60"
                 >
                   <option value="youtube">YouTube</option>
@@ -463,7 +484,6 @@ export function TranscriptView() {
                 <select
                   value={outputType}
                   onChange={e => setOutputType(e.target.value as any)}
-                  disabled={loading}
                   className="h-11 w-full appearance-none cursor-pointer rounded-xl border border-foreground/[0.08] bg-card px-4 pr-10 text-sm text-foreground/80 focus:border-foreground/20 focus:outline-none disabled:opacity-60"
                 >
                   <option value="both">Transcripción + Resumen IA</option>
@@ -482,184 +502,194 @@ export function TranscriptView() {
               <input
                 type="url"
                 value={url}
-                onChange={e => { setUrl(e.target.value); setError(null); setResult(null) }}
+                onChange={e => { setUrl(e.target.value); setFormError(null) }}
                 placeholder={platform === "youtube" ? "Ingresá la URL del video de YouTube..." : "Ingresá la URL del reel de Instagram..."}
                 className={`h-11 w-full rounded-xl border px-4 text-sm text-foreground placeholder:text-foreground/25 focus:outline-none transition-all bg-card ${
                   platform === "instagram" && isIGNonReel
                     ? "border-orange-500/40 focus:border-orange-500/60"
                     : "border-foreground/[0.08] focus:border-foreground/20"
                 }`}
-                disabled={loading}
               />
               <p className="text-[12px] text-foreground/30">
                 {platform === "instagram" && isIGReel
                   ? "Solo reels públicos con audio. El proceso puede tardar hasta 2 minutos."
                   : platform === "instagram" && url.trim() && isIGNonReel
                     ? "Para Instagram, usá un link de reel público."
-                    : "Una URL por envío"}
+                    : "Podés enviar varias URLs seguidas — cada una se procesa en paralelo."}
               </p>
             </div>
 
             <button
               type="submit"
-              disabled={!url.trim() || loading}
+              disabled={!url.trim()}
               className="inline-flex items-center gap-2 h-10 rounded-xl bg-[#dafc69] px-5 text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition"
             >
-              {loading ? (
-                <>
-                  <span className="h-3.5 w-3.5 rounded-full border-2 border-black/30 border-t-black animate-spin" />
-                  Procesando...
-                </>
-              ) : (
-                <>
-                  <FileVideo className="h-3.5 w-3.5" />
-                  Transcribir
-                </>
-              )}
+              <FileVideo className="h-3.5 w-3.5" />
+              Transcribir
             </button>
           </form>
 
-          {error && (
+          {formError && (
             <div className="flex items-start gap-3 rounded-xl border border-red-300 bg-red-100 px-4 py-3 dark:border-red-500/20 dark:bg-red-500/10">
-              <p className="flex-1 text-sm text-red-800 dark:text-red-300">{error}</p>
+              <p className="flex-1 text-sm text-red-800 dark:text-red-300">{formError}</p>
+            </div>
+          )}
+
+          {/* Jobs en error — cada uno con su propio reintento, sin bloquear el resto */}
+          {errorJobs.map(job => (
+            <div key={job.id} className="flex items-start gap-3 rounded-xl border border-red-300 bg-red-100 px-4 py-3 dark:border-red-500/20 dark:bg-red-500/10">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm text-red-800 dark:text-red-300">{job.error}</p>
+                <p className="mt-0.5 truncate text-[11px] text-red-800/50 dark:text-red-300/40">{job.url}</p>
+              </div>
               <button
                 type="button"
-                onClick={handleRetry}
-                disabled={loading}
-                className="shrink-0 rounded-lg border border-red-400/40 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-700 transition-all hover:bg-red-200 disabled:opacity-40 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
+                onClick={() => retryJob(job)}
+                className="shrink-0 rounded-lg border border-red-400/40 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-700 transition-all hover:bg-red-200 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
               >
                 Reintentar
               </button>
+              <button
+                type="button"
+                onClick={() => dismissJob(job.id)}
+                className="shrink-0 flex h-8 w-8 items-center justify-center rounded-lg text-red-700/40 hover:text-red-700 dark:text-red-300/40 dark:hover:text-red-300"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
             </div>
-          )}
+          ))}
         </div>
 
-        {loading && (
-          <div className="border-t border-foreground/[0.05]">
-            <AiLoading
-              title="Transcribiendo video..."
-              steps={[
-                "Conectando con la plataforma...",
-                "Obteniendo subtítulos...",
-                "Procesando audio...",
-                "Generando resumen con IA...",
-                "Casi listo...",
-              ]}
-            />
+        {/* Jobs procesándose — indicador minimizado, no bloquea el formulario */}
+        {processingJobs.length > 0 && (
+          <div className="border-t border-foreground/[0.05] px-6 py-4 space-y-2">
+            {processingJobs.map(job => (
+              <div key={job.id} className="flex items-center gap-3 rounded-xl border border-[#dafc69]/20 bg-[#dafc69]/[0.05] px-4 py-2.5">
+                <span className="h-3.5 w-3.5 shrink-0 rounded-full border-2 border-[#dafc69]/30 border-t-[#dafc69] animate-spin" />
+                <p className="min-w-0 flex-1 truncate text-[13px] text-foreground/60">
+                  Transcribiendo <span className="font-medium text-foreground/85">{job.url}</span>...
+                </p>
+                <span className="shrink-0 text-[11px] text-foreground/30">1-2 min</span>
+              </div>
+            ))}
           </div>
         )}
       </div>
 
-      {/* ── Result ── */}
-      {result && (
-        <div className="space-y-5">
-          {/* Aviso cuando el análisis con IA no se pudo generar (ej. servicio sobrecargado) */}
-          {result.warning && (
-            <div className="flex items-start gap-2.5 rounded-[14px] border border-amber-400 bg-amber-100 px-4 py-3 dark:border-amber-400/20 dark:bg-amber-500/[0.06]">
-              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-amber-700 dark:text-amber-400" />
-              <p className="text-[13px] text-amber-900 dark:text-amber-200/80 leading-relaxed">{result.warning}</p>
-            </div>
-          )}
+      {/* ── Resultados (uno por job completado, más reciente primero) ── */}
+      {doneJobs.map(job => {
+        const jobResult = job.result!
+        const jobWordCount = jobResult.transcript.split(/\s+/).filter(Boolean).length
+        return (
+          <div key={job.id} className="space-y-5">
+            {/* Aviso cuando el análisis con IA no se pudo generar (ej. servicio sobrecargado) */}
+            {jobResult.warning && (
+              <div className="flex items-start gap-2.5 rounded-[14px] border border-amber-400 bg-amber-100 px-4 py-3 dark:border-amber-400/20 dark:bg-amber-500/[0.06]">
+                <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-amber-700 dark:text-amber-400" />
+                <p className="text-[13px] text-amber-900 dark:text-amber-200/80 leading-relaxed">{jobResult.warning}</p>
+              </div>
+            )}
 
-          {/* Meta card */}
-          <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
-            <div className="px-6 py-5 flex flex-wrap items-center gap-5 justify-between">
-              <button
-                onClick={() => setResult(null)}
-                className="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-lg border border-foreground/[0.07] bg-foreground/[0.03] text-foreground/25 hover:text-foreground/60 hover:border-foreground/20 transition-all"
-                title="Cerrar"
-              >
-                <X className="h-3 w-3" />
-              </button>
-              <div className="flex items-center gap-4 min-w-0">
-                <div className="flex-shrink-0 w-28 h-16 rounded-xl overflow-hidden border border-foreground/[0.07] bg-foreground/[0.03]">
-                  {result.thumbnail
-                    ? <img src={result.thumbnail} alt={result.title ?? ""} className="w-full h-full object-cover" />
-                    : <div className="flex h-full items-center justify-center"><Youtube className="h-5 w-5 text-red-500/40" /></div>}
+            {/* Meta card */}
+            <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+              <div className="px-6 py-5 flex flex-wrap items-center gap-5 justify-between">
+                <button
+                  onClick={() => dismissJob(job.id)}
+                  className="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-lg border border-foreground/[0.07] bg-foreground/[0.03] text-foreground/25 hover:text-foreground/60 hover:border-foreground/20 transition-all"
+                  title="Cerrar"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="flex-shrink-0 w-28 h-16 rounded-xl overflow-hidden border border-foreground/[0.07] bg-foreground/[0.03]">
+                    {jobResult.thumbnail
+                      ? <img src={jobResult.thumbnail} alt={jobResult.title ?? ""} className="w-full h-full object-cover" />
+                      : <div className="flex h-full items-center justify-center"><Youtube className="h-5 w-5 text-red-500/40" /></div>}
+                  </div>
+                  <div className="min-w-0">
+                    {jobResult.title && <p className="text-sm font-semibold text-foreground leading-snug line-clamp-2">{jobResult.title}</p>}
+                    {jobResult.creator && (
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <User className="h-3 w-3 text-foreground/30" />
+                        <p className="text-xs text-foreground/40">{jobResult.creator}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  {result.title && <p className="text-sm font-semibold text-foreground leading-snug line-clamp-2">{result.title}</p>}
-                  {result.creator && (
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <User className="h-3 w-3 text-foreground/30" />
-                      <p className="text-xs text-foreground/40">{result.creator}</p>
+                <div className="flex items-center gap-3 shrink-0">
+                  {jobResult.duration && (
+                    <div className="flex items-center gap-1.5 rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-3 py-2">
+                      <Clock className="h-3 w-3 text-foreground/30" />
+                      <span className="text-sm font-bold text-foreground tabular-nums">{jobResult.duration}</span>
                     </div>
                   )}
-                </div>
-              </div>
-              <div className="flex items-center gap-3 shrink-0">
-                {result.duration && (
                   <div className="flex items-center gap-1.5 rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-3 py-2">
-                    <Clock className="h-3 w-3 text-foreground/30" />
-                    <span className="text-sm font-bold text-foreground tabular-nums">{result.duration}</span>
+                    <FileText className="h-3 w-3 text-foreground/30" />
+                    <span className="text-sm font-bold text-foreground tabular-nums">{jobWordCount.toLocaleString()}</span>
+                    <span className="text-xs text-foreground/30">palabras</span>
                   </div>
-                )}
-                <div className="flex items-center gap-1.5 rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-3 py-2">
-                  <FileText className="h-3 w-3 text-foreground/30" />
-                  <span className="text-sm font-bold text-foreground tabular-nums">{wordCount.toLocaleString()}</span>
-                  <span className="text-xs text-foreground/30">palabras</span>
                 </div>
               </div>
             </div>
+
+            {/* ── Transcript (primary) ── */}
+            {(job.outputType === "transcript" || job.outputType === "both") && (
+              <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.10] bg-card">
+                {/* yellow top accent — this is the main product */}
+                <div className="flex items-center justify-between px-6 py-4 border-b border-foreground/[0.06]">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#dafc69]/10 border border-[#dafc69]/20">
+                      <FileText className="h-4 w-4 text-[#dafc69]" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-foreground">Transcripción</p>
+                      <p className="text-[11px] text-foreground/30 mt-0.5">{jobWordCount.toLocaleString()} palabras</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CopyBtn text={jobResult.transcript} />
+                    <button
+                      onClick={() => setTranscriptModal({
+                        title: jobResult.title ?? "Transcripción",
+                        transcript: jobResult.transcript,
+                        wordCount: jobWordCount,
+                      })}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-xs font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 hover:bg-foreground/[0.06] transition-all"
+                    >
+                      <Maximize2 className="h-3 w-3" />
+                      Ver completa
+                    </button>
+                  </div>
+                </div>
+
+                {/* Full transcript body — scrollable, no preview truncation */}
+                <div className="px-6 py-5">
+                  <div className="max-h-[520px] overflow-y-auto rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-5 scrollbar-thin">
+                    <p className="text-[15px] text-foreground/75 leading-[1.9] whitespace-pre-wrap font-light tracking-[0.01em]">
+                      {jobResult.transcript}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── AI Analysis (secondary) ── */}
+            {(job.outputType === "summary" || job.outputType === "both") && jobResult.summary && (
+              <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card">
+                <div className="flex items-center gap-3 border-b border-foreground/[0.05] px-6 py-3.5">
+                  <Sparkles className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/35">Análisis IA</p>
+                    <p className="text-[10px] text-foreground/20 mt-0.5">Generado por Claude · basado en la transcripción</p>
+                  </div>
+                  <CopyBtn text={jobResult.summary} />
+                </div>
+                <div className="p-5"><SummaryBlock text={jobResult.summary} /></div>
+              </div>
+            )}
           </div>
-
-          {/* ── Transcript (primary) ── */}
-          {(outputType === "transcript" || outputType === "both") && (
-            <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.10] bg-card">
-              {/* yellow top accent — this is the main product */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-foreground/[0.06]">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#dafc69]/10 border border-[#dafc69]/20">
-                    <FileText className="h-4 w-4 text-[#dafc69]" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-foreground">Transcripción</p>
-                    <p className="text-[11px] text-foreground/30 mt-0.5">{wordCount.toLocaleString()} palabras</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CopyBtn text={result.transcript} />
-                  <button
-                    onClick={() => setTranscriptModal({
-                      title: result.title ?? "Transcripción",
-                      transcript: result.transcript,
-                      wordCount,
-                    })}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-xs font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 hover:bg-foreground/[0.06] transition-all"
-                  >
-                    <Maximize2 className="h-3 w-3" />
-                    Ver completa
-                  </button>
-                </div>
-              </div>
-
-              {/* Full transcript body — scrollable, no preview truncation */}
-              <div className="px-6 py-5">
-                <div className="max-h-[520px] overflow-y-auto rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-5 scrollbar-thin">
-                  <p className="text-[15px] text-foreground/75 leading-[1.9] whitespace-pre-wrap font-light tracking-[0.01em]">
-                    {result.transcript}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ── AI Analysis (secondary) ── */}
-          {(outputType === "summary" || outputType === "both") && result.summary && (
-            <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card">
-              <div className="flex items-center gap-3 border-b border-foreground/[0.05] px-6 py-3.5">
-                <Sparkles className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/35">Análisis IA</p>
-                  <p className="text-[10px] text-foreground/20 mt-0.5">Generado por Claude · basado en la transcripción</p>
-                </div>
-                <CopyBtn text={result.summary} />
-              </div>
-              <div className="p-5"><SummaryBlock text={result.summary} /></div>
-            </div>
-          )}
-        </div>
-      )}
+        )
+      })}
 
       {/* ── Your Transcriptions ── */}
       <div className="space-y-3">

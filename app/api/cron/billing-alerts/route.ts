@@ -25,6 +25,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { sendSlackMessage } from "@/lib/slack"
 import { sendUpcomingChargeEmail, sendUpcomingPaymentLinkEmail, sendOverdueInstallmentEmail, sendRenewalEmail } from "@/lib/email"
+import { logJobRun } from "@/lib/system-log"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -315,6 +316,13 @@ async function runBillingAlerts() {
       result.errors.push(`[${client.name}] ${err?.message ?? "unknown"}`)
     }
   }
+
+  await logJobRun(
+    supabase,
+    "billing-alerts",
+    result.errors.length > 0 ? "error" : "ok",
+    JSON.stringify(result),
+  )
 
   return result
 }

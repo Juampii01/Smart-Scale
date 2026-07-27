@@ -3,53 +3,17 @@
 import { useEffect, useState, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
-  Sparkles, MessageCircle, FileText, Megaphone, DollarSign, Cog,
+  Sparkles,
   Instagram, Slack, RefreshCw, Loader2, CheckCircle2, Wand2, Quote,
   Activity, AlertTriangle, Clock, Star, TrendingUp, LayoutDashboard,
+  Compass, ListChecks,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase"
 import { isOmniOwnerEmail } from "@/lib/omni/owner"
-
-// Módulos de Omni. El piloto arranca con el Agente de Conversaciones (DMs de Ann);
-// el resto son la expansión natural, mismo molde apuntado a otra fuente.
-const MODULES = [
-  {
-    key:    "conversaciones",
-    name:   "Agente de Conversaciones",
-    desc:   "Analiza los DMs de Ann: encuentra los mejores leads, qué los convierte y cuáles se enfrían.",
-    icon:   MessageCircle,
-    status: "piloto" as const,
-  },
-  {
-    key:    "comunidad",
-    name:   "Comunidad",
-    desc:   "Lee Slack (canales generales + los #cl-nombre) y encuentra dónde están los problemas.",
-    icon:   Cog,
-    status: "piloto" as const,
-  },
-  {
-    key:    "contenido",
-    name:   "Contenido",
-    desc:   "Qué posts y reels traen DMs que después cierran — no solo likes.",
-    icon:   FileText,
-    status: "proximamente" as const,
-  },
-  {
-    key:    "ads",
-    name:   "Ads",
-    desc:   "Qué anuncio trae prospectos que cierran vs. curiosos, y caídas de calidad.",
-    icon:   Megaphone,
-    status: "proximamente" as const,
-  },
-  {
-    key:    "revenue",
-    name:   "Revenue",
-    desc:   "Dónde se cae la plata en el funnel; cash cobrado y proyección.",
-    icon:   DollarSign,
-    status: "proximamente" as const,
-  },
-]
+import { AdminSystemStatusPanel } from "@/components/views/admin-system-status-panel"
+import { SectionHeader } from "@/components/ui/section-header"
+import { StatusPill, type StatusPillVariant } from "@/components/ui/status-pill"
 
 interface IgStatus {
   account_name: string
@@ -145,6 +109,9 @@ const RESULTADO_STYLES: Record<ProspectingPattern["resultado"], string> = {
 }
 const RESULTADO_LABELS: Record<ProspectingPattern["resultado"], string> = {
   cerro: "cerró", no_cerro: "no cerró", pendiente: "pendiente",
+}
+const RESULTADO_VARIANT: Record<ProspectingPattern["resultado"], StatusPillVariant> = {
+  cerro: "ok", no_cerro: "error", pendiente: "idle",
 }
 
 const SEVERITY_STYLES: Record<"alta" | "media" | "baja", string> = {
@@ -1257,6 +1224,9 @@ export function AdminOmniView() {
         </p>
       </div>
 
+      {/* Estado del Sistema — inventario real de todo lo que ya corre */}
+      <AdminSystemStatusPanel />
+
       {/* Tabs */}
       <div className="flex gap-1 border-b border-foreground/[0.07]">
         <button
@@ -1533,8 +1503,8 @@ export function AdminOmniView() {
 
           {/* Contexto de prospección — workflow propio, separado del Cerebro de Ann */}
           <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
-            <p className="text-[14px] font-semibold text-foreground">Tu contexto de prospección</p>
-            <p className="mt-0.5 text-[12px] text-foreground/40">
+            <SectionHeader icon={Compass} title="Tu contexto de prospección" />
+            <p className="mt-2 text-[12px] text-foreground/40">
               Separado del Cerebro de Ann — esto ajusta cómo se redacta el feedback de cada análisis de conversación (traducido a lenguaje simple, con foco en pasar de conversación a offer doc), sin tocar el criterio base de Ann.
             </p>
             {prospectingContextError && (
@@ -1590,18 +1560,20 @@ export function AdminOmniView() {
 
           {/* Patrones registrados — corpus estructurado situación → enfoque → resultado */}
           <div>
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
-                Patrones registrados
-                {patterns && <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">{patterns.length}</span>}
-              </p>
-              <button
-                onClick={() => setNewPatternOpen(v => !v)}
-                className="flex h-7 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all"
-              >
-                {newPatternOpen ? "Cancelar" : "+ Nuevo patrón"}
-              </button>
-            </div>
+            <SectionHeader
+              icon={ListChecks}
+              title="Patrones registrados"
+              subtitle={patterns ? `${patterns.length} registrados` : undefined}
+              action={
+                <button
+                  onClick={() => setNewPatternOpen(v => !v)}
+                  className="flex h-7 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all"
+                >
+                  {newPatternOpen ? "Cancelar" : "+ Nuevo patrón"}
+                </button>
+              }
+              className="mb-3"
+            />
 
             {newPatternOpen && (
               <NewPatternForm onSubmit={createPattern} onDone={() => setNewPatternOpen(false)} />
@@ -1623,9 +1595,7 @@ export function AdminOmniView() {
                 {patterns.map(p => (
                   <div key={p.id} className="rounded-xl border border-foreground/[0.07] bg-card p-3">
                     <div className="flex items-center justify-between gap-2">
-                      <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", RESULTADO_STYLES[p.resultado])}>
-                        {RESULTADO_LABELS[p.resultado]}
-                      </span>
+                      <StatusPill variant={RESULTADO_VARIANT[p.resultado]}>{RESULTADO_LABELS[p.resultado]}</StatusPill>
                       <span className="text-[11px] text-foreground/30">{fmtDateTime(p.created_at)}</span>
                     </div>
                     <p className="mt-1.5 text-[12.5px] text-foreground/70"><span className="font-semibold text-foreground/50">Situación:</span> {p.situacion}</p>
@@ -1643,42 +1613,6 @@ export function AdminOmniView() {
 
         </div>
       )}
-
-      {/* Módulos */}
-      <div>
-        <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">Módulos</p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {MODULES.map(m => {
-            const isPiloto = m.status === "piloto"
-            return (
-              <div
-                key={m.key}
-                className={cn(
-                  "rounded-2xl border p-4",
-                  isPiloto ? "border-[#dafc69]/25 bg-[#dafc69]/[0.04]" : "border-foreground/[0.07] bg-card",
-                )}
-              >
-                <div className="flex items-center justify-between">
-                  <span className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-lg",
-                    isPiloto ? "bg-[#dafc69]/[0.12] text-[#dafc69]" : "bg-foreground/[0.05] text-foreground/40",
-                  )}>
-                    <m.icon className="h-4 w-4" />
-                  </span>
-                  <span className={cn(
-                    "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
-                    isPiloto ? "bg-[#dafc69]/[0.12] text-[#dafc69]" : "bg-foreground/[0.05] text-foreground/40",
-                  )}>
-                    {isPiloto ? "Piloto" : "Próximamente"}
-                  </span>
-                </div>
-                <h3 className="mt-3 text-[14px] font-semibold text-foreground">{m.name}</h3>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-foreground/55">{m.desc}</p>
-              </div>
-            )
-          })}
-        </div>
-      </div>
 
     </div>
   )

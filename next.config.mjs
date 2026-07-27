@@ -11,6 +11,8 @@ const nextConfig = {
     return [
       // El form de setter ahora se comparte como /team (link más limpio).
       { source: "/aplicar-equipo/setter", destination: "/team", permanent: false },
+      // La ruta del chat de Ann AI se renombró de /anai a /ann-ai.
+      { source: "/anai", destination: "/ann-ai", permanent: false },
     ]
   },
 

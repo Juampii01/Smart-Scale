@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { logJobRun } from "@/lib/system-log"
 
 export const runtime = "nodejs"
 
@@ -103,9 +104,14 @@ export async function POST(req: NextRequest) {
       .select("id")
       .single()
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) {
+      await logJobRun(supabase, "webhook:payment", "error", error.message)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+    await logJobRun(supabase, "webhook:payment", "ok", `${name} — $${amount}`)
     return NextResponse.json({ success: true, id: data.id })
   } catch (err: any) {
+    await logJobRun(createServiceClient(), "webhook:payment", "error", err?.message ?? "Error interno")
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
   }
 }

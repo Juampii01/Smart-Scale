@@ -25,6 +25,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { triggerContractSigned } from "@/lib/onboarding-flow"
+import { logJobRun } from "@/lib/system-log"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -100,6 +101,7 @@ export async function POST(req: NextRequest) {
       const reason = `No se pudo matchear el cliente (document_id=${documentId ?? "?"})`
       console.error("[webhooks/signnow/contract-signed]", reason)
       await finish(null, reason)
+      await logJobRun(sb, "webhook:signnow-contract-signed", "error", reason)
       // 200 igual — evita que SignNow reintente indefinidamente un evento que
       // nunca va a poder matchear.
       return NextResponse.json({ ok: false, error: reason })
@@ -107,11 +109,13 @@ export async function POST(req: NextRequest) {
 
     const result = await triggerContractSigned(sb, crmClientId)
     await finish(crmClientId, result.error ?? null)
+    await logJobRun(sb, "webhook:signnow-contract-signed", result.error ? "error" : "ok", result.error ?? crmClientId)
 
     return NextResponse.json({ ok: !result.error, alreadyProcessed: result.alreadyProcessed })
   } catch (err: any) {
     console.error("[webhooks/signnow/contract-signed] error:", err?.message ?? err)
     await finish(null, err?.message ?? "unknown error")
+    await logJobRun(sb, "webhook:signnow-contract-signed", "error", err?.message ?? "unknown error")
     return NextResponse.json({ ok: false, error: "Internal error" }, { status: 500 })
   }
 }

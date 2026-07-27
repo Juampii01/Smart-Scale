@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { logJobRun } from "@/lib/system-log"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -105,13 +106,16 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error("[webhook/lead] db error:", error.message)
+      await logJobRun(supabase, "webhook:lead", "error", error.message)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     console.log("[webhook/lead] lead saved:", { name, email, tag })
+    await logJobRun(supabase, "webhook:lead", "ok", `${name ?? "sin nombre"} (${tag ?? "sin tag"})`)
     return NextResponse.json({ received: true })
   } catch (err: any) {
     console.error("[webhook/lead] error:", err)
+    await logJobRun(createServiceClient(), "webhook:lead", "error", err?.message ?? "Error interno")
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
   }
 }

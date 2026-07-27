@@ -2,7 +2,7 @@
 // Estrategia conservadora: network-first para navegación (siempre datos frescos),
 // con fallback a caché solo si no hay red. No cachea respuestas de /api ni de Supabase.
 
-const CACHE = "smartscale-v2"
+const CACHE = "smartscale-v3"
 const OFFLINE_ASSETS = ["/smartscale-icon-192.png", "/smartscale-icon-512.png"]
 
 self.addEventListener("install", (event) => {
@@ -36,7 +36,26 @@ self.addEventListener("fetch", (event) => {
         }
         return res
       })
-      .catch(() => caches.match(request).then((cached) => cached || caches.match("/dashboard")))
+      .catch(async () => {
+        const cached = (await caches.match(request)) || (await caches.match("/dashboard"))
+        if (cached) return cached
+
+        // Nada cacheado (primera visita a esta URL) + falla de red — antes
+        // esto resolvía en `undefined` y el navegador mostraba su propio
+        // error nativo ("no se pudo cargar la página") sin ninguna forma de
+        // recuperarse. La mayoría de estas fallas en mobile son un blip
+        // momentáneo de la red, así que reintentamos una vez tras una
+        // pequeña espera antes de rendirnos.
+        await new Promise((resolve) => setTimeout(resolve, 800))
+        try {
+          return await fetch(request)
+        } catch {
+          return new Response(
+            "Sin conexión por un momento. Recargá la página para reintentar.",
+            { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8" } }
+          )
+        }
+      })
   )
 })
 

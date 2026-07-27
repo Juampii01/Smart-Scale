@@ -325,10 +325,19 @@ function flattenApifyPosts(items: any[]): any[] {
   return out
 }
 
+// Instagram marca algunos perfiles como restringidos (ej. contenido +18) y
+// ningún actor de Apify puede traer sus posts sin sesión logueada — no es una
+// falla transitoria, es una restricción real del lado de Instagram. Detectarla
+// evita seguir probando los otros actors (van a chocar con lo mismo) y permite
+// avisarle al usuario la razón real en vez de "probá un período más largo".
+function isRestrictedProfileItem(item: any): boolean {
+  return !!(item?.isRestrictedProfile || item?.error === "Restricted profile")
+}
+
 // Apify fallback for Instagram profile
-async function apifyInstagramProfileFetch(username: string): Promise<any[]> {
+async function apifyInstagramProfileFetch(username: string): Promise<{ posts: any[]; restricted: boolean }> {
   const token = process.env.APIFY_TOKEN
-  if (!token) return []
+  if (!token) return { posts: [], restricted: false }
 
   const profileUrl = `https://www.instagram.com/${username}/`
 
@@ -336,6 +345,11 @@ async function apifyInstagramProfileFetch(username: string): Promise<any[]> {
   // recientes, suficiente porque más abajo nos quedamos con el top 5). El
   // api-scraper (resultsType:posts, 50 items) queda de respaldo: devuelve más
   // posts pero suele timeoutear, así que no lo ponemos primero.
+  //
+  // NOTA: sacamos de acá "scrapepilotapi~instagram-profile-post-scraper" —
+  // devuelve 403 "insufficient-permissions" con nuestro token para CUALQUIER
+  // perfil (confirmado), porque nunca se alquiló ese actor en Apify. Si en
+  // algún momento se alquila, se puede volver a agregar como tercer intento.
   const attempts: Array<{ actor: string; input: Record<string, any>; timeoutMs: number }> = [
     {
       actor: "apify~instagram-profile-scraper",
@@ -352,15 +366,6 @@ async function apifyInstagramProfileFetch(username: string): Promise<any[]> {
         resultsType: "posts",
         resultsLimit: 50,
         addParentData: false,
-      },
-      timeoutMs: 45_000,
-    },
-    {
-      actor: "scrapepilotapi~instagram-profile-post-scraper",
-      input: {
-        startUrls: [profileUrl],
-        maxPosts: 50,
-        pinnedMode: "include",
       },
       timeoutMs: 45_000,
     },
@@ -398,11 +403,16 @@ async function apifyInstagramProfileFetch(username: string): Promise<any[]> {
         ? data
         : data?.items ?? data?.results ?? []
 
+      if (rawItems.some(isRestrictedProfileItem)) {
+        console.log("[apify][ig profile] perfil restringido (Instagram), no seguimos con otros actors:", attempt.actor)
+        return { posts: [], restricted: true }
+      }
+
       // Aplanamos perfil→posts antes de decidir si el intento sirvió.
       const posts = flattenApifyPosts(rawItems)
       if (posts.length > 0) {
         console.log("[apify][ig profile] items:", attempt.actor, rawItems.length, "→ posts:", posts.length)
-        return posts
+        return { posts, restricted: false }
       }
       console.log("[apify][ig profile] sin posts tras aplanar:", attempt.actor, "raw items:", rawItems.length)
     } catch (e) {
@@ -410,10 +420,10 @@ async function apifyInstagramProfileFetch(username: string): Promise<any[]> {
     }
   }
 
-  return []
+  return { posts: [], restricted: false }
 }
 
-async function scrapeInstagramProfile(username: string): Promise<any[]> {
+async function scrapeInstagramProfile(username: string): Promise<{ items: any[]; restricted: boolean }> {
   const igUrl = `https://i.instagram.com/api/v1/users/web_profile_info/?username=${username}`
 
   // 1. Direct fetch — funciona en localhost
@@ -426,14 +436,15 @@ async function scrapeInstagramProfile(username: string): Promise<any[]> {
       const data  = await res.json()
       const edges: any[] = data?.data?.user?.edge_owner_to_timeline_media?.edges ?? []
       console.log("[content-research] direct fetch edges:", edges.length)
-      if (edges.length > 0) return mapIGEdges(edges, username)
+      if (edges.length > 0) return { items: mapIGEdges(edges, username), restricted: false }
     }
   } catch (e) { console.log("[content-research] direct fetch error:", String(e)) }
 
   // 2. Apify fallback
-  const apifyItems = await apifyInstagramProfileFetch(username)
+  const { posts: apifyItems, restricted } = await apifyInstagramProfileFetch(username)
+  if (restricted) return { items: [], restricted: true }
   if (apifyItems.length) {
-    return apifyItems.map((item: any) => {
+    return { items: apifyItems.map((item: any) => {
       const shortCode =
         item.shortCode ??
         item.shortcode ??
@@ -471,10 +482,10 @@ async function scrapeInstagramProfile(username: string): Promise<any[]> {
         url:            item.url ?? (shortCode ? `https://www.instagram.com/p/${shortCode}/` : `https://www.instagram.com/${username}/`),
         ownerUsername:  item.ownerUsername ?? item.username ?? item.authorUsername ?? username,
       }
-    })
+    }), restricted: false }
   }
 
-  return []
+  return { items: [], restricted: false }
 }
 
 function mapIGEdges(edges: any[], username: string): any[] {
@@ -499,8 +510,8 @@ function mapIGEdges(edges: any[], username: string): any[] {
 }
 
 async function getTopInstagramPosts(username: string, timeframeDays: number) {
-  const items = await scrapeInstagramProfile(username)
-  console.log("[content-research] scrapeInstagramProfile returned", items.length, "items")
+  const { items, restricted } = await scrapeInstagramProfile(username)
+  console.log("[content-research] scrapeInstagramProfile returned", items.length, "items", restricted ? "(restricted)" : "")
 
   const mapped = items
     .filter((item: any) => {
@@ -561,6 +572,7 @@ async function getTopInstagramPosts(username: string, timeframeDays: number) {
     profileName:  username,
     profileAvatar: null as string | null,
     profileUrl:   `https://www.instagram.com/${username}/`,
+    restricted,
   }
 }
 
@@ -771,6 +783,7 @@ export async function POST(req: NextRequest) {
 
     // ── Paso 4: análisis completo (costoso — solo si pasaron pasos 2 y 3) ─
     let videos: any[] = []
+    let igRestricted = false
 
     if (isInstagram) {
       const username = extractInstagramUsername(channel_url.trim())!
@@ -780,6 +793,7 @@ export async function POST(req: NextRequest) {
         channelAvatar = ig.profileAvatar
         canonicalUrl  = ig.profileUrl
         videos        = ig.posts
+        igRestricted  = ig.restricted
       } catch (err: any) {
         console.error("[content-research][ig fetch] error:", err?.message)
         return NextResponse.json({ error: "No se pudieron obtener los posts de Instagram. Verificá la URL e intentá de nuevo." }, { status: 502 })
@@ -795,7 +809,9 @@ export async function POST(req: NextRequest) {
 
     if (!videos.length) {
       return NextResponse.json({
-        error: isInstagram
+        error: igRestricted
+          ? "Este perfil de Instagram tiene restricción de edad (Instagram no permite ver su contenido sin una cuenta logueada) — no se puede analizar."
+          : isInstagram
           ? "No se encontraron publicaciones recientes en este perfil. Probá con un período de tiempo más largo."
           : `No se encontraron videos recientes en este canal en los últimos ${timeframe_days} días. Probá con un período más largo.`,
       }, { status: 404 })

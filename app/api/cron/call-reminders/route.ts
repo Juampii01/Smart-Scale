@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { sendPushToUsers } from "@/lib/push"
+import { logJobRun } from "@/lib/system-log"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -116,6 +117,10 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // Nota: no se loguea en las salidas tempranas ("sin llamadas hoy", etc.) —
+  // este cron corre cada 5 minutos, y loguear ahí llenaría system_job_runs
+  // de ruido sin agregar señal (la mayoría del día no hay nada que enviar).
+  await logJobRun(sb, "call-reminders", "ok", JSON.stringify({ date: now.date, sent }))
   return NextResponse.json({ ok: true, date: now.date, weekday: now.weekdayEs, sent })
 }
 

@@ -182,7 +182,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [clientDisplayName, setClientDisplayName] = useState<string | null>(null)
   const [activeClientId, setActiveClientId] = useState<string | null>(null)
   const [profilesList, setProfilesList] = useState<
-    Array<{ id: string; client_id: string; role: string | null; client_name: string }>
+    Array<{ id: string; client_id: string; role: string | null; client_name: string; active: boolean }>
   >([])
   const isAdmin = isAdminRole(userRole)  // true para "admin" Y "developer"
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
@@ -363,9 +363,15 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       // Load profile role + client_id
       const { data: prof, error: profErr } = await supabase
         .from("profiles")
-        .select("client_id, role, name")
+        .select("client_id, role, name, active")
         .eq("id", userId)
         .maybeSingle()
+
+      if ((prof as any)?.active === false) {
+        await supabase.auth.signOut()
+        router.replace("/login")
+        return
+      }
 
       if (!profErr && prof) {
         const cid = (prof as any)?.client_id as string | undefined
@@ -440,7 +446,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         // const supabase = createClient()
         const { data, error } = await supabase
           .from("profiles")
-          .select("id, client_id, role, name")
+          .select("id, client_id, role, name, active")
           .order("id", { ascending: false })
 
         if (error) throw error
@@ -455,7 +461,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               ? String(p.name)
               : p?.client_id
                 ? "Cliente " + String(p.client_id).slice(0, 8)
-                : "Perfil sin cliente"
+                : "Perfil sin cliente",
+            active: p?.active !== false,
           }))
 
           setProfilesList(nextProfiles)
@@ -474,7 +481,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       }
     }
 
-    function ensureAdminActiveClient(nextProfiles: Array<{ id: string; client_id: string; role: string | null; client_name: string }>) {
+    function ensureAdminActiveClient(nextProfiles: Array<{ id: string; client_id: string; role: string | null; client_name: string; active: boolean }>) {
       if (!isAdmin) return
       if (activeClientId) return
 
@@ -691,59 +698,81 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       </div>
                     </div>
 
-                    {isAdmin ? (
-                      <>
-                        <div className="px-4 pt-3 pb-1.5">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/40">Cambiar perfil</p>
-                        </div>
-                        <div className="max-h-72 overflow-auto pb-1.5 px-1.5">
-                          {profilesList.length ? (
-                            profilesList.map((p) => {
-                              const isSelectable = Boolean(p.client_id)
-                              const isActive = Boolean(p.client_id) && activeClientId === p.client_id
-                              const initial = (p.client_name ?? "?").charAt(0).toUpperCase()
-                              return (
-                                <button
-                                  key={p.id}
-                                  type="button"
-                                  role="menuitem"
-                                  className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
-                                    isActive
-                                      ? "bg-[#dafc69]/15 text-foreground"
-                                      : "text-foreground hover:bg-foreground/[0.06]"
-                                  } ${!isSelectable ? "opacity-40 cursor-not-allowed hover:bg-transparent" : ""}`}
-                                  disabled={!isSelectable}
-                                  onClick={() => {
-                                    if (!p.client_id) return
-                                    setActiveClientId(p.client_id)
-                                    if (typeof window !== "undefined") window.localStorage.setItem("activeClientId", p.client_id)
-                                    setProfileMenuOpen(false)
-                                  }}
-                                  title={p.client_id}
-                                >
-                                  <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
-                                    isActive
-                                      ? "bg-[#dafc69] text-black"
-                                      : "bg-foreground/[0.08] text-foreground/70"
-                                  }`}>
-                                    {initial}
-                                  </span>
-                                  <span className="truncate flex-1 font-medium">{p.client_name}</span>
-                                  {isActive && (
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300">
-                                      <Check className="h-2.5 w-2.5" strokeWidth={3} />
-                                      Activo
-                                    </span>
-                                  )}
-                                </button>
-                              )
-                            })
-                          ) : (
-                            <div className="px-3 py-3 text-sm text-foreground/60">No hay perfiles para mostrar.</div>
-                          )}
-                        </div>
-                      </>
-                    ) : null}
+                    {isAdmin ? (() => {
+                      const renderProfileItem = (p: typeof profilesList[number]) => {
+                        const isSelectable = Boolean(p.client_id)
+                        const isActive = Boolean(p.client_id) && activeClientId === p.client_id
+                        const initial = (p.client_name ?? "?").charAt(0).toUpperCase()
+                        return (
+                          <button
+                            key={p.id}
+                            type="button"
+                            role="menuitem"
+                            className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
+                              isActive
+                                ? "bg-[#dafc69]/15 text-foreground"
+                                : "text-foreground hover:bg-foreground/[0.06]"
+                            } ${!isSelectable ? "opacity-40 cursor-not-allowed hover:bg-transparent" : ""} ${!p.active ? "opacity-60" : ""}`}
+                            disabled={!isSelectable}
+                            onClick={() => {
+                              if (!p.client_id) return
+                              setActiveClientId(p.client_id)
+                              if (typeof window !== "undefined") window.localStorage.setItem("activeClientId", p.client_id)
+                              setProfileMenuOpen(false)
+                            }}
+                            title={p.client_id}
+                          >
+                            <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                              isActive
+                                ? "bg-[#dafc69] text-black"
+                                : "bg-foreground/[0.08] text-foreground/70"
+                            }`}>
+                              {initial}
+                            </span>
+                            <span className="truncate flex-1 font-medium">{p.client_name}</span>
+                            {isActive && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300">
+                                <Check className="h-2.5 w-2.5" strokeWidth={3} />
+                                Activo
+                              </span>
+                            )}
+                            {!p.active && (
+                              <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-700 dark:bg-red-500/15 dark:text-red-400">
+                                Off
+                              </span>
+                            )}
+                          </button>
+                        )
+                      }
+
+                      const insideProfiles = profilesList.filter(p => p.active)
+                      const offProfiles = profilesList.filter(p => !p.active)
+
+                      return (
+                        <>
+                          <div className="px-4 pt-3 pb-1.5">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/40">Cambiar perfil</p>
+                          </div>
+                          <div className="max-h-72 overflow-auto pb-1.5 px-1.5">
+                            {profilesList.length ? (
+                              <>
+                                {insideProfiles.map(renderProfileItem)}
+                                {offProfiles.length > 0 && (
+                                  <>
+                                    <p className="px-2.5 pt-2.5 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/30">
+                                      Off ({offProfiles.length})
+                                    </p>
+                                    {offProfiles.map(renderProfileItem)}
+                                  </>
+                                )}
+                              </>
+                            ) : (
+                              <div className="px-3 py-3 text-sm text-foreground/60">No hay perfiles para mostrar.</div>
+                            )}
+                          </div>
+                        </>
+                      )
+                    })() : null}
 
                     {/* "Ver como" — solo admin */}
                     {isAdmin && (
