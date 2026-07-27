@@ -31,7 +31,7 @@ const DEFAULT_CONFIG = {
   note:     "Una vez que completás el pago, elegís el día y horario que más te convenga.",
 }
 
-const CALENDLY_URL = "https://calendly.com/strategystudio-mkt/ann-s-privat-link"
+const CALENDLY_URL = "https://calendly.com/smartscale-strategycoach/30min"
 
 function BookingContent() {
   const params  = useSearchParams()

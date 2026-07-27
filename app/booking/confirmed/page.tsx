@@ -10,7 +10,7 @@ function ConfirmedContent() {
 
   const rawCalendly = params.get("calendly")
     || process.env.NEXT_PUBLIC_BOOKING_CALENDLY_URL
-    || "https://calendly.com/strategystudio-mkt/ann-s-privat-link"
+    || "https://calendly.com/smartscale-strategycoach/30min"
   const calendlyUrl = rawCalendly.startsWith("https://") ? rawCalendly : ""
 
   useEffect(() => {
