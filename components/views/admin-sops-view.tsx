@@ -16,9 +16,10 @@ import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase"
 import {
   Loader2, Plus, Search, Copy, Check, X, Trash2, Edit3, Sparkles,
-  ChevronRight, Clock, FileText,
+  ChevronRight, Clock, FileText, ListChecks,
 } from "lucide-react"
 import { isAdmin as isAdminRole } from "@/lib/auth/permissions"
+import { SectionHeader } from "@/components/ui/section-header"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -630,20 +631,21 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
     <div className="space-y-5">
 
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <h2 className="text-xl font-bold text-foreground tracking-tight">SOPs</h2>
-          <span className="text-[12px] text-foreground/40">{sops.length} {sops.length === 1 ? "playbook" : "playbooks"}</span>
-        </div>
-        {isAdmin && (
-          <button
-            onClick={() => setCreating(true)}
-            className="inline-flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-4 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition-all"
-          >
-            <Plus className="h-4 w-4" /> Nuevo SOP
-          </button>
-        )}
-      </div>
+      <SectionHeader
+        icon={ListChecks}
+        title="SOPs"
+        subtitle={`${sops.length} ${sops.length === 1 ? "playbook" : "playbooks"}`}
+        action={
+          isAdmin && (
+            <button
+              onClick={() => setCreating(true)}
+              className="inline-flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-4 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition-all"
+            >
+              <Plus className="h-4 w-4" /> Nuevo SOP
+            </button>
+          )
+        }
+      />
 
       {/* Search + tag filter */}
       <div className="space-y-2">

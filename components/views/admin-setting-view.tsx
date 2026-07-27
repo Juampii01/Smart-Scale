@@ -1,11 +1,13 @@
 "use client"
 
 import { useEffect, useMemo, useState, useCallback, useRef } from "react"
-import { Loader2, RefreshCw, Download, ChevronLeft, ChevronRight, PlusCircle } from "lucide-react"
+import { Loader2, RefreshCw, Download, ChevronLeft, ChevronRight, PlusCircle, TrendingUp, Table2 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 import { SetterCommissionPanel } from "@/components/admin/setter-commission-panel"
 import { EodFormDialogV2 } from "@/components/admin/eod-form-dialog-v2"
+import { SectionHeader } from "@/components/ui/section-header"
+import { StatTile } from "@/components/ui/stat-tile"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -388,68 +390,47 @@ export function AdminSettingView() {
           {/* KPIs del mes */}
           {logs.length > 0 && (
             <div>
-              <div className="mb-4">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-foreground/50">
-                  Cómo viene <span className="text-[#dafc69]">{monthLabel(month)}</span>
-                </h2>
-              </div>
+              <SectionHeader
+                icon={TrendingUp}
+                title={`Cómo viene ${monthLabel(month)}`}
+                className="mb-4"
+              />
 
               {/* Totales */}
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-4">
-                {[
-                  { label: "Inbound",     value: monthTotals.new_conversations_inbound },
-                  { label: "Outbound",    value: monthTotals.new_conversations_outbound },
-                  { label: "Total Conv.", value: monthTotals.new_conversations_inbound + monthTotals.outbound_replies, highlight: true },
-                  { label: "Leads",       value: monthTotals.qualified_leads },
-                  { label: "Docs",        value: monthTotals.offer_docs_sent },
-                  { label: "Doc Resp.",   value: monthTotals.offer_doc_responses },
-                  { label: "Calls",       value: monthTotals.calls_done },
-                  { label: "Cierres",     value: monthTotals.cierres },
-                ].map(m => (
-                  <div
-                    key={m.label}
-                    className={`rounded-xl border px-3 py-2.5 ${"highlight" in m && m.highlight
-                      ? "border-[#dafc69]/30 bg-[#dafc69]/[0.06]"
-                      : "border-foreground/10 bg-card"
-                    }`}
-                  >
-                    <p className={`text-[10px] uppercase tracking-wider mb-1 ${"highlight" in m && m.highlight ? "text-[#dafc69]/70" : "text-foreground/40"}`}>
-                      {m.label}
-                    </p>
-                    <p className={`text-2xl font-bold tabular-nums ${"highlight" in m && m.highlight ? "text-[#dafc69]" : "text-foreground"}`}>
-                      {m.value}
-                    </p>
-                  </div>
-                ))}
+                <StatTile label="Inbound"     value={monthTotals.new_conversations_inbound} />
+                <StatTile label="Outbound"    value={monthTotals.new_conversations_outbound} />
+                <StatTile label="Total Conv." value={monthTotals.new_conversations_inbound + monthTotals.outbound_replies} highlight />
+                <StatTile label="Leads"       value={monthTotals.qualified_leads} />
+                <StatTile label="Docs"        value={monthTotals.offer_docs_sent} />
+                <StatTile label="Doc Resp."   value={monthTotals.offer_doc_responses} />
+                <StatTile label="Calls"       value={monthTotals.calls_done} />
+                <StatTile label="Cierres"     value={monthTotals.cierres} />
               </div>
 
               {/* Funnel rates */}
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2">
-                {[
-                  { label: "Outbound Response", value: rates.outboundResponseRate, hint: "resp. outbound / contactos outbound" },
-                  { label: "Qualification",     value: rates.qualification,        hint: "leads / total conversaciones" },
-                  { label: "Doc Response",      value: rates.docResponseRate,      hint: "doc resp / docs" },
-                  { label: "Call Rate",         value: rates.callRate,             hint: "calls / doc resp" },
-                  { label: "Onboarding Rate",   value: rates.onboardingRate,       hint: `onboardings reales (${onboardingsCount ?? "—"}) / cierres cargados` },
-                ].map(m => (
-                  <div key={m.label} className="rounded-xl border border-foreground/10 bg-foreground/[0.02] px-3 py-2.5">
-                    <p className="text-[10px] uppercase tracking-wider text-foreground/40">{m.label}</p>
-                    <p className="text-lg font-bold text-foreground mt-1 tabular-nums">{m.value}</p>
-                    <p className="text-[9px] text-foreground/30 mt-0.5">{m.hint}</p>
-                  </div>
-                ))}
+                <StatTile label="Outbound Response" displayValue={rates.outboundResponseRate} hint="resp. outbound / contactos outbound" />
+                <StatTile label="Qualification"     displayValue={rates.qualification}        hint="leads / total conversaciones" />
+                <StatTile label="Doc Response"      displayValue={rates.docResponseRate}      hint="doc resp / docs" />
+                <StatTile label="Call Rate"         displayValue={rates.callRate}             hint="calls / doc resp" />
+                <StatTile label="Onboarding Rate"   displayValue={rates.onboardingRate}       hint={`onboardings reales (${onboardingsCount ?? "—"}) / cierres cargados`} />
               </div>
             </div>
           )}
 
           {/* Tabla diaria */}
           <div>
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-foreground/50">CRM Diario</h2>
-              <span className="text-[10px] text-foreground/40">
-                {logs.length} {logs.length === 1 ? "registro" : "registros"}
-              </span>
-            </div>
+            <SectionHeader
+              icon={Table2}
+              title="CRM Diario"
+              action={
+                <span className="text-[10px] text-foreground/40">
+                  {logs.length} {logs.length === 1 ? "registro" : "registros"}
+                </span>
+              }
+              className="mb-3"
+            />
 
             {logs.length === 0 ? (
               <div className="rounded-[14px] border border-foreground/10 py-12 text-center">
