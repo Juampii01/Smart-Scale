@@ -128,7 +128,7 @@ export default function DevLogsPage() {
     <div className="flex h-screen flex-col bg-[#0a0a0b] text-[13px] font-mono">
 
       {/* ── Header ────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 border-b border-white/[0.07] bg-[#0f0f11] px-5 py-3">
+      <div className="flex flex-wrap items-center gap-3 gap-y-2 border-b border-white/[0.07] bg-[#0f0f11] px-5 py-3">
         <Terminal className="h-4 w-4 text-[#dafc69] shrink-0" />
         <span className="font-bold text-white tracking-tight">Dev Logs</span>
 
@@ -163,15 +163,15 @@ export default function DevLogsPage() {
         </div>
 
         {/* Spacer */}
-        <div className="flex-1" />
+        <div className="hidden sm:block sm:flex-1" />
 
         {/* Search */}
-        <div className="relative">
+        <div className="relative order-last basis-full sm:order-none sm:basis-auto">
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar…"
-            className="w-48 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[12px] text-white placeholder:text-white/20 focus:outline-none focus:border-white/20 transition-all"
+            className="w-full sm:w-48 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[12px] text-white placeholder:text-white/20 focus:outline-none focus:border-white/20 transition-all"
           />
           {search && (
             <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
@@ -186,7 +186,7 @@ export default function DevLogsPage() {
           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] text-white/40 hover:bg-white/[0.05] hover:text-white/70 transition-all"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-          Reload
+          <span className="hidden sm:inline">Reload</span>
         </button>
         <button
           onClick={clearAll}
@@ -194,7 +194,7 @@ export default function DevLogsPage() {
           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] text-red-500/50 hover:bg-red-500/[0.08] hover:text-red-400 transition-all disabled:opacity-30"
         >
           <Trash2 className="h-3.5 w-3.5" />
-          Limpiar
+          <span className="hidden sm:inline">Limpiar</span>
         </button>
       </div>
 
@@ -223,21 +223,21 @@ export default function DevLogsPage() {
                   onClick={() => setExpanded(isExp ? null : l.id)}
                 >
                   {/* Main row */}
-                  <div className="flex items-start gap-3 px-5 py-2">
+                  <div className="flex items-start gap-2 sm:gap-3 px-3 sm:px-5 py-2">
                     {/* Timestamp */}
                     <span className="shrink-0 text-white/20 tabular-nums text-[11px] pt-0.5">
-                      {fmtDate(l.created_at)} {fmtTime(l.created_at)}
+                      <span className="hidden sm:inline">{fmtDate(l.created_at)} </span>{fmtTime(l.created_at)}
                     </span>
 
                     {/* Level badge */}
                     <span className={`shrink-0 flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ring-1 ring-inset ${cfg.badge}`}>
                       <Icon className="h-2.5 w-2.5" />
-                      {l.level}
+                      <span className="hidden sm:inline">{l.level}</span>
                     </span>
 
                     {/* Route */}
                     {l.route && (
-                      <span className="shrink-0 text-[#dafc69]/50 text-[11px]">
+                      <span className="hidden sm:inline shrink-0 max-w-[160px] truncate text-[#dafc69]/50 text-[11px]">
                         [{l.route}]
                       </span>
                     )}
@@ -272,15 +272,17 @@ export default function DevLogsPage() {
       </div>
 
       {/* ── Footer stats ──────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-4 border-t border-white/[0.07] bg-[#0f0f11] px-5 py-2 text-[11px] text-white/25">
+      <div className="flex flex-wrap items-center gap-3 gap-y-1 border-t border-white/[0.07] bg-[#0f0f11] px-3 sm:px-5 py-2 text-[11px] text-white/25">
         <span>{visible.length} entradas</span>
-        {Object.entries(counts).map(([lvl, n]) => (
-          <span key={lvl} className="flex items-center gap-1">
-            <span className={`h-1.5 w-1.5 rounded-full ${LEVEL_CONFIG[lvl as Level]?.dot ?? "bg-white/20"}`} />
-            {lvl}: {n}
-          </span>
-        ))}
-        <div className="flex-1" />
+        <div className="hidden sm:contents">
+          {Object.entries(counts).map(([lvl, n]) => (
+            <span key={lvl} className="flex items-center gap-1">
+              <span className={`h-1.5 w-1.5 rounded-full ${LEVEL_CONFIG[lvl as Level]?.dot ?? "bg-white/20"}`} />
+              {lvl}: {n}
+            </span>
+          ))}
+        </div>
+        <div className="hidden sm:block sm:flex-1" />
         <span className={`flex items-center gap-1.5 ${live ? "text-emerald-500/60" : "text-white/20"}`}>
           <Circle className={`h-1.5 w-1.5 fill-current ${live ? "animate-pulse" : ""}`} />
           {live ? "Recibiendo en tiempo real" : "Tiempo real pausado"}
