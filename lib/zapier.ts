@@ -347,20 +347,23 @@ export async function zapierTaskEvent(payload: {
 // el equipo vea en Slack en qué etapa está cada cliente sin tener que
 // revisar /admin/onboarding a mano.
 
-export type OnboardingStatusEvent = "contract_signed" | "onboarding_completed"
+export type OnboardingStatusEvent = "contract_signed" | "onboarding_completed" | "payment_unresolved"
 
 export async function zapierOnboardingStatusChanged(payload: {
   event_type:   OnboardingStatusEvent
-  client_id:    string
+  client_id?:   string
   client_name:  string
-  client_email: string
+  client_email?: string
+  detail?:      string   // usado por "payment_unresolved" — el motivo puntual (datos incompletos, plan no reconocido, etc.)
 }): Promise<ZapierResult> {
   const url = process.env.ZAPIER_WEBHOOK_ONBOARDING_STATUS
   if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_ONBOARDING_STATUS not configured" }
 
   const message = payload.event_type === "contract_signed"
     ? `✍️  *Contrato firmado* — ${payload.client_name}\n${payload.client_email}\nSe están enviando los accesos (Skool, Slack, Plataforma)...`
-    : `🎉  *Onboarding completo* — ${payload.client_name}\nLos 3 accesos (Skool, Slack, Plataforma) se enviaron correctamente. Cliente listo para arrancar.`
+    : payload.event_type === "onboarding_completed"
+    ? `🎉  *Onboarding completo* — ${payload.client_name}\nLos 3 accesos (Skool, Slack, Plataforma) se enviaron correctamente. Cliente listo para arrancar.`
+    : `⚠️  *Pago de PayFunnels sin onboarding automático* — ${payload.client_name}${payload.client_email ? ` (${payload.client_email})` : ""}\n${payload.detail ?? "Motivo no especificado"}\nRevisar \`payfunnels_webhook_events\` y cargar a mano en /admin/onboarding.`
 
   return postWebhook(url, { ...payload, message }, "zapierOnboardingStatusChanged")
 }

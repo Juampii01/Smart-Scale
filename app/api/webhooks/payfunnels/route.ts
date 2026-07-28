@@ -17,8 +17,10 @@
  * SÍ apuntan PayFunnels acá directo.
  *
  * Si no se puede resolver ni por program ni por monto, el pago se loguea
- * igual en payfunnels_webhook_events (con el error) — nunca se crea un
- * cliente a medias. Revisar esa tabla si un pago no generó cliente.
+ * igual en payfunnels_webhook_events (con el error), se avisa por el Zap
+ * de "Estado de onboarding" (ZAPIER_WEBHOOK_ONBOARDING_STATUS) — mismo
+ * canal que el resto de los avisos de onboarding — y nunca se crea un
+ * cliente a medias.
  *
  * Auth: acepta el secreto en la query string (?secret=...) — por si el
  * emisor es PayFunnels directo, que no manda headers custom — o en el
@@ -29,7 +31,7 @@ import { NextRequest, NextResponse, after } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { sendContractForSignature } from "@/lib/signnow"
 import { notifyClientOnboarded } from "@/lib/slack"
-import { zapierClientOnboarded } from "@/lib/zapier"
+import { zapierClientOnboarded, zapierOnboardingStatusChanged } from "@/lib/zapier"
 import { logJobRun } from "@/lib/system-log"
 
 export const runtime = "nodejs"
@@ -212,6 +214,12 @@ export async function POST(req: NextRequest) {
       const reason = `Faltan datos básicos (name=${!!name}, email=${!!email}, program=${hasProgram}, amount=${amount})`
       await finish(null, reason)
       await logJobRun(sb, "webhook:payfunnels", "error", reason)
+      await zapierOnboardingStatusChanged({
+        event_type:   "payment_unresolved",
+        client_name:  name || "Sin nombre",
+        client_email: email || undefined,
+        detail:       reason,
+      }).catch(() => null)
       return NextResponse.json({ ok: true, warning: reason })
     }
 
@@ -221,6 +229,12 @@ export async function POST(req: NextRequest) {
       const reason = `No se pudo resolver el plan (program=${hasProgram ? pick(body, "program", "programa", "plan") : "no vino"}, monto=${amount != null ? `$${amount}` : "no vino"})`
       await finish(null, reason)
       await logJobRun(sb, "webhook:payfunnels", "error", reason)
+      await zapierOnboardingStatusChanged({
+        event_type:   "payment_unresolved",
+        client_name:  name,
+        client_email: email,
+        detail:       reason,
+      }).catch(() => null)
       return NextResponse.json({ ok: true, warning: reason })
     }
 
