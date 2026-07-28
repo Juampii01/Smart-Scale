@@ -194,7 +194,7 @@ export async function sendSkoolAccessEmail(payload: {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tu acceso a Skool</title>
+  <title>Tu invitación a Skool</title>
 </head>
 <body style="margin:0;padding:0;background:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f4;padding:40px 16px;">
@@ -220,21 +220,27 @@ export async function sendSkoolAccessEmail(payload: {
                 Comunidad
               </p>
               <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#1a1a1a;line-height:1.2;">
-                Hola ${firstName}, unite a Skool 🎓
+                Hola ${firstName}, ya tenés tu invitación a Skool 📩
               </h1>
+              <p style="margin:0 0 16px;font-size:15px;color:#525252;line-height:1.6;">
+                Te acabamos de enviar por email una invitación para unirte a la comunidad de Skool — ahí vas a encontrar el contenido del programa, la comunidad y las clases en vivo.
+              </p>
               <p style="margin:0 0 24px;font-size:15px;color:#525252;line-height:1.6;">
-                Ahí vas a encontrar el contenido del programa, la comunidad y las clases en vivo.
+                Buscala en tu bandeja de entrada a nombre de <strong>Skool</strong> (revisá también spam/promociones) — puede tardar unos minutos en llegar.
               </p>
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center" style="padding:8px 0 8px;">
                     <a href="${skoolLink}"
                        style="display:inline-block;background:#1a1a1a;color:#dafc69;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:-0.2px;">
-                      Unirme a Skool →
+                      Ir a Skool →
                     </a>
                   </td>
                 </tr>
               </table>
+              <p style="margin:16px 0 0;font-size:13px;color:#a3a3a3;line-height:1.5;">
+                Si en un rato no ves la invitación, avisanos y te la reenviamos.
+              </p>
             </td>
           </tr>
           <tr>
@@ -252,14 +258,18 @@ export async function sendSkoolAccessEmail(payload: {
 
   const text = `Hola ${firstName},
 
-Ya podés unirte a la comunidad de Skool: ${skoolLink}
+Te acabamos de enviar por email una invitación para unirte a la comunidad de Skool — ahí vas a encontrar el contenido del programa, la comunidad y las clases en vivo.
+
+Buscala en tu bandeja de entrada a nombre de Skool (revisá también spam/promociones) — puede tardar unos minutos en llegar.
+
+Si en un rato no la ves, avisanos y te la reenviamos. Mientras tanto, también podés entrar directo acá: ${skoolLink}
 
 Smart Scale
 `
 
   return sendEmail({
     to:      payload.email,
-    subject: `${firstName}, unite a la comunidad en Skool 🎓`,
+    subject: `${firstName}, ya tenés tu invitación a Skool 📩`,
     html,
     text,
   })

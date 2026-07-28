@@ -699,7 +699,7 @@ function OnboardingDetailDrawer({
             const sentAt = template === "skool" ? flow?.email_skool_sent_at : template === "slack" ? flow?.email_slack_sent_at : flow?.email_platform_sent_at
             const emailError = template === "skool" ? flow?.email_skool_error : template === "slack" ? flow?.email_slack_error : flow?.email_platform_error
             const state = emailState(sentAt, emailError)
-            const label = template === "skool" ? "Email: acceso a Skool" : template === "slack" ? "Email: acceso a Slack" : "Email: acceso a la plataforma"
+            const label = template === "skool" ? "Email: invitación a Skool" : template === "slack" ? "Email: acceso a Slack" : "Email: acceso a la plataforma"
             // Reintentar si falló, Reenviar si ya salió bien (por si el cliente dice que no le llegó) — no hay acción mientras está bloqueado o pendiente.
             const canAct = state === "error" || state === "done"
             return (
