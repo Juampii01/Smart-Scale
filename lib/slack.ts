@@ -2,9 +2,7 @@ import { createServiceClient } from "@/lib/supabase-service"
 import { logJobRun } from "@/lib/system-log"
 
 // ─── Slack Integration ────────────────────────────────────────────────────────
-// Two modes:
-//   1. Incoming Webhooks (SLACK_WEBHOOK_URL) — post to a single pre-configured channel.
-//   2. Bot Token (SLACK_BOT_TOKEN) — create channels dynamically + post to any channel.
+// Bot Token (SLACK_BOT_TOKEN) — create channels dynamically + post to any channel.
 //
 // For onboarding automation, SLACK_BOT_TOKEN is required with scopes:
 //   channels:manage  (or groups:write for private channels)
@@ -133,127 +131,6 @@ function context(text: string) {
   }
 }
 
-// ─── Core send function ───────────────────────────────────────────────────────
-
-export async function sendSlackMessage(blocks: unknown[], fallbackText: string): Promise<SlackResult> {
-  const webhookUrl = process.env.SLACK_WEBHOOK_URL
-  if (!webhookUrl) {
-    return { ok: false, error: "SLACK_WEBHOOK_URL not configured" }
-  }
-
-  try {
-    const res = await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: fallbackText, blocks }),
-    })
-
-    if (!res.ok) {
-      const body = await res.text().catch(() => "")
-      return { ok: false, error: `Slack returned ${res.status}: ${body}` }
-    }
-
-    return { ok: true }
-  } catch (err: any) {
-    return { ok: false, error: err?.message ?? "Unknown Slack error" }
-  }
-}
-
-// ─── Notification: monthly report completed ───────────────────────────────────
-
-export async function notifyMonthlyReportCompleted(payload: {
-  client_name?: string
-  client_id?: string
-  month?: string
-  total_revenue?: number
-  new_clients?: number
-  cash_collected?: number
-  mrr?: number
-  triggered_by?: string
-}): Promise<SlackResult> {
-  const month = payload.month ?? "—"
-  const clientName = payload.client_name ?? payload.client_id ?? "Cliente"
-  const revenue = payload.total_revenue != null
-    ? `$${Number(payload.total_revenue).toLocaleString()}`
-    : "—"
-  const cash = payload.cash_collected != null
-    ? `$${Number(payload.cash_collected).toLocaleString()}`
-    : "—"
-  const mrr = payload.mrr != null
-    ? `$${Number(payload.mrr).toLocaleString()}`
-    : "—"
-  const newClients = payload.new_clients != null ? String(payload.new_clients) : "—"
-
-  const blocks = [
-    header("📊 Reporte mensual completado"),
-    section(`El reporte de *${month}* para *${clientName}* fue guardado exitosamente en el dashboard.`),
-    divider(),
-    fields([
-      { title: "Cliente", value: clientName },
-      { title: "Mes", value: month },
-      { title: "Revenue total", value: revenue },
-      { title: "Cash collected", value: cash },
-      { title: "MRR", value: mrr },
-      { title: "Nuevos clientes", value: newClients },
-    ]),
-    divider(),
-    context(
-      `Cargado por: ${payload.triggered_by ?? "sistema"} · Smart Scale Portal 2.0`
-    ),
-  ]
-
-  const result = await sendSlackMessage(
-    blocks,
-    `📊 Reporte ${month} de ${clientName} completado — Revenue: ${revenue}`
-  )
-  await logJobRun(createServiceClient(), "slack:notifyMonthlyReportCompleted", result.ok ? "ok" : "error", result.error)
-  return result
-}
-
-// ─── Notification: sale registered ───────────────────────────────────────────
-
-export async function notifySaleRegistered(payload: {
-  client_name?: string
-  client_id?: string
-  month?: string
-  new_clients: number
-  total_revenue?: number
-  triggered_by?: string
-}): Promise<SlackResult> {
-  const month = payload.month ?? "—"
-  const clientName = payload.client_name ?? payload.client_id ?? "Cliente"
-  const count = payload.new_clients
-  const revenue = payload.total_revenue != null
-    ? `$${Number(payload.total_revenue).toLocaleString()}`
-    : "—"
-  const label = count === 1 ? "1 nuevo cliente" : `${count} nuevos clientes`
-
-  const blocks = [
-    header(`🎉 ¡Venta registrada! ${label}`),
-    section(
-      `*${clientName}* registró *${label}* en el reporte de *${month}*.`
-    ),
-    divider(),
-    fields([
-      { title: "Cliente", value: clientName },
-      { title: "Mes", value: month },
-      { title: "Nuevos clientes", value: String(count) },
-      { title: "Revenue del mes", value: revenue },
-    ]),
-    divider(),
-    context(
-      `Registrado por: ${payload.triggered_by ?? "sistema"} · Smart Scale Portal 2.0`
-    ),
-  ]
-
-  const result = await sendSlackMessage(
-    blocks,
-    `🎉 ${label} registrados para ${clientName} en ${month}`
-  )
-  await logJobRun(createServiceClient(), "slack:notifySaleRegistered", result.ok ? "ok" : "error", result.error)
-  return result
-}
-
 // ─── Notification: client onboarded ──────────────────────────────────────────
 // Creates a dedicated #cl-{name} channel and posts the onboarding summary.
 // Requires SLACK_BOT_TOKEN. Fails silently if the token is missing.
@@ -330,38 +207,3 @@ export async function notifyClientOnboarded(payload: {
   return result
 }
 
-// ─── Notification: registro del webhook de firma de contrato falló ───────────
-
-/**
- * SignNow puede rechazar el registro del webhook por documento (ej. el plan
- * de cuenta no incluye Webhooks 2.0) sin que el resto del flujo de envío se
- * entere — el contrato se manda igual, pero cuando el cliente lo firme nunca
- * va a llegar el callback automático. Avisamos apenas se detecta, no cuando
- * alguien nota semanas después que el onboarding automático nunca disparó.
- */
-export async function notifyContractWebhookRegistrationFailed(payload: {
-  client_name: string
-  document_id: string
-}): Promise<SlackResult> {
-  const blocks = [
-    header("⚠️ Webhook de firma no se pudo registrar"),
-    section(
-      `El contrato de *${payload.client_name}* se mandó a firmar, pero SignNow rechazó el registro del webhook automático para este documento.`
-    ),
-    fields([
-      { title: "Cliente", value: payload.client_name },
-      { title: "Document ID", value: payload.document_id },
-    ]),
-    divider(),
-    context(
-      "Cuando firme, el onboarding automático (Skool/Slack/plataforma) NO se va a disparar solo — hay que confirmarlo a mano desde /admin/applications o reintentar el registro del webhook. Smart Scale Portal 2.0"
-    ),
-  ]
-
-  const result = await sendSlackMessage(
-    blocks,
-    `⚠️ Webhook de firma no registrado para ${payload.client_name} (document_id ${payload.document_id})`
-  )
-  await logJobRun(createServiceClient(), "slack:notifyContractWebhookRegistrationFailed", result.ok ? "ok" : "error", result.error)
-  return result
-}

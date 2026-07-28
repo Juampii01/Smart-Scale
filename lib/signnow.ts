@@ -12,8 +12,6 @@
  * falla o todavía no está configurado.
  */
 
-import { notifyContractWebhookRegistrationFailed } from "@/lib/slack"
-
 const SIGNNOW_CLIENT_ID     = process.env.SIGNNOW_CLIENT_ID
 const SIGNNOW_CLIENT_SECRET = process.env.SIGNNOW_CLIENT_SECRET
 const SIGNNOW_USERNAME      = process.env.SIGNNOW_USERNAME
@@ -239,10 +237,7 @@ export async function sendContractForSignature(data: SignNowContractData): Promi
 
     const webhookRegistered = await registerContractWebhook(documentId, token)
     if (!webhookRegistered) {
-      await notifyContractWebhookRegistrationFailed({
-        client_name: data.clienteNombre,
-        document_id: documentId,
-      }).catch(() => null)
+      console.error(`SignNow: webhook registration rejected for document ${documentId} (${data.clienteNombre}) — el onboarding automático no se va a disparar solo cuando firme, hay que confirmarlo a mano.`)
     }
 
     const invited = await inviteSigner(documentId, { email: data.clienteEmail }, token)

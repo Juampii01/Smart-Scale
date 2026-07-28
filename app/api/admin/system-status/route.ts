@@ -68,10 +68,7 @@ const JOB_REGISTRY: RegistryEntry[] = [
   { key: "zapier-onboarding-status", name: "Zapier: Estado de onboarding", description: "Avisa a Slack cuando se firma el contrato y cuando el onboarding queda 100% completo.", trigger: "on-demand", bucket: "automatizaciones", source: "system_job_runs", sourceKey: "zapier:zapierOnboardingStatusChanged" },
   { key: "zapier-report", name: "Zapier: Reporte mensual", description: "Definido en el código pero nunca se llama desde ningún lado.", trigger: "on-demand", bucket: "automatizaciones", source: "system_job_runs", sourceKey: "zapier:zapierReportCompleted", needsDecision: true },
   { key: "zapier-sale", name: "Zapier: Venta registrada", description: "Definido en el código pero nunca se llama desde ningún lado.", trigger: "on-demand", bucket: "automatizaciones", source: "system_job_runs", sourceKey: "zapier:zapierSaleRegistered", needsDecision: true },
-  { key: "slack-report", name: "Slack: Reporte mensual completado", description: "Avisa directo a Slack (sin pasar por Zapier) cuando se guarda un reporte mensual.", trigger: "on-demand", bucket: "automatizaciones", source: "system_job_runs", sourceKey: "slack:notifyMonthlyReportCompleted" },
-  { key: "slack-sale", name: "Slack: Venta registrada", description: "Avisa directo a Slack cuando se registra una venta nueva.", trigger: "on-demand", bucket: "automatizaciones", source: "system_job_runs", sourceKey: "slack:notifySaleRegistered" },
   { key: "slack-onboarded", name: "Slack: Cliente onboarded", description: "Crea el canal #cl-{nombre} y postea el resumen de onboarding del cliente nuevo.", trigger: "on-demand", bucket: "automatizaciones", source: "system_job_runs", sourceKey: "slack:notifyClientOnboarded" },
-  { key: "slack-webhook-fail", name: "Slack: Falló registro de webhook", description: "Avisa cuando SignNow rechaza el registro del webhook de firma para un contrato — para no descubrirlo semanas después.", trigger: "on-demand", bucket: "automatizaciones", source: "system_job_runs", sourceKey: "slack:notifyContractWebhookRegistrationFailed" },
 ]
 
 const BRIEFING_TYPES = ["community", "leads", "prospecting", "unanswered"]
