@@ -325,12 +325,13 @@ function CompetitorResearchContent() {
 
       // Derive weekly usage from the returned items — no extra API call needed.
       // The backend returns the last 20 items ordered by created_at DESC;
-      // since the limit is 3/week, this window is always enough.
+      // that window comfortably covers a few weeks even with a raised limit.
+      // weekly_limit reflects the client's own override (default 3) from the backend.
       const weekStart = startOfCurrentWeekUTC()
       const thisWeekCount = items.filter(
         item => new Date(item.created_at) >= weekStart
       ).length
-      setWeekUsage({ used: thisWeekCount, limit: WEEKLY_LIMIT })
+      setWeekUsage({ used: thisWeekCount, limit: data.weekly_limit ?? WEEKLY_LIMIT })
     } catch { } finally { setHistoryLoading(false) }
   }, [activeClientId])
 

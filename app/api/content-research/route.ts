@@ -665,7 +665,17 @@ export async function GET(req: NextRequest) {
       .limit(20)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ items: data ?? [] })
+
+    const { data: clientRow } = await supabase
+      .from("clients")
+      .select("weekly_research_limit")
+      .eq("id", scope.clientId)
+      .maybeSingle()
+
+    return NextResponse.json({
+      items: data ?? [],
+      weekly_limit: (clientRow as any)?.weekly_research_limit ?? DEFAULT_WEEKLY_LIMIT,
+    })
   } catch (err: any) {
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
   }
@@ -673,7 +683,7 @@ export async function GET(req: NextRequest) {
 
 // ─── POST: nueva investigación ────────────────────────────────────────────────
 
-const WEEKLY_LIMIT = 3
+const DEFAULT_WEEKLY_LIMIT = 3
 
 export async function POST(req: NextRequest) {
   const limited = rateLimit(req, { bucket: "content-research", limit: 6, windowMs: 60_000 })
@@ -695,6 +705,13 @@ export async function POST(req: NextRequest) {
     const scope = await resolveClientScope(supabase, user.id, requestedClientId ?? null)
     if (!scope.ok) return NextResponse.json({ error: scope.message }, { status: scope.status })
     if (!scope.clientId) return NextResponse.json({ error: "Missing client_id" }, { status: 400 })
+
+    const { data: clientRow } = await supabase
+      .from("clients")
+      .select("weekly_research_limit")
+      .eq("id", scope.clientId)
+      .maybeSingle()
+    const weeklyLimit = (clientRow as any)?.weekly_research_limit ?? DEFAULT_WEEKLY_LIMIT
 
     const isInstagram = platform === "instagram" || /instagram\.com/.test(channel_url)
 
@@ -771,11 +788,11 @@ export async function POST(req: NextRequest) {
     const nextMonday = new Date(weekStart)
     nextMonday.setUTCDate(nextMonday.getUTCDate() + 7)
 
-    if ((weekCount ?? 0) >= WEEKLY_LIMIT) {
+    if ((weekCount ?? 0) >= weeklyLimit) {
       return NextResponse.json({
-        error:       `Límite semanal alcanzado. Podés realizar hasta ${WEEKLY_LIMIT} análisis nuevos por semana. Los análisis ya realizados seguirán disponibles en tu historial.`,
-        limit:        WEEKLY_LIMIT,
-        used:         weekCount ?? WEEKLY_LIMIT,
+        error:       `Límite semanal alcanzado. Podés realizar hasta ${weeklyLimit} análisis nuevos por semana. Los análisis ya realizados seguirán disponibles en tu historial.`,
+        limit:        weeklyLimit,
+        used:         weekCount ?? weeklyLimit,
         resets_at:    nextMonday.toISOString(),
         limit_reached: true,
       }, { status: 429 })
@@ -872,7 +889,7 @@ export async function POST(req: NextRequest) {
       videos:        videosWithAnalysis,
       cached:        false,
       used:          (weekCount ?? 0) + 1,
-      limit:         WEEKLY_LIMIT,
+      limit:         weeklyLimit,
     })
   } catch (err: any) {
     console.error("[content-research][POST] error:", err)
