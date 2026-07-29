@@ -37,10 +37,10 @@ export async function assemblyAITranscript(cdnUrl: string, timeoutMs = 200_000):
     }
   } catch {}
 
-  // 3. Try multiple body formats until one is accepted (API format varies by account tier)
+  // 3. Try multiple body formats until one is accepted (API format varies by account tier).
+  // "speech_model" (singular) fue deprecado por AssemblyAI — siempre devuelve 400 ahora,
+  // así que no tiene sentido intentarlo. "speech_models" (plural, array) es el reemplazo.
   const submitBodies = [
-    { audio_url: audioUrl, speech_model: "nano" },
-    { audio_url: audioUrl, speech_model: "universal-2" },
     { audio_url: audioUrl, speech_models: ["universal-2"] },
     { audio_url: audioUrl },
   ]
