@@ -11,6 +11,11 @@
 
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return
+  // Solo en deploys reales de Vercel — VERCEL=1 no está seteado en local. Sin
+  // esto, correr `pnpm dev` (que apunta al mismo Supabase de producción)
+  // termina insertando ruido de desarrollo (Fast Refresh, GoTrueClient
+  // duplicado, Server Actions viejas) en la tabla compartida de app_logs.
+  if (!process.env.VERCEL) return
 
   const { createServiceClient } = await import("@/lib/supabase-service")
 
