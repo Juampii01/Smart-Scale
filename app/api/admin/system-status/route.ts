@@ -54,6 +54,7 @@ const JOB_REGISTRY: RegistryEntry[] = [
 
   // ─── Constructores ──────────────────────────────────────────────────────
   { key: "builder", name: "Constructor de agentes", description: "Agente y sandbox ya creados (Managed Agents) — falta conectar un token de GitHub para que pueda pushear y abrir PRs contra este repo.", trigger: "configurado, falta credencial de GitHub", bucket: "constructores", source: "static", sourceKey: "builder", staticStatus: "idle" },
+  { key: "error-watch", name: "Error Watch (autodiagnóstico)", description: "Detecta errores/warnings nuevos en app_logs (dedupeados) y le pide al Constructor un diagnóstico de solo lectura — nunca aplica un fix solo, avisa por push para que se autorice manualmente.", trigger: "cada 30 minutos", bucket: "constructores", source: "system_job_runs", sourceKey: "error-watch" },
 
   // ─── Automatizaciones (webhooks + notificadores, disparados por evento) ──
   { key: "webhook-payment", name: "Webhook: Pagos (Stripe)", description: "Recibe confirmaciones de pago de Stripe (vía Zapier) y las guarda.", trigger: "on-demand", bucket: "automatizaciones", source: "system_job_runs", sourceKey: "webhook:payment" },
