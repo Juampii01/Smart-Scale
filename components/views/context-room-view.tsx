@@ -273,6 +273,10 @@ function AboutYouTab({ ctx, set }: { ctx: Ctx; set: (k: string, v: string) => vo
       <Field label="¿Qué parte de tu trabajo te enciende de verdad?" hint="¿Escribir? ¿Filmar? ¿Estrategia? ¿Avances de clientes? ¿Hablar en público?">
         <textarea className={areaCls} rows={3} value={ctx.lights ?? ""} onChange={e => set("lights", e.target.value)} />
       </Field>
+
+      <Field label="¿Qué es lo que más te frustra de tu situación actual?" hint="Sin filtro. Puede ser del negocio, del día a día, o de cómo te sentís vos en esto ahora mismo.">
+        <textarea className={areaCls} rows={3} value={ctx.frustration ?? ""} onChange={e => set("frustration", e.target.value)} />
+      </Field>
     </div>
   )
 }
@@ -283,6 +287,29 @@ function AboutBusinessTab({ ctx, set, getArr, setArr }: { ctx: Ctx; set: (k: str
   return (
     <div className="space-y-8">
       <p className={hintCls}>Cuanto más completa sea la foto que nos des, más fugas y oportunidades podemos detectar.</p>
+
+      <Field label="¿Cómo describirías tu negocio en una frase?" hint="Sin jerga de marketing. Como se lo explicarías a alguien en un ascensor.">
+        <input className={inputCls} value={ctx.businessOneLiner ?? ""} onChange={e => set("businessOneLiner", e.target.value)} />
+      </Field>
+
+      <div className="grid sm:grid-cols-2 gap-6">
+        <Field label="¿En qué etapa sentís que estás ahora?">
+          <select className={cn(inputCls, "cursor-pointer")} value={ctx.stage ?? ""} onChange={e => set("stage", e.target.value)}>
+            <option value="">Elegí…</option>
+            <option value="Recién comenzando">Recién comenzando</option>
+            <option value="Validado">Validado</option>
+            <option value="Buscando escalar">Buscando escalar</option>
+          </select>
+        </Field>
+        <Field label="¿Cuál es tu meta principal para los próximos 3-6 meses?" hint="Con un número si podés (revenue, clientes, lo que estés mirando).">
+          <input className={inputCls} value={ctx.goal3to6 ?? ""} onChange={e => set("goal3to6", e.target.value)} />
+        </Field>
+      </div>
+
+      <Field label="¿Cuál es el cuello de botella más grande que sentís que te impide crecer?"
+        hint="Sé específico — no 'necesito más leads', sino dónde puntualmente se traba.">
+        <textarea className={areaCls} rows={3} value={ctx.bottleneck ?? ""} onChange={e => set("bottleneck", e.target.value)} />
+      </Field>
 
       <Field label="Contanos tu oferta actual en detalle"
         hint="Nombre de la oferta, qué entrega, formato (1-a-1, grupal, híbrido), duración del trabajo, qué incluye. Como si se lo explicaras a un amigo que está pensando en sumarse.">
