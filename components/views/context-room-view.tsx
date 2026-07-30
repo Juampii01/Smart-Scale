@@ -499,7 +499,11 @@ function HowYouGotHereTab({ ctx, set }: { ctx: Ctx; set: (k: string, v: string) 
     <div className="space-y-8">
       <p className={hintCls}>Nos ayuda a sumar gente como vos, y nos dice a qué tipo de contenido respondés.</p>
       <Field label="¿Cómo te enteraste de Smart Scale?">
-        {sel("howFound", ["Instagram", "YouTube", "Referido", "LinkedIn", "Podcast", "Evento", "Otro"])}
+        {sel("howFound", ["Instagram", "YouTube", "Referido"])}
+      </Field>
+      <Field label="¿Ya eras parte de Smart Scale Academy antes de sumarte a este programa?"
+        hint="Academy es nuestro producto low ticket — si veniste de ahí, ya nos conocías de antes.">
+        {sel("cameFromAcademy", ["Sí", "No"])}
       </Field>
       <div className="grid sm:grid-cols-2 gap-6">
         <Field label="¿Hace cuánto, más o menos?">

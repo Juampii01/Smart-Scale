@@ -5,7 +5,7 @@ import {
   X, DollarSign, ClipboardList, Table2, Users2,
   UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
   MessageSquareText, UserPlus,
-  LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2, Instagram, Sparkles, Activity, RefreshCw,
+  LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2, Instagram, Sparkles, Activity, RefreshCw, UserCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -46,6 +46,7 @@ const PROSPECCION_NAV_ITEMS = [
 const OPERACIONES_NAV_ITEMS = [
   { name: "Centro Operativo", href: "/admin/centro-operativo", icon: Layers },
   { name: "Tareas",           href: "/admin/tareas",           icon: CheckSquare },
+  { name: "Mi Context Room",  href: "/admin/mi-context-room",  icon: UserCircle },
 ]
 
 const DESARROLLADOR_NAV_ITEMS = [
