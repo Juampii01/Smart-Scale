@@ -49,6 +49,9 @@ export async function getClientActivitySnapshot(sb: SB): Promise<ClientActivity[
     .select("id, client_id, name, last_inactivity_email_sent_at")
     .eq("role", "client")
     .not("client_id", "is", null)
+    // Excluye clientes desactivados (profiles.active = false) — no tiene
+    // sentido mandarles recordatorios (email/push) si ya no pueden entrar.
+    .or("active.is.null,active.eq.true")
 
   const rows = (profiles ?? []) as { id: string; client_id: string; name: string | null; last_inactivity_email_sent_at: string | null }[]
   if (rows.length === 0) return []
