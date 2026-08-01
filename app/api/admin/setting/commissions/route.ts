@@ -108,11 +108,11 @@ export async function GET(req: NextRequest) {
 
     for (const client of clients) {
       const rawSid = ((client as any).setter_id as string | null) || null
-      const rawSetterText = (((client as any).setter as string | null) ?? "").trim() || null
-      // Setters con perfil → se agrupan por uuid. Setters sin perfil (ej: Fabri, que
-      // dejó el equipo pero sigue cobrando comisión) → se agrupan por crm_clients.setter (texto).
-      const groupKey = rawSid ?? (rawSetterText ? `text:${rawSetterText}` : null)
-      if (!groupKey) continue
+      // Setters sin perfil (dejaron el equipo, ej: Fabri) ya no ganan comisión —
+      // crm_clients.setter (texto) queda como registro histórico de quién cerró
+      // al cliente, pero no genera una fila de comisión a pagar.
+      if (!rawSid) continue
+      const groupKey = rawSid
 
       // ¿Cerró este mes? — por program_start (date "YYYY-MM-DD")
       const programStart: string | null = (client as any).program_start ?? null
@@ -134,11 +134,9 @@ export async function GET(req: NextRequest) {
       const contractValue = Number((client as any).total_amount ?? 0) ||
         (Number((client as any).installment_amount ?? 0) * Number((client as any).num_installments ?? 1))
 
-      const profile = rawSid ? setterProfiles.get(rawSid) : null
-      const groupName = rawSid ? (profile?.name ?? null) : rawSetterText
-      // Setters de texto (sin perfil) no tienen dónde guardar una tasa propia
-      // todavía — usan el default. Los con perfil usan profiles.commission_rate
-      // si está seteado, si no también caen al default.
+      const profile = setterProfiles.get(rawSid)
+      const groupName = profile?.name ?? null
+      // Usa profiles.commission_rate si está seteado; si no, cae al default.
       const groupRate = (profile?.commission_rate != null ? profile.commission_rate / 100 : DEFAULT_COMMISSION_RATE)
       const rec = ensure(groupKey, groupName, groupRate)
       if (isNew) {
