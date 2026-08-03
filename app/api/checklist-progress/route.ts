@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse, after } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { isAdmin } from "@/lib/auth/permissions"
+import { checkAndNotifyLevelCompletion } from "@/lib/checklist-level-progress"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -95,6 +96,7 @@ export async function POST(req: NextRequest) {
           updated_by: auth.user.id,
         }, { onConflict: "client_id,task_key" })
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+      after(() => checkAndNotifyLevelCompletion(client_id))
     } else {
       const { error } = await supabase
         .from("client_checklist_progress")

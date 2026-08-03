@@ -207,3 +207,59 @@ export async function notifyClientOnboarded(payload: {
   return result
 }
 
+// ─── Notification: checklist level completed ─────────────────────────────────
+// Canal fijo de equipo (no uno por cliente) — se crea/busca una sola vez.
+
+/**
+ * Encuentra o crea un canal de EQUIPO (sin el prefijo "cl-" de los canales
+ * por cliente) — mismo mecanismo que createSlackChannel, para canales
+ * internos fijos como "posi-niveles".
+ */
+export async function findOrCreateTeamChannel(channelName: string): Promise<SlackResult> {
+  const name = toChannelName(channelName)
+
+  const data = await slackApi("conversations.create", { name, is_private: false })
+  if (data.ok) return { ok: true, channel_id: data.channel?.id }
+
+  if (data.error === "name_taken") {
+    const list = await slackApi("conversations.list", {
+      exclude_archived: true,
+      types: "public_channel",
+      limit: 1000,
+    })
+    const existing = (list.channels ?? []).find((c: any) => c.name === name)
+    if (existing) return { ok: true, channel_id: existing.id }
+    return { ok: false, error: "name_taken but channel not found in list" }
+  }
+
+  return { ok: false, error: data.error ?? "Unknown error creating channel" }
+}
+
+/**
+ * Aviso al equipo cuando un cliente completa un nivel del Program Checklist
+ * ("Posi") — el llamador (lib/checklist-level-progress.ts) ya se aseguró de
+ * que sea la primera vez que este cliente cruza el umbral para este nivel.
+ */
+export async function notifyChecklistLevelCompleted(payload: {
+  client_name: string
+  level:       string
+  pct:         number
+}): Promise<SlackResult> {
+  const channelResult = await findOrCreateTeamChannel("posi-niveles")
+  if (!channelResult.ok || !channelResult.channel_id) {
+    const error = channelResult.error ?? "No channel id"
+    await logJobRun(createServiceClient(), "slack:notifyChecklistLevelCompleted", "error", error)
+    return { ok: false, error }
+  }
+
+  const blocks = [
+    header("✅ Nivel completado"),
+    section(`*${payload.client_name}* completó el *${payload.level}* del checklist (${payload.pct}%).`),
+    context(`Program Checklist · ${new Date().toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}`),
+  ]
+
+  const result = await postToChannel(channelResult.channel_id, blocks, `✅ ${payload.client_name} completó ${payload.level}`)
+  await logJobRun(createServiceClient(), "slack:notifyChecklistLevelCompleted", result.ok ? "ok" : "error", result.error)
+  return result
+}
+

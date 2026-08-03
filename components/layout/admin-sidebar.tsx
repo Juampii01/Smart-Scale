@@ -5,7 +5,7 @@ import {
   X, DollarSign, ClipboardList, Table2, Users2,
   UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
   MessageSquareText, UserPlus,
-  LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2, Instagram, Sparkles, Activity, RefreshCw, UserCircle,
+  LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2, Instagram, Sparkles, Activity, RefreshCw, UserCircle, Wallet,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -34,6 +34,7 @@ const FOUNDER_NAV_ITEMS = [
   { name: "Contratación",     href: "/admin/team-applications", icon: Briefcase },
   { name: "Notificaciones",   href: "/admin/notificaciones",    icon: Bell },
   { name: "Actualizar Sistema", href: "/admin/actualizar-sistema", icon: RefreshCw },
+  { name: "Check-in Trimestral", href: "/admin/founder-checkins", icon: Wallet },
 ]
 
 const PROSPECCION_NAV_ITEMS = [
