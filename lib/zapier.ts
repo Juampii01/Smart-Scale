@@ -158,6 +158,8 @@ export async function zapierEODSubmitted(payload: {
   new_conversations_outbound:  number
   outbound_replies:            number
   qualified_leads:             number
+  inbound_qualified:           number
+  outbound_qualified:          number
   offer_docs_sent:             number
   offer_doc_responses:         number
   calls_done:                  number

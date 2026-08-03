@@ -17,6 +17,8 @@ export const dynamic = "force-dynamic"
     new_conversations        integer not null default 0,
     conversations_replied    integer not null default 0,
     qualified_leads          integer not null default 0,
+    inbound_qualified        integer not null default 0,
+    outbound_qualified       integer not null default 0,
     offer_docs_sent          integer not null default 0,
     offer_doc_responses      integer not null default 0,
     calls_done               integer not null default 0,
@@ -33,6 +35,7 @@ const ALL_FIELDS = [
   "id", "setter_id", "date",
   "new_conversations_inbound", "new_conversations_outbound", "outbound_replies",
   "conversations_replied", "qualified_leads",
+  "inbound_qualified", "outbound_qualified",
   "offer_docs_sent", "offer_doc_responses", "calls_done",
   "inbound_applications", "cierres",
   "notes", "created_at", "updated_at",
@@ -41,6 +44,7 @@ const ALL_FIELDS = [
 const NUMERIC_FIELDS = [
   "new_conversations_inbound", "new_conversations_outbound", "outbound_replies",
   "conversations_replied", "qualified_leads",
+  "inbound_qualified", "outbound_qualified",
   "offer_docs_sent", "offer_doc_responses", "calls_done",
   "inbound_applications", "cierres",
 ] as const
@@ -169,6 +173,8 @@ export async function POST(req: NextRequest) {
       new_conversations_outbound: row.new_conversations_outbound ?? 0,
       outbound_replies:           row.outbound_replies           ?? 0,
       qualified_leads:            row.qualified_leads            ?? 0,
+      inbound_qualified:          row.inbound_qualified          ?? 0,
+      outbound_qualified:         row.outbound_qualified         ?? 0,
       offer_docs_sent:            row.offer_docs_sent            ?? 0,
       offer_doc_responses:        row.offer_doc_responses        ?? 0,
       calls_done:                 row.calls_done                 ?? 0,

@@ -13,6 +13,7 @@ const FIELD_GROUPS = [
     color: "bg-blue-500",
     fields: [
       { key: "new_conversations_inbound", label: "Conversaciones inbound", hint: "Total recibidas" },
+      { key: "inbound_qualified",         label: "Calificados inbound",   hint: "De las conversaciones inbound, cuántas calificaron" },
     ],
   },
   {
@@ -22,6 +23,7 @@ const FIELD_GROUPS = [
     fields: [
       { key: "new_conversations_outbound", label: "Contactos outbound",  hint: "Leads contactados" },
       { key: "outbound_replies",           label: "Respuestas outbound", hint: "Respondieron" },
+      { key: "outbound_qualified",         label: "Calificados outbound", hint: "De las respuestas outbound, cuántas calificaron" },
     ],
   },
   {
@@ -33,7 +35,6 @@ const FIELD_GROUPS = [
       { key: "qualified_leads",       label: "Leads 4-5 estrellas",     hint: "Calificados" },
       { key: "offer_docs_sent",       label: "Offer docs enviados",     hint: "Documentos enviados" },
       { key: "offer_doc_responses",   label: "Respuestas a offer doc",  hint: "Respondieron el doc" },
-      { key: "calls_done",            label: "Llamadas hechas",         hint: "Calls completadas" },
       { key: "cierres",               label: "Cierres",                 hint: "Contratos cerrados hoy" },
     ],
   },
@@ -41,13 +42,14 @@ const FIELD_GROUPS = [
 
 type FieldKey =
   | "new_conversations_inbound"
+  | "inbound_qualified"
   | "inbound_applications"
   | "new_conversations_outbound"
   | "outbound_replies"
+  | "outbound_qualified"
   | "qualified_leads"
   | "offer_docs_sent"
   | "offer_doc_responses"
-  | "calls_done"
   | "cierres"
 
 type FormValues = Record<FieldKey, string>
@@ -71,13 +73,14 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
   const [notes, setNotes] = useState("")
   const [values, setValues] = useState<FormValues>({
     new_conversations_inbound:  "",
+    inbound_qualified:          "",
     inbound_applications:       "",
     new_conversations_outbound: "",
     outbound_replies:           "",
+    outbound_qualified:         "",
     qualified_leads:            "",
     offer_docs_sent:            "",
     offer_doc_responses:        "",
-    calls_done:                 "",
     cierres:                    "",
   })
   const [status,   setStatus]   = useState<"idle" | "saving" | "saved" | "error">("idle")
@@ -104,26 +107,28 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
           if (existing) {
             setValues({
               new_conversations_inbound:  String(existing.new_conversations_inbound  ?? ""),
+              inbound_qualified:          String(existing.inbound_qualified          ?? ""),
               inbound_applications:       String(existing.inbound_applications       ?? ""),
               new_conversations_outbound: String(existing.new_conversations_outbound ?? ""),
               outbound_replies:           String(existing.outbound_replies           ?? ""),
+              outbound_qualified:         String(existing.outbound_qualified         ?? ""),
               qualified_leads:            String(existing.qualified_leads            ?? ""),
               offer_docs_sent:            String(existing.offer_docs_sent            ?? ""),
               offer_doc_responses:        String(existing.offer_doc_responses        ?? ""),
-              calls_done:                 String(existing.calls_done                 ?? ""),
               cierres:                    String(existing.cierres                    ?? ""),
             })
             setNotes(existing.notes ?? "")
           } else {
             setValues({
               new_conversations_inbound:  "",
+              inbound_qualified:          "",
               inbound_applications:       "",
               new_conversations_outbound: "",
               outbound_replies:           "",
+              outbound_qualified:         "",
               qualified_leads:            "",
               offer_docs_sent:            "",
               offer_doc_responses:        "",
-              calls_done:                 "",
               cierres:                    "",
             })
             setNotes("")
