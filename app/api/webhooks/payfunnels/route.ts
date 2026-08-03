@@ -37,7 +37,7 @@ import { logJobRun } from "@/lib/system-log"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-const ALBERTO_CLIENT_ID = "09314097-df56-450f-980e-38ec1e61f246"
+const ALBERTO_CLIENT_ID = "6d6c4dc8-e158-4f87-8612-e948c1a31cbb"
 
 // Setter por defecto para las ventas que entran solas por este webhook (no
 // hay un setter humano "cerrando" la venta acá, así que se le asigna a
