@@ -64,8 +64,8 @@ const PAGE_TITLES: Record<string, string> = {
 // Accesos rápidos del cliente: llevan directo a cargar cada form.
 const QUICK_ACTIONS: { label: string; short: string; href: string; Icon: typeof Coins }[] = [
   { label: "Cha-Ching",       short: "Cha-Ching", href: "/chi-chang",    Icon: Coins        },
-  { label: "Monday Win",      short: "Monday",    href: "/monday-win",   Icon: Trophy       },
-  { label: "Reporte Mensual", short: "Reporte",   href: "/report-input", Icon: FileBarChart },
+  { label: "Monday Win",      short: "Monday Win",   href: "/monday-win",   Icon: Trophy       },
+  { label: "Reporte Mensual", short: "Reporte Mensual", href: "/report-input", Icon: FileBarChart },
 ]
 
 const SelectedMonthContext = createContext<string | null>(null)
