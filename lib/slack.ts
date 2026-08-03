@@ -263,3 +263,30 @@ export async function notifyChecklistLevelCompleted(payload: {
   return result
 }
 
+// ─── Notification: Posi level passed ─────────────────────────────────────────
+// Canal fijo de equipo "posi-evaluaciones" (distinto de "posi-niveles", que
+// avisa por % de tareas tildadas del checklist — esto es por examen aprobado).
+
+export async function notifyPosiLevelPassed(payload: {
+  client_name:  string
+  level_title:  string
+  score:        number
+}): Promise<SlackResult> {
+  const channelResult = await findOrCreateTeamChannel("posi-evaluaciones")
+  if (!channelResult.ok || !channelResult.channel_id) {
+    const error = channelResult.error ?? "No channel id"
+    await logJobRun(createServiceClient(), "slack:notifyPosiLevelPassed", "error", error)
+    return { ok: false, error }
+  }
+
+  const blocks = [
+    header("🎓 Posi aprobado"),
+    section(`*${payload.client_name}* aprobó el formulario de *${payload.level_title}* con ${payload.score}%.`),
+    context(`Habilitá el siguiente módulo · ${new Date().toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}`),
+  ]
+
+  const result = await postToChannel(channelResult.channel_id, blocks, `🎓 ${payload.client_name} aprobó ${payload.level_title} (${payload.score}%)`)
+  await logJobRun(createServiceClient(), "slack:notifyPosiLevelPassed", result.ok ? "ok" : "error", result.error)
+  return result
+}
+
