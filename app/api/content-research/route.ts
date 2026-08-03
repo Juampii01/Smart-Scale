@@ -600,9 +600,16 @@ async function generateAnalyses(channelName: string, videos: any[]): Promise<str
     if (!apiKey) throw new Error("Missing ANTHROPIC_API_KEY")
 
     const anthropic = new Anthropic({ apiKey })
+    // Los títulos/captions que vienen de Apify a veces llegan truncados a
+    // mitad de un emoji (surrogate alto sin su par bajo) — eso rompe el JSON
+    // del request a Anthropic con "no low surrogate in string". Se limpia
+    // acá antes de interpolar, en vez de confiar en que el scraping siempre
+    // devuelva UTF-16 bien formado.
+    const stripLoneSurrogates = (s: string) =>
+      s.replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, "")
     const list = videos
       .map((v, i) =>
-        `${i + 1}. "${v.title}" — ${v.views.toLocaleString()} views, ${v.likes.toLocaleString()} likes, ${v.comments.toLocaleString()} comentarios`
+        `${i + 1}. "${stripLoneSurrogates(String(v.title ?? ""))}" — ${v.views.toLocaleString()} views, ${v.likes.toLocaleString()} likes, ${v.comments.toLocaleString()} comentarios`
       )
       .join("\n")
 

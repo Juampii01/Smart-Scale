@@ -83,6 +83,12 @@ export async function register() {
     try {
       const { route, message, context } = parse(args)
       if (!message) return
+      // Node imprime sus DeprecationWarning/ExperimentalWarning internos vía
+      // console.error (es el handler default de `process.on("warning")`) —
+      // no son errores de la app, y como no vienen de nuestro código no hay
+      // nada que "arreglar": solo ensucian app_logs. Se descartan acá en vez
+      // de en cada caller.
+      if (/DeprecationWarning|ExperimentalWarning/.test(message)) return
       const sb = createServiceClient()
       const { error: insertError } = await sb.from("app_logs").insert({
         level,

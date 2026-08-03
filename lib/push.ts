@@ -41,6 +41,10 @@ async function sendToSubs(sb: SB, subs: SubRow[], payload: PushPayload) {
       // 404/410 = suscripción muerta → limpiar
       if (err?.statusCode === 404 || err?.statusCode === 410) {
         await sb.from("push_subscriptions").delete().eq("id", s.id)
+      } else if (err?.code === "EPIPE" || err?.code === "ECONNRESET" || err?.code === "ETIMEDOUT") {
+        // Error de transporte transitorio (el dispositivo se desconectó a
+        // mitad del envío) — no es accionable, no tiene sentido loguearlo
+        // como error real cada vez que pasa.
       } else {
         console.error("[push] error enviando:", err?.statusCode, err?.message)
       }

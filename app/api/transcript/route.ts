@@ -803,7 +803,6 @@ async function generateSummarySafe(
     return { summary: await generateSummary(transcript, creator), warning: null }
   } catch (err: any) {
     const overloaded =
-      err instanceof Anthropic.OverloadedError ||
       err?.status === 529 ||
       /overloaded|529/i.test(err?.message ?? "")
     console.error("[transcript] summary failed:", err?.status, err?.message)
@@ -923,7 +922,6 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     console.error("[transcript] error:", err)
     const overloaded =
-      err instanceof Anthropic.OverloadedError ||
       err?.status === 529 ||
       /overloaded|529/i.test(err?.message ?? "")
     return NextResponse.json(

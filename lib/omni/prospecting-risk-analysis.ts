@@ -157,7 +157,10 @@ Respondé SOLO con un JSON array. Si ninguna conversación está en riesgo, devo
   try {
     msg = await anthropic.messages.create({
       model: "claude-sonnet-4-5",
-      max_tokens: 3000,
+      // 3000 se quedaba corto con varios prospectos en riesgo (cada finding
+      // tiene 4 campos de texto libre) y cortaba el JSON a mitad de un string
+      // — "Unterminated string in JSON", recurrente en el cron diario.
+      max_tokens: 8000,
       system: systemPrompt,
       messages: [{ role: "user", content: prompt }],
     })

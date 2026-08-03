@@ -42,7 +42,7 @@ async function exchangeInstagram(code: string, redirectUri: string) {
     { signal: AbortSignal.timeout(10_000) },
   )
   const llText = await llRes.text()
-  if (!llRes.ok) throw new Error(`IG long-token ${llRes.status}`)
+  if (!llRes.ok) throw new Error(`IG long-token ${llRes.status}: ${llText.slice(0, 150)}`)
   let longData: { access_token?: string; expires_in?: number } = {}
   try { longData = JSON.parse(llText) } catch { /* non-JSON */ }
   if (longData.access_token) {
