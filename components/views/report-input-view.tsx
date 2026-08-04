@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase"
 import { useOwnClient, useActiveClient, useActiveClientName, useSelectedMonth, useUserRole } from "@/components/layout/dashboard-layout"
-import { isDeveloper } from "@/lib/auth/permissions"
+import { isDeveloper, isAdmin as isAdminRole } from "@/lib/auth/permissions"
 import { fakeMonthlyReport } from "@/lib/dev-test-data"
 import { CheckCircle, AlertCircle, Loader2, AlertTriangle, History, FileText, Eye, FlaskConical, Sparkles } from "lucide-react"
 import { ReportHistoryView } from "@/components/views/report-history-view"
@@ -248,6 +248,8 @@ export function ReportInputView() {
   const [loadingExisting, setLoadingExisting] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [showCelebration, setShowCelebration] = useState(false)
+  const isAdmin = isAdminRole(userRole)
+  const [mrrCalc, setMrrCalc] = useState<{ loading: boolean; value: number | null; error: string | null }>({ loading: false, value: null, error: null })
 
   // Load existing report for selected client+month
   useEffect(() => {
@@ -284,6 +286,26 @@ export function ReportInputView() {
 
   const setValue = (key: string, val: string) => {
     setValues((prev) => ({ ...prev, [key]: val }))
+  }
+
+  // Solo admin (Ann/Juampi/Steffano) — el MRR calculado es de TODA la
+  // empresa, no de un cliente puntual, así que nunca se le muestra a un
+  // cliente normal llenando su propio reporte.
+  const fetchCalculatedMRR = async () => {
+    setMrrCalc({ loading: true, value: null, error: null })
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) { setMrrCalc({ loading: false, value: null, error: "Sin sesión" }); return }
+      const res = await fetch(`/api/admin/mrr?month=${month}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const json = await res.json()
+      if (!res.ok) { setMrrCalc({ loading: false, value: null, error: json?.error ?? "Error" }); return }
+      setMrrCalc({ loading: false, value: json.mrr, error: null })
+    } catch (err: any) {
+      setMrrCalc({ loading: false, value: null, error: err?.message ?? "Error inesperado" })
+    }
   }
 
   // Called after confirmation (or directly if no existing data).
@@ -565,6 +587,28 @@ export function ReportInputView() {
                             : "border-foreground/[0.08] bg-foreground/[0.04] focus:border-[#dafc69]/40 focus:ring-[#dafc69]/20"
                         }`}
                       />
+                    )}
+                    {field.key === "mrr" && isAdmin && (
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <button
+                          type="button"
+                          onClick={fetchCalculatedMRR}
+                          disabled={mrrCalc.loading}
+                          className="text-[11px] font-medium text-[#dafc69] hover:text-[#f2ffc0] transition-colors disabled:opacity-50"
+                        >
+                          {mrrCalc.loading ? "Calculando…" : "Usar calculado (todos los clientes activos)"}
+                        </button>
+                        {mrrCalc.value !== null && (
+                          <button
+                            type="button"
+                            onClick={() => setValue("mrr", String(mrrCalc.value))}
+                            className="text-[11px] font-semibold text-foreground/70 hover:text-foreground underline transition-colors"
+                          >
+                            ${mrrCalc.value.toLocaleString()} — usar
+                          </button>
+                        )}
+                        {mrrCalc.error && <span className="text-[11px] text-red-700 dark:text-red-400">{mrrCalc.error}</span>}
+                      </div>
                     )}
                   </div>
                 )

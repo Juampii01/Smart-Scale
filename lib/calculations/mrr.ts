@@ -19,43 +19,20 @@ export interface ClientMRRCalculation {
   reason?: string
 }
 
-/**
- * Calculate MRR for a specific setter in a given month
- */
-export async function calculateMRRForSetter(
-  setterId: string,
-  month: string  // YYYY-MM-01 format
-): Promise<{ mrr: number; breakdown: ClientMRRCalculation[] }> {
-  const supabase = createServiceClient()
+type MRRClientRow = {
+  id: string
+  name: string
+  is_monthly_subscription: boolean | null
+  installment_amount: number | null
+  num_installments: number | null
+  program_start: string
+  program_duration: number | null
+}
 
-  // Parse month to get start and end dates
-  const monthStart = new Date(month)
-  const monthEnd = new Date(monthStart)
-  monthEnd.setMonth(monthEnd.getMonth() + 1, 0)
-
-  // Query all active clients where closer_id = setterId
-  const { data: clients, error: clientsErr } = await supabase
-    .from("crm_clients")
-    .select(
-      `
-      id,
-      name,
-      status,
-      is_monthly_subscription,
-      installment_amount,
-      num_installments,
-      program_start,
-      program_duration
-      `
-    )
-    .eq("status", "activo")
-    .eq("closer_id", setterId)
-
-  if (clientsErr || !clients) {
-    console.error("Error querying clients for MRR:", clientsErr)
-    return { mrr: 0, breakdown: [] }
-  }
-
+/** Lógica compartida de amortización — separada para poder calcularla tanto
+ *  por setter (calculateMRRForSetter) como para toda la empresa
+ *  (calculateCompanyMRR), sin duplicar el loop. */
+function computeMRRFromClients(clients: MRRClientRow[], month: string): { mrr: number; breakdown: ClientMRRCalculation[] } {
   let totalMRR = 0
   const breakdown: ClientMRRCalculation[] = []
 
@@ -115,6 +92,52 @@ export async function calculateMRRForSetter(
     mrr: Math.round(totalMRR * 100) / 100,
     breakdown,
   }
+}
+
+/**
+ * Calculate MRR for a specific setter in a given month
+ */
+export async function calculateMRRForSetter(
+  setterId: string,
+  month: string  // YYYY-MM-01 format
+): Promise<{ mrr: number; breakdown: ClientMRRCalculation[] }> {
+  const supabase = createServiceClient()
+
+  const { data: clients, error: clientsErr } = await supabase
+    .from("crm_clients")
+    .select("id, name, status, is_monthly_subscription, installment_amount, num_installments, program_start, program_duration")
+    .eq("status", "activo")
+    .eq("closer_id", setterId)
+
+  if (clientsErr || !clients) {
+    console.error("Error querying clients for MRR:", clientsErr)
+    return { mrr: 0, breakdown: [] }
+  }
+
+  return computeMRRFromClients(clients as MRRClientRow[], month)
+}
+
+/**
+ * Calculate MRR para TODA la empresa (todos los clientes activos, sin
+ * filtrar por setter) — usado en el Dashboard Ejecutivo y para pre-llenar
+ * el MRR del Reporte Mensual de Ann/Smart Scale.
+ */
+export async function calculateCompanyMRR(
+  month: string  // YYYY-MM-01 format
+): Promise<{ mrr: number; breakdown: ClientMRRCalculation[] }> {
+  const supabase = createServiceClient()
+
+  const { data: clients, error: clientsErr } = await supabase
+    .from("crm_clients")
+    .select("id, name, status, is_monthly_subscription, installment_amount, num_installments, program_start, program_duration")
+    .eq("status", "activo")
+
+  if (clientsErr || !clients) {
+    console.error("Error querying clients for company MRR:", clientsErr)
+    return { mrr: 0, breakdown: [] }
+  }
+
+  return computeMRRFromClients(clients as MRRClientRow[], month)
 }
 
 /**
