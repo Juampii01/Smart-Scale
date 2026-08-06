@@ -6,6 +6,7 @@ import {
   UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
   MessageSquareText, UserPlus,
   LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2, Instagram, Sparkles, Activity, RefreshCw, UserCircle, Wallet,
+  ChevronsLeft, ChevronsRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -66,7 +67,7 @@ const NAV_SECTIONS = [
   { title: "Desarrollador", items: DESARROLLADOR_NAV_ITEMS },
 ]
 
-export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
+export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollapsed }: AdminSidebarProps) {
   const pathname = usePathname()
   const [userRole, setUserRole]  = useState<string | null | undefined>(undefined) // undefined = aún cargando
   const [userEmail, setUserEmail] = useState<string | null>(null)
@@ -100,7 +101,8 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-[220px] transition-transform duration-200 ease-in-out lg:translate-x-0",
+          "fixed left-0 top-0 z-50 h-full w-[220px] transition-[width,transform] duration-200 ease-in-out lg:translate-x-0",
+          collapsed ? "lg:w-[64px]" : "lg:w-[220px]",
           "bg-card flex flex-col pt-[env(safe-area-inset-top)] overflow-hidden",
           "border-r border-foreground/[0.07]",
           "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-foreground/[0.08] lg:shadow-[0_10px_36px_-18px_rgba(0,0,0,0.30)]",
@@ -108,10 +110,11 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
         )}
       >
         {/* Logo + INTERNAL badge (sin línea divisoria) */}
-        <div className="flex-shrink-0 px-5 pt-4 pb-3">
-          <div className="flex items-center justify-between">
+        <div className={cn("flex-shrink-0 pt-4 pb-3", collapsed ? "px-5 lg:px-0 lg:flex lg:justify-center" : "px-5")}>
+          <div className={cn("flex items-center justify-between", collapsed && "lg:justify-center")}>
             <a href="/admin/clients" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
-              <BrandLogo />
+              <span className={collapsed ? "lg:hidden" : undefined}><BrandLogo /></span>
+              <span className={collapsed ? "hidden lg:flex" : "hidden"}><BrandLogo iconOnly /></span>
             </a>
             <button
               className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-foreground/50 hover:text-foreground hover:bg-foreground/10 transition-all"
@@ -120,20 +123,53 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
             >
               <X className="h-4 w-4" />
             </button>
+            {onToggleCollapsed && (
+              <button
+                className={cn(
+                  "hidden lg:flex h-6 w-6 items-center justify-center rounded-md text-foreground/40 hover:text-foreground hover:bg-foreground/10 transition-all",
+                  collapsed && "lg:hidden"
+                )}
+                onClick={onToggleCollapsed}
+                aria-label="Colapsar barra lateral"
+                title="Colapsar barra lateral (Ctrl+\)"
+              >
+                <ChevronsLeft className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
-          <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#dafc69]">
+          <span className={cn(
+            "mt-2 inline-flex items-center gap-1 rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#dafc69]",
+            collapsed && "lg:hidden"
+          )}>
             <ShieldCheck className="h-2.5 w-2.5" />
             Internal
           </span>
         </div>
 
+        {/* Reabrir cuando está colapsada */}
+        {collapsed && onToggleCollapsed && (
+          <div className="hidden lg:flex justify-center px-3 pb-1">
+            <button
+              className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/40 hover:text-foreground hover:bg-foreground/10 transition-all"
+              onClick={onToggleCollapsed}
+              aria-label="Expandir barra lateral"
+              title="Expandir barra lateral (Ctrl+\)"
+            >
+              <ChevronsRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+
         {/* Volver al portal (solo admin) */}
         {isAdmin(effectiveRole) && (
-          <div className="px-3 pt-1">
-            <Link href="/dashboard" onClick={onClose}>
-              <div className="group flex items-center gap-2 rounded-lg border border-foreground/[0.07] bg-foreground/[0.02] px-3 py-2 text-[12px] font-semibold text-foreground/55 hover:text-foreground hover:border-foreground/[0.15] transition-all">
+          <div className={cn("pt-1", collapsed ? "px-3 lg:px-2" : "px-3")}>
+            <Link href="/dashboard" onClick={onClose} title="Volver al portal">
+              <div className={cn(
+                "group flex items-center gap-2 rounded-lg border border-foreground/[0.07] bg-foreground/[0.02] py-2 text-[12px] font-semibold text-foreground/55 hover:text-foreground hover:border-foreground/[0.15] transition-all",
+                collapsed ? "px-3 lg:px-0 lg:justify-center" : "px-3"
+              )}>
                 <ArrowLeft className="h-3.5 w-3.5 flex-shrink-0" />
-                Volver al portal
+                <span className={collapsed ? "lg:hidden" : undefined}>Volver al portal</span>
               </div>
             </Link>
           </div>
@@ -141,16 +177,17 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
 
         {/* Ann AI (ex Omni) — sistema de IA (destacado, acceso restringido) */}
         {isOmniOwner && (
-          <div className="px-3 pt-1">
-            <Link href="/admin/omni" onClick={onClose}>
+          <div className={cn("pt-1", collapsed ? "px-3 lg:px-2" : "px-3")}>
+            <Link href="/admin/omni" onClick={onClose} title="Ann AI — Sistema IA">
               <div className={cn(
-                "flex items-center gap-2.5 rounded-lg border px-3 py-2 transition-all",
+                "flex items-center gap-2.5 rounded-lg border py-2 transition-all",
+                collapsed ? "px-3 lg:px-0 lg:justify-center" : "px-3",
                 pathname === "/admin/omni"
                   ? "border-[#dafc69]/45 bg-[#dafc69]/[0.14] text-[#dafc69]"
                   : "border-[#dafc69]/20 bg-[#dafc69]/[0.06] text-[#dafc69]/90 hover:bg-[#dafc69]/[0.12] hover:border-[#dafc69]/40"
               )}>
                 <Sparkles className="h-4 w-4 flex-shrink-0" />
-                <div className="min-w-0 leading-none">
+                <div className={cn("min-w-0 leading-none", collapsed && "lg:hidden")}>
                   <p className="text-[13px] font-bold">Ann AI</p>
                   <p className="mt-1 text-[10px] text-foreground/40">Sistema IA</p>
                 </div>
@@ -160,25 +197,29 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
         )}
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3">
+        <nav className={cn("flex-1 overflow-y-auto py-4", collapsed ? "px-3 lg:px-2" : "px-3")}>
           {visibleSections.map((section, i) => (
             <div key={section.title} className={i > 0 ? "mt-5" : undefined}>
-              <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/35">
+              <p className={cn(
+                "px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/35",
+                collapsed && "lg:hidden"
+              )}>
                 {section.title}
               </p>
               <div className="space-y-0.5">
                 {section.items.map(item => {
                   const isActive = pathname === item.href
                   return (
-                    <Link key={item.name} href={item.href} onClick={onClose}>
+                    <Link key={item.name} href={item.href} onClick={onClose} title={collapsed ? item.name : undefined}>
                       <div className={cn(
-                        "flex items-center gap-2.5 rounded-lg py-[7px] px-3 transition-all duration-150",
+                        "flex items-center gap-2.5 rounded-lg py-[7px] transition-all duration-150",
+                        collapsed ? "px-3 lg:px-0 lg:justify-center" : "px-3",
                         isActive
                           ? "bg-foreground/[0.07] text-[#dafc69]"
                           : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
                       )}>
                         <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
-                        <span className={cn("text-[13px] leading-none", isActive ? "font-semibold" : "font-medium")}>
+                        <span className={cn("text-[13px] leading-none", isActive ? "font-semibold" : "font-medium", collapsed && "lg:hidden")}>
                           {item.name}
                         </span>
                       </div>
@@ -191,10 +232,13 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
         </nav>
 
         {/* Footer — sin línea divisoria */}
-        <div className="flex-shrink-0 p-3">
-          <div className="flex items-center gap-2.5 rounded-[14px] bg-[#dafc69]/[0.07] px-3 py-2.5 border border-[#dafc69]/15">
+        <div className={cn("flex-shrink-0 p-3", collapsed && "lg:px-2")}>
+          <div className={cn(
+            "flex items-center gap-2.5 rounded-[14px] bg-[#dafc69]/[0.07] py-2.5 border border-[#dafc69]/15",
+            collapsed ? "px-3 lg:px-0 lg:justify-center" : "px-3"
+          )}>
             <ShieldCheck className="h-3.5 w-3.5 text-[#dafc69]/80 shrink-0" />
-            <div>
+            <div className={collapsed ? "lg:hidden" : undefined}>
               <p className="text-[10px] font-bold text-[#dafc69]/80 tracking-widest uppercase">Smart Scale Internal</p>
               <p className="text-[10px] text-foreground/30 mt-0.5">Admin only</p>
             </div>
