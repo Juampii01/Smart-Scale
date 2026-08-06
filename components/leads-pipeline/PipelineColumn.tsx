@@ -4,18 +4,20 @@ import { useDroppable } from "@dnd-kit/core"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import type { Lead } from "@/components/views/admin-leads-view"
 import { PipelineCard } from "./PipelineCard"
-import type { PipelineStageId } from "./constants"
 
 interface PipelineColumnProps {
-  id:          PipelineStageId
+  id:          string
   title:       string
   accentColor: string
   leads:       Lead[]
   onSelect:    (lead: Lead) => void
+  // "Sin estrellas" no es una etapa real del pipeline — se puede arrastrar
+  // leads AFUERA de ahí (para calificarlas), pero no soltar nada adentro.
+  droppable?:  boolean
 }
 
-export function PipelineColumn({ id, title, accentColor, leads, onSelect }: PipelineColumnProps) {
-  const { setNodeRef, isOver } = useDroppable({ id })
+export function PipelineColumn({ id, title, accentColor, leads, onSelect, droppable = true }: PipelineColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({ id, disabled: !droppable })
 
   return (
     <div className="flex flex-col min-h-0" style={{ minWidth: 0 }}>

@@ -6,6 +6,7 @@ import {
   PointerSensor, useSensor, useSensors, closestCorners,
 } from "@dnd-kit/core"
 import { arrayMove } from "@dnd-kit/sortable"
+import { Filter } from "lucide-react"
 import type { Lead } from "@/components/views/admin-leads-view"
 import { PipelineColumn } from "./PipelineColumn"
 import { PipelineCard } from "./PipelineCard"
@@ -32,6 +33,9 @@ function compareLeads(a: Lead, b: Lead) {
 export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) {
   const [items, setItems] = useState<Lead[]>(leads)
   const [activeLead, setActiveLead] = useState<Lead | null>(null)
+  // Presionado (default) = ocultar los leads sin 4/5★. Al soltarlo aparece
+  // una columna extra "Sin estrellas" con todo lo que quedó afuera.
+  const [filterUnrated, setFilterUnrated] = useState(true)
   const isDraggingRef = useRef(false)
   const dragStartSnapshotRef = useRef<Lead[]>([])
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -66,11 +70,14 @@ export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) 
 
   const byStage = new Map<PipelineStageId, Lead[]>()
   for (const col of PIPELINE_COLUMNS) byStage.set(col.id, [])
+  const unratedLeads: Lead[] = []
   for (const lead of items) {
     const stage = effectiveStage(lead)
     if (stage) byStage.get(stage)!.push(lead)
+    else unratedLeads.push(lead)
   }
   for (const [, group] of byStage) group.sort(compareLeads)
+  unratedLeads.sort(compareLeads)
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveLead(items.find(l => l.id === event.active.id) ?? null)
@@ -157,6 +164,10 @@ export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) 
       for (const lead of updated) {
         const orig = original.find(l => l.id === lead.id)
         if (!orig) continue
+        // Reordenar DENTRO de "Sin estrellas" puede dejar status en null (no
+        // es una etapa real) — nunca se persiste eso, solo movimientos hacia
+        // una columna de verdad.
+        if (effectiveStage(lead) === null) continue
         const stageChanged = effectiveStage(orig) !== effectiveStage(lead)
         const orderChanged = (orig.pipeline_order ?? null) !== (lead.pipeline_order ?? null)
         if (stageChanged || orderChanged) {
@@ -176,6 +187,21 @@ export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) 
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
+      <div className="flex items-center justify-end mb-3">
+        <button
+          onClick={() => setFilterUnrated(f => !f)}
+          title={filterUnrated ? "Mostrando solo 4-5★ — click para ver también las sin calificar" : "Mostrando todos — click para ocultar las sin 4-5★"}
+          className={`inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[12.5px] font-semibold transition-all ${
+            filterUnrated
+              ? "bg-foreground text-background"
+              : "border border-foreground/[0.12] text-foreground/60 hover:text-foreground hover:border-foreground/25"
+          }`}
+        >
+          <Filter className="h-3.5 w-3.5" />
+          Filtrar sin 4-5★
+        </button>
+      </div>
+
       <div ref={scrollRef} className="scrollbar-visible flex gap-4 overflow-x-auto pb-3">
         {PIPELINE_COLUMNS.map(col => (
           <div key={col.id} className="flex-1 min-w-[240px]">
@@ -188,6 +214,18 @@ export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) 
             />
           </div>
         ))}
+        {!filterUnrated && (
+          <div className="flex-1 min-w-[240px]">
+            <PipelineColumn
+              id="sin_estrellas"
+              title="Sin estrellas"
+              accentColor="var(--muted-foreground)"
+              leads={unratedLeads}
+              onSelect={onSelect}
+              droppable={false}
+            />
+          </div>
+        )}
       </div>
 
       <DragOverlay>

@@ -2,8 +2,9 @@ export type PipelineStageId =
   | "calificado"
   | "seguimiento"
   | "oferta"
-  | "seguimiento_2sem"
-  | "seguimiento_4sem"
+  | "seguimiento_48h"
+  | "seguimiento_30d"
+  | "seguimiento_90d"
   | "compraron"
   | "perdimos"
 
@@ -11,13 +12,14 @@ export type PipelineStageId =
 // Smart Scale trackear "Nuevo lead"/"Contactado"/"Respondió"/"No calificado":
 // el setter recién agrega algo a este tablero cuando ya calificó al lead.
 export const PIPELINE_COLUMNS: { id: PipelineStageId; label: string; color: string }[] = [
-  { id: "calificado",        label: "Calificado (4-5★)",       color: "#dafc69" },
-  { id: "seguimiento",       label: "Seguimiento",             color: "#06B6D4" },
-  { id: "oferta",            label: "Oferta realizada",        color: "#8B5CF6" },
-  { id: "seguimiento_2sem",  label: "Seguimiento · 2 semanas", color: "#F59E0B" },
-  { id: "seguimiento_4sem",  label: "Seguimiento · 4 semanas", color: "#F97316" },
-  { id: "compraron",         label: "Compraron",               color: "#22C55E" },
-  { id: "perdimos",          label: "Perdimos",                color: "#EF4444" },
+  { id: "calificado",        label: "Calificado (4-5★)",         color: "#dafc69" },
+  { id: "seguimiento",       label: "Seguimiento 4/5 estrellas", color: "#06B6D4" },
+  { id: "oferta",            label: "Oferta realizada",          color: "#8B5CF6" },
+  { id: "seguimiento_48h",   label: "Seguimiento · 48 horas",    color: "#F59E0B" },
+  { id: "seguimiento_30d",   label: "Seguimiento · 30 días",     color: "#F97316" },
+  { id: "seguimiento_90d",   label: "Seguimiento · 90 días",     color: "#EA580C" },
+  { id: "compraron",         label: "Compraron",                 color: "#22C55E" },
+  { id: "perdimos",          label: "Perdimos",                  color: "#EF4444" },
 ]
 
 export const PIPELINE_STAGE_LABELS: Record<PipelineStageId, string> =
