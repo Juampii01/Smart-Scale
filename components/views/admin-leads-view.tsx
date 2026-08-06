@@ -471,7 +471,7 @@ export function AdminLeadsView() {
   const [selected,     setSelected]     = useState<Lead | null>(null)
   const [deletingId,   setDeletingId]   = useState<string | null>(null)
   const [search,       setSearch]       = useState("")
-  const [layout,       setLayout]       = useState<"tabla" | "pipeline">("tabla")
+  const [layout,       setLayout]       = useState<"tabla" | "pipeline">("pipeline")
   const [view,         setView]         = useState<ViewId>("cuatro")
   const [groupBy,      setGroupBy]      = useState<GroupId>("none")
   const [collapsed,    setCollapsed]    = useState<Set<string>>(new Set())
