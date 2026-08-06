@@ -68,7 +68,10 @@ export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) 
 
   const byStage = new Map<PipelineStageId, Lead[]>()
   for (const col of PIPELINE_COLUMNS) byStage.set(col.id, [])
-  for (const lead of items) byStage.get(effectiveStage(lead))!.push(lead)
+  for (const lead of items) {
+    const stage = effectiveStage(lead)
+    if (stage) byStage.get(stage)!.push(lead)
+  }
   for (const [, group] of byStage) group.sort(compareLeads)
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -104,13 +107,16 @@ export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) 
       const draggedLead = prev.find(l => l.id === activeId)
       if (!draggedLead) return prev
 
+      // draggedLead/overLead son siempre cards visibles en el tablero, así que
+      // su etapa nunca es null en la práctica (solo los leads fuera del
+      // pipeline, que no son arrastrables, dan null acá).
       const overLead   = prev.find(l => l.id === overId)
       const overColumn = PIPELINE_COLUMNS.find(c => c.id === overId)
-      const targetStage: PipelineStageId = overLead ? effectiveStage(overLead) : (overColumn?.id ?? effectiveStage(draggedLead))
+      const targetStage: PipelineStageId = overLead ? effectiveStage(overLead)! : (overColumn?.id ?? effectiveStage(draggedLead)!)
       // Columna de la que "sale" la card — el estado en vivo justo antes de
       // este drop (dragOver ya pudo haberla cambiado de columna en el medio
       // del gesto), no el snapshot del inicio del drag.
-      const sourceStage = effectiveStage(draggedLead)
+      const sourceStage = effectiveStage(draggedLead)!
 
       let updated: Lead[]
 

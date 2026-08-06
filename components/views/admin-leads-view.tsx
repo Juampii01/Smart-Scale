@@ -233,13 +233,15 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
           <div className="space-y-1.5">
             <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Etapa del pipeline</p>
             <select
-              value={effectiveStage(lead)}
+              value={effectiveStage(lead) ?? "__none__"}
               onChange={e => {
                 const val = e.target.value
+                if (val === "__none__") { onPatch(lead.id, { status: "nuevo", purchased: false }); return }
                 onPatch(lead.id, { status: val, purchased: val === "compraron" })
               }}
               className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all"
             >
+              <option value="__none__">Sin calificar (no aparece en el pipeline)</option>
               {PIPELINE_COLUMNS.map(col => (
                 <option key={col.id} value={col.id}>{col.label}</option>
               ))}
