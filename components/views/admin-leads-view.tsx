@@ -4,13 +4,15 @@ import { useEffect, useState, useCallback, Fragment } from "react"
 import { createClient } from "@/lib/supabase"
 import {
   Loader2, Trash2, RefreshCw, Download, X, Star, Plus,
-  Instagram, ExternalLink, ChevronRight,
+  Instagram, ExternalLink, ChevronRight, LayoutGrid, Table2,
 } from "lucide-react"
 import { PurchasedToggle } from "@/components/admin/purchased-toggle"
+import { PipelineBoard } from "@/components/leads-pipeline/PipelineBoard"
+import { PIPELINE_COLUMNS, PIPELINE_STAGE_LABELS, effectiveStage } from "@/components/leads-pipeline/constants"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface Lead {
+export interface Lead {
   id:         string
   name:       string | null
   email:      string | null
@@ -25,6 +27,8 @@ interface Lead {
   purchased:  boolean
   created_at: string
   custom_fields?: Record<string, any> | null
+  next_follow_up_at?: string | null
+  deal_value?: number | null
 }
 
 // Columna custom (definición compartida, estilo Airtable)
@@ -38,7 +42,7 @@ interface LeadColumn {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function fmtDate(iso: string) {
+export function fmtDate(iso: string) {
   const d = new Date(iso)
   const dd = String(d.getDate()).padStart(2, "0")
   const mm = String(d.getMonth() + 1).padStart(2, "0")
@@ -49,13 +53,13 @@ function fmtDate(iso: string) {
 // ─── Instagram: aceptar @usuario O link completo sin romper ─────────────────────
 
 /** href válido tanto si el valor es un @handle como si ya es una URL completa. */
-function igHref(v: string) {
+export function igHref(v: string) {
   const s = v.trim()
   if (/^https?:\/\//i.test(s)) return s
   return `https://instagram.com/${s.replace(/^@+/, "")}`
 }
 /** Etiqueta legible: @handle cuando se puede inferir, si no la URL sin protocolo. */
-function igLabel(v: string) {
+export function igLabel(v: string) {
   const s = v.trim()
   if (/^https?:\/\//i.test(s)) {
     try {
@@ -226,15 +230,42 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4" style={{ backgroundColor: "var(--card)" }}>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Estado</p>
-            <input
-              type="text"
-              defaultValue={lead.status !== "nuevo" ? lead.status : ""}
-              placeholder="ej: caliente, en proceso, cerrado..."
-              onBlur={e    => onPatch(lead.id, { status: e.target.value || "nuevo" })}
-              onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
-            />
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Etapa del pipeline</p>
+            <select
+              value={effectiveStage(lead)}
+              onChange={e => {
+                const val = e.target.value
+                onPatch(lead.id, { status: val, purchased: val === "compraron" })
+              }}
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all"
+            >
+              {PIPELINE_COLUMNS.map(col => (
+                <option key={col.id} value={col.id}>{col.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Valor estimado</p>
+              <input
+                type="number"
+                defaultValue={lead.deal_value ?? ""}
+                placeholder="USD"
+                onBlur={e    => onPatch(lead.id, { deal_value: e.target.value ? Number(e.target.value) : null })}
+                onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
+                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Próximo seguimiento</p>
+              <input
+                type="date"
+                defaultValue={lead.next_follow_up_at ?? ""}
+                onChange={e => onPatch(lead.id, { next_follow_up_at: e.target.value || null })}
+                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all"
+              />
+            </div>
           </div>
 
           {textField("Desde dónde llegó", "source",    "ej: Instagram, Podcast, Referido...")}
@@ -440,6 +471,7 @@ export function AdminLeadsView() {
   const [selected,     setSelected]     = useState<Lead | null>(null)
   const [deletingId,   setDeletingId]   = useState<string | null>(null)
   const [search,       setSearch]       = useState("")
+  const [layout,       setLayout]       = useState<"tabla" | "pipeline">("tabla")
   const [view,         setView]         = useState<ViewId>("cuatro")
   const [groupBy,      setGroupBy]      = useState<GroupId>("none")
   const [collapsed,    setCollapsed]    = useState<Set<string>>(new Set())
@@ -616,7 +648,9 @@ export function AdminLeadsView() {
     const map = new Map<string, Lead[]>()
     for (const l of filtered) {
       const raw = (l[groupBy as keyof Lead] as string | null)?.trim()
-      const key = raw && raw !== "nuevo" ? raw : "Sin asignar"
+      const key = raw && raw !== "nuevo"
+        ? (groupBy === "status" ? (PIPELINE_STAGE_LABELS[raw as keyof typeof PIPELINE_STAGE_LABELS] ?? raw) : raw)
+        : "Sin asignar"
       if (!map.has(key)) map.set(key, [])
       map.get(key)!.push(l)
     }
@@ -701,6 +735,24 @@ export function AdminLeadsView() {
             <p className="text-sm text-foreground/40 mt-0.5">{leads.length} leads</p>
           </div>
           <div className="flex items-center gap-2">
+            <div className="flex items-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] p-0.5">
+              <button
+                onClick={() => setLayout("tabla")}
+                title="Vista tabla"
+                className={`flex h-8 w-8 items-center justify-center rounded-lg transition-all ${
+                  layout === "tabla" ? "bg-foreground text-background" : "text-foreground/40 hover:text-foreground"
+                }`}>
+                <Table2 className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setLayout("pipeline")}
+                title="Vista pipeline"
+                className={`flex h-8 w-8 items-center justify-center rounded-lg transition-all ${
+                  layout === "pipeline" ? "bg-foreground text-background" : "text-foreground/40 hover:text-foreground"
+                }`}>
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+            </div>
             <button onClick={fetchLeads} disabled={loading}
               className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
@@ -741,6 +793,10 @@ export function AdminLeadsView() {
           </p>
         </div>
 
+        {layout === "pipeline" ? (
+          <PipelineBoard leads={leads} onSelect={setSelected} onPatch={patch} />
+        ) : (
+        <>
         {/* Toolbar estilo Airtable: vistas + buscar + agrupar */}
         <div className="space-y-3">
           {/* Vistas rápidas */}
@@ -893,6 +949,8 @@ export function AdminLeadsView() {
             </div>
           )}
         </div>
+        </>
+        )}
       </div>
     </>
   )
