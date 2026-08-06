@@ -740,6 +740,13 @@ async function getYouTubeTranscript(
       if (isTransientApifyFailure(apifyFailure)) {
         return { provider: watchPageResult.provider, reason: "possibly_blocked", debug: watchPageResult.debug }
       }
+      // Apify SÍ completó (usa proxies, no está sujeto al mismo bloqueo anti-bot
+      // que pega la IP del servidor) y dio una razón de contenido DISTINTA de
+      // login (ej. no_captions_found) — esa señal es más confiable que el
+      // "login_required" del scraping directo, así que la preferimos.
+      if (apifyFailure && apifyFailure.reason && apifyFailure.reason !== "login_required" && apifyFailure.reason !== "missing_apify_token") {
+        return apifyFailure
+      }
       return watchPageResult
     }
     if (watchPageResult.reason === "no_caption_tracks") return watchPageResult
