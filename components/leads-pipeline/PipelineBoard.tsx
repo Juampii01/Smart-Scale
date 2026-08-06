@@ -36,6 +36,24 @@ export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) 
   const [activeLead, setActiveLead] = useState<Lead | null>(null)
   const isDraggingRef = useRef(false)
   const dragStartSnapshotRef = useRef<Lead[]>([])
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  // La mayoría de los mouses solo tienen rueda vertical — con 9 columnas hace
+  // falta poder recorrer el tablero sin trackpad. Convertimos scroll vertical
+  // en horizontal mientras el puntero está sobre el tablero (no mientras se
+  // arrastra una card, para no pelear con el drag).
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const onWheel = (e: WheelEvent) => {
+      if (isDraggingRef.current) return
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return
+      el.scrollLeft += e.deltaY
+      e.preventDefault()
+    }
+    el.addEventListener("wheel", onWheel, { passive: false })
+    return () => el.removeEventListener("wheel", onWheel)
+  }, [])
 
   // Se resincroniza con lo que viene del padre (fetch, ratings editados desde
   // la tabla, etc.) — salvo mientras hay un drag en curso, para no pisar el
@@ -154,7 +172,7 @@ export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) 
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
-      <div className="flex gap-4 overflow-x-auto pb-2">
+      <div ref={scrollRef} className="scrollbar-visible flex gap-4 overflow-x-auto pb-3">
         {PIPELINE_COLUMNS.map(col => (
           <div key={col.id} className="flex-1 min-w-[240px]">
             <PipelineColumn
