@@ -1,5 +1,5 @@
 export type PipelineStageId =
-  | "nuevo"
+  | "nuevo_lead"
   | "contactado"
   | "respondio"
   | "calificado"
@@ -13,7 +13,7 @@ export type PipelineStageId =
 // al final porque la lista de referencia no lo incluía pero su tablero real sí
 // (columna "Won").
 export const PIPELINE_COLUMNS: { id: PipelineStageId; label: string; color: string }[] = [
-  { id: "nuevo",          label: "Nuevo lead",              color: "var(--muted-foreground)" },
+  { id: "nuevo_lead",     label: "Nuevo lead",              color: "var(--muted-foreground)" },
   { id: "contactado",     label: "Contactado",              color: "#3B82F6" },
   { id: "respondio",      label: "Respondió",               color: "#06B6D4" },
   { id: "calificado",     label: "Calificado (4-5★)",       color: "#dafc69" },
@@ -31,16 +31,25 @@ const PIPELINE_STAGE_IDS = new Set<string>(PIPELINE_COLUMNS.map(c => c.id))
 
 /**
  * Todo lead vive en alguna columna del pipeline (a diferencia de Tom, acá no
- * hace falta agregarlo a mano: arranca en "Nuevo lead" — el default real de
- * la columna "status" — y sube solo a "Calificado"/"No calificado" apenas
- * tiene rating, sin que el setter tenga que moverlo).
+ * hace falta agregarlo a mano: arranca clasificado por rating sin que el
+ * setter tenga que moverlo).
+ *
+ * "nuevo" (minúscula, sin guión) es el default CRUDO de la columna status en
+ * la base — todo lead que nunca se tocó llega así. Nunca se trata como una
+ * asignación explícita de etapa: por eso "Nuevo lead" en el tablero tiene el
+ * id "nuevo_lead", un valor distinto. Si usáramos el mismo string para los
+ * dos, arrastrar una lead calificada de vuelta a "Nuevo lead" grabaría
+ * status="nuevo" — que el código de acá abajo interpretaría como "todavía sin
+ * tocar" y la mandaría de nuevo para adelante sola por su rating, sin dejar
+ * mover ninguna lead calificada hacia atrás.
+ *
  * "purchased" manda sobre el status crudo: si se marcó comprado desde la
  * tabla, se ve en "Compraron" aunque el status no se haya actualizado.
  */
 export function effectiveStage(lead: { status: string | null; rating: number | null; purchased: boolean }): PipelineStageId {
   if (lead.purchased) return "compraron"
-  if (lead.status && PIPELINE_STAGE_IDS.has(lead.status)) return lead.status as PipelineStageId
+  if (lead.status && lead.status !== "nuevo" && PIPELINE_STAGE_IDS.has(lead.status)) return lead.status as PipelineStageId
   if ((lead.rating ?? 0) >= 4) return "calificado"
   if (lead.rating === 3) return "no_calificado"
-  return "nuevo"
+  return "nuevo_lead"
 }
