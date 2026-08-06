@@ -1,19 +1,23 @@
 export type PipelineStageId =
   | "calificado"
+  | "seguimiento"
   | "oferta"
-  | "seguimiento_30"
-  | "seguimiento_90"
+  | "seguimiento_2sem"
+  | "seguimiento_4sem"
   | "compraron"
+  | "perdimos"
 
 // El pipeline arranca directo en Calificado (4-5★) — no tiene sentido para
 // Smart Scale trackear "Nuevo lead"/"Contactado"/"Respondió"/"No calificado":
 // el setter recién agrega algo a este tablero cuando ya calificó al lead.
 export const PIPELINE_COLUMNS: { id: PipelineStageId; label: string; color: string }[] = [
-  { id: "calificado",     label: "Calificado (4-5★)",       color: "#dafc69" },
-  { id: "oferta",         label: "Oferta realizada",        color: "#8B5CF6" },
-  { id: "seguimiento_30", label: "Seguimiento · 30 días",   color: "#F59E0B" },
-  { id: "seguimiento_90", label: "Seguimiento · 90 días",   color: "#F97316" },
-  { id: "compraron",      label: "Compraron",               color: "#22C55E" },
+  { id: "calificado",        label: "Calificado (4-5★)",       color: "#dafc69" },
+  { id: "seguimiento",       label: "Seguimiento",             color: "#06B6D4" },
+  { id: "oferta",            label: "Oferta realizada",        color: "#8B5CF6" },
+  { id: "seguimiento_2sem",  label: "Seguimiento · 2 semanas", color: "#F59E0B" },
+  { id: "seguimiento_4sem",  label: "Seguimiento · 4 semanas", color: "#F97316" },
+  { id: "compraron",         label: "Compraron",               color: "#22C55E" },
+  { id: "perdimos",          label: "Perdimos",                color: "#EF4444" },
 ]
 
 export const PIPELINE_STAGE_LABELS: Record<PipelineStageId, string> =
