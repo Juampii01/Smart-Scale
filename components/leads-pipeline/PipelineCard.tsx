@@ -4,7 +4,7 @@ import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { Star, Instagram, CalendarClock } from "lucide-react"
 import type { Lead } from "@/components/views/admin-leads-view"
-import { igHref, igLabel } from "@/components/views/admin-leads-view"
+import { igHref, igLabel, fmtDate } from "@/components/views/admin-leads-view"
 
 interface PipelineCardProps {
   lead: Lead
@@ -57,6 +57,8 @@ export function PipelineCard({ lead, onClick, isOverlay = false }: PipelineCardP
           </span>
         ) : null}
       </div>
+
+      <span className="block text-[11px] tabular-nums text-foreground/40">{fmtDate(lead.created_at)}</span>
 
       {ig && (
         <a

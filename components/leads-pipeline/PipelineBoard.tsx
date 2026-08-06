@@ -18,20 +18,14 @@ interface PipelineBoardProps {
   onPatch:  (id: string, updates: Partial<Lead>) => void
 }
 
-// El rating siempre manda primero — 5★ arriba, 4★ abajo, en cualquier
-// columna — así que el drag&drop queda "libre" solo DENTRO de cada estrella,
-// no entre ellas. Recién ahí entra pipeline_order (drag manual), después
-// próximo seguimiento, y por último más reciente primero.
+// Orden totalmente automático en cualquier columna: primero por rating
+// (5★ arriba, 4★ abajo) y dentro de cada estrella, de más nueva a más
+// vieja. El drag&drop entre columnas sigue funcionando (cambia la etapa),
+// pero la posición dentro de una columna ya no se guarda a mano.
 function compareLeads(a: Lead, b: Lead) {
   const ar = a.rating ?? 0
   const br = b.rating ?? 0
   if (ar !== br) return br - ar
-  const ao = a.pipeline_order ?? Infinity
-  const bo = b.pipeline_order ?? Infinity
-  if (ao !== bo) return ao - bo
-  const af = a.next_follow_up_at ?? "9999"
-  const bf = b.next_follow_up_at ?? "9999"
-  if (af !== bf) return af < bf ? -1 : 1
   return a.created_at < b.created_at ? 1 : -1
 }
 
