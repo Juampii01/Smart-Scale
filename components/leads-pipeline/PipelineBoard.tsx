@@ -203,17 +203,6 @@ export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) 
       </div>
 
       <div ref={scrollRef} className="scrollbar-visible flex gap-4 overflow-x-auto pb-3">
-        {PIPELINE_COLUMNS.map(col => (
-          <div key={col.id} className="flex-1 min-w-[240px]">
-            <PipelineColumn
-              id={col.id}
-              title={col.label}
-              accentColor={col.color}
-              leads={byStage.get(col.id) ?? []}
-              onSelect={onSelect}
-            />
-          </div>
-        ))}
         {!filterUnrated && (
           <div className="flex-1 min-w-[240px]">
             <PipelineColumn
@@ -226,6 +215,17 @@ export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) 
             />
           </div>
         )}
+        {PIPELINE_COLUMNS.map(col => (
+          <div key={col.id} className="flex-1 min-w-[240px]">
+            <PipelineColumn
+              id={col.id}
+              title={col.label}
+              accentColor={col.color}
+              leads={byStage.get(col.id) ?? []}
+              onSelect={onSelect}
+            />
+          </div>
+        ))}
       </div>
 
       <DragOverlay>
