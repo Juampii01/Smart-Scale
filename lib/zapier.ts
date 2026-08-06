@@ -10,6 +10,9 @@
 //                                        (contrato firmado, accesos enviados) — separado
 //                                        de ZAPIER_WEBHOOK_ONBOARDING, que solo dispara
 //                                        una vez al crear el cliente.
+//   ZAPIER_WEBHOOK_LEAD_FOLLOWUP      → fires cuando llega (o se venció) la fecha de
+//                                        "próximo seguimiento" de un lead en el pipeline
+//                                        (disparado por app/api/cron/lead-follow-up)
 //
 // Zapier Zap setup:
 //   Trigger: "Webhooks by Zapier → Catch Hook"
@@ -368,4 +371,38 @@ export async function zapierOnboardingStatusChanged(payload: {
     : `⚠️  *Pago de PayFunnels sin onboarding automático* — ${payload.client_name}${payload.client_email ? ` (${payload.client_email})` : ""}\n${payload.detail ?? "Motivo no especificado"}\nRevisar \`payfunnels_webhook_events\` y cargar a mano en /admin/onboarding.`
 
   return postWebhook(url, { ...payload, message }, "zapierOnboardingStatusChanged")
+}
+
+// ─── Fire: seguimiento de lead vencido ────────────────────────────────────────
+// Disparado por app/api/cron/lead-follow-up — un lead del pipeline llegó (o
+// pasó) su fecha de "próximo seguimiento" y todavía no se avisó por esa fecha.
+
+export async function zapierLeadFollowUpDue(payload: {
+  event_type:        "lead.follow_up_due"
+  lead_id:           string
+  lead_name:         string
+  instagram?:        string | null
+  rating?:            number | null
+  stage_label:       string
+  deal_value?:       number | null
+  next_follow_up_at: string   // YYYY-MM-DD
+  days_overdue:      number   // 0 = vence hoy, >0 = días de atraso
+}): Promise<ZapierResult> {
+  const url = process.env.ZAPIER_WEBHOOK_LEAD_FOLLOWUP
+  if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_LEAD_FOLLOWUP not configured" }
+
+  const stars   = payload.rating ? "⭐".repeat(payload.rating) : ""
+  const ig      = payload.instagram?.trim() ? `\n📸 ${payload.instagram.trim().replace(/^@+/, "@")}` : ""
+  const value   = payload.deal_value ? `\n💵 $${payload.deal_value.toLocaleString("es-AR")}` : ""
+  const timing  = payload.days_overdue > 0
+    ? `⚠️ *Atrasado ${payload.days_overdue} día${payload.days_overdue === 1 ? "" : "s"}*`
+    : `📅 *Vence hoy*`
+
+  const message = [
+    `🔔  *Seguimiento pendiente* — ${payload.lead_name} ${stars}`.trim(),
+    `> ${payload.stage_label}${ig}${value}`,
+    timing,
+  ].join("\n")
+
+  return postWebhook(url, { ...payload, message }, "zapierLeadFollowUpDue")
 }

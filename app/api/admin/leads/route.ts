@@ -96,6 +96,10 @@ export async function PATCH(req: NextRequest) {
     for (const key of PATCHABLE) {
       if (updates[key] !== undefined) allowed[key] = updates[key]
     }
+    // Nueva fecha de seguimiento → resetea el flag de aviso ya mandado, para
+    // que el cron de app/api/cron/lead-follow-up vuelva a disparar en la
+    // fecha nueva (si no, se queda "ya avisado" para siempre).
+    if (updates.next_follow_up_at !== undefined) allowed.follow_up_alert_sent_at = null
 
     const supabase = createServiceClient()
     const { error } = await supabase.from("leads").update(allowed).eq("id", id)
