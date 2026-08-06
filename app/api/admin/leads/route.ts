@@ -36,7 +36,7 @@ export const dynamic = "force-dynamic"
 */
 
 const SELECT_FIELDS = "id, name, email, tag, source, lead_type, status, instagram, rating, niche, notes, purchased, created_at"
-const PIPELINE_FIELDS = "next_follow_up_at, deal_value"
+const PIPELINE_FIELDS = "next_follow_up_at, deal_value, pipeline_order"
 
 /** GET — all leads ordered by created_at desc. Lectura: admin OR team. */
 export async function GET(req: NextRequest) {
@@ -91,7 +91,7 @@ export async function PATCH(req: NextRequest) {
     const { id, ...updates } = body
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
-    const PATCHABLE = ["status", "source", "lead_type", "niche", "notes", "rating", "instagram", "email", "tag", "name", "purchased", "custom_fields", "next_follow_up_at", "deal_value"]
+    const PATCHABLE = ["status", "source", "lead_type", "niche", "notes", "rating", "instagram", "email", "tag", "name", "purchased", "custom_fields", "next_follow_up_at", "deal_value", "pipeline_order"]
     const allowed: Record<string, any> = { updated_at: new Date().toISOString() }
     for (const key of PATCHABLE) {
       if (updates[key] !== undefined) allowed[key] = updates[key]

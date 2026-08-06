@@ -1,6 +1,6 @@
 "use client"
 
-import { useDraggable } from "@dnd-kit/core"
+import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { Star, Instagram, CalendarClock } from "lucide-react"
 import type { Lead } from "@/components/views/admin-leads-view"
@@ -20,13 +20,14 @@ function followUpTone(dateStr: string) {
 }
 
 export function PipelineCard({ lead, onClick, isOverlay = false }: PipelineCardProps) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lead.id,
     disabled: isOverlay,
   })
 
   const style = {
-    transform: CSS.Translate.toString(transform),
+    transform: CSS.Transform.toString(transform),
+    transition,
     opacity: isDragging ? 0.4 : 1,
   }
 

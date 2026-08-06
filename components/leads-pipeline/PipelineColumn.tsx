@@ -1,6 +1,7 @@
 "use client"
 
 import { useDroppable } from "@dnd-kit/core"
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import type { Lead } from "@/components/views/admin-leads-view"
 import { PipelineCard } from "./PipelineCard"
 import type { PipelineStageId } from "./constants"
@@ -34,9 +35,11 @@ export function PipelineColumn({ id, title, accentColor, leads, onSelect }: Pipe
           border: `1px dashed ${isOver ? accentColor + "66" : "transparent"}`,
         }}
       >
-        {leads.map(lead => (
-          <PipelineCard key={lead.id} lead={lead} onClick={onSelect} />
-        ))}
+        <SortableContext items={leads.map(l => l.id)} strategy={verticalListSortingStrategy}>
+          {leads.map(lead => (
+            <PipelineCard key={lead.id} lead={lead} onClick={onSelect} />
+          ))}
+        </SortableContext>
         {!leads.length && (
           <div className="flex-1 flex items-center justify-center py-6 text-[12px] text-foreground/25">
             Sin leads acá

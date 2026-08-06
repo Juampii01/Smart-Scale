@@ -29,6 +29,7 @@ export interface Lead {
   custom_fields?: Record<string, any> | null
   next_follow_up_at?: string | null
   deal_value?: number | null
+  pipeline_order?: number | null
 }
 
 // Columna custom (definición compartida, estilo Airtable)
