@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
         status,
         crm_installments(client_id, amount, paid_at)
       `)
-      .neq("status", "inactivo")
+      .neq("status", "offboarding")
 
     if (setterId) query = query.eq("setter_id", setterId)
 

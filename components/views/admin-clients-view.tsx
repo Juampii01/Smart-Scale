@@ -52,7 +52,7 @@ interface Client {
   num_installments:    number   // cantidad de cuotas de pago
   installment_amount:  number
   is_monthly_subscription: boolean
-  status:              "activo" | "en_pausa" | "inactivo" | "completado"
+  status:              "activo" | "offboarding"
   notes:              string | null
   business_profile:   string | null
   created_at:         string
@@ -128,17 +128,13 @@ function nextFollowup(client: Client): Followup | null {
 // Pills dual-mode: en light el texto baja a -800 (legible sobre bg-x-100/x-50);
 // en dark sube a -300 (legible sobre bg-x-500/10). Bordes con poca opacidad.
 const CLIENT_STATUS_STYLE: Record<string, string> = {
-  activo:     "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/25",
-  en_pausa:   "bg-amber-100   text-amber-800   border-amber-300   dark:bg-amber-500/10   dark:text-amber-300   dark:border-amber-500/25",
-  inactivo:   "bg-red-100     text-red-800     border-red-300     dark:bg-red-500/10     dark:text-red-300     dark:border-red-500/25",
-  completado: "bg-sky-100     text-sky-800     border-sky-300     dark:bg-sky-500/10     dark:text-sky-300     dark:border-sky-500/25",
+  activo:      "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/25",
+  offboarding: "bg-red-100     text-red-800     border-red-300     dark:bg-red-500/10     dark:text-red-300     dark:border-red-500/25",
 }
 
 const CLIENT_STATUS_LABEL: Record<string, string> = {
-  activo:     "Activo",
-  en_pausa:   "En pausa",
-  inactivo:   "Inactivo",
-  completado: "Finalizado",
+  activo:      "Activo",
+  offboarding: "Offboarding",
 }
 
 const INST_STATUS_STYLE: Record<string, string> = {
@@ -792,19 +788,6 @@ function DetailDrawer({
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {/* Marcar programa finalizado — visible si aún no está finalizado/inactivo */}
-            {client.status !== "completado" && client.status !== "inactivo" && (
-              <button
-                onClick={() => onPatchClient(client.id, { status: "completado" })}
-                disabled={offboarding || deleting}
-                aria-label="Marcar programa finalizado"
-                title="Marca el programa como finalizado (completado)"
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-sky-300/50 px-2.5 text-[11px] font-semibold text-sky-700 hover:bg-sky-100/60 dark:border-sky-500/25 dark:text-sky-300 dark:hover:bg-sky-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
-              >
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                <span>Finalizar programa</span>
-              </button>
-            )}
             {/* Enviar email de renovación a mano — sin esperar la ventana de 7 días del cron.
                 Siempre visible (aunque deshabilitado) para que no parezca que falta construirlo. */}
             {client.status === "activo" && (
@@ -819,13 +802,13 @@ function DetailDrawer({
                 {!sendingRenewal && <span>Enviar renovación</span>}
               </button>
             )}
-            {/* Dar de baja — solo visible si está activo/en_pausa */}
-            {client.status !== "inactivo" && (
+            {/* Dar de baja — la única acción para pasar a offboarding */}
+            {client.status !== "offboarding" && (
               <button
                 onClick={() => onOffboard(client.id)}
                 disabled={offboarding || deleting}
                 aria-label="Dar de baja"
-                title="Dar de baja: marca inactivo y elimina cuotas pendientes"
+                title="Dar de baja: pasa a offboarding y elimina cuotas pendientes"
                 className="flex h-8 items-center gap-1.5 rounded-lg border border-amber-300/40 px-2.5 text-[11px] font-semibold text-amber-700 hover:bg-amber-100/60 dark:border-amber-500/25 dark:text-amber-400 dark:hover:bg-amber-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
               >
                 {offboarding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserX className="h-3.5 w-3.5" />}
@@ -951,9 +934,7 @@ function DetailDrawer({
                   onChange={e => onPatchClient(client.id, { status: e.target.value as Client["status"] })}
                   className="w-full appearance-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all">
                   <option value="activo">Activo</option>
-                  <option value="en_pausa">En pausa</option>
-                  <option value="inactivo">Inactivo</option>
-                  <option value="completado">Finalizado</option>
+                  <option value="offboarding">Offboarding</option>
                 </select>
               </div>
             </div>
@@ -1357,7 +1338,7 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
   const currentYear  = viewYear
 
   // Exclude churned/inactive clients from all cash calculations
-  const activeClients = clients.filter(c => c.status !== "inactivo")
+  const activeClients = clients.filter(c => c.status !== "offboarding")
 
   // New Cash: clients whose program_start is the viewed month
   const newClients = activeClients.filter(c => {
@@ -1595,10 +1576,8 @@ function InstallmentProgress({ client }: { client: Client }) {
 type SortKey = "name" | "start" | "end" | "remaining" | "amount" | "status" | "created_at"
 
 const STATUS_ORDER: Record<string, number> = {
-  activo:     0,
-  en_pausa:   1,
-  inactivo:   2,
-  completado: 3,
+  activo:      0,
+  offboarding: 1,
 }
 
 function paidCountOf(c: Client): number {
@@ -1881,15 +1860,15 @@ export function AdminClientsView() {
       body:    JSON.stringify({ type: "offboard", id }),
     })
     if (res.ok) {
-      // Optimistic: mark inactivo + remove unpaid installments in state
+      // Optimistic: mark offboarding + remove unpaid installments in state
       setClients(prev => prev.map(c =>
         c.id === id
-          ? { ...c, status: "inactivo", installments: c.installments.filter(i => i.paid_at !== null) }
+          ? { ...c, status: "offboarding", installments: c.installments.filter(i => i.paid_at !== null) }
           : c
       ))
       if (selected?.id === id) {
         setSelected(prev => prev
-          ? { ...prev, status: "inactivo", installments: prev.installments.filter(i => i.paid_at !== null) }
+          ? { ...prev, status: "offboarding", installments: prev.installments.filter(i => i.paid_at !== null) }
           : null
         )
       }
@@ -2038,11 +2017,9 @@ export function AdminClientsView() {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 flex-wrap">
             {[
-              { key: "todos",      label: "Todos" },
-              { key: "activo",     label: "Activo" },
-              { key: "en_pausa",   label: "En pausa" },
-              { key: "inactivo",   label: "Inactivo" },
-              { key: "completado", label: "Finalizado" },
+              { key: "todos",       label: "Todos" },
+              { key: "activo",      label: "Activo" },
+              { key: "offboarding", label: "Offboarding" },
             ].map(({ key, label }) => (
               <button key={key} onClick={() => setFilterStatus(key)}
                 className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium transition-all ${

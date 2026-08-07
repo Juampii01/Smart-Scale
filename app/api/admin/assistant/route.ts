@@ -62,13 +62,13 @@ Devuelve: todas sus cuotas con monto, fecha de vencimiento y si fue pagado.
   {
     name: "get_active_clients",
     description: `Obtiene el listado de clientes del CRM con su estado actual y próxima cuota.
-Úsala cuando preguntan cuántos clientes hay, quiénes están activos, cuáles en pausa, etc.`,
+Úsala cuando preguntan cuántos clientes hay, quiénes están activos, cuáles en offboarding, etc.`,
     input_schema: {
       type: "object" as const,
       properties: {
         status: {
           type: "string",
-          enum: ["all", "activo", "en_pausa", "inactivo", "completado"],
+          enum: ["all", "activo", "offboarding"],
           description: "Filtro por estado. 'all' devuelve todos.",
         },
       },
@@ -111,7 +111,7 @@ async function executeTool(name: string, input: Record<string, any>): Promise<st
     const { data: rows, error } = await supabase
       .from("crm_clients")
       .select("id, name, created_at, status, crm_installments(amount, due_date, paid_at, installment_number)")
-      .neq("status", "inactivo")
+      .neq("status", "offboarding")
 
     if (error) return `Error BD: ${error.message}`
 
@@ -217,7 +217,7 @@ async function executeTool(name: string, input: Record<string, any>): Promise<st
       }
     })
 
-    const counts = { activo: 0, en_pausa: 0, inactivo: 0, completado: 0 }
+    const counts = { activo: 0, offboarding: 0 }
     for (const c of summary) counts[(c.status as keyof typeof counts)]++
 
     return JSON.stringify({ counts, clients: summary })
@@ -234,7 +234,7 @@ async function executeTool(name: string, input: Record<string, any>): Promise<st
     const { data: clients, error } = await supabase
       .from("crm_clients")
       .select("id, name, setter_id, total_amount, installment_amount, num_installments, status, crm_installments(amount, paid_at, due_date)")
-      .neq("status", "inactivo")
+      .neq("status", "offboarding")
       .not("setter_id", "is", null)
 
     if (error) return `Error BD: ${error.message}`
@@ -305,7 +305,7 @@ CONOCIMIENTO BASE:
 - New cash = cuota #1 de clientes que entraron ese mismo mes
 - Old cash cobrado = old cash con paid_at no nulo
 - Old cash pendiente = old cash aún sin pagar
-- Los clientes inactivos NO se cuentan en ningún cálculo
+- Los clientes en offboarding NO se cuentan en ningún cálculo
 - Los pagos atrasados (ej: cuota de marzo pagada en mayo) NO cuentan como cobrado de mayo`
 }
 

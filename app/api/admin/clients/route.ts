@@ -185,7 +185,7 @@ export async function PATCH(req: NextRequest) {
       const [updateRes, deleteRes, profilesRes] = await Promise.all([
         supabase
           .from("crm_clients")
-          .update({ status: "inactivo", updated_at: new Date().toISOString() })
+          .update({ status: "offboarding", updated_at: new Date().toISOString() })
           .eq("id", body.id),
         supabase
           .from("crm_installments")
