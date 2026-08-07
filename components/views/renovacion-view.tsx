@@ -26,8 +26,8 @@ const OFFERS: Offer[] = [
     icon: Repeat,
     title: "Smart Scale",
     tagline: "Seguí con todo el ecosistema grupal del programa.",
-    priceTotal: "USD 497",
-    priceMonthly: null,
+    priceTotal: "USD 2.000",
+    priceMonthly: "USD 497",
     highlight: false,
     features: [
       "Llamada semanal de Lab / Workshop",
