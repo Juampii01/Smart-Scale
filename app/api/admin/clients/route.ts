@@ -175,10 +175,14 @@ export async function PATCH(req: NextRequest) {
 
     const supabase = createServiceClient()
 
-    // Offboard: mark client inactive + delete unpaid installments
+    // Offboard: mark client inactive + delete unpaid installments + desactivar
+    // su(s) cuenta(s) del portal (profiles.active) — es el campo que usa el
+    // cron de reminders para decidir a quién mandarle emails de recordatorio,
+    // independiente del status de crm_clients. Sin este paso quedaban
+    // desincronizados y un cliente offboardeado seguía recibiendo reminders.
     if (body.type === "offboard") {
       if (!body.id) return NextResponse.json({ error: "id is required" }, { status: 400 })
-      const [updateRes, deleteRes] = await Promise.all([
+      const [updateRes, deleteRes, profilesRes] = await Promise.all([
         supabase
           .from("crm_clients")
           .update({ status: "inactivo", updated_at: new Date().toISOString() })
@@ -188,9 +192,14 @@ export async function PATCH(req: NextRequest) {
           .delete()
           .eq("client_id", body.id)
           .is("paid_at", null),
+        supabase
+          .from("profiles")
+          .update({ active: false })
+          .eq("client_id", body.id),
       ])
       if (updateRes.error) return NextResponse.json({ error: updateRes.error.message }, { status: 500 })
       if (deleteRes.error) return NextResponse.json({ error: deleteRes.error.message }, { status: 500 })
+      if (profilesRes.error) return NextResponse.json({ error: profilesRes.error.message }, { status: 500 })
       return NextResponse.json({ success: true })
     }
 
@@ -349,6 +358,16 @@ export async function PATCH(req: NextRequest) {
 
     const { error: crmErr } = await supabase.from("crm_clients").update(allowed).eq("id", body.id)
     if (crmErr) return NextResponse.json({ error: crmErr.message }, { status: 500 })
+
+    // Cualquier cambio de status (no solo el botón de offboard) mantiene
+    // profiles.active en sync — es el campo que usa el cron de reminders.
+    if (body.status !== undefined) {
+      const { error: profilesErr } = await supabase
+        .from("profiles")
+        .update({ active: body.status === "activo" })
+        .eq("client_id", body.id)
+      if (profilesErr) return NextResponse.json({ error: profilesErr.message }, { status: 500 })
+    }
 
     // business_profile vive en la tabla portal (clients), mismo UUID
     if (body.business_profile !== undefined) {

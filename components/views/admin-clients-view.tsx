@@ -1661,7 +1661,7 @@ export function AdminClientsView() {
   const [deletingId,    setDeletingId]   = useState<string | null>(null)
   const [offboardingId, setOffboardingId] = useState<string | null>(null)
   const [sendingRenewalId, setSendingRenewalId] = useState<string | null>(null)
-  const [filterStatus,  setFilterStatus] = useState<string>("todos")
+  const [filterStatus,  setFilterStatus] = useState<string>("activo")
   const [search,        setSearch]       = useState("")
   const [sortKey,       setSortKey]      = useState<SortKey>("created_at")
   const [sortDir,       setSortDir]      = useState<"asc" | "desc">("desc")

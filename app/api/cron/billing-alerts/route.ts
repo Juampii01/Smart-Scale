@@ -116,7 +116,10 @@ async function runBillingAlerts() {
   }
 
   // 1. Cargar TODOS los clientes (sin filtrar por estado ni tipo de plan).
-  //    Las alertas de cuotas (próximas y vencidas) corren sobre todos.
+  //    El Slack interno de cuotas (próximas y vencidas) corre sobre todos —
+  //    visibilidad del equipo sobre plata pendiente. Los EMAILS al cliente
+  //    (más abajo) sí se filtran a status === "activo" — no le mandamos
+  //    recordatorios de cobro a alguien que ya no es cliente activo.
   //    La generación automática de la próxima cuota solo aplica a clientes
   //    ACTIVOS con plan mensual (no le inventamos cuotas a un cliente dado de baja).
   const { data: clients, error: clientsErr } = await supabase
@@ -233,8 +236,10 @@ async function runBillingAlerts() {
 
           // Email al cliente — canal independiente del de Slack: reintenta cada
           // día (dentro de la ventana) hasta que salga, aunque el Slack ya
-          // se haya mandado antes.
-          if (client.email && !cuota.client_alert_sent_at) {
+          // se haya mandado antes. Solo a clientes activos — el Slack interno
+          // de arriba sí corre para cualquier estado (visibilidad del equipo
+          // sobre plata pendiente, aunque el cliente ya no esté activo).
+          if (client.status === "activo" && client.email && !cuota.client_alert_sent_at) {
             const emailFn = client.is_monthly_subscription ? sendUpcomingChargeEmail : sendUpcomingPaymentLinkEmail
             const emailResult = await emailFn({ name: client.name, email: client.email, amount: montoNum, dueDate: cuota.due_date }).catch(() => null)
             if (emailResult?.ok) {
@@ -269,7 +274,7 @@ async function runBillingAlerts() {
           // Respeta el snooze que carga el admin a mano (arreglo manual con el
           // cliente); el Slack de arriba NO se pospone.
           const snoozed = cuota.overdue_alert_snoozed_until && cuota.overdue_alert_snoozed_until >= todayStr
-          if (client.email && !cuota.client_overdue_alert_sent_at && !snoozed) {
+          if (client.status === "activo" && client.email && !cuota.client_overdue_alert_sent_at && !snoozed) {
             const emailResult = await sendOverdueInstallmentEmail({ name: client.name, email: client.email, amount: montoNum, daysOverdue: diasAtraso }).catch(() => null)
             if (emailResult?.ok) {
               await supabase.from("crm_installments").update({ client_overdue_alert_sent_at: new Date().toISOString() }).eq("id", cuota.id)
