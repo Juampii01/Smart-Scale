@@ -43,7 +43,6 @@ export const SETTER_ALLOWED_ADMIN_PATHS = [
   "/admin/centro-operativo",
   "/admin/onboarding",
   "/admin/tareas",        // tablero compartido del equipo
-  "/admin/mi-context-room", // context room personal (solo lo propio)
 ] as const
 
 export const ADMIN_DEFAULT_LANDING  = "/admin/leads"
