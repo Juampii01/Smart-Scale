@@ -211,6 +211,7 @@ export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) 
               accentColor="var(--muted-foreground)"
               leads={unratedLeads}
               onSelect={onSelect}
+              onPatch={onPatch}
               droppable={false}
             />
           </div>
@@ -223,6 +224,7 @@ export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) 
               accentColor={col.color}
               leads={byStage.get(col.id) ?? []}
               onSelect={onSelect}
+              onPatch={onPatch}
             />
           </div>
         ))}

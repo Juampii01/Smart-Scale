@@ -2,13 +2,14 @@
 
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { Star, Instagram, CalendarClock } from "lucide-react"
+import { Star, Instagram, CalendarClock, CheckCircle2 } from "lucide-react"
 import type { Lead } from "@/components/views/admin-leads-view"
 import { igHref, igLabel, fmtDate } from "@/components/views/admin-leads-view"
 
 interface PipelineCardProps {
   lead: Lead
   onClick: (lead: Lead) => void
+  onPatch?: (id: string, updates: Partial<Lead>) => void
   isOverlay?: boolean
 }
 
@@ -19,7 +20,7 @@ function followUpTone(dateStr: string) {
   return { color: "var(--muted-foreground)", label: null }
 }
 
-export function PipelineCard({ lead, onClick, isOverlay = false }: PipelineCardProps) {
+export function PipelineCard({ lead, onClick, onPatch, isOverlay = false }: PipelineCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lead.id,
     disabled: isOverlay,
@@ -32,10 +33,19 @@ export function PipelineCard({ lead, onClick, isOverlay = false }: PipelineCardP
   }
 
   const ig = lead.instagram?.trim()
+  const today = new Date().toISOString().slice(0, 10)
+  const isOverdue = !!lead.next_follow_up_at && lead.next_follow_up_at < today
   const followUp = lead.next_follow_up_at
     ? new Date(lead.next_follow_up_at + "T00:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "short" })
     : null
   const tone = lead.next_follow_up_at ? followUpTone(lead.next_follow_up_at) : null
+
+  const markFollowUpDone = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    // El PATCH ya resetea follow_up_alert_sent_at solo con que
+    // next_follow_up_at cambie (ver app/api/admin/leads/route.ts).
+    onPatch?.(lead.id, { next_follow_up_at: null })
+  }
 
   return (
     <div
@@ -44,7 +54,11 @@ export function PipelineCard({ lead, onClick, isOverlay = false }: PipelineCardP
       {...listeners}
       {...attributes}
       onClick={() => !isDragging && onClick(lead)}
-      className="cursor-pointer rounded-xl border border-foreground/[0.08] bg-card p-3 space-y-2 hover:border-foreground/20 transition-all touch-none"
+      className={`cursor-pointer rounded-xl border p-3 space-y-2 transition-all touch-none ${
+        isOverdue
+          ? "border-red-300 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 hover:border-red-400 dark:hover:border-red-500/60"
+          : "border-foreground/[0.08] bg-card hover:border-foreground/20"
+      }`}
     >
       <div className="flex items-start justify-between gap-2">
         <span className="text-[13px] font-semibold text-foreground truncate">
@@ -80,9 +94,20 @@ export function PipelineCard({ lead, onClick, isOverlay = false }: PipelineCardP
           </span>
         ) : <span />}
         {followUp && tone && (
-          <span className="inline-flex items-center gap-1 text-[11px] font-medium" style={{ color: tone.color }}>
-            <CalendarClock className="h-3 w-3" />
-            {tone.label ?? followUp}
+          <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium" style={{ color: tone.color }}>
+              <CalendarClock className="h-3 w-3" />
+              {tone.label ?? followUp}
+            </span>
+            {onPatch && (
+              <button
+                onClick={markFollowUpDone}
+                title="Marcar seguimiento como hecho"
+                className="flex h-4 w-4 items-center justify-center rounded-full text-foreground/25 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+              </button>
+            )}
           </span>
         )}
       </div>
