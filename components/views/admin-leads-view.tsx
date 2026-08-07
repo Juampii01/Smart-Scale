@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, Fragment } from "react"
 import { createClient } from "@/lib/supabase"
 import {
   Loader2, Trash2, RefreshCw, Download, X, Star, Plus,
-  Instagram, ExternalLink, ChevronRight, LayoutGrid, Table2,
+  Instagram, ExternalLink, ChevronRight, LayoutGrid, Table2, CheckCircle2,
 } from "lucide-react"
 import { PurchasedToggle } from "@/components/admin/purchased-toggle"
 import { PipelineBoard } from "@/components/leads-pipeline/PipelineBoard"
@@ -250,17 +250,6 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Valor estimado</p>
-              <input
-                type="number"
-                defaultValue={lead.deal_value ?? ""}
-                placeholder="USD"
-                onBlur={e    => onPatch(lead.id, { deal_value: e.target.value ? Number(e.target.value) : null })}
-                onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
-              />
-            </div>
-            <div className="space-y-1.5">
               <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Próximo seguimiento</p>
               <input
                 type="date"
@@ -268,6 +257,18 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
                 onChange={e => onPatch(lead.id, { next_follow_up_at: e.target.value || null })}
                 className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all"
               />
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">&nbsp;</p>
+              <button
+                type="button"
+                disabled={!lead.next_follow_up_at}
+                onClick={() => onPatch(lead.id, { next_follow_up_at: null })}
+                className="w-full h-[42px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-[13px] font-semibold text-foreground/60 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all disabled:opacity-40 disabled:hover:border-foreground/[0.08] disabled:hover:text-foreground/60"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Marcar hecho
+              </button>
             </div>
           </div>
 

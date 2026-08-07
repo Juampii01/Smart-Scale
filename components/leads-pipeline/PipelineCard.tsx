@@ -88,26 +88,20 @@ export function PipelineCard({ lead, onClick, onPatch, isOverlay = false }: Pipe
       )}
 
       <div className="flex items-center justify-between gap-2">
-        {lead.deal_value ? (
-          <span className="text-[12px] font-bold text-foreground/70">
-            ${lead.deal_value.toLocaleString("es-AR")}
-          </span>
+        {lead.next_follow_up_at && onPatch ? (
+          <button
+            onClick={markFollowUpDone}
+            title="Marcar seguimiento como hecho"
+            className="inline-flex items-center gap-1 rounded-full border border-foreground/[0.1] px-2 py-0.5 text-[11px] font-semibold text-foreground/50 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+          >
+            <CheckCircle2 className="h-3 w-3" />
+            Hecho
+          </button>
         ) : <span />}
         {followUp && tone && (
-          <span className="inline-flex items-center gap-1">
-            <span className="inline-flex items-center gap-1 text-[11px] font-medium" style={{ color: tone.color }}>
-              <CalendarClock className="h-3 w-3" />
-              {tone.label ?? followUp}
-            </span>
-            {onPatch && (
-              <button
-                onClick={markFollowUpDone}
-                title="Marcar seguimiento como hecho"
-                className="flex h-4 w-4 items-center justify-center rounded-full text-foreground/25 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-              >
-                <CheckCircle2 className="h-3.5 w-3.5" />
-              </button>
-            )}
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium" style={{ color: tone.color }}>
+            <CalendarClock className="h-3 w-3" />
+            {tone.label ?? followUp}
           </span>
         )}
       </div>
