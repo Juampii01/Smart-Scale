@@ -587,6 +587,102 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
   )
 }
 
+interface ClientCall {
+  id:                 string
+  participant_email:  string | null
+  participant_name:   string | null
+  recording_url:      string | null
+  transcript:         string | null
+  meeting_topic:      string | null
+  duration_minutes:   number | null
+  occurred_at:        string
+}
+
+function ClientCallsPanel({ clientId }: { clientId: string }) {
+  const [calls,       setCalls]       = useState<ClientCall[]>([])
+  const [loadingC,    setLoadingC]    = useState(true)
+  const [expandedId,  setExpandedId]  = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoadingC(true)
+    createClient().auth.getSession().then(async ({ data: { session } }) => {
+      if (!session || cancelled) { setLoadingC(false); return }
+      try {
+        const res  = await fetch(`/api/admin/client-calls?client_id=${clientId}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        const data = await res.json()
+        if (!cancelled) setCalls(data.calls ?? [])
+      } catch {}
+      finally { if (!cancelled) setLoadingC(false) }
+    })
+    return () => { cancelled = true }
+  }, [clientId])
+
+  const fmtDateTime = (iso: string) => {
+    try { return new Date(iso).toLocaleString("es-AR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) }
+    catch { return iso }
+  }
+
+  if (loadingC) {
+    return <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-foreground/30" /></div>
+  }
+
+  if (!calls.length) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 py-16 text-center px-6">
+        <PhoneCall className="h-6 w-6 text-foreground/20" />
+        <p className="text-sm text-foreground/40">Todavía no hay llamadas registradas para este cliente.</p>
+        <p className="text-xs text-foreground/25">Llegan automáticamente desde Zoom vía Zapier apenas termina una llamada.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex-1 overflow-y-auto px-6 py-5 space-y-3">
+      {calls.map(call => {
+        const isExpanded = expandedId === call.id
+        return (
+          <div key={call.id} className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] overflow-hidden">
+            <button
+              onClick={() => setExpandedId(isExpanded ? null : call.id)}
+              className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-foreground/[0.03] transition-colors"
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">
+                  {call.meeting_topic ?? "Llamada"}
+                </p>
+                <p className="text-xs text-foreground/40 mt-0.5">
+                  {fmtDateTime(call.occurred_at)}
+                  {call.duration_minutes ? ` · ${Math.round(call.duration_minutes)} min` : ""}
+                </p>
+              </div>
+              <ChevronRight className={`h-4 w-4 shrink-0 text-foreground/30 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
+            </button>
+            {isExpanded && (
+              <div className="border-t border-foreground/[0.06] px-4 py-3 space-y-3">
+                {call.recording_url && (
+                  <a href={call.recording_url} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#dafc69] hover:text-[#f2ffc0] transition-colors">
+                    <PhoneCall className="h-3.5 w-3.5" />
+                    Ver grabación
+                  </a>
+                )}
+                {call.transcript ? (
+                  <p className="text-[13px] leading-relaxed text-foreground/70 whitespace-pre-wrap">{call.transcript}</p>
+                ) : (
+                  <p className="text-xs text-foreground/30">Sin transcript disponible para esta llamada.</p>
+                )}
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 // ─── Detail Drawer ────────────────────────────────────────────────────────────
 
 function DetailDrawer({
@@ -622,7 +718,7 @@ function DetailDrawer({
   sendingRenewal:      boolean
   offboarding:         boolean
 }) {
-  const [drawerTab,        setDrawerTab]          = useState<"crm" | "reports">("crm")
+  const [drawerTab,        setDrawerTab]          = useState<"crm" | "reports" | "calls">("crm")
   const [showFollowupForm, setShowFollowupForm]   = useState(false)
   const [fuDate,           setFuDate]             = useState(todayStr())
   const [fuType,           setFuType]             = useState<Followup["type"]>("whatsapp")
@@ -767,12 +863,28 @@ function DetailDrawer({
             <BarChart3 className="h-3.5 w-3.5" />
             Reportes
           </button>
+          <button onClick={() => setDrawerTab("calls")}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+              drawerTab === "calls"
+                ? "bg-foreground/[0.08] text-foreground"
+                : "text-foreground/40 hover:text-foreground/70"
+            }`}>
+            <PhoneCall className="h-3.5 w-3.5" />
+            Llamadas
+          </button>
         </div>
 
         {/* Reports tab */}
         {drawerTab === "reports" && (
           <div className="flex-1 overflow-hidden" style={{ backgroundColor: "var(--card)" }}>
             <ClientReportPanel clientId={client.id} />
+          </div>
+        )}
+
+        {/* Calls tab */}
+        {drawerTab === "calls" && (
+          <div className="flex-1 overflow-hidden" style={{ backgroundColor: "var(--card)" }}>
+            <ClientCallsPanel clientId={client.id} />
           </div>
         )}
 

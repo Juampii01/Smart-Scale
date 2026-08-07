@@ -13,6 +13,8 @@
 //   ZAPIER_WEBHOOK_LEAD_FOLLOWUP      → fires cuando llega (o se venció) la fecha de
 //                                        "próximo seguimiento" de un lead en el pipeline
 //                                        (disparado por app/api/cron/lead-follow-up)
+//   ZAPIER_WEBHOOK_CLIENT_CALL        → fires cuando llega una llamada de Zoom nueva
+//                                        vía app/api/webhooks/client-call
 //
 // Zapier Zap setup:
 //   Trigger: "Webhooks by Zapier → Catch Hook"
@@ -405,4 +407,35 @@ export async function zapierLeadFollowUpDue(payload: {
   ].join("\n")
 
   return postWebhook(url, { ...payload, message }, "zapierLeadFollowUpDue")
+}
+
+// ─── Fire: llamada de cliente recibida ────────────────────────────────────────
+// Disparado por app/api/webhooks/client-call apenas Zapier manda una grabación
+// de Zoom nueva y se intentó matchear contra un cliente por email.
+
+export async function zapierClientCallReceived(payload: {
+  event_type:         "client_call.received"
+  client_name?:       string | null
+  participant_email?: string | null
+  participant_name?:  string | null
+  recording_url?:     string | null
+  meeting_topic?:     string | null
+  duration_minutes?:  number | null
+}): Promise<ZapierResult> {
+  const url = process.env.ZAPIER_WEBHOOK_CLIENT_CALL
+  if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_CLIENT_CALL not configured" }
+
+  const who = payload.client_name?.trim()
+    || payload.participant_name?.trim()
+    || payload.participant_email?.trim()
+    || "Participante sin identificar"
+
+  const lines = [
+    `📞  *Nueva llamada recibida* — ${who}${payload.client_name ? "" : "  _(sin cliente asignado — asignar a mano)_"}`,
+  ]
+  if (payload.meeting_topic) lines.push(`> ${payload.meeting_topic}`)
+  if (payload.duration_minutes) lines.push(`⏱ ${Math.round(payload.duration_minutes)} min`)
+  if (payload.recording_url) lines.push(`🎥 ${payload.recording_url}`)
+
+  return postWebhook(url, { ...payload, message: lines.join("\n") }, "zapierClientCallReceived")
 }
