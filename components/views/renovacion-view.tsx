@@ -12,7 +12,8 @@ interface Offer {
   title: string
   tagline: string
   priceTotal: string        // pago único (ej: "USD 2.000")
-  priceMonthly: string | null  // por mes (ej: "USD 800") — null = no mostrar
+  priceMonthly: string | null  // segunda línea de precio (ej: "USD 800") — null = no mostrar
+  priceSuffix?: string      // sufijo de esa segunda línea, default "/mes" (ej: "" si priceMonthly ya dice "2 pagos de...")
   highlight: boolean
   features: string[]
   footnote?: string
@@ -20,13 +21,13 @@ interface Offer {
 
 const OFFERS: Offer[] = [
   {
-    id: "renovacion-sin",
+    id: "smart-scale",
     badge: "Renovación",
     icon: Repeat,
-    title: "Renovación sin llamada",
+    title: "Smart Scale",
     tagline: "Seguí con todo el ecosistema grupal del programa.",
-    priceTotal: "USD 2.000",
-    priceMonthly: "USD 497",
+    priceTotal: "USD 497",
+    priceMonthly: null,
     highlight: false,
     features: [
       "Llamada semanal de Lab / Workshop",
@@ -36,28 +37,10 @@ const OFFERS: Offer[] = [
     ],
   },
   {
-    id: "scaleup",
-    badge: "Máximo nivel · 1:1",
-    icon: Crown,
-    title: "ScaleUp",
-    tagline: "Acompañamiento 1:1 directo + trabajo profundo sobre tu negocio.",
-    priceTotal: "USD 12.000",
-    priceMonthly: "USD 2.500",
-    highlight: true,
-    features: [
-      "Soporte 1:1 con Ann por WhatsApp y llamadas",
-      "Llamada semanal 1-1 con Ann",
-      "Seguimiento constante de números y trackers semanales",
-      "Trabajo profundo del backend: procesos, delivery, clientes y escalado con ads",
-      "Todo el ecosistema grupal (Lab, Automatizaciones, Mentalidad y comunidad)",
-    ],
-    footnote: "El nivel más alto de acompañamiento del programa.",
-  },
-  {
-    id: "renovacion-con",
+    id: "inner-circle",
     badge: "Renovación + 1:1",
     icon: Repeat,
-    title: "Renovación con llamada",
+    title: "Smart Scale Inner Circle",
     tagline: "El ecosistema grupal + soporte 1:1 con Ann.",
     priceTotal: "USD 5.000",
     priceMonthly: "USD 1.000",
@@ -69,6 +52,25 @@ const OFFERS: Offer[] = [
       "Llamada mensual de Mentalidad",
       "Acceso completo a la comunidad y recursos",
     ],
+  },
+  {
+    id: "mastermind",
+    badge: "Máximo nivel · 1:1",
+    icon: Crown,
+    title: "Mastermind",
+    tagline: "Acompañamiento 1:1 directo + trabajo profundo sobre tu negocio.",
+    priceTotal: "USD 12.000",
+    priceMonthly: "2 pagos de USD 6.500",
+    priceSuffix: "",
+    highlight: true,
+    features: [
+      "Soporte 1:1 con Ann por WhatsApp y llamadas",
+      "Llamada semanal 1-1 con Ann",
+      "Seguimiento constante de números y trackers semanales",
+      "Trabajo profundo del backend: procesos, delivery, clientes y escalado con ads",
+      "Todo el ecosistema grupal (Lab, Automatizaciones, Mentalidad y comunidad)",
+    ],
+    footnote: "El nivel más alto de acompañamiento del programa.",
   },
 ]
 
@@ -127,7 +129,7 @@ export function RenovacionView() {
                 </div>
                 {o.priceMonthly && (
                   <p className="text-[12.5px] text-foreground/60 mt-1">
-                    o <span className="font-semibold text-foreground">{o.priceMonthly}</span>/mes
+                    o <span className="font-semibold text-foreground">{o.priceMonthly}</span>{o.priceSuffix ?? "/mes"}
                   </p>
                 )}
               </div>
