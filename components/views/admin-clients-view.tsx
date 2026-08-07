@@ -679,6 +679,129 @@ function ClientCallsPanel({ clientId }: { clientId: string }) {
   )
 }
 
+// ─── Reactivar (renovación) ───────────────────────────────────────────────────
+// Un cliente en offboarding renueva: en vez de cargar "Nuevo cliente" de cero
+// (lo que generaba duplicados tipo "Camila Graciano" / "Cami"), este modal
+// actualiza la MISMA fila con los datos del nuevo ciclo y genera sus cuotas.
+
+interface ReactivateData {
+  program:               string
+  total_amount:          number
+  num_installments:      number
+  is_monthly_subscription: boolean
+  program_start:          string
+  program_duration:       number
+}
+
+function ReactivateModal({
+  clientName, onClose, onSubmit, submitting,
+}: {
+  clientName: string
+  onClose:    () => void
+  onSubmit:   (data: ReactivateData) => Promise<void>
+  submitting: boolean
+}) {
+  const [program,        setProgram]        = useState("")
+  const [totalAmount,    setTotalAmount]    = useState("")
+  const [numInstallments, setNumInstallments] = useState("1")
+  const [isMonthly,      setIsMonthly]      = useState(false)
+  const [programStart,   setProgramStart]   = useState(todayStr())
+  const [programDuration, setProgramDuration] = useState("6")
+
+  const perInstallment = (() => {
+    const total = Number(totalAmount)
+    const n = Math.max(1, Number(numInstallments) || 1)
+    return total > 0 ? (total / n).toFixed(2) : null
+  })()
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const total = Number(totalAmount)
+    if (!total || total <= 0) return
+    await onSubmit({
+      program,
+      total_amount:             total,
+      num_installments:         Math.max(1, Number(numInstallments) || 1),
+      is_monthly_subscription:  isMonthly,
+      program_start:            programStart,
+      program_duration:         Math.max(1, Number(programDuration) || 1),
+    })
+  }
+
+  return (
+    <>
+      <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 z-[61] flex items-center justify-center p-4">
+        <form onSubmit={handleSubmit}
+          className="w-full max-w-sm rounded-[14px] border border-foreground/[0.10] shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+          style={{ backgroundColor: "var(--card)" }}>
+          <div className="flex items-center justify-between mb-1">
+            <div>
+              <h3 className="text-base font-bold text-foreground">Reactivar cliente</h3>
+              <p className="text-[12px] text-foreground/40 mt-0.5">{clientName} — nuevo ciclo</p>
+            </div>
+            <button type="button" onClick={onClose}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Programa</p>
+            <input type="text" value={program} onChange={e => setProgram(e.target.value)}
+              placeholder="ej: Smart Scale, Mastermind..."
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Monto total *</p>
+              <input type="number" min={0} step="any" required value={totalAmount} onChange={e => setTotalAmount(e.target.value)}
+                placeholder="USD"
+                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all" />
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Cant. cuotas</p>
+              <input type="number" min={1} max={24} value={numInstallments} onChange={e => setNumInstallments(e.target.value)}
+                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
+            </div>
+          </div>
+          {perInstallment && (
+            <p className="text-[11px] text-foreground/40 -mt-2">
+              {numInstallments === "1" ? "Pago único" : `${numInstallments} cuotas de USD ${perInstallment} c/u`} — la primera se marca pagada al guardar.
+            </p>
+          )}
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Inicio del ciclo</p>
+              <input type="date" value={programStart} onChange={e => setProgramStart(e.target.value)}
+                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Duración (meses)</p>
+              <input type="number" min={1} max={24} value={programDuration} onChange={e => setProgramDuration(e.target.value)}
+                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 text-[12.5px] text-foreground/60">
+            <input type="checkbox" checked={isMonthly} onChange={e => setIsMonthly(e.target.checked)}
+              className="h-4 w-4 rounded border-foreground/20" />
+            Suscripción mensual (genera la próxima cuota sola cada mes)
+          </label>
+
+          <button type="submit" disabled={!totalAmount || Number(totalAmount) <= 0 || submitting}
+            className="w-full h-10 rounded-xl bg-[#dafc69] text-black text-[13px] font-bold hover:bg-[#f2ffc0] transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            Reactivar
+          </button>
+        </form>
+      </div>
+    </>
+  )
+}
+
 // ─── Detail Drawer ────────────────────────────────────────────────────────────
 
 function DetailDrawer({
@@ -693,9 +816,11 @@ function DetailDrawer({
   onDeleteFollowup,
   onDeleteClient,
   onOffboard,
+  onReactivate,
   onSendRenewalEmail,
   deleting,
   offboarding,
+  reactivating,
   sendingRenewal,
 }: {
   client:              Client
@@ -709,12 +834,15 @@ function DetailDrawer({
   onDeleteFollowup:    (followupId: string) => Promise<void>
   onDeleteClient:      (id: string) => Promise<void>
   onOffboard:          (id: string) => Promise<void>
+  onReactivate:        (id: string, data: ReactivateData) => Promise<void>
   onSendRenewalEmail:  (id: string) => Promise<void>
   deleting:            boolean
   sendingRenewal:      boolean
   offboarding:         boolean
+  reactivating:        boolean
 }) {
   const [drawerTab,        setDrawerTab]          = useState<"crm" | "reports" | "calls">("crm")
+  const [showReactivateForm, setShowReactivateForm] = useState(false)
   const [showFollowupForm, setShowFollowupForm]   = useState(false)
   const [fuDate,           setFuDate]             = useState(todayStr())
   const [fuType,           setFuType]             = useState<Followup["type"]>("whatsapp")
@@ -766,6 +894,17 @@ function DetailDrawer({
 
   return (
     <>
+      {showReactivateForm && (
+        <ReactivateModal
+          clientName={client.name}
+          onClose={() => setShowReactivateForm(false)}
+          submitting={reactivating}
+          onSubmit={async data => {
+            await onReactivate(client.id, data)
+            setShowReactivateForm(false)
+          }}
+        />
+      )}
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[480px] flex-col border-l border-foreground/[0.08] shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
 
@@ -800,6 +939,19 @@ function DetailDrawer({
               >
                 {sendingRenewal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
                 {!sendingRenewal && <span>Enviar renovación</span>}
+              </button>
+            )}
+            {/* Reactivar — renovó, vuelve a activo sobre la MISMA fila (evita duplicados) */}
+            {client.status === "offboarding" && (
+              <button
+                onClick={() => setShowReactivateForm(true)}
+                disabled={reactivating}
+                aria-label="Reactivar cliente"
+                title="Renovó — carga el nuevo ciclo y vuelve a activo"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-[#dafc69]/40 px-2.5 text-[11px] font-semibold text-foreground hover:bg-[#dafc69]/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
+              >
+                {reactivating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                {!reactivating && <span>Reactivar</span>}
               </button>
             )}
             {/* Dar de baja — la única acción para pasar a offboarding */}
@@ -1639,6 +1791,7 @@ export function AdminClientsView() {
   const [selected,      setSelected]     = useState<Client | null>(null)
   const [deletingId,    setDeletingId]   = useState<string | null>(null)
   const [offboardingId, setOffboardingId] = useState<string | null>(null)
+  const [reactivatingId, setReactivatingId] = useState<string | null>(null)
   const [sendingRenewalId, setSendingRenewalId] = useState<string | null>(null)
   const [filterStatus,  setFilterStatus] = useState<string>("activo")
   const [search,        setSearch]       = useState("")
@@ -1876,6 +2029,27 @@ export function AdminClientsView() {
     setOffboardingId(null)
   }
 
+  const handleReactivateClient = async (id: string, data: ReactivateData) => {
+    setReactivatingId(id)
+    const session = await getSession()
+    if (!session) { setReactivatingId(null); return }
+    const res = await fetch("/api/admin/clients", {
+      method:  "PATCH",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+      body:    JSON.stringify({ type: "reactivate", id, ...data }),
+    })
+    if (res.ok) {
+      // Trae de nuevo la lista para tener las cuotas nuevas reales (generadas
+      // en el server) — no vale la pena replicar esa lógica acá para un
+      // update optimista.
+      await fetchClients()
+    } else {
+      const json = await res.json().catch(() => ({}))
+      alert(json.error ?? "No se pudo reactivar el cliente.")
+    }
+    setReactivatingId(null)
+  }
+
   const handleSendRenewalEmail = async (id: string) => {
     const client = clients.find(c => c.id === id)
     const name = client?.name ?? "este cliente"
@@ -1948,9 +2122,11 @@ export function AdminClientsView() {
           onDeleteFollowup={handleDeleteFollowup}
           onDeleteClient={handleDeleteClient}
           onOffboard={handleOffboardClient}
+          onReactivate={handleReactivateClient}
           onSendRenewalEmail={handleSendRenewalEmail}
           deleting={deletingId === selected.id}
           offboarding={offboardingId === selected.id}
+          reactivating={reactivatingId === selected.id}
           sendingRenewal={sendingRenewalId === selected.id}
         />
       )}

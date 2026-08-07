@@ -203,6 +203,67 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: true })
     }
 
+    // Reactivar: un cliente en offboarding renueva. Actualiza la MISMA fila
+    // (vuelve a activo + datos del nuevo ciclo) en vez de crear un cliente
+    // nuevo — evita los duplicados tipo "Camila Graciano" / "Cami" que
+    // generaba cargar todo de cero cada vez que alguien renovaba. Genera las
+    // cuotas del nuevo ciclo con la misma lógica que el alta de onboarding
+    // (app/api/admin/onboarding/route.ts) — cuota 1 se marca pagada al
+    // instante porque para llegar acá ya se recibió ese pago.
+    if (body.type === "reactivate") {
+      if (!body.id) return NextResponse.json({ error: "id is required" }, { status: 400 })
+      const totalAmount = Number(body.total_amount)
+      const numInstallments = Math.max(1, Math.min(24, Number(body.num_installments) || 1))
+      const programStart = body.program_start || new Date().toISOString().slice(0, 10)
+      const programDuration = Math.max(1, Math.min(24, Number(body.program_duration) || numInstallments))
+      if (!totalAmount || totalAmount <= 0) return NextResponse.json({ error: "total_amount debe ser mayor a 0" }, { status: 400 })
+
+      const perInstallment = Math.round((totalAmount / numInstallments) * 100) / 100
+
+      function addMonthsToDate(dateStr: string, months: number): string {
+        const d = new Date(dateStr + "T12:00:00Z")
+        d.setUTCMonth(d.getUTCMonth() + months)
+        return d.toISOString().slice(0, 10)
+      }
+      const nowIso = new Date().toISOString()
+      const installmentsToInsert = Array.from({ length: numInstallments }, (_, idx) => ({
+        client_id:          body.id,
+        installment_number: idx + 1,
+        due_date:           addMonthsToDate(programStart, idx),
+        amount:             perInstallment,
+        paid_at:            idx === 0 ? nowIso : null,
+      }))
+
+      const [updateRes, profilesRes, instRes] = await Promise.all([
+        supabase
+          .from("crm_clients")
+          .update({
+            status:                   "activo",
+            programa:                 body.program || null,
+            total_amount:             totalAmount,
+            installment_amount:       perInstallment,
+            num_installments:         numInstallments,
+            is_monthly_subscription:  Boolean(body.is_monthly_subscription),
+            program_start:            programStart,
+            program_duration:         programDuration,
+            renewal_email_sent_at:    null,
+            updated_at:               new Date().toISOString(),
+          })
+          .eq("id", body.id),
+        supabase
+          .from("profiles")
+          .update({ active: true })
+          .eq("client_id", body.id),
+        supabase
+          .from("crm_installments")
+          .insert(installmentsToInsert),
+      ])
+      if (updateRes.error) return NextResponse.json({ error: updateRes.error.message }, { status: 500 })
+      if (profilesRes.error) return NextResponse.json({ error: profilesRes.error.message }, { status: 500 })
+      if (instRes.error) return NextResponse.json({ error: instRes.error.message }, { status: 500 })
+      return NextResponse.json({ success: true })
+    }
+
     // Disparar el email de renovación a mano — mismo template que manda el cron
     // automáticamente 7 días antes de que termine el programa, pero sin esperar
     // esa ventana (para el caso de avisarle a alguien ya mismo).
