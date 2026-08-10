@@ -156,7 +156,7 @@ export function AdminImportView() {
   if (!activeClient) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
-        <AlertCircle className="h-8 w-8 text-amber-400/50 mb-3" />
+        <AlertCircle className="h-8 w-8 text-amber-700/50 dark:text-amber-400/50 mb-3" />
         <p className="text-foreground/40 text-sm">
           Seleccioná un cliente en el selector de arriba para importar datos.
         </p>
@@ -298,9 +298,9 @@ export function AdminImportView() {
                     {/* Status */}
                     <td className="px-3 py-2.5 text-center">
                       {isSaved
-                        ? <Check className="h-4 w-4 text-emerald-400 mx-auto" />
+                        ? <Check className="h-4 w-4 text-emerald-700 dark:text-emerald-400 mx-auto" />
                         : hasError
-                          ? <AlertCircle className="h-4 w-4 text-red-400 mx-auto" title={errors[row.month]} />
+                          ? <AlertCircle className="h-4 w-4 text-red-700 dark:text-red-400 mx-auto" title={errors[row.month]} />
                           : hasData
                             ? <div className="h-1.5 w-1.5 rounded-full bg-[#dafc69]/60 mx-auto" />
                             : null}

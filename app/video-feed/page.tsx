@@ -139,7 +139,7 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
                   onClick={() => { navigator.clipboard.writeText(post.analysis!); setCopied(true); setTimeout(() => setCopied(false), 1500) }}
                   className="inline-flex items-center gap-1 text-[9px] text-foreground/25 hover:text-foreground/50 transition-colors"
                 >
-                  {copied ? <Check className="h-2.5 w-2.5 text-emerald-400" /> : <Copy className="h-2.5 w-2.5" />}
+                  {copied ? <Check className="h-2.5 w-2.5 text-emerald-700 dark:text-emerald-400" /> : <Copy className="h-2.5 w-2.5" />}
                   Copiar análisis
                 </button>
               </div>
@@ -225,7 +225,7 @@ function ConnectForm({ onConnect, clientId }: { onConnect: (account: Account) =>
               </button>
             </form>
             {error && (
-              <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>
+              <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">{error}</div>
             )}
           </div>
           {loading && (
@@ -287,7 +287,7 @@ function FeedView({ account, onRefresh }: {
           <p className="text-[11px] text-foreground/30 mt-0.5">
             {account.posts.length} posts · últimos 30 días · Actualizado {timeAgo(account.updated_at)}
             {lastNew !== null && (
-              <span className={`ml-2 font-medium ${lastNew > 0 ? "text-emerald-400" : "text-foreground/25"}`}>
+              <span className={`ml-2 font-medium ${lastNew > 0 ? "text-emerald-700 dark:text-emerald-400" : "text-foreground/25"}`}>
                 {lastNew > 0 ? `+${lastNew} nuevo${lastNew > 1 ? "s" : ""}` : "Sin posts nuevos"}
               </span>
             )}

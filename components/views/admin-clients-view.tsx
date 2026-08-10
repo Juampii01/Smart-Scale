@@ -1318,7 +1318,7 @@ function DetailDrawer({
                     <button
                       onClick={() => handleToggleFu(fu)}
                       disabled={togglingFu === fu.id}
-                      className="mt-0.5 shrink-0 text-foreground/30 hover:text-emerald-400 transition-colors disabled:opacity-40">
+                      className="mt-0.5 shrink-0 text-foreground/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors disabled:opacity-40">
                       {togglingFu === fu.id
                         ? <Loader2 className="h-4 w-4 animate-spin" />
                         : fu.completed
@@ -1343,7 +1343,7 @@ function DetailDrawer({
                     <button
                       onClick={() => handleDeleteFu(fu.id)}
                       disabled={deletingFuId === fu.id}
-                      className="shrink-0 opacity-0 group-hover:opacity-100 flex h-6 w-6 items-center justify-center rounded-lg text-foreground/15 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
+                      className="shrink-0 opacity-0 group-hover:opacity-100 flex h-6 w-6 items-center justify-center rounded-lg text-foreground/15 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
                       {deletingFuId === fu.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
                     </button>
                   </div>

@@ -31,8 +31,8 @@ function ConfirmedContent() {
             </span>
           </div>
           <div className="flex items-center gap-1.5 text-[11px] text-foreground/30">
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-            <span className="text-emerald-400 font-medium">Pago confirmado</span>
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
+            <span className="text-emerald-700 dark:text-emerald-400 font-medium">Pago confirmado</span>
           </div>
         </div>
       </nav>

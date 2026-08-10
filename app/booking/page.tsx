@@ -166,7 +166,7 @@ function BookingContent() {
                   </a>
                 ) : (
                   <div className="rounded-2xl border border-amber-400/25 bg-amber-500/[0.07] p-4 text-center">
-                    <p className="text-[12px] text-amber-400/80">Link de pago no configurado.</p>
+                    <p className="text-[12px] text-amber-700/80 dark:text-amber-400/80">Link de pago no configurado.</p>
                   </div>
                 )}
 
