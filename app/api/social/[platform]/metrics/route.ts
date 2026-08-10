@@ -131,11 +131,21 @@ async function igMediaInsights(mediaId: string, token: string): Promise<{ views:
     return out
   }
   try {
-    let res = await fetch(`${IG_BASE}/${mediaId}/insights?metric=views,reach&access_token=${encodeURIComponent(token)}`, { signal: AbortSignal.timeout(8_000) })
-    if (res.ok) return parse(await res.json())
-    res = await fetch(`${IG_BASE}/${mediaId}/insights?metric=reach&access_token=${encodeURIComponent(token)}`, { signal: AbortSignal.timeout(8_000) })
-    if (res.ok) return parse(await res.json())
-    console.error(`[social/instagram/metrics] insights fetch failed for media ${mediaId}: HTTP ${res.status}`)
+    const res1 = await fetch(`${IG_BASE}/${mediaId}/insights?metric=views,reach&access_token=${encodeURIComponent(token)}`, { signal: AbortSignal.timeout(8_000) })
+    if (res1.ok) return parse(await res1.json())
+    const firstStatus = res1.status
+    const firstErrorBody = await res1.text()
+
+    const res2 = await fetch(`${IG_BASE}/${mediaId}/insights?metric=reach&access_token=${encodeURIComponent(token)}`, { signal: AbortSignal.timeout(8_000) })
+    if (res2.ok) return parse(await res2.json())
+    // El body trae el motivo real de Meta (ej. "metric not supported for this
+    // media product type") — antes se descartaba y solo quedaba el status code.
+    const secondErrorBody = await res2.text()
+    console.error(
+      `[social/instagram/metrics] insights fetch failed for media ${mediaId}: ` +
+      `views+reach HTTP ${firstStatus} body=${firstErrorBody.slice(0, 300)} | ` +
+      `reach-only HTTP ${res2.status} body=${secondErrorBody.slice(0, 300)}`
+    )
   } catch (e) {
     console.error(`[social/instagram/metrics] insights fetch threw for media ${mediaId}:`, e instanceof Error ? e.message : e)
   }
@@ -147,7 +157,10 @@ async function igMediaInsights(mediaId: string, token: string): Promise<{ views:
 async function instagramData(accessToken: string) {
   const enc = encodeURIComponent(accessToken)
   const profileRes = await fetch(`${IG_BASE}/me?fields=followers_count,media_count&access_token=${enc}`, { signal: AbortSignal.timeout(10_000) })
-  if (!profileRes.ok) throw new Error(`IG profile ${profileRes.status}`)
+  if (!profileRes.ok) {
+    const body = await profileRes.text()
+    throw new Error(`IG profile ${profileRes.status} body=${body.slice(0, 300)}`)
+  }
   const profile = (await profileRes.json()) as { followers_count?: number; media_count?: number }
 
   // Hasta ~60 publicaciones (2 páginas) para cubrir varios meses
