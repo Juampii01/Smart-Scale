@@ -124,7 +124,7 @@ export async function getUnpaidInstallmentsForSetter(
   }
 
   const now = new Date()
-  const result: typeof unpaidInsts = []
+  const result: Array<(typeof unpaidInsts)[number] & { days_overdue: number }> = []
 
   for (const inst of unpaidInsts) {
     const dueDate = new Date(inst.due_date)
@@ -145,6 +145,6 @@ export async function getUnpaidInstallmentsForSetter(
     installment_number: inst.installment_number || 0,
     amount: Number(inst.amount || 0),
     due_date: inst.due_date,
-    days_overdue: (inst as any).days_overdue,
+    days_overdue: inst.days_overdue,
   }))
 }

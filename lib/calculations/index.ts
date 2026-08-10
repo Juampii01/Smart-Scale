@@ -45,8 +45,11 @@ export async function calculateAllMetricsForSetter(
   let totalInbound = 0
   let totalOutbound = 0
 
-  if (inboundOutbound[1]) {
-    for (const log of inboundOutbound[1]) {
+  // inboundOutbound es la respuesta cruda de Postgrest ({data, error, ...}),
+  // no un array — indexar con [1] siempre daba undefined y este bloque nunca
+  // corría (totalInbound/totalOutbound quedaban en 0 en silencio).
+  if (inboundOutbound.data) {
+    for (const log of inboundOutbound.data) {
       totalInbound += log.inbound_applications || 0
       totalOutbound += log.outbound_leads || 0
     }

@@ -48,11 +48,16 @@ export async function GET(req: NextRequest) {
     const supabase = createServiceClient()
     // Intentamos traer custom_fields + campos del pipeline; si alguna migración
     // todavía no se aplicó, vamos degradando hasta el set mínimo de columnas.
-    let { data, error } = await supabase
+    // Tipado explícito: las 3 queries de fallback seleccionan distintas columnas,
+    // así que el tipo fila-a-fila que infiere Supabase difiere entre ellas — sin
+    // esto TS intenta unificarlos y falla.
+    let data: any[] | null = null
+    let error: { message: string } | null = null
+    ;({ data, error } = await supabase
       .from("leads")
       .select(SELECT_FIELDS + ", custom_fields, " + PIPELINE_FIELDS)
       .order("created_at", { ascending: false })
-      .limit(1000)
+      .limit(1000))
 
     if (error) {
       ({ data, error } = await supabase
