@@ -61,7 +61,7 @@ interface TranscriptJob {
 
 function isYouTubeUrl(url: string) { return /youtube\.com|youtu\.be/.test(url) }
 function isInstagramUrl(url: string) { return /instagram\.com/.test(url) }
-function isInstagramReel(url: string) { return /instagram\.com\/(reel|reels)\//.test(url) }
+function isInstagramReel(url: string) { return /instagram\.com\/([^/?#]+\/)?(reel|reels)\//.test(url) }
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("es-AR", {

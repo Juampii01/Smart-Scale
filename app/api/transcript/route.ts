@@ -117,7 +117,11 @@ function extractYouTubeId(url: string): string | null {
 }
 
 function isInstagramUrl(url: string): boolean {
-  return /instagram\.com\/(p|reel|reels|tv)\//.test(url)
+  // Instagram sirve el mismo reel en dos formatos: instagram.com/reel/CODE/ y
+  // instagram.com/USERNAME/reel/CODE/ (el segundo aparece al compartir desde el
+  // perfil). El username es opcional acá — abajo (getInstagramTranscript) ya
+  // sabe parsear ambos, pero este gate solo aceptaba el primero.
+  return /instagram\.com\/([^/?#]+\/)?(p|reel|reels|tv)\//.test(url)
 }
 
 function decodeHtmlEntities(value: string): string {
