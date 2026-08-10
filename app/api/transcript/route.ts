@@ -497,9 +497,18 @@ async function runApifyInstagramResolvers(
   return null
 }
 
-async function getInstagramTranscript(postUrl: string): Promise<{ transcript: string | null; caption: string | null; duration: string | null; username: string | null }> {
+async function getInstagramTranscript(postUrl: string): Promise<{ transcript: string | null; caption: string | null; duration: string | null; username: string | null; invalidShortCode?: boolean }> {
   const normalizedPostUrl = postUrl.replace(/\/+$/, "").replace("/reels/", "/reel/")
   const shortCode = normalizedPostUrl.match(/\/(p|reel|reels|tv)\/([^/?#]+)/)?.[2] ?? null
+
+  // Los shortcodes de Instagram son base64 url-safe: solo A-Za-z0-9_-. Si viene
+  // con otro carácter (ej. "|" en vez de "I"/"l") es casi siempre un error de
+  // tipeo/copiado al pegar la URL — no tiene sentido gastar una llamada a Apify,
+  // nunca va a matchear ningún reel real.
+  if (shortCode && !/^[A-Za-z0-9_-]+$/.test(shortCode)) {
+    console.log("[transcript] shortCode con caracteres inválidos, probable error de copiado:", shortCode)
+    return { transcript: null, caption: null, duration: null, username: null, invalidShortCode: true }
+  }
 
   // Extract username from URL when the format is instagram.com/USER/reel/CODE/
   let username: string | null = null
@@ -868,7 +877,9 @@ export async function POST(req: NextRequest) {
 
       if (!transcript) {
         return NextResponse.json({
-          error: ig.username
+          error: ig.invalidShortCode
+            ? "Ese link no es válido — el código del reel tiene caracteres que Instagram no usa (probablemente un error al copiarlo o tipearlo). Volvé a Instagram, tocá Compartir → Copiar link, y pegalo de nuevo sin editarlo."
+            : ig.username
             ? "No se pudo transcribir este reel. Apify pudo detectar el post, pero no se pudo obtener o transcribir el video."
             : "No se pudo transcribir este reel. Apify no pudo resolver el video desde Instagram. Probá con un reel público e intentá más tarde.",
         }, { status: 422 })
