@@ -5,7 +5,7 @@ import {
   ClipboardList, Zap, Globe, FileVideo, ChevronDown,
   ShieldCheck, ArrowRight, Sparkles, Instagram, Youtube,
   User, Pencil, Trophy, Coins, FileBarChart, TrendingUp,
-  Brain, Bot, Wrench,
+  Brain, Bot, Wrench, Kanban,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -41,6 +41,7 @@ const NAV_GROUPS: NavGroup[] = [
       { name: "Performance", href: "/performance", icon: TrendingUp    },
       { name: "Reflection",  href: "/reflection",  icon: MessageSquare },
       { name: "All Metrics", href: "/metrics",     icon: LayoutGrid    },
+      { name: "Pipeline",    href: "/pipeline",    icon: Kanban        },
       {
         name: "YouTube", href: "/mi-youtube", icon: Youtube,
         children: [
