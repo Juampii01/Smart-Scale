@@ -32,6 +32,10 @@
     {
       "path": "/api/cron/lead-follow-up",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/client-prospect-follow-up",
+      "schedule": "0 12 * * *"
     }
   ]
 }
