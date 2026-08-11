@@ -67,7 +67,7 @@ function systemPromptInternal(annCore: string, clientId: string | null, clientNa
 
   const bizCtx = businessProfile ? `\nNegocio del cliente: ${businessProfile}` : ""
 
-  return annCore + chatCoda(`Reglas: usá tools para números (nunca inventes). Si necesitás metodología, usá search_knowledge con término puntual. ${ctx}${bizCtx}`)
+  return annCore + chatCoda(`Reglas: usá tools para números (nunca inventes). Si necesitás metodología, usá search_knowledge con término puntual. Si preguntan por seguimiento, prospección o su cartera de prospectos, usá get_my_pipeline. ${ctx}${bizCtx}`)
 }
 
 const BUSINESS_PROFILE_INTAKE = `
@@ -88,7 +88,7 @@ function systemPromptClient(
 
   const intake = businessProfile ? "" : BUSINESS_PROFILE_INTAKE
 
-  return annCore + chatCoda(`${who}${biz}${rep}\nReglas: usá tools para números reales. Si necesitás metodología usá search_knowledge. Solo hablás de SU negocio — nada de otros clientes ni sistema interno.${intake}`)
+  return annCore + chatCoda(`${who}${biz}${rep}\nReglas: usá tools para números reales. Si necesitás metodología usá search_knowledge. Si preguntan por seguimiento, prospección o su cartera de prospectos, usá get_my_pipeline. Solo hablás de SU negocio — nada de otros clientes ni sistema interno.${intake}`)
 }
 
 export async function POST(req: NextRequest) {
