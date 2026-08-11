@@ -125,8 +125,14 @@ export async function POST(req: NextRequest) {
     // fireEventDispatcher() era fire-and-forget y Vercel lo cancelaba antes de
     // que terminara. Llamamos a Zapier directamente con await para garantizar
     // que se envíe dentro del lifetime de la función serverless.
+    //
+    // Solo la primera vez que se guarda un client_id+month: sin este guard,
+    // cada vez que alguien reabre el mismo reporte y lo vuelve a guardar (para
+    // corregir un dato, por ejemplo) se repite el aviso de "felicitaciones" en
+    // Slack — es el bug que produjo 4 posts idénticos para el mismo cliente en
+    // una sola sesión de carga.
     const zapierReportUrl = process.env.ZAPIER_WEBHOOK_REPORT
-    if (zapierReportUrl) {
+    if (zapierReportUrl && !existingRow) {
       try {
         await fetch(zapierReportUrl, {
           method: "POST",
