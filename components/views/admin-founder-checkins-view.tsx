@@ -36,6 +36,18 @@ function currentQuarterLabel(): string {
   return `${d.getFullYear()}-Q${q}`
 }
 
+// Trimestres seleccionables: año actual completo + año siguiente completo —
+// cubre "el trimestre en curso" y "el que está por arrancar" sin dejar
+// que se tipeen valores libres (rompía comparaciones entre registros).
+function quarterOptions(): string[] {
+  const year = new Date().getFullYear()
+  const options: string[] = []
+  for (const y of [year, year + 1]) {
+    for (let q = 1; q <= 4; q++) options.push(`${y}-Q${q}`)
+  }
+  return options
+}
+
 function fmtMoney(n: number | null): string {
   if (n == null) return "—"
   return `$${n.toLocaleString("es-AR")}`
@@ -137,13 +149,15 @@ export function AdminFounderCheckinsView() {
             </div>
             <div>
               <label className={labelCls}>Trimestre</label>
-              <input className={inputCls} value={quarter} onChange={e => setQuarter(e.target.value)} placeholder="2026-Q3" required />
+              <select className={inputCls} value={quarter} onChange={e => setQuarter(e.target.value)} required>
+                {quarterOptions().map(q => <option key={q} value={q}>{q}</option>)}
+              </select>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label className={labelCls}>Mayor efectivo cobrado (mes)</label>
+              <label className={labelCls}>Cash collected mensual más alto</label>
               <input className={inputCls} type="number" min="0" value={bestMonthCash} onChange={e => setBestMonthCash(e.target.value)} placeholder="$" />
             </div>
             <div>
@@ -154,7 +168,7 @@ export function AdminFounderCheckinsView() {
               </select>
             </div>
             <div>
-              <label className={labelCls}>Meta de efectivo próx. trimestre</label>
+              <label className={labelCls}>Meta cash collected próx. trimestre</label>
               <input className={inputCls} type="number" min="0" value={goalCash} onChange={e => setGoalCash(e.target.value)} placeholder="$" />
             </div>
             <div>
@@ -199,7 +213,7 @@ export function AdminFounderCheckinsView() {
             <table className="w-full min-w-[820px]">
               <thead>
                 <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-                  {["Cliente", "Trimestre", "Mejor mes", "Escalón", "Meta próx.", "Nuevos clientes", "Notas"].map(h => (
+                  {["Cliente", "Trimestre", "Cash collected top", "Escalón", "Meta próx.", "Nuevos clientes", "Notas"].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-foreground/40">{h}</th>
                   ))}
                 </tr>

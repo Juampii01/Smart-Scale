@@ -31,13 +31,23 @@ export async function GET(req: NextRequest) {
   const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // Todos los clientes (para el selector del form) — query chica, no hace
-  // falta un endpoint aparte.
-  const { data: allClients } = await sb.from("clients").select("id, name, nombre").order("name")
+  // Clientes para el selector del form — solo los activos en el CRM. La fila
+  // de client_quarterly_checkins referencia clients(id), así que además hay
+  // que cruzar contra el portal (mismo UUID entre crm_clients y clients,
+  // como en admin/clients/route.ts) — algunos clientes activos en el CRM
+  // todavía no tienen cuenta de portal y por ahora no van a poder elegirse acá.
+  const [{ data: allClients }, { data: activeCrmClients }] = await Promise.all([
+    sb.from("clients").select("id, name, nombre"),
+    sb.from("crm_clients").select("id").eq("status", "activo"),
+  ])
+  const activeIds = new Set((activeCrmClients ?? []).map((c: any) => c.id))
   const nameById = new Map((allClients ?? []).map((c: any) => [c.id, c.nombre || c.name]))
 
   const checkins = (data ?? []).map((r: any) => ({ ...r, client_name: nameById.get(r.client_id) ?? "—" }))
-  const clients = (allClients ?? []).map((c: any) => ({ id: c.id, name: c.nombre || c.name || "(sin nombre)" }))
+  const clients = (allClients ?? [])
+    .filter((c: any) => activeIds.has(c.id))
+    .map((c: any) => ({ id: c.id, name: c.nombre || c.name || "(sin nombre)" }))
+    .sort((a: any, b: any) => a.name.localeCompare(b.name))
   return NextResponse.json({ checkins, clients })
 }
 
