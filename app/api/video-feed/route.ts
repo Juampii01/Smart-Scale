@@ -311,15 +311,17 @@ async function analyzeNewPosts(profileName: string, posts: any[]): Promise<(stri
       }],
     })
 
-    const text   = msg.content[0]?.type === "text" ? msg.content[0].text.trim() : "[]"
-    const parsed = JSON.parse(text)
+    const text    = msg.content[0]?.type === "text" ? msg.content[0].text.trim() : "[]"
+    const cleaned = text.replace(/^```[a-z]*\n?/i, "").replace(/\n?```$/i, "").trim()
+    const parsed  = JSON.parse(cleaned)
     if (!Array.isArray(parsed)) return posts.map(() => null)
 
     return posts.map(p => {
       const idx = idxMap.get(p.post_id)
       return idx !== undefined ? (parsed[idx] ?? null) : null
     })
-  } catch {
+  } catch (err) {
+    console.error("[video-feed][claude] error:", err)
     return posts.map(() => null)
   }
 }
