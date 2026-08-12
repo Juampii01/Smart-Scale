@@ -307,7 +307,7 @@ async function analyzeNewPosts(profileName: string, posts: any[]): Promise<(stri
       ...(system ? { system } : {}),
       messages: [{
         role:    "user",
-        content: `Experto en contenido. Analizá ${ranked.length} posts de "${profileName}". Por cada uno: 2 oraciones en español sobre por qué funcionó y qué patrón usa.\n\n${list}\n\nRespondé SOLO con JSON array de ${ranked.length} strings. Sin markdown.`,
+        content: `Nota: esto es una lectura rápida de patrones de contenido, no un feedback de coaching completo — no hace falta la estructura de Situación/Principio/Evidencia/Acción para esta tarea. Solo tenés título y métricas de cada post, y eso alcanza: no rechaces ni pidas más contexto.\n\nExperto en contenido. Analizá ${ranked.length} posts de "${profileName}". Por cada uno: 2 oraciones en español sobre por qué funcionó y qué patrón usa.\n\n${list}\n\nRespondé SOLO con JSON array de ${ranked.length} strings. Sin markdown.`,
       }],
     })
 

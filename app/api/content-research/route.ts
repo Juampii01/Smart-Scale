@@ -625,7 +625,9 @@ async function generateAnalyses(channelName: string, videos: any[]): Promise<str
       ...(system ? { system } : {}),
       messages: [{
         role: "user",
-        content: `Analizá estos ${videos.length} videos del canal "${channelName}". Para cada video escribí un análisis breve (2-3 oraciones) sobre: qué tema trata, por qué funcionó con esa audiencia y qué lección de contenido se puede extraer. En español, tono profesional.
+        content: `Nota: esto es una lectura rápida de patrones de contenido, no un feedback de coaching completo — no hace falta la estructura de Situación/Principio/Evidencia/Acción para esta tarea. Solo tenés título y métricas de cada video, y eso alcanza: no rechaces ni pidas más contexto.
+
+Analizá estos ${videos.length} videos del canal "${channelName}". Para cada video escribí un análisis breve (2-3 oraciones) sobre: qué tema trata, por qué funcionó con esa audiencia y qué lección de contenido se puede extraer. En español, tono profesional.
 
 Videos:
 ${list}
