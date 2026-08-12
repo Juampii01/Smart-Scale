@@ -36,6 +36,7 @@ const FOUNDER_NAV_ITEMS = [
   { name: "Notificaciones",   href: "/admin/notificaciones",    icon: Bell },
   { name: "Actualizar Sistema", href: "/admin/actualizar-sistema", icon: RefreshCw },
   { name: "Check-in Trimestral", href: "/admin/founder-checkins", icon: Wallet },
+  { name: "POSI",               href: "/admin/posi",              icon: ClipboardList },
 ]
 
 const PROSPECCION_NAV_ITEMS = [
