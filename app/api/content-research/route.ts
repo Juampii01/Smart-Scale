@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { rateLimit } from "@/lib/rate-limit"
 import { isAdmin } from "@/lib/auth/permissions"
+import { buildOmniSystemPrompt } from "@/lib/omni/system-prompt"
 import Anthropic from "@anthropic-ai/sdk"
 import { getInstagramTranscript } from "@/lib/instagram-transcript"
 
@@ -613,9 +614,15 @@ async function generateAnalyses(channelName: string, videos: any[]): Promise<str
       )
       .join("\n")
 
+    // Criterio de Ann (omni_client_profiles, client_id="ann") por encima
+    // del prompt — mismo patrón que ai-diagnosis/route.ts. Si falta el
+    // perfil, sigue sin system en vez de romper el análisis.
+    const system = await buildOmniSystemPrompt(createServiceClient(), "ann").catch(() => undefined)
+
     const msg = await anthropic.messages.create({
       model: "claude-haiku-4-5",
       max_tokens: 1200,
+      ...(system ? { system } : {}),
       messages: [{
         role: "user",
         content: `Analizá estos ${videos.length} videos del canal "${channelName}". Para cada video escribí un análisis breve (2-3 oraciones) sobre: qué tema trata, por qué funcionó con esa audiencia y qué lección de contenido se puede extraer. En español, tono profesional.

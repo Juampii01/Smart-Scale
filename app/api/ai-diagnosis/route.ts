@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { rateLimit } from "@/lib/rate-limit"
+import { buildOmniSystemPrompt } from "@/lib/omni/system-prompt"
 import Anthropic from "@anthropic-ai/sdk"
 
 // Helper: extrae el usuario autenticado del JWT (cualquier rol sirve)
@@ -196,9 +197,17 @@ Ejemplo:
   {"titulo": "Transform — Oferta y prueba social", "diagnostico": "..."}
 ]`
 
+  // El criterio de Ann (omni_client_profiles, client_id="ann") se agrega
+  // como system prompt por encima del formato JSON esperado — mismo
+  // patrón que get_my_pipeline (Paso 3), reusado tal cual como doctrina
+  // general, no un perfil por cliente. Si falta el perfil, se sigue sin
+  // system en vez de romper el diagnóstico.
+  const system = await buildOmniSystemPrompt(createServiceClient(), "ann").catch(() => undefined)
+
   const msg = await anthropic.messages.create({
     model: "claude-haiku-4-5",
     max_tokens: 800,
+    ...(system ? { system } : {}),
     messages: [{ role: "user", content: prompt }],
   })
 

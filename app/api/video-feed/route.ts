@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { isAdmin } from "@/lib/auth/permissions"
+import { buildOmniSystemPrompt } from "@/lib/omni/system-prompt"
 import Anthropic from "@anthropic-ai/sdk"
 
 export const runtime = "nodejs"
@@ -296,9 +297,14 @@ async function analyzeNewPosts(profileName: string, posts: any[]): Promise<(stri
       `${i + 1}. "${p.title.slice(0, 80)}" — ${p.views.toLocaleString()} views, ${p.comments.toLocaleString()} comentarios`
     ).join("\n")
 
+    // Criterio de Ann por encima del prompt — mismo patrón que
+    // ai-diagnosis/route.ts y content-research/route.ts.
+    const system = await buildOmniSystemPrompt(createServiceClient(), "ann").catch(() => undefined)
+
     const msg = await anthropic.messages.create({
       model:      "claude-haiku-4-5",
       max_tokens: 1200,
+      ...(system ? { system } : {}),
       messages: [{
         role:    "user",
         content: `Experto en contenido. Analizá ${ranked.length} posts de "${profileName}". Por cada uno: 2 oraciones en español sobre por qué funcionó y qué patrón usa.\n\n${list}\n\nRespondé SOLO con JSON array de ${ranked.length} strings. Sin markdown.`,
