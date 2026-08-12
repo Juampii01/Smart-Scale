@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 import { useSearchParams } from "next/navigation"
 import { Loader2, Check } from "lucide-react"
 import { createClient } from "@/lib/supabase"
+import { BrandLogo } from "@/components/theme/brand-logo"
 
 interface Question {
   id: string
@@ -114,9 +115,8 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-xl">
-        <div className="flex items-center gap-2.5 justify-center mb-8">
-          <span className="text-xl font-bold text-foreground tracking-tight">Smart</span>
-          <span className="rounded-md bg-foreground px-2.5 py-1 text-xl font-bold text-background tracking-tight">Scale</span>
+        <div className="flex items-center justify-center mb-8">
+          <BrandLogo size={32} wordmarkSize={16} />
         </div>
 
         {status === "loading" && (
