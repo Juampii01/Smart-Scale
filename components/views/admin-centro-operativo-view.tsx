@@ -1,22 +1,24 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { UserPlus, NotebookText, ListChecks, Layers } from "lucide-react"
+import { UserPlus, NotebookText, ListChecks, Layers, Target } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { isAdmin } from "@/lib/auth/permissions"
 import { useEffectiveRole } from "@/lib/auth/view-as"
 import { NewUserDialog } from "@/components/admin/new-user-dialog"
 import { CentroOpPagesView } from "@/components/views/centro-op-pages-view"
 import { AdminSOPsView } from "@/components/views/admin-sops-view"
+import { AdminProspeccionView } from "@/components/views/admin-prospeccion-view"
 import { SectionHeader } from "@/components/ui/section-header"
 
 // ─── Tabs ──────────────────────────────────────────────────────────────────────
 
-type CentroOpTab = "notion" | "sops"
+type CentroOpTab = "notion" | "sops" | "prospeccion"
 
 const CENTRO_OP_TABS: Array<{ id: CentroOpTab; label: string; icon: any }> = [
-  { id: "notion", label: "Notion", icon: NotebookText },
-  { id: "sops",   label: "SOPs",   icon: ListChecks   },
+  { id: "notion",      label: "Notion",      icon: NotebookText },
+  { id: "sops",        label: "SOPs",        icon: ListChecks   },
+  { id: "prospeccion", label: "Prospección", icon: Target       },
 ]
 
 // ─── Main View ─────────────────────────────────────────────────────────────────
@@ -87,8 +89,9 @@ export function AdminCentroOperativoView() {
       </div>
 
       {/* Contenido */}
-      {tab === "notion" && <CentroOpPagesView userRole={effectiveRole} />}
-      {tab === "sops"   && <AdminSOPsView userRole={effectiveRole} />}
+      {tab === "notion"      && <CentroOpPagesView userRole={effectiveRole} />}
+      {tab === "sops"        && <AdminSOPsView userRole={effectiveRole} />}
+      {tab === "prospeccion" && <AdminProspeccionView />}
     </div>
   )
 }
