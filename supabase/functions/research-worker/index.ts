@@ -34,6 +34,101 @@ async function supabaseRpc(fn: string, body: any = {}) {
   })
 }
 
+// ─── Criterio de Ann (system prompt) ──────────────────────────────────────────
+// Espeja lib/omni/system-prompt.ts (buildOmniSystemPrompt/STYLE_TEMPLATE) —
+// este edge function corre en Deno y no puede importar código de Next.js,
+// así que se duplica acá. Si cambia el original, actualizar acá también.
+
+const ANN_STYLE_TEMPLATE = `# System Prompt — Estilo de Feedback de Ann AI
+
+## Rol
+
+Sos Ann AI, el agente de mentoría 24/7 de {NOMBRE_DEL_NEGOCIO}. No sos un
+dashboard de métricas ni un resumen de actividad: tu trabajo es leer el
+ecosistema completo de este negocio (comunidad, DMs de prospección, llamadas
+transcriptas, datos de facturación) y devolver feedback concreto y accionable,
+aplicando el criterio y la metodología propia de este negocio — no un
+criterio genérico de "buenas prácticas de ventas".
+
+Vas a razonar únicamente con la información y el contexto de
+{NOMBRE_DEL_NEGOCIO}. Nunca uses, menciones, ni dejes traslucir información,
+patrones o metodología de ningún otro negocio o cliente, aunque los
+conozcas por otro contexto. Si no tenés información suficiente de este
+negocio para responder algo con criterio, decilo explícitamente en vez de
+rellenar con generalidades.
+
+## Las 3 capas que definen tu criterio
+
+Tenés acceso a tres tipos de contexto específico de este negocio. Usalos
+siempre en este orden de prioridad:
+
+1. **Principios/framework**: reglas concretas de cómo debería operar este
+   negocio. Esta es tu fuente principal de criterio — todo feedback tiene
+   que poder trazarse a un principio específico, no a una intuición
+   general de ventas o marketing.
+2. **Vocabulario y estilo**: la forma de hablar característica de la
+   metodología de este negocio. Usalo para dar voz a tu feedback — las
+   mismas palabras y marcos conceptuales que el mentor de este negocio
+   usaría — pero nunca para imitarlo hablando en primera persona.
+3. **Casos de referencia**: ejemplos reales de qué salió bien y qué salió
+   mal en este negocio específico, si existen. Usalos para comparar
+   situaciones nuevas contra precedentes concretos, no abstractos.
+
+## Regla no negociable: no suplantás a nadie
+
+No hablás como si fueras {NOMBRE_DEL_MENTOR} en primera persona. Nunca le
+atribuís una frase textual a una persona real que no la dijo. Aplicás y citás
+su criterio, con su vocabulario, en tercera persona — el efecto buscado es
+"esto piensa como tu mentor", no "soy tu mentor hablando".
+
+## Qué evitar siempre
+
+- No des feedback que suene aplicable a cualquier negocio. Si tu respuesta
+  sería igual de válida para otro cliente, no estás usando bien el
+  contexto específico.
+- No prometas ni afirmes resultados de negocio.
+- No generes feedback vago sin situación, evidencia y acción concreta.
+
+## Tono
+
+Directo, literal, sin adornos motivacionales ni lenguaje de coaching
+genérico. El tono se ajusta al vocabulario específico de este negocio,
+pero la actitud de fondo es la de un mentor exigente.`
+
+async function fetchAnnSystemPrompt(): Promise<string | undefined> {
+  try {
+    const res = await supabaseFetch(
+      "omni_client_profiles?client_id=eq.ann&select=business_name,mentor_name,principios,vocabulario,casos_referencia",
+    )
+    if (!res.ok) return undefined
+    const rows = await res.json()
+    const row = Array.isArray(rows) ? rows[0] : null
+    if (!row?.business_name || !row?.mentor_name) return undefined
+
+    const filled = ANN_STYLE_TEMPLATE
+      .replaceAll("{NOMBRE_DEL_NEGOCIO}", row.business_name)
+      .replaceAll("{NOMBRE_DEL_MENTOR}", row.mentor_name)
+
+    return `${filled}
+
+---
+
+## Contexto de ${row.business_name}
+
+### Principios/framework
+${JSON.stringify(row.principios ?? [], null, 2)}
+
+### Vocabulario y estilo
+${JSON.stringify(row.vocabulario ?? [], null, 2)}
+
+### Casos de referencia
+${JSON.stringify(row.casos_referencia ?? [], null, 2)}`
+  } catch (err) {
+    console.error("[research-worker] fetchAnnSystemPrompt failed:", err)
+    return undefined
+  }
+}
+
 function extractYouTubeVideoId(url: string): string {
   if (!url) return ""
   try {
@@ -481,7 +576,7 @@ function safeParseJSON(text: string) {
   }
 }
 
-async function callAnthropic(prompt: string, maxTokens: number) {
+async function callAnthropic(prompt: string, maxTokens: number, system?: string) {
   const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY")
   if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY no configurada")
 
@@ -496,6 +591,7 @@ async function callAnthropic(prompt: string, maxTokens: number) {
       model: "claude-sonnet-4-5",
       max_tokens: maxTokens,
       temperature: 0.2,
+      ...(system ? { system } : {}),
       messages: [
         {
           role: "user",
@@ -518,9 +614,9 @@ async function callAnthropic(prompt: string, maxTokens: number) {
   return data.content[0].text
 }
 
-async function callAnthropicParsed(prompt: string, maxTokens: number) {
+async function callAnthropicParsed(prompt: string, maxTokens: number, system?: string) {
   // First attempt
-  const raw1 = await callAnthropic(prompt, maxTokens)
+  const raw1 = await callAnthropic(prompt, maxTokens, system)
   try {
     return safeParseJSON(raw1)
   } catch (e: any) {
@@ -528,7 +624,7 @@ async function callAnthropicParsed(prompt: string, maxTokens: number) {
     // If JSON was incomplete/truncated, retry with a stricter instruction and more tokens.
     if (msg.includes("JSON incompleto") || msg.includes("cierre") || msg.includes("malformado")) {
       const retryPrompt = `${prompt}\n\nIMPORTANTE EXTRA: La respuesta anterior quedó truncada o incompleta. Ahora devolvé el JSON completo y válido respetando los límites de longitud. NO agregues texto fuera del JSON.`
-      const raw2 = await callAnthropic(retryPrompt, Math.max(maxTokens, 4200))
+      const raw2 = await callAnthropic(retryPrompt, Math.max(maxTokens, 4200), system)
       return safeParseJSON(raw2)
     }
     throw e
@@ -561,8 +657,12 @@ serve(async () => {
 
     const platform = String(pendingRequest.platform ?? "youtube").toLowerCase()
 
+    // Criterio de Ann por encima de ambos prompts — si falla el fetch,
+    // sigue sin system en vez de romper el research.
+    const annSystem = await fetchAnnSystemPrompt()
+
     const generalPrompt = buildGeneralPrompt(pendingRequest)
-    const generalParsed = await callAnthropicParsed(generalPrompt, 2200)
+    const generalParsed = await callAnthropicParsed(generalPrompt, 2200, annSystem)
 
     let allVideos: any[] = []
 
@@ -653,7 +753,7 @@ serve(async () => {
     const videoPrompt = buildVideoPrompt(allVideos)
 
     if (videoPrompt) {
-      videoParsed = await callAnthropicParsed(videoPrompt, 5200)
+      videoParsed = await callAnthropicParsed(videoPrompt, 5200, annSystem)
       if (!Array.isArray(videoParsed)) {
         throw new Error("El modelo devolvió un JSON válido pero no devolvió un ARRAY para analisis_de_videos")
       }
