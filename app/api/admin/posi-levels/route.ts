@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/auth/api-guards"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-/** PATCH — admin edita el contenido (título, descripción, preguntas, passing_score) de un nivel */
+/** PATCH — admin edita el contenido (título, intro, preguntas) de un nivel */
 export async function PATCH(req: NextRequest) {
   const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
   const user = await requireAdmin(jwt)
@@ -14,14 +14,13 @@ export async function PATCH(req: NextRequest) {
   let body: any
   try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
 
-  const { id, title, description, questions, passing_score } = body ?? {}
+  const { id, title, intro, questions } = body ?? {}
   if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
   const update: Record<string, any> = { updated_at: new Date().toISOString() }
   if (title !== undefined) update.title = title
-  if (description !== undefined) update.description = description
+  if (intro !== undefined) update.intro = intro
   if (questions !== undefined) update.questions = questions
-  if (passing_score !== undefined) update.passing_score = Math.max(1, Math.min(100, Number(passing_score) || 80))
 
   const supabase = createServiceClient()
   const { data, error } = await supabase
