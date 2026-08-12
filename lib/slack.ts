@@ -220,19 +220,26 @@ export async function notifyClientOnboarded(payload: {
  *  listado aunque el canal exista. */
 async function findTeamChannel(channelName: string): Promise<SlackResult> {
   const name = toChannelName(channelName)
+  const token = process.env.SLACK_BOT_TOKEN ?? ""
+  const fingerprint = token ? `${token.slice(0, 8)}…${token.slice(-4)}` : "(sin token)"
+  const auth = await slackApi("auth.test", {})
+  const identity = auth.ok
+    ? `team=${auth.team ?? "?"} bot_id=${auth.bot_id ?? "?"} user=${auth.user ?? "?"}`
+    : `auth.test falló: ${auth.error ?? "?"}`
+
   const list = await slackApi("conversations.list", {
     exclude_archived: true,
     types: "public_channel,private_channel",
     limit: 1000,
   })
-  if (!list.ok) return { ok: false, error: `list.ok=false: ${list.error ?? "sin detalle"}` }
+  if (!list.ok) return { ok: false, error: `[${fingerprint} | ${identity}] list.ok=false: ${list.error ?? "sin detalle"}` }
   const channels = list.channels ?? []
   const existing = channels.find((c: any) => c.name === name)
   if (existing) return { ok: true, channel_id: existing.id }
   const privateOnes = channels.filter((c: any) => c.is_private).map((c: any) => c.name)
   return {
     ok: false,
-    error: `Canal "${name}" no encontrado entre ${channels.length} canales (${privateOnes.length} privados: ${privateOnes.slice(0, 10).join(", ") || "ninguno"})`,
+    error: `[${fingerprint} | ${identity}] Canal "${name}" no encontrado entre ${channels.length} canales (${privateOnes.length} privados: ${privateOnes.slice(0, 10).join(", ") || "ninguno"})`,
   }
 }
 
