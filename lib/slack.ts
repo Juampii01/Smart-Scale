@@ -225,10 +225,15 @@ async function findTeamChannel(channelName: string): Promise<SlackResult> {
     types: "public_channel,private_channel",
     limit: 1000,
   })
-  if (!list.ok) return { ok: false, error: list.error ?? "Error listando canales" }
-  const existing = (list.channels ?? []).find((c: any) => c.name === name)
+  if (!list.ok) return { ok: false, error: `list.ok=false: ${list.error ?? "sin detalle"}` }
+  const channels = list.channels ?? []
+  const existing = channels.find((c: any) => c.name === name)
   if (existing) return { ok: true, channel_id: existing.id }
-  return { ok: false, error: `Canal "${name}" no encontrado — ¿está el bot invitado?` }
+  const privateOnes = channels.filter((c: any) => c.is_private).map((c: any) => c.name)
+  return {
+    ok: false,
+    error: `Canal "${name}" no encontrado entre ${channels.length} canales (${privateOnes.length} privados: ${privateOnes.slice(0, 10).join(", ") || "ninguno"})`,
+  }
 }
 
 export async function findOrCreateTeamChannel(channelName: string): Promise<SlackResult> {
