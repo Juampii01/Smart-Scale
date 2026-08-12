@@ -10,18 +10,16 @@
  */
 
 import { useEffect, useState } from "react"
-import { ListChecks, FileText, BookOpen, GraduationCap } from "lucide-react"
+import { ListChecks, FileText, BookOpen } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { ProgramChecklistView } from "./program-checklist-view"
 import { ClientPlaybookView } from "./client-playbook-view"
 import { ClientPlaybookMainView } from "./client-playbook-main-view"
-import { PosiEvaluationsView } from "./posi-evaluations-view"
 
-type Tab = "programa" | "posi" | "documentos" | "playbook"
+type Tab = "programa" | "documentos" | "playbook"
 
 const TABS: Array<{ id: Tab; label: string; icon: any }> = [
   { id: "programa",   label: "Programa",    icon: ListChecks   },
-  { id: "posi",       label: "Posi",        icon: GraduationCap },
   { id: "documentos", label: "Documentos",  icon: FileText     },
   { id: "playbook",   label: "Playbook",    icon: BookOpen     },
 ]
@@ -34,7 +32,7 @@ export function ProgramTabsView() {
   useEffect(() => {
     if (typeof window === "undefined") return
     const stored = window.localStorage.getItem("programTab")
-    if (stored === "programa" || stored === "posi" || stored === "documentos" || stored === "playbook") {
+    if (stored === "programa" || stored === "documentos" || stored === "playbook") {
       setTab(stored)
     }
   }, [])
@@ -91,7 +89,6 @@ export function ProgramTabsView() {
 
       {/* Contenido */}
       {tab === "programa"   && <ProgramChecklistView />}
-      {tab === "posi"       && <PosiEvaluationsView />}
       {tab === "documentos" && <ClientPlaybookView userRole={userRole} />}
       {tab === "playbook"   && <ClientPlaybookMainView userRole={userRole} />}
     </div>
