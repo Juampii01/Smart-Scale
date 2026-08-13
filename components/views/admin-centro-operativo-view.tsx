@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { UserPlus, NotebookText, ListChecks, Layers, Target } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { isAdmin } from "@/lib/auth/permissions"
-import { useEffectiveRole } from "@/lib/auth/view-as"
+import { useEffectiveRole, useIsOwnSectorInternal } from "@/lib/auth/view-as"
 import { NewUserDialog } from "@/components/admin/new-user-dialog"
 import { CentroOpPagesView } from "@/components/views/centro-op-pages-view"
 import { AdminSOPsView } from "@/components/views/admin-sops-view"
@@ -15,11 +15,12 @@ import { SectionHeader } from "@/components/ui/section-header"
 
 type CentroOpTab = "notion" | "sops" | "prospeccion"
 
-const CENTRO_OP_TABS: Array<{ id: CentroOpTab; label: string; icon: any }> = [
-  { id: "notion",      label: "Notion",      icon: NotebookText },
-  { id: "sops",        label: "SOPs",        icon: ListChecks   },
-  { id: "prospeccion", label: "Prospección", icon: Target       },
+const ANN_ONLY_TABS: Array<{ id: CentroOpTab; label: string; icon: any }> = [
+  { id: "notion", label: "Notion", icon: NotebookText },
+  { id: "sops",   label: "SOPs",   icon: ListChecks   },
 ]
+const PROSPECCION_TAB: { id: CentroOpTab; label: string; icon: any } =
+  { id: "prospeccion", label: "Prospección", icon: Target }
 
 // ─── Main View ─────────────────────────────────────────────────────────────────
 
@@ -39,6 +40,15 @@ export function AdminCentroOperativoView() {
 
   // Si admin está en modo "view as", el contenido se filtra como ese rol
   const effectiveRole = useEffectiveRole(userRole)
+
+  // Notion/SOPs son contenido de Ann — el sector interno de un cliente
+  // (no Smart Scale) solo ve el tab de Prospección.
+  const { isOwnSectorInternal } = useIsOwnSectorInternal()
+  const CENTRO_OP_TABS = isOwnSectorInternal ? [...ANN_ONLY_TABS, PROSPECCION_TAB] : [PROSPECCION_TAB]
+
+  useEffect(() => {
+    if (!isOwnSectorInternal && tab !== "prospeccion") setTab("prospeccion")
+  }, [isOwnSectorInternal, tab])
 
   return (
     <div className="space-y-4">

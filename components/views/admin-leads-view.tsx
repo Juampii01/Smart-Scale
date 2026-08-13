@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, Fragment } from "react"
 import { createClient } from "@/lib/supabase"
+import { viewAsTenantQueryParam, viewAsTenantBodyField } from "@/lib/auth/view-as"
 import {
   Loader2, Trash2, RefreshCw, Download, X, Star, Plus,
   Instagram, ExternalLink, ChevronRight, LayoutGrid, Table2, CheckCircle2,
@@ -497,7 +498,7 @@ export function AdminLeadsView() {
     try {
       const session = await getSession()
       if (!session) return
-      const res = await fetch("/api/admin/leads", {
+      const res = await fetch(`/api/admin/leads${viewAsTenantQueryParam()}`, {
         headers: { "Authorization": `Bearer ${session.access_token}` },
       })
       if (!res.ok) return
@@ -510,7 +511,7 @@ export function AdminLeadsView() {
     try {
       const session = await getSession()
       if (!session) return
-      const res = await fetch("/api/admin/lead-columns", {
+      const res = await fetch(`/api/admin/lead-columns${viewAsTenantQueryParam()}`, {
         headers: { "Authorization": `Bearer ${session.access_token}` },
       })
       if (!res.ok) return
@@ -529,7 +530,7 @@ export function AdminLeadsView() {
       const res = await fetch("/api/admin/lead-columns", {
         method:  "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-        body:    JSON.stringify({ label, type }),
+        body:    JSON.stringify({ label, type, ...viewAsTenantBodyField() }),
       })
       const json = await res.json()
       if (res.ok && json.column) {
@@ -551,7 +552,7 @@ export function AdminLeadsView() {
     await fetch("/api/admin/lead-columns", {
       method:  "DELETE",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-      body:    JSON.stringify({ id: col.id }),
+      body:    JSON.stringify({ id: col.id, ...viewAsTenantBodyField() }),
     })
   }
 
@@ -568,7 +569,7 @@ export function AdminLeadsView() {
       const res = await fetch("/api/admin/leads", {
         method:  "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-        body:    JSON.stringify(data),
+        body:    JSON.stringify({ ...data, ...viewAsTenantBodyField() }),
       })
       const json = await res.json().catch(() => ({}))
       if (res.ok && json.lead) {
@@ -590,7 +591,7 @@ export function AdminLeadsView() {
     await fetch("/api/admin/leads", {
       method:  "PATCH",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-      body:    JSON.stringify({ id, ...updates }),
+      body:    JSON.stringify({ id, ...updates, ...viewAsTenantBodyField() }),
     })
   }
 
@@ -605,7 +606,7 @@ export function AdminLeadsView() {
       const res = await fetch("/api/admin/leads", {
         method:  "DELETE",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-        body:    JSON.stringify({ id }),
+        body:    JSON.stringify({ id, ...viewAsTenantBodyField() }),
       })
       if (!res.ok) {
         const json = await res.json().catch(() => ({}))

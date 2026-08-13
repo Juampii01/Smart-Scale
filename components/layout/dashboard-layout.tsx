@@ -17,7 +17,7 @@ import { NavigationProgress } from "@/components/ui/navigation-progress"
 import { HelpChat } from "@/components/ui/help-chat"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import { isSetter, isTeam, isAdmin as isAdminRole, SETTER_DEFAULT_LANDING, TEAM_DEFAULT_LANDING } from "@/lib/auth/permissions"
-import { useViewAsRole, setViewAsRole, type ViewAsRole } from "@/lib/auth/view-as"
+import { useViewAsRole, setViewAsRole, type ViewAsRole, useViewAsTenant, setViewAsTenant } from "@/lib/auth/view-as"
 
 declare global {
   interface Window {
@@ -197,6 +197,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const viewAsRole: ViewAsRole = useViewAsRole()
   // Si NO es admin, ignoramos viewAs (solo admin puede impersonar)
   const activeViewAs: ViewAsRole = isAdmin ? viewAsRole : null
+
+  // "Ver Clientes" — platform owner navegando el sector interno de otro
+  // cliente (Leads/Setting/Prospección). El banner es puramente informativo
+  // acá — el gate real de quién puede activarlo vive en el sidebar (solo se
+  // renderiza el selector para isPlatformOwnerEmail).
+  const viewAsTenant = useViewAsTenant()
 
   // Foto de perfil — cargar al montar
   useEffect(() => {
@@ -573,6 +579,25 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               className="inline-flex items-center gap-1.5 h-7 rounded-md border border-amber-700/40 bg-amber-200 px-2.5 text-[11.5px] font-bold text-amber-900 hover:bg-amber-300 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-100 dark:hover:bg-amber-500/30 transition-colors"
             >
               <EyeOff className="h-3 w-3" /> Volver a admin
+            </button>
+          </div>
+        )}
+
+        {/* "Ver Clientes" banner — platform owner navegando el sector interno de otro tenant */}
+        {viewAsTenant && (
+          <div className="shrink-0 flex items-center justify-between gap-3 px-4 lg:px-8 py-2 border-b border-amber-300 bg-amber-100 text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-200">
+            <div className="flex items-center gap-2 text-[13px] font-semibold">
+              <Eye className="h-3.5 w-3.5" />
+              <span>Estás viendo el sector interno de</span>
+              <span className="rounded-full bg-amber-200 dark:bg-amber-500/30 px-2 py-0.5 text-[11px] font-bold">
+                {viewAsTenant.name}
+              </span>
+            </div>
+            <button
+              onClick={() => setViewAsTenant(null)}
+              className="inline-flex items-center gap-1.5 h-7 rounded-md border border-amber-700/40 bg-amber-200 px-2.5 text-[11.5px] font-bold text-amber-900 hover:bg-amber-300 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-100 dark:hover:bg-amber-500/30 transition-colors"
+            >
+              <EyeOff className="h-3 w-3" /> Volver a Smart Scale
             </button>
           </div>
         )}

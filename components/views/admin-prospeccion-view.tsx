@@ -13,6 +13,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase"
+import { viewAsTenantQueryParam, viewAsTenantBodyField } from "@/lib/auth/view-as"
 import {
   Loader2, Plus, Search, X, Trash2, Edit3, Lock, FileText,
   ChevronRight, ListChecks, MessageSquare, Bell,
@@ -183,7 +184,7 @@ function CreateEditModal({
       const res = await fetch("/api/admin/prospeccion", {
         method: isEdit ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...body, ...viewAsTenantBodyField() }),
       })
       const json = await res.json()
       if (!res.ok || !json.item) {
@@ -311,7 +312,7 @@ export function AdminProspeccionView() {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { setLoading(false); return }
-      const res = await fetch("/api/admin/prospeccion", {
+      const res = await fetch(`/api/admin/prospeccion${viewAsTenantQueryParam()}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
       const json = await res.json()
@@ -357,7 +358,7 @@ export function AdminProspeccionView() {
       const res = await fetch("/api/admin/prospeccion", {
         method: "DELETE",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({ id, ...viewAsTenantBodyField() }),
       })
       if (!res.ok) {
         const json = await res.json().catch(() => ({}))

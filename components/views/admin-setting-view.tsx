@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from "react"
 import { Loader2, RefreshCw, Download, ChevronLeft, ChevronRight, PlusCircle, TrendingUp, Table2 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
+import { viewAsTenantBodyField, viewAsTenantQueryParam } from "@/lib/auth/view-as"
 import { SetterCommissionPanel } from "@/components/admin/setter-commission-panel"
 import { EodFormDialogV2 } from "@/components/admin/eod-form-dialog-v2"
 import { SectionHeader } from "@/components/ui/section-header"
@@ -121,7 +122,7 @@ function EditableCell({
       await fetch("/api/admin/setting/log", {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ id: logId, [fieldKey]: num }),
+        body: JSON.stringify({ id: logId, [fieldKey]: num, ...viewAsTenantBodyField() }),
       })
       onSaved(logId, fieldKey, num)
     } finally {
@@ -192,7 +193,9 @@ export function AdminSettingView() {
         setLoading(false)
         return
       }
-      const res = await fetch(`/api/admin/setting/log?month=${encodeURIComponent(ym)}`, {
+      const tenantParam = viewAsTenantQueryParam()
+      const url = `/api/admin/setting/log?month=${encodeURIComponent(ym)}${tenantParam ? `&${tenantParam.slice(1)}` : ""}`
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
       const json = await res.json()

@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useState } from "react"
 import { X, Loader2, Save, Check, AlertCircle, Trash2 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
+import { viewAsTenantBodyField } from "@/lib/auth/view-as"
 
 // ─── Field groups ─────────────────────────────────────────────────────────────
 
@@ -149,7 +150,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
       await fetch("/api/admin/setting/log", {
         method: "DELETE",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ id: logId }),
+        body: JSON.stringify({ id: logId, ...viewAsTenantBodyField() }),
       })
       onDeleted?.()
     } catch (err: any) {
@@ -181,12 +182,12 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
         ? await fetch("/api/admin/setting/log", {
             method: "PATCH",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-            body: JSON.stringify({ id: logId, ...fields, notes: notes || null }),
+            body: JSON.stringify({ id: logId, ...fields, notes: notes || null, ...viewAsTenantBodyField() }),
           })
         : await fetch("/api/admin/setting/log", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-            body: JSON.stringify({ date, notes: notes || null, ...fields }),
+            body: JSON.stringify({ date, notes: notes || null, ...fields, ...viewAsTenantBodyField() }),
           })
       const json = await res.json()
       if (!res.ok) { setStatus("error"); setErrorMsg(json?.error ?? "Error al guardar"); return }
