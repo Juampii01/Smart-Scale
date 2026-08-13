@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react"
-import { Loader2, Copy, Check, Pencil, ChevronDown, ChevronUp, ClipboardList } from "lucide-react"
+import { Loader2, Copy, Check, Pencil, ChevronDown, ChevronUp, ClipboardList, Plus, Trash2, GripVertical, X } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { SectionHeader } from "@/components/ui/section-header"
 
@@ -38,6 +38,18 @@ interface Submission {
 
 const inputCls = "w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none"
 
+const QUESTION_TYPE_OPTIONS: { value: Question["type"]; label: string }[] = [
+  { value: "text", label: "Texto libre" },
+  { value: "yesno", label: "Sí o no" },
+  { value: "multiple_choice", label: "Opción múltiple" },
+]
+
+function genQuestionId(existing: Question[]): string {
+  const nums = existing.map((q) => parseInt(q.id.replace(/^q/i, ""), 10)).filter((n) => !isNaN(n))
+  const next = (nums.length ? Math.max(...nums) : 0) + 1
+  return `q${next}`
+}
+
 function formatAnswer(q: Question, raw: any): string {
   if (raw === undefined || raw === null || raw === "") return "(sin responder)"
   if (q.type === "multiple_choice" && typeof raw === "number") return q.options?.[raw] ?? String(raw)
@@ -51,8 +63,9 @@ export function AdminPosiView() {
   const [loading, setLoading] = useState(true)
   const [copiedLevel, setCopiedLevel] = useState<number | null>(null)
   const [editingLevel, setEditingLevel] = useState<string | null>(null)
-  const [editDraft, setEditDraft] = useState({ title: "", intro: "", questionsJson: "[]" })
+  const [editDraft, setEditDraft] = useState<{ title: string; intro: string; questions: Question[] }>({ title: "", intro: "", questions: [] })
   const [editError, setEditError] = useState("")
+  const [savingLevel, setSavingLevel] = useState(false)
   const [expandedSubmission, setExpandedSubmission] = useState<string | null>(null)
   const [siteOrigin, setSiteOrigin] = useState("")
 
@@ -125,26 +138,68 @@ export function AdminPosiView() {
   const startEdit = (level: Level) => {
     setEditingLevel(level.id)
     setEditError("")
-    setEditDraft({ title: level.title, intro: level.intro ?? "", questionsJson: JSON.stringify(level.questions, null, 2) })
+    setEditDraft({ title: level.title, intro: level.intro ?? "", questions: level.questions.map((q) => ({ ...q, options: q.options ? [...q.options] : undefined })) })
   }
 
   const saveEdit = async (level: Level) => {
-    let parsedQuestions: any
-    try { parsedQuestions = JSON.parse(editDraft.questionsJson) } catch {
-      setEditError("El JSON de preguntas no es válido.")
-      return
+    const emptyLabel = editDraft.questions.find((q) => !q.label.trim())
+    if (emptyLabel) { setEditError("Todas las preguntas necesitan un texto."); return }
+    const badOptions = editDraft.questions.find((q) => q.type === "multiple_choice" && (q.options ?? []).filter((o) => o.trim()).length < 2)
+    if (badOptions) { setEditError('Las preguntas de "opción múltiple" necesitan al menos 2 opciones.'); return }
+
+    setEditError("")
+    setSavingLevel(true)
+    try {
+      const token = await getToken()
+      if (!token) return
+      const cleanQuestions = editDraft.questions.map((q) => ({
+        ...q,
+        label: q.label.trim(),
+        options: q.type === "multiple_choice" ? (q.options ?? []).map((o) => o.trim()).filter(Boolean) : undefined,
+      }))
+      const res = await fetch("/api/admin/posi-levels", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ id: level.id, title: editDraft.title, intro: editDraft.intro, questions: cleanQuestions }),
+      })
+      const json = await res.json()
+      if (!res.ok) { setEditError(json?.error ?? "Error al guardar"); return }
+      setEditingLevel(null)
+      load()
+    } finally {
+      setSavingLevel(false)
     }
-    const token = await getToken()
-    if (!token) return
-    const res = await fetch("/api/admin/posi-levels", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ id: level.id, title: editDraft.title, intro: editDraft.intro, questions: parsedQuestions }),
+  }
+
+  const addQuestion = () => {
+    setEditDraft((d) => ({ ...d, questions: [...d.questions, { id: genQuestionId(d.questions), label: "", type: "text" }] }))
+  }
+  const removeQuestion = (idx: number) => {
+    setEditDraft((d) => ({ ...d, questions: d.questions.filter((_, i) => i !== idx) }))
+  }
+  const moveQuestion = (idx: number, dir: -1 | 1) => {
+    setEditDraft((d) => {
+      const target = idx + dir
+      if (target < 0 || target >= d.questions.length) return d
+      const next = [...d.questions]
+      ;[next[idx], next[target]] = [next[target], next[idx]]
+      return { ...d, questions: next }
     })
-    const json = await res.json()
-    if (!res.ok) { setEditError(json?.error ?? "Error al guardar"); return }
-    setEditingLevel(null)
-    load()
+  }
+  const updateQuestion = (idx: number, patch: Partial<Question>) => {
+    setEditDraft((d) => ({ ...d, questions: d.questions.map((q, i) => (i === idx ? { ...q, ...patch } : q)) }))
+  }
+  const setQuestionType = (idx: number, type: Question["type"]) => {
+    updateQuestion(idx, { type, options: type === "multiple_choice" ? ["", ""] : undefined })
+  }
+  const addOption = (qIdx: number) => {
+    setEditDraft((d) => ({ ...d, questions: d.questions.map((q, i) => (i === qIdx ? { ...q, options: [...(q.options ?? []), ""] } : q)) }))
+  }
+  const updateOption = (qIdx: number, oIdx: number, value: string) => {
+    setEditDraft((d) => ({ ...d, questions: d.questions.map((q, i) => (i === qIdx ? { ...q, options: (q.options ?? []).map((o, j) => (j === oIdx ? value : o)) } : q)) }))
+  }
+  const removeOption = (qIdx: number, oIdx: number) => {
+    setEditDraft((d) => ({ ...d, questions: d.questions.map((q, i) => (i === qIdx ? { ...q, options: (q.options ?? []).filter((_, j) => j !== oIdx) } : q)) }))
   }
 
   const submissionsByLevel = submissions.reduce<Record<string, Submission[]>>((acc, s) => {
@@ -224,25 +279,161 @@ export function AdminPosiView() {
             <p className="text-[12px] text-foreground/35 mt-1.5 font-mono">{siteOrigin}/posi/{level.level_number}</p>
 
             {editingLevel === level.id && (
-              <div className="mt-4 space-y-3 rounded-xl border border-[#dafc69]/25 bg-[#dafc69]/[0.04] p-4">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Título</label>
-                  <input className={inputCls} value={editDraft.title} onChange={(e) => setEditDraft((d) => ({ ...d, title: e.target.value }))} />
+              <div className="mt-4 rounded-2xl border border-[#dafc69]/25 bg-[#dafc69]/[0.035] p-5 space-y-5">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-foreground/45 mb-1.5">Título del nivel</label>
+                    <input
+                      className="w-full rounded-lg border border-foreground/[0.1] bg-card px-3.5 py-2.5 text-[14px] font-semibold text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:outline-none"
+                      value={editDraft.title}
+                      onChange={(e) => setEditDraft((d) => ({ ...d, title: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-foreground/45 mb-1.5">Intro (arriba de las preguntas)</label>
+                    <textarea
+                      className="w-full rounded-lg border border-foreground/[0.1] bg-card px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:outline-none resize-y leading-relaxed"
+                      rows={2}
+                      value={editDraft.intro}
+                      onChange={(e) => setEditDraft((d) => ({ ...d, intro: e.target.value }))}
+                    />
+                  </div>
                 </div>
+
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Intro</label>
-                  <textarea className={inputCls} rows={3} value={editDraft.intro} onChange={(e) => setEditDraft((d) => ({ ...d, intro: e.target.value }))} />
+                  <div className="flex items-center justify-between mb-2.5">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-foreground/45">
+                      Preguntas <span className="font-normal normal-case text-foreground/35">({editDraft.questions.length})</span>
+                    </label>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {editDraft.questions.map((q, idx) => (
+                      <div key={q.id} className="rounded-xl border border-foreground/[0.08] bg-card p-3.5">
+                        <div className="flex items-start gap-2.5">
+                          <div className="flex flex-col items-center gap-0.5 pt-1.5 shrink-0">
+                            <GripVertical className="h-3.5 w-3.5 text-foreground/20" />
+                            <span className="text-[10px] font-bold text-foreground/30 tabular-nums">{idx + 1}</span>
+                          </div>
+
+                          <div className="flex-1 min-w-0 space-y-2.5">
+                            <input
+                              className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13.5px] font-medium text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none"
+                              placeholder="Texto de la pregunta…"
+                              value={q.label}
+                              onChange={(e) => updateQuestion(idx, { label: e.target.value })}
+                            />
+
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              {QUESTION_TYPE_OPTIONS.map((opt) => (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  onClick={() => setQuestionType(idx, opt.value)}
+                                  className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                                    q.type === opt.value
+                                      ? "border-[#dafc69]/60 bg-[#dafc69]/15 text-foreground"
+                                      : "border-foreground/[0.1] text-foreground/50 hover:text-foreground hover:border-foreground/20"
+                                  }`}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+
+                            {q.type === "multiple_choice" && (
+                              <div className="space-y-1.5 pl-1">
+                                {(q.options ?? []).map((opt, oIdx) => (
+                                  <div key={oIdx} className="flex items-center gap-1.5">
+                                    <span className="text-[11px] text-foreground/25 w-4 shrink-0 tabular-nums">{oIdx + 1}.</span>
+                                    <input
+                                      className="flex-1 rounded-md border border-foreground/[0.08] bg-foreground/[0.02] px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none"
+                                      placeholder={`Opción ${oIdx + 1}`}
+                                      value={opt}
+                                      onChange={(e) => updateOption(idx, oIdx, e.target.value)}
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => removeOption(idx, oIdx)}
+                                      disabled={(q.options ?? []).length <= 1}
+                                      className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/30 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 disabled:opacity-30 disabled:pointer-events-none transition-colors shrink-0"
+                                      aria-label="Sacar opción"
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </button>
+                                  </div>
+                                ))}
+                                <button
+                                  type="button"
+                                  onClick={() => addOption(idx)}
+                                  className="inline-flex items-center gap-1 pl-5 text-[11.5px] font-semibold text-foreground/45 hover:text-foreground transition-colors"
+                                >
+                                  <Plus className="h-3 w-3" /> Agregar opción
+                                </button>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex flex-col items-center gap-0.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => moveQuestion(idx, -1)}
+                              disabled={idx === 0}
+                              className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] disabled:opacity-20 disabled:pointer-events-none transition-colors"
+                              aria-label="Subir pregunta"
+                            >
+                              <ChevronUp className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveQuestion(idx, 1)}
+                              disabled={idx === editDraft.questions.length - 1}
+                              className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] disabled:opacity-20 disabled:pointer-events-none transition-colors"
+                              aria-label="Bajar pregunta"
+                            >
+                              <ChevronDown className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeQuestion(idx)}
+                              className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/30 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-colors mt-1"
+                              aria-label="Borrar pregunta"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={addQuestion}
+                    className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-foreground/[0.15] py-2.5 text-[12.5px] font-semibold text-foreground/50 hover:text-foreground hover:border-foreground/30 hover:bg-foreground/[0.02] transition-colors"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Agregar pregunta
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-foreground/40 mb-1">
-                    Preguntas (JSON) — type: "text" | "yesno" | "multiple_choice" (con options)
-                  </label>
-                  <textarea className={`${inputCls} font-mono text-[12px]`} rows={12} value={editDraft.questionsJson} onChange={(e) => setEditDraft((d) => ({ ...d, questionsJson: e.target.value }))} />
+
+                {editError && <p className="text-[12.5px] text-red-700 dark:text-red-400">{editError}</p>}
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => saveEdit(level)}
+                    disabled={savingLevel}
+                    className="flex items-center gap-2 rounded-lg bg-[#dafc69] px-4 py-2 text-[12.5px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors"
+                  >
+                    {savingLevel && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    {savingLevel ? "Guardando…" : "Guardar"}
+                  </button>
+                  <button
+                    onClick={() => setEditingLevel(null)}
+                    className="rounded-lg px-3 py-2 text-[12.5px] font-semibold text-foreground/50 hover:text-foreground transition-colors"
+                  >
+                    Cancelar
+                  </button>
                 </div>
-                {editError && <p className="text-[12px] text-red-700 dark:text-red-400">{editError}</p>}
-                <button onClick={() => saveEdit(level)} className="rounded-lg bg-[#dafc69] px-4 py-1.5 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-colors">
-                  Guardar
-                </button>
               </div>
             )}
           </div>
