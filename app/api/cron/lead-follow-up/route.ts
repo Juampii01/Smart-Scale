@@ -16,6 +16,7 @@ import { createServiceClient } from "@/lib/supabase-service"
 import { logJobRun } from "@/lib/system-log"
 import { zapierLeadFollowUpDue } from "@/lib/zapier"
 import { PIPELINE_STAGE_LABELS } from "@/components/leads-pipeline/constants"
+import { getSmartScaleTenantId } from "@/lib/auth/internal-scope"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -40,9 +41,21 @@ async function runLeadFollowUp() {
 
   const result = { leadsScanned: 0, alertsSent: 0, errors: [] as string[] }
 
+  // Este cron alerta al Slack interno del equipo de Smart Scale — desde que
+  // `leads` es multi-tenant, hay que limitarse explícitamente a los leads
+  // propios de Smart Scale (no los de otros clientes con su propio sector
+  // interno, que no comparten ese Slack).
+  const smartScaleTenantId = await getSmartScaleTenantId(supabase)
+  if (!smartScaleTenantId) {
+    const msg = "No se encontró el tenant de Smart Scale (clients.is_internal_workspace)"
+    await logJobRun(supabase, "lead-follow-up", "error", msg)
+    return { ...result, errors: [msg] }
+  }
+
   const { data: leads, error } = await supabase
     .from("leads")
     .select("id, name, instagram, rating, status, purchased, deal_value, next_follow_up_at")
+    .eq("client_id", smartScaleTenantId)
     .not("next_follow_up_at", "is", null)
     .lte("next_follow_up_at", todayStr)
     .is("follow_up_alert_sent_at", null)

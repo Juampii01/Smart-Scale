@@ -46,3 +46,14 @@ export async function resolveInternalScope(
   if (!ownTenantId) return { ok: false, status: 400, error: "Tu cuenta no tiene un sector interno asignado" }
   return { ok: true, userId: user.id, tenantId: ownTenantId, role, isPlatformOwner }
 }
+
+/**
+ * Tenant de Smart Scale (`clients.is_internal_workspace = true`) — usado por
+ * crons internos (ej. lead-follow-up) que antes escaneaban `leads` sin
+ * filtro y ahora tienen que limitarse explícitamente a los leads propios
+ * de Smart Scale, no los de otros tenants con su propio sector interno.
+ */
+export async function getSmartScaleTenantId(sb: ReturnType<typeof createServiceClient>): Promise<string | null> {
+  const { data } = await sb.from("clients").select("id").eq("is_internal_workspace", true).maybeSingle()
+  return (data as any)?.id ?? null
+}

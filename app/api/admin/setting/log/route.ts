@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireInternal } from "@/lib/auth/api-guards"
 import { isAdmin } from "@/lib/auth/permissions"
+import { resolveInternalScope } from "@/lib/auth/internal-scope"
 import { zapierEODSubmitted } from "@/lib/zapier"
+
+function requestedTenantId(req: NextRequest, body?: any): string | null {
+  return req.nextUrl.searchParams.get("client_id") ?? body?.client_id ?? null
+}
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -55,22 +59,11 @@ function sanitizeInt(v: any): number {
   return Math.floor(n)
 }
 
-async function getRoleAndUser(jwt: string | null) {
-  if (!jwt) return null
-  const supabase = createServiceClient()
-  const { data: { user }, error } = await supabase.auth.getUser(jwt)
-  if (error || !user) return null
-  const { data: profile } = await supabase
-    .from("profiles").select("role").eq("id", user.id).maybeSingle()
-  return { user, role: (profile as any)?.role ?? null }
-}
-
-/** GET — admin ve todos, team/setter ve solo los suyos */
+/** GET — admin ve todos los del tenant, team/setter ve solo los suyos */
 export async function GET(req: NextRequest) {
   try {
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const ctx = await getRoleAndUser(jwt)
-    if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    const scope = await resolveInternalScope(req, requestedTenantId(req))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     const supabase = createServiceClient()
     const { searchParams } = new URL(req.url)
@@ -88,10 +81,11 @@ export async function GET(req: NextRequest) {
       queryUntil = `${y}-${m}-${String(lastDay).padStart(2, "0")}`
     }
 
-    // Cualquier user internal ve TODOS los logs (admin/team/setter), no se filtra por rol.
+    // Cualquier user internal ve TODOS los logs del tenant (admin/team/setter), no se filtra por rol.
     let query = supabase
       .from("setting_daily_logs")
       .select(ALL_FIELDS)
+      .eq("client_id", scope.tenantId)
       .order("date", { ascending: false })
       .limit(500)
 
@@ -126,19 +120,19 @@ export async function GET(req: NextRequest) {
 /** POST — upsert por (setter_id, date). El setter siempre carga sus propios datos. */
 export async function POST(req: NextRequest) {
   try {
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireInternal(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
+
+    const scope = await resolveInternalScope(req, requestedTenantId(req, body))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     if (!body.date || !/^\d{4}-\d{2}-\d{2}$/.test(body.date)) {
       return NextResponse.json({ error: "date (YYYY-MM-DD) is required" }, { status: 400 })
     }
 
     const row: Record<string, any> = {
-      setter_id: user.id,
+      client_id: scope.tenantId,
+      setter_id: scope.userId,
       date: body.date,
       notes: body.notes || null,
       updated_at: new Date().toISOString(),
@@ -160,13 +154,13 @@ export async function POST(req: NextRequest) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("name")
-      .eq("id", user.id)
+      .eq("id", scope.userId)
       .maybeSingle()
     const setterName = (profile as any)?.name ?? "Setter"
 
     zapierEODSubmitted({
       event_type:                 "eod.submitted",
-      setter_id:                  user.id,
+      setter_id:                  scope.userId,
       setter_name:                setterName,
       date:                       body.date,
       new_conversations_inbound:  row.new_conversations_inbound  ?? 0,
@@ -195,12 +189,11 @@ export async function POST(req: NextRequest) {
 /** PATCH — actualizar campos por date+field. Setter solo puede tocar sus propios rows; admin todos. */
 export async function PATCH(req: NextRequest) {
   try {
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const ctx = await getRoleAndUser(jwt)
-    if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
+
+    const scope = await resolveInternalScope(req, requestedTenantId(req, body))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     const { id, date, field, value, ...otherUpdates } = body
 
@@ -210,10 +203,10 @@ export async function PATCH(req: NextRequest) {
 
     if (id) {
       // Modo legacy: actualizar por ID
-      if (!isAdmin(ctx.role)) {
+      if (!isAdmin(scope.role)) {
         const { data: existing } = await supabase
-          .from("setting_daily_logs").select("setter_id").eq("id", id).maybeSingle()
-        if (!existing || (existing as any).setter_id !== ctx.user.id) {
+          .from("setting_daily_logs").select("setter_id, client_id").eq("id", id).maybeSingle()
+        if (!existing || (existing as any).setter_id !== scope.userId || (existing as any).client_id !== scope.tenantId) {
           return NextResponse.json({ error: "Forbidden" }, { status: 403 })
         }
       }
@@ -222,21 +215,22 @@ export async function PATCH(req: NextRequest) {
         if (otherUpdates[f] !== undefined) allowed[f] = sanitizeInt(otherUpdates[f])
       }
       if (otherUpdates.notes !== undefined) allowed.notes = otherUpdates.notes || null
-      updateQuery = supabase.from("setting_daily_logs").update(allowed).eq("id", id)
+      updateQuery = supabase.from("setting_daily_logs").update(allowed).eq("id", id).eq("client_id", scope.tenantId)
     } else if (date && field) {
       // Modo nuevo: actualizar por date+field (tabla mensual)
       if (!NUMERIC_FIELDS.includes(field as any) && field !== "notes") {
         return NextResponse.json({ error: `Invalid field: ${field}` }, { status: 400 })
       }
 
-      // Buscar el log: si no es admin, solo puede editar el suyo
+      // Buscar el log: si no es admin, solo puede editar el suyo. Siempre dentro del tenant.
       let logQuery = supabase
         .from("setting_daily_logs")
         .select("id, setter_id")
         .eq("date", date)
+        .eq("client_id", scope.tenantId)
 
-      if (!isAdmin(ctx.role)) {
-        logQuery = logQuery.eq("setter_id", ctx.user.id)
+      if (!isAdmin(scope.role)) {
+        logQuery = logQuery.eq("setter_id", scope.userId)
       }
 
       const { data: existing } = await logQuery.maybeSingle()
@@ -250,7 +244,7 @@ export async function PATCH(req: NextRequest) {
       } else {
         allowed[field] = sanitizeInt(value)
       }
-      updateQuery = supabase.from("setting_daily_logs").update(allowed).eq("id", existing.id)
+      updateQuery = supabase.from("setting_daily_logs").update(allowed).eq("id", existing.id).eq("client_id", scope.tenantId)
     } else {
       return NextResponse.json({ error: "id OR (date+field) is required" }, { status: 400 })
     }
@@ -266,18 +260,16 @@ export async function PATCH(req: NextRequest) {
 /** DELETE — solo admin */
 export async function DELETE(req: NextRequest) {
   try {
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const ctx = await getRoleAndUser(jwt)
-    if (!ctx || !isAdmin(ctx.role)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-    }
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
     if (!body.id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
+    const scope = await resolveInternalScope(req, requestedTenantId(req, body))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
+    if (!isAdmin(scope.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+
     const supabase = createServiceClient()
-    const { error } = await supabase.from("setting_daily_logs").delete().eq("id", body.id)
+    const { error } = await supabase.from("setting_daily_logs").delete().eq("id", body.id).eq("client_id", scope.tenantId)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ success: true })
   } catch (err: any) {
