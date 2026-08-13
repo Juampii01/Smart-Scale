@@ -56,6 +56,11 @@ export function AdminPosiView() {
   const [expandedSubmission, setExpandedSubmission] = useState<string | null>(null)
   const [siteOrigin, setSiteOrigin] = useState("")
 
+  const [pageSettings, setPageSettings] = useState({ title: "POSI", subtitle: "" })
+  const [editingHeader, setEditingHeader] = useState(false)
+  const [headerDraft, setHeaderDraft] = useState({ title: "", subtitle: "" })
+  const [headerSaving, setHeaderSaving] = useState(false)
+
   const getToken = useCallback(async () => {
     const supabase = createClient()
     const { data: { session } } = await supabase.auth.getSession()
@@ -67,14 +72,17 @@ export function AdminPosiView() {
     try {
       const token = await getToken()
       if (!token) return
-      const [levelsRes, subsRes] = await Promise.all([
+      const [levelsRes, subsRes, settingsRes] = await Promise.all([
         fetch("/api/posi/levels", { headers: { Authorization: `Bearer ${token}` } }),
         fetch("/api/posi/submissions", { headers: { Authorization: `Bearer ${token}` } }),
+        fetch("/api/admin/posi-page-settings", { headers: { Authorization: `Bearer ${token}` } }),
       ])
       const levelsJson = await levelsRes.json()
       const subsJson = await subsRes.json()
+      const settingsJson = await settingsRes.json()
       if (levelsRes.ok) setLevels(levelsJson.levels ?? [])
       if (subsRes.ok) setSubmissions(subsJson.submissions ?? [])
+      if (settingsRes.ok && settingsJson.settings) setPageSettings(settingsJson.settings)
     } finally {
       setLoading(false)
     }
@@ -82,6 +90,31 @@ export function AdminPosiView() {
 
   useEffect(() => { load() }, [load])
   useEffect(() => { setSiteOrigin(window.location.origin) }, [])
+
+  const startEditHeader = () => {
+    setHeaderDraft({ title: pageSettings.title, subtitle: pageSettings.subtitle })
+    setEditingHeader(true)
+  }
+
+  const saveHeader = async () => {
+    setHeaderSaving(true)
+    try {
+      const token = await getToken()
+      if (!token) return
+      const res = await fetch("/api/admin/posi-page-settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(headerDraft),
+      })
+      const json = await res.json()
+      if (res.ok && json.settings) {
+        setPageSettings(json.settings)
+        setEditingHeader(false)
+      }
+    } finally {
+      setHeaderSaving(false)
+    }
+  }
 
   const copyLink = (levelNumber: number) => {
     navigator.clipboard.writeText(`${siteOrigin}/posi/${levelNumber}`)
@@ -126,10 +159,39 @@ export function AdminPosiView() {
   return (
     <div className="space-y-8 pb-10">
       <div>
-        <h1 className="text-[22px] font-bold text-foreground leading-tight">POSI</h1>
-        <p className="text-[13px] text-foreground/50 mt-0.5">
-          Un link por nivel — pegalo en Slack cuando el cliente llegue ahí. El formulario no está dentro de la plataforma: solo por link, logueado con su cuenta.
-        </p>
+        {editingHeader ? (
+          <div className="space-y-2.5 rounded-xl border border-[#dafc69]/25 bg-[#dafc69]/[0.04] p-4 max-w-xl">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Título</label>
+              <input className={inputCls} value={headerDraft.title} onChange={(e) => setHeaderDraft((d) => ({ ...d, title: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Subtítulo</label>
+              <textarea className={inputCls} rows={2} value={headerDraft.subtitle} onChange={(e) => setHeaderDraft((d) => ({ ...d, subtitle: e.target.value }))} />
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={saveHeader} disabled={headerSaving} className="rounded-lg bg-[#dafc69] px-4 py-1.5 text-[12px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors">
+                {headerSaving ? "Guardando…" : "Guardar"}
+              </button>
+              <button onClick={() => setEditingHeader(false)} className="rounded-lg px-3 py-1.5 text-[12px] font-semibold text-foreground/50 hover:text-foreground transition-colors">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h1 className="text-[22px] font-bold text-foreground leading-tight">{pageSettings.title}</h1>
+              <p className="text-[13px] text-foreground/50 mt-0.5 max-w-xl">{pageSettings.subtitle}</p>
+            </div>
+            <button
+              onClick={startEditHeader}
+              className="flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] px-2.5 py-1 text-[11px] font-semibold text-foreground/50 hover:text-foreground hover:bg-foreground/[0.05] transition-colors shrink-0"
+            >
+              <Pencil className="h-3 w-3" /> Editar
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="space-y-3">
