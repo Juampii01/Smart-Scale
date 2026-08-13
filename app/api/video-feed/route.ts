@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { isAdmin } from "@/lib/auth/permissions"
+import { buildOmniSystemPrompt } from "@/lib/omni/system-prompt"
 import Anthropic from "@anthropic-ai/sdk"
 
 export const runtime = "nodejs"
@@ -296,24 +297,31 @@ async function analyzeNewPosts(profileName: string, posts: any[]): Promise<(stri
       `${i + 1}. "${p.title.slice(0, 80)}" — ${p.views.toLocaleString()} views, ${p.comments.toLocaleString()} comentarios`
     ).join("\n")
 
+    // Criterio de Ann por encima del prompt — mismo patrón que
+    // ai-diagnosis/route.ts y content-research/route.ts.
+    const system = await buildOmniSystemPrompt(createServiceClient(), "ann").catch(() => undefined)
+
     const msg = await anthropic.messages.create({
       model:      "claude-haiku-4-5",
       max_tokens: 1200,
+      ...(system ? { system } : {}),
       messages: [{
         role:    "user",
-        content: `Experto en contenido. Analizá ${ranked.length} posts de "${profileName}". Por cada uno: 2 oraciones en español sobre por qué funcionó y qué patrón usa.\n\n${list}\n\nRespondé SOLO con JSON array de ${ranked.length} strings. Sin markdown.`,
+        content: `Nota: esto es una lectura rápida de patrones de contenido, no un feedback de coaching completo — no hace falta la estructura de Situación/Principio/Evidencia/Acción para esta tarea. Solo tenés título y métricas de cada post, y eso alcanza: no rechaces ni pidas más contexto.\n\nExperto en contenido. Analizá ${ranked.length} posts de "${profileName}". Por cada uno: 2 oraciones en español sobre por qué funcionó y qué patrón usa.\n\n${list}\n\nRespondé SOLO con JSON array de ${ranked.length} strings. Sin markdown.`,
       }],
     })
 
-    const text   = msg.content[0]?.type === "text" ? msg.content[0].text.trim() : "[]"
-    const parsed = JSON.parse(text)
+    const text    = msg.content[0]?.type === "text" ? msg.content[0].text.trim() : "[]"
+    const cleaned = text.replace(/^```[a-z]*\n?/i, "").replace(/\n?```$/i, "").trim()
+    const parsed  = JSON.parse(cleaned)
     if (!Array.isArray(parsed)) return posts.map(() => null)
 
     return posts.map(p => {
       const idx = idxMap.get(p.post_id)
       return idx !== undefined ? (parsed[idx] ?? null) : null
     })
-  } catch {
+  } catch (err) {
+    console.error("[video-feed][claude] error:", err)
     return posts.map(() => null)
   }
 }

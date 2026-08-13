@@ -11,6 +11,11 @@
 
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return
+  // Solo en deploys reales de Vercel — VERCEL=1 no está seteado en local. Sin
+  // esto, correr `pnpm dev` (que apunta al mismo Supabase de producción)
+  // termina insertando ruido de desarrollo (Fast Refresh, GoTrueClient
+  // duplicado, Server Actions viejas) en la tabla compartida de app_logs.
+  if (!process.env.VERCEL) return
 
   const { createServiceClient } = await import("@/lib/supabase-service")
 
@@ -78,6 +83,12 @@ export async function register() {
     try {
       const { route, message, context } = parse(args)
       if (!message) return
+      // Node imprime sus DeprecationWarning/ExperimentalWarning internos vía
+      // console.error (es el handler default de `process.on("warning")`) —
+      // no son errores de la app, y como no vienen de nuestro código no hay
+      // nada que "arreglar": solo ensucian app_logs. Se descartan acá en vez
+      // de en cada caller.
+      if (/DeprecationWarning|ExperimentalWarning/.test(message)) return
       const sb = createServiceClient()
       const { error: insertError } = await sb.from("app_logs").insert({
         level,

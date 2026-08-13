@@ -19,9 +19,9 @@ import { ClientPlaybookMainView } from "./client-playbook-main-view"
 type Tab = "programa" | "documentos" | "playbook"
 
 const TABS: Array<{ id: Tab; label: string; icon: any }> = [
-  { id: "programa",   label: "Programa",   icon: ListChecks },
-  { id: "documentos", label: "Documentos", icon: FileText   },
-  { id: "playbook",   label: "Playbook",   icon: BookOpen   },
+  { id: "programa",   label: "Programa",    icon: ListChecks   },
+  { id: "documentos", label: "Documentos",  icon: FileText     },
+  { id: "playbook",   label: "Playbook",    icon: BookOpen     },
 ]
 
 export function ProgramTabsView() {

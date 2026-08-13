@@ -120,12 +120,12 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
       <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "var(--background)" }}>
         <div className="max-w-md w-full text-center space-y-5">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-400/30">
-            <AlertCircle className="h-8 w-8 text-amber-400" />
+            <AlertCircle className="h-8 w-8 text-amber-700 dark:text-amber-400" />
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl font-black text-foreground">Puesto no disponible</h1>
             <p className="text-foreground/50 text-[14px] leading-relaxed">
-              No encontramos el puesto <span className="font-mono text-amber-300">{rol}</span>. Puede que el link esté desactualizado o el puesto haya sido cerrado.
+              No encontramos el puesto <span className="font-mono text-amber-700 dark:text-amber-300">{rol}</span>. Puede que el link esté desactualizado o el puesto haya sido cerrado.
             </p>
           </div>
           <a href="/" className="inline-block rounded-xl bg-[#dafc69] px-5 py-2.5 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition">
@@ -252,15 +252,15 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
         {/* Error */}
         {error && (
           <div className="flex items-start gap-3 rounded-xl border border-red-500/25 px-4 py-3.5" style={{ backgroundColor: "rgba(239,68,68,0.07)" }}>
-            <AlertCircle className="h-4 w-4 shrink-0 text-red-400 mt-0.5" />
-            <p className="text-[13px] text-red-300">{error}</p>
+            <AlertCircle className="h-4 w-4 shrink-0 text-red-700 dark:text-red-400 mt-0.5" />
+            <p className="text-[13px] text-red-700 dark:text-red-300">{error}</p>
           </div>
         )}
 
         {/* Gated banner */}
         {gated && (
           <div className="rounded-2xl border border-amber-500/25 px-5 py-4" style={{ backgroundColor: "rgba(245,158,11,0.06)" }}>
-            <p className="text-[11px] font-bold text-amber-300/80 uppercase tracking-[0.18em] mb-2">Este puesto no es para vos</p>
+            <p className="text-[11px] font-bold text-amber-700/80 dark:text-amber-300/80 uppercase tracking-[0.18em] mb-2">Este puesto no es para vos</p>
             <p className="text-[14px] text-amber-200/85 leading-relaxed">{gated.message}</p>
           </div>
         )}

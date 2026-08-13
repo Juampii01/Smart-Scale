@@ -2,9 +2,7 @@ import { createServiceClient } from "@/lib/supabase-service"
 import { logJobRun } from "@/lib/system-log"
 
 // ─── Slack Integration ────────────────────────────────────────────────────────
-// Two modes:
-//   1. Incoming Webhooks (SLACK_WEBHOOK_URL) — post to a single pre-configured channel.
-//   2. Bot Token (SLACK_BOT_TOKEN) — create channels dynamically + post to any channel.
+// Bot Token (SLACK_BOT_TOKEN) — create channels dynamically + post to any channel.
 //
 // For onboarding automation, SLACK_BOT_TOKEN is required with scopes:
 //   channels:manage  (or groups:write for private channels)
@@ -133,127 +131,6 @@ function context(text: string) {
   }
 }
 
-// ─── Core send function ───────────────────────────────────────────────────────
-
-export async function sendSlackMessage(blocks: unknown[], fallbackText: string): Promise<SlackResult> {
-  const webhookUrl = process.env.SLACK_WEBHOOK_URL
-  if (!webhookUrl) {
-    return { ok: false, error: "SLACK_WEBHOOK_URL not configured" }
-  }
-
-  try {
-    const res = await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: fallbackText, blocks }),
-    })
-
-    if (!res.ok) {
-      const body = await res.text().catch(() => "")
-      return { ok: false, error: `Slack returned ${res.status}: ${body}` }
-    }
-
-    return { ok: true }
-  } catch (err: any) {
-    return { ok: false, error: err?.message ?? "Unknown Slack error" }
-  }
-}
-
-// ─── Notification: monthly report completed ───────────────────────────────────
-
-export async function notifyMonthlyReportCompleted(payload: {
-  client_name?: string
-  client_id?: string
-  month?: string
-  total_revenue?: number
-  new_clients?: number
-  cash_collected?: number
-  mrr?: number
-  triggered_by?: string
-}): Promise<SlackResult> {
-  const month = payload.month ?? "—"
-  const clientName = payload.client_name ?? payload.client_id ?? "Cliente"
-  const revenue = payload.total_revenue != null
-    ? `$${Number(payload.total_revenue).toLocaleString()}`
-    : "—"
-  const cash = payload.cash_collected != null
-    ? `$${Number(payload.cash_collected).toLocaleString()}`
-    : "—"
-  const mrr = payload.mrr != null
-    ? `$${Number(payload.mrr).toLocaleString()}`
-    : "—"
-  const newClients = payload.new_clients != null ? String(payload.new_clients) : "—"
-
-  const blocks = [
-    header("📊 Reporte mensual completado"),
-    section(`El reporte de *${month}* para *${clientName}* fue guardado exitosamente en el dashboard.`),
-    divider(),
-    fields([
-      { title: "Cliente", value: clientName },
-      { title: "Mes", value: month },
-      { title: "Revenue total", value: revenue },
-      { title: "Cash collected", value: cash },
-      { title: "MRR", value: mrr },
-      { title: "Nuevos clientes", value: newClients },
-    ]),
-    divider(),
-    context(
-      `Cargado por: ${payload.triggered_by ?? "sistema"} · Smart Scale Portal 2.0`
-    ),
-  ]
-
-  const result = await sendSlackMessage(
-    blocks,
-    `📊 Reporte ${month} de ${clientName} completado — Revenue: ${revenue}`
-  )
-  await logJobRun(createServiceClient(), "slack:notifyMonthlyReportCompleted", result.ok ? "ok" : "error", result.error)
-  return result
-}
-
-// ─── Notification: sale registered ───────────────────────────────────────────
-
-export async function notifySaleRegistered(payload: {
-  client_name?: string
-  client_id?: string
-  month?: string
-  new_clients: number
-  total_revenue?: number
-  triggered_by?: string
-}): Promise<SlackResult> {
-  const month = payload.month ?? "—"
-  const clientName = payload.client_name ?? payload.client_id ?? "Cliente"
-  const count = payload.new_clients
-  const revenue = payload.total_revenue != null
-    ? `$${Number(payload.total_revenue).toLocaleString()}`
-    : "—"
-  const label = count === 1 ? "1 nuevo cliente" : `${count} nuevos clientes`
-
-  const blocks = [
-    header(`🎉 ¡Venta registrada! ${label}`),
-    section(
-      `*${clientName}* registró *${label}* en el reporte de *${month}*.`
-    ),
-    divider(),
-    fields([
-      { title: "Cliente", value: clientName },
-      { title: "Mes", value: month },
-      { title: "Nuevos clientes", value: String(count) },
-      { title: "Revenue del mes", value: revenue },
-    ]),
-    divider(),
-    context(
-      `Registrado por: ${payload.triggered_by ?? "sistema"} · Smart Scale Portal 2.0`
-    ),
-  ]
-
-  const result = await sendSlackMessage(
-    blocks,
-    `🎉 ${label} registrados para ${clientName} en ${month}`
-  )
-  await logJobRun(createServiceClient(), "slack:notifySaleRegistered", result.ok ? "ok" : "error", result.error)
-  return result
-}
-
 // ─── Notification: client onboarded ──────────────────────────────────────────
 // Creates a dedicated #cl-{name} channel and posts the onboarding summary.
 // Requires SLACK_BOT_TOKEN. Fails silently if the token is missing.
@@ -330,38 +207,132 @@ export async function notifyClientOnboarded(payload: {
   return result
 }
 
-// ─── Notification: registro del webhook de firma de contrato falló ───────────
+// ─── Notification: checklist level completed ─────────────────────────────────
+// Canal fijo de equipo (no uno por cliente) — se crea/busca una sola vez.
 
 /**
- * SignNow puede rechazar el registro del webhook por documento (ej. el plan
- * de cuenta no incluye Webhooks 2.0) sin que el resto del flujo de envío se
- * entere — el contrato se manda igual, pero cuando el cliente lo firme nunca
- * va a llegar el callback automático. Avisamos apenas se detecta, no cuando
- * alguien nota semanas después que el onboarding automático nunca disparó.
+ * Encuentra o crea un canal de EQUIPO (sin el prefijo "cl-" de los canales
+ * por cliente) — mismo mecanismo que createSlackChannel, para canales
+ * internos fijos como "posi-niveles".
  */
-export async function notifyContractWebhookRegistrationFailed(payload: {
+/** Busca (no crea) un canal por nombre entre públicos Y privados — para
+ *  canales privados el bot tiene que estar invitado, si no aparece en el
+ *  listado aunque el canal exista. */
+async function findTeamChannel(channelName: string): Promise<SlackResult> {
+  const name = toChannelName(channelName)
+  const token = process.env.SLACK_BOT_TOKEN ?? ""
+  const fingerprint = token ? `${token.slice(0, 8)}…${token.slice(-4)}` : "(sin token)"
+  const auth = await slackApi("auth.test", {})
+  const identity = auth.ok
+    ? `team=${auth.team ?? "?"} bot_id=${auth.bot_id ?? "?"} user=${auth.user ?? "?"}`
+    : `auth.test falló: ${auth.error ?? "?"}`
+
+  const list = await slackApi("conversations.list", {
+    exclude_archived: true,
+    types: "public_channel,private_channel",
+    limit: 1000,
+  })
+  if (!list.ok) return { ok: false, error: `[${fingerprint} | ${identity}] list.ok=false: ${list.error ?? "sin detalle"}` }
+  const channels = list.channels ?? []
+  const existing = channels.find((c: any) => c.name === name)
+  if (existing) return { ok: true, channel_id: existing.id }
+  const privateOnes = channels.filter((c: any) => c.is_private).map((c: any) => c.name)
+  return {
+    ok: false,
+    error: `[${fingerprint} | ${identity}] Canal "${name}" no encontrado entre ${channels.length} canales (${privateOnes.length} privados: ${privateOnes.slice(0, 10).join(", ") || "ninguno"})`,
+  }
+}
+
+export async function findOrCreateTeamChannel(channelName: string): Promise<SlackResult> {
+  const name = toChannelName(channelName)
+
+  const data = await slackApi("conversations.create", { name, is_private: false })
+  if (data.ok) return { ok: true, channel_id: data.channel?.id }
+
+  if (data.error === "name_taken") {
+    const list = await slackApi("conversations.list", {
+      exclude_archived: true,
+      types: "public_channel",
+      limit: 1000,
+    })
+    const existing = (list.channels ?? []).find((c: any) => c.name === name)
+    if (existing) return { ok: true, channel_id: existing.id }
+    return { ok: false, error: "name_taken but channel not found in list" }
+  }
+
+  return { ok: false, error: data.error ?? "Unknown error creating channel" }
+}
+
+/**
+ * Aviso al equipo cuando un cliente completa un nivel del Program Checklist
+ * ("Posi") — el llamador (lib/checklist-level-progress.ts) ya se aseguró de
+ * que sea la primera vez que este cliente cruza el umbral para este nivel.
+ */
+export async function notifyChecklistLevelCompleted(payload: {
   client_name: string
-  document_id: string
+  level:       string
+  pct:         number
 }): Promise<SlackResult> {
+  const channelResult = await findOrCreateTeamChannel("posi-niveles")
+  if (!channelResult.ok || !channelResult.channel_id) {
+    const error = channelResult.error ?? "No channel id"
+    await logJobRun(createServiceClient(), "slack:notifyChecklistLevelCompleted", "error", error)
+    return { ok: false, error }
+  }
+
   const blocks = [
-    header("⚠️ Webhook de firma no se pudo registrar"),
-    section(
-      `El contrato de *${payload.client_name}* se mandó a firmar, pero SignNow rechazó el registro del webhook automático para este documento.`
-    ),
-    fields([
-      { title: "Cliente", value: payload.client_name },
-      { title: "Document ID", value: payload.document_id },
-    ]),
-    divider(),
-    context(
-      "Cuando firme, el onboarding automático (Skool/Slack/plataforma) NO se va a disparar solo — hay que confirmarlo a mano desde /admin/applications o reintentar el registro del webhook. Smart Scale Portal 2.0"
-    ),
+    header("✅ Nivel completado"),
+    section(`*${payload.client_name}* completó el *${payload.level}* del checklist (${payload.pct}%).`),
+    context(`Program Checklist · ${new Date().toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}`),
   ]
 
-  const result = await sendSlackMessage(
-    blocks,
-    `⚠️ Webhook de firma no registrado para ${payload.client_name} (document_id ${payload.document_id})`
-  )
-  await logJobRun(createServiceClient(), "slack:notifyContractWebhookRegistrationFailed", result.ok ? "ok" : "error", result.error)
+  const result = await postToChannel(channelResult.channel_id, blocks, `✅ ${payload.client_name} completó ${payload.level}`)
+  await logJobRun(createServiceClient(), "slack:notifyChecklistLevelCompleted", result.ok ? "ok" : "error", result.error)
   return result
 }
+
+// ─── Notification: Posi form submitted ───────────────────────────────────────
+// Canal fijo #9-posi-alertas — PRIVADO, el bot tiene que estar invitado a
+// mano (Slack no deja que un bot vea/postee en un canal privado por API
+// sola). Por eso se usa findTeamChannel (solo busca, no auto-crea como
+// findOrCreateTeamChannel — crear de nuevo lo haría público).
+
+export async function notifyPosiSubmission(payload: {
+  client_name: string
+  level_title: string
+  questions:   { id: string; label: string; type: string; options?: string[] }[]
+  answers:     Record<string, unknown>
+}): Promise<SlackResult> {
+  const channelResult = await findTeamChannel("9-posi-alertas")
+  if (!channelResult.ok || !channelResult.channel_id) {
+    const error = channelResult.error ?? "No channel id"
+    await logJobRun(createServiceClient(), "slack:notifyPosiSubmission", "error", error)
+    return { ok: false, error }
+  }
+
+  const qaLines = payload.questions.map((q) => {
+    const raw = payload.answers[q.id]
+    let answer: string
+    if (raw === undefined || raw === null || raw === "") answer = "_(sin responder)_"
+    else if (q.type === "multiple_choice" && typeof raw === "number") answer = q.options?.[raw] ?? String(raw)
+    else if (q.type === "yesno") answer = raw ? "Sí" : "No"
+    else answer = String(raw)
+    return `*${q.label}*\n${answer}`
+  })
+
+  // Slack corta cada bloque "section" en 3000 chars — se agrupan de a 6
+  // preguntas por bloque para no acercarse al límite en niveles largos.
+  const blocks: unknown[] = [
+    header(`📋 ${payload.level_title} completado`),
+    section(`*${payload.client_name}* completó el formulario de *${payload.level_title}*.`),
+  ]
+  for (let i = 0; i < qaLines.length; i += 6) {
+    blocks.push(section(qaLines.slice(i, i + 6).join("\n\n")))
+  }
+  blocks.push(context(new Date().toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })))
+
+  const result = await postToChannel(channelResult.channel_id, blocks, `📋 ${payload.client_name} completó ${payload.level_title}`)
+  await logJobRun(createServiceClient(), "slack:notifyPosiSubmission", result.ok ? "ok" : "error", result.error)
+  return result
+}
+

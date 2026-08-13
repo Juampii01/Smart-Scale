@@ -474,7 +474,7 @@ export function CalendarView() {
             <h3 className="text-[15px] font-bold text-foreground leading-tight">Llamada con Ann</h3>
             <p className="text-[12px] text-foreground/40 mt-0.5">Sesión privada mensual · 1 llamada por mes</p>
           </div>
-          <a href="https://calendly.com/strategystudio-mkt/ann-s-privat-link" target="_blank" rel="noreferrer"
+          <a href="https://calendly.com/smartscale-strategycoach/30min" target="_blank" rel="noreferrer"
             className="shrink-0 flex items-center gap-1.5 rounded-[8px] bg-[#dafc69] px-4 py-2 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-colors">
             <Calendar className="h-3.5 w-3.5" />
             Agendar llamada

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireAdmin } from "@/lib/auth/api-guards"
+import { calculateCompanyMRR } from "@/lib/calculations/mrr"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -294,10 +295,13 @@ export async function GET(req: NextRequest) {
       days_until_due:     Math.max(0, Math.ceil((new Date(i.due_date + "T00:00:00Z").getTime() - todayMs) / 86400000)),
     }))
 
+    const { mrr } = await calculateCompanyMRR(`${month}-01`)
+
     return NextResponse.json({
       month,
       period_start: startDate,
       period_end:   lastDayDate,
+      mrr,
       new_cash: {
         client_count:     newCashClients.length,
         total_contracted: newCashTotalContracted,

@@ -1,0 +1,242 @@
+"use client"
+
+import { useEffect, useRef, useState } from "react"
+import {
+  DndContext, DragEndEvent, DragOverEvent, DragOverlay, DragStartEvent,
+  PointerSensor, useSensor, useSensors, closestCorners,
+} from "@dnd-kit/core"
+import { arrayMove } from "@dnd-kit/sortable"
+import { Filter } from "lucide-react"
+import type { Lead } from "@/components/views/admin-leads-view"
+import { PipelineColumn } from "./PipelineColumn"
+import { PipelineCard } from "./PipelineCard"
+import { PIPELINE_COLUMNS, effectiveStage } from "./constants"
+import type { PipelineStageId } from "./constants"
+
+interface PipelineBoardProps {
+  leads:    Lead[]
+  onSelect: (lead: Lead) => void
+  onPatch:  (id: string, updates: Partial<Lead>) => void
+}
+
+// Orden totalmente automático en cualquier columna: primero por rating
+// (5★ arriba, 4★ abajo) y dentro de cada estrella, de más nueva a más
+// vieja. El drag&drop entre columnas sigue funcionando (cambia la etapa),
+// pero la posición dentro de una columna ya no se guarda a mano.
+function compareLeads(a: Lead, b: Lead) {
+  const ar = a.rating ?? 0
+  const br = b.rating ?? 0
+  if (ar !== br) return br - ar
+  return a.created_at < b.created_at ? 1 : -1
+}
+
+export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) {
+  const [items, setItems] = useState<Lead[]>(leads)
+  const [activeLead, setActiveLead] = useState<Lead | null>(null)
+  // Presionado (default) = ocultar los leads sin 4/5★. Al soltarlo aparece
+  // una columna extra "Sin estrellas" con todo lo que quedó afuera.
+  const [filterUnrated, setFilterUnrated] = useState(true)
+  const isDraggingRef = useRef(false)
+  const dragStartSnapshotRef = useRef<Lead[]>([])
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  // La mayoría de los mouses solo tienen rueda vertical — con 9 columnas hace
+  // falta poder recorrer el tablero sin trackpad. Convertimos scroll vertical
+  // en horizontal mientras el puntero está sobre el tablero (no mientras se
+  // arrastra una card, para no pelear con el drag).
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const onWheel = (e: WheelEvent) => {
+      if (isDraggingRef.current) return
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return
+      el.scrollLeft += e.deltaY
+      e.preventDefault()
+    }
+    el.addEventListener("wheel", onWheel, { passive: false })
+    return () => el.removeEventListener("wheel", onWheel)
+  }, [])
+
+  // Se resincroniza con lo que viene del padre (fetch, ratings editados desde
+  // la tabla, etc.) — salvo mientras hay un drag en curso, para no pisar el
+  // reorder que el usuario todavía está haciendo.
+  useEffect(() => {
+    if (!isDraggingRef.current) setItems(leads)
+  }, [leads])
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+  )
+
+  const byStage = new Map<PipelineStageId, Lead[]>()
+  for (const col of PIPELINE_COLUMNS) byStage.set(col.id, [])
+  const unratedLeads: Lead[] = []
+  for (const lead of items) {
+    const stage = effectiveStage(lead)
+    if (stage) byStage.get(stage)!.push(lead)
+    else unratedLeads.push(lead)
+  }
+  for (const [, group] of byStage) group.sort(compareLeads)
+  unratedLeads.sort(compareLeads)
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveLead(items.find(l => l.id === event.active.id) ?? null)
+    isDraggingRef.current = true
+    dragStartSnapshotRef.current = items
+  }
+
+  // Mueve la card entre columnas en vivo, para el feedback visual mientras
+  // se arrastra (el orden fino dentro de la columna se resuelve al soltar).
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event
+    if (!over) return
+    const activeId = active.id as string
+    const overId   = over.id   as string
+    const draggedLead = items.find(l => l.id === activeId)
+    if (!draggedLead) return
+    const overColumn = PIPELINE_COLUMNS.find(c => c.id === overId)
+    if (overColumn && effectiveStage(draggedLead) !== overColumn.id) {
+      setItems(prev => prev.map(l => l.id === activeId ? { ...l, status: overColumn.id } : l))
+    }
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    setActiveLead(null)
+    isDraggingRef.current = false
+    if (!over) return
+    const activeId = active.id as string
+    const overId   = over.id   as string
+
+    setItems(prev => {
+      const draggedLead = prev.find(l => l.id === activeId)
+      if (!draggedLead) return prev
+
+      // draggedLead/overLead son siempre cards visibles en el tablero, así que
+      // su etapa nunca es null en la práctica (solo los leads fuera del
+      // pipeline, que no son arrastrables, dan null acá).
+      const overLead   = prev.find(l => l.id === overId)
+      const overColumn = PIPELINE_COLUMNS.find(c => c.id === overId)
+      const targetStage: PipelineStageId = overLead ? effectiveStage(overLead)! : (overColumn?.id ?? effectiveStage(draggedLead)!)
+      // Columna de la que "sale" la card — el estado en vivo justo antes de
+      // este drop (dragOver ya pudo haberla cambiado de columna en el medio
+      // del gesto), no el snapshot del inicio del drag.
+      const sourceStage = effectiveStage(draggedLead)!
+
+      let updated: Lead[]
+
+      if (overLead && targetStage === effectiveStage(draggedLead) && overId !== activeId) {
+        // Reorden dentro de la misma columna
+        const colLeads  = prev.filter(l => effectiveStage(l) === targetStage).sort(compareLeads)
+        const activeIdx = colLeads.findIndex(l => l.id === activeId)
+        const overIdx   = colLeads.findIndex(l => l.id === overId)
+        const reordered = arrayMove(colLeads, activeIdx, overIdx).map((l, i) => ({ ...l, pipeline_order: i, status: targetStage }))
+        updated = [...prev.filter(l => effectiveStage(l) !== targetStage), ...reordered]
+      } else {
+        // Cross-column, o drop directo sobre la columna (vacía o no)
+        const targetColLeads = prev
+          .filter(l => effectiveStage(l) === targetStage && l.id !== activeId)
+          .sort(compareLeads)
+        const overIdx  = overLead ? targetColLeads.findIndex(l => l.id === overId) : -1
+        const insertAt = overIdx === -1 ? targetColLeads.length : overIdx
+        const reinsertedTarget = [
+          ...targetColLeads.slice(0, insertAt),
+          { ...draggedLead, status: targetStage },
+          ...targetColLeads.slice(insertAt),
+        ].map((l, i) => ({ ...l, pipeline_order: i, status: targetStage }))
+
+        // La columna de origen también se re-numera (sacamos una card de ahí)
+        const sourceColLeads = sourceStage === targetStage ? [] : prev
+          .filter(l => effectiveStage(l) === sourceStage && l.id !== activeId)
+          .sort(compareLeads)
+          .map((l, i) => ({ ...l, pipeline_order: i }))
+
+        updated = [
+          ...prev.filter(l => effectiveStage(l) !== targetStage && effectiveStage(l) !== sourceStage),
+          ...sourceColLeads,
+          ...reinsertedTarget,
+        ]
+      }
+
+      // Persistimos solo lo que realmente cambió respecto al snapshot de
+      // ANTES del drag (no contra prev, que dragOver ya pudo mutar).
+      const original = dragStartSnapshotRef.current
+      for (const lead of updated) {
+        const orig = original.find(l => l.id === lead.id)
+        if (!orig) continue
+        // Reordenar DENTRO de "Sin estrellas" puede dejar status en null (no
+        // es una etapa real) — nunca se persiste eso, solo movimientos hacia
+        // una columna de verdad.
+        if (effectiveStage(lead) === null) continue
+        const stageChanged = effectiveStage(orig) !== effectiveStage(lead)
+        const orderChanged = (orig.pipeline_order ?? null) !== (lead.pipeline_order ?? null)
+        if (stageChanged || orderChanged) {
+          const updates: Partial<Lead> = { pipeline_order: lead.pipeline_order }
+          if (stageChanged) {
+            updates.status = lead.status
+            if (lead.status === "compraron") updates.purchased = true
+            else if (orig.purchased) updates.purchased = false
+          }
+          onPatch(lead.id, updates)
+        }
+      }
+
+      return updated
+    })
+  }
+
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
+      <div className="flex items-center justify-end mb-3">
+        <button
+          onClick={() => setFilterUnrated(f => !f)}
+          title={filterUnrated ? "Mostrando solo 4-5★ — click para ver también las sin calificar" : "Mostrando todos — click para ocultar las sin 4-5★"}
+          className={`inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[12.5px] font-semibold transition-all ${
+            filterUnrated
+              ? "bg-foreground text-background"
+              : "border border-foreground/[0.12] text-foreground/60 hover:text-foreground hover:border-foreground/25"
+          }`}
+        >
+          <Filter className="h-3.5 w-3.5" />
+          Filtrar sin 4-5★
+        </button>
+      </div>
+
+      <div ref={scrollRef} className="scrollbar-visible flex gap-4 overflow-x-auto pb-3">
+        {!filterUnrated && (
+          <div className="flex-1 min-w-[240px]">
+            <PipelineColumn
+              id="sin_estrellas"
+              title="Sin estrellas"
+              accentColor="var(--muted-foreground)"
+              leads={unratedLeads}
+              onSelect={onSelect}
+              onPatch={onPatch}
+              droppable={false}
+            />
+          </div>
+        )}
+        {PIPELINE_COLUMNS.map(col => (
+          <div key={col.id} className="flex-1 min-w-[240px]">
+            <PipelineColumn
+              id={col.id}
+              title={col.label}
+              accentColor={col.color}
+              leads={byStage.get(col.id) ?? []}
+              onSelect={onSelect}
+              onPatch={onPatch}
+            />
+          </div>
+        ))}
+      </div>
+
+      <DragOverlay>
+        {activeLead && (
+          <div style={{ transform: "rotate(2deg)", opacity: 0.95 }}>
+            <PipelineCard lead={activeLead} onClick={() => {}} isOverlay />
+          </div>
+        )}
+      </DragOverlay>
+    </DndContext>
+  )
+}

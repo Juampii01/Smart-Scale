@@ -3,8 +3,8 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 // ─── Event types ──────────────────────────────────────────────────────────────
 
 export type EventType =
-  | "monthly_report.completed"
-  | "sale.registered"
+  | "monthly_report.completed"  // @deprecated — el aviso vía Slack directo se eliminó; el aviso real ya sale por Zapier (monthly-reports/save/route.ts). Se mantiene en el type por backwards-compat con eventos viejos en cola, que se completan como no-op.
+  | "sale.registered"           // @deprecated — mismo caso que arriba.
   | "airtable.sync"  // @deprecated — Airtable ya no se usa. Solo se mantiene en el type por backwards-compat con eventos viejos en cola, que se completan como no-op.
 
 export interface EventPayload {

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from "react"
 import { Loader2, RefreshCw, Download, ChevronLeft, ChevronRight, PlusCircle, TrendingUp, Table2 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
+import { viewAsTenantBodyField, viewAsTenantQueryParam } from "@/lib/auth/view-as"
 import { SetterCommissionPanel } from "@/components/admin/setter-commission-panel"
 import { EodFormDialogV2 } from "@/components/admin/eod-form-dialog-v2"
 import { SectionHeader } from "@/components/ui/section-header"
@@ -13,13 +14,14 @@ import { StatTile } from "@/components/ui/stat-tile"
 
 type FieldKey =
   | "new_conversations_inbound"
+  | "inbound_qualified"
   | "new_conversations_outbound"
   | "outbound_replies"
+  | "outbound_qualified"
   | "inbound_applications"
   | "qualified_leads"
   | "offer_docs_sent"
   | "offer_doc_responses"
-  | "calls_done"
   | "cierres"
 
 interface LogEntry {
@@ -28,24 +30,26 @@ interface LogEntry {
   setter_id: string
   setter_name?: string | null
   new_conversations_inbound?: number | null
+  inbound_qualified?: number | null
   new_conversations_outbound?: number | null
   outbound_replies?: number | null
+  outbound_qualified?: number | null
   inbound_applications?: number | null
   qualified_leads: number | null
   offer_docs_sent: number | null
   offer_doc_responses: number | null
-  calls_done: number | null
   cierres?: number | null
 }
 
 const COLUMNS: { key: FieldKey; label: string; short: string }[] = [
   { key: "new_conversations_inbound",  label: "Inbound",      short: "INBOUND" },
+  { key: "inbound_qualified",          label: "Calif. IB",    short: "CALIF IB" },
   { key: "new_conversations_outbound", label: "Outbound",     short: "OUTBOUND" },
   { key: "outbound_replies",           label: "Resp. OB",     short: "RESP OB" },
+  { key: "outbound_qualified",         label: "Calif. OB",    short: "CALIF OB" },
   { key: "qualified_leads",            label: "Leads 4-5",    short: "LEADS" },
   { key: "offer_docs_sent",            label: "Docs Sent",    short: "DOCS" },
   { key: "offer_doc_responses",        label: "Doc Resp.",    short: "DOC RESP" },
-  { key: "calls_done",                 label: "Llamadas",     short: "LLAMADAS" },
   { key: "cierres",                    label: "Cierres",      short: "CIERRES" },
 ]
 
@@ -118,7 +122,7 @@ function EditableCell({
       await fetch("/api/admin/setting/log", {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ id: logId, [fieldKey]: num }),
+        body: JSON.stringify({ id: logId, [fieldKey]: num, ...viewAsTenantBodyField() }),
       })
       onSaved(logId, fieldKey, num)
     } finally {
@@ -189,7 +193,9 @@ export function AdminSettingView() {
         setLoading(false)
         return
       }
-      const res = await fetch(`/api/admin/setting/log?month=${encodeURIComponent(ym)}`, {
+      const tenantParam = viewAsTenantQueryParam()
+      const url = `/api/admin/setting/log?month=${encodeURIComponent(ym)}${tenantParam ? `&${tenantParam.slice(1)}` : ""}`
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
       const json = await res.json()
@@ -242,13 +248,14 @@ export function AdminSettingView() {
   const monthTotals = useMemo(() => {
     const totals: Record<FieldKey, number> = {
       new_conversations_inbound:  0,
+      inbound_qualified:          0,
       new_conversations_outbound: 0,
       outbound_replies:           0,
+      outbound_qualified:         0,
       inbound_applications:       0,
       qualified_leads:            0,
       offer_docs_sent:            0,
       offer_doc_responses:        0,
-      calls_done:                 0,
       cierres:                    0,
     }
     for (const log of logs) {
@@ -269,13 +276,15 @@ export function AdminSettingView() {
     const leads          = monthTotals.qualified_leads
     const docs           = monthTotals.offer_docs_sent
     const docResp        = monthTotals.offer_doc_responses
-    const calls          = monthTotals.calls_done
+    const inboundQualified  = monthTotals.inbound_qualified
+    const outboundQualified = monthTotals.outbound_qualified
 
     return {
       outboundResponseRate: pct(outboundReplies, outbound),
       qualification:        pct(leads, totalConv),
       docResponseRate:      pct(docResp, docs),
-      callRate:             pct(calls, docResp),
+      inboundQualRate:      pct(inboundQualified, inbound),
+      outboundQualRate:     pct(outboundQualified, outboundReplies),
       onboardingRate:       onboardingsCount != null ? pct(onboardingsCount, monthTotals.cierres) : "—",
     }
   }, [monthTotals, onboardingsCount])
@@ -399,22 +408,24 @@ export function AdminSettingView() {
               {/* Totales */}
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-4">
                 <StatTile label="Inbound"     value={monthTotals.new_conversations_inbound} />
+                <StatTile label="Calif. IB"   value={monthTotals.inbound_qualified} />
                 <StatTile label="Outbound"    value={monthTotals.new_conversations_outbound} />
+                <StatTile label="Calif. OB"   value={monthTotals.outbound_qualified} />
                 <StatTile label="Total Conv." value={monthTotals.new_conversations_inbound + monthTotals.outbound_replies} highlight />
                 <StatTile label="Leads"       value={monthTotals.qualified_leads} />
                 <StatTile label="Docs"        value={monthTotals.offer_docs_sent} />
                 <StatTile label="Doc Resp."   value={monthTotals.offer_doc_responses} />
-                <StatTile label="Calls"       value={monthTotals.calls_done} />
                 <StatTile label="Cierres"     value={monthTotals.cierres} />
               </div>
 
               {/* Funnel rates */}
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2">
-                <StatTile label="Outbound Response" displayValue={rates.outboundResponseRate} hint="resp. outbound / contactos outbound" />
-                <StatTile label="Qualification"     displayValue={rates.qualification}        hint="leads / total conversaciones" />
-                <StatTile label="Doc Response"      displayValue={rates.docResponseRate}      hint="doc resp / docs" />
-                <StatTile label="Call Rate"         displayValue={rates.callRate}             hint="calls / doc resp" />
-                <StatTile label="Onboarding Rate"   displayValue={rates.onboardingRate}       hint={`onboardings reales (${onboardingsCount ?? "—"}) / cierres cargados`} />
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                <StatTile label="Outbound Response"  displayValue={rates.outboundResponseRate} hint="resp. outbound / contactos outbound" />
+                <StatTile label="Outbound Calificación" displayValue={rates.outboundQualRate}  hint="calif. outbound / resp. outbound" />
+                <StatTile label="Inbound Calificación"  displayValue={rates.inboundQualRate}   hint="calif. inbound / inbound" />
+                <StatTile label="Qualification"      displayValue={rates.qualification}        hint="leads / total conversaciones" />
+                <StatTile label="Doc Response"       displayValue={rates.docResponseRate}      hint="doc resp / docs" />
+                <StatTile label="Onboarding Rate"    displayValue={rates.onboardingRate}       hint={`onboardings reales (${onboardingsCount ?? "—"}) / cierres cargados`} />
               </div>
             </div>
           )}

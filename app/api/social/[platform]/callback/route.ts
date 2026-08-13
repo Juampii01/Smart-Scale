@@ -30,7 +30,9 @@ async function exchangeInstagram(code: string, redirectUri: string) {
     signal: AbortSignal.timeout(10_000),
   })
   const shortText = await shortRes.text()
-  if (!shortRes.ok) throw new Error(`IG short-token ${shortRes.status}: ${shortText.slice(0, 150)}`)
+  // Body completo (no truncar a 150) — Meta manda fbtrace_id al final del JSON,
+  // necesario para escalar a soporte de Meta si el error se repite.
+  if (!shortRes.ok) throw new Error(`IG short-token ${shortRes.status}: ${shortText.slice(0, 600)}`)
   const shortData = JSON.parse(shortText) as { access_token: string; user_id: number; expires_in?: number }
   let accessToken = shortData.access_token
   let expiresAt: Date | undefined = shortData.expires_in ? new Date(Date.now() + shortData.expires_in * 1000) : undefined
@@ -42,7 +44,7 @@ async function exchangeInstagram(code: string, redirectUri: string) {
     { signal: AbortSignal.timeout(10_000) },
   )
   const llText = await llRes.text()
-  if (!llRes.ok) throw new Error(`IG long-token ${llRes.status}`)
+  if (!llRes.ok) throw new Error(`IG long-token ${llRes.status}: ${llText.slice(0, 600)}`)
   let longData: { access_token?: string; expires_in?: number } = {}
   try { longData = JSON.parse(llText) } catch { /* non-JSON */ }
   if (longData.access_token) {
@@ -81,7 +83,7 @@ async function exchangeYouTube(code: string, redirectUri: string) {
     body: new URLSearchParams({ client_id: clientId, client_secret: clientSecret, code, redirect_uri: redirectUri, grant_type: "authorization_code" }),
     signal: AbortSignal.timeout(10_000),
   })
-  if (!tokenRes.ok) throw new Error(`YT token ${tokenRes.status}: ${(await tokenRes.text()).slice(0, 150)}`)
+  if (!tokenRes.ok) throw new Error(`YT token ${tokenRes.status}: ${(await tokenRes.text()).slice(0, 600)}`)
   const tokenData = (await tokenRes.json()) as { access_token: string; refresh_token?: string; expires_in?: number; scope?: string }
 
   const channelRes = await fetch("https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true", {

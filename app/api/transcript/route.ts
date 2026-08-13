@@ -117,7 +117,11 @@ function extractYouTubeId(url: string): string | null {
 }
 
 function isInstagramUrl(url: string): boolean {
-  return /instagram\.com\/(p|reel|reels|tv)\//.test(url)
+  // Instagram sirve el mismo reel en dos formatos: instagram.com/reel/CODE/ y
+  // instagram.com/USERNAME/reel/CODE/ (el segundo aparece al compartir desde el
+  // perfil). El username es opcional acá — abajo (getInstagramTranscript) ya
+  // sabe parsear ambos, pero este gate solo aceptaba el primero.
+  return /instagram\.com\/([^/?#]+\/)?(p|reel|reels|tv)\//.test(url)
 }
 
 function decodeHtmlEntities(value: string): string {
@@ -322,10 +326,10 @@ async function assemblyAITranscript(cdnUrl: string, timeoutMs = 200_000): Promis
     }
   } catch {}
 
-  // 3. Try multiple body formats until one is accepted (API format varies by account tier)
+  // 3. Try multiple body formats until one is accepted (API format varies by account tier).
+  // "speech_model" (singular) fue deprecado por AssemblyAI — siempre devuelve 400 ahora,
+  // así que no tiene sentido intentarlo. "speech_models" (plural, array) es el reemplazo.
   const submitBodies = [
-    { audio_url: audioUrl, speech_model: "nano" },
-    { audio_url: audioUrl, speech_model: "universal-2" },
     { audio_url: audioUrl, speech_models: ["universal-2"] },
     { audio_url: audioUrl },
   ]
@@ -493,9 +497,18 @@ async function runApifyInstagramResolvers(
   return null
 }
 
-async function getInstagramTranscript(postUrl: string): Promise<{ transcript: string | null; caption: string | null; duration: string | null; username: string | null }> {
+async function getInstagramTranscript(postUrl: string): Promise<{ transcript: string | null; caption: string | null; duration: string | null; username: string | null; invalidShortCode?: boolean }> {
   const normalizedPostUrl = postUrl.replace(/\/+$/, "").replace("/reels/", "/reel/")
   const shortCode = normalizedPostUrl.match(/\/(p|reel|reels|tv)\/([^/?#]+)/)?.[2] ?? null
+
+  // Los shortcodes de Instagram son base64 url-safe: solo A-Za-z0-9_-. Si viene
+  // con otro carácter (ej. "|" en vez de "I"/"l") es casi siempre un error de
+  // tipeo/copiado al pegar la URL — no tiene sentido gastar una llamada a Apify,
+  // nunca va a matchear ningún reel real.
+  if (shortCode && !/^[A-Za-z0-9_-]+$/.test(shortCode)) {
+    console.log("[transcript] shortCode con caracteres inválidos, probable error de copiado:", shortCode)
+    return { transcript: null, caption: null, duration: null, username: null, invalidShortCode: true }
+  }
 
   // Extract username from URL when the format is instagram.com/USER/reel/CODE/
   let username: string | null = null
@@ -740,6 +753,13 @@ async function getYouTubeTranscript(
       if (isTransientApifyFailure(apifyFailure)) {
         return { provider: watchPageResult.provider, reason: "possibly_blocked", debug: watchPageResult.debug }
       }
+      // Apify SÍ completó (usa proxies, no está sujeto al mismo bloqueo anti-bot
+      // que pega la IP del servidor) y dio una razón de contenido DISTINTA de
+      // login (ej. no_captions_found) — esa señal es más confiable que el
+      // "login_required" del scraping directo, así que la preferimos.
+      if (apifyFailure && apifyFailure.reason && apifyFailure.reason !== "login_required" && apifyFailure.reason !== "missing_apify_token") {
+        return apifyFailure
+      }
       return watchPageResult
     }
     if (watchPageResult.reason === "no_caption_tracks") return watchPageResult
@@ -803,7 +823,6 @@ async function generateSummarySafe(
     return { summary: await generateSummary(transcript, creator), warning: null }
   } catch (err: any) {
     const overloaded =
-      err instanceof Anthropic.OverloadedError ||
       err?.status === 529 ||
       /overloaded|529/i.test(err?.message ?? "")
     console.error("[transcript] summary failed:", err?.status, err?.message)
@@ -858,7 +877,9 @@ export async function POST(req: NextRequest) {
 
       if (!transcript) {
         return NextResponse.json({
-          error: ig.username
+          error: ig.invalidShortCode
+            ? "Ese link no es válido — el código del reel tiene caracteres que Instagram no usa (probablemente un error al copiarlo o tipearlo). Volvé a Instagram, tocá Compartir → Copiar link, y pegalo de nuevo sin editarlo."
+            : ig.username
             ? "No se pudo transcribir este reel. Apify pudo detectar el post, pero no se pudo obtener o transcribir el video."
             : "No se pudo transcribir este reel. Apify no pudo resolver el video desde Instagram. Probá con un reel público e intentá más tarde.",
         }, { status: 422 })
@@ -923,7 +944,6 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     console.error("[transcript] error:", err)
     const overloaded =
-      err instanceof Anthropic.OverloadedError ||
       err?.status === 529 ||
       /overloaded|529/i.test(err?.message ?? "")
     return NextResponse.json(

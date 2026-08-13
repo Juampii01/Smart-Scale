@@ -30,6 +30,7 @@ export const TEAM_ALLOWED_ADMIN_PATHS = [
   "/admin/centro-operativo",
   "/admin/onboarding",
   "/admin/tareas",        // tablero compartido del equipo
+  "/admin/mi-context-room", // context room personal (solo lo propio)
 ] as const
 
 // Setter no ve Adquisition Stats (/admin/data); el resto igual que team.

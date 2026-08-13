@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { isAdmin } from "@/lib/auth/permissions"
-import { enqueueEvents, EventPayload } from "@/lib/events"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -122,47 +121,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Database error: ${upsertErr.message}` }, { status: 500 })
     }
 
-    // ── 7. Enqueue events ─────────────────────────────────────────────────────
-    const sharedPayload: EventPayload = {
-      client_id: clientId,
-      client_name: clientName,
-      month: rawMonth,
-      total_revenue: Number(reportRow.total_revenue ?? 0) || undefined,
-      new_clients: nextNewClients || undefined,
-      report_data: reportRow as Record<string, unknown>,
-      triggered_by: userEmail ?? "sistema",
-    }
-
-    const eventsToEnqueue: Parameters<typeof enqueueEvents>[0] = [
-      { event_type: "monthly_report.completed", payload: sharedPayload, client_id: clientId, user_id: userId ?? undefined },
-    ]
-
-    if (nextNewClients > 0 && nextNewClients > prevNewClients) {
-      eventsToEnqueue.push({
-        event_type: "sale.registered",
-        payload: { ...sharedPayload, new_clients: nextNewClients },
-        client_id: clientId,
-        user_id: userId ?? undefined,
-      })
-    }
-
-    // Airtable sync deshabilitado — ya no usamos Airtable.
-    // (Si se reactiva en el futuro, descomentar el bloque y poner las env vars.)
-
-    // Encolar eventos (para auditoría y reintentos)
-    let eventIds: string[] = []
-    try {
-      eventIds = await enqueueEvents(eventsToEnqueue)
-    } catch (e: any) {
-      console.error("[monthly-reports/save] Event enqueue error:", e?.message)
-    }
-
-    // ── 8. Zapier directo (awaited) ───────────────────────────────────────────
+    // ── 7. Zapier directo (awaited) ───────────────────────────────────────────
     // fireEventDispatcher() era fire-and-forget y Vercel lo cancelaba antes de
     // que terminara. Llamamos a Zapier directamente con await para garantizar
     // que se envíe dentro del lifetime de la función serverless.
+    //
+    // Solo la primera vez que se guarda un client_id+month: sin este guard,
+    // cada vez que alguien reabre el mismo reporte y lo vuelve a guardar (para
+    // corregir un dato, por ejemplo) se repite el aviso de "felicitaciones" en
+    // Slack — es el bug que produjo 4 posts idénticos para el mismo cliente en
+    // una sola sesión de carga.
     const zapierReportUrl = process.env.ZAPIER_WEBHOOK_REPORT
-    if (zapierReportUrl) {
+    if (zapierReportUrl && !existingRow) {
       try {
         await fetch(zapierReportUrl, {
           method: "POST",
@@ -219,7 +189,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ ok: true, report: saved, events_enqueued: eventIds.length, event_ids: eventIds })
+    return NextResponse.json({ ok: true, report: saved })
   } catch (err: any) {
     console.error("[monthly-reports/save] Unexpected error:", err)
     return NextResponse.json({ error: err?.message ?? "Internal server error" }, { status: 500 })

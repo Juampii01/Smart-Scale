@@ -5,10 +5,6 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import {
-  notifyMonthlyReportCompleted,
-  notifySaleRegistered,
-} from "@/lib/slack"
 // import { syncReportToAirtable, isAirtableConfigured } from "@/lib/airtable" // deshabilitado
 
 export const runtime = "nodejs"
@@ -87,39 +83,12 @@ async function processEvent(
   })
 
   try {
-    if (event_type === "monthly_report.completed") {
-      const result = await notifyMonthlyReportCompleted({
-        client_id: payload.client_id as string | undefined,
-        client_name: payload.client_name as string | undefined,
-        month: payload.month as string | undefined,
-        total_revenue: payload.total_revenue as number | undefined,
-        new_clients: payload.new_clients as number | undefined,
-        cash_collected: (payload.report_data as any)?.cash_collected as number | undefined,
-        mrr: (payload.report_data as any)?.mrr as number | undefined,
-        triggered_by: payload.triggered_by as string | undefined,
-      })
-
-      if (!result.ok) {
-        throw new Error(`Slack error: ${result.error}`)
-      }
-
-      await logEvent(supabase, id, "info", "Slack notification sent successfully")
-      await markEvent(supabase, id, "completed", attempts)
-    } else if (event_type === "sale.registered") {
-      const result = await notifySaleRegistered({
-        client_id: payload.client_id as string | undefined,
-        client_name: payload.client_name as string | undefined,
-        month: payload.month as string | undefined,
-        new_clients: (payload.new_clients as number) ?? 0,
-        total_revenue: payload.total_revenue as number | undefined,
-        triggered_by: payload.triggered_by as string | undefined,
-      })
-
-      if (!result.ok) {
-        throw new Error(`Slack error: ${result.error}`)
-      }
-
-      await logEvent(supabase, id, "info", "Slack sale notification sent successfully")
+    if (event_type === "monthly_report.completed" || event_type === "sale.registered") {
+      // Deprecado — el aviso de Slack directo se eliminó (SLACK_WEBHOOK_URL
+      // nunca estuvo configurado). El aviso real de estos eventos ya sale por
+      // Zapier, disparado directo desde app/api/monthly-reports/save/route.ts.
+      // Se mantiene acá solo para vaciar eventos viejos que quedaron en cola.
+      await logEvent(supabase, id, "info", `${event_type} deprecated — skipping`)
       await markEvent(supabase, id, "completed", attempts)
     } else if (event_type === "airtable.sync") {
       // Airtable ya no se usa — marcamos como completed para vaciar cola

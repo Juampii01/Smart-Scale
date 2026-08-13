@@ -24,6 +24,18 @@
     {
       "path": "/api/cron/omni-unanswered-summary",
       "schedule": "0 23 * * *"
+    },
+    {
+      "path": "/api/cron/error-watch",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/lead-follow-up",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/client-prospect-follow-up",
+      "schedule": "0 12 * * *"
     }
   ]
 }

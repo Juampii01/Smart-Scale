@@ -59,7 +59,7 @@ function CopyBtn({ text }: { text: string | null }) {
       className="inline-flex items-center gap-1.5 text-xs text-foreground/40 hover:text-[#dafc69] transition-colors"
     >
       <span className="max-w-[140px] truncate text-foreground/50">{text.slice(0, 60)}{text.length > 60 ? "…" : ""}</span>
-      {copied ? <Check className="h-3 w-3 text-emerald-400 flex-shrink-0" /> : <Copy className="h-3 w-3 flex-shrink-0" />}
+      {copied ? <Check className="h-3 w-3 text-emerald-700 dark:text-emerald-400 flex-shrink-0" /> : <Copy className="h-3 w-3 flex-shrink-0" />}
     </button>
   )
 }
@@ -217,7 +217,7 @@ function ResultsTable({ result }: { result: ResearchResult }) {
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500/10 border border-red-500/20 overflow-hidden">
           {result.channelAvatar
             ? <img src={result.channelAvatar} alt={result.channelName} className="w-full h-full object-cover" />
-            : <Youtube className="h-5 w-5 text-red-400" />}
+            : <Youtube className="h-5 w-5 text-red-700 dark:text-red-400" />}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -309,7 +309,7 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
         {items.map(item => (
           <div key={item.id} className="flex items-center gap-3 px-6 py-3.5 hover:bg-foreground/[0.015] transition-colors group">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-500/10 border border-red-500/15">
-              <Youtube className="h-3.5 w-3.5 text-red-400" />
+              <Youtube className="h-3.5 w-3.5 text-red-700 dark:text-red-400" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground/80 truncate">{item.channel_name}</p>
@@ -333,7 +333,7 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
               <button
                 onClick={() => handleDelete(item.id)}
                 disabled={deletingId === item.id}
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.07] text-foreground/25 hover:border-red-500/30 hover:bg-red-500/[0.08] hover:text-red-400 transition-all disabled:opacity-40"
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.07] text-foreground/25 hover:border-red-500/30 hover:bg-red-500/[0.08] hover:text-red-700 dark:hover:text-red-400 transition-all disabled:opacity-40"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
@@ -449,7 +449,7 @@ function ContentResearchContent() {
               {/* URL input */}
               <div className="relative flex-1">
                 <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2">
-                  <Youtube className="h-4 w-4 text-red-400" />
+                  <Youtube className="h-4 w-4 text-red-700 dark:text-red-400" />
                 </div>
                 <input
                   type="url"

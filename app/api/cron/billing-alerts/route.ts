@@ -23,7 +23,6 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { sendSlackMessage } from "@/lib/slack"
 import { sendUpcomingChargeEmail, sendUpcomingPaymentLinkEmail, sendOverdueInstallmentEmail, sendRenewalEmail } from "@/lib/email"
 import { logJobRun } from "@/lib/system-log"
 
@@ -63,9 +62,7 @@ function fmtDateAR(iso: string) {
 }
 
 // ─── Envío de alerta de cobro ─────────────────────────────────────────────────
-// Primario: Zapier (ZAPIER_WEBHOOK_BILLING) → el Zap postea a Slack.
-// Fallback: Slack directo (SLACK_WEBHOOK_URL) si Zapier no está configurado,
-// para no perder la alerta.
+// Vía Zapier (ZAPIER_WEBHOOK_BILLING) → el Zap postea a Slack.
 
 type BillingPayload = {
   tipo:        "proximo" | "vencido"
@@ -78,29 +75,21 @@ type BillingPayload = {
   mensaje:     string    // texto pre-formateado para mapear directo en el Zap
 }
 
-async function sendBillingAlert(
-  payload: BillingPayload,
-  fallbackBlocks: unknown[],
-  fallbackText: string,
-): Promise<{ ok: boolean; reason?: string }> {
+async function sendBillingAlert(payload: BillingPayload): Promise<{ ok: boolean; reason?: string }> {
   const zapUrl = process.env.ZAPIER_WEBHOOK_BILLING
-  if (zapUrl) {
-    try {
-      const res = await fetch(zapUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ event_type: "billing.reminder", ...payload }),
-        signal: AbortSignal.timeout(8_000),
-      })
-      if (res.ok) return { ok: true }
-      return { ok: false, reason: `zapier ${res.status}` }
-    } catch (e: any) {
-      return { ok: false, reason: e?.message ?? "zapier error" }
-    }
+  if (!zapUrl) return { ok: false, reason: "ZAPIER_WEBHOOK_BILLING not configured" }
+  try {
+    const res = await fetch(zapUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event_type: "billing.reminder", ...payload }),
+      signal: AbortSignal.timeout(8_000),
+    })
+    if (res.ok) return { ok: true }
+    return { ok: false, reason: `zapier ${res.status}` }
+  } catch (e: any) {
+    return { ok: false, reason: e?.message ?? "zapier error" }
   }
-  // Fallback a Slack directo
-  const slack = await sendSlackMessage(fallbackBlocks, fallbackText)
-  return { ok: slack.ok, reason: (slack as any).reason ?? (slack as any).error }
 }
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
@@ -127,7 +116,10 @@ async function runBillingAlerts() {
   }
 
   // 1. Cargar TODOS los clientes (sin filtrar por estado ni tipo de plan).
-  //    Las alertas de cuotas (próximas y vencidas) corren sobre todos.
+  //    El Slack interno de cuotas (próximas y vencidas) corre sobre todos —
+  //    visibilidad del equipo sobre plata pendiente. Los EMAILS al cliente
+  //    (más abajo) sí se filtran a status === "activo" — no le mandamos
+  //    recordatorios de cobro a alguien que ya no es cliente activo.
   //    La generación automática de la próxima cuota solo aplica a clientes
   //    ACTIVOS con plan mensual (no le inventamos cuotas a un cliente dado de baja).
   const { data: clients, error: clientsErr } = await supabase
@@ -230,21 +222,9 @@ async function runBillingAlerts() {
             const dayLabel = daysUntil === 0 ? "hoy" : daysUntil === 1 ? "mañana" : `en ${daysUntil} días`
             const mensaje = `⏰ *Cobro mensual ${dayLabel}*\n• Cliente: *${client.name}*\n• Monto: *${montoFmt}*\n• Vence: ${venceFmt}`
 
-            const blocks = [
-              { type: "header", text: { type: "plain_text", text: `⏰ Cobro mensual ${dayLabel}`, emoji: true } },
-              { type: "section", fields: [
-                { type: "mrkdwn", text: `*Cliente:*\n${client.name}` },
-                { type: "mrkdwn", text: `*Monto:*\n${montoFmt}` },
-                { type: "mrkdwn", text: `*Vence:*\n${venceFmt}` },
-                { type: "mrkdwn", text: `*Días restantes:*\n${daysUntil === 0 ? "Hoy" : daysUntil}` },
-              ]},
-              { type: "context", elements: [{ type: "mrkdwn", text: "Plan mensual auto-renovable · Smart Scale Internal" }] },
-            ]
-
             const r = await sendBillingAlert(
               { tipo: "proximo", cliente: client.name, monto: montoNum, monto_fmt: montoFmt,
                 vencimiento: cuota.due_date, vence_fmt: venceFmt, dias: daysUntil, mensaje },
-              blocks, mensaje,
             )
             if (r.ok) {
               await supabase.from("crm_installments").update({ alert_sent_at: new Date().toISOString() }).eq("id", cuota.id)
@@ -256,8 +236,10 @@ async function runBillingAlerts() {
 
           // Email al cliente — canal independiente del de Slack: reintenta cada
           // día (dentro de la ventana) hasta que salga, aunque el Slack ya
-          // se haya mandado antes.
-          if (client.email && !cuota.client_alert_sent_at) {
+          // se haya mandado antes. Solo a clientes activos — el Slack interno
+          // de arriba sí corre para cualquier estado (visibilidad del equipo
+          // sobre plata pendiente, aunque el cliente ya no esté activo).
+          if (client.status === "activo" && client.email && !cuota.client_alert_sent_at) {
             const emailFn = client.is_monthly_subscription ? sendUpcomingChargeEmail : sendUpcomingPaymentLinkEmail
             const emailResult = await emailFn({ name: client.name, email: client.email, amount: montoNum, dueDate: cuota.due_date }).catch(() => null)
             if (emailResult?.ok) {
@@ -275,21 +257,9 @@ async function runBillingAlerts() {
             const atrasoLabel = diasAtraso === 1 ? "hace 1 día" : `hace ${diasAtraso} días`
             const mensaje = `🔴 *Cuota VENCIDA ${atrasoLabel}*\n• Cliente: *${client.name}*\n• Monto: *${montoFmt}*\n• Venció: ${venceFmt}\n_Pendiente de cobro._`
 
-            const blocks = [
-              { type: "header", text: { type: "plain_text", text: `🔴 Cuota vencida ${atrasoLabel}`, emoji: true } },
-              { type: "section", fields: [
-                { type: "mrkdwn", text: `*Cliente:*\n${client.name}` },
-                { type: "mrkdwn", text: `*Monto:*\n${montoFmt}` },
-                { type: "mrkdwn", text: `*Venció:*\n${venceFmt}` },
-                { type: "mrkdwn", text: `*Atraso:*\n${diasAtraso} día${diasAtraso === 1 ? "" : "s"}` },
-              ]},
-              { type: "context", elements: [{ type: "mrkdwn", text: "Pendiente de cobro · Smart Scale Internal" }] },
-            ]
-
             const r = await sendBillingAlert(
               { tipo: "vencido", cliente: client.name, monto: montoNum, monto_fmt: montoFmt,
                 vencimiento: cuota.due_date, vence_fmt: venceFmt, dias: diasAtraso, mensaje },
-              blocks, mensaje,
             )
             if (r.ok) {
               await supabase.from("crm_installments").update({ overdue_alert_sent_at: new Date().toISOString() }).eq("id", cuota.id)
@@ -304,7 +274,7 @@ async function runBillingAlerts() {
           // Respeta el snooze que carga el admin a mano (arreglo manual con el
           // cliente); el Slack de arriba NO se pospone.
           const snoozed = cuota.overdue_alert_snoozed_until && cuota.overdue_alert_snoozed_until >= todayStr
-          if (client.email && !cuota.client_overdue_alert_sent_at && !snoozed) {
+          if (client.status === "activo" && client.email && !cuota.client_overdue_alert_sent_at && !snoozed) {
             const emailResult = await sendOverdueInstallmentEmail({ name: client.name, email: client.email, amount: montoNum, daysOverdue: diasAtraso }).catch(() => null)
             if (emailResult?.ok) {
               await supabase.from("crm_installments").update({ client_overdue_alert_sent_at: new Date().toISOString() }).eq("id", cuota.id)

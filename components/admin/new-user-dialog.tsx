@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { X, UserPlus, Copy, Check, AlertCircle, Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { ROLE_OPTIONS } from "@/lib/auth/permissions"
+import { isPlatformOwnerEmail } from "@/lib/auth/platform-owner"
 
 interface NewUserDialogProps {
   open: boolean
@@ -12,6 +13,8 @@ interface NewUserDialogProps {
 }
 
 interface ClientOption { id: string; name: string }
+
+const INTERNAL_ROLES = new Set(["admin", "developer", "team", "setter"])
 
 export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) {
   const [email, setEmail] = useState("")
@@ -28,6 +31,23 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
   const [clients, setClients] = useState<ClientOption[]>([])
   const [clientId, setClientId] = useState<string>("")
   const [loadingClients, setLoadingClients] = useState(false)
+
+  // Solo relevante para el platform owner creando un rol interno — elige a
+  // qué sector interno (Leads/Setting/Prospección) pertenece el usuario
+  // nuevo. Cualquier otro admin no ve este selector: hereda su propio
+  // sector en silencio (resuelto server-side).
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null)
+  const [internalTenants, setInternalTenants] = useState<ClientOption[]>([])
+  const [internalTenantId, setInternalTenantId] = useState<string>("")
+  const [loadingTenants, setLoadingTenants] = useState(false)
+
+  const isOwner = isPlatformOwnerEmail(currentUserEmail)
+  const showTenantSelector = INTERNAL_ROLES.has(role) && isOwner
+
+  useEffect(() => {
+    if (!open || currentUserEmail) return
+    createClient().auth.getUser().then(({ data }) => setCurrentUserEmail(data?.user?.email ?? null))
+  }, [open, currentUserEmail])
 
   useEffect(() => {
     if (!open || role !== "client" || clients.length > 0) return
@@ -54,12 +74,35 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
     load()
   }, [open, role, clients.length])
 
+  useEffect(() => {
+    if (!open || !showTenantSelector || internalTenants.length > 0) return
+    const load = async () => {
+      setLoadingTenants(true)
+      try {
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) return
+        const res = await fetch("/api/admin/internal-tenants", {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        if (!res.ok) return
+        const json = await res.json()
+        const list: ClientOption[] = (json.tenants ?? []).map((t: any) => ({
+          id: t.id,
+          name: t.is_internal_workspace ? `${t.name} (interno)` : (t.name || t.nombre || "Sin nombre"),
+        }))
+        setInternalTenants(list)
+      } finally { setLoadingTenants(false) }
+    }
+    load()
+  }, [open, showTenantSelector, internalTenants.length])
+
   if (!open) return null
 
   function reset() {
     setEmail(""); setName(""); setRole("setter")
     setPassword(""); setAutoPassword(true)
-    setClientId("")
+    setClientId(""); setInternalTenantId("")
     setError(null); setResult(null); setCopied(false)
   }
 
@@ -70,6 +113,12 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null); setLoading(true)
+
+    if (showTenantSelector && !internalTenantId) {
+      setError("Elegí el sector interno para este usuario")
+      setLoading(false)
+      return
+    }
 
     try {
       const supabase = createClient()
@@ -88,6 +137,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
           role,
           password: autoPassword ? null : password,
           ...(role === "client" && clientId ? { client_id: clientId } : {}),
+          ...(showTenantSelector && internalTenantId ? { internal_tenant_id: internalTenantId } : {}),
         }),
       })
 
@@ -270,6 +320,32 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
               </div>
             )}
 
+            {/* Selector de sector interno — solo platform owner + rol interno */}
+            {showTenantSelector && (
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-semibold uppercase tracking-widest text-foreground/55">
+                  Sector interno
+                </label>
+                <select
+                  value={internalTenantId}
+                  onChange={e => setInternalTenantId(e.target.value)}
+                  disabled={loadingTenants}
+                  required
+                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none focus:border-[#dafc69]/50 focus:ring-2 focus:ring-[#dafc69]/10 disabled:opacity-50"
+                >
+                  <option value="">— Elegí un sector —</option>
+                  {internalTenants.map(t => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-foreground/50 leading-relaxed flex items-start gap-1.5">
+                  {loadingTenants
+                    ? <><Loader2 className="h-3 w-3 animate-spin shrink-0 mt-0.5" /> Cargando sectores…</>
+                    : "El usuario va a ver Leads/Setting/Prospección del sector que elijas — nunca los de otro cliente."}
+                </p>
+              </div>
+            )}
+
             <div className="space-y-1.5">
               <label className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-foreground/55">
                 <input
@@ -304,7 +380,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
               </button>
               <button
                 type="submit"
-                disabled={loading || !email || !role}
+                disabled={loading || !email || !role || (showTenantSelector && !internalTenantId)}
                 className="flex-1 rounded-xl bg-[#dafc69] px-4 py-2.5 text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors"
               >
                 {loading ? "Creando…" : "Crear usuario"}

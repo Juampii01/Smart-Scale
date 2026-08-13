@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireInternal } from "@/lib/auth/api-guards"
+import { resolveInternalScope } from "@/lib/auth/internal-scope"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
+
+function requestedTenantId(req: NextRequest, body?: any): string | null {
+  return req.nextUrl.searchParams.get("client_id") ?? body?.client_id ?? null
+}
 
 /*
   SQL — run once in Supabase SQL editor:
@@ -36,26 +40,43 @@ export const dynamic = "force-dynamic"
 */
 
 const SELECT_FIELDS = "id, name, email, tag, source, lead_type, status, instagram, rating, niche, notes, purchased, created_at"
+const PIPELINE_FIELDS = "next_follow_up_at, deal_value, pipeline_order"
 
 /** GET — all leads ordered by created_at desc. Lectura: admin OR team. */
 export async function GET(req: NextRequest) {
   try {
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireInternal(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    const scope = await resolveInternalScope(req, requestedTenantId(req))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     const supabase = createServiceClient()
-    // Intentamos traer custom_fields; si la migración aún no se aplicó, reintentamos sin ella.
-    let { data, error } = await supabase
+    // Intentamos traer custom_fields + campos del pipeline; si alguna migración
+    // todavía no se aplicó, vamos degradando hasta el set mínimo de columnas.
+    // Tipado explícito: las 3 queries de fallback seleccionan distintas columnas,
+    // así que el tipo fila-a-fila que infiere Supabase difiere entre ellas — sin
+    // esto TS intenta unificarlos y falla.
+    let data: any[] | null = null
+    let error: { message: string } | null = null
+    ;({ data, error } = await supabase
       .from("leads")
-      .select(SELECT_FIELDS + ", custom_fields")
+      .select(SELECT_FIELDS + ", custom_fields, " + PIPELINE_FIELDS)
+      .eq("client_id", scope.tenantId)
       .order("created_at", { ascending: false })
-      .limit(1000)
+      .limit(1000))
+
+    if (error) {
+      ({ data, error } = await supabase
+        .from("leads")
+        .select(SELECT_FIELDS + ", custom_fields")
+        .eq("client_id", scope.tenantId)
+        .order("created_at", { ascending: false })
+        .limit(1000))
+    }
 
     if (error) {
       ({ data, error } = await supabase
         .from("leads")
         .select(SELECT_FIELDS)
+        .eq("client_id", scope.tenantId)
         .order("created_at", { ascending: false })
         .limit(1000))
     }
@@ -70,25 +91,28 @@ export async function GET(req: NextRequest) {
 /** PATCH — update any editable field */
 export async function PATCH(req: NextRequest) {
   try {
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    // admin/team/setter pueden editar leads (parte del flujo de prospección)
-    const user = await requireInternal(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
+
+    // admin/team/setter pueden editar leads (parte del flujo de prospección)
+    const scope = await resolveInternalScope(req, requestedTenantId(req, body))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     const { id, ...updates } = body
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
-    const PATCHABLE = ["status", "source", "lead_type", "niche", "notes", "rating", "instagram", "email", "tag", "name", "purchased", "custom_fields"]
+    const PATCHABLE = ["status", "source", "lead_type", "niche", "notes", "rating", "instagram", "email", "tag", "name", "purchased", "custom_fields", "next_follow_up_at", "deal_value", "pipeline_order"]
     const allowed: Record<string, any> = { updated_at: new Date().toISOString() }
     for (const key of PATCHABLE) {
       if (updates[key] !== undefined) allowed[key] = updates[key]
     }
+    // Nueva fecha de seguimiento → resetea el flag de aviso ya mandado, para
+    // que el cron de app/api/cron/lead-follow-up vuelva a disparar en la
+    // fecha nueva (si no, se queda "ya avisado" para siempre).
+    if (updates.next_follow_up_at !== undefined) allowed.follow_up_alert_sent_at = null
 
     const supabase = createServiceClient()
-    const { error } = await supabase.from("leads").update(allowed).eq("id", id)
+    const { error } = await supabase.from("leads").update(allowed).eq("id", id).eq("client_id", scope.tenantId)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ success: true })
   } catch (err: any) {
@@ -99,13 +123,12 @@ export async function PATCH(req: NextRequest) {
 /** POST — create a lead manually */
 export async function POST(req: NextRequest) {
   try {
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    // admin/team/setter pueden crear leads (es el core del trabajo del setter)
-    const user = await requireInternal(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
+
+    // admin/team/setter pueden crear leads (es el core del trabajo del setter)
+    const scope = await resolveInternalScope(req, requestedTenantId(req, body))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     const { name, instagram, tag, email, source, lead_type, niche, notes, rating } = body
     if (!name?.trim()) return NextResponse.json({ error: "name is required" }, { status: 400 })
@@ -114,6 +137,7 @@ export async function POST(req: NextRequest) {
     const { data, error } = await supabase
       .from("leads")
       .insert({
+        client_id: scope.tenantId,
         name:      name.trim(),
         instagram: instagram || null,
         tag:       tag       || null,
@@ -138,17 +162,15 @@ export async function POST(req: NextRequest) {
 /** DELETE — remove a lead. admin/team/setter, mismo criterio que GET/PATCH/POST. */
 export async function DELETE(req: NextRequest) {
   try {
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireInternal(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
-
     if (!body.id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
+    const scope = await resolveInternalScope(req, requestedTenantId(req, body))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
+
     const supabase = createServiceClient()
-    const { error } = await supabase.from("leads").delete().eq("id", body.id)
+    const { error } = await supabase.from("leads").delete().eq("id", body.id).eq("client_id", scope.tenantId)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ success: true })
   } catch (err: any) {

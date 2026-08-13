@@ -30,7 +30,8 @@ function OrbitMark({ size = 28 }: { size?: number }) {
   )
 }
 
-export function BrandLogo({ size = 28, wordmarkSize = 15 }: { size?: number; wordmarkSize?: number }) {
+export function BrandLogo({ size = 28, wordmarkSize = 15, iconOnly = false }: { size?: number; wordmarkSize?: number; iconOnly?: boolean }) {
+  if (iconOnly) return <OrbitMark size={size} />
   return (
     <span className="flex items-center gap-3">
       <OrbitMark size={size} />

@@ -76,6 +76,7 @@ interface DashboardData {
   month: string
   period_start: string
   period_end: string
+  mrr: number
   new_cash: {
     client_count: number
     total_contracted: number
@@ -627,10 +628,17 @@ export function AdminExecutiveDashboardView() {
     <div className="max-w-[1280px] mx-auto space-y-5 pb-10">
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-[22px] font-bold text-foreground leading-tight">Dashboard Ejecutivo</h1>
+        <div className="flex items-center gap-5">
+          <div>
+            <h1 className="text-[22px] font-bold text-foreground leading-tight">Dashboard Ejecutivo</h1>
+            {!loading && data && (
+              <p className="text-[13px] text-foreground/50 mt-0.5">{periodLabel}</p>
+            )}
+          </div>
           {!loading && data && (
-            <p className="text-[13px] text-foreground/50 mt-0.5">{periodLabel}</p>
+            <div className="rounded-xl border border-[#dafc69]/20 bg-[#dafc69]/[0.05] px-4 py-1.5">
+              <Stat value={data.mrr} label="MRR" format="currency" colorClass="text-[#dafc69]" />
+            </div>
           )}
         </div>
 

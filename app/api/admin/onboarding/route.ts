@@ -9,7 +9,7 @@ import { zapierClientOnboarded } from "@/lib/zapier"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-const ALBERTO_CLIENT_ID = "09314097-df56-450f-980e-38ec1e61f246"
+const ALBERTO_CLIENT_ID = "6d6c4dc8-e158-4f87-8612-e948c1a31cbb"
 
 /**
  * POST /api/admin/onboarding

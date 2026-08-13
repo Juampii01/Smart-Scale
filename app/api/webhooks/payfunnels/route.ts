@@ -17,7 +17,10 @@
  * SÍ apuntan PayFunnels acá directo.
  *
  * Si no se puede resolver ni por program ni por monto, el pago se loguea
- * igual y se avisa por Slack — nunca se crea un cliente a medias.
+ * igual en payfunnels_webhook_events (con el error), se avisa por el Zap
+ * de "Estado de onboarding" (ZAPIER_WEBHOOK_ONBOARDING_STATUS) — mismo
+ * canal que el resto de los avisos de onboarding — y nunca se crea un
+ * cliente a medias.
  *
  * Auth: acepta el secreto en la query string (?secret=...) — por si el
  * emisor es PayFunnels directo, que no manda headers custom — o en el
@@ -27,14 +30,14 @@
 import { NextRequest, NextResponse, after } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { sendContractForSignature } from "@/lib/signnow"
-import { notifyClientOnboarded, sendSlackMessage } from "@/lib/slack"
-import { zapierClientOnboarded } from "@/lib/zapier"
+import { notifyClientOnboarded } from "@/lib/slack"
+import { zapierClientOnboarded, zapierOnboardingStatusChanged } from "@/lib/zapier"
 import { logJobRun } from "@/lib/system-log"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-const ALBERTO_CLIENT_ID = "09314097-df56-450f-980e-38ec1e61f246"
+const ALBERTO_CLIENT_ID = "6d6c4dc8-e158-4f87-8612-e948c1a31cbb"
 
 // Setter por defecto para las ventas que entran solas por este webhook (no
 // hay un setter humano "cerrando" la venta acá, así que se le asigna a
@@ -210,11 +213,13 @@ export async function POST(req: NextRequest) {
     if (!name || !email || (!hasProgram && amount == null)) {
       const reason = `Faltan datos básicos (name=${!!name}, email=${!!email}, program=${hasProgram}, amount=${amount})`
       await finish(null, reason)
-      await sendSlackMessage(
-        [{ type: "section", text: { type: "mrkdwn", text: `⚠️ *Webhook de PayFunnels con datos incompletos*\n${reason}\nRevisar \`payfunnels_webhook_events\` (id: ${logId ?? "?"}).` } }],
-        "⚠️ Webhook de PayFunnels con datos incompletos",
-      ).catch(() => null)
       await logJobRun(sb, "webhook:payfunnels", "error", reason)
+      await zapierOnboardingStatusChanged({
+        event_type:   "payment_unresolved",
+        client_name:  name || "Sin nombre",
+        client_email: email || undefined,
+        detail:       reason,
+      }).catch(() => null)
       return NextResponse.json({ ok: true, warning: reason })
     }
 
@@ -223,11 +228,13 @@ export async function POST(req: NextRequest) {
     if (!tier) {
       const reason = `No se pudo resolver el plan (program=${hasProgram ? pick(body, "program", "programa", "plan") : "no vino"}, monto=${amount != null ? `$${amount}` : "no vino"})`
       await finish(null, reason)
-      await sendSlackMessage(
-        [{ type: "section", text: { type: "mrkdwn", text: `⚠️ *Pago de PayFunnels sin plan reconocido*\n*Cliente:* ${name} (${email})\n${reason}\nRevisar y cargar a mano en /admin/onboarding.` } }],
-        `⚠️ Pago de PayFunnels sin plan reconocido (${name})`,
-      ).catch(() => null)
       await logJobRun(sb, "webhook:payfunnels", "error", reason)
+      await zapierOnboardingStatusChanged({
+        event_type:   "payment_unresolved",
+        client_name:  name,
+        client_email: email,
+        detail:       reason,
+      }).catch(() => null)
       return NextResponse.json({ ok: true, warning: reason })
     }
 

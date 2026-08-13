@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { rateLimit } from "@/lib/rate-limit"
 import { isAdmin } from "@/lib/auth/permissions"
+import { buildOmniSystemPrompt } from "@/lib/omni/system-prompt"
 import Anthropic from "@anthropic-ai/sdk"
 import { getInstagramTranscript } from "@/lib/instagram-transcript"
 
@@ -600,18 +601,33 @@ async function generateAnalyses(channelName: string, videos: any[]): Promise<str
     if (!apiKey) throw new Error("Missing ANTHROPIC_API_KEY")
 
     const anthropic = new Anthropic({ apiKey })
+    // Los títulos/captions que vienen de Apify a veces llegan truncados a
+    // mitad de un emoji (surrogate alto sin su par bajo) — eso rompe el JSON
+    // del request a Anthropic con "no low surrogate in string". Se limpia
+    // acá antes de interpolar, en vez de confiar en que el scraping siempre
+    // devuelva UTF-16 bien formado.
+    const stripLoneSurrogates = (s: string) =>
+      s.replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, "")
     const list = videos
       .map((v, i) =>
-        `${i + 1}. "${v.title}" — ${v.views.toLocaleString()} views, ${v.likes.toLocaleString()} likes, ${v.comments.toLocaleString()} comentarios`
+        `${i + 1}. "${stripLoneSurrogates(String(v.title ?? ""))}" — ${v.views.toLocaleString()} views, ${v.likes.toLocaleString()} likes, ${v.comments.toLocaleString()} comentarios`
       )
       .join("\n")
+
+    // Criterio de Ann (omni_client_profiles, client_id="ann") por encima
+    // del prompt — mismo patrón que ai-diagnosis/route.ts. Si falta el
+    // perfil, sigue sin system en vez de romper el análisis.
+    const system = await buildOmniSystemPrompt(createServiceClient(), "ann").catch(() => undefined)
 
     const msg = await anthropic.messages.create({
       model: "claude-haiku-4-5",
       max_tokens: 1200,
+      ...(system ? { system } : {}),
       messages: [{
         role: "user",
-        content: `Analizá estos ${videos.length} videos del canal "${channelName}". Para cada video escribí un análisis breve (2-3 oraciones) sobre: qué tema trata, por qué funcionó con esa audiencia y qué lección de contenido se puede extraer. En español, tono profesional.
+        content: `Nota: esto es una lectura rápida de patrones de contenido, no un feedback de coaching completo — no hace falta la estructura de Situación/Principio/Evidencia/Acción para esta tarea. Solo tenés título y métricas de cada video, y eso alcanza: no rechaces ni pidas más contexto.
+
+Analizá estos ${videos.length} videos del canal "${channelName}". Para cada video escribí un análisis breve (2-3 oraciones) sobre: qué tema trata, por qué funcionó con esa audiencia y qué lección de contenido se puede extraer. En español, tono profesional.
 
 Videos:
 ${list}
@@ -665,7 +681,17 @@ export async function GET(req: NextRequest) {
       .limit(20)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ items: data ?? [] })
+
+    const { data: clientRow } = await supabase
+      .from("clients")
+      .select("weekly_research_limit")
+      .eq("id", scope.clientId)
+      .maybeSingle()
+
+    return NextResponse.json({
+      items: data ?? [],
+      weekly_limit: (clientRow as any)?.weekly_research_limit ?? DEFAULT_WEEKLY_LIMIT,
+    })
   } catch (err: any) {
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
   }
@@ -673,7 +699,7 @@ export async function GET(req: NextRequest) {
 
 // ─── POST: nueva investigación ────────────────────────────────────────────────
 
-const WEEKLY_LIMIT = 3
+const DEFAULT_WEEKLY_LIMIT = 3
 
 export async function POST(req: NextRequest) {
   const limited = rateLimit(req, { bucket: "content-research", limit: 6, windowMs: 60_000 })
@@ -695,6 +721,13 @@ export async function POST(req: NextRequest) {
     const scope = await resolveClientScope(supabase, user.id, requestedClientId ?? null)
     if (!scope.ok) return NextResponse.json({ error: scope.message }, { status: scope.status })
     if (!scope.clientId) return NextResponse.json({ error: "Missing client_id" }, { status: 400 })
+
+    const { data: clientRow } = await supabase
+      .from("clients")
+      .select("weekly_research_limit")
+      .eq("id", scope.clientId)
+      .maybeSingle()
+    const weeklyLimit = (clientRow as any)?.weekly_research_limit ?? DEFAULT_WEEKLY_LIMIT
 
     const isInstagram = platform === "instagram" || /instagram\.com/.test(channel_url)
 
@@ -771,11 +804,11 @@ export async function POST(req: NextRequest) {
     const nextMonday = new Date(weekStart)
     nextMonday.setUTCDate(nextMonday.getUTCDate() + 7)
 
-    if ((weekCount ?? 0) >= WEEKLY_LIMIT) {
+    if ((weekCount ?? 0) >= weeklyLimit) {
       return NextResponse.json({
-        error:       `Límite semanal alcanzado. Podés realizar hasta ${WEEKLY_LIMIT} análisis nuevos por semana. Los análisis ya realizados seguirán disponibles en tu historial.`,
-        limit:        WEEKLY_LIMIT,
-        used:         weekCount ?? WEEKLY_LIMIT,
+        error:       `Límite semanal alcanzado. Podés realizar hasta ${weeklyLimit} análisis nuevos por semana. Los análisis ya realizados seguirán disponibles en tu historial.`,
+        limit:        weeklyLimit,
+        used:         weekCount ?? weeklyLimit,
         resets_at:    nextMonday.toISOString(),
         limit_reached: true,
       }, { status: 429 })
@@ -872,7 +905,7 @@ export async function POST(req: NextRequest) {
       videos:        videosWithAnalysis,
       cached:        false,
       used:          (weekCount ?? 0) + 1,
-      limit:         WEEKLY_LIMIT,
+      limit:         weeklyLimit,
     })
   } catch (err: any) {
     console.error("[content-research][POST] error:", err)

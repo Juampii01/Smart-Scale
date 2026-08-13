@@ -1,14 +1,16 @@
 import { createServiceClient } from "@/lib/supabase-service"
 import { isAdmin, isInternal } from "@/lib/auth/permissions"
 import { isOmniOwnerEmail } from "@/lib/omni/owner"
+import { isPlatformOwnerEmail } from "@/lib/auth/platform-owner"
 
 /**
  * Server-side guards para route handlers `/api/admin/*`.
  *
  * Uso:
- *   const user = await requireAdmin(jwt)        // solo admin (datos sensibles)
- *   const user = await requireInternal(jwt)     // admin OR team (datos no sensibles)
- *   const user = await requireOmniOwner(jwt)    // solo dueño del proyecto + Ann (piloto Omni)
+ *   const user = await requireAdmin(jwt)         // solo admin (datos sensibles)
+ *   const user = await requireInternal(jwt)      // admin OR team (datos no sensibles)
+ *   const user = await requireOmniOwner(jwt)     // solo dueño del proyecto + Ann (piloto Omni)
+ *   const user = await requirePlatformOwner(jwt) // solo dueño de la plataforma (sector interno "Ver Clientes")
  *   if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
  */
 
@@ -41,5 +43,12 @@ export async function requireInternal(jwt: string | null) {
 export async function requireOmniOwner(jwt: string | null) {
   const ctx = await getProfile(jwt)
   if (!ctx || !isOmniOwnerEmail(ctx.user.email)) return null
+  return ctx.user
+}
+
+/** No chequea rol — chequea identidad exacta (allowlist de PLATFORM_OWNER_EMAILS). */
+export async function requirePlatformOwner(jwt: string | null) {
+  const ctx = await getProfile(jwt)
+  if (!ctx || !isPlatformOwnerEmail(ctx.user.email)) return null
   return ctx.user
 }

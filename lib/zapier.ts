@@ -10,6 +10,11 @@
 //                                        (contrato firmado, accesos enviados) — separado
 //                                        de ZAPIER_WEBHOOK_ONBOARDING, que solo dispara
 //                                        una vez al crear el cliente.
+//   ZAPIER_WEBHOOK_LEAD_FOLLOWUP      → fires cuando llega (o se venció) la fecha de
+//                                        "próximo seguimiento" de un lead en el pipeline
+//                                        (disparado por app/api/cron/lead-follow-up)
+//   ZAPIER_WEBHOOK_CLIENT_CALL        → fires cuando llega una llamada de Zoom nueva
+//                                        vía app/api/webhooks/client-call
 //
 // Zapier Zap setup:
 //   Trigger: "Webhooks by Zapier → Catch Hook"
@@ -158,6 +163,8 @@ export async function zapierEODSubmitted(payload: {
   new_conversations_outbound:  number
   outbound_replies:            number
   qualified_leads:             number
+  inbound_qualified:           number
+  outbound_qualified:          number
   offer_docs_sent:             number
   offer_doc_responses:         number
   calls_done:                  number
@@ -347,20 +354,88 @@ export async function zapierTaskEvent(payload: {
 // el equipo vea en Slack en qué etapa está cada cliente sin tener que
 // revisar /admin/onboarding a mano.
 
-export type OnboardingStatusEvent = "contract_signed" | "onboarding_completed"
+export type OnboardingStatusEvent = "contract_signed" | "onboarding_completed" | "payment_unresolved"
 
 export async function zapierOnboardingStatusChanged(payload: {
   event_type:   OnboardingStatusEvent
-  client_id:    string
+  client_id?:   string
   client_name:  string
-  client_email: string
+  client_email?: string
+  detail?:      string   // usado por "payment_unresolved" — el motivo puntual (datos incompletos, plan no reconocido, etc.)
 }): Promise<ZapierResult> {
   const url = process.env.ZAPIER_WEBHOOK_ONBOARDING_STATUS
   if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_ONBOARDING_STATUS not configured" }
 
   const message = payload.event_type === "contract_signed"
     ? `✍️  *Contrato firmado* — ${payload.client_name}\n${payload.client_email}\nSe están enviando los accesos (Skool, Slack, Plataforma)...`
-    : `🎉  *Onboarding completo* — ${payload.client_name}\nLos 3 accesos (Skool, Slack, Plataforma) se enviaron correctamente. Cliente listo para arrancar.`
+    : payload.event_type === "onboarding_completed"
+    ? `🎉  *Onboarding completo* — ${payload.client_name}\nLos 3 accesos (Skool, Slack, Plataforma) se enviaron correctamente. Cliente listo para arrancar.`
+    : `⚠️  *Pago de PayFunnels sin onboarding automático* — ${payload.client_name}${payload.client_email ? ` (${payload.client_email})` : ""}\n${payload.detail ?? "Motivo no especificado"}\nRevisar \`payfunnels_webhook_events\` y cargar a mano en /admin/onboarding.`
 
   return postWebhook(url, { ...payload, message }, "zapierOnboardingStatusChanged")
+}
+
+// ─── Fire: seguimiento de lead vencido ────────────────────────────────────────
+// Disparado por app/api/cron/lead-follow-up — un lead del pipeline llegó (o
+// pasó) su fecha de "próximo seguimiento" y todavía no se avisó por esa fecha.
+
+export async function zapierLeadFollowUpDue(payload: {
+  event_type:        "lead.follow_up_due"
+  lead_id:           string
+  lead_name:         string
+  instagram?:        string | null
+  rating?:            number | null
+  stage_label:       string
+  deal_value?:       number | null
+  next_follow_up_at: string   // YYYY-MM-DD
+  days_overdue:      number   // 0 = vence hoy, >0 = días de atraso
+}): Promise<ZapierResult> {
+  const url = process.env.ZAPIER_WEBHOOK_LEAD_FOLLOWUP
+  if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_LEAD_FOLLOWUP not configured" }
+
+  const stars   = payload.rating ? "⭐".repeat(payload.rating) : ""
+  const ig      = payload.instagram?.trim() ? `\n📸 ${payload.instagram.trim().replace(/^@+/, "@")}` : ""
+  const value   = payload.deal_value ? `\n💵 $${payload.deal_value.toLocaleString("es-AR")}` : ""
+  const timing  = payload.days_overdue > 0
+    ? `⚠️ *Atrasado ${payload.days_overdue} día${payload.days_overdue === 1 ? "" : "s"}*`
+    : `📅 *Vence hoy*`
+
+  const message = [
+    `🔔  *Seguimiento pendiente* — ${payload.lead_name} ${stars}`.trim(),
+    `> ${payload.stage_label}${ig}${value}`,
+    timing,
+  ].join("\n")
+
+  return postWebhook(url, { ...payload, message }, "zapierLeadFollowUpDue")
+}
+
+// ─── Fire: llamada de cliente recibida ────────────────────────────────────────
+// Disparado por app/api/webhooks/client-call apenas Zapier manda una grabación
+// de Zoom nueva y se intentó matchear contra un cliente por email.
+
+export async function zapierClientCallReceived(payload: {
+  event_type:         "client_call.received"
+  client_name?:       string | null
+  participant_email?: string | null
+  participant_name?:  string | null
+  recording_url?:     string | null
+  meeting_topic?:     string | null
+  duration_minutes?:  number | null
+}): Promise<ZapierResult> {
+  const url = process.env.ZAPIER_WEBHOOK_CLIENT_CALL
+  if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_CLIENT_CALL not configured" }
+
+  const who = payload.client_name?.trim()
+    || payload.participant_name?.trim()
+    || payload.participant_email?.trim()
+    || "Participante sin identificar"
+
+  const lines = [
+    `📞  *Nueva llamada recibida* — ${who}${payload.client_name ? "" : "  _(sin cliente asignado — asignar a mano)_"}`,
+  ]
+  if (payload.meeting_topic) lines.push(`> ${payload.meeting_topic}`)
+  if (payload.duration_minutes) lines.push(`⏱ ${Math.round(payload.duration_minutes)} min`)
+  if (payload.recording_url) lines.push(`🎥 ${payload.recording_url}`)
+
+  return postWebhook(url, { ...payload, message: lines.join("\n") }, "zapierClientCallReceived")
 }

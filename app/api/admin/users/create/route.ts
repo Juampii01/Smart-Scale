@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireAdmin } from "@/lib/auth/api-guards"
+import { isPlatformOwnerEmail } from "@/lib/auth/platform-owner"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -8,7 +9,7 @@ export const dynamic = "force-dynamic"
 /**
  * POST /api/admin/users/create
  *
- * Body: { email: string, password?: string, role: "admin"|"team"|"setter"|"client", name?: string, client_id?: string }
+ * Body: { email: string, password?: string, role: "admin"|"team"|"setter"|"client", name?: string, client_id?: string, internal_tenant_id?: string }
  *
  * Crea un user en auth.users (con email_confirm=true para que pueda loguearse directo)
  * y guarda profiles.role + profiles.name. Solo accesible para admins.
@@ -17,11 +18,20 @@ export const dynamic = "force-dynamic"
  * la del portal, no `crm_clients`). El FK profiles.client_id apunta a clients.
  * Si no se pasa, queda null y el admin lo vincula después.
  *
+ * Para roles internos (admin/developer/team/setter), internal_tenant_id
+ * decide a qué sector interno pertenece (Leads/Setting/Prospección). Regla
+ * de seguridad: un admin scoped a un tenant NUNCA puede elegir uno distinto
+ * al suyo — solo el platform owner elige explícitamente. Cualquier otro
+ * admin/team hereda en silencio el tenant del creador; si el body trae un
+ * internal_tenant_id que no coincide, se rechaza (señal de manipulación de
+ * payload, no de bug de UI).
+ *
  * Si no se da password, se genera una temporal y se devuelve en la respuesta para que
  * el admin se la comparta al usuario.
  */
 
 const VALID_ROLES = new Set(["admin", "developer", "team", "setter", "client"])
+const INTERNAL_ROLES = new Set(["admin", "developer", "team", "setter"])
 
 function generateTempPassword(length = 14): string {
   const chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -61,6 +71,40 @@ export async function POST(req: NextRequest) {
     const generated = !passwordInput
 
     const supabase = createServiceClient()
+
+    // ── Resolver internal_tenant_id para roles internos, ANTES de crear
+    // nada — si esto falla, no queremos auth users huérfanos.
+    let internalTenantId: string | null = null
+    if (INTERNAL_ROLES.has(role)) {
+      const { data: callerProfile } = await supabase
+        .from("profiles")
+        .select("internal_tenant_id")
+        .eq("id", admin.id)
+        .maybeSingle()
+
+      const callerTenantId = (callerProfile as any)?.internal_tenant_id ?? null
+      const requestedTenantId = body.internal_tenant_id ? String(body.internal_tenant_id).trim() : null
+
+      if (isPlatformOwnerEmail(admin.email)) {
+        // El platform owner tiene que elegir explícito — sin default seguro
+        // (si viene de una sesión "Ver Clientes" activa, asumir Smart Scale
+        // por omisión podría dar de alta en el tenant equivocado).
+        if (!requestedTenantId) {
+          return NextResponse.json({ error: "internal_tenant_id es requerido (elegí el sector: Smart Scale u otro cliente)" }, { status: 400 })
+        }
+        const { data: tenantRow } = await supabase.from("clients").select("id").eq("id", requestedTenantId).maybeSingle()
+        if (!tenantRow) return NextResponse.json({ error: "internal_tenant_id inválido" }, { status: 400 })
+        internalTenantId = requestedTenantId
+      } else {
+        if (!callerTenantId) {
+          return NextResponse.json({ error: "Tu cuenta no tiene un sector interno asignado. Contactá al dueño de la plataforma." }, { status: 400 })
+        }
+        if (requestedTenantId && requestedTenantId !== callerTenantId) {
+          return NextResponse.json({ error: "No podés crear usuarios en un sector distinto al tuyo" }, { status: 403 })
+        }
+        internalTenantId = callerTenantId
+      }
+    }
 
     // ── Bridge: si el clientId existe en crm_clients pero NO en clients (la
     // tabla del portal), copiamos el row antes de crear el auth user. El FK
@@ -129,7 +173,7 @@ export async function POST(req: NextRequest) {
 
     const { error: profileErr } = await supabase
       .from("profiles")
-      .upsert({ id: userId, role, name, client_id: clientId }, { onConflict: "id" })
+      .upsert({ id: userId, role, name, client_id: clientId, internal_tenant_id: internalTenantId }, { onConflict: "id" })
 
     if (profileErr) {
       // Rollback: si el profile falla, borramos el auth user para no dejar orfandad

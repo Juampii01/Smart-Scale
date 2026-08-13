@@ -13,6 +13,7 @@
  */
 
 import type { createServiceClient } from "@/lib/supabase-service"
+import { effectiveStage, PIPELINE_STAGE_LABELS } from "@/components/leads-pipeline/constants"
 
 type SB = ReturnType<typeof createServiceClient>
 
@@ -58,6 +59,16 @@ export function getToolDefinitions(isInternal: boolean) {
       input_schema: {
         type: "object" as const,
         properties: { ...clientIdProp, limit: { type: "number", description: "Cuántos registros traer (default 10)" } },
+        required: req,
+      },
+    },
+    {
+      name: "get_my_pipeline",
+      description:
+        "Devuelve el pipeline propio de prospectos del cliente: cuántos hay por etapa, cuántos sin calificar todavía, y cuáles tienen un seguimiento vencido (con los días de atraso). Usalo cuando te pregunten por seguimiento, prospección, o cómo va su cartera de prospectos.",
+      input_schema: {
+        type: "object" as const,
+        properties: { ...clientIdProp },
         required: req,
       },
     },
@@ -174,6 +185,43 @@ export async function executeTool(
       if (error) return { error: error.message }
       if (!data || data.length === 0) return { mensaje: "No hay ventas (Cha-Ching) registradas todavía." }
       return data
+    }
+
+    case "get_my_pipeline": {
+      if (!clientId) return { mensaje: "No hay un cliente para consultar." }
+      const { data, error } = await sb
+        .from("client_prospects")
+        .select("name, status, rating, purchased, next_follow_up_at")
+        .eq("client_id", clientId)
+        .limit(1000)
+      if (error) return { error: error.message }
+      if (!data || data.length === 0) return { mensaje: "No hay prospectos cargados todavía en el pipeline." }
+
+      const todayStr = new Date().toISOString().slice(0, 10)
+      const porEtapa: Record<string, number> = {}
+      let sinCalificar = 0
+      const vencidos: { nombre: string; etapa: string; dias_atraso: number }[] = []
+
+      for (const p of data as any[]) {
+        const stage = effectiveStage(p)
+        const etapaLabel = stage ? PIPELINE_STAGE_LABELS[stage] : null
+        if (etapaLabel) porEtapa[etapaLabel] = (porEtapa[etapaLabel] ?? 0) + 1
+        else sinCalificar++
+
+        if (p.next_follow_up_at && p.next_follow_up_at < todayStr && !p.purchased && stage !== "perdimos") {
+          const d = new Date(p.next_follow_up_at + "T00:00:00Z")
+          const t = new Date(todayStr + "T00:00:00Z")
+          const dias = Math.max(0, Math.round((t.getTime() - d.getTime()) / (1000 * 60 * 60 * 24)))
+          vencidos.push({ nombre: p.name ?? "Sin nombre", etapa: etapaLabel ?? "Sin calificar", dias_atraso: dias })
+        }
+      }
+
+      return {
+        total_prospectos: data.length,
+        por_etapa: porEtapa,
+        sin_calificar: sinCalificar,
+        seguimientos_vencidos: vencidos,
+      }
     }
 
     case "search_knowledge": {

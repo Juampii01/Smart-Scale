@@ -115,7 +115,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
           {result ? (
             <div className="space-y-4">
               <div className="rounded-xl border border-emerald-400/25 bg-emerald-500/[0.07] p-4 space-y-3">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-emerald-400/80">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-emerald-700/80 dark:text-emerald-400/80">
                   Link creado ✓
                 </p>
                 <div className="flex items-center gap-2">
@@ -137,9 +137,9 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
 
               {result.raw_calendly && (
                 <div className="rounded-xl border border-blue-400/20 bg-blue-500/[0.05] p-3 flex items-start gap-2.5">
-                  <CalendarDays className="h-4 w-4 text-blue-400/70 shrink-0 mt-0.5" />
+                  <CalendarDays className="h-4 w-4 text-blue-700/70 dark:text-blue-400/70 shrink-0 mt-0.5" />
                   <div className="space-y-1">
-                    <p className="text-[11px] font-semibold text-blue-400/80">
+                    <p className="text-[11px] font-semibold text-blue-700/80 dark:text-blue-400/80">
                       Después del pago → Calendly embebido
                     </p>
                     <p className="text-[11px] text-foreground/35 break-all">{result.raw_calendly}</p>
@@ -235,7 +235,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
 
               {/* Error */}
               {error && (
-                <p className="rounded-xl border border-red-400/25 bg-red-500/[0.07] px-3 py-2.5 text-[12px] text-red-400">
+                <p className="rounded-xl border border-red-400/25 bg-red-500/[0.07] px-3 py-2.5 text-[12px] text-red-700 dark:text-red-400">
                   {error}
                 </p>
               )}

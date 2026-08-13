@@ -52,7 +52,7 @@ interface Client {
   num_installments:    number   // cantidad de cuotas de pago
   installment_amount:  number
   is_monthly_subscription: boolean
-  status:              "activo" | "en_pausa" | "inactivo" | "completado"
+  status:              "activo" | "offboarding"
   notes:              string | null
   business_profile:   string | null
   created_at:         string
@@ -128,17 +128,13 @@ function nextFollowup(client: Client): Followup | null {
 // Pills dual-mode: en light el texto baja a -800 (legible sobre bg-x-100/x-50);
 // en dark sube a -300 (legible sobre bg-x-500/10). Bordes con poca opacidad.
 const CLIENT_STATUS_STYLE: Record<string, string> = {
-  activo:     "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/25",
-  en_pausa:   "bg-amber-100   text-amber-800   border-amber-300   dark:bg-amber-500/10   dark:text-amber-300   dark:border-amber-500/25",
-  inactivo:   "bg-red-100     text-red-800     border-red-300     dark:bg-red-500/10     dark:text-red-300     dark:border-red-500/25",
-  completado: "bg-sky-100     text-sky-800     border-sky-300     dark:bg-sky-500/10     dark:text-sky-300     dark:border-sky-500/25",
+  activo:      "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/25",
+  offboarding: "bg-red-100     text-red-800     border-red-300     dark:bg-red-500/10     dark:text-red-300     dark:border-red-500/25",
 }
 
 const CLIENT_STATUS_LABEL: Record<string, string> = {
-  activo:     "Activo",
-  en_pausa:   "En pausa",
-  inactivo:   "Inactivo",
-  completado: "Finalizado",
+  activo:      "Activo",
+  offboarding: "Offboarding",
 }
 
 const INST_STATUS_STYLE: Record<string, string> = {
@@ -587,6 +583,225 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
   )
 }
 
+interface ClientCall {
+  id:                 string
+  participant_email:  string | null
+  participant_name:   string | null
+  recording_url:      string | null
+  transcript:         string | null
+  meeting_topic:      string | null
+  duration_minutes:   number | null
+  occurred_at:        string
+}
+
+function ClientCallsPanel({ clientId }: { clientId: string }) {
+  const [calls,       setCalls]       = useState<ClientCall[]>([])
+  const [loadingC,    setLoadingC]    = useState(true)
+  const [expandedId,  setExpandedId]  = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoadingC(true)
+    createClient().auth.getSession().then(async ({ data: { session } }) => {
+      if (!session || cancelled) { setLoadingC(false); return }
+      try {
+        const res  = await fetch(`/api/admin/client-calls?client_id=${clientId}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        const data = await res.json()
+        if (!cancelled) setCalls(data.calls ?? [])
+      } catch {}
+      finally { if (!cancelled) setLoadingC(false) }
+    })
+    return () => { cancelled = true }
+  }, [clientId])
+
+  const fmtDateTime = (iso: string) => {
+    try { return new Date(iso).toLocaleString("es-AR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) }
+    catch { return iso }
+  }
+
+  if (loadingC) {
+    return <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-foreground/30" /></div>
+  }
+
+  if (!calls.length) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 py-16 text-center px-6">
+        <PhoneCall className="h-6 w-6 text-foreground/20" />
+        <p className="text-sm text-foreground/40">Todavía no hay llamadas registradas para este cliente.</p>
+        <p className="text-xs text-foreground/25">Llegan automáticamente desde Zoom vía Zapier apenas termina una llamada.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex-1 overflow-y-auto px-6 py-5 space-y-3">
+      {calls.map(call => {
+        const isExpanded = expandedId === call.id
+        return (
+          <div key={call.id} className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] overflow-hidden">
+            <button
+              onClick={() => setExpandedId(isExpanded ? null : call.id)}
+              className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-foreground/[0.03] transition-colors"
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">
+                  {call.meeting_topic ?? "Llamada"}
+                </p>
+                <p className="text-xs text-foreground/40 mt-0.5">
+                  {fmtDateTime(call.occurred_at)}
+                  {call.duration_minutes ? ` · ${Math.round(call.duration_minutes)} min` : ""}
+                </p>
+              </div>
+              <ChevronRight className={`h-4 w-4 shrink-0 text-foreground/30 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
+            </button>
+            {isExpanded && (
+              <div className="border-t border-foreground/[0.06] px-4 py-3 space-y-3">
+                {call.recording_url && (
+                  <a href={call.recording_url} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#dafc69] hover:text-[#f2ffc0] transition-colors">
+                    <PhoneCall className="h-3.5 w-3.5" />
+                    Ver grabación
+                  </a>
+                )}
+                {call.transcript ? (
+                  <p className="text-[13px] leading-relaxed text-foreground/70 whitespace-pre-wrap">{call.transcript}</p>
+                ) : (
+                  <p className="text-xs text-foreground/30">Sin transcript disponible para esta llamada.</p>
+                )}
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// ─── Reactivar (renovación) ───────────────────────────────────────────────────
+// Un cliente en offboarding renueva: en vez de cargar "Nuevo cliente" de cero
+// (lo que generaba duplicados tipo "Camila Graciano" / "Cami"), este modal
+// actualiza la MISMA fila con los datos del nuevo ciclo y genera sus cuotas.
+
+interface ReactivateData {
+  program:               string
+  total_amount:          number
+  num_installments:      number
+  is_monthly_subscription: boolean
+  program_start:          string
+  program_duration:       number
+}
+
+function ReactivateModal({
+  clientName, onClose, onSubmit, submitting,
+}: {
+  clientName: string
+  onClose:    () => void
+  onSubmit:   (data: ReactivateData) => Promise<void>
+  submitting: boolean
+}) {
+  const [program,        setProgram]        = useState("")
+  const [totalAmount,    setTotalAmount]    = useState("")
+  const [numInstallments, setNumInstallments] = useState("1")
+  const [isMonthly,      setIsMonthly]      = useState(false)
+  const [programStart,   setProgramStart]   = useState(todayStr())
+  const [programDuration, setProgramDuration] = useState("6")
+
+  const perInstallment = (() => {
+    const total = Number(totalAmount)
+    const n = Math.max(1, Number(numInstallments) || 1)
+    return total > 0 ? (total / n).toFixed(2) : null
+  })()
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const total = Number(totalAmount)
+    if (!total || total <= 0) return
+    await onSubmit({
+      program,
+      total_amount:             total,
+      num_installments:         Math.max(1, Number(numInstallments) || 1),
+      is_monthly_subscription:  isMonthly,
+      program_start:            programStart,
+      program_duration:         Math.max(1, Number(programDuration) || 1),
+    })
+  }
+
+  return (
+    <>
+      <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 z-[61] flex items-center justify-center p-4">
+        <form onSubmit={handleSubmit}
+          className="w-full max-w-sm rounded-[14px] border border-foreground/[0.10] shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+          style={{ backgroundColor: "var(--card)" }}>
+          <div className="flex items-center justify-between mb-1">
+            <div>
+              <h3 className="text-base font-bold text-foreground">Reactivar cliente</h3>
+              <p className="text-[12px] text-foreground/40 mt-0.5">{clientName} — nuevo ciclo</p>
+            </div>
+            <button type="button" onClick={onClose}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Programa</p>
+            <input type="text" value={program} onChange={e => setProgram(e.target.value)}
+              placeholder="ej: Smart Scale, Mastermind..."
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Monto total *</p>
+              <input type="number" min={0} step="any" required value={totalAmount} onChange={e => setTotalAmount(e.target.value)}
+                placeholder="USD"
+                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all" />
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Cant. cuotas</p>
+              <input type="number" min={1} max={24} value={numInstallments} onChange={e => setNumInstallments(e.target.value)}
+                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
+            </div>
+          </div>
+          {perInstallment && (
+            <p className="text-[11px] text-foreground/40 -mt-2">
+              {numInstallments === "1" ? "Pago único" : `${numInstallments} cuotas de USD ${perInstallment} c/u`} — la primera se marca pagada al guardar.
+            </p>
+          )}
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Inicio del ciclo</p>
+              <input type="date" value={programStart} onChange={e => setProgramStart(e.target.value)}
+                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Duración (meses)</p>
+              <input type="number" min={1} max={24} value={programDuration} onChange={e => setProgramDuration(e.target.value)}
+                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 text-[12.5px] text-foreground/60">
+            <input type="checkbox" checked={isMonthly} onChange={e => setIsMonthly(e.target.checked)}
+              className="h-4 w-4 rounded border-foreground/20" />
+            Suscripción mensual (genera la próxima cuota sola cada mes)
+          </label>
+
+          <button type="submit" disabled={!totalAmount || Number(totalAmount) <= 0 || submitting}
+            className="w-full h-10 rounded-xl bg-[#dafc69] text-black text-[13px] font-bold hover:bg-[#f2ffc0] transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            Reactivar
+          </button>
+        </form>
+      </div>
+    </>
+  )
+}
+
 // ─── Detail Drawer ────────────────────────────────────────────────────────────
 
 function DetailDrawer({
@@ -601,9 +816,11 @@ function DetailDrawer({
   onDeleteFollowup,
   onDeleteClient,
   onOffboard,
+  onReactivate,
   onSendRenewalEmail,
   deleting,
   offboarding,
+  reactivating,
   sendingRenewal,
 }: {
   client:              Client
@@ -617,12 +834,15 @@ function DetailDrawer({
   onDeleteFollowup:    (followupId: string) => Promise<void>
   onDeleteClient:      (id: string) => Promise<void>
   onOffboard:          (id: string) => Promise<void>
+  onReactivate:        (id: string, data: ReactivateData) => Promise<void>
   onSendRenewalEmail:  (id: string) => Promise<void>
   deleting:            boolean
   sendingRenewal:      boolean
   offboarding:         boolean
+  reactivating:        boolean
 }) {
-  const [drawerTab,        setDrawerTab]          = useState<"crm" | "reports">("crm")
+  const [drawerTab,        setDrawerTab]          = useState<"crm" | "reports" | "calls">("crm")
+  const [showReactivateForm, setShowReactivateForm] = useState(false)
   const [showFollowupForm, setShowFollowupForm]   = useState(false)
   const [fuDate,           setFuDate]             = useState(todayStr())
   const [fuType,           setFuType]             = useState<Followup["type"]>("whatsapp")
@@ -674,6 +894,17 @@ function DetailDrawer({
 
   return (
     <>
+      {showReactivateForm && (
+        <ReactivateModal
+          clientName={client.name}
+          onClose={() => setShowReactivateForm(false)}
+          submitting={reactivating}
+          onSubmit={async data => {
+            await onReactivate(client.id, data)
+            setShowReactivateForm(false)
+          }}
+        />
+      )}
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[480px] flex-col border-l border-foreground/[0.08] shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
 
@@ -696,19 +927,6 @@ function DetailDrawer({
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {/* Marcar programa finalizado — visible si aún no está finalizado/inactivo */}
-            {client.status !== "completado" && client.status !== "inactivo" && (
-              <button
-                onClick={() => onPatchClient(client.id, { status: "completado" })}
-                disabled={offboarding || deleting}
-                aria-label="Marcar programa finalizado"
-                title="Marca el programa como finalizado (completado)"
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-sky-300/50 px-2.5 text-[11px] font-semibold text-sky-700 hover:bg-sky-100/60 dark:border-sky-500/25 dark:text-sky-300 dark:hover:bg-sky-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
-              >
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                <span>Finalizar programa</span>
-              </button>
-            )}
             {/* Enviar email de renovación a mano — sin esperar la ventana de 7 días del cron.
                 Siempre visible (aunque deshabilitado) para que no parezca que falta construirlo. */}
             {client.status === "activo" && (
@@ -723,13 +941,26 @@ function DetailDrawer({
                 {!sendingRenewal && <span>Enviar renovación</span>}
               </button>
             )}
-            {/* Dar de baja — solo visible si está activo/en_pausa */}
-            {client.status !== "inactivo" && (
+            {/* Reactivar — renovó, vuelve a activo sobre la MISMA fila (evita duplicados) */}
+            {client.status === "offboarding" && (
+              <button
+                onClick={() => setShowReactivateForm(true)}
+                disabled={reactivating}
+                aria-label="Reactivar cliente"
+                title="Renovó — carga el nuevo ciclo y vuelve a activo"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-[#dafc69]/40 px-2.5 text-[11px] font-semibold text-foreground hover:bg-[#dafc69]/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
+              >
+                {reactivating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                {!reactivating && <span>Reactivar</span>}
+              </button>
+            )}
+            {/* Dar de baja — la única acción para pasar a offboarding */}
+            {client.status !== "offboarding" && (
               <button
                 onClick={() => onOffboard(client.id)}
                 disabled={offboarding || deleting}
                 aria-label="Dar de baja"
-                title="Dar de baja: marca inactivo y elimina cuotas pendientes"
+                title="Dar de baja: pasa a offboarding y elimina cuotas pendientes"
                 className="flex h-8 items-center gap-1.5 rounded-lg border border-amber-300/40 px-2.5 text-[11px] font-semibold text-amber-700 hover:bg-amber-100/60 dark:border-amber-500/25 dark:text-amber-400 dark:hover:bg-amber-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
               >
                 {offboarding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserX className="h-3.5 w-3.5" />}
@@ -767,12 +998,28 @@ function DetailDrawer({
             <BarChart3 className="h-3.5 w-3.5" />
             Reportes
           </button>
+          <button onClick={() => setDrawerTab("calls")}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+              drawerTab === "calls"
+                ? "bg-foreground/[0.08] text-foreground"
+                : "text-foreground/40 hover:text-foreground/70"
+            }`}>
+            <PhoneCall className="h-3.5 w-3.5" />
+            Llamadas
+          </button>
         </div>
 
         {/* Reports tab */}
         {drawerTab === "reports" && (
           <div className="flex-1 overflow-hidden" style={{ backgroundColor: "var(--card)" }}>
             <ClientReportPanel clientId={client.id} />
+          </div>
+        )}
+
+        {/* Calls tab */}
+        {drawerTab === "calls" && (
+          <div className="flex-1 overflow-hidden" style={{ backgroundColor: "var(--card)" }}>
+            <ClientCallsPanel clientId={client.id} />
           </div>
         )}
 
@@ -839,9 +1086,7 @@ function DetailDrawer({
                   onChange={e => onPatchClient(client.id, { status: e.target.value as Client["status"] })}
                   className="w-full appearance-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all">
                   <option value="activo">Activo</option>
-                  <option value="en_pausa">En pausa</option>
-                  <option value="inactivo">Inactivo</option>
-                  <option value="completado">Finalizado</option>
+                  <option value="offboarding">Offboarding</option>
                 </select>
               </div>
             </div>
@@ -1073,7 +1318,7 @@ function DetailDrawer({
                     <button
                       onClick={() => handleToggleFu(fu)}
                       disabled={togglingFu === fu.id}
-                      className="mt-0.5 shrink-0 text-foreground/30 hover:text-emerald-400 transition-colors disabled:opacity-40">
+                      className="mt-0.5 shrink-0 text-foreground/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors disabled:opacity-40">
                       {togglingFu === fu.id
                         ? <Loader2 className="h-4 w-4 animate-spin" />
                         : fu.completed
@@ -1098,7 +1343,7 @@ function DetailDrawer({
                     <button
                       onClick={() => handleDeleteFu(fu.id)}
                       disabled={deletingFuId === fu.id}
-                      className="shrink-0 opacity-0 group-hover:opacity-100 flex h-6 w-6 items-center justify-center rounded-lg text-foreground/15 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
+                      className="shrink-0 opacity-0 group-hover:opacity-100 flex h-6 w-6 items-center justify-center rounded-lg text-foreground/15 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
                       {deletingFuId === fu.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
                     </button>
                   </div>
@@ -1245,7 +1490,7 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
   const currentYear  = viewYear
 
   // Exclude churned/inactive clients from all cash calculations
-  const activeClients = clients.filter(c => c.status !== "inactivo")
+  const activeClients = clients.filter(c => c.status !== "offboarding")
 
   // New Cash: clients whose program_start is the viewed month
   const newClients = activeClients.filter(c => {
@@ -1483,10 +1728,8 @@ function InstallmentProgress({ client }: { client: Client }) {
 type SortKey = "name" | "start" | "end" | "remaining" | "amount" | "status" | "created_at"
 
 const STATUS_ORDER: Record<string, number> = {
-  activo:     0,
-  en_pausa:   1,
-  inactivo:   2,
-  completado: 3,
+  activo:      0,
+  offboarding: 1,
 }
 
 function paidCountOf(c: Client): number {
@@ -1548,8 +1791,9 @@ export function AdminClientsView() {
   const [selected,      setSelected]     = useState<Client | null>(null)
   const [deletingId,    setDeletingId]   = useState<string | null>(null)
   const [offboardingId, setOffboardingId] = useState<string | null>(null)
+  const [reactivatingId, setReactivatingId] = useState<string | null>(null)
   const [sendingRenewalId, setSendingRenewalId] = useState<string | null>(null)
-  const [filterStatus,  setFilterStatus] = useState<string>("todos")
+  const [filterStatus,  setFilterStatus] = useState<string>("activo")
   const [search,        setSearch]       = useState("")
   const [sortKey,       setSortKey]      = useState<SortKey>("created_at")
   const [sortDir,       setSortDir]      = useState<"asc" | "desc">("desc")
@@ -1769,20 +2013,41 @@ export function AdminClientsView() {
       body:    JSON.stringify({ type: "offboard", id }),
     })
     if (res.ok) {
-      // Optimistic: mark inactivo + remove unpaid installments in state
+      // Optimistic: mark offboarding + remove unpaid installments in state
       setClients(prev => prev.map(c =>
         c.id === id
-          ? { ...c, status: "inactivo", installments: c.installments.filter(i => i.paid_at !== null) }
+          ? { ...c, status: "offboarding", installments: c.installments.filter(i => i.paid_at !== null) }
           : c
       ))
       if (selected?.id === id) {
         setSelected(prev => prev
-          ? { ...prev, status: "inactivo", installments: prev.installments.filter(i => i.paid_at !== null) }
+          ? { ...prev, status: "offboarding", installments: prev.installments.filter(i => i.paid_at !== null) }
           : null
         )
       }
     }
     setOffboardingId(null)
+  }
+
+  const handleReactivateClient = async (id: string, data: ReactivateData) => {
+    setReactivatingId(id)
+    const session = await getSession()
+    if (!session) { setReactivatingId(null); return }
+    const res = await fetch("/api/admin/clients", {
+      method:  "PATCH",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+      body:    JSON.stringify({ type: "reactivate", id, ...data }),
+    })
+    if (res.ok) {
+      // Trae de nuevo la lista para tener las cuotas nuevas reales (generadas
+      // en el server) — no vale la pena replicar esa lógica acá para un
+      // update optimista.
+      await fetchClients()
+    } else {
+      const json = await res.json().catch(() => ({}))
+      alert(json.error ?? "No se pudo reactivar el cliente.")
+    }
+    setReactivatingId(null)
   }
 
   const handleSendRenewalEmail = async (id: string) => {
@@ -1857,9 +2122,11 @@ export function AdminClientsView() {
           onDeleteFollowup={handleDeleteFollowup}
           onDeleteClient={handleDeleteClient}
           onOffboard={handleOffboardClient}
+          onReactivate={handleReactivateClient}
           onSendRenewalEmail={handleSendRenewalEmail}
           deleting={deletingId === selected.id}
           offboarding={offboardingId === selected.id}
+          reactivating={reactivatingId === selected.id}
           sendingRenewal={sendingRenewalId === selected.id}
         />
       )}
@@ -1926,11 +2193,9 @@ export function AdminClientsView() {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 flex-wrap">
             {[
-              { key: "todos",      label: "Todos" },
-              { key: "activo",     label: "Activo" },
-              { key: "en_pausa",   label: "En pausa" },
-              { key: "inactivo",   label: "Inactivo" },
-              { key: "completado", label: "Finalizado" },
+              { key: "todos",       label: "Todos" },
+              { key: "activo",      label: "Activo" },
+              { key: "offboarding", label: "Offboarding" },
             ].map(({ key, label }) => (
               <button key={key} onClick={() => setFilterStatus(key)}
                 className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium transition-all ${

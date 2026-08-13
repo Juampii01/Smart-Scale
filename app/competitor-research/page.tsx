@@ -156,14 +156,16 @@ function VideoRow({ video, channelName, platform }: { video: VideoResult; channe
       <td className="px-4 py-4 max-w-[180px] overflow-hidden">
         <ExpandCell label="Análisis IA" content={video.analysis || null} yellow />
       </td>
-      {/* THUMBNAIL */}
-      <td className="px-4 py-4">
-        <div className="w-20 h-[45px] rounded-lg overflow-hidden border border-foreground/[0.07] bg-foreground/[0.03]">
-          {video.thumbnail
-            ? <img src={video.thumbnail} alt="" className="w-full h-full object-cover" />
-            : <div className="flex h-full items-center justify-center"><Youtube className="h-4 w-4 text-foreground/20" /></div>}
-        </div>
-      </td>
+      {/* THUMBNAIL — solo YouTube */}
+      {!isIG && (
+        <td className="px-4 py-4">
+          <div className="w-20 h-[45px] rounded-lg overflow-hidden border border-foreground/[0.07] bg-foreground/[0.03]">
+            {video.thumbnail
+              ? <img src={video.thumbnail} alt="" className="w-full h-full object-cover" />
+              : <div className="flex h-full items-center justify-center"><Youtube className="h-4 w-4 text-foreground/20" /></div>}
+          </div>
+        </td>
+      )}
     </tr>
   )
 }
@@ -172,7 +174,7 @@ function VideoRow({ video, channelName, platform }: { video: VideoResult; channe
 
 function ResultsTable({ videos, channelName, platform }: { videos: VideoResult[]; channelName: string; platform: string }) {
   const isIG = platform === "instagram"
-  const headers = ["CREATOR", "URL", isIG ? "HOOK" : "TÍTULO", isIG ? "—" : "DESCRIPCIÓN", "VIEWS", "DURACIÓN", "TRANSCRIPT", "ANÁLISIS", "THUMBNAIL"]
+  const headers = ["CREATOR", "URL", isIG ? "HOOK" : "TÍTULO", isIG ? "—" : "DESCRIPCIÓN", "VIEWS", "DURACIÓN", "TRANSCRIPT", "ANÁLISIS", ...(isIG ? [] : ["THUMBNAIL"])]
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[960px]">
@@ -325,12 +327,13 @@ function CompetitorResearchContent() {
 
       // Derive weekly usage from the returned items — no extra API call needed.
       // The backend returns the last 20 items ordered by created_at DESC;
-      // since the limit is 3/week, this window is always enough.
+      // that window comfortably covers a few weeks even with a raised limit.
+      // weekly_limit reflects the client's own override (default 3) from the backend.
       const weekStart = startOfCurrentWeekUTC()
       const thisWeekCount = items.filter(
         item => new Date(item.created_at) >= weekStart
       ).length
-      setWeekUsage({ used: thisWeekCount, limit: WEEKLY_LIMIT })
+      setWeekUsage({ used: thisWeekCount, limit: data.weekly_limit ?? WEEKLY_LIMIT })
     } catch { } finally { setHistoryLoading(false) }
   }, [activeClientId])
 
