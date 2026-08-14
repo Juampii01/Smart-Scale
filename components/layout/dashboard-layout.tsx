@@ -459,17 +459,23 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         const list = (data ?? []) as any[]
         if (alive) {
-          const nextProfiles = list.map((p: any) => ({
-            id: String(p.id),
-            client_id: p?.client_id ? String(p.client_id) : "",
-            role: p.role ?? null,
-            client_name: p?.name
-              ? String(p.name)
-              : p?.client_id
-                ? "Cliente " + String(p.client_id).slice(0, 8)
-                : "Perfil sin cliente",
-            active: p?.active !== false,
-          }))
+          const nextProfiles = list
+            .map((p: any) => ({
+              id: String(p.id),
+              client_id: p?.client_id ? String(p.client_id) : "",
+              role: p.role ?? null,
+              client_name: p?.name
+                ? String(p.name)
+                : p?.client_id
+                  ? "Cliente " + String(p.client_id).slice(0, 8)
+                  : "Perfil sin cliente",
+              active: p?.active !== false,
+            }))
+            // Este selector es para cambiar de CLIENTE (portal/Social/Content
+            // Research), no de rol interno — setters como Steffano no tienen
+            // client_id propio y no pintan acá (quedaban listados pero
+            // deshabilitados, solo estorbaban).
+            .filter((p) => Boolean(p.client_id))
 
           setProfilesList(nextProfiles)
           ensureAdminActiveClient(nextProfiles)
