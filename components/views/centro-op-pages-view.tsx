@@ -19,6 +19,7 @@ import {
   Search, Lock, Target,
 } from "lucide-react"
 import { isAdmin as isAdminRole } from "@/lib/auth/permissions"
+import { viewAsTenantQueryParam, viewAsTenantBodyField } from "@/lib/auth/view-as"
 import { useCreateBlockNote } from "@blocknote/react"
 import { BlockNoteView } from "@blocknote/mantine"
 import "@blocknote/core/fonts/inter.css"
@@ -358,7 +359,7 @@ export function CentroOpPagesView({ userRole }: { userRole: string | null }) {
   const loadPages = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await authedFetch("/api/admin/centro-op-pages")
+      const res = await authedFetch(`/api/admin/centro-op-pages${viewAsTenantQueryParam()}`)
       const json = await res.json()
       const list: Page[] = res.ok ? (json.pages ?? []) : []
       setPages(list)
@@ -422,7 +423,7 @@ export function CentroOpPagesView({ userRole }: { userRole: string | null }) {
     try {
       const res  = await authedFetch("/api/admin/centro-op-pages", {
         method: "POST",
-        body: JSON.stringify({ parent_id: parentId, title: "Sin título", content: [] }),
+        body: JSON.stringify({ parent_id: parentId, title: "Sin título", content: [], ...viewAsTenantBodyField() }),
       })
       const json = await res.json()
       if (!res.ok || !json.page) {
@@ -438,7 +439,7 @@ export function CentroOpPagesView({ userRole }: { userRole: string | null }) {
   const patchPage = async (id: string, patch: Partial<Page> & { _cascade?: boolean }) => {
     const res = await authedFetch("/api/admin/centro-op-pages", {
       method: "PATCH",
-      body: JSON.stringify({ id, ...patch }),
+      body: JSON.stringify({ id, ...patch, ...viewAsTenantBodyField() }),
     })
     const json = await res.json()
     if (!res.ok || !json.page) throw new Error(json?.error ?? "Error guardando")
@@ -454,7 +455,7 @@ export function CentroOpPagesView({ userRole }: { userRole: string | null }) {
   const deletePage = async (id: string) => {
     const res = await authedFetch("/api/admin/centro-op-pages", {
       method: "DELETE",
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ id, ...viewAsTenantBodyField() }),
     })
     if (!res.ok) {
       const json = await res.json().catch(() => ({}))

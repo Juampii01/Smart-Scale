@@ -1,7 +1,11 @@
 /**
  * Centro Operativo — pages tipo Notion. CRUD.
  *
- * Permisos por rol:
+ * Aislado por tenant (client_id) — cada sector interno (Smart Scale o un
+ * cliente con su propio sector) tiene sus propias páginas, salvo el
+ * platform owner navegando vía "Ver Clientes" (lib/auth/internal-scope.ts).
+ *
+ * Permisos por rol, dentro del tenant resuelto:
  *  - admin: todas las pages, todos los scopes
  *  - team:  scope = 'global' (no ve 'prospeccion')
  *  - setter: scope = 'prospeccion' (no ve 'global')
@@ -10,32 +14,16 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { isAdmin } from "@/lib/auth/permissions"
+import { resolveInternalScope } from "@/lib/auth/internal-scope"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 const SELECT_FIELDS = "id, parent_id, title, icon, content, sort_order, scope, created_by, created_at, updated_at"
 
-interface AuthCtx {
-  userId: string
-  role:   "admin" | "team" | "setter"
-}
-
-async function requireCentroOpAccess(jwt: string | null): Promise<AuthCtx | null> {
-  if (!jwt) return null
-  const supabase = createServiceClient()
-  const { data: { user }, error } = await supabase.auth.getUser(jwt)
-  if (error || !user) return null
-  const { data: profile } = await supabase
-    .from("profiles").select("role").eq("id", user.id).maybeSingle()
-  const role = String((profile as any)?.role ?? "").toLowerCase()
-  if (!isAdmin(role) && role !== "team" && role !== "setter") return null
-  return { userId: user.id, role: role as AuthCtx["role"] }
-}
-
 /** Devuelve los scopes que el rol puede leer/escribir. */
-function allowedScopes(role: AuthCtx["role"]): string[] {
-  if (isAdmin(role))  return ["global", "prospeccion"]
+function allowedScopes(role: string): string[] {
+  if (isAdmin(role))     return ["global", "prospeccion"]
   if (role === "team")   return ["global"]
   if (role === "setter") return ["prospeccion"]
   return []
@@ -45,15 +33,15 @@ function allowedScopes(role: AuthCtx["role"]): string[] {
 
 export async function GET(req: NextRequest) {
   try {
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const ctx = await requireCentroOpAccess(jwt)
-    if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    const scope = await resolveInternalScope(req, req.nextUrl.searchParams.get("client_id"))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     const supabase = createServiceClient()
-    const scopes = allowedScopes(ctx.role)
+    const scopes = allowedScopes(scope.role)
     const { data, error } = await supabase
       .from("centro_op_pages")
       .select(SELECT_FIELDS)
+      .eq("client_id", scope.tenantId)
       .in("scope", scopes)
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: true })
@@ -69,46 +57,47 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const ctx = await requireCentroOpAccess(jwt)
-    if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
 
-    const { title, icon, parent_id, content, scope } = body
+    const scope = await resolveInternalScope(req, body.client_id)
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
+
+    const { title, icon, parent_id, content, scope: pageScope } = body
 
     // Resolver scope efectivo
     const supabase = createServiceClient()
     let effectiveScope: string = "global"
 
     if (parent_id) {
-      // Hereda del padre
+      // Hereda del padre — el padre tiene que ser del mismo tenant.
       const { data: parent, error: parentErr } = await supabase
         .from("centro_op_pages")
         .select("scope")
         .eq("id", parent_id)
+        .eq("client_id", scope.tenantId)
         .maybeSingle()
       if (parentErr || !parent) {
         return NextResponse.json({ error: "Parent page not found" }, { status: 400 })
       }
       effectiveScope = String((parent as any).scope ?? "global")
-    } else if (typeof scope === "string" && (scope === "global" || scope === "prospeccion")) {
-      effectiveScope = scope
-    } else if (ctx.role === "setter") {
+    } else if (typeof pageScope === "string" && (pageScope === "global" || pageScope === "prospeccion")) {
+      effectiveScope = pageScope
+    } else if (scope.role === "setter") {
       // Setter sin parent → siempre crea en 'prospeccion'
       effectiveScope = "prospeccion"
     }
 
     // Validar que el rol puede crear en ese scope
-    if (!allowedScopes(ctx.role).includes(effectiveScope)) {
+    if (!allowedScopes(scope.role).includes(effectiveScope)) {
       return NextResponse.json({ error: "Forbidden scope" }, { status: 403 })
     }
 
-    // Sort: max sort_order + 1 entre siblings
+    // Sort: max sort_order + 1 entre siblings (del mismo tenant)
     const { data: siblings } = await supabase
       .from("centro_op_pages")
       .select("sort_order")
+      .eq("client_id", scope.tenantId)
       .eq("parent_id", parent_id ?? null)
       .order("sort_order", { ascending: false })
       .limit(1)
@@ -125,7 +114,8 @@ export async function POST(req: NextRequest) {
         content:    Array.isArray(content) ? content : [],
         sort_order: nextOrder,
         scope:      effectiveScope,
-        created_by: ctx.userId,
+        created_by: scope.userId,
+        client_id:  scope.tenantId,
       })
       .select(SELECT_FIELDS)
       .single()
@@ -141,26 +131,26 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const ctx = await requireCentroOpAccess(jwt)
-    if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
 
-    const { id, _cascade, ...rest } = body
+    const scope = await resolveInternalScope(req, body.client_id)
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
+
+    const { id, _cascade, client_id: _clientId, ...rest } = body
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
     const supabase = createServiceClient()
 
-    // Verificar que el rol tiene acceso a la page
+    // Verificar que el rol tiene acceso a la page (mismo tenant + scope permitido)
     const { data: existing } = await supabase
       .from("centro_op_pages")
-      .select("scope")
+      .select("scope, client_id")
       .eq("id", id)
       .maybeSingle()
     if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 })
-    if (!allowedScopes(ctx.role).includes(String((existing as any).scope))) {
+    if ((existing as any).client_id !== scope.tenantId) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    if (!allowedScopes(scope.role).includes(String((existing as any).scope))) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
@@ -176,7 +166,7 @@ export async function PATCH(req: NextRequest) {
     if (
       typeof rest.scope === "string"
       && (rest.scope === "global" || rest.scope === "prospeccion")
-      && isAdmin(ctx.role)
+      && isAdmin(scope.role)
     ) {
       allowed.scope = rest.scope
     }
@@ -194,7 +184,7 @@ export async function PATCH(req: NextRequest) {
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-    // Cascade scope a descendientes
+    // Cascade scope a descendientes (del mismo tenant)
     if (allowed.scope && _cascade) {
       // BFS recursiva. Recogemos todos los descendientes y bulk-updateamos.
       const toUpdate: string[] = []
@@ -204,6 +194,7 @@ export async function PATCH(req: NextRequest) {
         const { data: children } = await supabase
           .from("centro_op_pages")
           .select("id")
+          .eq("client_id", scope.tenantId)
           .in("parent_id", frontier)
         const childIds = (children ?? []).map((r: any) => r.id).filter((cid: string) => !visited.has(cid))
         for (const cid of childIds) {
@@ -230,24 +221,24 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const ctx = await requireCentroOpAccess(jwt)
-    if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
     if (!body.id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
+    const scope = await resolveInternalScope(req, body.client_id)
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
+
     const supabase = createServiceClient()
 
-    // Verificar acceso
+    // Verificar acceso (mismo tenant + scope permitido)
     const { data: existing } = await supabase
       .from("centro_op_pages")
-      .select("scope")
+      .select("scope, client_id")
       .eq("id", body.id)
       .maybeSingle()
     if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 })
-    if (!allowedScopes(ctx.role).includes(String((existing as any).scope))) {
+    if ((existing as any).client_id !== scope.tenantId) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    if (!allowedScopes(scope.role).includes(String((existing as any).scope))) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
