@@ -29,6 +29,7 @@
  */
 import { NextRequest, NextResponse, after } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { getSmartScaleTenantId } from "@/lib/auth/internal-scope"
 import { sendContractForSignature } from "@/lib/signnow"
 import { notifyClientOnboarded } from "@/lib/slack"
 import { zapierClientOnboarded, zapierOnboardingStatusChanged } from "@/lib/zapier"
@@ -256,6 +257,15 @@ export async function POST(req: NextRequest) {
     const perInstallmentAmount = tier.perInstallment
     const totalAmount = tier.schedule.reduce((sum, v) => sum + v, 0)
 
+    // PayFunnels apunta siempre a la landing de Smart Scale (strategycoach.us),
+    // no hay integración por tenant — todo cierre acá es del sector interno propio.
+    const smartScaleTenantId = await getSmartScaleTenantId(sb)
+    if (!smartScaleTenantId) {
+      await finish(null, "No se encontró el tenant interno de Smart Scale")
+      await logJobRun(sb, "webhook:payfunnels", "error", "No se encontró el tenant interno de Smart Scale")
+      return NextResponse.json({ error: "No se encontró el tenant interno de Smart Scale" }, { status: 500 })
+    }
+
     const { data: crmClient, error: crmErr } = await sb
       .from("crm_clients")
       .insert({
@@ -271,6 +281,7 @@ export async function POST(req: NextRequest) {
         notes:              `Alta automática vía PayFunnels — Programa: ${tier.program} (pago inicial ${tier.installments === 1 ? "único" : "en 2 partes"} + $${RECURRING_MONTHLY}/mes hasta completar ${PROGRAM_DURATION} meses)`,
         forma_pago:         "PayFunnels",
         setter_id:          DEFAULT_SETTER_ID,
+        client_id:          smartScaleTenantId,
       })
       .select("id")
       .single()

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireAdmin } from "@/lib/auth/api-guards"
+import { getSmartScaleTenantId } from "@/lib/auth/internal-scope"
 import { sendPaymentConfirmedEmail, sendRenewalEmail } from "@/lib/email"
 
 export const runtime = "nodejs"
@@ -118,6 +119,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "name, program_start, num_installments and installment_amount are required" }, { status: 400 })
     }
 
+    // Este tab (Founder → Clientes) es exclusivo del CRM propio de Smart Scale.
+    const smartScaleTenantId = await getSmartScaleTenantId(supabase)
+    if (!smartScaleTenantId) {
+      return NextResponse.json({ error: "No se encontró el tenant interno de Smart Scale" }, { status: 500 })
+    }
+
     const { data: client, error: clientError } = await supabase
       .from("crm_clients")
       .insert({
@@ -131,6 +138,7 @@ export async function POST(req: NextRequest) {
         status:             "activo",
         notes:              notes || null,
         is_monthly_subscription: Boolean(is_monthly_subscription),
+        client_id:          smartScaleTenantId,
       })
       .select()
       .single()

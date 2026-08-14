@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
+import { viewAsTenantQueryParam } from "@/lib/auth/view-as"
 
 interface CommissionData {
   setter_id: string
@@ -48,7 +49,8 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
         }
 
         // Load commissions for the selected month
-        const queryParam = isSetter ? `?month=${month}&setter_id=${userId}` : `?month=${month}`
+        const tenantParam = viewAsTenantQueryParam()
+        const queryParam = (isSetter ? `?month=${month}&setter_id=${userId}` : `?month=${month}`) + (tenantParam ? `&${tenantParam.slice(1)}` : "")
         const res = await fetch(`/api/admin/setting/commissions${queryParam}`, {
           headers: {
             "Authorization": `Bearer ${session.access_token}`,

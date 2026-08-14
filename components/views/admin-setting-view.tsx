@@ -211,7 +211,9 @@ export function AdminSettingView() {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
-      const res = await fetch(`/api/admin/setting/onboardings-count?month=${encodeURIComponent(ym)}`, {
+      const tenantParam = viewAsTenantQueryParam()
+      const url = `/api/admin/setting/onboardings-count?month=${encodeURIComponent(ym)}${tenantParam ? `&${tenantParam.slice(1)}` : ""}`
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
       const json = await res.json()
