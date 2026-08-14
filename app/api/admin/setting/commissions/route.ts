@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireInternal } from "@/lib/auth/api-guards"
+import { resolveInternalScope } from "@/lib/auth/internal-scope"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -33,9 +33,8 @@ interface SetterCommissions {
  */
 export async function GET(req: NextRequest) {
   try {
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireInternal(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    const scope = await resolveInternalScope(req, req.nextUrl.searchParams.get("client_id"))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     const month = req.nextUrl.searchParams.get("month") // "2026-05"
     if (!month || !/^\d{4}-\d{2}$/.test(month)) {
@@ -59,6 +58,7 @@ export async function GET(req: NextRequest) {
         status,
         crm_installments(client_id, amount, paid_at)
       `)
+      .eq("client_id", scope.tenantId)
       .neq("status", "offboarding")
 
     if (setterId) query = query.eq("setter_id", setterId)

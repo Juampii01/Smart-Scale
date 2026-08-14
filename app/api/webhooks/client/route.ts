@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { getSmartScaleTenantId } from "@/lib/auth/internal-scope"
 import { logJobRun } from "@/lib/system-log"
 
 export const runtime = "nodejs"
@@ -139,6 +140,14 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServiceClient()
 
+    // Este webhook solo recibe cierres de Smart Scale (Ann) vía Airtable —
+    // no hay integración por tenant todavía, así que todo cae siempre al
+    // sector interno propio de Smart Scale.
+    const smartScaleTenantId = await getSmartScaleTenantId(supabase)
+    if (!smartScaleTenantId) {
+      return NextResponse.json({ error: "No se encontró el tenant interno de Smart Scale" }, { status: 500 })
+    }
+
     const { data: client, error: clientErr } = await supabase
       .from("crm_clients")
       .insert({
@@ -154,6 +163,7 @@ export async function POST(req: NextRequest) {
         installment_amount:  fallbackAmount,
         total_amount:        totalAmount ?? fallbackAmount * numInstallments,
         status:              "activo",
+        client_id:           smartScaleTenantId,
       })
       .select("id")
       .single()
