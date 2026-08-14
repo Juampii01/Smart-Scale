@@ -11,7 +11,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { useSearchParams } from "next/navigation"
-import { Loader2, Check } from "lucide-react"
+import { Loader2, Check, X } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { BrandLogo } from "@/components/theme/brand-logo"
 
@@ -20,6 +20,7 @@ interface Question {
   label: string
   type: "text" | "yesno" | "multiple_choice"
   options?: string[]
+  correct_index?: number
 }
 
 interface Level {
@@ -32,6 +33,46 @@ interface Level {
 
 const inputCls = "w-full rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/25"
 
+// Umbral de aprobación — solo sobre preguntas multiple_choice con correct_index definido.
+const PASS_THRESHOLD = 0.7
+
+function computeScore(level: Level | null, answers: Record<string, any>): { correct: number; total: number } | null {
+  if (!level) return null
+  const scored = level.questions.filter((q) => q.type === "multiple_choice" && typeof q.correct_index === "number")
+  if (scored.length === 0) return null
+  const correct = scored.filter((q) => answers[q.id] === q.correct_index).length
+  return { correct, total: scored.length }
+}
+
+function ResultBanner({ passed, score, levelTitle, alreadyDone }: {
+  passed: boolean
+  score: { correct: number; total: number }
+  levelTitle?: string
+  alreadyDone?: boolean
+}) {
+  if (passed) {
+    return (
+      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-100 dark:bg-emerald-500/10 p-8 text-center">
+        <Check className="h-8 w-8 text-emerald-700 dark:text-emerald-400 mx-auto mb-3" />
+        <p className="text-[17px] font-bold text-emerald-700 dark:text-emerald-400">Has aprobado 🎉</p>
+        <p className="text-sm text-foreground/60 mt-1">
+          {alreadyDone ? `Ya completaste ${levelTitle ?? "este nivel"} — ` : `Gracias por completar ${levelTitle ?? "el nivel"}. `}
+          Respondiste correctamente {score.correct} de {score.total}.
+        </p>
+      </div>
+    )
+  }
+  return (
+    <div className="rounded-2xl border border-red-500/30 bg-red-100 dark:bg-red-500/10 p-8 text-center">
+      <X className="h-8 w-8 text-red-700 dark:text-red-400 mx-auto mb-3" />
+      <p className="text-[17px] font-bold text-red-700 dark:text-red-400">No has aprobado</p>
+      <p className="text-sm text-foreground/60 mt-1">
+        Respondiste correctamente {score.correct} de {score.total} en {levelTitle ?? "este nivel"}. Repasá el contenido con el equipo de Smart Scale antes de seguir.
+      </p>
+    </div>
+  )
+}
+
 export function PosiFormView({ levelNumber }: { levelNumber: number }) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -40,6 +81,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
   const [status, setStatus] = useState<"loading" | "ready" | "already-done" | "no-client" | "not-found" | "submitting" | "done" | "error">("loading")
   const [level, setLevel] = useState<Level | null>(null)
   const [answers, setAnswers] = useState<Record<string, any>>({})
+  const [submittedAnswers, setSubmittedAnswers] = useState<Record<string, any> | null>(null)
   const [errorMsg, setErrorMsg] = useState("")
 
   const load = useCallback(async () => {
@@ -71,8 +113,12 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
     if (!foundLevel) { setStatus("not-found"); return }
     setLevel(foundLevel)
 
-    const alreadySubmitted = (subsJson.submissions ?? []).some((s: any) => s.level_id === foundLevel.id)
-    if (alreadySubmitted && !overrideClientId) { setStatus("already-done"); return }
+    const existingSubmission = (subsJson.submissions ?? []).find((s: any) => s.level_id === foundLevel.id)
+    if (existingSubmission && !overrideClientId) {
+      setSubmittedAnswers(existingSubmission.answers ?? {})
+      setStatus("already-done")
+      return
+    }
 
     setStatus("ready")
   }, [levelNumber, overrideClientId, router])
@@ -135,21 +181,35 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
           </div>
         )}
 
-        {status === "already-done" && (
-          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06] p-8 text-center">
-            <Check className="h-8 w-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-3" />
-            <p className="text-[15px] font-semibold text-foreground">Ya completaste este nivel.</p>
-            <p className="text-sm text-foreground/50 mt-1">No hace falta que lo vuelvas a enviar.</p>
-          </div>
-        )}
+        {status === "already-done" && (() => {
+          const score = computeScore(level, submittedAnswers ?? {})
+          if (!score) {
+            return (
+              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06] p-8 text-center">
+                <Check className="h-8 w-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-3" />
+                <p className="text-[15px] font-semibold text-foreground">Ya completaste este nivel.</p>
+                <p className="text-sm text-foreground/50 mt-1">No hace falta que lo vuelvas a enviar.</p>
+              </div>
+            )
+          }
+          const passed = score.correct / score.total >= PASS_THRESHOLD
+          return <ResultBanner passed={passed} score={score} levelTitle={level?.title} alreadyDone />
+        })()}
 
-        {status === "done" && (
-          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06] p-8 text-center">
-            <Check className="h-8 w-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-3" />
-            <p className="text-[15px] font-semibold text-foreground">¡Listo, quedó enviado! 🎉</p>
-            <p className="text-sm text-foreground/50 mt-1">Gracias por completar el {level?.title}.</p>
-          </div>
-        )}
+        {status === "done" && (() => {
+          const score = computeScore(level, answers)
+          if (!score) {
+            return (
+              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06] p-8 text-center">
+                <Check className="h-8 w-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-3" />
+                <p className="text-[15px] font-semibold text-foreground">¡Listo, quedó enviado! 🎉</p>
+                <p className="text-sm text-foreground/50 mt-1">Gracias por completar el {level?.title}.</p>
+              </div>
+            )
+          }
+          const passed = score.correct / score.total >= PASS_THRESHOLD
+          return <ResultBanner passed={passed} score={score} levelTitle={level?.title} />
+        })()}
 
         {(status === "ready" || status === "submitting" || status === "error") && level && (
           <div className="rounded-2xl border border-foreground/10 bg-card p-6 sm:p-8">
