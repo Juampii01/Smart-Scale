@@ -8,14 +8,19 @@ export const dynamic = "force-dynamic"
 /**
  * POST /api/webhooks/lead
  *
- * Receives a webhook from any CRM (GoHighLevel, ActiveCampaign, HubSpot, Zapier…)
- * when a tag is applied to a lead, and saves the lead to the `leads` table.
+ * Receives a webhook from any CRM (GoHighLevel, ActiveCampaign, HubSpot,
+ * ManyChat, Zapier…) when a tag is applied to a lead, and saves the lead to
+ * the `leads` table, en el sector interno de Smart Scale (Ann).
  *
  * Required: set WEBHOOK_SECRET in Vercel env vars.
  * Configure your CRM to send the header:  X-Webhook-Secret: <your_secret>
  *
  * The endpoint tries to extract these fields from ANY JSON payload shape:
- *   name, email, phone, instagram, tag, source
+ *   name, email, instagram (o ig_username, formato ManyChat), tag, source
+ * `tag` también puede venir como query param (?tag=Interesado) — pensado
+ * para ManyChat, que no tiene un merge field nativo con el nombre de la
+ * etiqueta que disparó el flow; cada flow de ManyChat apunta a esta misma
+ * URL con un `?tag=` distinto.
  *
  * The full raw payload is always stored in raw_payload for future reference.
  */
@@ -72,10 +77,18 @@ export async function POST(req: NextRequest) {
       contact?.instagram        ??
       contact?.instagramHandle  ??
       contact?.instagram_handle ??
+      contact?.ig_username      ?? // ManyChat: merge field {{ig_username}}
       contact?.customField?.instagram ??
       raw?.instagram            ??
+      raw?.ig_username          ??
       null
 
+    // ManyChat no tiene un merge field con "la etiqueta que disparó este
+    // flow" — el patrón recomendado es que cada flow (uno por etiqueta)
+    // pegue a esta misma URL con `?tag=NombreEtiqueta` en vez de mandarlo
+    // en el body. Se prueba el body primero (otros CRMs sí lo mandan ahí),
+    // y si no vino nada se cae al query param.
+    const tagFromQuery = req.nextUrl.searchParams.get("tag")
     const tag =
       // GHL sends tags as array — join them
       (Array.isArray(contact?.tags)  ? contact.tags.join(", ") : null) ??
@@ -83,6 +96,7 @@ export async function POST(req: NextRequest) {
       contact?.tag ??
       raw?.tag     ??
       raw?.label   ??
+      tagFromQuery ??
       null
 
     const source =
@@ -94,7 +108,24 @@ export async function POST(req: NextRequest) {
 
     // ── Insert into Supabase ──────────────────────────────────────────────────
     const supabase = createServiceClient()
+
+    // `leads.client_id` es NOT NULL (sector interno multi-tenant) — este
+    // webhook siempre entra al sector de Smart Scale (Ann), nunca al de un
+    // cliente, porque el ManyChat que lo dispara es el propio de Ann.
+    const { data: workspace, error: workspaceError } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("is_internal_workspace", true)
+      .single()
+
+    if (workspaceError || !workspace) {
+      console.error("[webhook/lead] no se encontró el workspace interno:", workspaceError?.message)
+      await logJobRun(supabase, "webhook:lead", "error", "Workspace interno no encontrado")
+      return NextResponse.json({ error: "Internal workspace not found" }, { status: 500 })
+    }
+
     const { error } = await supabase.from("leads").insert({
+      client_id:   workspace.id,
       name:        name        || null,
       email:       email       || null,
       instagram:   instagram   || null,

@@ -777,25 +777,39 @@ export function AdminLeadsView() {
         </div>
 
         {/* Webhook card */}
-        <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-2">
-            Webhook URL — ManyChat / Zapier
-          </p>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-foreground/60 font-mono truncate" suppressHydrationWarning>
-              {webhookUrl ?? "Cargando…"}
-            </code>
-            <button
-              onClick={() => webhookUrl && navigator.clipboard.writeText(webhookUrl)}
-              disabled={!webhookUrl}
-              className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
-            >
-              Copiar
-            </button>
+        <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4 space-y-3">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-2">
+              Webhook URL — ManyChat / Zapier
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-foreground/60 font-mono truncate" suppressHydrationWarning>
+                {webhookUrl ?? "Cargando…"}
+              </code>
+              <button
+                onClick={() => webhookUrl && navigator.clipboard.writeText(webhookUrl)}
+                disabled={!webhookUrl}
+                className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
+              >
+                Copiar
+              </button>
+            </div>
           </div>
-          <p className="text-[11px] text-foreground/25 mt-1.5">
-            Campos: <code className="text-foreground/40">name</code>, <code className="text-foreground/40">tag</code>, <code className="text-foreground/40">instagram</code>
-          </p>
+          <div className="text-[11px] text-foreground/40 leading-relaxed border-t border-foreground/[0.06] pt-3">
+            <p className="font-semibold text-foreground/50 mb-1">Setup en ManyChat (Automation → External Request):</p>
+            <p>1. Un flow por etiqueta, disparado por el growth tool "Tag Added".</p>
+            <p>
+              2. Method <code className="text-foreground/60">POST</code>, URL con la etiqueta como query param, ej.{" "}
+              <code className="text-foreground/60 break-all">{webhookUrl ?? "…"}?tag=Interesado</code>
+            </p>
+            <p>
+              3. Header <code className="text-foreground/60">X-Webhook-Secret</code> = el secreto configurado en Vercel (pedíselo a Juampi).
+            </p>
+            <p>
+              4. Body JSON: <code className="text-foreground/60">{"{ \"first_name\": \"{{first_name}}\", \"last_name\": \"{{last_name}}\", \"ig_username\": \"{{ig_username}}\" }"}</code>
+            </p>
+            <p className="text-foreground/25 mt-1">Campos guardados: name, tag, instagram, source. El resto del payload queda en raw_payload por si hace falta después.</p>
+          </div>
         </div>
 
         {layout === "pipeline" ? (
