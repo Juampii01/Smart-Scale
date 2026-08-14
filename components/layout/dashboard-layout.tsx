@@ -776,8 +776,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         )
                       }
 
-                      const insideProfiles = profilesList.filter(p => p.active)
-                      const offProfiles = profilesList.filter(p => !p.active)
+                      const byName = (a: typeof profilesList[number], b: typeof profilesList[number]) =>
+                        (a.client_name ?? "").localeCompare(b.client_name ?? "", "es", { sensitivity: "base" })
+                      const insideProfiles = profilesList.filter(p => p.active).sort(byName)
+                      const offProfiles = profilesList.filter(p => !p.active).sort(byName)
 
                       return (
                         <>
