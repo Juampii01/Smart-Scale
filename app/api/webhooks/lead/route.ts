@@ -16,11 +16,14 @@ export const dynamic = "force-dynamic"
  * Configure your CRM to send the header:  X-Webhook-Secret: <your_secret>
  *
  * The endpoint tries to extract these fields from ANY JSON payload shape:
- *   name, email, instagram (o ig_username, formato ManyChat), tag, source
+ *   name, email, instagram (o ig_username, formato ManyChat), tag, source,
+ *   avatar_url (o profile_pic, formato ManyChat)
  * `tag` también puede venir como query param (?tag=Interesado) — pensado
  * para ManyChat, que no tiene un merge field nativo con el nombre de la
  * etiqueta que disparó el flow; cada flow de ManyChat apunta a esta misma
- * URL con un `?tag=` distinto.
+ * URL con un `?tag=` distinto. Si el tag vino por query param, `source` se
+ * completa "ManyChat" por default cuando el payload no trae uno explícito.
+ * `rating` siempre entra en 4 (no hay CRM que lo mande hoy).
  *
  * The full raw payload is always stored in raw_payload for future reference.
  */
@@ -99,11 +102,35 @@ export async function POST(req: NextRequest) {
       tagFromQuery ??
       null
 
+    // Si el tag vino por query param es porque es el patrón de ManyChat
+    // (ver comment arriba) — en ese caso, si no vino "source" explícito en
+    // el payload, se completa "ManyChat" para que el campo "Desde dónde
+    // llegó" no quede vacío en /admin/leads.
     const source =
       contact?.source       ??
       contact?.lead_source  ??
       contact?.leadSource   ??
       raw?.source           ??
+      (tagFromQuery ? "ManyChat" : null)
+
+    // Ningún CRM conectado hoy manda un rating — se asume 4/5 estrellas por
+    // default (pedido explícito) para que el lead caiga directo en la vista
+    // "4 estrellas" de /admin/leads en vez de quedar sin calificar.
+    const ratingRaw = contact?.rating ?? raw?.rating ?? null
+    const rating =
+      ratingRaw !== null && Number.isFinite(Number(ratingRaw))
+        ? Math.min(5, Math.max(1, Math.round(Number(ratingRaw))))
+        : 4
+
+    // ManyChat: merge field {{profile_pic}} — URL de la foto de perfil de
+    // Instagram/Messenger del contacto.
+    const avatarUrl =
+      contact?.profile_pic  ??
+      contact?.profilePic   ??
+      contact?.avatar_url   ??
+      contact?.avatar       ??
+      raw?.profile_pic      ??
+      raw?.avatar_url       ??
       null
 
     // ── Insert into Supabase ──────────────────────────────────────────────────
@@ -131,6 +158,8 @@ export async function POST(req: NextRequest) {
       instagram:   instagram   || null,
       tag:         tag         || null,
       source:      source      || null,
+      rating,
+      avatar_url:  avatarUrl   || null,
       status:      "nuevo",
       raw_payload: raw,
     })

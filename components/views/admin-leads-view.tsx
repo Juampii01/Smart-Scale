@@ -27,6 +27,7 @@ export interface Lead {
   notes:      string | null
   purchased:  boolean
   created_at: string
+  avatar_url?: string | null
   custom_fields?: Record<string, any> | null
   next_follow_up_at?: string | null
   deal_value?: number | null
@@ -191,9 +192,24 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
 
         {/* Header */}
         <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5" style={{ backgroundColor: "var(--card)" }}>
-          <div className="min-w-0">
-            <h2 className="text-lg font-bold text-foreground truncate">{lead.name ?? "Lead"}</h2>
-            <p className="text-[12px] text-foreground/35 mt-0.5">{fmtDate(lead.created_at)}</p>
+          <div className="flex min-w-0 items-center gap-3">
+            {lead.avatar_url ? (
+              <img
+                src={lead.avatar_url}
+                alt={lead.name ?? "Lead"}
+                referrerPolicy="no-referrer"
+                className="h-11 w-11 shrink-0 rounded-full object-cover border border-foreground/[0.08]"
+                onError={e => { (e.target as HTMLImageElement).style.display = "none" }}
+              />
+            ) : (
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-foreground/[0.06] text-[15px] font-bold text-foreground/40">
+                {(lead.name ?? "?").trim().charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div className="min-w-0">
+              <h2 className="text-lg font-bold text-foreground truncate">{lead.name ?? "Lead"}</h2>
+              <p className="text-[12px] text-foreground/35 mt-0.5">{fmtDate(lead.created_at)}</p>
+            </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => onDelete(lead.id)} disabled={deleting} aria-label="Eliminar lead"
@@ -915,7 +931,18 @@ export function AdminLeadsView() {
                             className="border-b border-foreground/[0.04] cursor-pointer transition-colors group bg-card hover:bg-muted">
 
                             <td className="px-4 py-3 whitespace-nowrap">
-                              <span className="text-[14px] font-semibold text-foreground">{lead.name ?? <span className="text-foreground/30">—</span>}</span>
+                              <div className="flex items-center gap-2">
+                                {lead.avatar_url ? (
+                                  <img
+                                    src={lead.avatar_url}
+                                    alt=""
+                                    referrerPolicy="no-referrer"
+                                    className="h-6 w-6 shrink-0 rounded-full object-cover border border-foreground/[0.08]"
+                                    onError={e => { (e.target as HTMLImageElement).style.display = "none" }}
+                                  />
+                                ) : null}
+                                <span className="text-[14px] font-semibold text-foreground">{lead.name ?? <span className="text-foreground/30">—</span>}</span>
+                              </div>
                             </td>
 
                             <td className="px-4 py-3 whitespace-nowrap">

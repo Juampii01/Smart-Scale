@@ -31,15 +31,16 @@ function requestedTenantId(req: NextRequest, body?: any): string | null {
   create policy "service_role_all" on leads for all to service_role using (true) with check (true);
 
   -- If table already exists, add missing columns:
-  alter table leads add column if not exists lead_type text;
-  alter table leads add column if not exists rating    integer check (rating between 1 and 5);
-  alter table leads add column if not exists niche     text;
+  alter table leads add column if not exists lead_type  text;
+  alter table leads add column if not exists rating     integer check (rating between 1 and 5);
+  alter table leads add column if not exists niche      text;
+  alter table leads add column if not exists avatar_url text;
   -- remove old columns we no longer use (optional):
   -- alter table leads drop column if exists email;
   -- alter table leads drop column if exists phone;
 */
 
-const SELECT_FIELDS = "id, name, email, tag, source, lead_type, status, instagram, rating, niche, notes, purchased, created_at"
+const SELECT_FIELDS = "id, name, email, tag, source, lead_type, status, instagram, rating, niche, notes, purchased, created_at, avatar_url"
 const PIPELINE_FIELDS = "next_follow_up_at, deal_value, pipeline_order"
 
 /** GET — all leads ordered by created_at desc. Lectura: admin OR team. */
@@ -101,7 +102,7 @@ export async function PATCH(req: NextRequest) {
     const { id, ...updates } = body
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
-    const PATCHABLE = ["status", "source", "lead_type", "niche", "notes", "rating", "instagram", "email", "tag", "name", "purchased", "custom_fields", "next_follow_up_at", "deal_value", "pipeline_order"]
+    const PATCHABLE = ["status", "source", "lead_type", "niche", "notes", "rating", "instagram", "email", "tag", "name", "purchased", "custom_fields", "next_follow_up_at", "deal_value", "pipeline_order", "avatar_url"]
     const allowed: Record<string, any> = { updated_at: new Date().toISOString() }
     for (const key of PATCHABLE) {
       if (updates[key] !== undefined) allowed[key] = updates[key]
