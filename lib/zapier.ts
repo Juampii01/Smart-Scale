@@ -453,27 +453,19 @@ export async function zapierPosiSubmission(payload: {
   event_type:  "posi.submitted"
   client_name: string
   level_title: string
-  questions:   { id: string; label: string; type: string; options?: string[] }[]
-  answers:     Record<string, unknown>
+  passed:      boolean | null   // true=aprobó, false=no aprobó, null=nivel sin preguntas calificables
 }): Promise<ZapierResult> {
   const url = process.env.ZAPIER_WEBHOOK_POSI
   if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_POSI not configured" }
 
-  const qaLines = payload.questions.map((q) => {
-    const raw = payload.answers[q.id]
-    let answer: string
-    if (raw === undefined || raw === null || raw === "") answer = "_(sin responder)_"
-    else if (q.type === "multiple_choice" && typeof raw === "number") answer = q.options?.[raw] ?? String(raw)
-    else if (q.type === "yesno") answer = raw ? "Sí" : "No"
-    else answer = String(raw)
-    return `*${q.label}*\n${answer}`
-  })
-
-  const message = [
-    `📋 *${payload.level_title} completado* — ${payload.client_name}`,
-    ``,
-    ...qaLines,
-  ].join("\n\n")
+  // Mensaje deliberadamente corto — ni acá ni en Slack se muestra el
+  // detalle de qué respondió bien o mal; eso solo se ve en /admin/posi
+  // (pedido explícito, para que el cliente no lo use de respuestario y
+  // el equipo sea quien lo guíe).
+  const message =
+    payload.passed === true  ? `✅ *${payload.client_name}* aprobó el *${payload.level_title}* de POSI.` :
+    payload.passed === false ? `❌ *${payload.client_name}* no aprobó el *${payload.level_title}* de POSI.` :
+    `📋 *${payload.client_name}* completó el *${payload.level_title}* de POSI.`
 
   return postWebhook(url, { ...payload, message }, "zapierPosiSubmission")
 }

@@ -69,10 +69,10 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ submissions: data ?? [] })
 }
 
-/** POST — responde un nivel: guarda las respuestas y dispara el webhook de
- *  Zapier (ZAPIER_WEBHOOK_POSI) con el detalle completo, siempre (no solo la
- *  primera vez ni condicionado a ningún score — acá no hay aprobar/reprobar,
- *  solo completar). */
+/** POST — responde un nivel: guarda las respuestas, califica (si el nivel
+ *  tiene multiple_choice con correct_index) y dispara el webhook de Zapier
+ *  (ZAPIER_WEBHOOK_POSI) con un aviso corto de aprobó/no aprobó — nunca el
+ *  detalle de qué respondió mal, eso solo se ve en /admin/posi. */
 export async function POST(req: NextRequest) {
   let body: any
   try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
@@ -118,8 +118,7 @@ export async function POST(req: NextRequest) {
       event_type:  "posi.submitted",
       client_name: clientName,
       level_title: (level as any).title,
-      questions: (level as any).questions ?? [],
-      answers,
+      passed,
     }).catch(() => {})
   })
 
