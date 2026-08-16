@@ -112,8 +112,11 @@ export async function POST(req: NextRequest) {
   if (saveErr) return NextResponse.json({ error: saveErr.message }, { status: 500 })
 
   after(async () => {
-    const { data: client } = await supabase.from("clients").select("name").eq("id", client_id).maybeSingle()
-    const clientName = (client as any)?.name ?? "Cliente"
+    // `name` es legacy y en varias filas quedó con el email en vez del
+    // nombre real (ver `nombre`) — mismo criterio de prioridad que ya usa
+    // el GET de acá abajo y el resto de la app.
+    const { data: client } = await supabase.from("clients").select("name, nombre").eq("id", client_id).maybeSingle()
+    const clientName = (client as any)?.nombre || (client as any)?.name || "Cliente"
     await zapierPosiSubmission({
       event_type:  "posi.submitted",
       client_name: clientName,
