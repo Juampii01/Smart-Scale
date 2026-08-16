@@ -11,7 +11,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { useSearchParams } from "next/navigation"
-import { Loader2, Check } from "lucide-react"
+import { Loader2, Check, X } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { BrandLogo } from "@/components/theme/brand-logo"
 
@@ -37,7 +37,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
   const searchParams = useSearchParams()
   const overrideClientId = searchParams.get("client_id")
 
-  const [status, setStatus] = useState<"loading" | "ready" | "already-done" | "no-client" | "not-found" | "submitting" | "done" | "error">("loading")
+  const [status, setStatus] = useState<"loading" | "ready" | "already-done" | "no-client" | "not-found" | "submitting" | "done" | "failed" | "error">("loading")
   const [level, setLevel] = useState<Level | null>(null)
   const [answers, setAnswers] = useState<Record<string, any>>({})
   const [errorMsg, setErrorMsg] = useState("")
@@ -71,8 +71,12 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
     if (!foundLevel) { setStatus("not-found"); return }
     setLevel(foundLevel)
 
-    const alreadySubmitted = (subsJson.submissions ?? []).some((s: any) => s.level_id === foundLevel.id)
-    if (alreadySubmitted && !overrideClientId) { setStatus("already-done"); return }
+    // Si ya lo completó y no reprobó (aprobó, o el nivel no tiene preguntas
+    // calificables), no hace falta volver a llenarlo. Si reprobó, se le
+    // vuelve a mostrar el formulario en blanco — sin pistas de qué falló,
+    // eso lo tiene que charlar con el equipo (ver handleSubmit).
+    const existing = (subsJson.submissions ?? []).find((s: any) => s.level_id === foundLevel.id)
+    if (existing && existing.passed !== false && !overrideClientId) { setStatus("already-done"); return }
 
     setStatus("ready")
   }, [levelNumber, overrideClientId, router])
@@ -105,7 +109,10 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
       })
       const json = await res.json()
       if (!res.ok) { setStatus("error"); setErrorMsg(json?.error ?? "Error al enviar"); return }
-      setStatus("done")
+      // passed === false → no aprobó (no le mostramos qué falló, eso lo
+      // charla con el equipo). true o null (nivel sin preguntas calificables)
+      // → mismo mensaje de "listo, quedó enviado" de siempre.
+      setStatus(json?.submission?.passed === false ? "failed" : "done")
     } catch (err: any) {
       setStatus("error")
       setErrorMsg(err?.message ?? "Error inesperado")
@@ -148,6 +155,14 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
             <Check className="h-8 w-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-3" />
             <p className="text-[15px] font-semibold text-foreground">¡Listo, quedó enviado! 🎉</p>
             <p className="text-sm text-foreground/50 mt-1">Gracias por completar el {level?.title}.</p>
+          </div>
+        )}
+
+        {status === "failed" && (
+          <div className="rounded-2xl border border-red-500/20 bg-red-50 dark:bg-red-500/[0.06] p-8 text-center">
+            <X className="h-8 w-8 text-red-700 dark:text-red-400 mx-auto mb-3" />
+            <p className="text-[15px] font-semibold text-foreground">No aprobaste el {level?.title}.</p>
+            <p className="text-sm text-foreground/50 mt-1">Comunicate con el equipo de Smart Scale para repasar en qué fallaste.</p>
           </div>
         )}
 

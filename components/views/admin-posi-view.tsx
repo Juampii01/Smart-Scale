@@ -17,6 +17,7 @@ interface Question {
   label: string
   type: "text" | "yesno" | "multiple_choice"
   options?: string[]
+  correct_index?: number
 }
 
 interface Level {
@@ -34,6 +35,8 @@ interface Submission {
   level_id: string
   answers: Record<string, any>
   submitted_at: string
+  passed?: boolean | null
+  wrong_question_ids?: string[]
 }
 
 const inputCls = "w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none"
@@ -152,11 +155,27 @@ export function AdminPosiView() {
     try {
       const token = await getToken()
       if (!token) return
-      const cleanQuestions = editDraft.questions.map((q) => ({
-        ...q,
-        label: q.label.trim(),
-        options: q.type === "multiple_choice" ? (q.options ?? []).map((o) => o.trim()).filter(Boolean) : undefined,
-      }))
+      // Al filtrar opciones vacías, correct_index puede quedar apuntando a
+      // otra opción — se recalcula contra los índices que sobreviven.
+      const cleanQuestions = editDraft.questions.map((q) => {
+        if (q.type !== "multiple_choice") {
+          return { ...q, label: q.label.trim(), options: undefined, correct_index: undefined }
+        }
+        const trimmed = (q.options ?? []).map((o) => o.trim())
+        const keptIndices: number[] = []
+        const options = trimmed.filter((o, i) => {
+          if (!o) return false
+          keptIndices.push(i)
+          return true
+        })
+        const remapped = q.correct_index !== undefined ? keptIndices.indexOf(q.correct_index) : -1
+        return {
+          ...q,
+          label: q.label.trim(),
+          options,
+          correct_index: remapped >= 0 ? remapped : undefined,
+        }
+      })
       const res = await fetch("/api/admin/posi-levels", {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -190,7 +209,7 @@ export function AdminPosiView() {
     setEditDraft((d) => ({ ...d, questions: d.questions.map((q, i) => (i === idx ? { ...q, ...patch } : q)) }))
   }
   const setQuestionType = (idx: number, type: Question["type"]) => {
-    updateQuestion(idx, { type, options: type === "multiple_choice" ? ["", ""] : undefined })
+    updateQuestion(idx, { type, options: type === "multiple_choice" ? ["", ""] : undefined, correct_index: undefined })
   }
   const addOption = (qIdx: number) => {
     setEditDraft((d) => ({ ...d, questions: d.questions.map((q, i) => (i === qIdx ? { ...q, options: [...(q.options ?? []), ""] } : q)) }))
@@ -199,7 +218,23 @@ export function AdminPosiView() {
     setEditDraft((d) => ({ ...d, questions: d.questions.map((q, i) => (i === qIdx ? { ...q, options: (q.options ?? []).map((o, j) => (j === oIdx ? value : o)) } : q)) }))
   }
   const removeOption = (qIdx: number, oIdx: number) => {
-    setEditDraft((d) => ({ ...d, questions: d.questions.map((q, i) => (i === qIdx ? { ...q, options: (q.options ?? []).filter((_, j) => j !== oIdx) } : q)) }))
+    setEditDraft((d) => ({
+      ...d,
+      questions: d.questions.map((q, i) => {
+        if (i !== qIdx) return q
+        const options = (q.options ?? []).filter((_, j) => j !== oIdx)
+        let correct_index = q.correct_index
+        if (correct_index === oIdx) correct_index = undefined
+        else if (correct_index !== undefined && correct_index > oIdx) correct_index = correct_index - 1
+        return { ...q, options, correct_index }
+      }),
+    }))
+  }
+  const setCorrectOption = (qIdx: number, oIdx: number) => {
+    setEditDraft((d) => ({
+      ...d,
+      questions: d.questions.map((q, i) => (i === qIdx ? { ...q, correct_index: q.correct_index === oIdx ? undefined : oIdx } : q)),
+    }))
   }
 
   const submissionsByLevel = submissions.reduce<Record<string, Submission[]>>((acc, s) => {
@@ -346,6 +381,19 @@ export function AdminPosiView() {
                                 {(q.options ?? []).map((opt, oIdx) => (
                                   <div key={oIdx} className="flex items-center gap-1.5">
                                     <span className="text-[11px] text-foreground/25 w-4 shrink-0 tabular-nums">{oIdx + 1}.</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => setCorrectOption(idx, oIdx)}
+                                      title="Marcar como respuesta correcta"
+                                      aria-label="Marcar como respuesta correcta"
+                                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                                        q.correct_index === oIdx
+                                          ? "border-emerald-500 bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"
+                                          : "border-foreground/[0.15] text-transparent hover:border-emerald-500/60 hover:text-emerald-600/60 dark:hover:text-emerald-400/50"
+                                      }`}
+                                    >
+                                      <Check className="h-3 w-3" />
+                                    </button>
                                     <input
                                       className="flex-1 rounded-md border border-foreground/[0.08] bg-foreground/[0.02] px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none"
                                       placeholder={`Opción ${oIdx + 1}`}
@@ -370,6 +418,9 @@ export function AdminPosiView() {
                                 >
                                   <Plus className="h-3 w-3" /> Agregar opción
                                 </button>
+                                <p className="pl-5 text-[10.5px] text-foreground/30">
+                                  Tocá el círculo para marcar la respuesta correcta (opcional — sin marcar, esta pregunta no cuenta para aprobar el nivel).
+                                </p>
                               </div>
                             )}
                           </div>
@@ -460,6 +511,12 @@ export function AdminPosiView() {
                     <div className="flex items-center gap-3">
                       <span className="text-[13px] font-semibold text-foreground/85">{s.client_name}</span>
                       <span className="text-[12px] text-foreground/45">{level?.title ?? "—"}</span>
+                      {s.passed === true && (
+                        <span className="rounded-full bg-emerald-100 dark:bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700 dark:text-emerald-400">Aprobado</span>
+                      )}
+                      {s.passed === false && (
+                        <span className="rounded-full bg-red-100 dark:bg-red-500/10 px-2 py-0.5 text-[10.5px] font-bold text-red-700 dark:text-red-400">No aprobado</span>
+                      )}
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-[11px] text-foreground/35">{new Date(s.submitted_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}</span>
@@ -468,12 +525,20 @@ export function AdminPosiView() {
                   </button>
                   {isExpanded && level && (
                     <div className="px-4 pb-4 space-y-3 border-t border-foreground/[0.06] pt-3">
-                      {level.questions.map((q) => (
-                        <div key={q.id}>
-                          <p className="text-[12px] font-semibold text-foreground/60">{q.label}</p>
-                          <p className="text-[13px] text-foreground/85 mt-0.5">{formatAnswer(q, s.answers[q.id])}</p>
-                        </div>
-                      ))}
+                      {level.questions.map((q) => {
+                        const isWrong = (s.wrong_question_ids ?? []).includes(q.id)
+                        return (
+                          <div key={q.id}>
+                            <p className="flex items-center gap-1.5 text-[12px] font-semibold text-foreground/60">
+                              {q.label}
+                              {isWrong && <span className="text-red-700 dark:text-red-400">✕ incorrecta</span>}
+                            </p>
+                            <p className={`text-[13px] mt-0.5 ${isWrong ? "text-red-700 dark:text-red-400" : "text-foreground/85"}`}>
+                              {formatAnswer(q, s.answers[q.id])}
+                            </p>
+                          </div>
+                        )
+                      })}
                     </div>
                   )}
                 </div>

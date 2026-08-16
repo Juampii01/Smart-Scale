@@ -6,6 +6,17 @@ import { zapierPosiSubmission } from "@/lib/zapier"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
+/** Califica contra `correct_index` — solo las multiple_choice que lo tienen
+ *  definido cuentan (las demás preguntas, y las MC sin respuesta "correcta"
+ *  marcada, no afectan el resultado). `passed=null` si el nivel no tiene
+ *  ninguna pregunta calificable (no hay concepto de aprobar/reprobar ahí). */
+function gradeAnswers(questions: any[], answers: Record<string, unknown>) {
+  const graded = (questions ?? []).filter((q) => q.type === "multiple_choice" && typeof q.correct_index === "number")
+  if (graded.length === 0) return { passed: null as boolean | null, wrongIds: [] as string[] }
+  const wrongIds = graded.filter((q) => answers[q.id] !== q.correct_index).map((q) => q.id)
+  return { passed: wrongIds.length === 0, wrongIds }
+}
+
 async function authorize(jwt: string | null, requestedClientId: string | null) {
   if (!jwt) return { ok: false as const, status: 401, message: "Unauthorized" }
   const supabase = createServiceClient()
@@ -34,9 +45,11 @@ export async function GET(req: NextRequest) {
 
   if (!clientId) {
     if (!isAdmin(auth.role)) return NextResponse.json({ error: "client_id is required" }, { status: 400 })
+    // wrong_question_ids solo para admin — ver qué falló, nunca se lo
+    // mandamos al cliente (para que no lo use como respuestario).
     const { data, error } = await supabase
       .from("client_posi_submissions")
-      .select("id, client_id, level_id, answers, submitted_at, clients(name, nombre)")
+      .select("id, client_id, level_id, answers, submitted_at, passed, wrong_question_ids, clients(name, nombre)")
       .order("submitted_at", { ascending: false })
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     const submissions = (data ?? []).map((r: any) => ({
@@ -49,7 +62,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from("client_posi_submissions")
-    .select("id, level_id, answers, submitted_at")
+    .select("id, level_id, answers, submitted_at, passed")
     .eq("client_id", clientId)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
@@ -82,13 +95,19 @@ export async function POST(req: NextRequest) {
   if (levelErr) return NextResponse.json({ error: levelErr.message }, { status: 500 })
   if (!level) return NextResponse.json({ error: "Nivel no encontrado" }, { status: 404 })
 
+  const { passed, wrongIds } = gradeAnswers((level as any).questions ?? [], answers)
+
+  // Select explícito sin wrong_question_ids — no queremos que se filtre
+  // por accidente en la respuesta (el cliente no debe verlo).
   const { data: saved, error: saveErr } = await supabase
     .from("client_posi_submissions")
     .upsert({
       client_id, level_id, answers,
+      passed,
+      wrong_question_ids: wrongIds,
       submitted_at: new Date().toISOString(),
     }, { onConflict: "client_id,level_id" })
-    .select()
+    .select("id, client_id, level_id, answers, submitted_at, passed")
     .single()
   if (saveErr) return NextResponse.json({ error: saveErr.message }, { status: 500 })
 
@@ -104,5 +123,7 @@ export async function POST(req: NextRequest) {
     }).catch(() => {})
   })
 
+  // wrong_question_ids no se manda en la respuesta — el cliente no tiene
+  // que enterarse de cuáles falló, solo si aprobó o no (pedido explícito).
   return NextResponse.json({ submission: saved })
 }
