@@ -15,6 +15,8 @@
 //                                        (disparado por app/api/cron/lead-follow-up)
 //   ZAPIER_WEBHOOK_CLIENT_CALL        → fires cuando llega una llamada de Zoom nueva
 //                                        vía app/api/webhooks/client-call
+//   ZAPIER_WEBHOOK_POSI               → fires cuando un cliente completa un nivel
+//                                        del formulario POSI (app/api/posi/submissions)
 //
 // Zapier Zap setup:
 //   Trigger: "Webhooks by Zapier → Catch Hook"
@@ -438,4 +440,40 @@ export async function zapierClientCallReceived(payload: {
   if (payload.recording_url) lines.push(`🎥 ${payload.recording_url}`)
 
   return postWebhook(url, { ...payload, message: lines.join("\n") }, "zapierClientCallReceived")
+}
+
+// ─── Fire: formulario POSI completado ─────────────────────────────────────────
+// Disparado por app/api/posi/submissions/route.ts cada vez que un cliente
+// completa (o vuelve a guardar) un nivel — sin aprobar/reprobar, se avisa
+// siempre. Reemplaza el aviso directo que posteaba por bot al canal privado
+// #9-posi-alertas (requería tener el bot invitado a mano) — ahora Zapier
+// decide el destino, mismo patrón que el resto de los eventos de este archivo.
+
+export async function zapierPosiSubmission(payload: {
+  event_type:  "posi.submitted"
+  client_name: string
+  level_title: string
+  questions:   { id: string; label: string; type: string; options?: string[] }[]
+  answers:     Record<string, unknown>
+}): Promise<ZapierResult> {
+  const url = process.env.ZAPIER_WEBHOOK_POSI
+  if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_POSI not configured" }
+
+  const qaLines = payload.questions.map((q) => {
+    const raw = payload.answers[q.id]
+    let answer: string
+    if (raw === undefined || raw === null || raw === "") answer = "_(sin responder)_"
+    else if (q.type === "multiple_choice" && typeof raw === "number") answer = q.options?.[raw] ?? String(raw)
+    else if (q.type === "yesno") answer = raw ? "Sí" : "No"
+    else answer = String(raw)
+    return `*${q.label}*\n${answer}`
+  })
+
+  const message = [
+    `📋 *${payload.level_title} completado* — ${payload.client_name}`,
+    ``,
+    ...qaLines,
+  ].join("\n\n")
+
+  return postWebhook(url, { ...payload, message }, "zapierPosiSubmission")
 }

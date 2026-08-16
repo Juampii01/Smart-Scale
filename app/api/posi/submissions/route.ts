@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse, after } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { isAdmin } from "@/lib/auth/permissions"
-import { notifyPosiSubmission } from "@/lib/slack"
+import { zapierPosiSubmission } from "@/lib/zapier"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -56,9 +56,10 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ submissions: data ?? [] })
 }
 
-/** POST — responde un nivel: guarda las respuestas y avisa a Slack con el
- *  detalle completo, siempre (no solo la primera vez ni condicionado a
- *  ningún score — acá no hay aprobar/reprobar, solo completar). */
+/** POST — responde un nivel: guarda las respuestas y dispara el webhook de
+ *  Zapier (ZAPIER_WEBHOOK_POSI) con el detalle completo, siempre (no solo la
+ *  primera vez ni condicionado a ningún score — acá no hay aprobar/reprobar,
+ *  solo completar). */
 export async function POST(req: NextRequest) {
   let body: any
   try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
@@ -94,7 +95,8 @@ export async function POST(req: NextRequest) {
   after(async () => {
     const { data: client } = await supabase.from("clients").select("name").eq("id", client_id).maybeSingle()
     const clientName = (client as any)?.name ?? "Cliente"
-    await notifyPosiSubmission({
+    await zapierPosiSubmission({
+      event_type:  "posi.submitted",
       client_name: clientName,
       level_title: (level as any).title,
       questions: (level as any).questions ?? [],
