@@ -42,14 +42,6 @@ interface LeadColumn {
   position: number
 }
 
-// "Situación del lead" — entrada del historial (bitácora append-only)
-interface LeadUpdate {
-  id:         string
-  lead_id:    string
-  note:       string
-  created_at: string
-}
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function fmtDate(iso: string) {
@@ -176,6 +168,13 @@ function StarRating({
 
 // ─── Detail Drawer ────────────────────────────────────────────────────────────
 
+interface LeadNote {
+  id:         string
+  author:     string | null
+  body:       string
+  created_at: string
+}
+
 function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
   lead:     Lead
   onClose:  () => void
@@ -185,49 +184,50 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
 }) {
   const ig = lead.instagram?.trim()
 
-  // "Situación del lead" — historial append-only
-  const [updates,        setUpdates]        = useState<LeadUpdate[]>([])
-  const [updatesLoading, setUpdatesLoading]  = useState(true)
-  const [newNote,        setNewNote]        = useState("")
-  const [addingNote,     setAddingNote]     = useState(false)
+  // Historial de notas — se van acumulando, no se sobreescriben.
+  const [notes,        setNotes]        = useState<LeadNote[]>([])
+  const [notesLoading, setNotesLoading] = useState(true)
+  const [newNote,      setNewNote]      = useState("")
+  const [addingNote,   setAddingNote]   = useState(false)
 
-  useEffect(() => {
-    let cancelled = false
-    setUpdatesLoading(true)
-    ;(async () => {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { setUpdatesLoading(false); return }
-      const res = await fetch(`/api/admin/lead-updates?lead_id=${encodeURIComponent(lead.id)}${viewAsTenantQueryParam().replace("?", "&")}`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      if (cancelled) return
-      const json = await res.json().catch(() => ({}))
-      setUpdates(res.ok ? (json.updates ?? []) : [])
-      setUpdatesLoading(false)
-    })()
-    return () => { cancelled = true }
+  const authedFetch = async (path: string, opts: RequestInit = {}) => {
+    const { data: { session } } = await createClient().auth.getSession()
+    return fetch(path, {
+      ...opts,
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token ?? ""}`, ...(opts.headers ?? {}) },
+    })
+  }
+
+  const loadNotes = useCallback(async () => {
+    setNotesLoading(true)
+    try {
+      const res = await authedFetch(`/api/admin/lead-notes?lead_id=${lead.id}${viewAsTenantQueryParam().replace("?", "&")}`)
+      if (!res.ok) return
+      const json = await res.json()
+      setNotes(json.notes ?? [])
+    } finally {
+      setNotesLoading(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lead.id])
 
-  const addUpdate = async () => {
-    const note = newNote.trim()
-    if (!note || addingNote) return
+  useEffect(() => { loadNotes() }, [loadNotes])
+
+  const addNote = async () => {
+    const body = newNote.trim()
+    if (!body) return
     setAddingNote(true)
     try {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      const res = await fetch("/api/admin/lead-updates", {
+      const res = await authedFetch("/api/admin/lead-notes", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ lead_id: lead.id, note, ...viewAsTenantBodyField() }),
+        body: JSON.stringify({ lead_id: lead.id, body, ...viewAsTenantBodyField() }),
       })
-      const json = await res.json().catch(() => ({}))
-      if (res.ok && json.update) {
-        setUpdates(prev => [json.update, ...prev])
+      const json = await res.json()
+      if (res.ok && json.note) {
+        setNotes(prev => [json.note, ...prev])
         setNewNote("")
       } else {
-        alert(json?.error ?? "No se pudo guardar la actualización.")
+        alert(json.error ?? "No se pudo guardar la nota.")
       }
     } finally {
       setAddingNote(false)
@@ -344,42 +344,40 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
           {textField("Email",              "email",     "correo@ejemplo.com")}
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Situación del lead</p>
-            <div className="flex gap-2">
-              <input
-                type="text"
+            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Algo acerca del lead</p>
+
+            <div className="flex items-start gap-2">
+              <textarea
                 value={newNote}
                 onChange={e => setNewNote(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter") addUpdate() }}
-                placeholder="¿Qué pasó? ej: la llamé, dijo que lo piensa..."
-                className="flex-1 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
+                placeholder="Observaciones, contexto, intereses..."
+                rows={2}
+                onKeyDown={e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); addNote() } }}
+                className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
               />
               <button
                 type="button"
-                onClick={addUpdate}
-                disabled={!newNote.trim() || addingNote}
-                className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-[#dafc69] text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition-colors"
+                onClick={addNote}
+                disabled={addingNote || !newNote.trim()}
+                className="shrink-0 flex h-9 items-center gap-1.5 rounded-xl bg-foreground/[0.08] px-3 text-[12px] font-semibold text-foreground/70 hover:bg-foreground/[0.14] hover:text-foreground disabled:opacity-40 transition-all"
               >
-                {addingNote ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                {addingNote ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+                Agregar
               </button>
             </div>
 
-            <div className="pt-2">
-              {updatesLoading ? (
+            <div className="space-y-2 pt-1">
+              {notesLoading ? (
                 <div className="flex justify-center py-3"><Loader2 className="h-4 w-4 animate-spin text-foreground/25" /></div>
-              ) : updates.length === 0 ? (
-                <p className="text-[12px] text-foreground/30 italic py-1">Todavía no hay actualizaciones.</p>
+              ) : notes.length === 0 ? (
+                <p className="text-[12px] text-foreground/30">Todavía no hay notas.</p>
               ) : (
-                updates.map((u, i) => (
-                  <div key={u.id} className="flex gap-2.5">
-                    <div className="flex flex-col items-center pt-1.5">
-                      <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#dafc69]" />
-                      {i < updates.length - 1 && <div className="mt-1 w-px flex-1 bg-foreground/[0.08]" />}
-                    </div>
-                    <div className="min-w-0 pb-3">
-                      <p className="text-[11px] text-foreground/35">{fmtDateTime(u.created_at)}</p>
-                      <p className="mt-0.5 whitespace-pre-line text-[13px] text-foreground/85">{u.note}</p>
-                    </div>
+                notes.map(n => (
+                  <div key={n.id} className="rounded-lg bg-foreground/[0.03] px-3 py-2">
+                    <p className="text-[13px] text-foreground/85 whitespace-pre-line">{n.body}</p>
+                    <p className="mt-1 text-[10.5px] text-foreground/30">
+                      {n.author ?? "—"} · {fmtDate(n.created_at)}
+                    </p>
                   </div>
                 ))
               )}
