@@ -8,6 +8,10 @@
 // La carpeta destino (GOOGLE_DRIVE_FOLDER_ID) tiene que estar compartida con
 // el email de esa cuenta de servicio (rol Editor) — si no, cualquier
 // operación falla con 404 aunque el ID sea correcto.
+//
+// El Google Doc que se actualiza tiene que existir de antemano, creado por
+// un usuario real (no por la cuenta de servicio) — ver el comment de
+// updateDocInFolder más abajo, es un límite real de Google, no un bug.
 
 import { JWT } from "google-auth-library"
 
@@ -39,12 +43,17 @@ async function driveFetch(auth: JWT, url: string, init: RequestInit = {}): Promi
 }
 
 /**
- * Crea (o actualiza si ya existe un archivo con el mismo nombre en esa
- * carpeta) un Google Doc nativo a partir de texto plano — Drive lo convierte
- * automáticamente al subirlo. Idempotente por nombre: reemplaza el contenido
- * en vez de duplicar el archivo en cada corrida, así el link no cambia.
+ * Actualiza el CONTENIDO de un Google Doc que ya existe en esa carpeta
+ * (buscado por nombre exacto) — nunca lo crea. Las service accounts tienen
+ * cuota de almacenamiento propia = 0 bytes, así que un `files.create` hecho
+ * por la cuenta de servicio siempre falla con "storageQuotaExceeded",
+ * incluso en una carpeta ajena con espacio de sobra — Google exige que el
+ * documento ya exista y sea propiedad de un usuario real (con Google
+ * Workspace se podría crear en una Unidad compartida, pero no aplica acá).
+ * Por eso el doc lo crea el admin a mano una vez, y esta función solo lo
+ * mantiene actualizado.
  */
-export async function upsertDocInFolder(params: {
+export async function updateDocInFolder(params: {
   name: string
   content: string
   folderId: string
@@ -57,20 +66,14 @@ export async function upsertDocInFolder(params: {
   const q = encodeURIComponent(`name = '${name.replace(/'/g, "\\'")}' and '${folderId}' in parents and trashed = false`)
   const listRes = await driveFetch(auth, `${DRIVE_API}/files?q=${q}&fields=files(id,name)&spaces=drive`)
   const listJson = await listRes.json()
-  let fileId: string | undefined = listJson.files?.[0]?.id
+  const fileId: string | undefined = listJson.files?.[0]?.id
 
   if (!fileId) {
-    const createRes = await driveFetch(auth, `${DRIVE_API}/files?fields=id`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        mimeType: "application/vnd.google-apps.document",
-        parents: [folderId],
-      }),
-    })
-    const createJson = await createRes.json()
-    fileId = createJson.id
+    throw new Error(
+      `No existe un Google Doc llamado "${name}" en esa carpeta. Creá uno vacío con ese nombre exacto ` +
+      `dentro de la carpeta compartida (Google Docs → Documento en blanco, o desde Drive: Nuevo → ` +
+      `Documentos de Google) y volvé a intentar.`
+    )
   }
 
   await driveFetch(auth, `${DRIVE_UPLOAD_API}/files/${fileId}?uploadType=media`, {

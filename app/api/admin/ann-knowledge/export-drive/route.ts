@@ -2,14 +2,18 @@
  * Exporta todo el Cerebro de Ann (ann_knowledge, todas las entradas activas)
  * a un único Google Doc dentro de la carpeta de Drive compartida con la
  * service account. Se puede correr las veces que haga falta — reemplaza el
- * contenido del mismo doc en vez de crear uno nuevo cada vez (ver
- * lib/google-drive.ts::upsertDocInFolder).
+ * contenido del mismo doc en vez de crear uno nuevo cada vez.
+ *
+ * El doc "Cerebro de Ann — Smart Scale" tiene que existir de antemano,
+ * creado a mano por un usuario real dentro de esa carpeta — ver el comment
+ * de lib/google-drive.ts::updateDocInFolder (límite real de Google: las
+ * service accounts no tienen cuota propia, no pueden crear archivos).
  */
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireAdmin } from "@/lib/auth/api-guards"
-import { upsertDocInFolder } from "@/lib/google-drive"
+import { updateDocInFolder } from "@/lib/google-drive"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -71,7 +75,7 @@ export async function POST(req: NextRequest) {
   const content = header + sections.join("")
 
   try {
-    const doc = await upsertDocInFolder({
+    const doc = await updateDocInFolder({
       name: "Cerebro de Ann — Smart Scale",
       content,
       folderId,
