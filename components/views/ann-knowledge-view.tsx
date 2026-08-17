@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase"
 import {
   Sparkles, Plus, Trash2, Loader2, Brain, Eye, EyeOff,
   ChevronDown, Save, Search, X, FileText, Mic, PenLine,
-  Upload, CheckCircle2, MessageSquare,
+  Upload, CheckCircle2, MessageSquare, FolderUp, ExternalLink,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -125,6 +125,11 @@ export function AnnKnowledgeView() {
   // Análisis de Slack (extrae el método de Ann desde un canal ya sincronizado)
   const [slackExtracting, setSlackExtracting] = useState(false)
 
+  // Export a Google Drive
+  const [exportingDrive, setExportingDrive] = useState(false)
+  const [driveLink,      setDriveLink]      = useState<string | null>(null)
+  const [driveError,     setDriveError]     = useState<string | null>(null)
+
   // Multi-file queue
   const [queue,       setQueue]       = useState<QueuedFile[]>([])
   const [batchSaving, setBatchSaving] = useState(false)
@@ -228,6 +233,24 @@ export function AnnKnowledgeView() {
       setError(e?.message ?? "Error al analizar Slack")
     } finally {
       setSlackExtracting(false)
+    }
+  }
+
+  // Exporta todo el cerebro (entradas activas) a un único Google Doc en la
+  // carpeta de Drive compartida — reemplaza el mismo doc en cada corrida.
+  const handleExportDrive = async () => {
+    setExportingDrive(true)
+    setDriveError(null)
+    setDriveLink(null)
+    try {
+      const res = await authedFetch("/api/admin/ann-knowledge/export-drive", { method: "POST" })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? "Error al exportar a Drive")
+      setDriveLink(data.webViewLink)
+    } catch (e: any) {
+      setDriveError(e?.message ?? "Error al exportar a Drive")
+    } finally {
+      setExportingDrive(false)
     }
   }
 
@@ -373,14 +396,40 @@ export function AnnKnowledgeView() {
             </p>
           </div>
         </div>
-        <button
-          onClick={() => setFormOpen(v => !v)}
-          className="shrink-0 inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95"
-        >
-          {formOpen ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-          {formOpen ? "Cancelar" : "Nueva entrada"}
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            onClick={handleExportDrive}
+            disabled={exportingDrive}
+            className="inline-flex items-center gap-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.02] px-4 py-2.5 text-sm font-semibold text-foreground/70 hover:border-foreground/20 hover:text-foreground disabled:opacity-50 transition-all"
+          >
+            {exportingDrive ? <Loader2 className="h-4 w-4 animate-spin" /> : <FolderUp className="h-4 w-4" />}
+            {exportingDrive ? "Exportando…" : "Exportar a Drive"}
+          </button>
+          <button
+            onClick={() => setFormOpen(v => !v)}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95"
+          >
+            {formOpen ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+            {formOpen ? "Cancelar" : "Nueva entrada"}
+          </button>
+        </div>
       </div>
+
+      {(driveLink || driveError) && (
+        <div className={`rounded-xl border px-4 py-3 text-[13px] ${
+          driveError
+            ? "border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-500/[0.06] text-red-700 dark:text-red-400"
+            : "border-emerald-200 dark:border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06] text-emerald-700 dark:text-emerald-400"
+        }`}>
+          {driveError ? (
+            `No se pudo exportar: ${driveError}`
+          ) : (
+            <a href={driveLink!} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold hover:underline">
+              Exportado a Drive — abrir documento <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          )}
+        </div>
+      )}
 
       {/* ── Add form ───────────────────────────────────────────────────────── */}
       {formOpen && (
