@@ -228,10 +228,17 @@ async function getYouTubeTranscriptFromCaptionTracks(
 
     const captionTracks: any[] = playerResponse?.captions?.playerCaptionsTracklistRenderer?.captionTracks ?? []
     if (!captionTracks.length) {
+      // YouTube devuelve playabilityStatus=LOGIN_REQUIRED tanto para videos
+      // realmente restringidos como para su chequeo anti-bot contra IPs de
+      // datacenter — el texto "confirm you're not a bot" es el que distingue
+      // el segundo caso, que no tiene nada que ver con el video en sí.
+      const isBotCheck = playabilityStatus === "LOGIN_REQUIRED" && /\bbot\b/i.test(playabilityReason ?? "")
       return {
         transcript: null,
         provider: "youtube_watch_page",
-        reason: playabilityStatus === "LOGIN_REQUIRED" ? "login_required" : "no_caption_tracks",
+        reason: isBotCheck
+          ? "possibly_blocked"
+          : playabilityStatus === "LOGIN_REQUIRED" ? "login_required" : "no_caption_tracks",
         debug: JSON.stringify({ playabilityStatus, playabilityReason }),
       }
     }
@@ -745,6 +752,11 @@ async function getYouTubeTranscript(
   }
 
   const preferredFailure = (() => {
+    // Confirmamos con el texto real de YouTube ("...confirm you're not a
+    // bot") que esto es el chequeo anti-bot, no una restricción real — esa
+    // evidencia concreta pesa más que el mensaje genérico de Apify
+    // ("Video requires login..."), que no distingue entre ambos casos.
+    if (watchPageResult.reason === "possibly_blocked") return watchPageResult
     if (watchPageResult.reason === "login_required") {
       // Si Apify nunca llegó a dar una razón de contenido real (fue timeout/error
       // de red incluso después del reintento), es más probable que este "login
