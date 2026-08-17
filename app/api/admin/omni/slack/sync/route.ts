@@ -63,8 +63,13 @@ export async function POST(req: NextRequest) {
   let messagesSynced = 0
 
   for (const ch of channels) {
-    const isClientChannel = ch.name.startsWith("cl-")
-    const clientId = isClientChannel ? (clientBySlug.get(ch.name.slice(3)) ?? null) : null
+    // Los canales de cliente reales en Slack NO tienen el prefijo `cl-`
+    // (se llaman directo por el slug, ej. "alex-garcia") aunque
+    // createSlackChannel en lib/slack.ts sí lo agrega al crearlos —
+    // se prueba con y sin prefijo para cubrir ambas convenciones.
+    const bareSlug = ch.name.replace(/^cl-/, "")
+    const clientId = clientBySlug.get(bareSlug) ?? null
+    const isClientChannel = clientId !== null
 
     const { data: chRow, error: chErr } = await sb
       .from("omni_slack_channels")
