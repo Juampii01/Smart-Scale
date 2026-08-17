@@ -162,6 +162,13 @@ function StarRating({
 
 // ─── Detail Drawer ────────────────────────────────────────────────────────────
 
+interface LeadNote {
+  id:         string
+  author:     string | null
+  body:       string
+  created_at: string
+}
+
 function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
   lead:     Lead
   onClose:  () => void
@@ -170,6 +177,56 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
   deleting: boolean
 }) {
   const ig = lead.instagram?.trim()
+
+  // Historial de notas — se van acumulando, no se sobreescriben.
+  const [notes,        setNotes]        = useState<LeadNote[]>([])
+  const [notesLoading, setNotesLoading] = useState(true)
+  const [newNote,      setNewNote]      = useState("")
+  const [addingNote,   setAddingNote]   = useState(false)
+
+  const authedFetch = async (path: string, opts: RequestInit = {}) => {
+    const { data: { session } } = await createClient().auth.getSession()
+    return fetch(path, {
+      ...opts,
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token ?? ""}`, ...(opts.headers ?? {}) },
+    })
+  }
+
+  const loadNotes = useCallback(async () => {
+    setNotesLoading(true)
+    try {
+      const res = await authedFetch(`/api/admin/lead-notes?lead_id=${lead.id}${viewAsTenantQueryParam().replace("?", "&")}`)
+      if (!res.ok) return
+      const json = await res.json()
+      setNotes(json.notes ?? [])
+    } finally {
+      setNotesLoading(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lead.id])
+
+  useEffect(() => { loadNotes() }, [loadNotes])
+
+  const addNote = async () => {
+    const body = newNote.trim()
+    if (!body) return
+    setAddingNote(true)
+    try {
+      const res = await authedFetch("/api/admin/lead-notes", {
+        method: "POST",
+        body: JSON.stringify({ lead_id: lead.id, body, ...viewAsTenantBodyField() }),
+      })
+      const json = await res.json()
+      if (res.ok && json.note) {
+        setNotes(prev => [json.note, ...prev])
+        setNewNote("")
+      } else {
+        alert(json.error ?? "No se pudo guardar la nota.")
+      }
+    } finally {
+      setAddingNote(false)
+    }
+  }
 
   const textField = (label: string, key: keyof Lead, placeholder: string) => (
     <div className="space-y-1.5">
@@ -297,14 +354,43 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
 
           <div className="space-y-1.5">
             <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Algo acerca del lead</p>
-            <textarea
-              defaultValue={lead.notes ?? ""}
-              placeholder="Observaciones, contexto, intereses..."
-              rows={4}
-              onBlur={e    => onPatch(lead.id, { notes: e.target.value || null })}
-              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) (e.target as HTMLTextAreaElement).blur() }}
-              className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
-            />
+
+            <div className="flex items-start gap-2">
+              <textarea
+                value={newNote}
+                onChange={e => setNewNote(e.target.value)}
+                placeholder="Observaciones, contexto, intereses..."
+                rows={2}
+                onKeyDown={e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); addNote() } }}
+                className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
+              />
+              <button
+                type="button"
+                onClick={addNote}
+                disabled={addingNote || !newNote.trim()}
+                className="shrink-0 flex h-9 items-center gap-1.5 rounded-xl bg-foreground/[0.08] px-3 text-[12px] font-semibold text-foreground/70 hover:bg-foreground/[0.14] hover:text-foreground disabled:opacity-40 transition-all"
+              >
+                {addingNote ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+                Agregar
+              </button>
+            </div>
+
+            <div className="space-y-2 pt-1">
+              {notesLoading ? (
+                <div className="flex justify-center py-3"><Loader2 className="h-4 w-4 animate-spin text-foreground/25" /></div>
+              ) : notes.length === 0 ? (
+                <p className="text-[12px] text-foreground/30">Todavía no hay notas.</p>
+              ) : (
+                notes.map(n => (
+                  <div key={n.id} className="rounded-lg bg-foreground/[0.03] px-3 py-2">
+                    <p className="text-[13px] text-foreground/85 whitespace-pre-line">{n.body}</p>
+                    <p className="mt-1 text-[10.5px] text-foreground/30">
+                      {n.author ?? "—"} · {fmtDate(n.created_at)}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
 
         </div>
