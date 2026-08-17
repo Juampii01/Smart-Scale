@@ -2,7 +2,6 @@ import { NextRequest, NextResponse, after } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { isAdmin } from "@/lib/auth/permissions"
 import { zapierPosiSubmission } from "@/lib/zapier"
-import { notifyClientLevelApproved } from "@/lib/slack"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -124,15 +123,6 @@ export async function POST(req: NextRequest) {
       level_title: (level as any).title,
       passed,
     }).catch(() => {})
-
-    // Festejo público en el canal PROPIO del cliente — solo si aprobó.
-    if (passed === true) {
-      await notifyClientLevelApproved({
-        client_id,
-        client_name: clientName,
-        level_title: (level as any).title,
-      }).catch(() => {})
-    }
   })
 
   // wrong_question_ids no se manda en la respuesta — el cliente no tiene
