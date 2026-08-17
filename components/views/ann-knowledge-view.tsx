@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase"
 import {
   Sparkles, Plus, Trash2, Loader2, Brain, Eye, EyeOff,
   ChevronDown, Save, Search, X, FileText, Mic, PenLine,
-  Upload, CheckCircle2,
+  Upload, CheckCircle2, MessageSquare,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -122,6 +122,9 @@ export function AnnKnowledgeView() {
   const [isDragging,   setIsDragging]   = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // Análisis de Slack (extrae el método de Ann desde un canal ya sincronizado)
+  const [slackExtracting, setSlackExtracting] = useState(false)
+
   // Multi-file queue
   const [queue,       setQueue]       = useState<QueuedFile[]>([])
   const [batchSaving, setBatchSaving] = useState(false)
@@ -202,6 +205,29 @@ export function AnnKnowledgeView() {
       setUploadFile(null)
     } finally {
       setExtracting(false)
+    }
+  }
+
+  // Analiza el historial de Slack ya sincronizado (#preguntas-feedback) y
+  // precarga el formulario con el método/criterio extraído — no guarda solo.
+  const handleSlackExtract = async () => {
+    setFormOpen(true)
+    setSourceType("transcript")
+    setError(null)
+    setSlackExtracting(true)
+    try {
+      const res = await authedFetch("/api/admin/ann-knowledge/extract-slack", {
+        method: "POST",
+        body: JSON.stringify({ channel_name: "preguntas-feedback" }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? "Error al analizar Slack")
+      setContent(data.text ?? "")
+      setTitle(data.title ?? "Método de respuesta de Ann (Slack)")
+    } catch (e: any) {
+      setError(e?.message ?? "Error al analizar Slack")
+    } finally {
+      setSlackExtracting(false)
     }
   }
 
@@ -398,6 +424,22 @@ export function AnnKnowledgeView() {
                 ))}
               </div>
             </div>
+          </div>
+
+          {/* ── Analizar Slack ── */}
+          <div className="space-y-2">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35">
+              Analizar Slack
+            </p>
+            <button
+              type="button"
+              onClick={handleSlackExtract}
+              disabled={slackExtracting}
+              className="inline-flex items-center gap-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.02] px-4 py-2.5 text-[13px] font-semibold text-foreground/70 hover:border-[#dafc69]/30 hover:bg-[#dafc69]/[0.02] hover:text-foreground disabled:opacity-50 transition-all"
+            >
+              {slackExtracting ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
+              {slackExtracting ? "Analizando #preguntas-feedback…" : "Extraer método de Ann desde #preguntas-feedback"}
+            </button>
           </div>
 
           {/* ── Drop zone ── */}
