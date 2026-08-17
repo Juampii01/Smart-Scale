@@ -791,6 +791,26 @@ async function getYouTubeTranscript(
   }
 }
 
+/**
+ * "possibly_blocked" es el chequeo anti-bot de YouTube contra la IP del
+ * servidor — intermitente, no dice nada del video (confirmado: el mismo
+ * video que falla ahora suele andar bien un intento después). Los demás
+ * reasons (login_required real, no_captions_found, etc.) son definitivos —
+ * reintentarlos solo gasta cuota de Apify sin cambiar el resultado.
+ */
+async function getYouTubeTranscriptWithRetry(
+  videoId: string,
+  attempts = 2
+): Promise<{ transcript: string | null; provider: string | null; reason?: string; debug?: string }> {
+  let last: Awaited<ReturnType<typeof getYouTubeTranscript>> | undefined
+  for (let i = 0; i < attempts; i++) {
+    last = await getYouTubeTranscript(videoId)
+    if (last.transcript || last.reason !== "possibly_blocked") return last
+    if (i < attempts - 1) await new Promise((resolve) => setTimeout(resolve, 3000))
+  }
+  return last!
+}
+
 // ─── Claude summary ───────────────────────────────────────────────────────────
 
 async function generateSummary(transcript: string, creator: string | null): Promise<string> {
@@ -909,7 +929,7 @@ export async function POST(req: NextRequest) {
       thumbnail = metadata.thumbnail
       duration  = metadata.duration
 
-      const ytResult = await getYouTubeTranscript(videoId)
+      const ytResult = await getYouTubeTranscriptWithRetry(videoId)
       transcript = ytResult.transcript
 
       if (!transcript) {
