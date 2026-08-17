@@ -6,6 +6,7 @@ import { viewAsTenantQueryParam, viewAsTenantBodyField } from "@/lib/auth/view-a
 import {
   Loader2, Trash2, RefreshCw, Download, X, Star, Plus,
   Instagram, ExternalLink, ChevronRight, LayoutGrid, Table2, CheckCircle2,
+  Pencil, Check,
 } from "lucide-react"
 import { PurchasedToggle } from "@/components/admin/purchased-toggle"
 import { PipelineBoard } from "@/components/leads-pipeline/PipelineBoard"
@@ -183,6 +184,10 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
   const [notesLoading, setNotesLoading] = useState(true)
   const [newNote,      setNewNote]      = useState("")
   const [addingNote,   setAddingNote]   = useState(false)
+  const [editingNoteId,   setEditingNoteId]   = useState<string | null>(null)
+  const [editingNoteBody, setEditingNoteBody] = useState("")
+  const [savingNoteId,    setSavingNoteId]    = useState<string | null>(null)
+  const [deletingNoteId,  setDeletingNoteId]  = useState<string | null>(null)
 
   const authedFetch = async (path: string, opts: RequestInit = {}) => {
     const { data: { session } } = await createClient().auth.getSession()
@@ -225,6 +230,56 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
       }
     } finally {
       setAddingNote(false)
+    }
+  }
+
+  const startEditNote = (n: LeadNote) => {
+    setEditingNoteId(n.id)
+    setEditingNoteBody(n.body)
+  }
+
+  const cancelEditNote = () => {
+    setEditingNoteId(null)
+    setEditingNoteBody("")
+  }
+
+  const saveEditNote = async (id: string) => {
+    const body = editingNoteBody.trim()
+    if (!body) return
+    setSavingNoteId(id)
+    try {
+      const res = await authedFetch("/api/admin/lead-notes", {
+        method: "PATCH",
+        body: JSON.stringify({ id, body, ...viewAsTenantBodyField() }),
+      })
+      const json = await res.json()
+      if (res.ok && json.note) {
+        setNotes(prev => prev.map(n => n.id === id ? json.note : n))
+        cancelEditNote()
+      } else {
+        alert(json.error ?? "No se pudo guardar la nota.")
+      }
+    } finally {
+      setSavingNoteId(null)
+    }
+  }
+
+  const deleteNote = async (id: string) => {
+    if (!window.confirm("¿Eliminar esta nota?")) return
+    setDeletingNoteId(id)
+    try {
+      const res = await authedFetch("/api/admin/lead-notes", {
+        method: "DELETE",
+        body: JSON.stringify({ id, ...viewAsTenantBodyField() }),
+      })
+      if (res.ok) {
+        setNotes(prev => prev.filter(n => n.id !== id))
+      } else {
+        const json = await res.json().catch(() => ({}))
+        alert(json.error ?? "No se pudo eliminar la nota.")
+      }
+    } finally {
+      setDeletingNoteId(null)
     }
   }
 
@@ -381,14 +436,70 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
               ) : notes.length === 0 ? (
                 <p className="text-[12px] text-foreground/30">Todavía no hay notas.</p>
               ) : (
-                notes.map(n => (
-                  <div key={n.id} className="rounded-lg bg-foreground/[0.03] px-3 py-2">
-                    <p className="text-[13px] text-foreground/85 whitespace-pre-line">{n.body}</p>
-                    <p className="mt-1 text-[10.5px] text-foreground/30">
-                      {n.author ?? "—"} · {fmtDate(n.created_at)}
-                    </p>
-                  </div>
-                ))
+                notes.map(n => {
+                  const isEditing = editingNoteId === n.id
+                  return (
+                    <div key={n.id} className="group rounded-lg bg-foreground/[0.03] px-3 py-2">
+                      {isEditing ? (
+                        <div className="space-y-1.5">
+                          <textarea
+                            value={editingNoteBody}
+                            onChange={e => setEditingNoteBody(e.target.value)}
+                            rows={2}
+                            autoFocus
+                            className="w-full resize-none rounded-lg border border-foreground/[0.1] bg-foreground/[0.02] px-2 py-1.5 text-[13px] text-foreground focus:border-foreground/25 focus:outline-none transition-all"
+                          />
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => saveEditNote(n.id)}
+                              disabled={savingNoteId === n.id || !editingNoteBody.trim()}
+                              className="flex items-center gap-1 rounded-md bg-foreground/[0.08] px-2 py-1 text-[11px] font-semibold text-foreground/70 hover:bg-foreground/[0.14] hover:text-foreground disabled:opacity-40 transition-all"
+                            >
+                              {savingNoteId === n.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                              Guardar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={cancelEditNote}
+                              className="rounded-md px-2 py-1 text-[11px] font-semibold text-foreground/40 hover:text-foreground transition-all"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-[13px] text-foreground/85 whitespace-pre-line">{n.body}</p>
+                            <div className="flex shrink-0 items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                type="button"
+                                onClick={() => startEditNote(n)}
+                                aria-label="Editar nota"
+                                className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/30 hover:text-foreground hover:bg-foreground/[0.08] transition-colors"
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => deleteNote(n.id)}
+                                disabled={deletingNoteId === n.id}
+                                aria-label="Eliminar nota"
+                                className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/30 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 disabled:opacity-40 transition-colors"
+                              >
+                                {deletingNoteId === n.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+                              </button>
+                            </div>
+                          </div>
+                          <p className="mt-1 text-[10.5px] text-foreground/30">
+                            {n.author ?? "—"} · {fmtDate(n.created_at)}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  )
+                })
               )}
             </div>
           </div>
