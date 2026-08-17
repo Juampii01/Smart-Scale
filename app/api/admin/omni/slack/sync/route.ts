@@ -56,8 +56,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No se pudieron listar los canales de Slack" }, { status: 502 })
   }
 
-  const { data: clients } = await sb.from("clients").select("id, name")
-  const clientBySlug = new Map((clients ?? []).map((c: any) => [slugify(c.name ?? ""), c.id]))
+  // `name` es legacy y en varias filas quedó con el email en vez del nombre
+  // real (ver `nombre`) — mismo bug ya encontrado en el aviso de POSI a
+  // Zapier. Sin esto, slugify(email) nunca matchea el nombre del canal.
+  const { data: clients } = await sb.from("clients").select("id, name, nombre")
+  const clientBySlug = new Map((clients ?? []).map((c: any) => [slugify(c.nombre || c.name || ""), c.id]))
 
   let channelsSynced = 0
   let messagesSynced = 0
