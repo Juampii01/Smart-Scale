@@ -720,32 +720,29 @@ async function callApifyOnce(videoId: string, token: string): Promise<ApifyResul
   }
 }
 
-async function getYouTubeTranscript(
+async function resolveApifyOutcome(
   videoId: string
-): Promise<{ transcript: string | null; provider: string | null; reason?: string; debug?: string }> {
+): Promise<{ transcript: string | null; failure: { provider: string | null; reason?: string; debug?: string } | null }> {
   const token = process.env.APIFY_TOKEN
-
-  let apifyFailure: { provider: string | null; reason?: string; debug?: string } | null = null
-
-  if (token) {
-    let result = await callApifyOnce(videoId, token)
-    // Un solo reintento si la falla fue de red/servidor (no una respuesta real
-    // de Apify sobre el video) — evita caer al scraping directo de YouTube,
-    // que YouTube bloquea seguido a IPs de datacenter con un falso "login required".
-    if (!result.transcript && isTransientApifyFailure(result.failure)) {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      result = await callApifyOnce(videoId, token)
-    }
-    if (result.transcript) return { transcript: result.transcript, provider: "apify" }
-    apifyFailure = result.failure
-  } else {
-    apifyFailure = {
-      provider: "apify",
-      reason: "missing_apify_token",
-      debug: "APIFY_TOKEN is not set",
-    }
+  if (!token) {
+    return { transcript: null, failure: { provider: "apify", reason: "missing_apify_token", debug: "APIFY_TOKEN is not set" } }
   }
 
+  let result = await callApifyOnce(videoId, token)
+  // Un solo reintento si la falla fue de red/servidor (no una respuesta real
+  // de Apify sobre el video) — evita caer al scraping directo de YouTube,
+  // que YouTube bloquea seguido a IPs de datacenter con un falso "login required".
+  if (!result.transcript && isTransientApifyFailure(result.failure)) {
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    result = await callApifyOnce(videoId, token)
+  }
+  return result
+}
+
+async function getYouTubeTranscript(
+  videoId: string,
+  apifyFailure: { provider: string | null; reason?: string; debug?: string } | null
+): Promise<{ transcript: string | null; provider: string | null; reason?: string; debug?: string }> {
   const watchPageResult = await getYouTubeTranscriptFromCaptionTracks(videoId)
   if (watchPageResult.transcript) {
     return watchPageResult
@@ -797,14 +794,23 @@ async function getYouTubeTranscript(
  * video que falla ahora suele andar bien un intento después). Los demás
  * reasons (login_required real, no_captions_found, etc.) son definitivos —
  * reintentarlos solo gasta cuota de Apify sin cambiar el resultado.
+ *
+ * Por eso Apify se llama UNA sola vez por request (afuera del loop) — ya dio
+ * una respuesta real (transcript, o un fallo definitivo tipo no_captions_found)
+ * y repetirla no cambia nada. Lo único que vale la pena reintentar es el
+ * scraping directo de la página de YouTube, que es gratis y es el que
+ * realmente sufre el bloqueo intermitente.
  */
 async function getYouTubeTranscriptWithRetry(
   videoId: string,
   attempts = 3
 ): Promise<{ transcript: string | null; provider: string | null; reason?: string; debug?: string }> {
+  const apifyResult = await resolveApifyOutcome(videoId)
+  if (apifyResult.transcript) return { transcript: apifyResult.transcript, provider: "apify" }
+
   let last: Awaited<ReturnType<typeof getYouTubeTranscript>> | undefined
   for (let i = 0; i < attempts; i++) {
-    last = await getYouTubeTranscript(videoId)
+    last = await getYouTubeTranscript(videoId, apifyResult.failure)
     if (last.transcript || last.reason !== "possibly_blocked") return last
     if (i < attempts - 1) await new Promise((resolve) => setTimeout(resolve, 3000))
   }
