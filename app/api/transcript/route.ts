@@ -800,7 +800,7 @@ async function getYouTubeTranscript(
  */
 async function getYouTubeTranscriptWithRetry(
   videoId: string,
-  attempts = 2
+  attempts = 3
 ): Promise<{ transcript: string | null; provider: string | null; reason?: string; debug?: string }> {
   let last: Awaited<ReturnType<typeof getYouTubeTranscript>> | undefined
   for (let i = 0; i < attempts; i++) {
