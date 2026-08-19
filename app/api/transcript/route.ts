@@ -505,7 +505,12 @@ async function runApifyInstagramResolvers(
 }
 
 async function getInstagramTranscript(postUrl: string): Promise<{ transcript: string | null; caption: string | null; duration: string | null; username: string | null; invalidShortCode?: boolean }> {
-  const normalizedPostUrl = postUrl.replace(/\/+$/, "").replace("/reels/", "/reel/")
+  // Instagram sirve el mismo reel bajo /p/{code}/ y /reel/{code}/ — cuál te
+  // toca depende de cómo lo compartieron, no del contenido. Confirmado con un
+  // caso real: la misma reel falló como /p/ y había transcripto bien como
+  // /reel/ minutos antes. Normalizamos siempre a /reel/, que es la forma que
+  // el scraper de Apify resuelve de forma confiable.
+  const normalizedPostUrl = postUrl.replace(/\/+$/, "").replace("/reels/", "/reel/").replace("/p/", "/reel/")
   const shortCode = normalizedPostUrl.match(/\/(p|reel|reels|tv)\/([^/?#]+)/)?.[2] ?? null
 
   // Los shortcodes de Instagram son base64 url-safe: solo A-Za-z0-9_-. Si viene
