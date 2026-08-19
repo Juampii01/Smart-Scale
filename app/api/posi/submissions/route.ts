@@ -60,10 +60,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ submissions })
   }
 
+  // Un cliente puede tener varios intentos del mismo nivel (ej. reprobó y
+  // volvió a responder) — se guardan todos, más nuevo primero, para que
+  // quien lea el array con .find() por level_id agarre el intento vigente.
   const { data, error } = await supabase
     .from("client_posi_submissions")
     .select("id, level_id, answers, submitted_at, passed")
     .eq("client_id", clientId)
+    .order("submitted_at", { ascending: false })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   return NextResponse.json({ submissions: data ?? [] })
@@ -97,16 +101,19 @@ export async function POST(req: NextRequest) {
 
   const { passed, wrongIds } = gradeAnswers((level as any).questions ?? [], answers)
 
+  // Insert, no upsert — cada intento queda como fila propia (ej. reprobó y
+  // volvió a responder). El historial completo se ve en /admin/posi; la
+  // vista de cliente ya sabe tomar el intento más reciente por nivel.
   // Select explícito sin wrong_question_ids — no queremos que se filtre
   // por accidente en la respuesta (el cliente no debe verlo).
   const { data: saved, error: saveErr } = await supabase
     .from("client_posi_submissions")
-    .upsert({
+    .insert({
       client_id, level_id, answers,
       passed,
       wrong_question_ids: wrongIds,
       submitted_at: new Date().toISOString(),
-    }, { onConflict: "client_id,level_id" })
+    })
     .select("id, client_id, level_id, answers, submitted_at, passed")
     .single()
   if (saveErr) return NextResponse.json({ error: saveErr.message }, { status: 500 })
