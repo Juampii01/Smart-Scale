@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireInternal } from "@/lib/auth/api-guards"
+import { requireStaffFinanciero } from "@/lib/auth/api-guards"
 import { isAdmin } from "@/lib/auth/permissions"
 
 export const runtime = "nodejs"
@@ -23,12 +23,15 @@ const ALL_REPORT_FIELDS = [
 /** GET /api/admin/reports[?client_id=...]
  *  Devuelve monthly_reports ordenados por month asc.
  *  Si se pasa client_id, filtra. Si no, devuelve todos (CRM single-tenant de Ann).
- *  Accesible para admin O team (lectura).
+ *  Accesible SOLO para admin o team — no setter. Es facturación (cash_collected,
+ *  total_revenue, mrr) de toda la cartera; el setter es el rol de menor
+ *  confianza del equipo y ninguna vista real del setter necesita esto
+ *  (verificado, hallazgo #3 de la auditoría 2026-08-20).
  */
 export async function GET(req: NextRequest) {
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireInternal(jwt)
+    const user = await requireStaffFinanciero(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     const { searchParams } = new URL(req.url)
