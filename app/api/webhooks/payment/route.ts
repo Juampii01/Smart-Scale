@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createHash } from "node:crypto"
 import { createServiceClient } from "@/lib/supabase-service"
 import { logJobRun } from "@/lib/system-log"
+import { resolveClientAndSuggestion } from "@/lib/payments"
 
 export const runtime = "nodejs"
 
@@ -105,8 +106,14 @@ export async function POST(req: NextRequest) {
       ? String(rawEventId).trim()
       : createHash("sha256").update(`${email ?? name}|${amount}|${today}`).digest("hex")
 
-    // ── Upsert ────────────────────────────────────────────────────────────────
     const supabase = createServiceClient()
+
+    // Best-effort, nunca bloquea el pago: payments no tenía ninguna columna
+    // que apuntara a un cliente — conciliar era 100% manual. NUNCA marca
+    // paid_at sola: la sugerencia se confirma con un click en /admin/payments.
+    const { clientId, suggestedInstallmentId } = await resolveClientAndSuggestion(supabase, email, amount, status)
+
+    // ── Upsert ────────────────────────────────────────────────────────────────
     const { data, error } = await supabase
       .from("payments")
       .upsert({
@@ -116,6 +123,8 @@ export async function POST(req: NextRequest) {
         amount,
         status,
         description: description ? String(description).trim() : null,
+        client_id:   clientId,
+        suggested_installment_id: suggestedInstallmentId,
       }, { onConflict: "external_event_id", ignoreDuplicates: true })
       .select("id")
       .maybeSingle()

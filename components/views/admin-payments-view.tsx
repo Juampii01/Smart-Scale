@@ -3,11 +3,19 @@
 import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase"
 import {
-  Loader2, Plus, Trash2, RefreshCw, Download, Check, X, LayoutList, CalendarDays, Link2,
+  Loader2, Plus, Trash2, RefreshCw, Download, Check, X, LayoutList, CalendarDays, Link2, Sparkles,
 } from "lucide-react"
 import { PaymentLinkDialog } from "@/components/admin/payment-link-dialog"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+interface SuggestedInstallment {
+  id:                  string
+  installment_number:  number
+  amount:              number
+  due_date:             string
+  paid_at:              string | null
+}
 
 interface Payment {
   id:          string
@@ -17,6 +25,10 @@ interface Payment {
   status:      "aceptado" | "rechazado" | "pendiente"
   description: string | null
   created_at:  string
+  client_id?:   string | null
+  client_name?: string | null
+  suggested_installment_id?: string | null
+  suggested_installment?:    SuggestedInstallment | null
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -95,6 +107,7 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
     <tr className="border-b border-[#dafc69]/10 bg-[#dafc69]/[0.03]">
       <td className="px-4 py-2.5"><input value={name}  onChange={e => setName(e.target.value)}  placeholder="Nombre completo *" className={inputCls} /></td>
       <td className="px-4 py-2.5"><input value={email} onChange={e => setEmail(e.target.value)} placeholder="email@ejemplo.com"  className={inputCls} /></td>
+      <td className="px-4 py-2.5 text-[11px] text-foreground/25">Se resuelve solo por email</td>
       <td className="px-4 py-2.5">
         <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0 *" className={`${inputCls} text-right`} />
       </td>
@@ -139,8 +152,10 @@ export function AdminPaymentsView() {
   const [deletingId,       setDeletingId]       = useState<string | null>(null)
   const [filterStatus,     setFilterStatus]     = useState<string>("todos")
   const [filterMonth,      setFilterMonth]      = useState<string>("todos")
+  const [filterUnassigned, setFilterUnassigned] = useState(false)
   const [viewMode,         setViewMode]         = useState<"tabla" | "mes">("mes")
   const [showLinkDialog,   setShowLinkDialog]   = useState(false)
+  const [confirmingId,     setConfirmingId]     = useState<string | null>(null)
 
   const getSession = async () => {
     const supabase = createClient()
@@ -190,6 +205,21 @@ export function AdminPaymentsView() {
     })
   }
 
+  const handleConfirmInstallment = async (id: string) => {
+    setConfirmingId(id)
+    const session = await getSession()
+    if (!session) { setConfirmingId(null); return }
+    const res = await fetch("/api/admin/payments", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
+      body: JSON.stringify({ id, confirm_installment: true }),
+    })
+    if (res.ok) {
+      setPayments(prev => prev.map(p => p.id === id ? { ...p, suggested_installment_id: null, suggested_installment: null } : p))
+    }
+    setConfirmingId(null)
+  }
+
   const handleDelete = async (id: string) => {
     const payment = payments.find(p => p.id === id)
     const label = payment ? `el pago de ${payment.name ?? "(sin nombre)"} por ${payment.amount ? `US$ ${payment.amount}` : "monto desconocido"}` : "este pago"
@@ -223,6 +253,9 @@ export function AdminPaymentsView() {
   const filtered = payments
     .filter(p => filterStatus === "todos" || p.status === filterStatus)
     .filter(p => filterMonth  === "todos" || monthKey(p.created_at) === filterMonth)
+    .filter(p => !filterUnassigned || !p.client_id)
+
+  const unassignedCount = payments.filter(p => !p.client_id).length
 
   const totalAceptado = payments.filter(p => p.status === "aceptado").reduce((s, p) => s + p.amount, 0)
 
@@ -238,6 +271,24 @@ export function AdminPaymentsView() {
       <td className="px-4 py-3 text-[13px] font-semibold text-foreground whitespace-nowrap">{p.name}</td>
       <td className="px-4 py-3 text-[13px] text-foreground/55 whitespace-nowrap">
         {p.email ?? <span className="text-foreground/20">—</span>}
+      </td>
+      <td className="px-4 py-3 text-[13px] whitespace-nowrap">
+        {p.client_name ? (
+          <span className="text-foreground/70">{p.client_name}</span>
+        ) : (
+          <span className="rounded-md border border-amber-400/40 bg-amber-100 dark:bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-900 dark:text-amber-300">Sin asignar</span>
+        )}
+        {p.suggested_installment && !p.suggested_installment.paid_at && (
+          <button
+            onClick={() => handleConfirmInstallment(p.id)}
+            disabled={confirmingId === p.id}
+            title={`Confirmar cuota ${p.suggested_installment.installment_number} (${fmtMoney(p.suggested_installment.amount)}, vence ${fmtDate(p.suggested_installment.due_date)}) como pagada`}
+            className="ml-2 inline-flex items-center gap-1 rounded-md border border-[#dafc69]/40 bg-[#dafc69]/10 px-2 py-0.5 text-[11px] font-medium text-[#7a9016] dark:text-[#dafc69] hover:bg-[#dafc69]/20 transition-colors disabled:opacity-40"
+          >
+            {confirmingId === p.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+            Cuota {p.suggested_installment.installment_number} sugerida
+          </button>
+        )}
       </td>
       <td className="px-4 py-3 text-right">
         <span className="text-[13px] font-bold tabular-nums text-foreground/80">{fmtMoney(p.amount)}</span>
@@ -271,7 +322,7 @@ export function AdminPaymentsView() {
   const TableHead = () => (
     <thead>
       <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-        {["Nombre","Email","Monto","Estado","Descripción","Fecha",""].map(h => (
+        {["Nombre","Email","Cliente","Monto","Estado","Descripción","Fecha",""].map(h => (
           <th key={h} className={`px-4 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap ${h === "Monto" ? "text-right" : "text-left"}`}>{h}</th>
         ))}
       </tr>
@@ -355,6 +406,17 @@ export function AdminPaymentsView() {
             {s !== "todos" && <span className="ml-1.5 text-[10px] opacity-60">{payments.filter(p => p.status === s).length}</span>}
           </button>
         ))}
+        {unassignedCount > 0 && (
+          <button onClick={() => setFilterUnassigned(v => !v)}
+            className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium transition-all ${
+              filterUnassigned
+                ? "border-amber-400/50 bg-amber-100 dark:bg-amber-500/10 text-amber-900 dark:text-amber-300"
+                : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
+            }`}>
+            Sin asignar
+            <span className="ml-1.5 text-[10px] opacity-60">{unassignedCount}</span>
+          </button>
+        )}
       </div>
 
       {/* Month filters */}
@@ -459,7 +521,7 @@ export function AdminPaymentsView() {
                   <NewPaymentRow onSave={handleAdd} onCancel={() => setAdding(false)} />
                 )}
                 {!filtered.length && !adding ? (
-                  <tr><td colSpan={6} className="py-16 text-center text-sm text-foreground/25">
+                  <tr><td colSpan={8} className="py-16 text-center text-sm text-foreground/25">
                     {payments.length ? "No hay pagos con ese estado." : "Todavía no hay pagos registrados."}
                   </td></tr>
                 ) : (
