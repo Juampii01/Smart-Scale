@@ -356,7 +356,7 @@ export async function zapierTaskEvent(payload: {
 // el equipo vea en Slack en qué etapa está cada cliente sin tener que
 // revisar /admin/onboarding a mano.
 
-export type OnboardingStatusEvent = "contract_signed" | "onboarding_completed" | "payment_unresolved"
+export type OnboardingStatusEvent = "contract_signed" | "onboarding_completed" | "payment_unresolved" | "renewal_detected" | "renewal_failed" | "onboarding_partial_failure"
 
 export async function zapierOnboardingStatusChanged(payload: {
   event_type:   OnboardingStatusEvent
@@ -372,6 +372,12 @@ export async function zapierOnboardingStatusChanged(payload: {
     ? `✍️  *Contrato firmado* — ${payload.client_name}\n${payload.client_email}\nSe están enviando los accesos (Skool, Slack, Plataforma)...`
     : payload.event_type === "onboarding_completed"
     ? `🎉  *Onboarding completo* — ${payload.client_name}\nLos 3 accesos (Skool, Slack, Plataforma) se enviaron correctamente. Cliente listo para arrancar.`
+    : payload.event_type === "renewal_detected"
+    ? `🔁  *Renovación/segunda compra detectada* — ${payload.client_name}${payload.client_email ? ` (${payload.client_email})` : ""}\n${payload.detail ?? ""}\nSe agregaron cuotas al cliente existente — no se creó un cliente nuevo.`
+    : payload.event_type === "renewal_failed"
+    ? `🔴  *Pago recibido pero no se pudieron crear las cuotas* — ${payload.client_name}${payload.client_email ? ` (${payload.client_email})` : ""}\n${payload.detail ?? "Motivo no especificado"}\nEl pago es real y no quedó reflejado — revisar a mano.`
+    : payload.event_type === "onboarding_partial_failure"
+    ? `🟡  *Onboarding automático completado con errores* — ${payload.client_name}${payload.client_email ? ` (${payload.client_email})` : ""}\n${payload.detail ?? "Motivo no especificado"}\nEl cliente quedó creado pero revisar el paso que falló.`
     : `⚠️  *Pago de PayFunnels sin onboarding automático* — ${payload.client_name}${payload.client_email ? ` (${payload.client_email})` : ""}\n${payload.detail ?? "Motivo no especificado"}\nRevisar \`payfunnels_webhook_events\` y cargar a mano en /admin/onboarding.`
 
   return postWebhook(url, { ...payload, message }, "zapierOnboardingStatusChanged")
