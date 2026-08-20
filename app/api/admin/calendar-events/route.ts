@@ -5,7 +5,13 @@ import { requireInternal, requireAdmin } from "@/lib/auth/api-guards"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-// GET — cualquier usuario autenticado puede leer la agenda (clientes incluidos)
+// GET — cualquier usuario autenticado puede leer la agenda (clientes incluidos).
+// Es a propósito: son las calls grupales de todo el programa (título, horario,
+// zoom_url, passcode) — el cliente NECESITA el link y el código para poder
+// entrar. Verificado en la base (2026-08-20): `calendar_events` no mezcla
+// eventos internos del equipo, son 5 filas y todas son calls grupales
+// públicas para clientes. Select explícito (no `*`) para que agregar una
+// columna nueva sea una decisión consciente de qué se expone, no un default.
 export async function GET(req: NextRequest) {
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
@@ -17,7 +23,7 @@ export async function GET(req: NextRequest) {
     const supabase = createServiceClient()
     const { data, error } = await supabase
       .from("calendar_events")
-      .select("*")
+      .select("id, title, description, day_of_week, time, tz_label, zoom_url, passcode, status, recurrence, sort_order, created_at")
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: true })
 
