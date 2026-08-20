@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { createHash } from "node:crypto"
 import { createServiceClient } from "@/lib/supabase-service"
 import { logJobRun } from "@/lib/system-log"
 
@@ -90,24 +91,46 @@ export async function POST(req: NextRequest) {
     const rawStatus = String(body.status ?? "aceptado").toLowerCase().trim()
     const status = VALID_STATUSES.includes(rawStatus) ? rawStatus : "aceptado"
 
-    // ── Insert ────────────────────────────────────────────────────────────────
+    // ── Idempotencia ─────────────────────────────────────────────────────────
+    // Zapier reintenta un paso que tardó o falló — sin esto, cada reintento
+    // insertaba un pago duplicado. Preferimos el id real del evento/charge de
+    // Stripe si viene; si no, una clave sintética por email+monto+día, que no
+    // es perfecta (dos pagos legítimos del mismo monto el mismo día colisionan)
+    // pero corta la enorme mayoría de los reintentos reales.
+    const rawEventId =
+      body.id ?? body.event_id ?? body.charge_id ?? body["Charge ID"] ??
+      body.payment_intent ?? body.invoice_id ?? null
+    const today = new Date().toISOString().slice(0, 10)
+    const externalEventId = rawEventId
+      ? String(rawEventId).trim()
+      : createHash("sha256").update(`${email ?? name}|${amount}|${today}`).digest("hex")
+
+    // ── Upsert ────────────────────────────────────────────────────────────────
     const supabase = createServiceClient()
     const { data, error } = await supabase
       .from("payments")
-      .insert({
+      .upsert({
+        external_event_id: externalEventId,
         name:        String(name).trim(),
         email:       email ? String(email).trim() : null,
         amount,
         status,
         description: description ? String(description).trim() : null,
-      })
+      }, { onConflict: "external_event_id", ignoreDuplicates: true })
       .select("id")
-      .single()
+      .maybeSingle()
 
     if (error) {
       await logJobRun(supabase, "webhook:payment", "error", error.message)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    if (!data) {
+      // ignoreDuplicates hizo que el upsert no insertara nada — ya existía.
+      await logJobRun(supabase, "webhook:payment", "ok", `duplicado — ${name} — $${amount}`)
+      return NextResponse.json({ success: true, duplicate: true })
+    }
+
     await logJobRun(supabase, "webhook:payment", "ok", `${name} — $${amount}`)
     return NextResponse.json({ success: true, id: data.id })
   } catch (err: any) {
