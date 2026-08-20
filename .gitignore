@@ -47,4 +47,8 @@ supabase/.temp/
 *\ [0-9].jpg
 *\ [0-9].pdf
 *\ [0-9].docx
+*\ [0-9].toml
 *\ [0-9]/
+.env*.local
+test-onboarding-flow.js
+test-error-watch.js
