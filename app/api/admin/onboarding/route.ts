@@ -248,9 +248,12 @@ export async function POST(req: NextRequest) {
     }
 
     // ── 6. Create in clients (portal) ──────────────────────────────────────
+    // `nombre` es el campo real que lee el resto de la app para el nombre
+    // visible (gotcha #1 de CLAUDE.md) — `name` es legacy y a veces termina
+    // con el email. Llenar los dos siempre, no solo `name`.
     const { error: portalErr } = await supabase
       .from("clients")
-      .insert({ id: clientId, name })
+      .insert({ id: clientId, name, nombre: name })
 
     if (portalErr) {
       try { await supabase.from("crm_installments").delete().eq("client_id", clientId) } catch {}
