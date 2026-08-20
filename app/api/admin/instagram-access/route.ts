@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireInternal } from "@/lib/auth/api-guards"
 import { isAdmin } from "@/lib/auth/permissions"
 
 export const runtime = "nodejs"
@@ -27,7 +26,7 @@ const MISSING = (msg: any) =>
 export async function GET(req: NextRequest) {
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireInternal(jwt)
+    const user = await requireAdmin(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     const supabase = createServiceClient()
@@ -51,7 +50,7 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireInternal(jwt)
+    const user = await requireAdmin(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     let body: any
