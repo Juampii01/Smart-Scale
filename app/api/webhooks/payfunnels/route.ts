@@ -37,12 +37,16 @@ import { logJobRun } from "@/lib/system-log"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-const ALBERTO_CLIENT_ID = "6d6c4dc8-e158-4f87-8612-e948c1a31cbb"
+// Antes hardcodeados — un cambio de setter/template requería tocar código y
+// redeployar. Vía env var: se actualiza desde Vercel sin PR.
+const ALBERTO_CLIENT_ID = process.env.PLAYBOOK_TEMPLATE_CLIENT_ID ?? null
 
 // Setter por defecto para las ventas que entran solas por este webhook (no
 // hay un setter humano "cerrando" la venta acá, así que se le asigna a
-// Steffano — confirmado explícitamente por el usuario).
-const DEFAULT_SETTER_ID = "a1eb5074-1017-476e-9b99-ee3d5e3bf062" // Steffano Leiva
+// Steffano — confirmado explícitamente por el usuario). El nombre para
+// Slack/Zapier se resuelve de `profiles` en runtime (ver más abajo), nunca
+// hardcodeado — así no queda un nombre viejo si el setter cambia.
+const DEFAULT_SETTER_ID = process.env.PAYFUNNELS_DEFAULT_SETTER_ID ?? null
 
 // Duración fija del programa (confirmado) — independiente de si el pago
 // inicial es en 1 o 2 partes. La mensualidad recurrente de $500 arranca
@@ -270,7 +274,7 @@ export async function POST(req: NextRequest) {
         status:             "activo",
         notes:              `Alta automática vía PayFunnels — Programa: ${tier.program} (pago inicial ${tier.installments === 1 ? "único" : "en 2 partes"} + $${RECURRING_MONTHLY}/mes hasta completar ${PROGRAM_DURATION} meses)`,
         forma_pago:         "PayFunnels",
-        setter_id:          DEFAULT_SETTER_ID,
+        ...(DEFAULT_SETTER_ID ? { setter_id: DEFAULT_SETTER_ID } : {}),
       })
       .select("id")
       .single()
@@ -304,7 +308,9 @@ export async function POST(req: NextRequest) {
     const { error: instErr } = await sb.from("crm_installments").insert(installmentsToInsert)
     if (instErr) console.error("[payfunnels] crm_installments insert failed (non-blocking):", instErr)
 
-    const { error: portalErr } = await sb.from("clients").insert({ id: clientId, name })
+    // `nombre` es el campo real que lee el resto de la app (gotcha #1 de
+    // CLAUDE.md) — llenar los dos siempre, no solo el legacy `name`.
+    const { error: portalErr } = await sb.from("clients").insert({ id: clientId, name, nombre: name })
     if (portalErr) {
       await finish(clientId, `Error creando fila de portal (clients): ${portalErr.message}`)
       await logJobRun(sb, "webhook:payfunnels", "error", `clients (portal): ${portalErr.message}`)
@@ -344,25 +350,49 @@ export async function POST(req: NextRequest) {
       console.error("[payfunnels] magic link generation failed:", err)
     }
 
-    // Copia del playbook template de Alberto — best-effort, no bloqueante.
-    try {
-      const { data: albertoPlaybook } = await sb
-        .from("client_playbook_main")
-        .select("*")
-        .eq("client_id", ALBERTO_CLIENT_ID)
-        .maybeSingle()
-      if (albertoPlaybook) {
-        await sb.from("client_playbook_main").insert({
-          client_id: clientId,
-          title: (albertoPlaybook as any).title,
-          content: (albertoPlaybook as any).content,
-          visible_to_client: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
+    // Copia del playbook template — best-effort, no bloqueante.
+    if (ALBERTO_CLIENT_ID) {
+      try {
+        const { data: templatePlaybook } = await sb
+          .from("client_playbook_main")
+          .select("*")
+          .eq("client_id", ALBERTO_CLIENT_ID)
+          .maybeSingle()
+        if (templatePlaybook) {
+          await sb.from("client_playbook_main").insert({
+            client_id: clientId,
+            title: (templatePlaybook as any).title,
+            content: (templatePlaybook as any).content,
+            visible_to_client: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+        }
+      } catch (err) {
+        console.error("[payfunnels] playbook copy failed (non-blocking):", err)
       }
-    } catch (err) {
-      console.error("[payfunnels] playbook copy failed (non-blocking):", err)
+    } else {
+      console.warn("[payfunnels] PLAYBOOK_TEMPLATE_CLIENT_ID not set — skipping playbook copy")
+    }
+
+    // Nombre del setter para Slack/Zapier — resuelto en runtime, nunca
+    // hardcodeado (si el setter se va del equipo, no queda un nombre viejo
+    // en los avisos). Si el profile no existe o quedó inactivo, se loguea
+    // para que el equipo lo note en vez de fallar en silencio.
+    let setterName: string | null = null
+    if (DEFAULT_SETTER_ID) {
+      const { data: setterProfile } = await sb
+        .from("profiles")
+        .select("name, active")
+        .eq("id", DEFAULT_SETTER_ID)
+        .maybeSingle()
+      setterName = (setterProfile as any)?.name ?? null
+      if (!setterProfile || (setterProfile as any).active === false) {
+        console.warn(`[payfunnels] DEFAULT_SETTER_ID (${DEFAULT_SETTER_ID}) no existe o está inactivo — revisar PAYFUNNELS_DEFAULT_SETTER_ID`)
+        await logJobRun(sb, "webhook:payfunnels", "error", "setter por defecto inactivo o inexistente — revisar PAYFUNNELS_DEFAULT_SETTER_ID")
+      }
+    } else {
+      console.warn("[payfunnels] PAYFUNNELS_DEFAULT_SETTER_ID not set — cliente queda sin setter asignado")
     }
 
     // Cuotas para el contrato: cuota_1 va aparte como "pago_entrada" (primerPago,
@@ -401,7 +431,7 @@ export async function POST(req: NextRequest) {
       total_amount:  totalAmount,
       cuotas:        fullScheduleCuotas,
       program_start: programStart,
-      setter_name:   "Steffano Leiva",
+      setter_name:   setterName,
       temp_password: tempPassword,
       magic_link:    magicLink ?? undefined,
     }).catch(err => console.error("[payfunnels] Slack onboarding notify failed:", err)))
@@ -415,7 +445,7 @@ export async function POST(req: NextRequest) {
       total_amount:  totalAmount,
       cuotas:        fullScheduleCuotas,
       program_start: programStart,
-      setter_name:   "Steffano Leiva",
+      setter_name:   setterName,
       temp_password: tempPassword,
       magic_link:    magicLink,
     }).catch(err => console.error("[payfunnels] Zapier onboarding notify failed:", err?.message)))
