@@ -532,6 +532,7 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
   let caption: string | null = null
   let duration: string | null = null
   let videoUrl: string | null = null
+  let audioUrl: string | null = null
 
   console.log("[transcript] shortCode:", shortCode, "username from url:", username)
   console.log("[transcript] intentando resolver reel con Apify...")
@@ -561,6 +562,17 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
       item?.downloadedVideo   ??
       item?.postVideoUrl      ??
       item?.media?.videoUrl   ??
+      null
+
+    // Algunos reels vienen con el audio en una pista separada (`audioUrl`)
+    // — el `videoUrl` en esos casos es solo video, sin audio embebido, y
+    // AssemblyAI lo rechaza con "No audio stream found". Confirmado real
+    // con un reel de producción: Apify devolvió ambos campos, videoUrl sin
+    // audio utilizable. Si viene audioUrl, se prioriza sobre videoUrl.
+    audioUrl =
+      item?.audioUrl          ??
+      item?.audio_url         ??
+      item?.media?.audioUrl   ??
       null
 
     // Collect caption
@@ -595,18 +607,20 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
 
     console.log("[transcript] Apify result:", {
       hasVideoUrl: !!videoUrl,
+      hasAudioUrl: !!audioUrl,
       username,
       hasCaption: !!caption,
       duration,
       allKeys: Object.keys(item),
     })
 
-    if (!videoUrl) {
-      console.log("[transcript] item had no video URL field, returning null transcript")
+    const mediaUrl = audioUrl ?? videoUrl
+    if (!mediaUrl) {
+      console.log("[transcript] item had no video/audio URL field, returning null transcript")
       return { transcript: null, caption, duration, username }
     }
 
-    const transcript = await assemblyAITranscript(videoUrl, 100_000)
+    const transcript = await assemblyAITranscript(mediaUrl, 100_000)
     return { transcript, caption, duration, username }
   } catch (err) {
     console.log("[transcript] Apify/Assembly error:", err)
