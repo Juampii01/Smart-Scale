@@ -37,7 +37,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
   const searchParams = useSearchParams()
   const overrideClientId = searchParams.get("client_id")
 
-  const [status, setStatus] = useState<"loading" | "ready" | "already-done" | "no-client" | "not-found" | "submitting" | "done" | "failed" | "error">("loading")
+  const [status, setStatus] = useState<"loading" | "ready" | "no-client" | "not-found" | "submitting" | "done" | "failed" | "error">("loading")
   const [level, setLevel] = useState<Level | null>(null)
   const [answers, setAnswers] = useState<Record<string, any>>({})
   const [errorMsg, setErrorMsg] = useState("")
@@ -60,24 +60,17 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
 
     if (!clientId) { setStatus("no-client"); return }
 
-    const [levelsRes, subsRes] = await Promise.all([
-      fetch("/api/posi/levels", { headers: { Authorization: `Bearer ${session.access_token}` } }),
-      fetch(`/api/posi/submissions?client_id=${encodeURIComponent(clientId)}`, { headers: { Authorization: `Bearer ${session.access_token}` } }),
-    ])
+    const levelsRes = await fetch("/api/posi/levels", { headers: { Authorization: `Bearer ${session.access_token}` } })
     const levelsJson = await levelsRes.json()
-    const subsJson = await subsRes.json()
 
     const foundLevel: Level | undefined = (levelsJson.levels ?? []).find((l: any) => l.level_number === levelNumber)
     if (!foundLevel) { setStatus("not-found"); return }
     setLevel(foundLevel)
 
-    // Si ya lo completó y no reprobó (aprobó, o el nivel no tiene preguntas
-    // calificables), no hace falta volver a llenarlo. Si reprobó, se le
-    // vuelve a mostrar el formulario en blanco — sin pistas de qué falló,
-    // eso lo tiene que charlar con el equipo (ver handleSubmit).
-    const existing = (subsJson.submissions ?? []).find((s: any) => s.level_id === foundLevel.id)
-    if (existing && existing.passed !== false && !overrideClientId) { setStatus("already-done"); return }
-
+    // Se puede reintentar las veces que quiera, haya aprobado o no —
+    // pedido explícito (antes se bloqueaba si ya había aprobado). Cada
+    // envío queda como intento propio en el historial (ver
+    // app/api/posi/submissions/route.ts, insert en vez de upsert).
     setStatus("ready")
   }, [levelNumber, overrideClientId, router])
 
@@ -139,14 +132,6 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
         {status === "not-found" && (
           <div className="rounded-2xl border border-foreground/10 bg-card p-8 text-center">
             <p className="text-sm text-foreground/60">Este nivel no existe.</p>
-          </div>
-        )}
-
-        {status === "already-done" && (
-          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06] p-8 text-center">
-            <Check className="h-8 w-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-3" />
-            <p className="text-[15px] font-semibold text-foreground">Ya completaste este nivel.</p>
-            <p className="text-sm text-foreground/50 mt-1">No hace falta que lo vuelvas a enviar.</p>
           </div>
         )}
 
