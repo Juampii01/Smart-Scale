@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { encryptToken } from "@/lib/social/crypto"
 import { isSocialPlatform, appOrigin, callbackUrl, type SocialPlatform } from "@/lib/social/oauth"
+import { logJobRun } from "@/lib/system-log"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -162,7 +163,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ plat
     token = ex.token
     profile = ex.profile
   } catch (e) {
-    console.error("[social/callback] exchange error:", e instanceof Error ? e.message : e)
+    const detail = e instanceof Error ? e.message : String(e)
+    console.error("[social/callback] exchange error:", detail)
+    // Antes solo quedaba en el log efímero de Vercel — sin nada que buscar
+    // después si el usuario reporta el error por Slack/WhatsApp. El
+    // fbtrace_id que manda Meta en el body queda en `detail`, necesario
+    // para escalar a soporte de Meta si se repite.
+    await logJobRun(sb, `social:callback:${platform}`, "error", `client_id=${clientId} user_id=${userId} — ${detail}`)
     return redirectTo(req, returnTo, "connect_error", platform)
   }
 
@@ -187,7 +194,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ plat
     )
     if (error) throw new Error(error.message)
   } catch (e) {
-    console.error("[social/callback] upsert error:", e instanceof Error ? e.message : e)
+    const detail = e instanceof Error ? e.message : String(e)
+    console.error("[social/callback] upsert error:", detail)
+    await logJobRun(sb, `social:callback:${platform}`, "error", `client_id=${clientId} user_id=${userId} — upsert: ${detail}`)
     return redirectTo(req, returnTo, "connect_error", platform)
   }
 
