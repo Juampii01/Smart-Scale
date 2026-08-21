@@ -16,12 +16,18 @@
 --   where conrelid = 'public.client_posi_submissions'::regclass;
 --   -> solo _pkey, _client_id_fkey, _level_id_fkey.
 
--- ── 1. Deduplicar ────────────────────────────────────────────────────────────
--- Sin el UNIQUE, cada reenvío insertó una fila nueva en vez de pisar la
--- anterior, así que puede haber repetidos. Se conserva la submission MÁS
--- RECIENTE de cada (client_id, level_id) y se descartan las viejas — que es el
--- estado que habría dejado el upsert si el constraint hubiera existido.
--- Si no hay duplicados, este delete no toca ninguna fila.
+-- ── 1. Respaldo ──────────────────────────────────────────────────────────────
+-- El dedupe de abajo borra filas con respuestas REALES de clientes. Antes de
+-- tocar nada se copian TODAS las filas actuales a una tabla de respaldo, para
+-- poder reconstruir cualquier cosa si después aparece que hacían falta.
+-- La tabla queda en la base a propósito: es barata y es la única copia.
+create table if not exists public.client_posi_submissions_backup_20260821 as
+  select * from public.client_posi_submissions;
+
+-- ── 2. Deduplicar ────────────────────────────────────────────────────────────
+-- Se conserva la submission MÁS RECIENTE de cada (client_id, level_id) y se
+-- descartan las anteriores — que es el estado que habría dejado el upsert si el
+-- constraint hubiera existido. Si no hay duplicados, no toca ninguna fila.
 delete from public.client_posi_submissions a
 using public.client_posi_submissions b
 where a.client_id = b.client_id
@@ -29,7 +35,7 @@ where a.client_id = b.client_id
   and (a.submitted_at < b.submitted_at
        or (a.submitted_at = b.submitted_at and a.id < b.id));
 
--- ── 2. Agregar el constraint si falta ────────────────────────────────────────
+-- ── 3. Agregar el constraint si falta ────────────────────────────────────────
 -- Idempotente: busca cualquier UNIQUE que cubra exactamente esas dos columnas,
 -- sin depender del nombre ni del orden en que fueron declaradas.
 do $$
