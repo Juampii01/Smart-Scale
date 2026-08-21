@@ -44,11 +44,12 @@ function computeScore(level: Level | null, answers: Record<string, any>): { corr
   return { correct, total: scored.length }
 }
 
-function ResultBanner({ passed, score, levelTitle, alreadyDone }: {
+function ResultBanner({ passed, score, levelTitle, alreadyDone, onRetry }: {
   passed: boolean
   score: { correct: number; total: number }
   levelTitle?: string
   alreadyDone?: boolean
+  onRetry?: () => void
 }) {
   if (passed) {
     return (
@@ -69,6 +70,15 @@ function ResultBanner({ passed, score, levelTitle, alreadyDone }: {
       <p className="text-sm text-foreground/60 mt-1">
         Respondiste correctamente {score.correct} de {score.total} en {levelTitle ?? "este nivel"}. Repasá el contenido en Skool antes de seguir.
       </p>
+      {onRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="mt-5 rounded-xl bg-[#dafc69] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0]"
+        >
+          Volver a intentar
+        </button>
+      )}
     </div>
   )
 }
@@ -115,9 +125,19 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
 
     const existingSubmission = (subsJson.submissions ?? []).find((s: any) => s.level_id === foundLevel.id)
     if (existingSubmission && !overrideClientId) {
-      setSubmittedAnswers(existingSubmission.answers ?? {})
-      setStatus("already-done")
-      return
+      const prevAnswers = existingSubmission.answers ?? {}
+      const prevScore   = computeScore(foundLevel, prevAnswers)
+      // Sin preguntas puntuables no hay aprobado/desaprobado: el nivel es de
+      // completado y se cierra al enviarlo, como hasta ahora.
+      const prevPassed  = prevScore ? prevScore.correct / prevScore.total >= PASS_THRESHOLD : true
+      if (prevPassed) {
+        setSubmittedAnswers(prevAnswers)
+        setStatus("already-done")
+        return
+      }
+      // Desaprobó: puede volver a intentarlo, con sus respuestas precargadas
+      // para que solo corrija las que erró.
+      setAnswers(prevAnswers)
     }
 
     setStatus("ready")
@@ -208,7 +228,14 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
             )
           }
           const passed = score.correct / score.total >= PASS_THRESHOLD
-          return <ResultBanner passed={passed} score={score} levelTitle={level?.title} />
+          return (
+            <ResultBanner
+              passed={passed}
+              score={score}
+              levelTitle={level?.title}
+              onRetry={() => { setErrorMsg(""); setStatus("ready") }}
+            />
+          )
         })()}
 
         {(status === "ready" || status === "submitting" || status === "error") && level && (
