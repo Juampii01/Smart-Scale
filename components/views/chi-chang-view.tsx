@@ -4,7 +4,7 @@ import { useState } from "react"
 import { createClient } from "@/lib/supabase"
 import { useOwnClient, useActiveClient, useActiveClientName } from "@/components/layout/dashboard-layout"
 import { ChaChingHistoryView } from "@/components/views/cha-ching-history-view"
-import { CheckCircle, AlertCircle, Loader2, Trophy, Eye, FileText, History } from "lucide-react"
+import { CheckCircle, AlertCircle, Loader2, Trophy, Eye, FileText, History, Sparkles, Quote } from "lucide-react"
 
 const NIVEL_OPTIONS = [
   { value: "$5K", label: "$5K", color: "#ef4444", dot: "bg-red-500" },
@@ -29,6 +29,15 @@ function Field({ label, required, hint, children }: { label: string; required?: 
 
 const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2.5 text-sm font-medium text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/20 transition-all"
 
+// Reflexión detrás del cierre (gamificación). Es OPCIONAL: el umbral solo
+// enciende el badge "Reflexión +1", nunca bloquea el registro de la venta.
+const NOTAS_MIN = 15
+const NOTAS_PROMPTS = [
+  "Un comentario o historia personal detrás de esta venta",
+  "Qué hizo que este cierre fuera distinto",
+  "Una creencia que cambiaste gracias a este trato",
+]
+
 export function ChiChangView() {
   // Cha-Ching SIEMPRE se guarda en la cuenta del usuario logueado.
   const ownClientId    = useOwnClient()
@@ -40,6 +49,8 @@ export function ChiChangView() {
   const [valorTrato, setValorTrato] = useState("")
   const [cashCollected, setCashCollected] = useState("")
   const [proximoNivel, setProximoNivel] = useState("")
+  const [notas, setNotas] = useState("")
+  const notasOk = notas.trim().length >= NOTAS_MIN
 
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [message, setMessage] = useState("")
@@ -77,6 +88,7 @@ export function ChiChangView() {
           valor_trato:    valorTrato,
           cash_collected: cashCollected,
           proximo_nivel:  proximoNivel || null,
+          notas:          notas.trim() || null,
         }),
       })
 
@@ -87,6 +99,7 @@ export function ChiChangView() {
       setValorTrato("")
       setCashCollected("")
       setProximoNivel("")
+      setNotas("")
       setFecha(new Date().toISOString().slice(0, 10))
 
       setStatus("success")
@@ -218,6 +231,61 @@ export function ChiChangView() {
             </div>
           </Field>
 
+        </div>
+      </div>
+
+      {/* La historia detrás del cierre — reflexión opcional (gamificación) */}
+      <div className={`relative overflow-hidden rounded-[14px] border bg-card transition-colors ${
+        notasOk ? "border-[#dafc69]/40" : "border-foreground/[0.06]"
+      }`}>
+        <div className="flex items-center justify-between gap-2 border-b border-foreground/[0.05] px-5 py-3">
+          <div className="flex items-center gap-2">
+            <Quote className="h-3.5 w-3.5 text-[#dafc69]" />
+            <span className="text-xs font-semibold uppercase tracking-widest text-foreground/40">
+              La historia detrás del cierre <span className="text-foreground/25 normal-case tracking-normal">(opcional)</span>
+            </span>
+          </div>
+          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
+            notasOk
+              ? "bg-[#dafc69]/15 text-[#dafc69]"
+              : "bg-foreground/[0.05] text-foreground/35"
+          }`}>
+            <Sparkles className="h-3 w-3" />
+            {notasOk ? "Reflexión +1" : "Sumá tu reflexión"}
+          </span>
+        </div>
+
+        <div className="p-5 space-y-3">
+          <p className="text-[12px] text-foreground/45 leading-relaxed">
+            Compartí algo detrás de este cierre. Por ejemplo:
+          </p>
+          <ul className="space-y-1.5">
+            {NOTAS_PROMPTS.map((p) => (
+              <li key={p} className="flex items-start gap-2 text-[12.5px] text-foreground/55">
+                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#dafc69]/60" />
+                {p}
+              </li>
+            ))}
+          </ul>
+
+          <textarea
+            value={notas}
+            onChange={(e) => setNotas(e.target.value)}
+            rows={4}
+            placeholder="Ej: Este cliente me dijo 3 veces que no… y entendí que el seguimiento gana más tratos que el pitch. Cambió mi forma de cerrar."
+            className={inputCls + " resize-y leading-relaxed"}
+          />
+
+          <div className="flex items-center justify-between">
+            <span className={`text-[11px] font-medium transition-colors ${
+              notasOk ? "text-[#dafc69]" : "text-foreground/30"
+            }`}>
+              {notasOk
+                ? "✨ Reflexión registrada"
+                : "Podés registrar la venta igual, sin escribir nada"}
+            </span>
+            <span className="text-[11px] tabular-nums text-foreground/25">{notas.trim().length}</span>
+          </div>
         </div>
       </div>
 
