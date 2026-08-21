@@ -29,8 +29,8 @@ function Field({ label, required, hint, children }: { label: string; required?: 
 
 const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2.5 text-sm font-medium text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/20 transition-all"
 
-// Reflexión detrás del cierre (gamificación). Es OPCIONAL: el umbral solo
-// enciende el badge "Reflexión +1", nunca bloquea el registro de la venta.
+// Reflexión obligatoria detrás del cierre (gamificación). Sin al menos
+// NOTAS_MIN caracteres el submit queda bloqueado.
 const NOTAS_MIN = 15
 const NOTAS_PROMPTS = [
   "Un comentario o historia personal detrás de esta venta",
@@ -68,6 +68,12 @@ export function ChiChangView() {
       setMessage("Completá los campos obligatorios: fecha, valor del trato y cash collected.")
       return
     }
+    if (notas.trim().length < NOTAS_MIN) {
+      setStatus("error")
+      setMessage("Contanos la historia detrás del cierre: es obligatorio (al menos unas palabras).")
+      return
+    }
+
     setStatus("loading")
     setMessage("")
 
@@ -88,7 +94,7 @@ export function ChiChangView() {
           valor_trato:    valorTrato,
           cash_collected: cashCollected,
           proximo_nivel:  proximoNivel || null,
-          notas:          notas.trim() || null,
+          notas:          notas.trim(),
         }),
       })
 
@@ -234,7 +240,7 @@ export function ChiChangView() {
         </div>
       </div>
 
-      {/* La historia detrás del cierre — reflexión opcional (gamificación) */}
+      {/* La historia detrás del cierre — reflexión obligatoria (gamificación) */}
       <div className={`relative overflow-hidden rounded-[14px] border bg-card transition-colors ${
         notasOk ? "border-[#dafc69]/40" : "border-foreground/[0.06]"
       }`}>
@@ -242,7 +248,7 @@ export function ChiChangView() {
           <div className="flex items-center gap-2">
             <Quote className="h-3.5 w-3.5 text-[#dafc69]" />
             <span className="text-xs font-semibold uppercase tracking-widest text-foreground/40">
-              La historia detrás del cierre <span className="text-foreground/25 normal-case tracking-normal">(opcional)</span>
+              La historia detrás del cierre <span className="text-[#dafc69]">*</span>
             </span>
           </div>
           <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
@@ -271,6 +277,7 @@ export function ChiChangView() {
           <textarea
             value={notas}
             onChange={(e) => setNotas(e.target.value)}
+            required
             rows={4}
             placeholder="Ej: Este cliente me dijo 3 veces que no… y entendí que el seguimiento gana más tratos que el pitch. Cambió mi forma de cerrar."
             className={inputCls + " resize-y leading-relaxed"}
@@ -282,7 +289,7 @@ export function ChiChangView() {
             }`}>
               {notasOk
                 ? "✨ Reflexión registrada"
-                : "Podés registrar la venta igual, sin escribir nada"}
+                : `Escribí al menos ${Math.max(0, NOTAS_MIN - notas.trim().length)} caracteres más`}
             </span>
             <span className="text-[11px] tabular-nums text-foreground/25">{notas.trim().length}</span>
           </div>
@@ -307,7 +314,7 @@ export function ChiChangView() {
       <div className="flex items-center gap-3 pb-6">
         <button
           type="submit"
-          disabled={status === "loading" || !ownClientId}
+          disabled={status === "loading" || !ownClientId || !notasOk}
           className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
