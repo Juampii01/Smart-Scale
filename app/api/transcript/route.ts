@@ -366,7 +366,13 @@ async function assemblyAITranscript(cdnUrl: string, timeoutMs = 200_000): Promis
     const result = await pollRes.json()
     console.log("[assemblyai] poll:", result.status, result.error ?? "")
     if (result.status === "completed") return result.text ?? null
-    if (result.status === "error") return null
+    if (result.status === "error") {
+      // Este si es el fracaso real (no un intento parcial dentro de un loop
+      // que reintenta solo) — antes era console.log y nunca llegaba a
+      // app_logs/dev-logs, solo a los logs crudos de Vercel.
+      console.error("[assemblyai] transcription failed:", result.error ?? "sin detalle")
+      return null
+    }
   }
   return null
 }
@@ -539,14 +545,14 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
 
   try {
     if (!process.env.APIFY_TOKEN) {
-      console.log("[transcript] APIFY_TOKEN missing")
+      console.error("[transcript] APIFY_TOKEN missing — todas las transcripciones de Instagram están fallando en silencio")
       return { transcript: null, caption: null, duration: null, username: null }
     }
 
     const item = await runApifyInstagramResolvers(normalizedPostUrl, shortCode, username)
 
     if (!item) {
-      console.log("[transcript] Apify no devolvió items utilizables")
+      console.error("[transcript] Apify no devolvió items utilizables — se agotaron todos los actores/variantes de URL")
       return { transcript: null, caption: null, duration: null, username: null }
     }
 
@@ -616,14 +622,14 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
 
     const mediaUrl = audioUrl ?? videoUrl
     if (!mediaUrl) {
-      console.log("[transcript] item had no video/audio URL field, returning null transcript")
+      console.error("[transcript] item sin video/audio URL — nada que transcribir")
       return { transcript: null, caption, duration, username }
     }
 
     const transcript = await assemblyAITranscript(mediaUrl, 100_000)
     return { transcript, caption, duration, username }
   } catch (err) {
-    console.log("[transcript] Apify/Assembly error:", err)
+    console.error("[transcript] Apify/Assembly error:", err)
     return { transcript: null, caption, duration, username }
   }
 }
