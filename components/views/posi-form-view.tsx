@@ -67,7 +67,7 @@ function ResultBanner({ passed, score, levelTitle, alreadyDone }: {
       <X className="h-8 w-8 text-red-700 dark:text-red-400 mx-auto mb-3" />
       <p className="text-[17px] font-bold text-red-700 dark:text-red-400">No has aprobado</p>
       <p className="text-sm text-foreground/60 mt-1">
-        Respondiste correctamente {score.correct} de {score.total} en {levelTitle ?? "este nivel"}. Repasá el contenido con el equipo de Smart Scale antes de seguir.
+        Respondiste correctamente {score.correct} de {score.total} en {levelTitle ?? "este nivel"}. Repasá el contenido en Skool antes de seguir.
       </p>
     </div>
   )
