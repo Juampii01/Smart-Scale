@@ -15,6 +15,8 @@
 //                                        (disparado por app/api/cron/lead-follow-up)
 //   ZAPIER_WEBHOOK_CLIENT_CALL        → fires cuando llega una llamada de Zoom nueva
 //                                        vía app/api/webhooks/client-call
+//   ZAPIER_WEBHOOK_POSI               → fires cuando un cliente completa un nivel
+//                                        del formulario POSI (app/api/posi/submissions)
 //
 // Zapier Zap setup:
 //   Trigger: "Webhooks by Zapier → Catch Hook"
@@ -438,4 +440,32 @@ export async function zapierClientCallReceived(payload: {
   if (payload.recording_url) lines.push(`🎥 ${payload.recording_url}`)
 
   return postWebhook(url, { ...payload, message: lines.join("\n") }, "zapierClientCallReceived")
+}
+
+// ─── Fire: formulario POSI completado ─────────────────────────────────────────
+// Disparado por app/api/posi/submissions/route.ts cada vez que un cliente
+// completa (o vuelve a guardar) un nivel — sin aprobar/reprobar, se avisa
+// siempre. Reemplaza el aviso directo que posteaba por bot al canal privado
+// #9-posi-alertas (requería tener el bot invitado a mano) — ahora Zapier
+// decide el destino, mismo patrón que el resto de los eventos de este archivo.
+
+export async function zapierPosiSubmission(payload: {
+  event_type:  "posi.submitted"
+  client_name: string
+  level_title: string
+  passed:      boolean | null   // true=aprobó, false=no aprobó, null=nivel sin preguntas calificables
+}): Promise<ZapierResult> {
+  const url = process.env.ZAPIER_WEBHOOK_POSI
+  if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_POSI not configured" }
+
+  // Mensaje deliberadamente corto — ni acá ni en Slack se muestra el
+  // detalle de qué respondió bien o mal; eso solo se ve en /admin/posi
+  // (pedido explícito, para que el cliente no lo use de respuestario y
+  // el equipo sea quien lo guíe).
+  const message =
+    payload.passed === true  ? `✅ *${payload.client_name}* aprobó el *${payload.level_title}* de POSI.` :
+    payload.passed === false ? `❌ *${payload.client_name}* no aprobó el *${payload.level_title}* de POSI.` :
+    `📋 *${payload.client_name}* completó el *${payload.level_title}* de POSI.`
+
+  return postWebhook(url, { ...payload, message }, "zapierPosiSubmission")
 }

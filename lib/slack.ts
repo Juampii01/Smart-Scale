@@ -215,34 +215,6 @@ export async function notifyClientOnboarded(payload: {
  * por cliente) — mismo mecanismo que createSlackChannel, para canales
  * internos fijos como "posi-niveles".
  */
-/** Busca (no crea) un canal por nombre entre públicos Y privados — para
- *  canales privados el bot tiene que estar invitado, si no aparece en el
- *  listado aunque el canal exista. */
-async function findTeamChannel(channelName: string): Promise<SlackResult> {
-  const name = toChannelName(channelName)
-  const token = process.env.SLACK_BOT_TOKEN ?? ""
-  const fingerprint = token ? `${token.slice(0, 8)}…${token.slice(-4)}` : "(sin token)"
-  const auth = await slackApi("auth.test", {})
-  const identity = auth.ok
-    ? `team=${auth.team ?? "?"} bot_id=${auth.bot_id ?? "?"} user=${auth.user ?? "?"}`
-    : `auth.test falló: ${auth.error ?? "?"}`
-
-  const list = await slackApi("conversations.list", {
-    exclude_archived: true,
-    types: "public_channel,private_channel",
-    limit: 1000,
-  })
-  if (!list.ok) return { ok: false, error: `[${fingerprint} | ${identity}] list.ok=false: ${list.error ?? "sin detalle"}` }
-  const channels = list.channels ?? []
-  const existing = channels.find((c: any) => c.name === name)
-  if (existing) return { ok: true, channel_id: existing.id }
-  const privateOnes = channels.filter((c: any) => c.is_private).map((c: any) => c.name)
-  return {
-    ok: false,
-    error: `[${fingerprint} | ${identity}] Canal "${name}" no encontrado entre ${channels.length} canales (${privateOnes.length} privados: ${privateOnes.slice(0, 10).join(", ") || "ninguno"})`,
-  }
-}
-
 export async function findOrCreateTeamChannel(channelName: string): Promise<SlackResult> {
   const name = toChannelName(channelName)
 
@@ -288,51 +260,6 @@ export async function notifyChecklistLevelCompleted(payload: {
 
   const result = await postToChannel(channelResult.channel_id, blocks, `✅ ${payload.client_name} completó ${payload.level}`)
   await logJobRun(createServiceClient(), "slack:notifyChecklistLevelCompleted", result.ok ? "ok" : "error", result.error)
-  return result
-}
-
-// ─── Notification: Posi form submitted ───────────────────────────────────────
-// Canal fijo #9-posi-alertas — PRIVADO, el bot tiene que estar invitado a
-// mano (Slack no deja que un bot vea/postee en un canal privado por API
-// sola). Por eso se usa findTeamChannel (solo busca, no auto-crea como
-// findOrCreateTeamChannel — crear de nuevo lo haría público).
-
-export async function notifyPosiSubmission(payload: {
-  client_name: string
-  level_title: string
-  questions:   { id: string; label: string; type: string; options?: string[] }[]
-  answers:     Record<string, unknown>
-}): Promise<SlackResult> {
-  const channelResult = await findTeamChannel("9-posi-alertas")
-  if (!channelResult.ok || !channelResult.channel_id) {
-    const error = channelResult.error ?? "No channel id"
-    await logJobRun(createServiceClient(), "slack:notifyPosiSubmission", "error", error)
-    return { ok: false, error }
-  }
-
-  const qaLines = payload.questions.map((q) => {
-    const raw = payload.answers[q.id]
-    let answer: string
-    if (raw === undefined || raw === null || raw === "") answer = "_(sin responder)_"
-    else if (q.type === "multiple_choice" && typeof raw === "number") answer = q.options?.[raw] ?? String(raw)
-    else if (q.type === "yesno") answer = raw ? "Sí" : "No"
-    else answer = String(raw)
-    return `*${q.label}*\n${answer}`
-  })
-
-  // Slack corta cada bloque "section" en 3000 chars — se agrupan de a 6
-  // preguntas por bloque para no acercarse al límite en niveles largos.
-  const blocks: unknown[] = [
-    header(`📋 ${payload.level_title} completado`),
-    section(`*${payload.client_name}* completó el formulario de *${payload.level_title}*.`),
-  ]
-  for (let i = 0; i < qaLines.length; i += 6) {
-    blocks.push(section(qaLines.slice(i, i + 6).join("\n\n")))
-  }
-  blocks.push(context(new Date().toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })))
-
-  const result = await postToChannel(channelResult.channel_id, blocks, `📋 ${payload.client_name} completó ${payload.level_title}`)
-  await logJobRun(createServiceClient(), "slack:notifyPosiSubmission", result.ok ? "ok" : "error", result.error)
   return result
 }
 
