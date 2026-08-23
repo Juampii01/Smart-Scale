@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { isInternal } from "@/lib/auth/permissions"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -118,6 +119,54 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, client_name: clientName })
   } catch (err: any) {
     console.error("[chi-chang] error:", err)
+    return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
+  }
+}
+
+/** PATCH — agregar/editar la reflexión de un Cha-Ching ya cargado. Pensado
+ *  sobre todo para registros creados automáticamente (sin el form manual,
+ *  que ya pide "notas" al cargar), donde nadie escribió una reflexión. */
+export async function PATCH(req: NextRequest) {
+  try {
+    const authHeader = req.headers.get("authorization") ?? ""
+    const jwt = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null
+    if (!jwt) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    const supabase = createServiceClient()
+    const { data: { user }, error: authErr } = await supabase.auth.getUser(jwt)
+    if (authErr || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    const { id, notas } = await req.json()
+    if (!id || typeof notas !== "string" || !notas.trim()) {
+      return NextResponse.json({ error: "id y notas son obligatorios" }, { status: 400 })
+    }
+
+    const { data: row, error: rowErr } = await supabase
+      .from("cha_ching")
+      .select("id, client_id")
+      .eq("id", id)
+      .maybeSingle()
+    if (rowErr) return NextResponse.json({ error: rowErr.message }, { status: 500 })
+    if (!row) return NextResponse.json({ error: "No encontrado" }, { status: 404 })
+
+    const { data: profile } = await supabase.from("profiles").select("role, client_id").eq("id", user.id).maybeSingle()
+    const role = String((profile as any)?.role ?? "").toLowerCase()
+    const ownClientId = (profile as any)?.client_id ?? null
+    if (!isInternal(role) && ownClientId !== row.client_id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    const { data: updated, error: updErr } = await supabase
+      .from("cha_ching")
+      .update({ notas: notas.trim() })
+      .eq("id", id)
+      .select("id, notas")
+      .single()
+    if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 })
+
+    return NextResponse.json({ ok: true, cha_ching: updated })
+  } catch (err: any) {
+    console.error("[chi-chang] PATCH error:", err)
     return NextResponse.json({ error: err?.message ?? "Error interno" }, { status: 500 })
   }
 }
