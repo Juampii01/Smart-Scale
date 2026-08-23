@@ -33,9 +33,6 @@ interface Level {
 
 const inputCls = "w-full rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/25"
 
-// Umbral de aprobación — solo sobre preguntas multiple_choice con correct_index definido.
-const PASS_THRESHOLD = 0.7
-
 function computeScore(level: Level | null, answers: Record<string, any>): { correct: number; total: number } | null {
   if (!level) return null
   const scored = level.questions.filter((q) => q.type === "multiple_choice" && typeof q.correct_index === "number")
@@ -105,10 +102,13 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
   const searchParams = useSearchParams()
   const overrideClientId = searchParams.get("client_id")
 
-  const [status, setStatus] = useState<"loading" | "ready" | "no-client" | "not-found" | "submitting" | "done" | "failed" | "error">("loading")
+  const [status, setStatus] = useState<"loading" | "ready" | "no-client" | "not-found" | "submitting" | "done" | "error">("loading")
   const [level, setLevel] = useState<Level | null>(null)
   const [answers, setAnswers] = useState<Record<string, any>>({})
-  const [submittedAnswers, setSubmittedAnswers] = useState<Record<string, any> | null>(null)
+  // Verdad del servidor sobre si aprobó — null en niveles sin preguntas
+  // calificables (checklist/texto puro). No confundir con computeScore(),
+  // que para un cliente real siempre da null (correct_index nunca se le manda).
+  const [lastPassed, setLastPassed] = useState<boolean | null>(null)
   const [errorMsg, setErrorMsg] = useState("")
 
   const load = useCallback(async () => {
@@ -173,10 +173,8 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
       })
       const json = await res.json()
       if (!res.ok) { setStatus("error"); setErrorMsg(json?.error ?? "Error al enviar"); return }
-      // passed === false → no aprobó (no le mostramos qué falló, eso lo
-      // charla con el equipo). true o null (nivel sin preguntas calificables)
-      // → mismo mensaje de "listo, quedó enviado" de siempre.
-      setStatus(json?.submission?.passed === false ? "failed" : "done")
+      setLastPassed(json?.submission?.passed ?? null)
+      setStatus("done")
     } catch (err: any) {
       setStatus("error")
       setErrorMsg(err?.message ?? "Error inesperado")
@@ -207,34 +205,34 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
         )}
 
         {status === "done" && (() => {
-          const score = computeScore(level, answers)
-          if (!score) {
+          const retry = () => { setErrorMsg(""); setAnswers({}); setStatus("ready") }
+          // Nivel sin preguntas calificables (checklist/texto puro) — no hay
+          // concepto de aprobar/reprobar, mismo mensaje genérico de siempre.
+          if (lastPassed === null) {
             return (
               <div className="rounded-2xl border border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06] p-8 text-center">
                 <Check className="h-8 w-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-3" />
                 <p className="text-[15px] font-semibold text-foreground">¡Listo, quedó enviado! 🎉</p>
                 <p className="text-sm text-foreground/50 mt-1">Gracias por completar el {level?.title}.</p>
+                <button
+                  type="button"
+                  onClick={retry}
+                  className="mt-5 rounded-xl border border-foreground/15 px-5 py-2.5 text-sm font-medium text-foreground/70 transition hover:bg-foreground/[0.04]"
+                >
+                  Volver a responder
+                </button>
               </div>
             )
           }
-          const passed = score.correct / score.total >= PASS_THRESHOLD
           return (
             <ResultBanner
-              passed={passed}
-              score={score}
+              passed={lastPassed}
+              score={computeScore(level, answers)}
               levelTitle={level?.title}
-              onRetry={() => { setErrorMsg(""); setAnswers({}); setStatus("ready") }}
+              onRetry={retry}
             />
           )
         })()}
-
-        {status === "failed" && (
-          <div className="rounded-2xl border border-red-500/20 bg-red-50 dark:bg-red-500/[0.06] p-8 text-center">
-            <X className="h-8 w-8 text-red-700 dark:text-red-400 mx-auto mb-3" />
-            <p className="text-[15px] font-semibold text-foreground">No aprobaste el {level?.title}.</p>
-            <p className="text-sm text-foreground/50 mt-1">Comunicate con el equipo de Smart Scale para repasar en qué fallaste.</p>
-          </div>
-        )}
 
         {(status === "ready" || status === "submitting" || status === "error") && level && (
           <div className="rounded-2xl border border-foreground/10 bg-card p-6 sm:p-8">
