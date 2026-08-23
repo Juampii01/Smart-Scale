@@ -38,12 +38,16 @@ import { logJobRun } from "@/lib/system-log"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-const ALBERTO_CLIENT_ID = "6d6c4dc8-e158-4f87-8612-e948c1a31cbb"
+// Antes hardcodeados — un cambio de setter/template requería tocar código y
+// redeployar. Vía env var: se actualiza desde Vercel sin PR.
+const ALBERTO_CLIENT_ID = process.env.PLAYBOOK_TEMPLATE_CLIENT_ID ?? null
 
 // Setter por defecto para las ventas que entran solas por este webhook (no
 // hay un setter humano "cerrando" la venta acá, así que se le asigna a
-// Steffano — confirmado explícitamente por el usuario).
-const DEFAULT_SETTER_ID = "a1eb5074-1017-476e-9b99-ee3d5e3bf062" // Steffano Leiva
+// Steffano — confirmado explícitamente por el usuario). El nombre para
+// Slack/Zapier se resuelve de `profiles` en runtime (ver más abajo), nunca
+// hardcodeado — así no queda un nombre viejo si el setter cambia.
+const DEFAULT_SETTER_ID = process.env.PAYFUNNELS_DEFAULT_SETTER_ID ?? null
 
 // Duración fija del programa (confirmado) — independiente de si el pago
 // inicial es en 1 o 2 partes. La mensualidad recurrente de $500 arranca
@@ -207,6 +211,30 @@ export async function POST(req: NextRequest) {
     const email = String(pick(body, "email", "customer_email") ?? "").trim().toLowerCase()
     const amount = toNum(pick(body, "amount", "monto", "total_charged", "amount_charged", "paid_amount"))
     const hasProgram = normalizeProgram(pick(body, "program", "programa", "plan")) != null
+    const transactionId = pick(body, "transaction_id", "charge_id", "id", "invoice_id", "payment_id")
+    if (transactionId && logId) {
+      await sb.from("payfunnels_webhook_events").update({ transaction_id: String(transactionId) }).eq("id", logId)
+    }
+
+    // ── Dedup real: ¿esta MISMA transacción ya se procesó? (reintento del
+    // webhook) — antes esto se confundía con "email ya existe", que también
+    // es cierto para una renovación (ver más abajo). Un id de transacción
+    // repetido es inequívocamente un reintento; uno nuevo con el mismo email
+    // es un cliente que paga de nuevo.
+    if (transactionId) {
+      const { data: priorEvent } = await sb
+        .from("payfunnels_webhook_events")
+        .select("id, matched_client")
+        .eq("transaction_id", String(transactionId))
+        .not("matched_client", "is", null)
+        .neq("id", logId ?? "")
+        .maybeSingle()
+      if (priorEvent) {
+        await finish((priorEvent as any).matched_client, "Transacción ya procesada — reintento del webhook, no se hizo nada de nuevo.")
+        await logJobRun(sb, "webhook:payfunnels", "ok", `duplicado (transaction_id) — ${transactionId}`)
+        return NextResponse.json({ ok: true, client_id: (priorEvent as any).matched_client, duplicate: true })
+      }
+    }
 
     // amount solo es estrictamente necesario si no vino un program explícito
     // (ej. la landing no llegó a mandarlo por algún motivo) — con program
@@ -239,17 +267,96 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, warning: reason })
     }
 
-    // ── Dedup: ¿ya existe un cliente con este email? (reintento del webhook) ─
+    // ── ¿Ya existe un cliente con este email? Con el dedup por transacción
+    // de arriba ya sabemos que ESTA transacción es nueva — así que si el
+    // email matchea, no es un reintento: es una renovación o una segunda
+    // compra (ej. terminó el programa Grupal y pasa a Híbrido). Se le
+    // agregan cuotas al cliente que ya existe en vez de crear uno nuevo (que
+    // generaba un pago real sin ningún rastro en el sistema, hallazgo #10).
     const { data: existing } = await sb
       .from("crm_clients")
-      .select("id")
+      .select("id, total_amount")
       .eq("email", email)
       .maybeSingle()
 
     if (existing) {
-      await finish((existing as any).id, "Ya existía un crm_client con este email — pago duplicado o reintento, no se creó uno nuevo.")
-      await logJobRun(sb, "webhook:payfunnels", "ok", `duplicado — ${email}`)
-      return NextResponse.json({ ok: true, client_id: (existing as any).id, duplicate: true })
+      const existingClientId = (existing as any).id as string
+
+      // Salvaguarda cuando el payload no trae transaction_id (el dedup de
+      // arriba no pudo correr): sin esto, un reintento liso del webhook se
+      // trataría como una renovación real y duplicaría cuotas. Mismo email +
+      // mismo monto + procesado hace menos de 24hs → es casi seguro el mismo
+      // pago reintentado, no uno nuevo.
+      if (!transactionId) {
+        const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+        const { data: recentEvent } = await sb
+          .from("payfunnels_webhook_events")
+          .select("id, raw_payload, processed_at")
+          .eq("matched_client", existingClientId)
+          .gte("processed_at", dayAgo)
+          .order("processed_at", { ascending: false })
+          .limit(5)
+        const recentSameAmount = (recentEvent ?? []).find((e: any) => {
+          const raw = e.raw_payload ?? {}
+          const rawAmt = toNum(pick(raw, "amount", "monto", "total_charged", "amount_charged", "paid_amount"))
+          return rawAmt != null && amount != null && Math.round(rawAmt) === Math.round(amount)
+        })
+        if (recentSameAmount) {
+          await finish(existingClientId, "Sin transaction_id — mismo email y monto que un evento procesado hace menos de 24hs, tratado como reintento, no renovación.")
+          await logJobRun(sb, "webhook:payfunnels", "ok", `duplicado (sin transaction_id, heurística 24hs) — ${email}`)
+          return NextResponse.json({ ok: true, client_id: existingClientId, duplicate: true })
+        }
+      }
+
+      const { data: lastInstallment } = await sb
+        .from("crm_installments")
+        .select("installment_number")
+        .eq("client_id", existingClientId)
+        .order("installment_number", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      const startNumber = ((lastInstallment as any)?.installment_number ?? 0) + 1
+      const renewalStart = new Date().toISOString().slice(0, 10)
+      const renewalTotal = tier.schedule.reduce((sum, v) => sum + v, 0)
+
+      const renewalInstallments = tier.schedule.map((amt, idx) => ({
+        client_id:          existingClientId,
+        installment_number: startNumber + idx,
+        due_date:           addMonths(renewalStart, idx),
+        amount:             amt,
+        paid_at:            idx === 0 ? new Date().toISOString() : null,
+      }))
+      const { error: renewalInstErr } = await sb.from("crm_installments").insert(renewalInstallments)
+      if (renewalInstErr) {
+        await finish(existingClientId, `Error creando cuotas de renovación: ${renewalInstErr.message}`)
+        await logJobRun(sb, "webhook:payfunnels", "error", `renovación crm_installments: ${renewalInstErr.message}`)
+        await zapierOnboardingStatusChanged({
+          event_type:   "renewal_failed",
+          client_name:  name,
+          client_email: email,
+          detail:       `No se pudieron crear las cuotas de renovación: ${renewalInstErr.message}`,
+        }).catch(() => null)
+        // 500 — el pago es real y no quedó reflejado, que el emisor reintente.
+        return NextResponse.json({ ok: false, error: renewalInstErr.message }, { status: 500 })
+      }
+
+      await sb.from("crm_clients")
+        .update({
+          total_amount: Number((existing as any).total_amount ?? 0) + renewalTotal,
+          status: "activo",
+          programa: tier.program,
+        })
+        .eq("id", existingClientId)
+
+      await finish(existingClientId, null)
+      await logJobRun(sb, "webhook:payfunnels", "ok", `renovación — ${email} — ${tier.program}`)
+      await zapierOnboardingStatusChanged({
+        event_type:   "renewal_detected",
+        client_name:  name,
+        client_email: email,
+        detail:       `${tier.program} — cuotas ${startNumber}-${startNumber + tier.schedule.length - 1}, revisar si corresponde nuevo contrato`,
+      }).catch(() => null)
+      return NextResponse.json({ ok: true, client_id: existingClientId, renewal: true })
     }
 
     // ── Crear cliente (misma secuencia que el alta manual) ──────────────────
@@ -280,7 +387,7 @@ export async function POST(req: NextRequest) {
         status:             "activo",
         notes:              `Alta automática vía PayFunnels — Programa: ${tier.program} (pago inicial ${tier.installments === 1 ? "único" : "en 2 partes"} + $${RECURRING_MONTHLY}/mes hasta completar ${PROGRAM_DURATION} meses)`,
         forma_pago:         "PayFunnels",
-        setter_id:          DEFAULT_SETTER_ID,
+        ...(DEFAULT_SETTER_ID ? { setter_id: DEFAULT_SETTER_ID } : {}),
         client_id:          smartScaleTenantId,
       })
       .select("id")
@@ -296,8 +403,16 @@ export async function POST(req: NextRequest) {
 
     try {
       await sb.from("onboarding_flow").insert({ crm_client_id: clientId })
-    } catch (err) {
+    } catch (err: any) {
+      // No bloqueante — el cliente sigue creándose — pero visible: antes
+      // esto quedaba solo en un console.error de Vercel que nadie leía.
+      const msg = err?.message ?? String(err)
       console.error("[payfunnels] onboarding_flow insert failed (non-blocking):", err)
+      await logJobRun(sb, "webhook:payfunnels", "error", `onboarding_flow (no bloqueante): ${msg}`)
+      await zapierOnboardingStatusChanged({
+        event_type: "onboarding_partial_failure", client_id: clientId, client_name: name, client_email: email,
+        detail: `onboarding_flow no se creó: ${msg} — no bloquea, pero /admin/onboarding no va a mostrar el estado de este cliente.`,
+      }).catch(() => null)
     }
 
     // Las 6 cuotas del programa completo: el pago inicial (1 o 2 partes) +
@@ -313,9 +428,27 @@ export async function POST(req: NextRequest) {
       paid_at:            idx === 0 ? new Date().toISOString() : null,
     }))
     const { error: instErr } = await sb.from("crm_installments").insert(installmentsToInsert)
-    if (instErr) console.error("[payfunnels] crm_installments insert failed (non-blocking):", instErr)
+    if (instErr) {
+      // Esta sí bloquea: sin cuotas, billing-alerts nunca le reclama nada a
+      // este cliente y el Dashboard Ejecutivo nunca cuenta su cash — un
+      // cliente que pagó y que el sistema de cobranza ignora para siempre
+      // (hallazgo #11). Rollback compensatorio, mismo patrón que
+      // admin/onboarding/route.ts, y 500 para que el emisor reintente —
+      // seguro ahora que el dedup es por transaction_id, no por email.
+      try { await sb.from("onboarding_flow").delete().eq("crm_client_id", clientId) } catch {}
+      try { await sb.from("crm_clients").delete().eq("id", clientId) } catch {}
+      await finish(null, `Error creando crm_installments (rollback aplicado): ${instErr.message}`)
+      await logJobRun(sb, "webhook:payfunnels", "error", `crm_installments (rollback): ${instErr.message}`)
+      await zapierOnboardingStatusChanged({
+        event_type: "renewal_failed", client_name: name, client_email: email,
+        detail: `No se pudieron crear las cuotas del alta — se revirtió el cliente creado. Pago real sin reflejar: ${instErr.message}`,
+      }).catch(() => null)
+      return NextResponse.json({ ok: false, error: instErr.message }, { status: 500 })
+    }
 
-    const { error: portalErr } = await sb.from("clients").insert({ id: clientId, name })
+    // `nombre` es el campo real que lee el resto de la app (gotcha #1 de
+    // CLAUDE.md) — llenar los dos siempre, no solo el legacy `name`.
+    const { error: portalErr } = await sb.from("clients").insert({ id: clientId, name, nombre: name })
     if (portalErr) {
       await finish(clientId, `Error creando fila de portal (clients): ${portalErr.message}`)
       await logJobRun(sb, "webhook:payfunnels", "error", `clients (portal): ${portalErr.message}`)
@@ -341,7 +474,17 @@ export async function POST(req: NextRequest) {
     const { error: profileErr } = await sb
       .from("profiles")
       .upsert({ id: userId, role: "client", name, client_id: clientId }, { onConflict: "id" })
-    if (profileErr) console.error("[payfunnels] profiles upsert failed:", profileErr)
+    if (profileErr) {
+      // No bloqueante — pero visible: si falla, existe el usuario en
+      // auth.users sin perfil → al loguearse queda sin rol/client_id
+      // resuelto (portal vacío) hasta que alguien lo note y lo arregle.
+      console.error("[payfunnels] profiles upsert failed:", profileErr)
+      await logJobRun(sb, "webhook:payfunnels", "error", `profiles (no bloqueante): ${profileErr.message}`)
+      await zapierOnboardingStatusChanged({
+        event_type: "onboarding_partial_failure", client_id: clientId, client_name: name, client_email: email,
+        detail: `profiles no se creó: ${profileErr.message} — el usuario existe en auth pero el portal le va a aparecer vacío hasta que se arregle a mano.`,
+      }).catch(() => null)
+    }
 
     let magicLink: string | null = null
     try {
@@ -355,25 +498,49 @@ export async function POST(req: NextRequest) {
       console.error("[payfunnels] magic link generation failed:", err)
     }
 
-    // Copia del playbook template de Alberto — best-effort, no bloqueante.
-    try {
-      const { data: albertoPlaybook } = await sb
-        .from("client_playbook_main")
-        .select("*")
-        .eq("client_id", ALBERTO_CLIENT_ID)
-        .maybeSingle()
-      if (albertoPlaybook) {
-        await sb.from("client_playbook_main").insert({
-          client_id: clientId,
-          title: (albertoPlaybook as any).title,
-          content: (albertoPlaybook as any).content,
-          visible_to_client: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
+    // Copia del playbook template — best-effort, no bloqueante.
+    if (ALBERTO_CLIENT_ID) {
+      try {
+        const { data: templatePlaybook } = await sb
+          .from("client_playbook_main")
+          .select("*")
+          .eq("client_id", ALBERTO_CLIENT_ID)
+          .maybeSingle()
+        if (templatePlaybook) {
+          await sb.from("client_playbook_main").insert({
+            client_id: clientId,
+            title: (templatePlaybook as any).title,
+            content: (templatePlaybook as any).content,
+            visible_to_client: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+        }
+      } catch (err) {
+        console.error("[payfunnels] playbook copy failed (non-blocking):", err)
       }
-    } catch (err) {
-      console.error("[payfunnels] playbook copy failed (non-blocking):", err)
+    } else {
+      console.warn("[payfunnels] PLAYBOOK_TEMPLATE_CLIENT_ID not set — skipping playbook copy")
+    }
+
+    // Nombre del setter para Slack/Zapier — resuelto en runtime, nunca
+    // hardcodeado (si el setter se va del equipo, no queda un nombre viejo
+    // en los avisos). Si el profile no existe o quedó inactivo, se loguea
+    // para que el equipo lo note en vez de fallar en silencio.
+    let setterName: string | null = null
+    if (DEFAULT_SETTER_ID) {
+      const { data: setterProfile } = await sb
+        .from("profiles")
+        .select("name, active")
+        .eq("id", DEFAULT_SETTER_ID)
+        .maybeSingle()
+      setterName = (setterProfile as any)?.name ?? null
+      if (!setterProfile || (setterProfile as any).active === false) {
+        console.warn(`[payfunnels] DEFAULT_SETTER_ID (${DEFAULT_SETTER_ID}) no existe o está inactivo — revisar PAYFUNNELS_DEFAULT_SETTER_ID`)
+        await logJobRun(sb, "webhook:payfunnels", "error", "setter por defecto inactivo o inexistente — revisar PAYFUNNELS_DEFAULT_SETTER_ID")
+      }
+    } else {
+      console.warn("[payfunnels] PAYFUNNELS_DEFAULT_SETTER_ID not set — cliente queda sin setter asignado")
     }
 
     // Cuotas para el contrato: cuota_1 va aparte como "pago_entrada" (primerPago,
@@ -412,7 +579,7 @@ export async function POST(req: NextRequest) {
       total_amount:  totalAmount,
       cuotas:        fullScheduleCuotas,
       program_start: programStart,
-      setter_name:   "Steffano Leiva",
+      setter_name:   setterName,
       temp_password: tempPassword,
       magic_link:    magicLink ?? undefined,
     }).catch(err => console.error("[payfunnels] Slack onboarding notify failed:", err)))
@@ -426,7 +593,7 @@ export async function POST(req: NextRequest) {
       total_amount:  totalAmount,
       cuotas:        fullScheduleCuotas,
       program_start: programStart,
-      setter_name:   "Steffano Leiva",
+      setter_name:   setterName,
       temp_password: tempPassword,
       magic_link:    magicLink,
     }).catch(err => console.error("[payfunnels] Zapier onboarding notify failed:", err?.message)))

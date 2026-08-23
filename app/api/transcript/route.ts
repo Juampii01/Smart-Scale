@@ -228,10 +228,17 @@ async function getYouTubeTranscriptFromCaptionTracks(
 
     const captionTracks: any[] = playerResponse?.captions?.playerCaptionsTracklistRenderer?.captionTracks ?? []
     if (!captionTracks.length) {
+      // YouTube devuelve playabilityStatus=LOGIN_REQUIRED tanto para videos
+      // realmente restringidos como para su chequeo anti-bot contra IPs de
+      // datacenter — el texto "confirm you're not a bot" es el que distingue
+      // el segundo caso, que no tiene nada que ver con el video en sí.
+      const isBotCheck = playabilityStatus === "LOGIN_REQUIRED" && /\bbot\b/i.test(playabilityReason ?? "")
       return {
         transcript: null,
         provider: "youtube_watch_page",
-        reason: playabilityStatus === "LOGIN_REQUIRED" ? "login_required" : "no_caption_tracks",
+        reason: isBotCheck
+          ? "possibly_blocked"
+          : playabilityStatus === "LOGIN_REQUIRED" ? "login_required" : "no_caption_tracks",
         debug: JSON.stringify({ playabilityStatus, playabilityReason }),
       }
     }
@@ -359,7 +366,13 @@ async function assemblyAITranscript(cdnUrl: string, timeoutMs = 200_000): Promis
     const result = await pollRes.json()
     console.log("[assemblyai] poll:", result.status, result.error ?? "")
     if (result.status === "completed") return result.text ?? null
-    if (result.status === "error") return null
+    if (result.status === "error") {
+      // Este si es el fracaso real (no un intento parcial dentro de un loop
+      // que reintenta solo) — antes era console.log y nunca llegaba a
+      // app_logs/dev-logs, solo a los logs crudos de Vercel.
+      console.error("[assemblyai] transcription failed:", result.error ?? "sin detalle")
+      return null
+    }
   }
   return null
 }
@@ -498,7 +511,12 @@ async function runApifyInstagramResolvers(
 }
 
 async function getInstagramTranscript(postUrl: string): Promise<{ transcript: string | null; caption: string | null; duration: string | null; username: string | null; invalidShortCode?: boolean }> {
-  const normalizedPostUrl = postUrl.replace(/\/+$/, "").replace("/reels/", "/reel/")
+  // Instagram sirve el mismo reel bajo /p/{code}/ y /reel/{code}/ — cuál te
+  // toca depende de cómo lo compartieron, no del contenido. Confirmado con un
+  // caso real: la misma reel falló como /p/ y había transcripto bien como
+  // /reel/ minutos antes. Normalizamos siempre a /reel/, que es la forma que
+  // el scraper de Apify resuelve de forma confiable.
+  const normalizedPostUrl = postUrl.replace(/\/+$/, "").replace("/reels/", "/reel/").replace("/p/", "/reel/")
   const shortCode = normalizedPostUrl.match(/\/(p|reel|reels|tv)\/([^/?#]+)/)?.[2] ?? null
 
   // Los shortcodes de Instagram son base64 url-safe: solo A-Za-z0-9_-. Si viene
@@ -520,20 +538,21 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
   let caption: string | null = null
   let duration: string | null = null
   let videoUrl: string | null = null
+  let audioUrl: string | null = null
 
   console.log("[transcript] shortCode:", shortCode, "username from url:", username)
   console.log("[transcript] intentando resolver reel con Apify...")
 
   try {
     if (!process.env.APIFY_TOKEN) {
-      console.log("[transcript] APIFY_TOKEN missing")
+      console.error("[transcript] APIFY_TOKEN missing — todas las transcripciones de Instagram están fallando en silencio")
       return { transcript: null, caption: null, duration: null, username: null }
     }
 
     const item = await runApifyInstagramResolvers(normalizedPostUrl, shortCode, username)
 
     if (!item) {
-      console.log("[transcript] Apify no devolvió items utilizables")
+      console.error("[transcript] Apify no devolvió items utilizables — se agotaron todos los actores/variantes de URL")
       return { transcript: null, caption: null, duration: null, username: null }
     }
 
@@ -549,6 +568,17 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
       item?.downloadedVideo   ??
       item?.postVideoUrl      ??
       item?.media?.videoUrl   ??
+      null
+
+    // Algunos reels vienen con el audio en una pista separada (`audioUrl`)
+    // — el `videoUrl` en esos casos es solo video, sin audio embebido, y
+    // AssemblyAI lo rechaza con "No audio stream found". Confirmado real
+    // con un reel de producción: Apify devolvió ambos campos, videoUrl sin
+    // audio utilizable. Si viene audioUrl, se prioriza sobre videoUrl.
+    audioUrl =
+      item?.audioUrl          ??
+      item?.audio_url         ??
+      item?.media?.audioUrl   ??
       null
 
     // Collect caption
@@ -583,21 +613,23 @@ async function getInstagramTranscript(postUrl: string): Promise<{ transcript: st
 
     console.log("[transcript] Apify result:", {
       hasVideoUrl: !!videoUrl,
+      hasAudioUrl: !!audioUrl,
       username,
       hasCaption: !!caption,
       duration,
       allKeys: Object.keys(item),
     })
 
-    if (!videoUrl) {
-      console.log("[transcript] item had no video URL field, returning null transcript")
+    const mediaUrl = audioUrl ?? videoUrl
+    if (!mediaUrl) {
+      console.error("[transcript] item sin video/audio URL — nada que transcribir")
       return { transcript: null, caption, duration, username }
     }
 
-    const transcript = await assemblyAITranscript(videoUrl, 100_000)
+    const transcript = await assemblyAITranscript(mediaUrl, 100_000)
     return { transcript, caption, duration, username }
   } catch (err) {
-    console.log("[transcript] Apify/Assembly error:", err)
+    console.error("[transcript] Apify/Assembly error:", err)
     return { transcript: null, caption, duration, username }
   }
 }
@@ -713,38 +745,40 @@ async function callApifyOnce(videoId: string, token: string): Promise<ApifyResul
   }
 }
 
-async function getYouTubeTranscript(
+async function resolveApifyOutcome(
   videoId: string
-): Promise<{ transcript: string | null; provider: string | null; reason?: string; debug?: string }> {
+): Promise<{ transcript: string | null; failure: { provider: string | null; reason?: string; debug?: string } | null }> {
   const token = process.env.APIFY_TOKEN
-
-  let apifyFailure: { provider: string | null; reason?: string; debug?: string } | null = null
-
-  if (token) {
-    let result = await callApifyOnce(videoId, token)
-    // Un solo reintento si la falla fue de red/servidor (no una respuesta real
-    // de Apify sobre el video) — evita caer al scraping directo de YouTube,
-    // que YouTube bloquea seguido a IPs de datacenter con un falso "login required".
-    if (!result.transcript && isTransientApifyFailure(result.failure)) {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      result = await callApifyOnce(videoId, token)
-    }
-    if (result.transcript) return { transcript: result.transcript, provider: "apify" }
-    apifyFailure = result.failure
-  } else {
-    apifyFailure = {
-      provider: "apify",
-      reason: "missing_apify_token",
-      debug: "APIFY_TOKEN is not set",
-    }
+  if (!token) {
+    return { transcript: null, failure: { provider: "apify", reason: "missing_apify_token", debug: "APIFY_TOKEN is not set" } }
   }
 
+  let result = await callApifyOnce(videoId, token)
+  // Un solo reintento si la falla fue de red/servidor (no una respuesta real
+  // de Apify sobre el video) — evita caer al scraping directo de YouTube,
+  // que YouTube bloquea seguido a IPs de datacenter con un falso "login required".
+  if (!result.transcript && isTransientApifyFailure(result.failure)) {
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    result = await callApifyOnce(videoId, token)
+  }
+  return result
+}
+
+async function getYouTubeTranscript(
+  videoId: string,
+  apifyFailure: { provider: string | null; reason?: string; debug?: string } | null
+): Promise<{ transcript: string | null; provider: string | null; reason?: string; debug?: string }> {
   const watchPageResult = await getYouTubeTranscriptFromCaptionTracks(videoId)
   if (watchPageResult.transcript) {
     return watchPageResult
   }
 
   const preferredFailure = (() => {
+    // Confirmamos con el texto real de YouTube ("...confirm you're not a
+    // bot") que esto es el chequeo anti-bot, no una restricción real — esa
+    // evidencia concreta pesa más que el mensaje genérico de Apify
+    // ("Video requires login..."), que no distingue entre ambos casos.
+    if (watchPageResult.reason === "possibly_blocked") return watchPageResult
     if (watchPageResult.reason === "login_required") {
       // Si Apify nunca llegó a dar una razón de contenido real (fue timeout/error
       // de red incluso después del reintento), es más probable que este "login
@@ -777,6 +811,35 @@ async function getYouTubeTranscript(
       watchPageResult ? `watch_page: ${watchPageResult.debug ?? watchPageResult.reason ?? "unknown"}` : null,
     ].filter(Boolean).join("\n\n"),
   }
+}
+
+/**
+ * "possibly_blocked" es el chequeo anti-bot de YouTube contra la IP del
+ * servidor — intermitente, no dice nada del video (confirmado: el mismo
+ * video que falla ahora suele andar bien un intento después). Los demás
+ * reasons (login_required real, no_captions_found, etc.) son definitivos —
+ * reintentarlos solo gasta cuota de Apify sin cambiar el resultado.
+ *
+ * Por eso Apify se llama UNA sola vez por request (afuera del loop) — ya dio
+ * una respuesta real (transcript, o un fallo definitivo tipo no_captions_found)
+ * y repetirla no cambia nada. Lo único que vale la pena reintentar es el
+ * scraping directo de la página de YouTube, que es gratis y es el que
+ * realmente sufre el bloqueo intermitente.
+ */
+async function getYouTubeTranscriptWithRetry(
+  videoId: string,
+  attempts = 3
+): Promise<{ transcript: string | null; provider: string | null; reason?: string; debug?: string }> {
+  const apifyResult = await resolveApifyOutcome(videoId)
+  if (apifyResult.transcript) return { transcript: apifyResult.transcript, provider: "apify" }
+
+  let last: Awaited<ReturnType<typeof getYouTubeTranscript>> | undefined
+  for (let i = 0; i < attempts; i++) {
+    last = await getYouTubeTranscript(videoId, apifyResult.failure)
+    if (last.transcript || last.reason !== "possibly_blocked") return last
+    if (i < attempts - 1) await new Promise((resolve) => setTimeout(resolve, 3000))
+  }
+  return last!
 }
 
 // ─── Claude summary ───────────────────────────────────────────────────────────
@@ -897,7 +960,7 @@ export async function POST(req: NextRequest) {
       thumbnail = metadata.thumbnail
       duration  = metadata.duration
 
-      const ytResult = await getYouTubeTranscript(videoId)
+      const ytResult = await getYouTubeTranscriptWithRetry(videoId)
       transcript = ytResult.transcript
 
       if (!transcript) {

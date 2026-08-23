@@ -28,6 +28,7 @@ export interface Lead {
   notes:      string | null
   purchased:  boolean
   created_at: string
+  avatar_url?: string | null
   custom_fields?: Record<string, any> | null
   next_follow_up_at?: string | null
   deal_value?: number | null
@@ -310,9 +311,24 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
 
         {/* Header */}
         <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5" style={{ backgroundColor: "var(--card)" }}>
-          <div className="min-w-0">
-            <h2 className="text-lg font-bold text-foreground truncate">{lead.name ?? "Lead"}</h2>
-            <p className="text-[12px] text-foreground/35 mt-0.5">{fmtDate(lead.created_at)}</p>
+          <div className="flex min-w-0 items-center gap-3">
+            {lead.avatar_url ? (
+              <img
+                src={lead.avatar_url}
+                alt={lead.name ?? "Lead"}
+                referrerPolicy="no-referrer"
+                className="h-11 w-11 shrink-0 rounded-full object-cover border border-foreground/[0.08]"
+                onError={e => { (e.target as HTMLImageElement).style.display = "none" }}
+              />
+            ) : (
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-foreground/[0.06] text-[15px] font-bold text-foreground/40">
+                {(lead.name ?? "?").trim().charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div className="min-w-0">
+              <h2 className="text-lg font-bold text-foreground truncate">{lead.name ?? "Lead"}</h2>
+              <p className="text-[12px] text-foreground/35 mt-0.5">{fmtDate(lead.created_at)}</p>
+            </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => onDelete(lead.id)} disabled={deleting} aria-label="Eliminar lead"
@@ -981,25 +997,39 @@ export function AdminLeadsView() {
         </div>
 
         {/* Webhook card */}
-        <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-2">
-            Webhook URL — ManyChat / Zapier
-          </p>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-foreground/60 font-mono truncate" suppressHydrationWarning>
-              {webhookUrl ?? "Cargando…"}
-            </code>
-            <button
-              onClick={() => webhookUrl && navigator.clipboard.writeText(webhookUrl)}
-              disabled={!webhookUrl}
-              className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
-            >
-              Copiar
-            </button>
+        <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4 space-y-3">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-2">
+              Webhook URL — ManyChat / Zapier
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-foreground/60 font-mono truncate" suppressHydrationWarning>
+                {webhookUrl ?? "Cargando…"}
+              </code>
+              <button
+                onClick={() => webhookUrl && navigator.clipboard.writeText(webhookUrl)}
+                disabled={!webhookUrl}
+                className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
+              >
+                Copiar
+              </button>
+            </div>
           </div>
-          <p className="text-[11px] text-foreground/25 mt-1.5">
-            Campos: <code className="text-foreground/40">name</code>, <code className="text-foreground/40">tag</code>, <code className="text-foreground/40">instagram</code>
-          </p>
+          <div className="text-[11px] text-foreground/40 leading-relaxed border-t border-foreground/[0.06] pt-3">
+            <p className="font-semibold text-foreground/50 mb-1">Setup en ManyChat (Automation → External Request):</p>
+            <p>1. Un flow por etiqueta, disparado por el growth tool "Tag Added".</p>
+            <p>
+              2. Method <code className="text-foreground/60">POST</code>, URL con la etiqueta como query param, ej.{" "}
+              <code className="text-foreground/60 break-all">{webhookUrl ?? "…"}?tag=Interesado</code>
+            </p>
+            <p>
+              3. Header <code className="text-foreground/60">X-Webhook-Secret</code> = el secreto configurado en Vercel (pedíselo a Juampi).
+            </p>
+            <p>
+              4. Body JSON: <code className="text-foreground/60">{"{ \"first_name\": \"{{first_name}}\", \"last_name\": \"{{last_name}}\", \"ig_username\": \"{{ig_username}}\" }"}</code>
+            </p>
+            <p className="text-foreground/25 mt-1">Campos guardados: name, tag, instagram, source. El resto del payload queda en raw_payload por si hace falta después.</p>
+          </div>
         </div>
 
         {layout === "pipeline" ? (
@@ -1105,7 +1135,18 @@ export function AdminLeadsView() {
                             className="border-b border-foreground/[0.04] cursor-pointer transition-colors group bg-card hover:bg-muted">
 
                             <td className="px-4 py-3 whitespace-nowrap">
-                              <span className="text-[14px] font-semibold text-foreground">{lead.name ?? <span className="text-foreground/30">—</span>}</span>
+                              <div className="flex items-center gap-2">
+                                {lead.avatar_url ? (
+                                  <img
+                                    src={lead.avatar_url}
+                                    alt=""
+                                    referrerPolicy="no-referrer"
+                                    className="h-6 w-6 shrink-0 rounded-full object-cover border border-foreground/[0.08]"
+                                    onError={e => { (e.target as HTMLImageElement).style.display = "none" }}
+                                  />
+                                ) : null}
+                                <span className="text-[14px] font-semibold text-foreground">{lead.name ?? <span className="text-foreground/30">—</span>}</span>
+                              </div>
                             </td>
 
                             <td className="px-4 py-3 whitespace-nowrap">

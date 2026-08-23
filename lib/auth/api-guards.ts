@@ -1,5 +1,5 @@
 import { createServiceClient } from "@/lib/supabase-service"
-import { isAdmin, isInternal } from "@/lib/auth/permissions"
+import { isAdmin, isInternal, isStaffFinanciero } from "@/lib/auth/permissions"
 import { isOmniOwnerEmail } from "@/lib/omni/owner"
 import { isPlatformOwnerEmail } from "@/lib/auth/platform-owner"
 
@@ -8,7 +8,8 @@ import { isPlatformOwnerEmail } from "@/lib/auth/platform-owner"
  *
  * Uso:
  *   const user = await requireAdmin(jwt)         // solo admin (datos sensibles)
- *   const user = await requireInternal(jwt)      // admin OR team (datos no sensibles)
+ *   const user = await requireInternal(jwt)      // admin OR team OR setter (datos no sensibles)
+ *   const user = await requireStaffFinanciero(jwt) // admin OR team, NO setter (facturación)
  *   const user = await requireOmniOwner(jwt)     // solo dueño del proyecto + Ann (piloto Omni)
  *   const user = await requirePlatformOwner(jwt) // solo dueño de la plataforma (sector interno "Ver Clientes")
  *   if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
@@ -36,6 +37,12 @@ export async function requireAdmin(jwt: string | null) {
 export async function requireInternal(jwt: string | null) {
   const ctx = await getProfile(jwt)
   if (!ctx || !isInternal(ctx.role)) return null
+  return ctx.user
+}
+
+export async function requireStaffFinanciero(jwt: string | null) {
+  const ctx = await getProfile(jwt)
+  if (!ctx || !isStaffFinanciero(ctx.role)) return null
   return ctx.user
 }
 

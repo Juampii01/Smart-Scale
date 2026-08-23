@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { createClient } from "@/lib/supabase"
 import { useActiveClient } from "@/components/layout/dashboard-layout"
-import { DollarSign, Loader2, TrendingUp, Wallet, Quote } from "lucide-react"
+import { DollarSign, Loader2, TrendingUp, Wallet, Quote, Plus } from "lucide-react"
 
 interface ChaChing {
   id: string
@@ -28,6 +28,9 @@ export function ChaChingHistoryView() {
   const activeClientId = useActiveClient()
   const [items, setItems] = useState<ChaChing[]>([])
   const [loading, setLoading] = useState(true)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [draft, setDraft] = useState("")
+  const [saving, setSaving] = useState(false)
 
   const fetchItems = useCallback(async () => {
     if (!activeClientId) { setItems([]); setLoading(false); return }
@@ -45,6 +48,32 @@ export function ChaChingHistoryView() {
   }, [activeClientId])
 
   useEffect(() => { fetchItems() }, [fetchItems])
+
+  const startEditing = (item: ChaChing) => {
+    setEditingId(item.id)
+    setDraft(item.notas ?? "")
+  }
+
+  const saveNotas = async (id: string) => {
+    if (!draft.trim()) return
+    setSaving(true)
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const res = await fetch("/api/chi-chang", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ id, notas: draft.trim() }),
+      })
+      if (res.ok) {
+        setItems((prev) => prev.map((i) => (i.id === id ? { ...i, notas: draft.trim() } : i)))
+        setEditingId(null)
+      }
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const totals = useMemo(() => {
     const now = new Date()
@@ -116,10 +145,50 @@ export function ChaChingHistoryView() {
                 <p className="text-[13px] font-bold text-[#dafc69] tabular-nums">{fmtMoney(d.cash_collected)}</p>
               </div>
             </div>
-            {d.notas && (
+            {d.notas && editingId !== d.id && (
               <div className="mt-3 flex items-start gap-2 rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3.5 py-2.5">
                 <Quote className="h-3.5 w-3.5 shrink-0 text-[#dafc69]/60 mt-0.5" />
                 <p className="text-[12.5px] text-foreground/70 leading-relaxed whitespace-pre-wrap">{d.notas}</p>
+              </div>
+            )}
+
+            {!d.notas && editingId !== d.id && (
+              <button
+                type="button"
+                onClick={() => startEditing(d)}
+                className="mt-3 flex items-center gap-1.5 text-[11.5px] font-semibold text-foreground/40 hover:text-foreground transition-colors"
+              >
+                <Plus className="h-3 w-3" /> Agregar reflexión
+              </button>
+            )}
+
+            {editingId === d.id && (
+              <div className="mt-3 space-y-2">
+                <textarea
+                  autoFocus
+                  rows={3}
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder="Ej: Este cliente me dijo 3 veces que no… y entendí que el seguimiento gana más tratos que el pitch."
+                  className="w-full rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] px-3.5 py-2.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none resize-y leading-relaxed"
+                />
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => saveNotas(d.id)}
+                    disabled={saving || !draft.trim()}
+                    className="rounded-lg bg-[#dafc69] px-3.5 py-1.5 text-[11.5px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors"
+                  >
+                    {saving ? "Guardando…" : "Guardar"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingId(null)}
+                    className="rounded-lg px-3 py-1.5 text-[11.5px] font-semibold text-foreground/50 hover:text-foreground transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
               </div>
             )}
           </div>

@@ -31,6 +31,7 @@ interface OnboardingClient {
   program_start:      string
   installment_amount: number
   num_installments:   number
+  total_amount:       number | null
   status:             string
   notes:              string | null
   created_at:         string
@@ -532,7 +533,10 @@ function OnboardingForm({
 // ─── Client card ──────────────────────────────────────────────────────────────
 
 function ClientCard({ client, onClick }: { client: OnboardingClient; onClick: () => void }) {
-  const mrr = client.installment_amount * client.num_installments
+  // total_amount es el real (soporta cuotas distintas entre sí, ej. pago
+  // inicial + meses de mantenimiento) — installment_amount × num_installments
+  // solo sirve de fallback para altas viejas sin total_amount cargado.
+  const total = client.total_amount ?? client.installment_amount * client.num_installments
   const stage = getOnboardingStage(client.onboarding_flow)
   return (
     <button
@@ -566,12 +570,12 @@ function ClientCard({ client, onClick }: { client: OnboardingClient; onClick: ()
         <div>
           <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Plan</p>
           <p className="mt-0.5 text-[12px] text-foreground/70">
-            {fmtCurrency(client.installment_amount)} × {client.num_installments}
+            1ª {fmtCurrency(client.installment_amount)} · {client.num_installments} cuota{client.num_installments !== 1 ? "s" : ""}
           </p>
         </div>
         <div>
           <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Total</p>
-          <p className="mt-0.5 text-[12px] font-semibold text-foreground">{fmtCurrency(mrr)}</p>
+          <p className="mt-0.5 text-[12px] font-semibold text-foreground">{fmtCurrency(total)}</p>
         </div>
         {client.notes && (
           <div className="col-span-2 sm:col-span-4">

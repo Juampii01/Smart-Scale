@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react"
-import { Loader2, Copy, Check, X, Pencil, ChevronDown, ChevronUp, ClipboardList, Plus, Trash2 } from "lucide-react"
+import { Loader2, Copy, Check, Pencil, ChevronDown, ChevronUp, ClipboardList, Plus, Trash2, GripVertical, X } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { SectionHeader } from "@/components/ui/section-header"
 
@@ -36,9 +36,23 @@ interface Submission {
   level_id: string
   answers: Record<string, any>
   submitted_at: string
+  passed?: boolean | null
+  wrong_question_ids?: string[]
 }
 
 const inputCls = "w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none"
+
+const QUESTION_TYPE_OPTIONS: { value: Question["type"]; label: string }[] = [
+  { value: "text", label: "Texto libre" },
+  { value: "yesno", label: "Sí o no" },
+  { value: "multiple_choice", label: "Opción múltiple" },
+]
+
+function genQuestionId(existing: Question[]): string {
+  const nums = existing.map((q) => parseInt(q.id.replace(/^q/i, ""), 10)).filter((n) => !isNaN(n))
+  const next = (nums.length ? Math.max(...nums) : 0) + 1
+  return `q${next}`
+}
 
 function formatAnswer(q: Question, raw: any): string {
   if (raw === undefined || raw === null || raw === "") return "(sin responder)"
@@ -69,6 +83,7 @@ export function AdminPosiView() {
   const [editingLevel, setEditingLevel] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState<{ title: string; intro: string; questions: Question[] }>({ title: "", intro: "", questions: [] })
   const [editError, setEditError] = useState("")
+  const [savingLevel, setSavingLevel] = useState(false)
   const [expandedSubmission, setExpandedSubmission] = useState<string | null>(null)
   const [siteOrigin, setSiteOrigin] = useState("")
 
@@ -141,78 +156,99 @@ export function AdminPosiView() {
   const startEdit = (level: Level) => {
     setEditingLevel(level.id)
     setEditError("")
-    setEditDraft({ title: level.title, intro: level.intro ?? "", questions: level.questions.map((q) => ({ ...q })) })
+    setEditDraft({ title: level.title, intro: level.intro ?? "", questions: level.questions.map((q) => ({ ...q, options: q.options ? [...q.options] : undefined })) })
   }
 
   const saveEdit = async (level: Level) => {
-    const invalid = editDraft.questions.find(
-      (q) => !q.label.trim() || (q.type === "multiple_choice" && (q.options ?? []).filter((o) => o.trim()).length < 2)
-    )
-    if (invalid) {
-      setEditError("Cada pregunta necesita un enunciado, y las de opción múltiple necesitan al menos 2 opciones con texto.")
-      return
-    }
+    const emptyLabel = editDraft.questions.find((q) => !q.label.trim())
+    if (emptyLabel) { setEditError("Todas las preguntas necesitan un texto."); return }
+    const badOptions = editDraft.questions.find((q) => q.type === "multiple_choice" && (q.options ?? []).filter((o) => o.trim()).length < 2)
+    if (badOptions) { setEditError('Las preguntas de "opción múltiple" necesitan al menos 2 opciones.'); return }
+
     setEditError("")
-    const token = await getToken()
-    if (!token) return
-    const res = await fetch("/api/admin/posi-levels", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ id: level.id, title: editDraft.title, intro: editDraft.intro, questions: editDraft.questions }),
-    })
-    const json = await res.json()
-    if (!res.ok) { setEditError(json?.error ?? "Error al guardar"); return }
-    setEditingLevel(null)
-    load()
+    setSavingLevel(true)
+    try {
+      const token = await getToken()
+      if (!token) return
+      // Al filtrar opciones vacías, correct_index puede quedar apuntando a
+      // otra opción — se recalcula contra los índices que sobreviven.
+      const cleanQuestions = editDraft.questions.map((q) => {
+        if (q.type !== "multiple_choice") {
+          return { ...q, label: q.label.trim(), options: undefined, correct_index: undefined }
+        }
+        const trimmed = (q.options ?? []).map((o) => o.trim())
+        const keptIndices: number[] = []
+        const options = trimmed.filter((o, i) => {
+          if (!o) return false
+          keptIndices.push(i)
+          return true
+        })
+        const remapped = q.correct_index !== undefined ? keptIndices.indexOf(q.correct_index) : -1
+        return {
+          ...q,
+          label: q.label.trim(),
+          options,
+          correct_index: remapped >= 0 ? remapped : undefined,
+        }
+      })
+      const res = await fetch("/api/admin/posi-levels", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ id: level.id, title: editDraft.title, intro: editDraft.intro, questions: cleanQuestions }),
+      })
+      const json = await res.json()
+      if (!res.ok) { setEditError(json?.error ?? "Error al guardar"); return }
+      setEditingLevel(null)
+      load()
+    } finally {
+      setSavingLevel(false)
+    }
   }
 
   const addQuestion = () => {
-    setEditDraft((d) => ({ ...d, questions: [...d.questions, { id: `q${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, label: "", type: "text" }] }))
+    setEditDraft((d) => ({ ...d, questions: [...d.questions, { id: genQuestionId(d.questions), label: "", type: "text" }] }))
   }
-
-  const removeQuestion = (id: string) => {
-    setEditDraft((d) => ({ ...d, questions: d.questions.filter((q) => q.id !== id) }))
+  const removeQuestion = (idx: number) => {
+    setEditDraft((d) => ({ ...d, questions: d.questions.filter((_, i) => i !== idx) }))
   }
-
-  const updateQuestion = (id: string, patch: Partial<Question>) => {
-    setEditDraft((d) => ({ ...d, questions: d.questions.map((q) => (q.id === id ? { ...q, ...patch } : q)) }))
+  const moveQuestion = (idx: number, dir: -1 | 1) => {
+    setEditDraft((d) => {
+      const target = idx + dir
+      if (target < 0 || target >= d.questions.length) return d
+      const next = [...d.questions]
+      ;[next[idx], next[target]] = [next[target], next[idx]]
+      return { ...d, questions: next }
+    })
   }
-
-  const setQuestionType = (id: string, type: Question["type"]) => {
-    updateQuestion(id, type === "multiple_choice" ? { type, options: ["", ""], correct_index: 0 } : { type, options: undefined, correct_index: undefined })
+  const updateQuestion = (idx: number, patch: Partial<Question>) => {
+    setEditDraft((d) => ({ ...d, questions: d.questions.map((q, i) => (i === idx ? { ...q, ...patch } : q)) }))
   }
-
-  const setCorrectIndex = (id: string, index: number) => {
-    updateQuestion(id, { correct_index: index })
+  const setQuestionType = (idx: number, type: Question["type"]) => {
+    updateQuestion(idx, { type, options: type === "multiple_choice" ? ["", ""] : undefined, correct_index: undefined })
   }
-
-  const addOption = (id: string) => {
+  const addOption = (qIdx: number) => {
+    setEditDraft((d) => ({ ...d, questions: d.questions.map((q, i) => (i === qIdx ? { ...q, options: [...(q.options ?? []), ""] } : q)) }))
+  }
+  const updateOption = (qIdx: number, oIdx: number, value: string) => {
+    setEditDraft((d) => ({ ...d, questions: d.questions.map((q, i) => (i === qIdx ? { ...q, options: (q.options ?? []).map((o, j) => (j === oIdx ? value : o)) } : q)) }))
+  }
+  const removeOption = (qIdx: number, oIdx: number) => {
     setEditDraft((d) => ({
       ...d,
-      questions: d.questions.map((q) => (q.id === id ? { ...q, options: [...(q.options ?? []), ""] } : q)),
-    }))
-  }
-
-  const updateOption = (id: string, index: number, value: string) => {
-    setEditDraft((d) => ({
-      ...d,
-      questions: d.questions.map((q) => (q.id === id ? { ...q, options: (q.options ?? []).map((o, i) => (i === index ? value : o)) } : q)),
-    }))
-  }
-
-  const removeOption = (id: string, index: number) => {
-    setEditDraft((d) => ({
-      ...d,
-      questions: d.questions.map((q) => {
-        if (q.id !== id) return q
-        const options = (q.options ?? []).filter((_, i) => i !== index)
+      questions: d.questions.map((q, i) => {
+        if (i !== qIdx) return q
+        const options = (q.options ?? []).filter((_, j) => j !== oIdx)
         let correct_index = q.correct_index
-        if (correct_index !== undefined) {
-          if (correct_index === index) correct_index = 0
-          else if (correct_index > index) correct_index -= 1
-        }
+        if (correct_index === oIdx) correct_index = undefined
+        else if (correct_index !== undefined && correct_index > oIdx) correct_index = correct_index - 1
         return { ...q, options, correct_index }
       }),
+    }))
+  }
+  const setCorrectOption = (qIdx: number, oIdx: number) => {
+    setEditDraft((d) => ({
+      ...d,
+      questions: d.questions.map((q, i) => (i === qIdx ? { ...q, correct_index: q.correct_index === oIdx ? undefined : oIdx } : q)),
     }))
   }
 
@@ -293,95 +329,177 @@ export function AdminPosiView() {
             <p className="text-[12px] text-foreground/35 mt-1.5 font-mono">{siteOrigin}/posi/{level.level_number}</p>
 
             {editingLevel === level.id && (
-              <div className="mt-4 space-y-3 rounded-xl border border-[#dafc69]/25 bg-[#dafc69]/[0.04] p-4">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Título</label>
-                  <input className={inputCls} value={editDraft.title} onChange={(e) => setEditDraft((d) => ({ ...d, title: e.target.value }))} />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Intro</label>
-                  <textarea className={inputCls} rows={3} value={editDraft.intro} onChange={(e) => setEditDraft((d) => ({ ...d, intro: e.target.value }))} />
-                </div>
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-foreground/40">Preguntas</label>
-                    <button type="button" onClick={addQuestion} className="flex items-center gap-1 text-[11px] font-semibold text-foreground/50 hover:text-foreground transition-colors">
-                      <Plus className="h-3 w-3" /> Agregar pregunta
-                    </button>
+              <div className="mt-4 rounded-2xl border border-[#dafc69]/25 bg-[#dafc69]/[0.035] p-5 space-y-5">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-foreground/45 mb-1.5">Título del nivel</label>
+                    <input
+                      className="w-full rounded-lg border border-foreground/[0.1] bg-card px-3.5 py-2.5 text-[14px] font-semibold text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:outline-none"
+                      value={editDraft.title}
+                      onChange={(e) => setEditDraft((d) => ({ ...d, title: e.target.value }))}
+                    />
                   </div>
-                  <div className="space-y-3">
-                    {editDraft.questions.map((q, qIdx) => (
-                      <div key={q.id} className="rounded-lg border border-foreground/[0.08] bg-background/40 p-3 space-y-2">
-                        <div className="flex items-start gap-2">
-                          <span className="text-[11px] font-bold text-foreground/30 mt-2.5 shrink-0">{qIdx + 1}.</span>
-                          <input
-                            className={inputCls}
-                            placeholder="Enunciado de la pregunta"
-                            value={q.label}
-                            onChange={(e) => updateQuestion(q.id, { label: e.target.value })}
-                          />
-                          <select
-                            className="rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-2 py-2 text-[12px] text-foreground focus:border-[#dafc69]/40 focus:outline-none shrink-0"
-                            value={q.type}
-                            onChange={(e) => setQuestionType(q.id, e.target.value as Question["type"])}
-                          >
-                            <option value="text">Texto libre</option>
-                            <option value="yesno">Sí / No</option>
-                            <option value="multiple_choice">Opción múltiple</option>
-                          </select>
-                          <button
-                            type="button"
-                            onClick={() => removeQuestion(q.id)}
-                            className="p-2 text-foreground/30 hover:text-red-700 dark:hover:text-red-400 transition-colors shrink-0"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-foreground/45 mb-1.5">Intro (arriba de las preguntas)</label>
+                    <textarea
+                      className="w-full rounded-lg border border-foreground/[0.1] bg-card px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:outline-none resize-y leading-relaxed"
+                      rows={2}
+                      value={editDraft.intro}
+                      onChange={(e) => setEditDraft((d) => ({ ...d, intro: e.target.value }))}
+                    />
+                  </div>
+                </div>
 
-                        {q.type === "multiple_choice" && (
-                          <div className="pl-6 space-y-1.5">
-                            <p className="text-[10px] text-foreground/35">Marcá cuál opción es la respuesta correcta:</p>
-                            {(q.options ?? []).map((opt, oIdx) => (
-                              <div key={oIdx} className="flex items-center gap-2">
-                                <input
-                                  type="radio"
-                                  name={`correct-${q.id}`}
-                                  checked={q.correct_index === oIdx}
-                                  onChange={() => setCorrectIndex(q.id, oIdx)}
-                                  className="h-3.5 w-3.5 accent-[#dafc69] shrink-0"
-                                />
-                                <input
-                                  className={`${inputCls} py-1.5`}
-                                  placeholder={`Opción ${oIdx + 1}`}
-                                  value={opt}
-                                  onChange={(e) => updateOption(q.id, oIdx, e.target.value)}
-                                />
+                <div>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-foreground/45">
+                      Preguntas <span className="font-normal normal-case text-foreground/35">({editDraft.questions.length})</span>
+                    </label>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {editDraft.questions.map((q, idx) => (
+                      <div key={q.id} className="rounded-xl border border-foreground/[0.08] bg-card p-3.5">
+                        <div className="flex items-start gap-2.5">
+                          <div className="flex flex-col items-center gap-0.5 pt-1.5 shrink-0">
+                            <GripVertical className="h-3.5 w-3.5 text-foreground/20" />
+                            <span className="text-[10px] font-bold text-foreground/30 tabular-nums">{idx + 1}</span>
+                          </div>
+
+                          <div className="flex-1 min-w-0 space-y-2.5">
+                            <input
+                              className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13.5px] font-medium text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none"
+                              placeholder="Texto de la pregunta…"
+                              value={q.label}
+                              onChange={(e) => updateQuestion(idx, { label: e.target.value })}
+                            />
+
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              {QUESTION_TYPE_OPTIONS.map((opt) => (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  onClick={() => setQuestionType(idx, opt.value)}
+                                  className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                                    q.type === opt.value
+                                      ? "border-[#dafc69]/60 bg-[#dafc69]/15 text-foreground"
+                                      : "border-foreground/[0.1] text-foreground/50 hover:text-foreground hover:border-foreground/20"
+                                  }`}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+
+                            {q.type === "multiple_choice" && (
+                              <div className="space-y-1.5 pl-1">
+                                {(q.options ?? []).map((opt, oIdx) => (
+                                  <div key={oIdx} className="flex items-center gap-1.5">
+                                    <span className="text-[11px] text-foreground/25 w-4 shrink-0 tabular-nums">{oIdx + 1}.</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => setCorrectOption(idx, oIdx)}
+                                      title="Marcar como respuesta correcta"
+                                      aria-label="Marcar como respuesta correcta"
+                                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                                        q.correct_index === oIdx
+                                          ? "border-emerald-500 bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"
+                                          : "border-foreground/[0.15] text-transparent hover:border-emerald-500/60 hover:text-emerald-600/60 dark:hover:text-emerald-400/50"
+                                      }`}
+                                    >
+                                      <Check className="h-3 w-3" />
+                                    </button>
+                                    <input
+                                      className="flex-1 rounded-md border border-foreground/[0.08] bg-foreground/[0.02] px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none"
+                                      placeholder={`Opción ${oIdx + 1}`}
+                                      value={opt}
+                                      onChange={(e) => updateOption(idx, oIdx, e.target.value)}
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => removeOption(idx, oIdx)}
+                                      disabled={(q.options ?? []).length <= 1}
+                                      className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/30 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 disabled:opacity-30 disabled:pointer-events-none transition-colors shrink-0"
+                                      aria-label="Sacar opción"
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </button>
+                                  </div>
+                                ))}
                                 <button
                                   type="button"
-                                  onClick={() => removeOption(q.id, oIdx)}
-                                  disabled={(q.options?.length ?? 0) <= 2}
-                                  className="p-1.5 text-foreground/30 hover:text-red-700 dark:hover:text-red-400 disabled:opacity-20 disabled:cursor-not-allowed transition-colors shrink-0"
+                                  onClick={() => addOption(idx)}
+                                  className="inline-flex items-center gap-1 pl-5 text-[11.5px] font-semibold text-foreground/45 hover:text-foreground transition-colors"
                                 >
-                                  <Trash2 className="h-3 w-3" />
+                                  <Plus className="h-3 w-3" /> Agregar opción
                                 </button>
+                                <p className="pl-5 text-[10.5px] text-foreground/30">
+                                  Tocá el círculo para marcar la respuesta correcta (opcional — sin marcar, esta pregunta no cuenta para aprobar el nivel).
+                                </p>
                               </div>
-                            ))}
-                            <button type="button" onClick={() => addOption(q.id)} className="flex items-center gap-1 text-[11px] font-semibold text-foreground/45 hover:text-foreground transition-colors">
-                              <Plus className="h-3 w-3" /> Agregar opción
+                            )}
+                          </div>
+
+                          <div className="flex flex-col items-center gap-0.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => moveQuestion(idx, -1)}
+                              disabled={idx === 0}
+                              className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] disabled:opacity-20 disabled:pointer-events-none transition-colors"
+                              aria-label="Subir pregunta"
+                            >
+                              <ChevronUp className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveQuestion(idx, 1)}
+                              disabled={idx === editDraft.questions.length - 1}
+                              className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] disabled:opacity-20 disabled:pointer-events-none transition-colors"
+                              aria-label="Bajar pregunta"
+                            >
+                              <ChevronDown className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeQuestion(idx)}
+                              className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/30 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-colors mt-1"
+                              aria-label="Borrar pregunta"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
                             </button>
                           </div>
-                        )}
+                        </div>
                       </div>
                     ))}
-                    {editDraft.questions.length === 0 && (
-                      <p className="text-[12px] text-foreground/35 italic">Todavía no hay preguntas.</p>
-                    )}
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={addQuestion}
+                    className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-foreground/[0.15] py-2.5 text-[12.5px] font-semibold text-foreground/50 hover:text-foreground hover:border-foreground/30 hover:bg-foreground/[0.02] transition-colors"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Agregar pregunta
+                  </button>
                 </div>
-                {editError && <p className="text-[12px] text-red-700 dark:text-red-400">{editError}</p>}
-                <button onClick={() => saveEdit(level)} className="rounded-lg bg-[#dafc69] px-4 py-1.5 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-colors">
-                  Guardar
-                </button>
+
+                {editError && <p className="text-[12.5px] text-red-700 dark:text-red-400">{editError}</p>}
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => saveEdit(level)}
+                    disabled={savingLevel}
+                    className="flex items-center gap-2 rounded-lg bg-[#dafc69] px-4 py-2 text-[12.5px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors"
+                  >
+                    {savingLevel && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    {savingLevel ? "Guardando…" : "Guardar"}
+                  </button>
+                  <button
+                    onClick={() => setEditingLevel(null)}
+                    className="rounded-lg px-3 py-2 text-[12.5px] font-semibold text-foreground/50 hover:text-foreground transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -409,6 +527,12 @@ export function AdminPosiView() {
                     <div className="flex items-center gap-3">
                       <span className="text-[13px] font-semibold text-foreground/85">{s.client_name}</span>
                       <span className="text-[12px] text-foreground/45">{level?.title ?? "—"}</span>
+                      {s.passed === true && (
+                        <span className="rounded-full bg-emerald-100 dark:bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700 dark:text-emerald-400">Aprobado</span>
+                      )}
+                      {s.passed === false && (
+                        <span className="rounded-full bg-red-100 dark:bg-red-500/10 px-2 py-0.5 text-[10.5px] font-bold text-red-700 dark:text-red-400">No aprobado</span>
+                      )}
                     </div>
                     <div className="flex items-center gap-3">
                       {score && (
@@ -423,15 +547,16 @@ export function AdminPosiView() {
                   {isExpanded && level && (
                     <div className="px-4 pb-4 space-y-3 border-t border-foreground/[0.06] pt-3">
                       {level.questions.map((q) => {
-                        const correct = isCorrectAnswer(q, s.answers[q.id])
+                        const isWrong = (s.wrong_question_ids ?? []).includes(q.id)
                         return (
                           <div key={q.id}>
-                            <div className="flex items-center gap-1.5">
-                              <p className="text-[12px] font-semibold text-foreground/60">{q.label}</p>
-                              {correct === true && <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />}
-                              {correct === false && <X className="h-3 w-3 text-red-700 dark:text-red-400" />}
-                            </div>
-                            <p className="text-[13px] text-foreground/85 mt-0.5">{formatAnswer(q, s.answers[q.id])}</p>
+                            <p className="flex items-center gap-1.5 text-[12px] font-semibold text-foreground/60">
+                              {q.label}
+                              {isWrong && <span className="text-red-700 dark:text-red-400">✕ incorrecta</span>}
+                            </p>
+                            <p className={`text-[13px] mt-0.5 ${isWrong ? "text-red-700 dark:text-red-400" : "text-foreground/85"}`}>
+                              {formatAnswer(q, s.answers[q.id])}
+                            </p>
                           </div>
                         )
                       })}

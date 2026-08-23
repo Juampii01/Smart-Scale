@@ -59,6 +59,17 @@ export function normalizeRole(role: UserRole): "admin" | "team" | "setter" | "cl
 
 export function isAdmin(role: UserRole):  boolean { return normalizeRole(role) === "admin" }
 export function isTeam(role: UserRole):   boolean { return normalizeRole(role) === "team" }
+
+/** admin O team — NO setter. Para datos financieros (facturación, cash
+ *  collected, MRR): el setter es el rol de menor confianza del equipo y no
+ *  debería poder leer la facturación de toda la cartera. Ninguna vista real
+ *  del setter llama a estos endpoints hoy (verificado, ver hallazgo #3 de
+ *  la auditoría 2026-08-20) — es distinto de isInternal(), que sí lo
+ *  incluye y es correcto para el resto del CRM (leads, setting, etc). */
+export function isStaffFinanciero(role: UserRole): boolean {
+  const r = normalizeRole(role)
+  return r === "admin" || r === "team"
+}
 export function isSetter(role: UserRole): boolean { return normalizeRole(role) === "setter" }
 
 /** Rol developer "crudo" (sin normalizar). `normalizeRole` colapsa developer en admin,

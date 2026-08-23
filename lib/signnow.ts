@@ -188,6 +188,26 @@ async function inviteSigner(documentId: string, signer: { email: string }, token
   }
 }
 
+/** Cancela la invitación de firma de un documento — se usa al regenerar un
+ *  contrato (ej. la plantilla tenía un dato mal y se corrigió) para que el
+ *  cliente no pueda firmar por error el documento viejo. Best-effort: si
+ *  falla (ej. ya estaba cancelada o firmada), no bloquea nada. */
+export async function cancelContractInvite(documentId: string): Promise<boolean> {
+  if (!SIGNNOW_CLIENT_ID || !SIGNNOW_CLIENT_SECRET || !SIGNNOW_USERNAME || !SIGNNOW_PASSWORD) return false
+  try {
+    const token = await getAccessToken()
+    if (!token) return false
+    const response = await fetch(`${SIGNNOW_API_BASE}/document/${documentId}/invite/cancel`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+    })
+    return response.ok
+  } catch (err) {
+    console.error("SignNow cancel invite error:", err)
+    return false
+  }
+}
+
 /** Punto de entrada único: crea el documento desde la plantilla, lo
  *  prefillea, registra el webhook de "firmado", y manda la invitación.
  *  Fire-and-forget desde el caller — nunca lanza. */
