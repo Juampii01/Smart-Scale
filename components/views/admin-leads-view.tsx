@@ -54,6 +54,13 @@ export function fmtDate(iso: string) {
   return `${dd}/${mm}/${yy}`
 }
 
+function fmtDateTime(iso: string) {
+  const d = new Date(iso)
+  const hh = String(d.getHours()).padStart(2, "0")
+  const min = String(d.getMinutes()).padStart(2, "0")
+  return `${fmtDate(iso)} · ${hh}:${min}`
+}
+
 // ─── Instagram: aceptar @usuario O link completo sin romper ─────────────────────
 
 /** href válido tanto si el valor es un @handle como si ya es una URL completa. */

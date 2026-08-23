@@ -102,7 +102,8 @@ export async function POST(req: NextRequest) {
   const { passed, wrongIds } = gradeAnswers((level as any).questions ?? [], answers)
 
   // Insert, no upsert — cada intento queda como fila propia (ej. reprobó y
-  // volvió a responder). El historial completo se ve en /admin/posi; la
+  // volvió a responder, o aprobó y quiere reintentar de nuevo — sin límite,
+  // haya aprobado o no). El historial completo se ve en /admin/posi; la
   // vista de cliente ya sabe tomar el intento más reciente por nivel.
   // Select explícito sin wrong_question_ids — no queremos que se filtre
   // por accidente en la respuesta (el cliente no debe verlo).

@@ -97,17 +97,28 @@ export type ViewAsTenant = { id: string; name: string; isInternalWorkspace: bool
 const TENANT_STORAGE_KEY = "smartScale.viewAsTenant"
 const TENANT_EVENT_NAME  = "smartScale.viewAsTenant.change"
 
+// Cachea por el string crudo de localStorage: useSyncExternalStore requiere que
+// getSnapshot devuelva la MISMA referencia si nada cambió, o entra en loop
+// infinito de renders (esto crasheaba la app entera al elegir un tenant, ya
+// que useViewAsTenant se usa en dashboard-layout.tsx, presente en toda página).
+let tenantCache: { raw: string | null; value: ViewAsTenant } = { raw: undefined as any, value: null }
+
 function readTenantStorage(): ViewAsTenant {
   if (typeof window === "undefined") return null
   const raw = window.localStorage.getItem(TENANT_STORAGE_KEY)
-  if (!raw) return null
-  try {
-    const parsed = JSON.parse(raw)
-    if (parsed && typeof parsed.id === "string" && typeof parsed.name === "string") {
-      return { id: parsed.id, name: parsed.name, isInternalWorkspace: Boolean(parsed.isInternalWorkspace) }
-    }
-  } catch {}
-  return null
+  if (raw === tenantCache.raw) return tenantCache.value
+
+  let value: ViewAsTenant = null
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw)
+      if (parsed && typeof parsed.id === "string" && typeof parsed.name === "string") {
+        value = { id: parsed.id, name: parsed.name, isInternalWorkspace: Boolean(parsed.isInternalWorkspace) }
+      }
+    } catch {}
+  }
+  tenantCache = { raw, value }
+  return value
 }
 
 export function getViewAsTenant(): ViewAsTenant {

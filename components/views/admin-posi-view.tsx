@@ -17,6 +17,7 @@ interface Question {
   label: string
   type: "text" | "yesno" | "multiple_choice"
   options?: string[]
+  /** Índice (dentro de options) de la respuesta correcta. Solo aplica a multiple_choice; sin esto no se marca como corregible. */
   correct_index?: number
 }
 
@@ -58,6 +59,20 @@ function formatAnswer(q: Question, raw: any): string {
   if (q.type === "multiple_choice" && typeof raw === "number") return q.options?.[raw] ?? String(raw)
   if (q.type === "yesno") return raw ? "Sí" : "No"
   return String(raw)
+}
+
+/** null = pregunta sin respuesta correcta definida (no se corrige). */
+function isCorrectAnswer(q: Question, raw: any): boolean | null {
+  if (q.type !== "multiple_choice" || typeof q.correct_index !== "number") return null
+  return raw === q.correct_index
+}
+
+function computeScore(level: Level | undefined, answers: Record<string, any>): { correct: number; total: number } | null {
+  if (!level) return null
+  const scored = level.questions.filter((q) => q.type === "multiple_choice" && typeof q.correct_index === "number")
+  if (scored.length === 0) return null
+  const correct = scored.filter((q) => answers[q.id] === q.correct_index).length
+  return { correct, total: scored.length }
 }
 
 export function AdminPosiView() {
@@ -502,6 +517,7 @@ export function AdminPosiView() {
             {submissions.map((s) => {
               const level = levels.find((l) => l.id === s.level_id)
               const isExpanded = expandedSubmission === s.id
+              const score = computeScore(level, s.answers)
               return (
                 <div key={s.id} className="rounded-xl border border-foreground/[0.08] bg-card overflow-hidden">
                   <button
@@ -519,6 +535,11 @@ export function AdminPosiView() {
                       )}
                     </div>
                     <div className="flex items-center gap-3">
+                      {score && (
+                        <span className={`text-[11px] font-semibold ${score.correct === score.total ? "text-emerald-700 dark:text-emerald-400" : "text-foreground/45"}`}>
+                          {score.correct}/{score.total} correctas
+                        </span>
+                      )}
                       <span className="text-[11px] text-foreground/35">{new Date(s.submitted_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}</span>
                       {isExpanded ? <ChevronUp className="h-3.5 w-3.5 text-foreground/30" /> : <ChevronDown className="h-3.5 w-3.5 text-foreground/30" />}
                     </div>

@@ -20,6 +20,7 @@ interface Question {
   label: string
   type: "text" | "yesno" | "multiple_choice"
   options?: string[]
+  correct_index?: number
 }
 
 interface Level {
@@ -32,6 +33,73 @@ interface Level {
 
 const inputCls = "w-full rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/25"
 
+// Umbral de aprobación — solo sobre preguntas multiple_choice con correct_index definido.
+const PASS_THRESHOLD = 0.7
+
+function computeScore(level: Level | null, answers: Record<string, any>): { correct: number; total: number } | null {
+  if (!level) return null
+  const scored = level.questions.filter((q) => q.type === "multiple_choice" && typeof q.correct_index === "number")
+  if (scored.length === 0) return null
+  const correct = scored.filter((q) => answers[q.id] === q.correct_index).length
+  return { correct, total: scored.length }
+}
+
+// El botón de reintentar sale siempre, haya aprobado o no — pedido explícito
+// del equipo (antes solo se ofrecía si reprobaba). Cada envío queda como
+// intento propio en el historial (insert, no upsert — ver submissions/route.ts).
+//
+// `score` es opcional: correct_index nunca se le manda a un cliente real
+// (levels/route.ts lo saca para todo el que no sea admin), así que
+// computeScore da null para el 99% de los casos reales — ahí se muestra
+// el resultado sin el detalle de puntaje, nunca "score: undefined/0".
+function ResultBanner({ passed, score, levelTitle, onRetry }: {
+  passed: boolean
+  score: { correct: number; total: number } | null
+  levelTitle?: string
+  onRetry?: () => void
+}) {
+  if (passed) {
+    return (
+      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-100 dark:bg-emerald-500/10 p-8 text-center">
+        <Check className="h-8 w-8 text-emerald-700 dark:text-emerald-400 mx-auto mb-3" />
+        <p className="text-[17px] font-bold text-emerald-700 dark:text-emerald-400">Has aprobado 🎉</p>
+        <p className="text-sm text-foreground/60 mt-1">
+          Gracias por completar {levelTitle ?? "el nivel"}.
+          {score && ` Respondiste correctamente ${score.correct} de ${score.total}.`}
+        </p>
+        {onRetry && (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="mt-5 rounded-xl border border-foreground/15 px-5 py-2.5 text-sm font-medium text-foreground/70 transition hover:bg-foreground/[0.04]"
+          >
+            Volver a responder
+          </button>
+        )}
+      </div>
+    )
+  }
+  return (
+    <div className="rounded-2xl border border-red-500/30 bg-red-100 dark:bg-red-500/10 p-8 text-center">
+      <X className="h-8 w-8 text-red-700 dark:text-red-400 mx-auto mb-3" />
+      <p className="text-[17px] font-bold text-red-700 dark:text-red-400">No has aprobado</p>
+      <p className="text-sm text-foreground/60 mt-1">
+        {score && `Respondiste correctamente ${score.correct} de ${score.total} en `}
+        {levelTitle ?? "Este nivel"}. Repasá el contenido en Skool antes de seguir.
+      </p>
+      {onRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="mt-5 rounded-xl bg-[#dafc69] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0]"
+        >
+          Volver a intentar
+        </button>
+      )}
+    </div>
+  )
+}
+
 export function PosiFormView({ levelNumber }: { levelNumber: number }) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -40,6 +108,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
   const [status, setStatus] = useState<"loading" | "ready" | "no-client" | "not-found" | "submitting" | "done" | "failed" | "error">("loading")
   const [level, setLevel] = useState<Level | null>(null)
   const [answers, setAnswers] = useState<Record<string, any>>({})
+  const [submittedAnswers, setSubmittedAnswers] = useState<Record<string, any> | null>(null)
   const [errorMsg, setErrorMsg] = useState("")
 
   const load = useCallback(async () => {
@@ -68,9 +137,11 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
     setLevel(foundLevel)
 
     // Se puede reintentar las veces que quiera, haya aprobado o no —
-    // pedido explícito (antes se bloqueaba si ya había aprobado). Cada
-    // envío queda como intento propio en el historial (ver
-    // app/api/posi/submissions/route.ts, insert en vez de upsert).
+    // pedido explícito (antes se bloqueaba si ya había aprobado, y la
+    // versión intermedia solo destrababa si reprobaba). Cada envío queda
+    // como intento propio en el historial (ver app/api/posi/submissions/
+    // route.ts, insert en vez de upsert) — no hace falta mirar intentos
+    // previos acá, el formulario siempre arranca en blanco.
     setStatus("ready")
   }, [levelNumber, overrideClientId, router])
 
@@ -135,13 +206,27 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
           </div>
         )}
 
-        {status === "done" && (
-          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06] p-8 text-center">
-            <Check className="h-8 w-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-3" />
-            <p className="text-[15px] font-semibold text-foreground">¡Listo, quedó enviado! 🎉</p>
-            <p className="text-sm text-foreground/50 mt-1">Gracias por completar el {level?.title}.</p>
-          </div>
-        )}
+        {status === "done" && (() => {
+          const score = computeScore(level, answers)
+          if (!score) {
+            return (
+              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06] p-8 text-center">
+                <Check className="h-8 w-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-3" />
+                <p className="text-[15px] font-semibold text-foreground">¡Listo, quedó enviado! 🎉</p>
+                <p className="text-sm text-foreground/50 mt-1">Gracias por completar el {level?.title}.</p>
+              </div>
+            )
+          }
+          const passed = score.correct / score.total >= PASS_THRESHOLD
+          return (
+            <ResultBanner
+              passed={passed}
+              score={score}
+              levelTitle={level?.title}
+              onRetry={() => { setErrorMsg(""); setAnswers({}); setStatus("ready") }}
+            />
+          )
+        })()}
 
         {status === "failed" && (
           <div className="rounded-2xl border border-red-500/20 bg-red-50 dark:bg-red-500/[0.06] p-8 text-center">

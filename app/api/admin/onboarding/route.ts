@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse, after } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireInternal } from "@/lib/auth/api-guards"
+import { getSmartScaleTenantId } from "@/lib/auth/internal-scope"
 import { notifyClientOnboarded } from "@/lib/slack"
 import { sendWelcomeEmail, sendCredentialsToAdmin } from "@/lib/email"
 import { sendContractForSignature } from "@/lib/signnow"
@@ -176,6 +177,15 @@ export async function POST(req: NextRequest) {
       ? Number(cuotasWithValues[0][1])
       : (numInstallments > 0 ? totalAmount / numInstallments : totalAmount)
 
+    // Este alta manual es del onboarding propio de Smart Scale (copia el
+    // playbook de Alberto, dispara contrato SignNow, etc.) — no hay flujo
+    // equivalente por tenant todavía, así que siempre cae al sector interno
+    // propio de Smart Scale.
+    const smartScaleTenantId = await getSmartScaleTenantId(supabase)
+    if (!smartScaleTenantId) {
+      return NextResponse.json({ error: "No se encontró el tenant interno de Smart Scale" }, { status: 500 })
+    }
+
     const { data: crmClient, error: crmErr } = await supabase
       .from("crm_clients")
       .insert({
@@ -192,6 +202,7 @@ export async function POST(req: NextRequest) {
         total_amount:       totalAmount,
         status:             "activo",
         notes:              notesLines.join(" | ") || null,
+        client_id:          smartScaleTenantId,
         forma_pago:         formaPago,
         ...(finalSetterId ? { setter_id: finalSetterId } : {}),
         ...(leadId ? { lead_id: leadId } : {}),
