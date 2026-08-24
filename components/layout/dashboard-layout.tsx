@@ -179,6 +179,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
   const [ownClientId, setOwnClientId] = useState<string | null>(null)
+  const [crmEnabled, setCrmEnabled] = useState(false)
   const [clientDisplayName, setClientDisplayName] = useState<string | null>(null)
   const [activeClientId, setActiveClientId] = useState<string | null>(null)
   const [profilesList, setProfilesList] = useState<
@@ -399,6 +400,17 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           if (clientRow?.nombre) setClientDisplayName(clientRow.nombre)
         }
 
+        // CRM interno — interruptor por cuenta (prompt-crm.md). Invisible en
+        // el sidebar hasta que esté prendido para este client_id puntual.
+        if (!isAdminRole(role) && cid) {
+          const { data: crmRow } = await supabase
+            .from("clients")
+            .select("crm_enabled")
+            .eq("id", cid)
+            .maybeSingle()
+          setCrmEnabled(!!(crmRow as any)?.crm_enabled)
+        }
+
         // Initialize active client.
         //  - admin: stored override → su propio cid → null
         //  - team / setter: su propio cid → fallback al cid del admin (Ann)
@@ -561,6 +573,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             avatarUrl={avatarUrl}
             displayName={clientDisplayName ?? userEmail}
             email={userEmail}
+            crmEnabled={crmEnabled}
           />}
 
       <div className={`flex-1 flex flex-col h-full overflow-hidden transition-[margin] duration-200 bg-background pt-[env(safe-area-inset-top)] ${
