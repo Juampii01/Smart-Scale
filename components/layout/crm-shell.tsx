@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils"
 type NavItem = { label: string; href?: string; icon: React.ComponentType<{ className?: string }> }
 
 const GROUPS: { label: string | null; items: NavItem[] }[] = [
-  { label: null, items: [{ label: "Hoy", icon: LayoutDashboard }] },
+  { label: null, items: [{ label: "Hoy", href: "/crm/hoy", icon: LayoutDashboard }] },
   {
     label: "Tu cartera",
     items: [

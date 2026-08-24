@@ -117,6 +117,9 @@ export async function PATCH(req: NextRequest) {
     for (const field of ["name", "handle", "estimated_value", "source", "notes", "call_tag"] as const) {
       if (field in body) updates[field] = body[field]
     }
+    // "Hoy" cuenta llamadas agendadas por mes — necesita saber cuándo se
+    // tildó, no solo el estado actual.
+    if ("call_tag" in body && body.call_tag) updates.call_tagged_at = new Date().toISOString()
     if (archive === true) updates.archived_at = new Date().toISOString()
     if (archive === false) updates.archived_at = null
 
