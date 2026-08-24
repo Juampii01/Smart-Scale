@@ -5,7 +5,7 @@ import {
   ClipboardList, Zap, Globe, FileVideo, ChevronDown,
   ShieldCheck, ArrowRight, Sparkles, Instagram, Youtube,
   User, Pencil, Trophy, Coins, FileBarChart, TrendingUp,
-  Brain, Bot, Wrench,
+  Brain, Bot, Wrench, Rocket, Lock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -22,6 +22,7 @@ interface SidebarProps {
   avatarUrl?: string | null
   displayName?: string | null
   email?: string | null
+  crmEnabled?: boolean
 }
 
 type ChildItem = { name: string; href: string }
@@ -99,6 +100,7 @@ const LS_ITEMS = "ss_sidebar_items"
 export function Sidebar({
   open, onClose, isAdmin = false,
   avatarUrl, displayName, email,
+  crmEnabled = false,
 }: SidebarProps) {
   const pathname = usePathname()
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
@@ -242,6 +244,21 @@ export function Sidebar({
                 <ArrowRight className="h-3.5 w-3.5 text-foreground/30 group-hover:translate-x-0.5 transition-transform" />
               </div>
             </Link>
+          )}
+
+          {crmEnabled && (
+            <div
+              className="flex items-center gap-2.5 rounded-lg border border-foreground/[0.08] bg-foreground/[0.02] px-3 py-2.5 cursor-not-allowed select-none"
+              title="Todavía no está disponible"
+            >
+              <Rocket className="h-4 w-4 shrink-0 text-foreground/35" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-[13px] font-semibold text-foreground/60 leading-none">CRM interno</span>
+                <span className="mt-0.5 flex items-center gap-1 text-[11px] text-foreground/40">
+                  <Lock className="h-2.5 w-2.5" /> Próximamente
+                </span>
+              </span>
+            </div>
           )}
 
           {hasProfile && (
