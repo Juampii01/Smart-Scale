@@ -52,3 +52,4 @@ supabase/.temp/
 .env*.local
 test-onboarding-flow.js
 test-error-watch.js
+.env.crm-testing
