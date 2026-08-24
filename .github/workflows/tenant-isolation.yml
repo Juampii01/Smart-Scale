@@ -1,0 +1,28 @@
+name: Tenant isolation test
+
+# Puerta #2 del CRM interno: el aislamiento por cliente se prueba a nivel de
+# base de datos en cada despliegue, no a mano de vez en cuando. Corre contra
+# la rama de pruebas de Supabase (crm-testing) — nunca contra producción,
+# el script mismo aborta si detecta la URL del proyecto real.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  isolation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install @supabase/supabase-js
+        run: npm install @supabase/supabase-js@2 --no-save
+      - name: Run isolation test
+        env:
+          CRM_TEST_SUPABASE_URL: ${{ secrets.CRM_TEST_SUPABASE_URL }}
+          CRM_TEST_SUPABASE_ANON_KEY: ${{ secrets.CRM_TEST_SUPABASE_ANON_KEY }}
+          CRM_TEST_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.CRM_TEST_SUPABASE_SERVICE_ROLE_KEY }}
+        run: node tests/tenant-isolation.mjs
