@@ -26,3 +26,9 @@ jobs:
           CRM_TEST_SUPABASE_ANON_KEY: ${{ secrets.CRM_TEST_SUPABASE_ANON_KEY }}
           CRM_TEST_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.CRM_TEST_SUPABASE_SERVICE_ROLE_KEY }}
         run: node tests/tenant-isolation.mjs
+      - name: Run CRM staff-readonly test
+        env:
+          CRM_TEST_SUPABASE_URL: ${{ secrets.CRM_TEST_SUPABASE_URL }}
+          CRM_TEST_SUPABASE_ANON_KEY: ${{ secrets.CRM_TEST_SUPABASE_ANON_KEY }}
+          CRM_TEST_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.CRM_TEST_SUPABASE_SERVICE_ROLE_KEY }}
+        run: node tests/crm-staff-readonly.mjs

@@ -7,7 +7,8 @@
     "dev": "next dev",
     "lint": "eslint .",
     "start": "next start",
-    "test:isolation": "node tests/tenant-isolation.mjs"
+    "test:isolation": "node tests/tenant-isolation.mjs",
+    "test:crm-readonly": "node tests/crm-staff-readonly.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",
