@@ -2,11 +2,11 @@
 
 import { Loader2 } from "lucide-react"
 import { CrmShell } from "@/components/layout/crm-shell"
-import { CrmPipelineView } from "@/components/views/crm-pipeline-view"
+import { CrmHoyView } from "@/components/views/crm-hoy-view"
 import { useCrmAccess } from "@/lib/crm/use-crm-access"
 
-export default function CrmPipelinePage() {
-  const access = useCrmAccess("/crm/pipeline")
+export default function CrmHoyPage() {
+  const access = useCrmAccess("/crm/hoy")
 
   if (access.status === "loading") {
     return (
@@ -27,7 +27,7 @@ export default function CrmPipelinePage() {
 
   return (
     <CrmShell clientName={access.clientName} readOnly={access.readOnly}>
-      <CrmPipelineView clientId={access.clientId} readOnly={access.readOnly} />
+      <CrmHoyView clientId={access.clientId} clientName={access.clientName} readOnly={access.readOnly} />
     </CrmShell>
   )
 }
