@@ -17,6 +17,7 @@ interface PipelineBoardProps {
   leads:    Lead[]
   onSelect: (lead: Lead) => void
   onPatch:  (id: string, updates: Partial<Lead>) => void
+  readOnly?: boolean
 }
 
 // Orden totalmente automático en cualquier columna: primero por rating
@@ -30,7 +31,7 @@ function compareLeads(a: Lead, b: Lead) {
   return a.created_at < b.created_at ? 1 : -1
 }
 
-export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) {
+export function PipelineBoard({ leads, onSelect, onPatch, readOnly = false }: PipelineBoardProps) {
   const [items, setItems] = useState<Lead[]>(leads)
   const [activeLead, setActiveLead] = useState<Lead | null>(null)
   // Presionado (default) = ocultar los leads sin 4/5★. Al soltarlo aparece
@@ -213,6 +214,7 @@ export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) 
               onSelect={onSelect}
               onPatch={onPatch}
               droppable={false}
+              readOnly={readOnly}
             />
           </div>
         )}
@@ -225,6 +227,7 @@ export function PipelineBoard({ leads, onSelect, onPatch }: PipelineBoardProps) 
               leads={byStage.get(col.id) ?? []}
               onSelect={onSelect}
               onPatch={onPatch}
+              readOnly={readOnly}
             />
           </div>
         ))}

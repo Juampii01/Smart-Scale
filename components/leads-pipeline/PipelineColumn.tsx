@@ -15,10 +15,11 @@ interface PipelineColumnProps {
   // "Sin estrellas" no es una etapa real del pipeline — se puede arrastrar
   // leads AFUERA de ahí (para calificarlas), pero no soltar nada adentro.
   droppable?:  boolean
+  readOnly?:   boolean
 }
 
-export function PipelineColumn({ id, title, accentColor, leads, onSelect, onPatch, droppable = true }: PipelineColumnProps) {
-  const { setNodeRef, isOver } = useDroppable({ id, disabled: !droppable })
+export function PipelineColumn({ id, title, accentColor, leads, onSelect, onPatch, droppable = true, readOnly = false }: PipelineColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({ id, disabled: !droppable || readOnly })
 
   return (
     <div className="flex flex-col min-h-0" style={{ minWidth: 0 }}>
@@ -40,7 +41,7 @@ export function PipelineColumn({ id, title, accentColor, leads, onSelect, onPatc
       >
         <SortableContext items={leads.map(l => l.id)} strategy={verticalListSortingStrategy}>
           {leads.map(lead => (
-            <PipelineCard key={lead.id} lead={lead} onClick={onSelect} onPatch={onPatch} />
+            <PipelineCard key={lead.id} lead={lead} onClick={onSelect} onPatch={onPatch} readOnly={readOnly} />
           ))}
         </SortableContext>
         {!leads.length && (

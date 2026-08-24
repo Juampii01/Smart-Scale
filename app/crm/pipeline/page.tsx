@@ -2,9 +2,14 @@
 
 import { Loader2 } from "lucide-react"
 import { CrmShell } from "@/components/layout/crm-shell"
-import { CrmPipelineView } from "@/components/views/crm-pipeline-view"
+import { PipelineView } from "@/components/views/pipeline-view"
 import { useCrmAccess } from "@/lib/crm/use-crm-access"
 
+// Mismo motor de Kanban que /admin/leads (drag-and-drop, rating 1-5★, 8
+// etapas, seguimiento por fecha) — pedido explícito del usuario: "todo
+// igual, incluido rating y 8 etapas". Antes vivía en /pipeline (nunca
+// lanzado); ahora cuelga del shell del CRM interno + el mismo gate de
+// crm_enabled que el resto.
 export default function CrmPipelinePage() {
   const access = useCrmAccess("/crm/pipeline")
 
@@ -27,7 +32,7 @@ export default function CrmPipelinePage() {
 
   return (
     <CrmShell clientName={access.clientName} readOnly={access.readOnly}>
-      <CrmPipelineView clientId={access.clientId} readOnly={access.readOnly} />
+      <PipelineView clientId={access.clientId} readOnly={access.readOnly} />
     </CrmShell>
   )
 }
