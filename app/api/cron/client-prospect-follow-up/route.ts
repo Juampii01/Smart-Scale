@@ -71,7 +71,7 @@ async function runClientProspectFollowUp() {
         await sendPushToUsers(supabase, userIds, {
           title: "⏰ Seguimiento pendiente",
           body:  `${prospect.name ?? "Un prospecto"} — tenías un seguimiento agendado para hoy`,
-          url:   "/pipeline",
+          url:   "/crm/pipeline",
         })
       }
       await supabase

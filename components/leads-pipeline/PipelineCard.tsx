@@ -11,6 +11,7 @@ interface PipelineCardProps {
   onClick: (lead: Lead) => void
   onPatch?: (id: string, updates: Partial<Lead>) => void
   isOverlay?: boolean
+  readOnly?: boolean
 }
 
 function followUpTone(dateStr: string) {
@@ -20,10 +21,10 @@ function followUpTone(dateStr: string) {
   return { color: "var(--muted-foreground)", label: null }
 }
 
-export function PipelineCard({ lead, onClick, onPatch, isOverlay = false }: PipelineCardProps) {
+export function PipelineCard({ lead, onClick, onPatch, isOverlay = false, readOnly = false }: PipelineCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lead.id,
-    disabled: isOverlay,
+    disabled: isOverlay || readOnly,
   })
 
   const style = {
@@ -51,10 +52,10 @@ export function PipelineCard({ lead, onClick, onPatch, isOverlay = false }: Pipe
     <div
       ref={setNodeRef}
       style={style}
-      {...listeners}
-      {...attributes}
+      {...(readOnly ? {} : listeners)}
+      {...(readOnly ? {} : attributes)}
       onClick={() => !isDragging && onClick(lead)}
-      className={`cursor-pointer rounded-xl border p-3 space-y-2 transition-all touch-none ${
+      className={`rounded-xl border p-3 space-y-2 transition-all touch-none ${readOnly ? "cursor-default" : "cursor-pointer"} ${
         isOverdue
           ? "border-red-300 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 hover:border-red-400 dark:hover:border-red-500/60"
           : "border-foreground/[0.08] bg-card hover:border-foreground/20"
@@ -88,7 +89,7 @@ export function PipelineCard({ lead, onClick, onPatch, isOverlay = false }: Pipe
       )}
 
       <div className="flex items-center justify-between gap-2">
-        {lead.next_follow_up_at && onPatch ? (
+        {lead.next_follow_up_at && onPatch && !readOnly ? (
           <button
             onClick={markFollowUpDone}
             title="Marcar seguimiento como hecho"

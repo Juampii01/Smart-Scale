@@ -6,17 +6,19 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 /**
- * /api/client/prospects — pipeline propio de cada cliente (Paso 1 de
- * Fundaciones del roadmap multi-tenant). Mismo motor de columnas que el
- * pipeline interno (app/api/admin/leads), pero acá cada fila pertenece a
- * un client_id y el acceso está scopeado con resolveSocialScope: un cliente
- * solo opera sobre el suyo, staff interno puede pasar ?client_id para
- * operar sobre cualquiera (view-as).
+ * /api/client/prospects — Pipeline del CRM interno del cliente (mismo
+ * motor de columnas que el pipeline interno, app/api/admin/leads).
  *
- * La RLS de public.client_prospects (ver migración 20260810000002) ya
- * bloquea el cruce entre clientes si algún día se consulta con el cliente
- * browser — acá, usando service_role, el scope de client_id en cada query
- * es el gate real.
+ * GET: resolveSocialScope — un cliente solo ve el suyo, staff interno
+ * puede pasar ?client_id para ver cualquiera (view-as).
+ *
+ * POST/PATCH/DELETE: acá el gate es MÁS estricto que resolveSocialScope
+ * solo — el CRM interno es la única superficie donde staff NO tiene
+ * bypass de escritura, ni con ?client_id (ver prompt-crm.md → Permisos:
+ * "el equipo entra en solo lectura, sin excepciones"). Mismo criterio que
+ * /api/client/crm/prospects. La RLS de client_prospects (migración
+ * 20260824000003) es el segundo cinturón — acá con service_role hace
+ * falta el chequeo explícito, RLS nunca es el único gate.
  */
 
 const SELECT_FIELDS =
@@ -49,6 +51,9 @@ export async function POST(req: NextRequest) {
 
     const scope = await resolveSocialScope(req, body.client_id)
     if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
+    if (scope.role !== "client") {
+      return NextResponse.json({ error: "El equipo de Smart Scale ve el CRM en solo lectura." }, { status: 403 })
+    }
 
     const { name, instagram, tag, email, source, lead_type, niche, notes, rating } = body
     if (!name?.trim()) return NextResponse.json({ error: "name is required" }, { status: 400 })
@@ -89,6 +94,9 @@ export async function PATCH(req: NextRequest) {
 
     const scope = await resolveSocialScope(req, requestedClientId)
     if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
+    if (scope.role !== "client") {
+      return NextResponse.json({ error: "El equipo de Smart Scale ve el CRM en solo lectura." }, { status: 403 })
+    }
 
     const PATCHABLE = ["status", "source", "lead_type", "niche", "notes", "rating", "instagram", "email", "tag", "name", "purchased", "custom_fields", "next_follow_up_at", "deal_value"]
     const allowed: Record<string, any> = { updated_at: new Date().toISOString() }
@@ -123,6 +131,9 @@ export async function DELETE(req: NextRequest) {
 
     const scope = await resolveSocialScope(req, body.client_id)
     if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
+    if (scope.role !== "client") {
+      return NextResponse.json({ error: "El equipo de Smart Scale ve el CRM en solo lectura." }, { status: 403 })
+    }
 
     const supabase = createServiceClient()
     const { error, count } = await supabase

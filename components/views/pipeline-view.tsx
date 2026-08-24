@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react"
 import { Plus, X, Loader2, Star, Instagram, ExternalLink, Trash2, CheckCircle2 } from "lucide-react"
 import { createClient } from "@/lib/supabase"
-import { useActiveClient } from "@/components/layout/dashboard-layout"
 import type { Lead } from "@/components/views/admin-leads-view"
 import { igHref, igLabel, fmtDate } from "@/components/views/admin-leads-view"
 import { PipelineBoard } from "@/components/leads-pipeline/PipelineBoard"
@@ -48,6 +47,7 @@ function fieldInput(
   value: string,
   onBlur: (v: string) => void,
   placeholder = "",
+  disabled = false,
 ) {
   return (
     <div className="space-y-1.5">
@@ -56,20 +56,22 @@ function fieldInput(
         type="text"
         defaultValue={value}
         placeholder={placeholder}
+        disabled={disabled}
         onBlur={e => onBlur(e.target.value)}
         onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-        className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
+        className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
       />
     </div>
   )
 }
 
-function DetailModal({ prospect, onClose, onPatch, onDelete, deleting }: {
+function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly = false }: {
   prospect: Lead
   onClose:  () => void
   onPatch:  (id: string, updates: Partial<Lead>) => void
   onDelete: (id: string) => void
   deleting: boolean
+  readOnly?: boolean
 }) {
   const ig = prospect.instagram?.trim()
 
@@ -83,10 +85,12 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting }: {
             <p className="text-[12px] text-foreground/35 mt-0.5">{fmtDate(prospect.created_at)}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button onClick={() => onDelete(prospect.id)} disabled={deleting} aria-label="Eliminar prospecto"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-foreground hover:bg-foreground/[0.08] transition-all disabled:opacity-40">
-              {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-            </button>
+            {!readOnly && (
+              <button onClick={() => onDelete(prospect.id)} disabled={deleting} aria-label="Eliminar prospecto"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-foreground hover:bg-foreground/[0.08] transition-all disabled:opacity-40">
+                {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+              </button>
+            )}
             <button onClick={onClose} aria-label="Cerrar"
               className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
               <X className="h-4 w-4" />
@@ -95,7 +99,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting }: {
         </div>
 
         <div className="border-b border-foreground/[0.06] px-6 py-4 space-y-3">
-          <StarRating value={prospect.rating} onChange={n => onPatch(prospect.id, { rating: n || null })} />
+          <StarRating value={prospect.rating} onChange={n => !readOnly && onPatch(prospect.id, { rating: n || null })} />
           {ig && (
             <a href={igHref(ig)} target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2 text-[13px] text-[#dafc69] hover:text-[#f2ffc0] transition-colors">
@@ -111,12 +115,13 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting }: {
             <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Etapa del pipeline</p>
             <select
               value={effectiveStage(prospect) ?? "__none__"}
+              disabled={readOnly}
               onChange={e => {
                 const val = e.target.value
                 if (val === "__none__") { onPatch(prospect.id, { status: "nuevo", purchased: false }); return }
                 onPatch(prospect.id, { status: val, purchased: val === "compraron" })
               }}
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all"
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <option value="__none__">Sin calificar (no aparece en el pipeline)</option>
               {PIPELINE_COLUMNS.map(col => (
@@ -131,15 +136,16 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting }: {
               <input
                 type="date"
                 defaultValue={prospect.next_follow_up_at ?? ""}
+                disabled={readOnly}
                 onChange={e => onPatch(prospect.id, { next_follow_up_at: e.target.value || null })}
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all"
+                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               />
             </div>
             <div className="space-y-1.5">
               <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">&nbsp;</p>
               <button
                 type="button"
-                disabled={!prospect.next_follow_up_at}
+                disabled={!prospect.next_follow_up_at || readOnly}
                 onClick={() => onPatch(prospect.id, { next_follow_up_at: null })}
                 className="w-full h-[42px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-[13px] font-semibold text-foreground/60 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all disabled:opacity-40"
               >
@@ -149,10 +155,10 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting }: {
             </div>
           </div>
 
-          {fieldInput("Desde dónde llegó", prospect.source ?? "", v => onPatch(prospect.id, { source: v || null }), "ej: Instagram, referido, evento...")}
-          {fieldInput("Nicho", prospect.niche ?? "", v => onPatch(prospect.id, { niche: v || null }), "ej: el rubro de este prospecto")}
-          {fieldInput("Instagram", prospect.instagram ?? "", v => onPatch(prospect.id, { instagram: v || null }), "@usuario")}
-          {fieldInput("Email", prospect.email ?? "", v => onPatch(prospect.id, { email: v || null }), "correo@ejemplo.com")}
+          {fieldInput("Desde dónde llegó", prospect.source ?? "", v => onPatch(prospect.id, { source: v || null }), "ej: Instagram, referido, evento...", readOnly)}
+          {fieldInput("Nicho", prospect.niche ?? "", v => onPatch(prospect.id, { niche: v || null }), "ej: el rubro de este prospecto", readOnly)}
+          {fieldInput("Instagram", prospect.instagram ?? "", v => onPatch(prospect.id, { instagram: v || null }), "@usuario", readOnly)}
+          {fieldInput("Email", prospect.email ?? "", v => onPatch(prospect.id, { email: v || null }), "correo@ejemplo.com", readOnly)}
 
           <div className="space-y-1.5">
             <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Notas</p>
@@ -160,8 +166,9 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting }: {
               defaultValue={prospect.notes ?? ""}
               placeholder="Observaciones, contexto..."
               rows={4}
+              disabled={readOnly}
               onBlur={e => onPatch(prospect.id, { notes: e.target.value || null })}
-              className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
+              className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
         </div>
@@ -238,8 +245,7 @@ function NewProspectModal({ onClose, onCreate, creating }: {
   )
 }
 
-export function PipelineView() {
-  const activeClientId = useActiveClient()
+export function PipelineView({ clientId: activeClientId, readOnly = false }: { clientId: string | null; readOnly?: boolean }) {
   const [prospects, setProspects] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -331,13 +337,15 @@ export function PipelineView() {
           <h1 className="text-xl font-bold text-foreground">Pipeline</h1>
           <p className="text-[13px] text-foreground/40 mt-0.5">Tu cartera de prospectos, de punta a punta.</p>
         </div>
-        <button
-          onClick={() => setShowNewForm(true)}
-          className="inline-flex items-center gap-1.5 h-9 rounded-xl bg-foreground px-3.5 text-[13px] font-bold text-background hover:bg-foreground/90 transition-all"
-        >
-          <Plus className="h-4 w-4" />
-          Nuevo prospecto
-        </button>
+        {!readOnly && (
+          <button
+            onClick={() => setShowNewForm(true)}
+            className="inline-flex items-center gap-1.5 h-9 rounded-xl bg-foreground px-3.5 text-[13px] font-bold text-background hover:bg-foreground/90 transition-all"
+          >
+            <Plus className="h-4 w-4" />
+            Nuevo prospecto
+          </button>
+        )}
       </div>
 
       {error && (
@@ -346,7 +354,7 @@ export function PipelineView() {
         </div>
       )}
 
-      <PipelineBoard leads={prospects} onSelect={setSelected} onPatch={handlePatch} />
+      <PipelineBoard leads={prospects} onSelect={setSelected} onPatch={handlePatch} readOnly={readOnly} />
 
       {selected && (
         <DetailModal
@@ -355,10 +363,11 @@ export function PipelineView() {
           onPatch={handlePatch}
           onDelete={handleDelete}
           deleting={deletingId === selected.id}
+          readOnly={readOnly}
         />
       )}
 
-      {showNewForm && (
+      {showNewForm && !readOnly && (
         <NewProspectModal
           onClose={() => setShowNewForm(false)}
           onCreate={handleCreate}
