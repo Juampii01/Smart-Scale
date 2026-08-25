@@ -939,6 +939,7 @@ export async function POST(req: NextRequest) {
       thumbnail  = null
 
       if (!transcript) {
+        console.error("[transcript] instagram 422:", url, "invalidShortCode:", ig.invalidShortCode, "username:", ig.username)
         return NextResponse.json({
           error: ig.invalidShortCode
             ? "Ese link no es válido — el código del reel tiene caracteres que Instagram no usa (probablemente un error al copiarlo o tipearlo). Volvé a Instagram, tocá Compartir → Copiar link, y pegalo de nuevo sin editarlo."
@@ -969,6 +970,12 @@ export async function POST(req: NextRequest) {
           : ytResult.reason === "possibly_blocked"
           ? "No se pudo verificar este video en este momento (puede ser algo temporal). Probá de nuevo en unos segundos."
           : "No se pudo obtener la transcripción de este video desde los proveedores disponibles."
+
+        // Sin esto, un 422 acá era invisible en /admin/dev-logs — el único
+        // rastro quedaba en el body de la respuesta al cliente, que nadie
+        // del equipo ve. Con esto, la frecuencia real de "possibly_blocked"
+        // (bloqueo anti-bot transitorio) queda medible.
+        console.error("[transcript] youtube 422:", url, "reason:", ytResult.reason, "provider:", ytResult.provider, "debug:", ytResult.debug)
 
         return NextResponse.json({
           error: errorMessage,
