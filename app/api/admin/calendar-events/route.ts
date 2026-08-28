@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     const supabase = createServiceClient()
     const { data, error } = await supabase
       .from("calendar_events")
-      .select("id, title, description, day_of_week, time, tz_label, zoom_url, passcode, status, recurrence, sort_order, created_at")
+      .select("id, title, description, day_of_week, time, tz_label, zoom_url, passcode, status, recurrence, next_date, sort_order, created_at")
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: true })
 
@@ -56,6 +56,7 @@ export async function POST(req: NextRequest) {
         passcode:    body.passcode || null,
         status:      body.status || "active",
         recurrence:  body.recurrence || "weekly",
+        next_date:   body.next_date || null,
         sort_order:  body.sort_order ?? 0,
       })
       .select()
