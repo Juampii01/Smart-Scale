@@ -52,6 +52,7 @@ export default function ForgotPasswordPage() {
       >
         <div className="mb-2 flex flex-col items-center gap-3 text-center">
           <AuthMark size={48} />
+          <div className="text-[13px] font-semibold tracking-[0.35em] text-foreground">SMART SCALE</div>
           <h1 className="text-foreground text-[24px] font-semibold">Recuperar contraseña</h1>
         </div>
 
