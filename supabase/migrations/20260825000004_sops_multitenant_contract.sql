@@ -1,28 +1,24 @@
--- Sector interno multi-tenant — Fase 0.5: sops.
+-- Sector interno multi-tenant — sops.
+-- CONTRACT (paso 2 de 2, expand/contract). Aplicar SOLO después de que el
+-- código de crm/multitenant-kit ya esté deployado en producción. Antes de
+-- eso, aplicar esto rompe la creación de SOPs desde `main` (insert sin
+-- client_id -> NOT NULL) y además la nueva policy de insert exige
+-- client_id = internal_tenant_id, que el código viejo no setea.
 --
--- `sops` es un tab DENTRO de Centro Operativo, que el prompt del panel
--- interno por cliente asumía ya aislado (comparte pantalla con
--- centro_op_pages, que sí lo está). No lo estaba: cero columna de tenant,
--- y sus policies de RLS (`internal_read_sops` etc., de sops.sql) solo
--- miran el rol, nunca el tenant. Un admin/team/setter de un cliente vería
--- y podría editar/borrar los SOPs de Smart Scale mezclados con los suyos
--- — peor que un hallazgo founder-only, porque la pantalla YA está en el
--- kit del cliente, no hace falta adivinar una URL.
+-- Reemplaza (no agrega al lado de) las 4 policies viejas de sops.sql —
+-- dejarlas vivas en paralelo a las nuevas seguiría dando acceso
+-- cross-tenant, porque Postgres combina policies permisivas con OR.
 --
--- Mismo patrón que leads_multitenant.sql / applications_multitenant.sql,
--- pero acá SÍ hay policies previas para `authenticated` que reemplazar
--- (no solo agregar): dejarlas vivas en paralelo a las nuevas seguiría
--- dando acceso cross-tenant, porque Postgres las combina con OR.
+-- Ver 20260825000002_sops_multitenant_expand.sql para el resto del
+-- contexto de por qué está partido en dos pasos.
 
-alter table public.sops add column if not exists client_id uuid references public.clients(id);
-
+-- Re-backfill: cubre filas que hayan entrado con client_id NULL entre el
+-- expand y el deploy del código.
 update public.sops
 set client_id = (select id from public.clients where is_internal_workspace = true)
 where client_id is null;
 
 alter table public.sops alter column client_id set not null;
-
-create index if not exists sops_client_id_idx on public.sops (client_id);
 
 -- Lectura: admin/team/setter, y solo de su propio tenant (o platform owner).
 drop policy if exists "internal_read_sops" on public.sops;
