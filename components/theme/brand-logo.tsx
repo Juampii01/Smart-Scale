@@ -6,7 +6,7 @@
  * lineal infinito y el núcleo pulsa cada 3.6s — respeta prefers-reduced-motion
  * vía la clase `motion-reduce:animate-none`.
  */
-function OrbitMark({ size = 28 }: { size?: number }) {
+function OrbitMark({ size = 28, mono = false }: { size?: number; mono?: boolean }) {
   const dots = [0, 60, 120, 180, 240, 300]
   return (
     <span
@@ -17,24 +17,28 @@ function OrbitMark({ size = 28 }: { size?: number }) {
         {dots.map(a => (
           <i
             key={a}
-            className="absolute left-1/2 top-1/2 -m-[2px] h-1 w-1 rounded-full border-[1.3px] border-accent opacity-50"
+            className={mono
+              ? "absolute left-1/2 top-1/2 -m-[2px] h-1 w-1 rounded-full border-[1.3px] border-foreground opacity-40"
+              : "absolute left-1/2 top-1/2 -m-[2px] h-1 w-1 rounded-full border-[1.3px] border-accent opacity-50"}
             style={{ transform: `rotate(${a}deg) translateY(-${size * 0.39}px) rotate(-${a}deg)` }}
           />
         ))}
       </span>
       <span
-        className="rounded-full bg-[#dafc69] animate-[ss-pulse_3.6s_ease-out_infinite] motion-reduce:animate-none"
+        className={mono
+          ? "rounded-full bg-foreground animate-[ss-pulse_3.6s_ease-out_infinite] motion-reduce:animate-none"
+          : "rounded-full bg-[#dafc69] animate-[ss-pulse_3.6s_ease-out_infinite] motion-reduce:animate-none"}
         style={{ width: "44%", aspectRatio: "1" }}
       />
     </span>
   )
 }
 
-export function BrandLogo({ size = 28, wordmarkSize = 15, iconOnly = false }: { size?: number; wordmarkSize?: number; iconOnly?: boolean }) {
-  if (iconOnly) return <OrbitMark size={size} />
+export function BrandLogo({ size = 28, wordmarkSize = 15, iconOnly = false, mono = false }: { size?: number; wordmarkSize?: number; iconOnly?: boolean; mono?: boolean }) {
+  if (iconOnly) return <OrbitMark size={size} mono={mono} />
   return (
     <span className="flex items-center gap-3">
-      <OrbitMark size={size} />
+      <OrbitMark size={size} mono={mono} />
       <span
         className="font-sans font-light uppercase leading-none tracking-[0.14em] text-foreground"
         style={{ fontSize: wordmarkSize }}

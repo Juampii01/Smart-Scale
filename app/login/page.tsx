@@ -2,23 +2,25 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { BrandLogo } from "@/components/theme/brand-logo";
 import { getDefaultLandingForRole } from "@/lib/auth/permissions";
 import { APP_VERSION } from "@/lib/utils";
 
-// Marca del login — círculo sólido con "S", monocromo a propósito.
-// Pedido textual de Ann: "sin verde, logo con círculo, más cuadrado y
-// visible". Es una variante deliberadamente distinta del isotipo lima
-// (OrbitMark en components/theme/brand-logo.tsx) — esta pantalla no
-// hereda el sistema de acento del resto de la app.
-function LoginMark({ size = 56 }: { size?: number }) {
+// Marca del login: el isotipo real de Smart Scale (OrbitMark), en su
+// variante monocroma, dentro de un círculo — no una marca inventada.
+// "Sin verde" se resuelve con la variante mono; "logo con círculo" es
+// el isotipo real más el aro que lo enmarca acá.
+function LoginMark({ size = 64 }: { size?: number }) {
   return (
     <span
-      className="inline-flex shrink-0 items-center justify-center rounded-full bg-foreground text-background font-black"
-      style={{ width: size, height: size, fontSize: size * 0.42 }}
+      className="inline-flex shrink-0 items-center justify-center rounded-full border border-foreground/15 bg-foreground/[0.03]"
+      style={{ width: size, height: size }}
     >
-      S
+      <BrandLogo iconOnly size={size * 0.5} mono />
     </span>
   );
 }
@@ -29,6 +31,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -115,13 +118,13 @@ export default function LoginPage() {
         <div className="relative space-y-6">
           <span className="inline-block h-1 w-10 rounded-full bg-foreground/25" />
 
-          <h2 className="text-4xl font-bold leading-[1.15] tracking-tight text-foreground">
+          <h2 className="text-[32px] font-bold leading-[1.15] tracking-tight text-foreground">
             Tu negocio,<br />
             bajo control.<br />
             En tiempo real.
           </h2>
 
-          <p className="max-w-sm text-sm leading-relaxed text-text-3">
+          <p className="max-w-sm text-[13px] leading-relaxed text-text-3">
             Performance, auditoría, inteligencia de mercado y análisis de contenido — todo en un solo lugar.
           </p>
 
@@ -137,7 +140,7 @@ export default function LoginPage() {
                 className="rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-4 py-2.5"
               >
                 <p className="text-[11px] text-text-3 uppercase tracking-widest">{s.label}</p>
-                <p className="mt-0.5 text-sm font-bold text-foreground">{s.value}</p>
+                <p className="mt-0.5 text-[13px] font-bold text-foreground">{s.value}</p>
               </div>
             ))}
           </div>
@@ -156,7 +159,7 @@ export default function LoginPage() {
 
         {/* Mobile logo */}
         <div className="mb-10 flex items-center gap-3 lg:hidden">
-          <LoginMark size={44} />
+          <LoginMark size={48} />
           <span className="text-foreground text-[14px] font-black tracking-[0.18em]">SMART SCALE</span>
         </div>
 
@@ -164,8 +167,8 @@ export default function LoginPage() {
 
           {/* Heading */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">Iniciar sesión</h1>
-            <p className="mt-1.5 text-sm text-text-3">
+            <h1 className="text-[24px] font-bold tracking-tight text-foreground">Iniciar sesión</h1>
+            <p className="mt-1.5 text-[13px] text-text-3">
               Ingresá con tus credenciales para acceder.
             </p>
           </div>
@@ -178,7 +181,7 @@ export default function LoginPage() {
                 Email
               </label>
               <input
-                className="h-12 w-full rounded-lg border border-foreground/[0.10] bg-foreground/[0.04] px-4 text-sm text-foreground outline-none placeholder:text-text-3 transition-all focus:border-foreground/30 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-foreground/10"
+                className="h-12 w-full rounded-lg border border-foreground/[0.10] bg-foreground/[0.04] px-4 text-[13px] text-foreground outline-none placeholder:text-text-3 transition-all focus:border-foreground/30 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-foreground/10"
                 placeholder="tu@email.com"
                 type="email"
                 value={email}
@@ -193,26 +196,36 @@ export default function LoginPage() {
                 <label className="block text-[11px] font-semibold uppercase tracking-widest text-text-3">
                   Contraseña
                 </label>
-                <a
+                <Link
                   href="/forgot-password"
                   className="text-[13px] text-text-3 transition hover:text-foreground"
                 >
                   ¿La olvidaste?
-                </a>
+                </Link>
               </div>
-              <input
-                className="h-12 w-full rounded-lg border border-foreground/[0.10] bg-foreground/[0.04] px-4 text-sm text-foreground outline-none placeholder:text-text-3 transition-all focus:border-foreground/30 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-foreground/10"
-                placeholder="••••••••"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-              />
+              <div className="relative">
+                <input
+                  className="h-12 w-full rounded-lg border border-foreground/[0.10] bg-foreground/[0.04] pl-4 pr-11 text-[13px] text-foreground outline-none placeholder:text-text-3 transition-all focus:border-foreground/30 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-foreground/10"
+                  placeholder="••••••••"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-0 top-0 flex h-12 w-11 items-center justify-center text-text-3 transition hover:text-foreground"
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
 
             {errorMsg && (
-              <div className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-xs leading-relaxed text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
+              <div className="rounded-lg border border-danger/25 bg-danger-soft px-4 py-3 text-[13px] leading-relaxed text-danger">
                 {errorMsg}
               </div>
             )}
@@ -220,7 +233,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 h-12 w-full rounded-lg bg-foreground text-background text-sm font-bold transition-all hover:opacity-90 disabled:opacity-50 active:scale-[0.98]"
+              className="mt-2 h-12 w-full rounded-lg bg-foreground text-background text-[13px] font-bold transition-all hover:opacity-90 disabled:opacity-50 active:scale-[0.98]"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

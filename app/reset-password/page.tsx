@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
 function parseHashParams(hash: string) {
@@ -46,6 +47,8 @@ export default function ResetPasswordPage() {
 
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Avoid contradictory UI (info + error) during link validation.
@@ -332,30 +335,52 @@ export default function ResetPasswordPage() {
 
               <div className="space-y-2">
                 <label className="block text-sm text-foreground">Nueva contraseña</label>
-                <input
-                  className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 px-3 text-foreground outline-none placeholder:text-text-3 focus:border-foreground/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
-                  placeholder="Mínimo 6 caracteres"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={!inputsEnabled}
-                  autoComplete="new-password"
-                />
+                <div className="relative">
+                  <input
+                    className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 pl-3 pr-10 text-foreground outline-none placeholder:text-text-3 focus:border-foreground/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
+                    placeholder="Mínimo 6 caracteres"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={!inputsEnabled}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-0 top-0 flex h-11 w-10 items-center justify-center text-text-3 transition hover:text-foreground disabled:opacity-40"
+                    disabled={!inputsEnabled}
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-2">
                 <label className="block text-sm text-foreground">Repetir contraseña</label>
-                <input
-                  className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 px-3 text-foreground outline-none placeholder:text-text-3 focus:border-foreground/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
-                  placeholder="Repetí la contraseña"
-                  type="password"
-                  value={password2}
-                  onChange={(e) => setPassword2(e.target.value)}
-                  required
-                  disabled={!inputsEnabled}
-                  autoComplete="new-password"
-                />
+                <div className="relative">
+                  <input
+                    className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 pl-3 pr-10 text-foreground outline-none placeholder:text-text-3 focus:border-foreground/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
+                    placeholder="Repetí la contraseña"
+                    type={showPassword2 ? "text" : "password"}
+                    value={password2}
+                    onChange={(e) => setPassword2(e.target.value)}
+                    required
+                    disabled={!inputsEnabled}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword2((v) => !v)}
+                    className="absolute right-0 top-0 flex h-11 w-10 items-center justify-center text-text-3 transition hover:text-foreground disabled:opacity-40"
+                    disabled={!inputsEnabled}
+                    aria-label={showPassword2 ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {showPassword2 ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
 
               <button
