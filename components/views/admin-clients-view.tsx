@@ -2,13 +2,15 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { createClient } from "@/lib/supabase"
+import { isPlatformOwnerEmail } from "@/lib/auth/platform-owner"
+import { NewUserDialog } from "@/components/admin/new-user-dialog"
 import {
   Loader2, Plus, Trash2, RefreshCw, X, ChevronRight,
   CheckCircle2, Circle, AlertCircle, Clock, Users,
   DollarSign, Calendar, Mail,
   MessageCircle, PhoneCall, MoreHorizontal,
   Check, ChevronUp, ChevronDown, ChevronsUpDown, UserX,
-  BarChart3, FileText, Sparkles,
+  BarChart3, FileText, Sparkles, ShieldCheck,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -818,6 +820,7 @@ function DetailDrawer({
   onOffboard,
   onReactivate,
   onSendRenewalEmail,
+  isPlatformOwner,
   deleting,
   offboarding,
   reactivating,
@@ -836,6 +839,7 @@ function DetailDrawer({
   onOffboard:          (id: string) => Promise<void>
   onReactivate:        (id: string, data: ReactivateData) => Promise<void>
   onSendRenewalEmail:  (id: string) => Promise<void>
+  isPlatformOwner:     boolean
   deleting:            boolean
   sendingRenewal:      boolean
   offboarding:         boolean
@@ -843,6 +847,7 @@ function DetailDrawer({
 }) {
   const [drawerTab,        setDrawerTab]          = useState<"crm" | "reports" | "calls">("crm")
   const [showReactivateForm, setShowReactivateForm] = useState(false)
+  const [showTenantDialog, setShowTenantDialog]   = useState(false)
   const [showFollowupForm, setShowFollowupForm]   = useState(false)
   const [fuDate,           setFuDate]             = useState(todayStr())
   const [fuType,           setFuType]             = useState<Followup["type"]>("whatsapp")
@@ -905,6 +910,13 @@ function DetailDrawer({
           }}
         />
       )}
+      {showTenantDialog && (
+        <NewUserDialog
+          open
+          onClose={() => setShowTenantDialog(false)}
+          fixedTenant={{ id: client.id, name: client.name }}
+        />
+      )}
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[480px] flex-col border-l border-foreground/[0.08] shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
 
@@ -927,6 +939,20 @@ function DetailDrawer({
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            {/* Provisionar el sector interno del cliente (Leads/Setting/Prospección
+                aislados) — exclusivo del platform owner, mismo criterio que "Ver
+                Clientes" y el selector de sector interno de Nuevo Usuario. */}
+            {isPlatformOwner && (
+              <button
+                onClick={() => setShowTenantDialog(true)}
+                aria-label="Crear usuario del sector interno"
+                title="Crear el primer usuario admin del sector interno de este cliente (Leads/Setting/Prospección aislados)"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-[11px] font-semibold text-foreground/70 hover:bg-secondary hover:text-foreground transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
+              >
+                <ShieldCheck className="h-3.5 w-3.5" />
+                <span>Sector interno</span>
+              </button>
+            )}
             {/* Enviar email de renovación a mano — sin esperar la ventana de 7 días del cron.
                 Siempre visible (aunque deshabilitado) para que no parezca que falta construirlo. */}
             {client.status === "activo" && (
@@ -1798,6 +1824,7 @@ export function AdminClientsView() {
   const [sortKey,       setSortKey]      = useState<SortKey>("created_at")
   const [sortDir,       setSortDir]      = useState<"asc" | "desc">("desc")
   const [viewMonth,     setViewMonth]    = useState<string>(() => new Date().toISOString().slice(0, 7))
+  const [isPlatformOwner, setIsPlatformOwner] = useState(false)
 
   const currentMonthStr = new Date().toISOString().slice(0, 7)
 
@@ -1846,6 +1873,15 @@ export function AdminClientsView() {
   }, [])
 
   useEffect(() => { fetchClients() }, [fetchClients])
+
+  // Solo el platform owner puede provisionar el sector interno de un cliente
+  // (crear su primer usuario admin) — mismo criterio que "Ver Clientes" y el
+  // selector de sector interno del diálogo de Nuevo Usuario.
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => {
+      setIsPlatformOwner(isPlatformOwnerEmail(data?.user?.email))
+    })
+  }, [])
 
   // Keep selected client in sync when clients list updates
   useEffect(() => {
@@ -2124,6 +2160,7 @@ export function AdminClientsView() {
           onOffboard={handleOffboardClient}
           onReactivate={handleReactivateClient}
           onSendRenewalEmail={handleSendRenewalEmail}
+          isPlatformOwner={isPlatformOwner}
           deleting={deletingId === selected.id}
           offboarding={offboardingId === selected.id}
           reactivating={reactivatingId === selected.id}
