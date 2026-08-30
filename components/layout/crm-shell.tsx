@@ -50,14 +50,14 @@ function NavRow({ label, href, icon: Icon, active }: NavItem & { active: boolean
         active
           ? "bg-foreground/[0.07] text-[#dafc69]"
           : locked
-            ? "text-foreground/30 cursor-not-allowed"
-            : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground",
+            ? "text-text-3 cursor-not-allowed"
+            : "text-foreground hover:bg-foreground/[0.05] hover:text-foreground",
       )}
       title={locked ? "Próximamente" : undefined}
     >
       <Icon className="h-[14px] w-[14px] shrink-0" />
       <span className={cn("flex-1 text-[13px] leading-none", active && "font-semibold")}>{label}</span>
-      {locked && <Lock className="h-3 w-3 text-foreground/25" />}
+      {locked && <Lock className="h-3 w-3 text-text-3" />}
     </div>
   )
   if (!href) return row
@@ -87,7 +87,7 @@ export function CrmShell({
             <BrandLogo />
             <span className="rounded-full border border-accent/30 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-[#dafc69] leading-none">CRM</span>
           </div>
-          <button className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-foreground/50 hover:text-foreground hover:bg-foreground/10 transition-all" onClick={() => setOpen(false)} aria-label="Cerrar menú">
+          <button className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-foreground/10 transition-all" onClick={() => setOpen(false)} aria-label="Cerrar menú">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -95,7 +95,7 @@ export function CrmShell({
         <nav className="flex-1 overflow-y-auto py-2 px-3">
           {GROUPS.map((g, gi) => (
             <div key={g.label ?? `g${gi}`} className={cn(gi > 0 && "mt-6")}>
-              {g.label && <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/35">{g.label}</p>}
+              {g.label && <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-text-3">{g.label}</p>}
               <div className="space-y-0.5">
                 {g.items.map((item) => (
                   <NavRow key={item.label} {...item} active={!!item.href && item.href === pathname} />
@@ -107,7 +107,7 @@ export function CrmShell({
 
         <div className="shrink-0 p-3">
           <Link href="/dashboard" onClick={() => setOpen(false)}>
-            <div className="group flex items-center gap-2.5 rounded-lg px-3 py-2 text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground transition-all duration-150">
+            <div className="group flex items-center gap-2.5 rounded-lg px-3 py-2 text-foreground hover:bg-foreground/[0.05] hover:text-foreground transition-all duration-150">
               <ArrowLeft className="h-4 w-4 shrink-0" />
               <span className="flex-1 text-[13px] font-medium">Volver al panel externo</span>
             </div>
@@ -124,7 +124,7 @@ export function CrmShell({
         )}
 
         <header className="flex h-14 shrink-0 items-center gap-3 px-5 border-b border-foreground/[0.07] lg:hidden">
-          <button onClick={() => setOpen(true)} className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/60 hover:bg-foreground/[0.05]" aria-label="Abrir menú">
+          <button onClick={() => setOpen(true)} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:bg-foreground/[0.05]" aria-label="Abrir menú">
             <Menu className="h-5 w-5" />
           </button>
           <span className="text-sm font-semibold text-foreground">CRM interno</span>

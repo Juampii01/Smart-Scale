@@ -209,7 +209,7 @@ export function HelpChat() {
             </div>
             <div>
               <p className="text-[14px] font-bold text-foreground leading-tight">Asistente del dashboard</p>
-              <p className="text-[11px] text-foreground/35 mt-0.5">IA · te ayuda a usar Smart Scale</p>
+              <p className="text-[11px] text-text-3 mt-0.5">IA · te ayuda a usar Smart Scale</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -217,7 +217,7 @@ export function HelpChat() {
               <button
                 onClick={reset}
                 title="Reiniciar conversación"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/5 transition"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/5 transition"
               >
                 <RotateCcw className="h-4 w-4" />
               </button>
@@ -225,7 +225,7 @@ export function HelpChat() {
             <button
               onClick={() => setOpen(false)}
               title="Cerrar (Esc)"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/5 transition"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/5 transition"
             >
               <X className="h-4 w-4" />
             </button>
@@ -243,7 +243,7 @@ export function HelpChat() {
                 className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[13.5px] ${
                   m.role === "user"
                     ? "bg-[#dafc69] text-black font-medium"
-                    : "bg-foreground/[0.04] border border-foreground/[0.06] text-foreground/85"
+                    : "bg-foreground/[0.04] border border-foreground/[0.06] text-foreground"
                 }`}
               >
                 <div className="space-y-1">
@@ -256,7 +256,7 @@ export function HelpChat() {
           {loading && (
             <div className="flex justify-start">
               <div className="rounded-2xl bg-foreground/[0.04] border border-foreground/[0.06] px-4 py-2.5">
-                <div className="flex items-center gap-2 text-[12px] text-foreground/40">
+                <div className="flex items-center gap-2 text-[12px] text-text-2">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   Pensando…
                 </div>
@@ -267,14 +267,14 @@ export function HelpChat() {
           {/* Starter questions cuando solo hay welcome */}
           {messages.length === 1 && !loading && (
             <div className="space-y-2 pt-2">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30 px-1">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 px-1">
                 Probá con
               </p>
               {STARTERS.map(q => (
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
-                  className="block w-full text-left rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2 text-[12.5px] text-foreground/65 hover:text-foreground hover:border-border hover:bg-secondary transition-all"
+                  className="block w-full text-left rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2 text-[12.5px] text-text-2 hover:text-foreground hover:border-border hover:bg-secondary transition-all"
                 >
                   {q}
                 </button>
@@ -299,7 +299,7 @@ export function HelpChat() {
               onKeyDown={handleKeyDown}
               placeholder="Preguntá cualquier cosa sobre el dashboard…"
               rows={1}
-              className="flex-1 resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-accent focus:bg-foreground/[0.05] transition-all max-h-32"
+              className="flex-1 resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-accent focus:bg-foreground/[0.05] transition-all max-h-32"
               style={{ minHeight: "42px" }}
               disabled={loading}
             />
@@ -312,7 +312,7 @@ export function HelpChat() {
               <Send className="h-4 w-4" />
             </button>
           </div>
-          <p className="mt-1.5 text-[10px] text-foreground/25 text-center">
+          <p className="mt-1.5 text-[10px] text-text-3 text-center">
             Enter para enviar · Shift+Enter para nueva línea · Esc para cerrar
           </p>
         </form>

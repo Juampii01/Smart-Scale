@@ -449,7 +449,7 @@ export function KanbanBoard() {
             <CheckSquare className="h-6 w-6 text-[#dafc69]" />
             Tareas
           </h1>
-          <p className="text-sm text-foreground/40 mt-1">Tablero compartido · Ann · Steffano · Juan</p>
+          <p className="text-sm text-text-2 mt-1">Tablero compartido · Ann · Steffano · Juan</p>
         </div>
         <button
           onClick={() => openCreateModal()}
@@ -466,7 +466,7 @@ export function KanbanBoard() {
         <button
           onClick={clearFilters}
           className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
-            !anyFilter ? "bg-foreground/10 text-foreground" : "text-foreground/40 hover:bg-foreground/[0.05]"
+            !anyFilter ? "bg-foreground/10 text-foreground" : "text-text-2 hover:bg-foreground/[0.05]"
           }`}
         >
           Todas <span className="tabular-nums opacity-60">{metrics.total}</span>
@@ -500,7 +500,7 @@ export function KanbanBoard() {
           onClick={() => setFilterAssignee(a => a === "__none__" ? null : "__none__")}
           disabled={metrics.unassigned === 0}
           className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all disabled:opacity-30 ${
-            filterAssignee === "__none__" ? "bg-foreground/10 text-foreground" : "text-foreground/40 hover:bg-foreground/[0.05]"
+            filterAssignee === "__none__" ? "bg-foreground/10 text-foreground" : "text-text-2 hover:bg-foreground/[0.05]"
           }`}
         >
           Sin asignar <span className="tabular-nums opacity-60">{metrics.unassigned}</span>
@@ -530,7 +530,7 @@ export function KanbanBoard() {
         {anyFilter && (
           <button
             onClick={clearFilters}
-            className="ml-1 text-xs text-foreground/40 hover:text-foreground/70 transition-colors"
+            className="ml-1 text-xs text-text-2 hover:text-foreground transition-colors"
           >
             Limpiar filtros
           </button>

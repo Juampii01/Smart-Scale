@@ -149,12 +149,12 @@ function CelebrationOverlay({
             <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
               {firstName ? `¡Felicitaciones, ${firstName}!` : "¡Reporte completado!"}
             </h2>
-            <p className="text-sm leading-relaxed text-foreground/60">
+            <p className="text-sm leading-relaxed text-text-2">
               Tu reporte de{" "}
               <span className="font-semibold capitalize text-foreground">{monthLabel}</span>{" "}
               está guardado.
             </p>
-            <p className="text-xs text-foreground/35">
+            <p className="text-xs text-text-3">
               Seguís construyendo tu Ecosistema Circular. 🔥
             </p>
           </div>
@@ -193,10 +193,10 @@ function ConfirmOverwriteDialog({
               <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-400" />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1">Reporte existente</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-1">Reporte existente</p>
               <h3 className="text-base font-semibold text-foreground">¿Reemplazar los datos?</h3>
-              <p className="mt-1.5 text-sm text-foreground/50">
-                Ya existe un reporte para <span className="font-semibold text-foreground/80">{month}</span>. Los datos actuales serán reemplazados por los que estás por guardar.
+              <p className="mt-1.5 text-sm text-text-2">
+                Ya existe un reporte para <span className="font-semibold text-foreground">{month}</span>. Los datos actuales serán reemplazados por los que estás por guardar.
               </p>
             </div>
           </div>
@@ -204,7 +204,7 @@ function ConfirmOverwriteDialog({
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-sm font-medium text-foreground/70 transition hover:bg-foreground/[0.08] hover:text-foreground"
+              className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-sm font-medium text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground"
             >
               Cancelar
             </button>
@@ -409,7 +409,7 @@ export function ReportInputView() {
           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
             tab === "form"
               ? "bg-secondary text-foreground"
-              : "text-foreground/40 hover:text-foreground/70"
+              : "text-text-2 hover:text-foreground"
           }`}
         >
           <FileText className="h-3.5 w-3.5" />
@@ -421,7 +421,7 @@ export function ReportInputView() {
           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
             tab === "history"
               ? "bg-secondary text-foreground"
-              : "text-foreground/40 hover:text-foreground/70"
+              : "text-text-2 hover:text-foreground"
           }`}
         >
           <History className="h-3.5 w-3.5" />
@@ -445,11 +445,11 @@ export function ReportInputView() {
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-            <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">
+            <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground">
               Cargar Reporte Mensual
             </h1>
           </div>
-          <p className="text-xs text-foreground/30 ml-[18px]">
+          <p className="text-xs text-text-3 ml-[18px]">
             {isUpdate ? "Actualizando reporte existente" : "Nuevo reporte"} · Supabase → Slack
           </p>
         </div>
@@ -460,7 +460,7 @@ export function ReportInputView() {
             <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Aviso · este reporte es tuyo</p>
-              <p className="text-[13px] text-foreground/75 mt-0.5">
+              <p className="text-[13px] text-foreground mt-0.5">
                 Estás navegando como <span className="font-semibold text-foreground">{activeName ?? "otro cliente"}</span>, pero este formulario siempre carga y guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
               </p>
             </div>
@@ -472,7 +472,7 @@ export function ReportInputView() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
           <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1.5">Mes del reporte</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">Mes del reporte</p>
               <input
                 type="month"
                 value={month}
@@ -482,7 +482,7 @@ export function ReportInputView() {
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               {loadingExisting && (
-                <span className="flex items-center gap-1.5 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[10px] text-foreground/40">
+                <span className="flex items-center gap-1.5 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[10px] text-text-2">
                   <Loader2 className="h-3 w-3 animate-spin" />Cargando…
                 </span>
               )}
@@ -511,9 +511,9 @@ export function ReportInputView() {
             <div className="flex items-center justify-between border-b border-foreground/[0.05] px-5 py-3">
               <div className="flex items-center gap-2">
                 <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
-                <span className="text-sm font-semibold uppercase tracking-widest text-foreground/75">{group.label}</span>
+                <span className="text-sm font-semibold uppercase tracking-widest text-foreground">{group.label}</span>
               </div>
-              <span className="text-[10px] text-foreground/25">{group.fields.length} campos</span>
+              <span className="text-[10px] text-text-3">{group.fields.length} campos</span>
             </div>
 
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -524,9 +524,9 @@ export function ReportInputView() {
                 if (isNps) {
                   return (
                     <div key={field.key} className="sm:col-span-2 lg:col-span-3 flex flex-col gap-2 rounded-[14px] border border-border bg-secondary/20 p-5">
-                      <label className="text-xs font-semibold uppercase tracking-widest text-foreground/65">
+                      <label className="text-xs font-semibold uppercase tracking-widest text-text-2">
                         {field.label}
-                        <span className="ml-1.5 text-foreground/35 normal-case tracking-normal font-normal">— del 1 al 10</span>
+                        <span className="ml-1.5 text-text-3 normal-case tracking-normal font-normal">— del 1 al 10</span>
                       </label>
                       <div className="flex items-center gap-3 flex-wrap">
                         {[1,2,3,4,5,6,7,8,9,10].map((n) => (
@@ -537,7 +537,7 @@ export function ReportInputView() {
                             className={`h-10 w-10 rounded-xl text-sm font-bold transition-all ${
                               values[field.key] === String(n)
                                 ? "bg-secondary text-foreground"
-                                : "border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:border-border hover:text-foreground"
+                                : "border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:border-border hover:text-foreground"
                             }`}
                           >
                             {n}
@@ -547,7 +547,7 @@ export function ReportInputView() {
                           <button
                             type="button"
                             onClick={() => setValue(field.key, "")}
-                            className="ml-2 text-xs text-foreground/25 hover:text-foreground/50 transition-colors"
+                            className="ml-2 text-xs text-text-3 hover:text-text-2 transition-colors"
                           >
                             limpiar
                           </button>
@@ -559,10 +559,10 @@ export function ReportInputView() {
 
                 return (
                   <div key={field.key} className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold uppercase tracking-widest text-foreground/65">
+                    <label className="text-xs font-semibold uppercase tracking-widest text-text-2">
                       {field.label}
                       {"hint" in field && field.hint && (
-                        <span className="ml-1 text-foreground/40 normal-case tracking-normal font-normal text-xs">({field.hint})</span>
+                        <span className="ml-1 text-text-2 normal-case tracking-normal font-normal text-xs">({field.hint})</span>
                       )}
                     </label>
                     {field.type === "text" ? (
@@ -571,7 +571,7 @@ export function ReportInputView() {
                         onChange={(e) => setValue(field.key, e.target.value)}
                         rows={2}
                         placeholder="—"
-                        className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-base text-foreground placeholder:text-foreground/20 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+                        className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-base text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
                       />
                     ) : (
                       <input
@@ -581,7 +581,7 @@ export function ReportInputView() {
                         placeholder="0"
                         min={"min" in field ? field.min : 0}
                         step="any"
-                        className={`w-full rounded-xl border px-3 py-2 text-base font-semibold text-foreground placeholder:text-foreground/20 focus:outline-none focus:ring-1 ${
+                        className={`w-full rounded-xl border px-3 py-2 text-base font-semibold text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 ${
                           isHighlight
                             ? "border-accent bg-secondary focus:border-accent focus:ring-accent/20"
                             : "border-foreground/[0.08] bg-foreground/[0.04] focus:border-accent focus:ring-accent/20"
@@ -602,7 +602,7 @@ export function ReportInputView() {
                           <button
                             type="button"
                             onClick={() => setValue("mrr", String(mrrCalc.value))}
-                            className="text-[11px] font-semibold text-foreground/70 hover:text-foreground underline transition-colors"
+                            className="text-[11px] font-semibold text-foreground hover:text-foreground underline transition-colors"
                           >
                             ${mrrCalc.value.toLocaleString()} — usar
                           </button>
@@ -648,13 +648,13 @@ export function ReportInputView() {
               onClick={handleTest}
               disabled={status === "loading" || !ownClientId}
               title="Solo developer: guarda un reporte con datos ficticios"
-              className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/[0.04] px-5 py-2.5 text-sm font-bold text-foreground/70 transition hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/[0.04] px-5 py-2.5 text-sm font-bold text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FlaskConical className="h-4 w-4" />
               Testear
             </button>
           )}
-          <p className="text-xs text-foreground/25">
+          <p className="text-xs text-text-3">
             Los datos se guardan primero en Supabase. Las notificaciones van en segundo plano.
           </p>
         </div>

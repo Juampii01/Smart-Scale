@@ -33,7 +33,7 @@ function StarRating({ value, onChange }: { value: number | null; onChange: (n: n
         >
           <Star
             className={`h-5 w-5 transition-colors ${
-              (value ?? 0) >= n ? "fill-[var(--accent-ink)] text-[#dafc69]" : "text-foreground/15"
+              (value ?? 0) >= n ? "fill-[var(--accent-ink)] text-[#dafc69]" : "text-text-3"
             }`}
           />
         </button>
@@ -51,7 +51,7 @@ function fieldInput(
 ) {
   return (
     <div className="space-y-1.5">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">{label}</p>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">{label}</p>
       <input
         type="text"
         defaultValue={value}
@@ -59,7 +59,7 @@ function fieldInput(
         disabled={disabled}
         onBlur={e => onBlur(e.target.value)}
         onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-        className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
       />
     </div>
   )
@@ -82,17 +82,17 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
         <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
           <div className="min-w-0">
             <h2 className="text-lg font-bold text-foreground truncate">{prospect.name ?? "Prospecto"}</h2>
-            <p className="text-[12px] text-foreground/35 mt-0.5">{fmtDate(prospect.created_at)}</p>
+            <p className="text-[12px] text-text-3 mt-0.5">{fmtDate(prospect.created_at)}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {!readOnly && (
               <button onClick={() => onDelete(prospect.id)} disabled={deleting} aria-label="Eliminar prospecto"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-foreground hover:bg-foreground/[0.08] transition-all disabled:opacity-40">
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.08] transition-all disabled:opacity-40">
                 {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
               </button>
             )}
             <button onClick={onClose} aria-label="Cerrar"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -112,7 +112,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
 
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Etapa del pipeline</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Etapa del pipeline</p>
             <select
               value={effectiveStage(prospect) ?? "__none__"}
               disabled={readOnly}
@@ -132,7 +132,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Próximo seguimiento</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Próximo seguimiento</p>
               <input
                 type="date"
                 defaultValue={prospect.next_follow_up_at ?? ""}
@@ -142,12 +142,12 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
               />
             </div>
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">&nbsp;</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">&nbsp;</p>
               <button
                 type="button"
                 disabled={!prospect.next_follow_up_at || readOnly}
                 onClick={() => onPatch(prospect.id, { next_follow_up_at: null })}
-                className="w-full h-[42px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-[13px] font-semibold text-foreground/60 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all disabled:opacity-40"
+                className="w-full h-[42px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-[13px] font-semibold text-text-2 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all disabled:opacity-40"
               >
                 <CheckCircle2 className="h-4 w-4" />
                 Marcar hecho
@@ -161,14 +161,14 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
           {fieldInput("Email", prospect.email ?? "", v => onPatch(prospect.id, { email: v || null }), "correo@ejemplo.com", readOnly)}
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Notas</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Notas</p>
             <textarea
               defaultValue={prospect.notes ?? ""}
               placeholder="Observaciones, contexto..."
               rows={4}
               disabled={readOnly}
               onBlur={e => onPatch(prospect.id, { notes: e.target.value || null })}
-              className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
         </div>
@@ -203,34 +203,34 @@ function NewProspectModal({ onClose, onCreate, creating }: {
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-base font-bold text-foreground">Nuevo prospecto</h3>
             <button type="button" onClick={onClose}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
               <X className="h-4 w-4" />
             </button>
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Nombre *</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Nombre *</p>
             <input autoFocus type="text" value={name} onChange={e => setName(e.target.value)}
               placeholder="Nombre completo"
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all" />
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Instagram</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Instagram</p>
             <input type="text" value={instagram} onChange={e => setInstagram(e.target.value)}
               placeholder="@usuario"
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all" />
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Desde dónde llegó</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Desde dónde llegó</p>
             <input type="text" value={source} onChange={e => setSource(e.target.value)}
               placeholder="ej: Instagram, referido, evento..."
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all" />
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Calificación</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Calificación</p>
             <StarRating value={rating || null} onChange={n => setRating(n)} />
           </div>
 
@@ -327,7 +327,7 @@ export function PipelineView({ clientId: activeClientId, readOnly = false }: { c
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center py-24 text-foreground/40 text-sm">Cargando pipeline...</div>
+    return <div className="flex items-center justify-center py-24 text-text-2 text-sm">Cargando pipeline...</div>
   }
 
   return (
@@ -335,7 +335,7 @@ export function PipelineView({ clientId: activeClientId, readOnly = false }: { c
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-foreground">Pipeline</h1>
-          <p className="text-[13px] text-foreground/40 mt-0.5">Tu cartera de prospectos, de punta a punta.</p>
+          <p className="text-[13px] text-text-2 mt-0.5">Tu cartera de prospectos, de punta a punta.</p>
         </div>
         {!readOnly && (
           <button

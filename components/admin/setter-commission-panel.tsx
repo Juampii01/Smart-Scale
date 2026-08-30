@@ -83,7 +83,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-5 w-5 animate-spin text-foreground/40" />
+        <Loader2 className="h-5 w-5 animate-spin text-text-2" />
       </div>
     )
   }
@@ -98,7 +98,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
 
   if (commissions.length === 0) {
     return (
-      <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+      <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
         Sin comisiones registradas
       </div>
     )
@@ -110,7 +110,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
     return (
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Mi comisión — <span className="text-[#dafc69]">{monthLabel(month)}</span></h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-text-2">Mi comisión — <span className="text-[#dafc69]">{monthLabel(month)}</span></h3>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <CommissionCard label="Nuevos" value={String(c.new_count)} />
@@ -130,7 +130,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/50">Comisiones del equipo — <span className="text-[#dafc69]">{monthLabel(month)}</span></h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-text-2">Comisiones del equipo — <span className="text-[#dafc69]">{monthLabel(month)}</span></h3>
       </div>
 
       {/* Summary card */}
@@ -146,13 +146,13 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-              <th className="px-4 py-2.5 text-left font-semibold text-foreground/80">Setter</th>
-              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Nuevos</th>
-              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Cuotas</th>
-              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Revenue</th>
-              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">New Cash</th>
-              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80 text-[#dafc69]/70">Old Cash</th>
-              <th className="px-4 py-2.5 text-right font-semibold text-foreground/80">Comisión</th>
+              <th className="px-4 py-2.5 text-left font-semibold text-foreground">Setter</th>
+              <th className="px-4 py-2.5 text-right font-semibold text-foreground">Nuevos</th>
+              <th className="px-4 py-2.5 text-right font-semibold text-foreground">Cuotas</th>
+              <th className="px-4 py-2.5 text-right font-semibold text-foreground">Revenue</th>
+              <th className="px-4 py-2.5 text-right font-semibold text-foreground">New Cash</th>
+              <th className="px-4 py-2.5 text-right font-semibold text-foreground text-[#dafc69]/70">Old Cash</th>
+              <th className="px-4 py-2.5 text-right font-semibold text-foreground">Comisión</th>
             </tr>
           </thead>
           <tbody>
@@ -161,16 +161,16 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
                 <td className="px-4 py-2.5 font-medium text-foreground">
                   {c.setter_name ?? "—"}
                 </td>
-                <td className="px-4 py-2.5 text-right text-foreground/80 tabular-nums">
+                <td className="px-4 py-2.5 text-right text-foreground tabular-nums">
                   {c.new_count}
                 </td>
-                <td className="px-4 py-2.5 text-right text-foreground/80 tabular-nums">
+                <td className="px-4 py-2.5 text-right text-foreground tabular-nums">
                   {c.paid_count}
                 </td>
-                <td className="px-4 py-2.5 text-right text-foreground/80 tabular-nums">
+                <td className="px-4 py-2.5 text-right text-foreground tabular-nums">
                   {c.mrr_total > 0 ? formatCurrency(c.mrr_total) : "—"}
                 </td>
-                <td className="px-4 py-2.5 text-right text-foreground/80 tabular-nums">
+                <td className="px-4 py-2.5 text-right text-foreground tabular-nums">
                   {c.new_cash > 0 ? formatCurrency(c.new_cash) : "—"}
                 </td>
                 <td className="px-4 py-2.5 text-right text-[#dafc69]/60 text-xs tabular-nums">
@@ -195,7 +195,7 @@ function CommissionCard({ label, value, highlight, small }: { label: string; val
         ? "border-accent bg-secondary"
         : "border-foreground/[0.07] bg-card"
     }`}>
-      <div className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50">
+      <div className="text-[11px] font-semibold uppercase tracking-wider text-text-2">
         {label}
       </div>
       <div className={`mt-1.5 font-bold ${

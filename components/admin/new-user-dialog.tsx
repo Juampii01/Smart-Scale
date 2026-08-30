@@ -180,7 +180,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
             </span>
             <div>
               <h2 className="text-base font-bold text-foreground">Nuevo usuario</h2>
-              <p className="mt-0.5 text-xs text-foreground/55">
+              <p className="mt-0.5 text-xs text-text-2">
                 Crear cuenta — admin / team / setter / cliente
               </p>
             </div>
@@ -188,7 +188,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
           <button
             onClick={handleClose}
             disabled={loading}
-            className="rounded-lg p-1 text-foreground/50 hover:bg-foreground/[0.06] hover:text-foreground transition-colors"
+            className="rounded-lg p-1 text-text-2 hover:bg-foreground/[0.06] hover:text-foreground transition-colors"
             aria-label="Cerrar"
           >
             <X className="h-4 w-4" />
@@ -200,18 +200,18 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
           <div className="px-6 py-5 space-y-4">
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/[0.06] px-4 py-3">
               <p className="text-sm font-semibold text-foreground">✓ Usuario creado</p>
-              <p className="mt-1 text-xs text-foreground/60">
+              <p className="mt-1 text-xs text-text-2">
                 Compartile estas credenciales al usuario. La contraseña no se va a poder recuperar después.
               </p>
             </div>
 
             <div className="space-y-2 rounded-xl border border-border bg-foreground/[0.03] p-4 font-mono text-xs">
               <div className="flex justify-between">
-                <span className="text-foreground/55">Email:</span>
+                <span className="text-text-2">Email:</span>
                 <span className="text-foreground">{result.email}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-foreground/55">Contraseña:</span>
+                <span className="text-text-2">Contraseña:</span>
                 <span className="text-foreground">
                   {result.tempPassword ?? "(la que definiste)"}
                 </span>
@@ -244,7 +244,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
             )}
 
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold uppercase tracking-widest text-foreground/55">
+              <label className="block text-[11px] font-semibold uppercase tracking-widest text-text-2">
                 Email
               </label>
               <input
@@ -253,25 +253,25 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="usuario@email.com"
-                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-accent focus:ring-2 focus:ring-accent/20"
+                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-text-3 focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold uppercase tracking-widest text-foreground/55">
-                Nombre <span className="text-foreground/30 normal-case">(opcional)</span>
+              <label className="block text-[11px] font-semibold uppercase tracking-widest text-text-2">
+                Nombre <span className="text-text-3 normal-case">(opcional)</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Nombre del usuario"
-                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-accent focus:ring-2 focus:ring-accent/20"
+                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-text-3 focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold uppercase tracking-widest text-foreground/55">
+              <label className="block text-[11px] font-semibold uppercase tracking-widest text-text-2">
                 Tipo de usuario
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -283,11 +283,11 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                     className={`rounded-xl border px-3 py-2.5 text-left transition-colors ${
                       role === opt.value
                         ? "border-accent bg-secondary text-foreground"
-                        : "border-border bg-foreground/[0.02] text-foreground/70 hover:border-foreground/20 hover:text-foreground"
+                        : "border-border bg-foreground/[0.02] text-foreground hover:border-foreground/20 hover:text-foreground"
                     }`}
                   >
                     <span className="block text-sm font-bold">{opt.label}</span>
-                    <span className="block mt-0.5 text-[10px] leading-tight text-foreground/55">
+                    <span className="block mt-0.5 text-[10px] leading-tight text-text-2">
                       {opt.description}
                     </span>
                   </button>
@@ -298,8 +298,8 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
             {/* Selector de cliente — solo cuando role='client' */}
             {role === "client" && (
               <div className="space-y-1.5">
-                <label className="block text-[11px] font-semibold uppercase tracking-widest text-foreground/55">
-                  Cliente asociado <span className="text-foreground/30 normal-case">(opcional)</span>
+                <label className="block text-[11px] font-semibold uppercase tracking-widest text-text-2">
+                  Cliente asociado <span className="text-text-3 normal-case">(opcional)</span>
                 </label>
                 <select
                   value={clientId}
@@ -312,7 +312,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
-                <p className="text-[11px] text-foreground/50 leading-relaxed flex items-start gap-1.5">
+                <p className="text-[11px] text-text-2 leading-relaxed flex items-start gap-1.5">
                   {loadingClients
                     ? <><Loader2 className="h-3 w-3 animate-spin shrink-0 mt-0.5" /> Cargando clientes…</>
                     : "El usuario va a poder ver el portal del cliente que selecciones. Si lo dejás vacío, lo asociás después desde Clientes."}
@@ -323,7 +323,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
             {/* Selector de sector interno — solo platform owner + rol interno */}
             {showTenantSelector && (
               <div className="space-y-1.5">
-                <label className="block text-[11px] font-semibold uppercase tracking-widest text-foreground/55">
+                <label className="block text-[11px] font-semibold uppercase tracking-widest text-text-2">
                   Sector interno
                 </label>
                 <select
@@ -338,7 +338,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                     <option key={t.id} value={t.id}>{t.name}</option>
                   ))}
                 </select>
-                <p className="text-[11px] text-foreground/50 leading-relaxed flex items-start gap-1.5">
+                <p className="text-[11px] text-text-2 leading-relaxed flex items-start gap-1.5">
                   {loadingTenants
                     ? <><Loader2 className="h-3 w-3 animate-spin shrink-0 mt-0.5" /> Cargando sectores…</>
                     : "El usuario va a ver Leads/Setting/Prospección del sector que elijas — nunca los de otro cliente."}
@@ -347,7 +347,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
             )}
 
             <div className="space-y-1.5">
-              <label className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-foreground/55">
+              <label className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-text-2">
                 <input
                   type="checkbox"
                   checked={autoPassword}
@@ -364,7 +364,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                   placeholder="Contraseña (mín 8 caracteres)"
                   minLength={8}
                   required
-                  className="mt-2 h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-accent focus:ring-2 focus:ring-accent/20"
+                  className="mt-2 h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-text-3 focus:border-accent focus:ring-2 focus:ring-accent/20"
                 />
               )}
             </div>

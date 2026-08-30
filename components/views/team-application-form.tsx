@@ -12,7 +12,7 @@ import {
 // ─── Shared input styles ──────────────────────────────────────────────────────
 
 const inputBase =
-  "w-full rounded-xl border px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/30 focus:outline-none transition-all"
+  "w-full rounded-xl border px-4 py-3 text-[15px] text-foreground placeholder:text-text-3 focus:outline-none transition-all"
 
 function inputStyle(focused = false) {
   return {
@@ -23,7 +23,7 @@ function inputStyle(focused = false) {
 
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label className="block text-[13px] font-semibold text-foreground/60 mb-2 tracking-wide leading-snug">
+    <label className="block text-[13px] font-semibold text-text-2 mb-2 tracking-wide leading-snug">
       {children}
       {required && <span className="ml-1 text-[#dafc69]">*</span>}
     </label>
@@ -31,7 +31,7 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
 }
 
 function HelpText({ children }: { children: React.ReactNode }) {
-  return <p className="-mt-1 mb-1 text-[12px] text-foreground/40 leading-relaxed">{children}</p>
+  return <p className="-mt-1 mb-1 text-[12px] text-text-2 leading-relaxed">{children}</p>
 }
 
 function SectionCard({ children }: { children: React.ReactNode }) {
@@ -95,7 +95,7 @@ function RadioGroup({
           }`}>
             {value === opt && <span className="h-2 w-2 rounded-full bg-black" />}
           </span>
-          <span className="text-[14px] text-foreground/70 group-hover:text-foreground transition-colors">{opt}</span>
+          <span className="text-[14px] text-foreground group-hover:text-foreground transition-colors">{opt}</span>
         </label>
       ))}
     </div>
@@ -124,7 +124,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl font-black text-foreground">Puesto no disponible</h1>
-            <p className="text-foreground/50 text-[14px] leading-relaxed">
+            <p className="text-text-2 text-[14px] leading-relaxed">
               No encontramos el puesto <span className="font-mono text-amber-700 dark:text-amber-300">{rol}</span>. Puede que el link esté desactualizado o el puesto haya sido cerrado.
             </p>
           </div>
@@ -205,7 +205,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
           </div>
           <div className="space-y-3">
             <h1 className="text-3xl font-black text-foreground">¡Aplicación enviada!</h1>
-            <p className="text-foreground/50 text-[15px] leading-relaxed">
+            <p className="text-text-2 text-[15px] leading-relaxed">
               Revisamos cada aplicación. Si hay fit, te contactamos en los próximos días.
               Si no recibís respuesta en 7 días, no hubo match por ahora — pero guardamos tu perfil para futuras aperturas.
             </p>
@@ -225,9 +225,9 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
           <a href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
             <span className="text-foreground text-[17px] font-bold tracking-tight">Smart</span>
             <span className="rounded-md bg-foreground px-2 py-0.5 text-[14px] font-bold tracking-tight text-background shadow-sm">Scale</span>
-            <span className="text-[9px] font-semibold text-foreground/25 tracking-widest uppercase ml-0.5">v2.0</span>
+            <span className="text-[9px] font-semibold text-text-3 tracking-widest uppercase ml-0.5">v2.0</span>
           </a>
-          <span className="text-[11px] font-bold text-foreground/25 uppercase tracking-[0.18em]">Equipo</span>
+          <span className="text-[11px] font-bold text-text-3 uppercase tracking-[0.18em]">Equipo</span>
         </div>
       </div>
 
@@ -243,7 +243,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
             {form.title}
           </h1>
           {form.subtitle && (
-            <p className="text-[15px] text-foreground/50 leading-relaxed max-w-lg whitespace-pre-line">
+            <p className="text-[15px] text-text-2 leading-relaxed max-w-lg whitespace-pre-line">
               {form.subtitle}
             </p>
           )}
@@ -274,7 +274,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
               return (
                 <SectionCard key={`info-${sIdx}`}>
                   <SectionHeader number={number} title={section.title} />
-                  <div className="text-[14px] text-foreground/65 leading-relaxed whitespace-pre-line pl-[52px]">
+                  <div className="text-[14px] text-text-2 leading-relaxed whitespace-pre-line pl-[52px]">
                     {section.info}
                   </div>
                 </SectionCard>

@@ -30,15 +30,15 @@ export function ToolsSection({
       <div>
         <div className="flex items-center gap-2.5 mb-1">
           <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">{title}</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground">{title}</h2>
         </div>
         {subtitle && (
-          <p className="text-xs text-foreground/30 ml-[18px]">{subtitle}</p>
+          <p className="text-xs text-text-3 ml-[18px]">{subtitle}</p>
         )}
       </div>
 
       {tools.length === 0 && showPlaceholder ? (
-        <p className="text-sm text-foreground/50">No hay herramientas cargadas.</p>
+        <p className="text-sm text-text-2">No hay herramientas cargadas.</p>
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -64,11 +64,11 @@ export function ToolsSection({
                     {variant === "gpt" ? "AI Tool" : "Form"}
                   </p>
                 </div>
-                <ExternalLink className="h-3.5 w-3.5 text-foreground/20 flex-shrink-0 mt-0.5" />
+                <ExternalLink className="h-3.5 w-3.5 text-text-3 flex-shrink-0 mt-0.5" />
               </div>
 
               {/* Description */}
-              <p className="text-xs leading-relaxed text-foreground/50">
+              <p className="text-xs leading-relaxed text-text-2">
                 {t.description}
               </p>
 
@@ -83,7 +83,7 @@ export function ToolsSection({
                       height={24}
                       className="rounded-full ring-1 ring-white/15"
                     />
-                    <span className="text-xs text-foreground/35">por Ann</span>
+                    <span className="text-xs text-text-3">por Ann</span>
                   </div>
                 ) : <div />}
 

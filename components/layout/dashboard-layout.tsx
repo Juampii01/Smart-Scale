@@ -626,7 +626,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           <div className="flex h-16 items-center justify-between px-4 lg:px-8">
             <div className="flex items-center gap-3">
               {!sidebarOpen && (
-                <Button variant="ghost" size="icon" className="lg:hidden text-foreground/60 hover:text-foreground" onClick={() => setSidebarOpen(true)}>
+                <Button variant="ghost" size="icon" className="lg:hidden text-text-2 hover:text-foreground" onClick={() => setSidebarOpen(true)}>
                   <Menu className="h-5 w-5" />
                 </Button>
               )}
@@ -640,7 +640,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     </span>
                   )}
                 </h1>
-                <p className="hidden sm:block text-[10px] text-foreground/35 leading-none mt-0.5 tracking-wide">
+                <p className="hidden sm:block text-[10px] text-text-3 leading-none mt-0.5 tracking-wide">
                   {isAdminMode ? "Smart Scale Internal · Dashboard de Admin" : `Smart Scale Portal ${APP_VERSION}`}
                 </p>
               </div>
@@ -656,7 +656,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       onClick={() => router.push(href)}
                       title={label}
                       aria-label={label}
-                      className="inline-flex h-9 items-center gap-1.5 rounded-md border border-foreground/[0.10] bg-card px-2.5 text-[13px] font-semibold text-foreground/75 hover:text-foreground hover:border-foreground/[0.18] hover:bg-foreground/[0.04] transition-colors"
+                      className="inline-flex h-9 items-center gap-1.5 rounded-md border border-foreground/[0.10] bg-card px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/[0.18] hover:bg-foreground/[0.04] transition-colors"
                     >
                       <Icon className="h-4 w-4 text-[#dafc69]" />
                       <span className="hidden xl:inline">{label}</span>
@@ -680,7 +680,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <div className="relative" ref={profileMenuRef}>
                 <Button
                   variant="outline"
-                  className="gap-2 text-foreground/80 hover:text-foreground border-foreground/[0.10] hover:border-foreground/[0.18] bg-card hover:bg-foreground/[0.04]"
+                  className="gap-2 text-foreground hover:text-foreground border-foreground/[0.10] hover:border-foreground/[0.18] bg-card hover:bg-foreground/[0.04]"
                   onClick={() => setProfileMenuOpen((v) => !v)}
                   aria-haspopup="menu"
                   aria-expanded={profileMenuOpen}
@@ -739,7 +739,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         {clientDisplayName && !isAdmin && (
                           <p className="truncate text-sm font-semibold text-foreground">{clientDisplayName}</p>
                         )}
-                        <p className="truncate text-[11px] text-foreground/50">{userEmail ?? "—"}</p>
+                        <p className="truncate text-[11px] text-text-2">{userEmail ?? "—"}</p>
                       </div>
                     </div>
 
@@ -770,7 +770,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
                               isActive
                                 ? "bg-[#dafc69] text-black"
-                                : "bg-foreground/[0.08] text-foreground/70"
+                                : "bg-foreground/[0.08] text-foreground"
                             }`}>
                               {initial}
                             </span>
@@ -798,7 +798,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       return (
                         <>
                           <div className="px-4 pt-3 pb-1.5">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/40">Cambiar perfil</p>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-text-2">Cambiar perfil</p>
                           </div>
                           <div className="max-h-72 overflow-auto pb-1.5 px-1.5">
                             {profilesList.length ? (
@@ -806,7 +806,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                 {insideProfiles.map(renderProfileItem)}
                                 {offProfiles.length > 0 && (
                                   <>
-                                    <p className="px-2.5 pt-2.5 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/30">
+                                    <p className="px-2.5 pt-2.5 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-text-3">
                                       Off ({offProfiles.length})
                                     </p>
                                     {offProfiles.map(renderProfileItem)}
@@ -814,7 +814,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                 )}
                               </>
                             ) : (
-                              <div className="px-3 py-3 text-sm text-foreground/60">No hay perfiles para mostrar.</div>
+                              <div className="px-3 py-3 text-sm text-text-2">No hay perfiles para mostrar.</div>
                             )}
                           </div>
                         </>
@@ -826,7 +826,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <>
                         <div className="h-px bg-foreground/[0.07]" />
                         <div className="px-4 pt-3 pb-1.5">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/40">Ver como</p>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-text-2">Ver como</p>
                         </div>
                         <div className="px-1.5 pb-1.5 space-y-0.5">
                           {(["setter", "client"] as const).map(r => {
@@ -852,7 +852,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                     : "text-foreground hover:bg-foreground/[0.06]"
                                 }`}
                               >
-                                <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground/[0.08] text-[11px] font-bold text-foreground/70">
+                                <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground/[0.08] text-[11px] font-bold text-foreground">
                                   {r === "setter" ? "S" : "C"}
                                 </span>
                                 <span className="truncate flex-1 font-medium capitalize">{r === "client" ? "Cliente" : r}</span>
@@ -869,7 +869,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             <button
                               type="button"
                               onClick={() => { setViewAsRole(null); setProfileMenuOpen(false) }}
-                              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[12px] text-foreground/60 hover:bg-foreground/[0.06] transition-colors"
+                              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[12px] text-text-2 hover:bg-foreground/[0.06] transition-colors"
                             >
                               <EyeOff className="h-3.5 w-3.5" />
                               Volver a vista admin
@@ -883,7 +883,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
                     {/* Notificaciones — un solo lugar para todos (equipo y clientes) */}
                     <div className="px-4 py-3">
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35 mb-2">Notificaciones</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-text-3 mb-2">Notificaciones</p>
                       <PushOptIn />
                     </div>
 
@@ -892,7 +892,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     <button
                       type="button"
                       role="menuitem"
-                      className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm font-medium text-foreground/80 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-500/10 dark:hover:text-red-300 transition-colors"
+                      className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm font-medium text-foreground hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-500/10 dark:hover:text-red-300 transition-colors"
                       onClick={async () => {
                         await supabase.auth.signOut()
                         setProfileMenuOpen(false)
@@ -916,7 +916,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   key={href}
                   type="button"
                   onClick={() => router.push(href)}
-                  className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-foreground/[0.10] bg-card px-3 text-[12.5px] font-semibold text-foreground/80 hover:text-foreground active:scale-[0.98] transition-all"
+                  className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-foreground/[0.10] bg-card px-3 text-[12.5px] font-semibold text-foreground hover:text-foreground active:scale-[0.98] transition-all"
                 >
                   <Icon className="h-3.5 w-3.5 text-[#dafc69]" />
                   {short}

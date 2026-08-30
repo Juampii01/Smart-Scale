@@ -58,7 +58,7 @@ export function AdminSocialView() {
         </span>
         <div className="flex-1">
           <h1 className="text-2xl font-extrabold tracking-tight text-foreground leading-none">Conexiones sociales</h1>
-          <p className="text-sm text-foreground/50 mt-1">Quién conectó su Instagram / YouTube.</p>
+          <p className="text-sm text-text-2 mt-1">Quién conectó su Instagram / YouTube.</p>
         </div>
         <button onClick={load} disabled={loading} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-foreground/[0.05] transition disabled:opacity-50">
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Actualizar
@@ -69,15 +69,15 @@ export function AdminSocialView() {
       {summary && (
         <div className="grid grid-cols-3 gap-3">
           <div className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-[11px] uppercase tracking-wide text-foreground/45">Clientes conectados</p>
+            <p className="text-[11px] uppercase tracking-wide text-text-2">Clientes conectados</p>
             <p className="mt-1 text-2xl font-bold text-foreground">{summary.totalClients}</p>
           </div>
           <div className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-[11px] uppercase tracking-wide text-foreground/45 flex items-center gap-1"><Instagram className="h-3 w-3" style={{ color: "#E1306C" }} /> Instagram</p>
+            <p className="text-[11px] uppercase tracking-wide text-text-2 flex items-center gap-1"><Instagram className="h-3 w-3" style={{ color: "#E1306C" }} /> Instagram</p>
             <p className="mt-1 text-2xl font-bold text-foreground">{summary.instagram}</p>
           </div>
           <div className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-[11px] uppercase tracking-wide text-foreground/45 flex items-center gap-1"><Youtube className="h-3 w-3" style={{ color: "#FF0000" }} /> YouTube</p>
+            <p className="text-[11px] uppercase tracking-wide text-text-2 flex items-center gap-1"><Youtube className="h-3 w-3" style={{ color: "#FF0000" }} /> YouTube</p>
             <p className="mt-1 text-2xl font-bold text-foreground">{summary.youtube}</p>
           </div>
         </div>
@@ -87,7 +87,7 @@ export function AdminSocialView() {
       <div className="flex gap-2">
         {(["all", "instagram", "youtube"] as const).map((p) => (
           <button key={p} onClick={() => setPlatform(p)}
-            className={`rounded-lg border px-3 py-1.5 text-[13px] font-medium capitalize transition ${platform === p ? "border-accent bg-secondary text-foreground" : "border-border bg-card text-foreground/60 hover:bg-foreground/[0.05]"}`}>
+            className={`rounded-lg border px-3 py-1.5 text-[13px] font-medium capitalize transition ${platform === p ? "border-accent bg-secondary text-foreground" : "border-border bg-card text-text-2 hover:bg-foreground/[0.05]"}`}>
             {p === "all" ? "Todas" : p}
           </button>
         ))}
@@ -95,11 +95,11 @@ export function AdminSocialView() {
 
       {/* Lista */}
       {loading ? (
-        <div className="flex items-center justify-center gap-2 rounded-2xl border border-border bg-card py-14 text-foreground/50">
+        <div className="flex items-center justify-center gap-2 rounded-2xl border border-border bg-card py-14 text-text-2">
           <Loader2 className="h-4 w-4 animate-spin" /> Cargando…
         </div>
       ) : visible.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-card py-14 text-center text-sm text-foreground/50">
+        <div className="rounded-2xl border border-border bg-card py-14 text-center text-sm text-text-2">
           Todavía no hay cuentas conectadas{platform !== "all" ? ` de ${platform}` : ""}.
         </div>
       ) : (
@@ -116,7 +116,7 @@ export function AdminSocialView() {
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-foreground">{c.clientName}</p>
-                <p className="truncate text-[12px] text-foreground/50">@{c.accountName}</p>
+                <p className="truncate text-[12px] text-text-2">@{c.accountName}</p>
               </div>
               <div className="text-right">
                 {c.tokenExpired ? (
@@ -124,7 +124,7 @@ export function AdminSocialView() {
                 ) : (
                   <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400"><Check className="h-3 w-3" /> Activo</span>
                 )}
-                <p className="text-[11px] text-foreground/35 mt-0.5">{new Date(c.connectedAt).toLocaleDateString("es-AR")}</p>
+                <p className="text-[11px] text-text-3 mt-0.5">{new Date(c.connectedAt).toLocaleDateString("es-AR")}</p>
               </div>
             </div>
           ))}

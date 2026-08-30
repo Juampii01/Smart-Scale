@@ -7,17 +7,17 @@ import { Check } from "lucide-react"
 
 // ─── Shared styles (mismo criterio que context-room-view.tsx) ────────────────
 
-const labelCls = "block text-[11px] font-bold uppercase tracking-[0.10em] text-foreground/40 mb-2"
-const hintCls  = "text-[12px] text-foreground/35 mt-2 leading-relaxed"
+const labelCls = "block text-[11px] font-bold uppercase tracking-[0.10em] text-text-2 mb-2"
+const hintCls  = "text-[12px] text-text-3 mt-2 leading-relaxed"
 
 const areaCls = cn(
   "w-full rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.03]",
-  "px-4 py-3 text-[14px] text-foreground placeholder:text-foreground/25",
+  "px-4 py-3 text-[14px] text-foreground placeholder:text-text-3",
   "outline-none focus:border-foreground/[0.22] transition-colors resize-none"
 )
 const inputCls = cn(
   "w-full rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.03]",
-  "px-3 py-2 text-[14px] text-foreground placeholder:text-foreground/25",
+  "px-3 py-2 text-[14px] text-foreground placeholder:text-text-3",
   "outline-none focus:border-foreground/[0.22] transition-colors"
 )
 
@@ -85,7 +85,7 @@ export function TeamContextRoomView() {
       <div className="flex items-start justify-between mb-1">
         <div>
           <h1 className="text-[22px] font-bold text-foreground leading-tight">Mi Context Room</h1>
-          <p className="text-[13px] text-foreground/50 mt-0.5">
+          <p className="text-[13px] text-text-2 mt-0.5">
             Tu espacio personal — nada de negocio ni de números acá, solo vos. Los cambios se guardan automáticamente.
           </p>
         </div>

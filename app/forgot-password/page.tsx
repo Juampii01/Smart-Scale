@@ -71,7 +71,7 @@ export default function ForgotPasswordPage() {
           {loading ? "Enviando..." : "Enviar email"}
         </button>
 
-        <Link href="/login" className="block text-sm text-foreground/60 hover:text-foreground">
+        <Link href="/login" className="block text-sm text-text-2 hover:text-foreground">
           Volver al login
         </Link>
       </form>

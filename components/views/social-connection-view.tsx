@@ -139,7 +139,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
         </span>
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-foreground leading-none">Mi {brand.name}</h1>
-          <p className="text-sm text-foreground/50 mt-1">{brand.desc}</p>
+          <p className="text-sm text-text-2 mt-1">{brand.desc}</p>
         </div>
       </div>
 
@@ -155,12 +155,12 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
       )}
 
       {loading ? (
-        <div className="mt-6 flex items-center justify-center gap-2 rounded-[14px] border border-border bg-card py-14 text-foreground/50">
+        <div className="mt-6 flex items-center justify-center gap-2 rounded-[14px] border border-border bg-card py-14 text-text-2">
           <Loader2 className="h-4 w-4 animate-spin" /> Cargando…
         </div>
       ) : !status?.connected ? (
         <div className="mt-6 rounded-[14px] border border-border bg-card p-8 text-center">
-          <p className="text-sm text-foreground/60 mb-4">Tu cuenta de {brand.name} todavía no está conectada.</p>
+          <p className="text-sm text-text-2 mb-4">Tu cuenta de {brand.name} todavía no está conectada.</p>
           <button onClick={handleConnect} disabled={busy} className="inline-flex items-center gap-2 rounded-xl btn-accent px-5 py-2.5 text-sm font-bold transition active:scale-[0.98] disabled:opacity-50">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
             Conectar {brand.name}
@@ -203,7 +203,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {metrics.current.map((s, i) => (
                 <div key={s.label} className={`rounded-[14px] border p-4 ${i === 0 ? "border-accent/25 bg-accent-soft" : "border-border bg-card"}`}>
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-foreground/45">{s.label}</p>
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-text-2">{s.label}</p>
                   <p className="mt-1 text-2xl font-bold text-foreground tabular-nums">{s.value}</p>
                 </div>
               ))}
@@ -211,7 +211,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
           )}
 
           {metricsLoading && !metrics ? (
-            <div className="flex items-center justify-center gap-2 rounded-[14px] border border-border bg-card py-12 text-foreground/50">
+            <div className="flex items-center justify-center gap-2 rounded-[14px] border border-border bg-card py-12 text-text-2">
               <Loader2 className="h-4 w-4 animate-spin" /> Trayendo métricas…
             </div>
           ) : metrics?.note ? (
@@ -231,10 +231,10 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                       className={`rounded-lg border px-3 py-1.5 text-[13px] font-medium transition ${
                         b.key === bucketKey
                           ? "border-accent bg-secondary text-foreground"
-                          : "border-border bg-card text-foreground/60 hover:bg-foreground/[0.05]"
+                          : "border-border bg-card text-text-2 hover:bg-foreground/[0.05]"
                       }`}
                     >
-                      {b.label} <span className="text-foreground/35">· {b.count}</span>
+                      {b.label} <span className="text-text-3">· {b.count}</span>
                     </button>
                   ))}
                 </div>
@@ -244,7 +244,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
                 {bucket.overview.map((s) => (
                   <div key={s.label} className="rounded-[14px] border border-border bg-card p-4">
-                    <p className="text-[11px] font-medium uppercase tracking-wide text-foreground/45">{s.label}</p>
+                    <p className="text-[11px] font-medium uppercase tracking-wide text-text-2">{s.label}</p>
                     <p className="mt-1 text-2xl font-bold text-foreground tabular-nums">{s.value}</p>
                   </div>
                 ))}
@@ -254,18 +254,18 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
               {bucket.detailed.length > 0 && (
                 <div className="rounded-[14px] border border-border bg-card overflow-hidden">
                   <div className="flex items-center gap-2 border-b border-border px-5 py-3">
-                    <Flame className="h-4 w-4 text-foreground/50" />
+                    <Flame className="h-4 w-4 text-text-2" />
                     <span className="text-sm font-semibold text-foreground">Métricas detalladas</span>
-                    <span className="ml-auto text-[11px] text-foreground/40">
+                    <span className="ml-auto text-[11px] text-text-2">
                       {bucket.key === "total" ? "todo el período" : bucket.label} · {bucket.count} {platform === "youtube" ? "videos" : "publicaciones"}
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-3">
                     {bucket.detailed.map((s) => (
                       <div key={s.label} className="rounded-xl border border-border bg-background/40 p-4">
-                        <p className="text-xs text-foreground/50">{s.label}</p>
+                        <p className="text-xs text-text-2">{s.label}</p>
                         <p className="mt-1 text-xl font-bold text-foreground tabular-nums">{s.value}</p>
-                        {s.sub && <p className="mt-0.5 text-[11px] text-foreground/40">{s.sub}</p>}
+                        {s.sub && <p className="mt-0.5 text-[11px] text-text-2">{s.sub}</p>}
                       </div>
                     ))}
                   </div>
@@ -283,15 +283,15 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                           {m.thumbnail ? (
                             <img src={px(m.thumbnail)} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center"><Icon className="h-6 w-6 text-foreground/20" /></div>
+                            <div className="flex h-full w-full items-center justify-center"><Icon className="h-6 w-6 text-text-3" /></div>
                           )}
                           <span className="absolute right-1.5 top-1.5 rounded-md bg-black/55 p-1 opacity-0 transition group-hover:opacity-100">
                             <ExternalLink className="h-3 w-3 text-white" />
                           </span>
                         </div>
                         <div className="p-2.5">
-                          {m.caption && <p className="mb-1.5 line-clamp-2 text-[11px] text-foreground/60 leading-snug">{m.caption}</p>}
-                          <div className="flex items-center gap-3 text-[11px] text-foreground/50">
+                          {m.caption && <p className="mb-1.5 line-clamp-2 text-[11px] text-text-2 leading-snug">{m.caption}</p>}
+                          <div className="flex items-center gap-3 text-[11px] text-text-2">
                             {(m.views ?? 0) > 0 && <span className="flex items-center gap-0.5" title="Views"><Eye className="h-3 w-3" /> {fmt(m.views ?? 0)}</span>}
                             <span className="flex items-center gap-0.5" title="Likes"><Heart className="h-3 w-3" /> {fmt(m.likes)}</span>
                             <span className="flex items-center gap-0.5" title="Comentarios"><MessageCircle className="h-3 w-3" /> {fmt(m.comments)}</span>

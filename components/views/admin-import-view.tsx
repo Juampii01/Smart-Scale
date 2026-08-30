@@ -157,7 +157,7 @@ export function AdminImportView() {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <AlertCircle className="h-8 w-8 text-amber-700/50 dark:text-amber-400/50 mb-3" />
-        <p className="text-foreground/40 text-sm">
+        <p className="text-text-2 text-sm">
           Seleccioná un cliente en el selector de arriba para importar datos.
         </p>
       </div>
@@ -171,7 +171,7 @@ export function AdminImportView() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Importar datos históricos</h1>
-          <p className="text-sm text-foreground/40 mt-0.5">
+          <p className="text-sm text-text-2 mt-0.5">
             Completá los datos de cada mes y presioná Importar. Los meses vacíos se omiten.
           </p>
         </div>
@@ -191,7 +191,7 @@ export function AdminImportView() {
                 className={`h-7 rounded-lg px-3 text-[12px] font-semibold transition-all ${
                   year === y
                     ? "bg-secondary text-foreground"
-                    : "text-foreground/40 hover:text-foreground"
+                    : "text-text-2 hover:text-foreground"
                 }`}
               >
                 {y}
@@ -243,16 +243,16 @@ export function AdminImportView() {
           <table className="w-full border-collapse" style={{ minWidth: "900px" }}>
             <thead>
               <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-                <th className="sticky left-0 z-10 bg-card px-4 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-foreground/30 whitespace-nowrap w-[140px]">
+                <th className="sticky left-0 z-10 bg-card px-4 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-text-3 whitespace-nowrap w-[140px]">
                   Mes
                 </th>
                 {COLUMNS.map(col => (
-                  <th key={col.key} className="px-3 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-foreground/25 whitespace-nowrap">
+                  <th key={col.key} className="px-3 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-text-3 whitespace-nowrap">
                     <span className="block">{col.label}</span>
-                    <span className="text-foreground/15 text-[9px] normal-case font-normal tracking-normal">{col.fmt === "money" ? "USD" : "#"}</span>
+                    <span className="text-text-3 text-[9px] normal-case font-normal tracking-normal">{col.fmt === "money" ? "USD" : "#"}</span>
                   </th>
                 ))}
-                <th className="px-3 py-3 text-center text-[11px] text-foreground/20 w-[60px]">OK</th>
+                <th className="px-3 py-3 text-center text-[11px] text-text-3 w-[60px]">OK</th>
               </tr>
             </thead>
             <tbody>
@@ -269,7 +269,7 @@ export function AdminImportView() {
                   >
                     {/* Month label */}
                     <td className="sticky left-0 z-10 px-4 py-2.5 whitespace-nowrap" style={{ backgroundColor: isSaved ? "rgba(16,185,129,0.06)" : "#0e0e10" }}>
-                      <span className={`text-[13px] font-semibold ${isSaved ? "text-emerald-700 dark:text-emerald-300" : "text-foreground/80"}`}>
+                      <span className={`text-[13px] font-semibold ${isSaved ? "text-emerald-700 dark:text-emerald-300" : "text-foreground"}`}>
                         {row.label}
                       </span>
                     </td>
@@ -283,7 +283,7 @@ export function AdminImportView() {
                           value={row[col.key]}
                           placeholder="—"
                           onChange={e => updateCell(rowIdx, col.key, e.target.value)}
-                          className={`w-full rounded-lg border bg-transparent px-2.5 py-1.5 text-[13px] tabular-nums text-foreground placeholder:text-foreground/15 focus:outline-none transition-all ${
+                          className={`w-full rounded-lg border bg-transparent px-2.5 py-1.5 text-[13px] tabular-nums text-foreground placeholder:text-text-3 focus:outline-none transition-all ${
                             isSaved
                               ? "border-emerald-500/20 bg-emerald-500/[0.03]"
                               : hasError
@@ -315,7 +315,7 @@ export function AdminImportView() {
 
       {/* Field reference */}
       <div className="rounded-2xl border border-foreground/[0.05] bg-card px-5 py-4">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/25 mb-3">
+        <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 mb-3">
           Referencia de campos (Google Sheets → Dashboard)
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
@@ -333,8 +333,8 @@ export function AdminImportView() {
             ["New Leads / Aplicaciones", "Aplicaciones"],
           ].map(([from, to]) => (
             <div key={from} className="flex items-center gap-1.5 text-[11px]">
-              <span className="text-foreground/35">{from}</span>
-              <span className="text-foreground/20">→</span>
+              <span className="text-text-3">{from}</span>
+              <span className="text-text-3">→</span>
               <span className="text-[#dafc69]/60 font-medium">{to}</span>
             </div>
           ))}

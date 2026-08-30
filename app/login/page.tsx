@@ -107,7 +107,7 @@ export default function LoginPage() {
             <span className="text-[#dafc69]">En tiempo real.</span>
           </h2>
 
-          <p className="max-w-sm text-sm leading-relaxed text-foreground/35">
+          <p className="max-w-sm text-sm leading-relaxed text-text-3">
             Performance, auditoría, inteligencia de mercado y análisis de contenido — todo en un solo lugar.
           </p>
 
@@ -122,7 +122,7 @@ export default function LoginPage() {
                 key={s.label}
                 className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.03] px-4 py-2.5"
               >
-                <p className="text-[10px] text-foreground/30 uppercase tracking-widest">{s.label}</p>
+                <p className="text-[10px] text-text-3 uppercase tracking-widest">{s.label}</p>
                 <p className="mt-0.5 text-sm font-bold text-foreground">{s.value}</p>
               </div>
             ))}
@@ -131,7 +131,7 @@ export default function LoginPage() {
 
         {/* Bottom: Version */}
         <div className="relative">
-          <p className="text-[10px] uppercase tracking-widest text-foreground/15">
+          <p className="text-[10px] uppercase tracking-widest text-text-3">
             © {new Date().getFullYear()} Smart Scale · v{APP_VERSION}
           </p>
         </div>
@@ -153,7 +153,7 @@ export default function LoginPage() {
           {/* Heading */}
           <div className="mb-8">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">Iniciar sesión</h1>
-            <p className="mt-1.5 text-sm text-foreground/35">
+            <p className="mt-1.5 text-sm text-text-3">
               Ingresá con tus credenciales para acceder.
             </p>
           </div>
@@ -162,11 +162,11 @@ export default function LoginPage() {
           <form onSubmit={onSubmit} className="space-y-4">
 
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold uppercase tracking-widest text-foreground/30">
+              <label className="block text-[11px] font-semibold uppercase tracking-widest text-text-3">
                 Email
               </label>
               <input
-                className="h-12 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm text-foreground outline-none placeholder:text-foreground/20 transition-all focus:border-[#dafc69]/50 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-[#dafc69]/10"
+                className="h-12 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm text-foreground outline-none placeholder:text-text-3 transition-all focus:border-[#dafc69]/50 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-[#dafc69]/10"
                 placeholder="tu@email.com"
                 type="email"
                 value={email}
@@ -178,18 +178,18 @@ export default function LoginPage() {
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="block text-[11px] font-semibold uppercase tracking-widest text-foreground/30">
+                <label className="block text-[11px] font-semibold uppercase tracking-widest text-text-3">
                   Contraseña
                 </label>
                 <a
                   href="/forgot-password"
-                  className="text-[11px] text-foreground/30 transition hover:text-[#dafc69]"
+                  className="text-[11px] text-text-3 transition hover:text-[#dafc69]"
                 >
                   ¿La olvidaste?
                 </a>
               </div>
               <input
-                className="h-12 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm text-foreground outline-none placeholder:text-foreground/20 transition-all focus:border-[#dafc69]/50 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-[#dafc69]/10"
+                className="h-12 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm text-foreground outline-none placeholder:text-text-3 transition-all focus:border-[#dafc69]/50 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-[#dafc69]/10"
                 placeholder="••••••••"
                 type="password"
                 value={password}
@@ -221,7 +221,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-8 text-center text-[11px] leading-relaxed text-foreground/20">
+          <p className="mt-8 text-center text-[11px] leading-relaxed text-text-3">
             Si tu cuenta requiere verificación, revisá tu inbox antes de entrar.
           </p>
         </div>

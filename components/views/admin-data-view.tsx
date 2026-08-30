@@ -161,7 +161,7 @@ function EditableCell({
       title="Click para editar"
       className={`group cursor-pointer whitespace-nowrap px-4 py-2.5 text-right transition-colors hover:bg-foreground/[0.04] ${groupBorder}`}
     >
-      <span className={`text-[13px] tabular-nums group-hover:text-foreground transition-colors ${value != null ? "text-foreground/80" : "text-foreground/15"}`}>
+      <span className={`text-[13px] tabular-nums group-hover:text-foreground transition-colors ${value != null ? "text-foreground" : "text-text-3"}`}>
         {fmtValue(value, format)}
       </span>
     </td>
@@ -231,7 +231,7 @@ export function AdminDataView() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Adquisition Stats</h1>
-          <p className="text-sm text-foreground/40 mt-0.5">
+          <p className="text-sm text-text-2 mt-0.5">
             {activeClientName ? `Datos de ${activeClientName}` : "Sin cliente activo"} · {months.length
               ? `${months.length} ${months.length === 1 ? "mes" : "meses"} · click en cualquier celda para editar`
               : "métricas mensuales"}
@@ -241,14 +241,14 @@ export function AdminDataView() {
           <button
             onClick={() => loadReports(clientId)}
             disabled={loading || !clientId}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button
             onClick={exportCsv}
             disabled={!months.length}
-            className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
+            className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
           >
             <Download className="h-3.5 w-3.5" />
             CSV
@@ -264,7 +264,7 @@ export function AdminDataView() {
           </div>
         ) : !months.length ? (
           <div className="py-24 text-center">
-            <p className="text-sm text-foreground/25">
+            <p className="text-sm text-text-3">
               {clientId ? "No hay reportes cargados todavía." : "Seleccioná un cliente activo desde el menú de perfil arriba a la derecha."}
             </p>
           </div>
@@ -284,7 +284,7 @@ export function AdminDataView() {
                     <th
                       key={group.label}
                       colSpan={group.metrics.length}
-                      className="bg-foreground/[0.02] px-4 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/40 border-l border-foreground/[0.06]"
+                      className="bg-foreground/[0.02] px-4 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-text-2 border-l border-foreground/[0.06]"
                     >
                       {group.label}
                     </th>
@@ -296,7 +296,7 @@ export function AdminDataView() {
                     group.metrics.map((metric, idx) => (
                       <th
                         key={metric.key}
-                        className={`px-4 py-3 text-right text-[11px] font-semibold text-foreground/50 whitespace-nowrap min-w-[120px] ${idx === 0 ? "border-l border-foreground/[0.06]" : ""}`}
+                        className={`px-4 py-3 text-right text-[11px] font-semibold text-text-2 whitespace-nowrap min-w-[120px] ${idx === 0 ? "border-l border-foreground/[0.06]" : ""}`}
                       >
                         {metric.label}
                       </th>
@@ -333,7 +333,7 @@ export function AdminDataView() {
       </div>
 
       {!loading && months.length > 0 && (
-        <p className="text-[11px] text-foreground/20 text-center">
+        <p className="text-[11px] text-text-3 text-center">
           Click en cualquier número para editar · Enter para guardar · Esc para cancelar
         </p>
       )}

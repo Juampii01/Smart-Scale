@@ -101,13 +101,13 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
     setSaving(false)
   }
 
-  const inputCls = "h-8 rounded-lg border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground placeholder:text-foreground/20 focus:border-foreground/20 focus:outline-none w-full"
+  const inputCls = "h-8 rounded-lg border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none w-full"
 
   return (
     <tr className="border-b border-border bg-secondary/30">
       <td className="px-4 py-2.5"><input value={name}  onChange={e => setName(e.target.value)}  placeholder="Nombre completo *" className={inputCls} /></td>
       <td className="px-4 py-2.5"><input value={email} onChange={e => setEmail(e.target.value)} placeholder="email@ejemplo.com"  className={inputCls} /></td>
-      <td className="px-4 py-2.5 text-[11px] text-foreground/25">Se resuelve solo por email</td>
+      <td className="px-4 py-2.5 text-[11px] text-text-3">Se resuelve solo por email</td>
       <td className="px-4 py-2.5">
         <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0 *" className={`${inputCls} text-right`} />
       </td>
@@ -134,7 +134,7 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
           className="flex h-8 w-8 items-center justify-center rounded-lg btn-accent disabled:opacity-40 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1">
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
           </button>
-          <button onClick={onCancel} aria-label="Cancelar" className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.08] text-foreground/40 hover:text-foreground transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
+          <button onClick={onCancel} aria-label="Cancelar" className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.08] text-text-2 hover:text-foreground transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -269,12 +269,12 @@ export function AdminPaymentsView() {
   const PaymentRow = (p: Payment) => (
     <tr key={p.id} className="border-b border-foreground/[0.04] hover:bg-foreground/[0.02] transition-colors group">
       <td className="px-4 py-3 text-[13px] font-semibold text-foreground whitespace-nowrap">{p.name}</td>
-      <td className="px-4 py-3 text-[13px] text-foreground/55 whitespace-nowrap">
-        {p.email ?? <span className="text-foreground/20">—</span>}
+      <td className="px-4 py-3 text-[13px] text-text-2 whitespace-nowrap">
+        {p.email ?? <span className="text-text-3">—</span>}
       </td>
       <td className="px-4 py-3 text-[13px] whitespace-nowrap">
         {p.client_name ? (
-          <span className="text-foreground/70">{p.client_name}</span>
+          <span className="text-foreground">{p.client_name}</span>
         ) : (
           <span className="rounded-md border border-amber-400/40 bg-amber-100 dark:bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-900 dark:text-amber-300">Sin asignar</span>
         )}
@@ -291,7 +291,7 @@ export function AdminPaymentsView() {
         )}
       </td>
       <td className="px-4 py-3 text-right">
-        <span className="text-[13px] font-bold tabular-nums text-foreground/80">{fmtMoney(p.amount)}</span>
+        <span className="text-[13px] font-bold tabular-nums text-foreground">{fmtMoney(p.amount)}</span>
       </td>
       <td className="px-4 py-3 whitespace-nowrap">
         <select
@@ -304,14 +304,14 @@ export function AdminPaymentsView() {
           <option value="pendiente">Pendiente</option>
         </select>
       </td>
-      <td className="px-4 py-3 text-[13px] text-foreground/45 max-w-[260px] truncate">
-        {p.description ?? <span className="text-foreground/20">—</span>}
+      <td className="px-4 py-3 text-[13px] text-text-2 max-w-[260px] truncate">
+        {p.description ?? <span className="text-text-3">—</span>}
       </td>
-      <td className="px-4 py-3 whitespace-nowrap text-[12px] text-foreground/25">
+      <td className="px-4 py-3 whitespace-nowrap text-[12px] text-text-3">
         <div className="flex items-center gap-3">
           <span>{fmtDate(p.created_at)}</span>
           <button onClick={() => handleDelete(p.id)} disabled={deletingId === p.id}
-            className="opacity-0 group-hover:opacity-100 flex h-7 w-7 items-center justify-center rounded-lg text-foreground/15 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
+            className="opacity-0 group-hover:opacity-100 flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
             {deletingId === p.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
           </button>
         </div>
@@ -323,7 +323,7 @@ export function AdminPaymentsView() {
     <thead>
       <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
         {["Nombre","Email","Cliente","Monto","Estado","Descripción","Fecha",""].map(h => (
-          <th key={h} className={`px-4 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap ${h === "Monto" ? "text-right" : "text-left"}`}>{h}</th>
+          <th key={h} className={`px-4 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-text-3 whitespace-nowrap ${h === "Monto" ? "text-right" : "text-left"}`}>{h}</th>
         ))}
       </tr>
     </thead>
@@ -338,7 +338,7 @@ export function AdminPaymentsView() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Pagos</h1>
-          <p className="text-sm text-foreground/40 mt-0.5">{payments.length} registros</p>
+          <p className="text-sm text-text-2 mt-0.5">{payments.length} registros</p>
         </div>
         <div className="flex items-center gap-2">
           {/* View toggle */}
@@ -346,23 +346,23 @@ export function AdminPaymentsView() {
             <button
               onClick={() => setViewMode("mes")}
               title="Vista por mes"
-              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${viewMode === "mes" ? "bg-secondary text-foreground" : "text-foreground/40 hover:text-foreground"}`}>
+              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${viewMode === "mes" ? "bg-secondary text-foreground" : "text-text-2 hover:text-foreground"}`}>
               <CalendarDays className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={() => setViewMode("tabla")}
               title="Vista tabla"
-              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${viewMode === "tabla" ? "bg-secondary text-foreground" : "text-foreground/40 hover:text-foreground"}`}>
+              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${viewMode === "tabla" ? "bg-secondary text-foreground" : "text-text-2 hover:text-foreground"}`}>
               <LayoutList className="h-3.5 w-3.5" />
             </button>
           </div>
 
           <button onClick={() => fetchPayments()} disabled={loading}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button onClick={exportCsv} disabled={!filtered.length}
-            className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+            className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
             <Download className="h-3.5 w-3.5" />
             CSV
           </button>
@@ -387,7 +387,7 @@ export function AdminPaymentsView() {
           { label: "Pagos rechazados", value: String(payments.filter(p => p.status === "rechazado").length),        color: "text-red-700 dark:text-red-300" },
         ].map(card => (
           <div key={card.label} className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30">{card.label}</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{card.label}</p>
             <p className={`mt-1.5 text-2xl font-bold tabular-nums ${card.color}`}>{card.value}</p>
           </div>
         ))}
@@ -400,7 +400,7 @@ export function AdminPaymentsView() {
             className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium capitalize transition-all ${
               filterStatus === s
                 ? "border-accent bg-secondary text-[#dafc69]"
-                : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
+                : "border-foreground/[0.07] text-text-2 hover:text-foreground hover:border-foreground/20"
             }`}>
             {s}
             {s !== "todos" && <span className="ml-1.5 text-[10px] opacity-60">{payments.filter(p => p.status === s).length}</span>}
@@ -411,7 +411,7 @@ export function AdminPaymentsView() {
             className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium transition-all ${
               filterUnassigned
                 ? "border-amber-400/50 bg-amber-100 dark:bg-amber-500/10 text-amber-900 dark:text-amber-300"
-                : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
+                : "border-foreground/[0.07] text-text-2 hover:text-foreground hover:border-foreground/20"
             }`}>
             Sin asignar
             <span className="ml-1.5 text-[10px] opacity-60">{unassignedCount}</span>
@@ -422,13 +422,13 @@ export function AdminPaymentsView() {
       {/* Month filters */}
       {availableMonths.length > 1 && (
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/20 mr-1">Mes</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-text-3 mr-1">Mes</span>
           <button
             onClick={() => setFilterMonth("todos")}
             className={`h-7 rounded-lg border px-3 text-[11px] font-medium transition-all ${
               filterMonth === "todos"
-                ? "border-foreground/20 bg-foreground/[0.06] text-foreground/70"
-                : "border-foreground/[0.07] text-foreground/30 hover:text-foreground/60 hover:border-foreground/15"
+                ? "border-foreground/20 bg-foreground/[0.06] text-foreground"
+                : "border-foreground/[0.07] text-text-3 hover:text-text-2 hover:border-foreground/15"
             }`}>
             Todos
           </button>
@@ -436,8 +436,8 @@ export function AdminPaymentsView() {
             <button key={m} onClick={() => setFilterMonth(m)}
               className={`h-7 rounded-lg border px-3 text-[11px] font-medium capitalize transition-all ${
                 filterMonth === m
-                  ? "border-foreground/20 bg-foreground/[0.06] text-foreground/70"
-                  : "border-foreground/[0.07] text-foreground/30 hover:text-foreground/60 hover:border-foreground/15"
+                  ? "border-foreground/20 bg-foreground/[0.06] text-foreground"
+                  : "border-foreground/[0.07] text-text-3 hover:text-text-2 hover:border-foreground/15"
               }`}>
               {fmtMonthLabel(m)}
             </button>
@@ -465,7 +465,7 @@ export function AdminPaymentsView() {
           )}
 
           {monthGroups.length === 0 && !adding ? (
-            <div className="flex items-center justify-center py-20 text-sm text-foreground/25">
+            <div className="flex items-center justify-center py-20 text-sm text-text-3">
               {payments.length ? "No hay pagos con ese estado." : "Todavía no hay pagos registrados."}
             </div>
           ) : (
@@ -476,19 +476,19 @@ export function AdminPaymentsView() {
                 <div key={key} className="space-y-3">
                   {/* Month header */}
                   <div className="flex items-center gap-3">
-                    <h2 className="text-[13px] font-bold uppercase tracking-[0.14em] text-foreground/50">{label}</h2>
+                    <h2 className="text-[13px] font-bold uppercase tracking-[0.14em] text-text-2">{label}</h2>
                     <div className="flex-1 h-px bg-foreground/[0.06]" />
                   </div>
 
                   {/* Two stat cards per month */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-xl border border-foreground/[0.07] bg-card px-4 py-3">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Cobrado</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Cobrado</p>
                       <p className="mt-1 text-xl font-bold tabular-nums text-emerald-700 dark:text-emerald-300">{fmtMoney(monthAceptado)}</p>
                     </div>
                     <div className="rounded-xl border border-foreground/[0.07] bg-card px-4 py-3">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Pagos</p>
-                      <p className="mt-1 text-xl font-bold tabular-nums text-foreground/70">{monthCount}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Pagos</p>
+                      <p className="mt-1 text-xl font-bold tabular-nums text-foreground">{monthCount}</p>
                     </div>
                   </div>
 
@@ -521,7 +521,7 @@ export function AdminPaymentsView() {
                   <NewPaymentRow onSave={handleAdd} onCancel={() => setAdding(false)} />
                 )}
                 {!filtered.length && !adding ? (
-                  <tr><td colSpan={8} className="py-16 text-center text-sm text-foreground/25">
+                  <tr><td colSpan={8} className="py-16 text-center text-sm text-text-3">
                     {payments.length ? "No hay pagos con ese estado." : "Todavía no hay pagos registrados."}
                   </td></tr>
                 ) : (

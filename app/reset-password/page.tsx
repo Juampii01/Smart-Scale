@@ -274,7 +274,7 @@ export default function ResetPasswordPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/70 to-black" />
         </div>
         <div className="relative flex min-h-screen items-center justify-center px-6 py-12">
-          <div className="rounded-2xl border border-foreground/10 bg-foreground/5 p-6 text-sm text-foreground/70 backdrop-blur-xl">
+          <div className="rounded-2xl border border-foreground/10 bg-foreground/5 p-6 text-sm text-foreground backdrop-blur-xl">
             Cargando…
           </div>
         </div>
@@ -297,15 +297,15 @@ export default function ResetPasswordPage() {
           {/* Brand */}
           <div className="mb-6 text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-foreground/10 bg-foreground/5 backdrop-blur">
-              <span className="text-sm font-semibold tracking-widest text-foreground/90">SS</span>
+              <span className="text-sm font-semibold tracking-widest text-foreground">SS</span>
             </div>
-            <div className="text-xs font-semibold tracking-[0.35em] text-foreground/70">
+            <div className="text-xs font-semibold tracking-[0.35em] text-foreground">
               SMART SCALE
             </div>
             <h1 className="mt-2 text-2xl font-semibold tracking-tight">
               {linkType === "magiclink" ? "Creá tu contraseña" : "Reseteá tu contraseña"}
             </h1>
-            <p className="mt-1 text-sm text-foreground/60">
+            <p className="mt-1 text-sm text-text-2">
               {linkType === "magiclink"
                 ? "Elegí una contraseña para tus próximos ingresos al dashboard."
                 : "Validá el link y elegí una nueva contraseña."}
@@ -319,21 +319,21 @@ export default function ResetPasswordPage() {
           >
             <div className="space-y-4">
               {err ? (
-                <div className="rounded-xl border border-foreground/10 bg-black/40 p-3 text-sm text-foreground/80 whitespace-pre-wrap">
+                <div className="rounded-xl border border-foreground/10 bg-black/40 p-3 text-sm text-foreground whitespace-pre-wrap">
                   {err}
                 </div>
               ) : null}
 
               {info ? (
-                <div className="rounded-xl border border-foreground/10 bg-black/30 p-3 text-sm text-foreground/75 whitespace-pre-wrap">
+                <div className="rounded-xl border border-foreground/10 bg-black/30 p-3 text-sm text-foreground whitespace-pre-wrap">
                   {info}
                 </div>
               ) : null}
 
               <div className="space-y-2">
-                <label className="block text-sm text-foreground/70">Nueva contraseña</label>
+                <label className="block text-sm text-foreground">Nueva contraseña</label>
                 <input
-                  className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 px-3 text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
+                  className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 px-3 text-foreground outline-none placeholder:text-text-3 focus:border-foreground/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
                   placeholder="Mínimo 6 caracteres"
                   type="password"
                   value={password}
@@ -345,9 +345,9 @@ export default function ResetPasswordPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm text-foreground/70">Repetir contraseña</label>
+                <label className="block text-sm text-foreground">Repetir contraseña</label>
                 <input
-                  className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 px-3 text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
+                  className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 px-3 text-foreground outline-none placeholder:text-text-3 focus:border-foreground/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
                   placeholder="Repetí la contraseña"
                   type="password"
                   value={password2}
@@ -371,13 +371,13 @@ export default function ResetPasswordPage() {
               <div className="flex items-center justify-between pt-1">
                 <Link
                   href="/login"
-                  className="text-sm text-foreground/65 underline-offset-4 hover:text-foreground hover:underline"
+                  className="text-sm text-text-2 underline-offset-4 hover:text-foreground hover:underline"
                 >
                   Volver al login
                 </Link>
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-foreground/65 underline-offset-4 hover:text-foreground hover:underline"
+                  className="text-sm text-text-2 underline-offset-4 hover:text-foreground hover:underline"
                 >
                   Pedir nuevo link
                 </Link>
@@ -385,7 +385,7 @@ export default function ResetPasswordPage() {
             </div>
           </form>
 
-          <p className="mt-6 text-center text-xs text-foreground/35">
+          <p className="mt-6 text-center text-xs text-text-3">
             © {new Date().getFullYear()} SMART SCALE
           </p>
         </div>

@@ -53,8 +53,8 @@ function fmtMoney(n: number | null): string {
   return `$${n.toLocaleString("es-AR")}`
 }
 
-const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3 text-sm text-foreground placeholder:text-foreground/25 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
-const labelCls = "block text-[11px] font-bold uppercase tracking-wider text-foreground/40 mb-1.5"
+const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3 text-sm text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+const labelCls = "block text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1.5"
 
 export function AdminFounderCheckinsView() {
   const [clients, setClients] = useState<{ id: string; name: string }[]>([])
@@ -130,7 +130,7 @@ export function AdminFounderCheckinsView() {
     <div className="space-y-8 pb-10">
       <div>
         <h1 className="text-[22px] font-bold text-foreground leading-tight">Check-in Trimestral de Dinero</h1>
-        <p className="text-[13px] text-foreground/50 mt-0.5">
+        <p className="text-[13px] text-text-2 mt-0.5">
           Facturación, meta y clientes nuevos necesarios por cliente, cada trimestre. Se carga a mano después de la llamada — todavía no es automático.
         </p>
       </div>
@@ -205,7 +205,7 @@ export function AdminFounderCheckinsView() {
         {loading ? (
           <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-[#dafc69]/40" /></div>
         ) : checkins.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-10 text-center text-sm text-foreground/35">
+          <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-10 text-center text-sm text-text-3">
             Todavía no hay check-ins cargados.
           </div>
         ) : (
@@ -214,20 +214,20 @@ export function AdminFounderCheckinsView() {
               <thead>
                 <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
                   {["Cliente", "Trimestre", "Cash collected top", "Escalón", "Meta próx.", "Nuevos clientes", "Notas"].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-foreground/40">{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-text-2">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {checkins.map(c => (
                   <tr key={c.id} className="border-b border-foreground/[0.04] last:border-b-0">
-                    <td className="px-4 py-3 text-sm font-semibold text-foreground/85">{c.client_name}</td>
-                    <td className="px-4 py-3 text-sm text-foreground/60">{c.quarter_label}</td>
-                    <td className="px-4 py-3 text-sm tabular-nums text-foreground/70">{fmtMoney(c.best_month_cash)}</td>
-                    <td className="px-4 py-3 text-sm tabular-nums text-foreground/70">{fmtMoney(c.revenue_bracket)}</td>
-                    <td className="px-4 py-3 text-sm tabular-nums text-foreground/70">{fmtMoney(c.next_quarter_goal_cash)}</td>
-                    <td className="px-4 py-3 text-sm tabular-nums text-foreground/70">{c.new_clients_needed ?? "—"}</td>
-                    <td className="px-4 py-3 text-[12px] text-foreground/45 max-w-[220px] truncate">{c.notes || "—"}</td>
+                    <td className="px-4 py-3 text-sm font-semibold text-foreground">{c.client_name}</td>
+                    <td className="px-4 py-3 text-sm text-text-2">{c.quarter_label}</td>
+                    <td className="px-4 py-3 text-sm tabular-nums text-foreground">{fmtMoney(c.best_month_cash)}</td>
+                    <td className="px-4 py-3 text-sm tabular-nums text-foreground">{fmtMoney(c.revenue_bracket)}</td>
+                    <td className="px-4 py-3 text-sm tabular-nums text-foreground">{fmtMoney(c.next_quarter_goal_cash)}</td>
+                    <td className="px-4 py-3 text-sm tabular-nums text-foreground">{c.new_clients_needed ?? "—"}</td>
+                    <td className="px-4 py-3 text-[12px] text-text-2 max-w-[220px] truncate">{c.notes || "—"}</td>
                   </tr>
                 ))}
               </tbody>

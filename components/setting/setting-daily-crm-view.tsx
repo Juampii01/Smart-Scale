@@ -225,22 +225,22 @@ export function SettingDailyCRMView({ logs }: SettingDailyCRMViewProps) {
                         month: "short",
                       })}
                     </td>
-                    <td className="px-3 py-2 text-foreground/75 text-xs whitespace-nowrap">
+                    <td className="px-3 py-2 text-foreground text-xs whitespace-nowrap">
                       {log.setter_name}
                       {log.setter_role && (
-                        <span className="ml-1 text-foreground/50">({log.setter_role})</span>
+                        <span className="ml-1 text-text-2">({log.setter_role})</span>
                       )}
                     </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-foreground/85">
+                    <td className="px-3 py-2 text-right tabular-nums text-foreground">
                       {log.new_conversations}
                     </td>
 
                     {/* Inbound */}
                     <td className="px-3 py-2 text-center"></td>
-                    <td className="px-3 py-2 text-right tabular-nums text-foreground/85">
+                    <td className="px-3 py-2 text-right tabular-nums text-foreground">
                       {log.inbound_applications}
                     </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-foreground/85">
+                    <td className="px-3 py-2 text-right tabular-nums text-foreground">
                       {log.conversations_replied}
                     </td>
                     <td className={`px-3 py-2 text-center font-semibold rounded ${inboundColor}`}>
@@ -249,10 +249,10 @@ export function SettingDailyCRMView({ logs }: SettingDailyCRMViewProps) {
 
                     {/* Outbound */}
                     <td className="px-3 py-2 text-center"></td>
-                    <td className="px-3 py-2 text-right tabular-nums text-foreground/85">
+                    <td className="px-3 py-2 text-right tabular-nums text-foreground">
                       {log.outbound_leads}
                     </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-foreground/85">
+                    <td className="px-3 py-2 text-right tabular-nums text-foreground">
                       {log.outbound_replies}
                     </td>
                     <td className={`px-3 py-2 text-center font-semibold rounded ${outboundColor}`}>
@@ -261,19 +261,19 @@ export function SettingDailyCRMView({ logs }: SettingDailyCRMViewProps) {
 
                     {/* Conversion */}
                     <td className="px-3 py-2 text-center"></td>
-                    <td className="px-3 py-2 text-right tabular-nums text-foreground/85">
+                    <td className="px-3 py-2 text-right tabular-nums text-foreground">
                       {log.qualified_leads}
                     </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-foreground/85">
+                    <td className="px-3 py-2 text-right tabular-nums text-foreground">
                       {log.offer_docs_sent}
                     </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-foreground/85">
+                    <td className="px-3 py-2 text-right tabular-nums text-foreground">
                       {log.offer_doc_responses}
                     </td>
                     <td className={`px-3 py-2 text-center font-semibold rounded ${docColor}`}>
                       {docPct}
                     </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-foreground/85">
+                    <td className="px-3 py-2 text-right tabular-nums text-foreground">
                       {log.calls_done}
                     </td>
                   </tr>
@@ -285,7 +285,7 @@ export function SettingDailyCRMView({ logs }: SettingDailyCRMViewProps) {
       )}
 
       {logs.length > 0 && (
-        <p className="mt-4 text-[11px] text-foreground/40">
+        <p className="mt-4 text-[11px] text-text-2">
           {logs.length} {logs.length === 1 ? "registro" : "registros"} · Verde (&gt;80%), Amarillo (50-80%), Rojo (&lt;50%)
         </p>
       )}

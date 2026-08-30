@@ -20,14 +20,14 @@ export default function PrivacyPage() {
               Scale
             </span>
           </Link>
-          <span className="text-[11px] font-bold text-foreground/25 uppercase tracking-[0.18em]">Privacy Policy</span>
+          <span className="text-[11px] font-bold text-text-3 uppercase tracking-[0.18em]">Privacy Policy</span>
         </div>
       </div>
 
-      <div className="mx-auto max-w-2xl px-4 sm:px-5 pb-24 pt-10 space-y-8 text-foreground/80">
+      <div className="mx-auto max-w-2xl px-4 sm:px-5 pb-24 pt-10 space-y-8 text-foreground">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Política de Privacidad</h1>
-          <p className="mt-1.5 text-[13px] text-foreground/40">Última actualización: {LAST_UPDATED}</p>
+          <p className="mt-1.5 text-[13px] text-text-2">Última actualización: {LAST_UPDATED}</p>
         </div>
 
         <section className="space-y-2.5">
@@ -92,9 +92,9 @@ export default function PrivacyPage() {
             confidencialidad:
           </p>
           <ul className="list-disc pl-5 space-y-1.5 text-[14px] leading-relaxed">
-            <li><strong className="text-foreground/90">Supabase</strong> — almacenamiento de base de datos y autenticación.</li>
-            <li><strong className="text-foreground/90">Anthropic (Claude)</strong> — procesamiento de análisis con IA, cuando esa funcionalidad está activa.</li>
-            <li><strong className="text-foreground/90">Vercel</strong> — hosting de la aplicación.</li>
+            <li><strong className="text-foreground">Supabase</strong> — almacenamiento de base de datos y autenticación.</li>
+            <li><strong className="text-foreground">Anthropic (Claude)</strong> — procesamiento de análisis con IA, cuando esa funcionalidad está activa.</li>
+            <li><strong className="text-foreground">Vercel</strong> — hosting de la aplicación.</li>
           </ul>
           <p className="text-[14px] leading-relaxed">
             Ninguno de estos proveedores usa los datos para sus propios fines comerciales ajenos a prestarnos el

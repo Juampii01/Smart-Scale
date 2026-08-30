@@ -3,7 +3,7 @@ import { useState, useRef } from "react"
 import { Check, AlertCircle, Loader2, ChevronDown, ArrowRight } from "lucide-react"
 // ─── Shared input styles (inline bg for Tailwind arbitrary-color safety) ───────
 const inputBase =
-  "w-full rounded-xl border px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/30 focus:outline-none transition-all"
+  "w-full rounded-xl border px-4 py-3 text-[15px] text-foreground placeholder:text-text-3 focus:outline-none transition-all"
 function inputStyle(focused = false) {
   return {
     backgroundColor: focused ? "color-mix(in srgb, var(--foreground) 5%, transparent)" : "color-mix(in srgb, var(--foreground) 3%, transparent)",
@@ -13,7 +13,7 @@ function inputStyle(focused = false) {
 // ─── Small helpers ────────────────────────────────────────────────────────────
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label className="block text-[13px] font-semibold text-foreground/60 mb-2 tracking-wide">
+    <label className="block text-[13px] font-semibold text-text-2 mb-2 tracking-wide">
       {children}
       {required && <span className="ml-1 text-[#dafc69]">*</span>}
     </label>
@@ -37,7 +37,7 @@ function SectionHeader({ number, title, subtitle }: { number: string; title: str
       </div>
       <div>
         <h2 className="text-[18px] font-bold text-foreground leading-tight">{title}</h2>
-        {subtitle && <p className="text-[13px] text-foreground/40 mt-1">{subtitle}</p>}
+        {subtitle && <p className="text-[13px] text-text-2 mt-1">{subtitle}</p>}
       </div>
     </div>
   )
@@ -80,7 +80,7 @@ function StyledSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
         onFocus={e => { setFocused(true); props.onFocus?.(e) }}
         onBlur={e  => { setFocused(false); props.onBlur?.(e) }}
       />
-      <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
+      <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-text-3" />
     </div>
   )
 }
@@ -96,7 +96,7 @@ function RadioGroup({ options, value, onChange }: {
           }`}>
             {value === opt && <span className="h-2 w-2 rounded-full bg-black" />}
           </span>
-          <span className="text-[14px] text-foreground/70 group-hover:text-foreground transition-colors">{opt}</span>
+          <span className="text-[14px] text-foreground group-hover:text-foreground transition-colors">{opt}</span>
         </label>
       ))}
     </div>
@@ -169,13 +169,13 @@ export default function ApplyPage() {
           </div>
           <div className="space-y-3">
             <h1 className="text-3xl font-black text-foreground">¡Aplicación enviada!</h1>
-            <p className="text-foreground/50 text-[15px] leading-relaxed">
+            <p className="text-text-2 text-[15px] leading-relaxed">
               Revisamos cada aplicación personalmente. Si hay match, te contactamos por Instagram.
             </p>
           </div>
           <div className="rounded-2xl border border-border p-6 text-left space-y-3" style={{ backgroundColor: "var(--card)" }}>
             <p className="text-[11px] font-black text-[#dafc69]/60 uppercase tracking-[0.2em]">Próximos pasos</p>
-            <ul className="space-y-2.5 text-[13px] text-foreground/55">
+            <ul className="space-y-2.5 text-[13px] text-text-2">
               <li className="flex items-start gap-2.5">
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" />
                 Revisamos tu aplicación en detalle
@@ -208,9 +208,9 @@ export default function ApplyPage() {
             <span className="rounded-md bg-foreground px-2 py-0.5 text-[14px] font-bold tracking-tight text-background shadow-sm">
               Scale
             </span>
-            <span className="text-[9px] font-semibold text-foreground/25 tracking-widest uppercase ml-0.5">v2.0</span>
+            <span className="text-[9px] font-semibold text-text-3 tracking-widest uppercase ml-0.5">v2.0</span>
           </div>
-          <span className="text-[11px] font-bold text-foreground/25 uppercase tracking-[0.18em]">Application</span>
+          <span className="text-[11px] font-bold text-text-3 uppercase tracking-[0.18em]">Application</span>
         </div>
       </div>
       <div className="mx-auto max-w-2xl px-4 sm:px-5 pb-20 sm:pb-28 pt-8 sm:pt-12 space-y-4 sm:space-y-5">
@@ -223,7 +223,7 @@ export default function ApplyPage() {
           <h1 className="text-[28px] sm:text-[38px] font-black text-foreground leading-[1.1] tracking-tight">
             Aplicá a<br />Smart Scale
           </h1>
-          <p className="text-[15px] text-foreground/50 leading-relaxed max-w-lg">
+          <p className="text-[15px] text-text-2 leading-relaxed max-w-lg">
             Estamos buscando un tipo muy específico de creador que sabemos que podemos ayudar a escalar.
             Ayudanos a entender si sos la persona indicada.
           </p>
@@ -384,7 +384,7 @@ export default function ApplyPage() {
               }`}>
                 {form.terms_accepted && <Check className="h-3 w-3 text-black" strokeWidth={3} />}
               </span>
-              <span className="text-[14px] text-foreground/60 leading-relaxed group-hover:text-foreground/80 transition-colors">
+              <span className="text-[14px] text-text-2 leading-relaxed group-hover:text-foreground transition-colors">
                 He leído y acepto los{" "}
                 <span className="text-[#dafc69] hover:underline">Términos y Condiciones</span>
                 <span className="text-[#dafc69] ml-1">*</span>
@@ -393,8 +393,8 @@ export default function ApplyPage() {
           </SectionCard>
           {/* Notice */}
           <div className="rounded-xl border border-foreground/[0.06] px-5 py-4 space-y-2" style={{ backgroundColor: "var(--card)" }}>
-            <p className="text-[11px] font-black text-foreground/30 uppercase tracking-[0.18em]">Antes de enviar</p>
-            <ul className="space-y-1.5 text-[13px] text-foreground/40">
+            <p className="text-[11px] font-black text-text-3 uppercase tracking-[0.18em]">Antes de enviar</p>
+            <ul className="space-y-1.5 text-[13px] text-text-2">
               <li className="flex items-start gap-2">
                 <span className="mt-1.5 h-1 w-1 rounded-full bg-foreground/20 shrink-0" />
                 No cierres la ventana mientras se envía el formulario

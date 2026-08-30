@@ -63,17 +63,17 @@ export function PipelineCard({ lead, onClick, onPatch, isOverlay = false, readOn
     >
       <div className="flex items-start justify-between gap-2">
         <span className="text-[13px] font-semibold text-foreground truncate">
-          {lead.name ?? <span className="text-foreground/30">Sin nombre</span>}
+          {lead.name ?? <span className="text-text-3">Sin nombre</span>}
         </span>
         {lead.rating ? (
           <span className="inline-flex items-center gap-0.5 shrink-0">
             <Star className="h-3 w-3 fill-[#dafc69] text-[#dafc69]" />
-            <span className="text-[11px] font-bold text-foreground/60">{lead.rating}</span>
+            <span className="text-[11px] font-bold text-text-2">{lead.rating}</span>
           </span>
         ) : null}
       </div>
 
-      <span className="block text-[11px] tabular-nums text-foreground/40">{fmtDate(lead.created_at)}</span>
+      <span className="block text-[11px] tabular-nums text-text-2">{fmtDate(lead.created_at)}</span>
 
       {ig && (
         <a
@@ -93,7 +93,7 @@ export function PipelineCard({ lead, onClick, onPatch, isOverlay = false, readOn
           <button
             onClick={markFollowUpDone}
             title="Marcar seguimiento como hecho"
-            className="inline-flex items-center gap-1 rounded-full border border-foreground/[0.1] px-2 py-0.5 text-[11px] font-semibold text-foreground/50 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+            className="inline-flex items-center gap-1 rounded-full border border-foreground/[0.1] px-2 py-0.5 text-[11px] font-semibold text-text-2 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
           >
             <CheckCircle2 className="h-3 w-3" />
             Hecho

@@ -30,7 +30,7 @@ function ConfirmedContent() {
               Scale
             </span>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] text-foreground/30">
+          <div className="flex items-center gap-1.5 text-[11px] text-text-3">
             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
             <span className="text-emerald-700 dark:text-emerald-400 font-medium">Pago confirmado</span>
           </div>
@@ -61,7 +61,7 @@ function ConfirmedContent() {
               <h1 className="text-[24px] sm:text-[30px] font-black text-foreground tracking-tight leading-tight">
                 ¡Tu pago fue confirmado!
               </h1>
-              <p className="mt-1.5 text-[14px] text-foreground/50 max-w-xl">
+              <p className="mt-1.5 text-[14px] text-text-2 max-w-xl">
                 Ya podés elegir el día y horario para tu sesión con Ann.
                 Seleccioná una fecha en el calendario de abajo.
               </p>
@@ -101,10 +101,10 @@ function ConfirmedContent() {
             </div>
           ) : (
             <div className="rounded-3xl border border-foreground/[0.08] bg-card p-12 text-center space-y-3">
-              <p className="text-[15px] text-foreground/50">
+              <p className="text-[15px] text-text-2">
                 En breve vas a recibir un email con el link para agendar tu sesión.
               </p>
-              <p className="text-[13px] text-foreground/30">
+              <p className="text-[13px] text-text-3">
                 Si no lo recibís en los próximos minutos, revisá tu carpeta de spam.
               </p>
             </div>

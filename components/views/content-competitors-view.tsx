@@ -73,7 +73,7 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-[22px] font-bold text-foreground leading-tight">{channelLabel} — Competitors</h1>
-          <p className="text-[13px] text-foreground/50 mt-0.5">{items.length} {items.length === 1 ? "competidor" : "competidores"}</p>
+          <p className="text-[13px] text-text-2 mt-0.5">{items.length} {items.length === 1 ? "competidor" : "competidores"}</p>
         </div>
         <button onClick={() => setOpen(true)}
         className="flex items-center gap-2 rounded-[8px] btn-accent px-4 py-2 text-[13px] font-semibold transition-colors">
@@ -82,7 +82,7 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
       </div>
 
       {loading && (
-        <div className="flex items-center justify-center py-24 text-foreground/40"><Loader2 className="h-5 w-5 animate-spin" /></div>
+        <div className="flex items-center justify-center py-24 text-text-2"><Loader2 className="h-5 w-5 animate-spin" /></div>
       )}
 
       {!loading && items.length === 0 && (
@@ -92,8 +92,8 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
             <Icon className="h-7 w-7" style={{ color: iconColor }} />
           </div>
           <div className="text-center">
-            <p className="text-[15px] font-semibold text-foreground/70">Todavía no tenés competidores</p>
-            <p className="text-[13px] text-foreground/40 mt-1">Agregá un {entityLabel} de {channelLabel} para empezar a comparar.</p>
+            <p className="text-[15px] font-semibold text-foreground">Todavía no tenés competidores</p>
+            <p className="text-[13px] text-text-2 mt-1">Agregá un {entityLabel} de {channelLabel} para empezar a comparar.</p>
           </div>
         </div>
       )}
@@ -103,7 +103,7 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
           {items.map(c => (
             <div key={c.id} className="group relative rounded-[14px] border border-foreground/[0.07] bg-card p-4 hover:border-foreground/[0.12] transition-colors">
               <button onClick={() => handleRemove(c.id)}
-                className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center rounded-md text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06]">
+                className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center rounded-md text-text-3 hover:text-foreground hover:bg-foreground/[0.06]">
                 <X className="h-3.5 w-3.5" />
               </button>
               <div className="flex items-center gap-2.5 mb-2">
@@ -112,16 +112,16 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
                 </div>
                 <div className="min-w-0">
                   <p className="text-[14px] font-semibold text-foreground leading-tight truncate">{c.name}</p>
-                  {c.handle && <p className="text-[12px] text-foreground/40 truncate">{c.handle}</p>}
+                  {c.handle && <p className="text-[12px] text-text-2 truncate">{c.handle}</p>}
                 </div>
               </div>
               {c.url && (
                 <a href={c.url} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[12px] text-foreground/50 hover:text-foreground transition-colors truncate max-w-full mt-1">
+                  className="inline-flex items-center gap-1 text-[12px] text-text-2 hover:text-foreground transition-colors truncate max-w-full mt-1">
                   <ExternalLink className="h-3 w-3 shrink-0" /> <span className="truncate">{c.url}</span>
                 </a>
               )}
-              {c.notes && <p className="text-[11px] text-foreground/35 mt-1.5 line-clamp-2">{c.notes}</p>}
+              {c.notes && <p className="text-[11px] text-text-3 mt-1.5 line-clamp-2">{c.notes}</p>}
             </div>
           ))}
         </div>
@@ -137,34 +137,34 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
                 </div>
                 <h2 className="text-[15px] font-bold text-foreground">Agregar {entityLabel}</h2>
               </div>
-              <button onClick={() => setOpen(false)} className="h-7 w-7 flex items-center justify-center rounded-md text-foreground/40 hover:text-foreground hover:bg-foreground/[0.06]">
+              <button onClick={() => setOpen(false)} className="h-7 w-7 flex items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-foreground/[0.06]">
                 <X className="h-4 w-4" />
               </button>
             </div>
             <div className="px-6 py-5 space-y-5">
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-foreground/60">Nombre <span className="text-danger">*</span></label>
+                <label className="text-[12px] font-semibold text-text-2">Nombre <span className="text-danger">*</span></label>
                 <input autoFocus value={name} onChange={e => setName(e.target.value)} placeholder={isIG ? "Nombre del perfil" : "Nombre del canal"}
-                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/25 outline-none focus:border-foreground/[0.25] transition-colors" />
+                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-foreground/60">{isIG ? "@handle" : "Handle / @"}</label>
+                <label className="text-[12px] font-semibold text-text-2">{isIG ? "@handle" : "Handle / @"}</label>
                 <input value={handle} onChange={e => setHandle(e.target.value)} placeholder={isIG ? "@usuario" : "@canal"}
-                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/25 outline-none focus:border-foreground/[0.25] transition-colors" />
+                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-foreground/60">Link</label>
+                <label className="text-[12px] font-semibold text-text-2">Link</label>
                 <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..."
-                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/25 outline-none focus:border-foreground/[0.25] transition-colors" />
+                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-foreground/60">Notas</label>
+                <label className="text-[12px] font-semibold text-text-2">Notas</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Por qué seguirlo, qué hace bien…" rows={2}
-                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/25 outline-none focus:border-foreground/[0.25] transition-colors resize-none" />
+                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors resize-none" />
               </div>
             </div>
             <div className="flex items-center justify-end gap-3 px-6 pb-5">
-              <button onClick={() => setOpen(false)} className="rounded-[8px] border border-foreground/[0.10] px-4 py-2 text-[13px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/[0.20] transition-colors">Cancelar</button>
+              <button onClick={() => setOpen(false)} className="rounded-[8px] border border-foreground/[0.10] px-4 py-2 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/[0.20] transition-colors">Cancelar</button>
               <button onClick={handleAdd} disabled={!name.trim() || saving}
                 className="flex items-center gap-1.5 rounded-[8px] px-4 py-2 text-[13px] font-semibold text-black transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90"
                 style={{ backgroundColor: iconColor }}>

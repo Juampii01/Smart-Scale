@@ -31,7 +31,7 @@ interface Level {
   questions: Question[]
 }
 
-const inputCls = "w-full rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/25 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+const inputCls = "w-full rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
 
 function computeScore(level: Level | null, answers: Record<string, any>): { correct: number; total: number } | null {
   if (!level) return null
@@ -60,7 +60,7 @@ function ResultBanner({ passed, score, levelTitle, onRetry }: {
       <div className="rounded-2xl border border-emerald-500/30 bg-emerald-100 dark:bg-emerald-500/10 p-8 text-center">
         <Check className="h-8 w-8 text-emerald-700 dark:text-emerald-400 mx-auto mb-3" />
         <p className="text-[17px] font-bold text-emerald-700 dark:text-emerald-400">Has aprobado 🎉</p>
-        <p className="text-sm text-foreground/60 mt-1">
+        <p className="text-sm text-text-2 mt-1">
           Gracias por completar {levelTitle ?? "el nivel"}.
           {score && ` Respondiste correctamente ${score.correct} de ${score.total}.`}
         </p>
@@ -68,7 +68,7 @@ function ResultBanner({ passed, score, levelTitle, onRetry }: {
           <button
             type="button"
             onClick={onRetry}
-            className="mt-5 rounded-xl border border-foreground/15 px-5 py-2.5 text-sm font-medium text-foreground/70 transition hover:bg-foreground/[0.04]"
+            className="mt-5 rounded-xl border border-foreground/15 px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-foreground/[0.04]"
           >
             Volver a responder
           </button>
@@ -80,7 +80,7 @@ function ResultBanner({ passed, score, levelTitle, onRetry }: {
     <div className="rounded-2xl border border-red-500/30 bg-red-100 dark:bg-red-500/10 p-8 text-center">
       <X className="h-8 w-8 text-red-700 dark:text-red-400 mx-auto mb-3" />
       <p className="text-[17px] font-bold text-red-700 dark:text-red-400">No has aprobado</p>
-      <p className="text-sm text-foreground/60 mt-1">
+      <p className="text-sm text-text-2 mt-1">
         {score && `Respondiste correctamente ${score.correct} de ${score.total} en `}
         {levelTitle ?? "Este nivel"}. Repasá el contenido en Skool antes de seguir.
       </p>
@@ -189,18 +189,18 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
         </div>
 
         {status === "loading" && (
-          <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-foreground/30" /></div>
+          <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-text-3" /></div>
         )}
 
         {status === "no-client" && (
           <div className="rounded-2xl border border-foreground/10 bg-card p-8 text-center">
-            <p className="text-sm text-foreground/60">Todavía no tenés un negocio vinculado a tu cuenta. Avisale al equipo de Smart Scale.</p>
+            <p className="text-sm text-text-2">Todavía no tenés un negocio vinculado a tu cuenta. Avisale al equipo de Smart Scale.</p>
           </div>
         )}
 
         {status === "not-found" && (
           <div className="rounded-2xl border border-foreground/10 bg-card p-8 text-center">
-            <p className="text-sm text-foreground/60">Este nivel no existe.</p>
+            <p className="text-sm text-text-2">Este nivel no existe.</p>
           </div>
         )}
 
@@ -213,11 +213,11 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
               <div className="rounded-2xl border border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06] p-8 text-center">
                 <Check className="h-8 w-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-3" />
                 <p className="text-[15px] font-semibold text-foreground">¡Listo, quedó enviado! 🎉</p>
-                <p className="text-sm text-foreground/50 mt-1">Gracias por completar el {level?.title}.</p>
+                <p className="text-sm text-text-2 mt-1">Gracias por completar el {level?.title}.</p>
                 <button
                   type="button"
                   onClick={retry}
-                  className="mt-5 rounded-xl border border-foreground/15 px-5 py-2.5 text-sm font-medium text-foreground/70 transition hover:bg-foreground/[0.04]"
+                  className="mt-5 rounded-xl border border-foreground/15 px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-foreground/[0.04]"
                 >
                   Volver a responder
                 </button>
@@ -238,20 +238,20 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
           <div className="rounded-2xl border border-foreground/10 bg-card p-6 sm:p-8">
             <h1 className="text-xl font-bold text-foreground mb-1">{level.title}</h1>
             {level.intro && (
-              <p className="text-[13px] text-foreground/50 mb-6 whitespace-pre-line leading-relaxed">{level.intro}</p>
+              <p className="text-[13px] text-text-2 mb-6 whitespace-pre-line leading-relaxed">{level.intro}</p>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {level.questions.map((q) => (
                 <div key={q.id}>
-                  <label className="block text-[14px] font-medium text-foreground/85 mb-2">{q.label}</label>
+                  <label className="block text-[14px] font-medium text-foreground mb-2">{q.label}</label>
                   {q.type === "text" && (
                     <textarea className={inputCls} rows={2} value={answers[q.id] ?? ""} onChange={(e) => setAnswer(q.id, e.target.value)} required />
                   )}
                   {q.type === "yesno" && (
                     <div className="flex gap-3">
                       {["Sí", "No"].map((opt, i) => (
-                        <label key={opt} className={`flex-1 flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium cursor-pointer transition-colors ${answers[q.id] === (i === 0) ? "border-accent bg-secondary text-foreground" : "border-foreground/[0.1] text-foreground/60 hover:bg-foreground/[0.03]"}`}>
+                        <label key={opt} className={`flex-1 flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium cursor-pointer transition-colors ${answers[q.id] === (i === 0) ? "border-accent bg-secondary text-foreground" : "border-foreground/[0.1] text-text-2 hover:bg-foreground/[0.03]"}`}>
                           <input type="radio" name={q.id} className="sr-only" checked={answers[q.id] === (i === 0)} onChange={() => setAnswer(q.id, i === 0)} required />
                           {opt}
                         </label>
@@ -261,7 +261,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
                   {q.type === "multiple_choice" && (
                     <div className="space-y-2">
                       {(q.options ?? []).map((opt, i) => (
-                        <label key={i} className={`flex items-center gap-2.5 rounded-xl border px-4 py-2.5 text-sm cursor-pointer transition-colors ${answers[q.id] === i ? "border-accent bg-secondary text-foreground" : "border-foreground/[0.1] text-foreground/70 hover:bg-foreground/[0.03]"}`}>
+                        <label key={i} className={`flex items-center gap-2.5 rounded-xl border px-4 py-2.5 text-sm cursor-pointer transition-colors ${answers[q.id] === i ? "border-accent bg-secondary text-foreground" : "border-foreground/[0.1] text-foreground hover:bg-foreground/[0.03]"}`}>
                           <input type="radio" name={q.id} className="sr-only" checked={answers[q.id] === i} onChange={() => setAnswer(q.id, i)} required />
                           {opt}
                         </label>

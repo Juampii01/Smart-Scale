@@ -164,7 +164,7 @@ export function MetricsSection({
   return (
     <section className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <span className="inline-flex items-center rounded-full border border-foreground/8 bg-foreground/[0.03] px-3 py-1 text-xs font-medium text-foreground/40">
+        <span className="inline-flex items-center rounded-full border border-foreground/8 bg-foreground/[0.03] px-3 py-1 text-xs font-medium text-text-2">
           {totalCount} campos · {monthLabel}
         </span>
         <Input
@@ -173,17 +173,17 @@ export function MetricsSection({
           placeholder="Buscar métricas…"
           className={cn(
             "w-full sm:w-[260px] h-8 rounded-xl text-xs",
-            "bg-foreground/[0.04] text-foreground placeholder:text-foreground/25 border-foreground/8",
+            "bg-foreground/[0.04] text-foreground placeholder:text-text-3 border-foreground/8",
             "focus-visible:ring-1 focus-visible:ring-accent/20 focus-visible:border-accent"
           )}
         />
       </div>
 
-      {loading && <p className="text-foreground/40 text-sm">Cargando métricas…</p>}
+      {loading && <p className="text-text-2 text-sm">Cargando métricas…</p>}
       {error && <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>}
 
       {!loading && !error && !metrics && (
-        <p className="text-foreground/40 text-sm">No hay métricas cargadas para este mes.</p>
+        <p className="text-text-2 text-sm">No hay métricas cargadas para este mes.</p>
       )}
 
       {!loading && !error && metrics && (
@@ -197,9 +197,9 @@ export function MetricsSection({
               <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-3">
                 <div className="flex items-center gap-2">
                   <span className="h-3 w-[2px] rounded-full bg-accent" />
-                  <span className="text-xs font-semibold uppercase tracking-widest text-foreground/50">{category}</span>
+                  <span className="text-xs font-semibold uppercase tracking-widest text-text-2">{category}</span>
                 </div>
-                <span className="text-[10px] text-foreground/25 tabular-nums">{items.length} campos</span>
+                <span className="text-[10px] text-text-3 tabular-nums">{items.length} campos</span>
               </div>
 
               {/* Table */}
@@ -207,9 +207,9 @@ export function MetricsSection({
                 <table className="w-full">
                   <thead className="sticky top-0 bg-card/95 backdrop-blur-sm">
                     <tr className="border-b border-foreground/[0.05]">
-                      <th className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-foreground/25">Campo</th>
-                      <th className="px-5 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider text-foreground/25">Mensual</th>
-                      <th className="px-5 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider text-foreground/25">Últ. 12 meses</th>
+                      <th className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-text-3">Campo</th>
+                      <th className="px-5 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider text-text-3">Mensual</th>
+                      <th className="px-5 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider text-text-3">Últ. 12 meses</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -219,17 +219,17 @@ export function MetricsSection({
                         className={`border-b border-foreground/[0.04] last:border-b-0 transition-colors hover:bg-foreground/[0.02] ${i % 2 === 0 ? "" : "bg-foreground/[0.01]"}`}
                       >
                         <td className="px-5 py-2.5">
-                          <span className="text-xs font-medium text-foreground/55">
+                          <span className="text-xs font-medium text-text-2">
                             {getFieldLabel(item.key)}
                           </span>
                         </td>
                         <td className="px-5 py-2.5 text-right">
-                          <span className="font-mono text-sm font-semibold text-foreground/85">
+                          <span className="font-mono text-sm font-semibold text-foreground">
                             {item.valueText}
                           </span>
                         </td>
                         <td className="px-5 py-2.5 text-right">
-                          <span className="font-mono text-xs text-foreground/35">{item.annualValueText}</span>
+                          <span className="font-mono text-xs text-text-3">{item.annualValueText}</span>
                         </td>
                       </tr>
                     ))}

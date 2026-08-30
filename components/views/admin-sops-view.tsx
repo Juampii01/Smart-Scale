@@ -74,7 +74,7 @@ function CopyButton({ text, className = "" }: { text: string; className?: string
     <button
       type="button"
       onClick={click}
-      className={`inline-flex items-center gap-1.5 h-8 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[12px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/20 transition-all ${className}`}
+      className={`inline-flex items-center gap-1.5 h-8 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[12px] font-semibold text-foreground hover:text-foreground hover:border-foreground/20 transition-all ${className}`}
     >
       {copied
         ? <><Check className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" /> Copiado</>
@@ -110,19 +110,19 @@ function DetailDrawer({
                 </span>
               )}
               {sop.frequency && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-foreground/[0.05] px-2 py-0.5 text-[10px] font-semibold text-foreground/60">
+                <span className="inline-flex items-center gap-1 rounded-full bg-foreground/[0.05] px-2 py-0.5 text-[10px] font-semibold text-text-2">
                   <Clock className="h-2.5 w-2.5" /> {sop.frequency}
                 </span>
               )}
             </div>
             <h2 className="text-lg font-bold text-foreground">{sop.title}</h2>
             {sop.description && (
-              <p className="text-[13px] text-foreground/60 mt-1">{sop.description}</p>
+              <p className="text-[13px] text-text-2 mt-1">{sop.description}</p>
             )}
             {sop.tags.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
                 {sop.tags.map(t => (
-                  <span key={t} className="inline-flex items-center rounded-full border border-foreground/[0.08] bg-foreground/[0.03] px-2 py-0.5 text-[10px] font-medium text-foreground/60">
+                  <span key={t} className="inline-flex items-center rounded-full border border-foreground/[0.08] bg-foreground/[0.03] px-2 py-0.5 text-[10px] font-medium text-text-2">
                     {t}
                   </span>
                 ))}
@@ -134,7 +134,7 @@ function DetailDrawer({
               <>
                 <button
                   onClick={() => onEdit(sop)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/[0.06] transition-all"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all"
                   title="Editar"
                 >
                   <Edit3 className="h-4 w-4" />
@@ -142,7 +142,7 @@ function DetailDrawer({
                 <button
                   onClick={() => onDelete(sop.id)}
                   disabled={deleting}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40"
                   title="Borrar"
                 >
                   {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
@@ -151,7 +151,7 @@ function DetailDrawer({
             )}
             <button
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/[0.06] transition-all"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all"
             >
               <X className="h-4 w-4" />
             </button>
@@ -163,9 +163,9 @@ function DetailDrawer({
 
           {/* Steps */}
           <section>
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/40 mb-3">Steps</h3>
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-2 mb-3">Steps</h3>
             {sop.steps.length === 0 ? (
-              <p className="text-[13px] text-foreground/40 italic">Este SOP no tiene steps.</p>
+              <p className="text-[13px] text-text-2 italic">Este SOP no tiene steps.</p>
             ) : (
               <ol className="space-y-2.5">
                 {sop.steps.map((s, idx) => (
@@ -182,9 +182,9 @@ function DetailDrawer({
 
           {/* Templates */}
           <section>
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/40 mb-3">Templates</h3>
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-2 mb-3">Templates</h3>
             {sop.templates.length === 0 ? (
-              <p className="text-[13px] text-foreground/40 italic">Sin templates por ahora.</p>
+              <p className="text-[13px] text-text-2 italic">Sin templates por ahora.</p>
             ) : (
               <div className="space-y-3">
                 {sop.templates.map((t, idx) => (
@@ -194,18 +194,18 @@ function DetailDrawer({
                         <span className="inline-flex items-center rounded-md bg-blue-100 dark:bg-blue-500/15 px-2 py-0.5 text-[10px] font-bold text-blue-800 dark:text-blue-300 capitalize shrink-0">
                           {CHANNEL_LABELS[t.channel] ?? t.channel}
                         </span>
-                        <span className="text-[12px] font-semibold text-foreground/80 truncate">{t.label}</span>
+                        <span className="text-[12px] font-semibold text-foreground truncate">{t.label}</span>
                       </div>
                       <CopyButton text={t.body} />
                     </div>
-                    <pre className="px-3.5 py-3 text-[13px] text-foreground/85 whitespace-pre-wrap font-mono leading-relaxed bg-foreground/[0.01] max-h-[400px] overflow-y-auto">{t.body}</pre>
+                    <pre className="px-3.5 py-3 text-[13px] text-foreground whitespace-pre-wrap font-mono leading-relaxed bg-foreground/[0.01] max-h-[400px] overflow-y-auto">{t.body}</pre>
                   </div>
                 ))}
               </div>
             )}
           </section>
 
-          <p className="text-[11px] text-foreground/30 pt-2">
+          <p className="text-[11px] text-text-3 pt-2">
             Creado {fmtDate(sop.created_at)}{sop.created_at !== sop.updated_at ? ` · editado ${fmtDate(sop.updated_at)}` : ""}
           </p>
         </div>
@@ -356,7 +356,7 @@ function CreateEditModal({
           {/* Header */}
           <div className="flex items-center justify-between gap-4 border-b border-foreground/[0.06] px-6 py-4 shrink-0">
             <h2 className="text-lg font-bold text-foreground">{isEdit ? "Editar SOP" : "Nuevo SOP"}</h2>
-            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
+            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -366,7 +366,7 @@ function CreateEditModal({
             <div className="flex border-b border-foreground/[0.06] px-6 shrink-0">
               <button
                 onClick={() => setTab("ai")}
-                className={`relative h-11 px-4 text-[13px] font-semibold transition-colors ${tab === "ai" ? "text-foreground" : "text-foreground/50 hover:text-foreground/80"}`}
+                className={`relative h-11 px-4 text-[13px] font-semibold transition-colors ${tab === "ai" ? "text-foreground" : "text-text-2 hover:text-foreground"}`}
               >
                 <span className="inline-flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5" /> Con IA
@@ -375,7 +375,7 @@ function CreateEditModal({
               </button>
               <button
                 onClick={() => setTab("manual")}
-                className={`relative h-11 px-4 text-[13px] font-semibold transition-colors ${tab === "manual" ? "text-foreground" : "text-foreground/50 hover:text-foreground/80"}`}
+                className={`relative h-11 px-4 text-[13px] font-semibold transition-colors ${tab === "manual" ? "text-foreground" : "text-text-2 hover:text-foreground"}`}
               >
                 Manual
                 {tab === "manual" && <span className="absolute inset-x-0 bottom-0 h-[2px] bg-[#dafc69]" />}
@@ -389,14 +389,14 @@ function CreateEditModal({
             {tab === "ai" && !isEdit ? (
               <>
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/50 mb-2">Descripción del proceso</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-text-2 mb-2">Descripción del proceso</label>
                   <textarea
                     value={aiPrompt}
                     onChange={e => setAiPrompt(e.target.value)}
                     placeholder="Ejemplo: Los jueves se hace una llamada que se graba en la nube. Después se sube el video a Skool en las dos comunidades, se avisa con un post en Skool y se manda mensaje al equipo en Slack con el link..."
-                    className="w-full min-h-[180px] rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-3 text-[13.5px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none resize-y"
+                    className="w-full min-h-[180px] rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-3 text-[13.5px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none resize-y"
                   />
-                  <p className="mt-1.5 text-[11px] text-foreground/40">Lo describís en lenguaje natural y la IA te lo estructura. Después lo podés editar manualmente.</p>
+                  <p className="mt-1.5 text-[11px] text-text-2">Lo describís en lenguaje natural y la IA te lo estructura. Después lo podés editar manualmente.</p>
                 </div>
                 <button
                   onClick={generateWithAI}
@@ -412,69 +412,69 @@ function CreateEditModal({
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="sm:col-span-2">
-                    <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/50 mb-1.5">Título</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-text-2 mb-1.5">Título</label>
                     <input
                       value={form.title}
                       onChange={e => updateField("title")(e.target.value)}
                       placeholder="Llamada del Jueves"
-                      className="w-full h-10 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[13.5px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none"
+                      className="w-full h-10 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[13.5px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none"
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/50 mb-1.5">Descripción</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-text-2 mb-1.5">Descripción</label>
                     <textarea
                       value={form.description}
                       onChange={e => updateField("description")(e.target.value)}
                       rows={2}
                       placeholder="Workflow post-grabación del workshop semanal"
-                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13.5px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none resize-y"
+                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13.5px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none resize-y"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/50 mb-1.5">Frecuencia</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-text-2 mb-1.5">Frecuencia</label>
                     <input
                       value={form.frequency}
                       onChange={e => updateField("frequency")(e.target.value)}
                       placeholder="Semanal - Jueves"
-                      className="w-full h-10 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[13.5px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none"
+                      className="w-full h-10 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[13.5px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/50 mb-1.5">Tags (separadas por coma)</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-text-2 mb-1.5">Tags (separadas por coma)</label>
                     <input
                       value={form.tags}
                       onChange={e => updateField("tags")(e.target.value)}
                       placeholder="live, skool, workshop"
-                      className="w-full h-10 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[13.5px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none"
+                      className="w-full h-10 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[13.5px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/50 mb-1.5">Steps (uno por línea)</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-text-2 mb-1.5">Steps (uno por línea)</label>
                   <textarea
                     value={form.steps}
                     onChange={e => updateField("steps")(e.target.value)}
                     rows={6}
                     placeholder={"Empieza la llamada y se graba en la nube\nSubir grabación a Skool en ambas comunidades\nAvisar en Skool con el post\nAvisar en Slack con el link"}
-                    className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13.5px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none resize-y font-mono"
+                    className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13.5px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none resize-y font-mono"
                   />
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/50">Templates</label>
+                    <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-text-2">Templates</label>
                     <button
                       onClick={addTemplate}
                       type="button"
-                      className="inline-flex items-center gap-1 h-7 rounded-lg border border-foreground/[0.08] px-2.5 text-[11px] font-semibold text-foreground/60 hover:text-foreground hover:border-foreground/20 transition-all"
+                      className="inline-flex items-center gap-1 h-7 rounded-lg border border-foreground/[0.08] px-2.5 text-[11px] font-semibold text-text-2 hover:text-foreground hover:border-foreground/20 transition-all"
                     >
                       <Plus className="h-3 w-3" /> Agregar template
                     </button>
                   </div>
                   <div className="space-y-2.5">
                     {form.templates.length === 0 ? (
-                      <p className="text-[12px] text-foreground/40 italic py-2">Sin templates. Agregá uno por canal (Skool, Slack, etc.).</p>
+                      <p className="text-[12px] text-text-2 italic py-2">Sin templates. Agregá uno por canal (Skool, Slack, etc.).</p>
                     ) : form.templates.map((t, idx) => (
                       <div key={idx} className="rounded-xl border border-foreground/[0.07] bg-foreground/[0.02] p-3 space-y-2">
                         <div className="flex items-center gap-2">
@@ -491,12 +491,12 @@ function CreateEditModal({
                             value={t.label}
                             onChange={e => updateTemplate(idx, { label: e.target.value })}
                             placeholder="Aviso post-grabación"
-                            className="flex-1 h-8 rounded-md border border-foreground/[0.08] bg-foreground/[0.03] px-2 text-[12.5px] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-foreground/30"
+                            className="flex-1 h-8 rounded-md border border-foreground/[0.08] bg-foreground/[0.03] px-2 text-[12.5px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-foreground/30"
                           />
                           <button
                             onClick={() => removeTemplate(idx)}
                             type="button"
-                            className="flex h-8 w-8 items-center justify-center rounded-md text-foreground/30 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all"
+                            className="flex h-8 w-8 items-center justify-center rounded-md text-text-3 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -506,7 +506,7 @@ function CreateEditModal({
                           onChange={e => updateTemplate(idx, { body: e.target.value })}
                           rows={5}
                           placeholder="Contenido del mensaje. Para Skool, usá ➡️ al inicio de cada bullet."
-                          className="w-full rounded-md border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12.5px] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-foreground/30 resize-y font-mono"
+                          className="w-full rounded-md border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12.5px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-foreground/30 resize-y font-mono"
                         />
                       </div>
                     ))}
@@ -527,7 +527,7 @@ function CreateEditModal({
             <button
               onClick={onClose}
               type="button"
-              className="h-9 rounded-lg border border-foreground/[0.08] px-4 text-[12.5px] font-semibold text-foreground/60 hover:text-foreground hover:border-foreground/20 transition-all"
+              className="h-9 rounded-lg border border-foreground/[0.08] px-4 text-[12.5px] font-semibold text-text-2 hover:text-foreground hover:border-foreground/20 transition-all"
             >
               Cancelar
             </button>
@@ -650,19 +650,19 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
       {/* Search + tag filter */}
       <div className="space-y-2">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-3" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por título, descripción, tag, frecuencia…"
-            className="w-full h-10 rounded-xl border border-foreground/[0.08] bg-card pl-10 pr-3 text-[13.5px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none"
+            className="w-full h-10 rounded-xl border border-foreground/[0.08] bg-card pl-10 pr-3 text-[13.5px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none"
           />
         </div>
         {allTags.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5">
             <button
               onClick={() => setActiveTag(null)}
-              className={`h-7 rounded-full border px-3 text-[11px] font-semibold transition-all ${activeTag == null ? "border-accent bg-secondary text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
+              className={`h-7 rounded-full border px-3 text-[11px] font-semibold transition-all ${activeTag == null ? "border-accent bg-secondary text-[#dafc69]" : "border-foreground/[0.08] text-text-2 hover:text-foreground hover:border-foreground/20"}`}
             >
               Todas
             </button>
@@ -670,7 +670,7 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
               <button
                 key={t}
                 onClick={() => setActiveTag(activeTag === t ? null : t)}
-                className={`h-7 rounded-full border px-3 text-[11px] font-medium transition-all ${activeTag === t ? "border-accent bg-secondary text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
+                className={`h-7 rounded-full border px-3 text-[11px] font-medium transition-all ${activeTag === t ? "border-accent bg-secondary text-[#dafc69]" : "border-foreground/[0.08] text-text-2 hover:text-foreground hover:border-foreground/20"}`}
               >
                 {t}
               </button>
@@ -686,12 +686,12 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
         </div>
       ) : !filtered.length ? (
         <div className="rounded-[14px] border border-foreground/[0.08] bg-card py-16 text-center">
-          <FileText className="mx-auto h-8 w-8 text-foreground/20 mb-2" />
-          <p className="text-[14px] text-foreground/50">
+          <FileText className="mx-auto h-8 w-8 text-text-3 mb-2" />
+          <p className="text-[14px] text-text-2">
             {sops.length === 0 ? "Todavía no hay SOPs." : "No hay SOPs que coincidan con el filtro."}
           </p>
           {sops.length === 0 && isAdmin && (
-            <p className="text-[12px] text-foreground/30 mt-1">Tocá "Nuevo SOP" para crear el primero.</p>
+            <p className="text-[12px] text-text-3 mt-1">Tocá "Nuevo SOP" para crear el primero.</p>
           )}
         </div>
       ) : (
@@ -711,36 +711,36 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
                       </span>
                     )}
                     {sop.frequency && (
-                      <span className="inline-flex items-center gap-0.5 rounded-full bg-foreground/[0.05] px-1.5 py-0.5 text-[9px] font-semibold text-foreground/60">
+                      <span className="inline-flex items-center gap-0.5 rounded-full bg-foreground/[0.05] px-1.5 py-0.5 text-[9px] font-semibold text-text-2">
                         <Clock className="h-2 w-2" /> {sop.frequency}
                       </span>
                     )}
                   </div>
                   <h3 className="text-[14.5px] font-bold text-foreground leading-snug group-hover:text-[#dafc69] transition-colors">{sop.title}</h3>
                   {sop.description && (
-                    <p className="text-[12.5px] text-foreground/50 mt-1 line-clamp-2">{sop.description}</p>
+                    <p className="text-[12.5px] text-text-2 mt-1 line-clamp-2">{sop.description}</p>
                   )}
                 </div>
-                <ChevronRight className="h-4 w-4 text-foreground/30 group-hover:text-foreground/60 transition-colors shrink-0 mt-0.5" />
+                <ChevronRight className="h-4 w-4 text-text-3 group-hover:text-text-2 transition-colors shrink-0 mt-0.5" />
               </div>
 
               <div className="flex flex-wrap items-center gap-1 mt-1">
                 {sop.tags.slice(0, 4).map(t => (
-                  <span key={t} className="inline-flex items-center rounded-full border border-foreground/[0.08] bg-foreground/[0.02] px-1.5 py-0.5 text-[10px] font-medium text-foreground/55">
+                  <span key={t} className="inline-flex items-center rounded-full border border-foreground/[0.08] bg-foreground/[0.02] px-1.5 py-0.5 text-[10px] font-medium text-text-2">
                     {t}
                   </span>
                 ))}
                 {sop.tags.length > 4 && (
-                  <span className="text-[10px] text-foreground/40">+{sop.tags.length - 4}</span>
+                  <span className="text-[10px] text-text-2">+{sop.tags.length - 4}</span>
                 )}
               </div>
 
               <div className="flex items-center gap-3 pt-1.5 border-t border-foreground/[0.05] mt-1">
-                <span className="text-[10.5px] text-foreground/45">
+                <span className="text-[10.5px] text-text-2">
                   {sop.steps.length} {sop.steps.length === 1 ? "paso" : "pasos"}
                 </span>
                 {sop.templates.length > 0 && (
-                  <span className="text-[10.5px] text-foreground/45">
+                  <span className="text-[10.5px] text-text-2">
                     {sop.templates.length} template{sop.templates.length === 1 ? "" : "s"}
                   </span>
                 )}

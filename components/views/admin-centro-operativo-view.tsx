@@ -85,7 +85,7 @@ export function AdminCentroOperativoView() {
               className={`relative inline-flex items-center gap-1.5 px-3 py-2 text-[13px] font-semibold transition-colors -mb-px ${
                 active
                   ? "text-foreground"
-                  : "text-foreground/45 hover:text-foreground/70"
+                  : "text-text-2 hover:text-foreground"
               }`}
             >
               <Icon className="h-3.5 w-3.5" />

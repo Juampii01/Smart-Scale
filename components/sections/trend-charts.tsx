@@ -111,14 +111,14 @@ function ChartCard({
         <div className="flex items-start justify-between mb-1">
           <div>
             <h3 className="text-[19px] font-bold text-foreground leading-tight tracking-tight">{cfg.label}</h3>
-            <p className="text-[13px] text-foreground/45 mt-0.5">{cfg.subtitle}</p>
+            <p className="text-[13px] text-text-2 mt-0.5">{cfg.subtitle}</p>
           </div>
           {diff !== null && (
             <span
               className={`mt-0.5 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold shrink-0 ml-3 ${
                 isUp   ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20"
                 : isDown ? "bg-red-100 text-red-800 ring-1 ring-red-300 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20"
-                :          "bg-foreground/5 text-foreground/40 ring-1 ring-foreground/10 dark:ring-white/10"
+                :          "bg-foreground/5 text-text-2 ring-1 ring-foreground/10 dark:ring-white/10"
               }`}
             >
               {isUp && <TrendingUp className="h-3 w-3" />}
@@ -218,7 +218,7 @@ function ChartCard({
           </ResponsiveContainer>
         ) : (
           <div className="h-[220px] flex items-center justify-center">
-            <p className="text-sm text-foreground/25">Sin datos</p>
+            <p className="text-sm text-text-3">Sin datos</p>
           </div>
         )}
       </div>
@@ -300,9 +300,9 @@ export function TrendCharts() {
     return (
       <section className="flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-14 text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
-          <BarChart3 className="h-5 w-5 text-foreground/20" />
+          <BarChart3 className="h-5 w-5 text-text-3" />
         </div>
-        <p className="text-sm text-foreground/40">
+        <p className="text-sm text-text-2">
           {isOwn ? "Todavía no tenés reportes cargados." : "Este cliente todavía no tiene reportes cargados."}
         </p>
         {isOwn && (
@@ -318,8 +318,8 @@ export function TrendCharts() {
     <section className="space-y-5">
       <div className="flex items-center gap-2.5">
         <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-        <h2 className="text-sm font-bold uppercase tracking-widest text-foreground/80">Analytics</h2>
-        <span className="ml-auto text-xs text-foreground/30 tabular-nums">{rows.length} meses</span>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-foreground">Analytics</h2>
+        <span className="ml-auto text-xs text-text-3 tabular-nums">{rows.length} meses</span>
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">

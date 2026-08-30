@@ -69,14 +69,14 @@ function WorkRow({ p, signal }: { p: Prospect; signal: "" | "att" | "risk" }) {
       <span className={`h-2 w-2 shrink-0 rounded-[2px] ${dotClass}`} />
       <span className="w-[130px] shrink-0">
         <span className="block truncate text-[13px] font-semibold text-foreground">{p.name}</span>
-        {p.handle && <span className="block truncate text-[11px] text-foreground/40">@{p.handle}</span>}
+        {p.handle && <span className="block truncate text-[11px] text-text-2">@{p.handle}</span>}
       </span>
-      <span className="hidden shrink-0 rounded-md border border-foreground/[0.1] px-2 py-0.5 text-[10.5px] text-foreground/55 sm:inline-block">
+      <span className="hidden shrink-0 rounded-md border border-foreground/[0.1] px-2 py-0.5 text-[10.5px] text-text-2 sm:inline-block">
         {STAGE_LABEL[p.stage]}
       </span>
-      <span className="min-w-0 flex-1 truncate text-[12.5px] text-foreground/55">{STAGE_MOTIVO[p.stage]}</span>
-      <span className="shrink-0 text-[11px] tabular-nums text-foreground/35">{fmtAgo(daysSince(p.last_movement_at))}</span>
-      <ChevronRight className="h-3.5 w-3.5 shrink-0 text-foreground/20" />
+      <span className="min-w-0 flex-1 truncate text-[12.5px] text-text-2">{STAGE_MOTIVO[p.stage]}</span>
+      <span className="shrink-0 text-[11px] tabular-nums text-text-3">{fmtAgo(daysSince(p.last_movement_at))}</span>
+      <ChevronRight className="h-3.5 w-3.5 shrink-0 text-text-3" />
     </div>
   )
 }
@@ -85,11 +85,11 @@ function WorkSection({ title, items }: { title: string; items: { p: Prospect; si
   return (
     <div>
       <div className="mb-1 flex items-center gap-2.5">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/40">{title}</span>
-        <span className="text-[11px] tabular-nums text-foreground/30">{items.length}</span>
+        <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-2">{title}</span>
+        <span className="text-[11px] tabular-nums text-text-3">{items.length}</span>
       </div>
       {items.length === 0 ? (
-        <p className="py-3 text-[12.5px] text-foreground/35">Nada acá — bien.</p>
+        <p className="py-3 text-[12.5px] text-text-3">Nada acá — bien.</p>
       ) : (
         <div>{items.map(({ p, signal }) => <WorkRow key={p.id} p={p} signal={signal} />)}</div>
       )}
@@ -100,9 +100,9 @@ function WorkSection({ title, items }: { title: string; items: { p: Prospect; si
 function StatRow({ label, stat }: { label: string; stat: Stat }) {
   return (
     <div className="flex items-baseline gap-3 border-b border-foreground/[0.05] py-2.5 last:border-b-0">
-      <span className="flex-1 text-[13px] text-foreground/60">{label}</span>
+      <span className="flex-1 text-[13px] text-text-2">{label}</span>
       <span className="text-[19px] font-extrabold tabular-nums text-foreground">{stat.month}</span>
-      <span className="w-14 shrink-0 text-right text-[11px] tabular-nums text-foreground/35">de {stat.trailing12mo}</span>
+      <span className="w-14 shrink-0 text-right text-[11px] tabular-nums text-text-3">de {stat.trailing12mo}</span>
     </div>
   )
 }
@@ -157,14 +157,14 @@ export function CrmHoyView({ clientId, clientName, readOnly }: { clientId: strin
   }, [prospects])
 
   if (loading) {
-    return <div className="flex items-center justify-center py-24"><Loader2 className="h-5 w-5 animate-spin text-foreground/30" /></div>
+    return <div className="flex items-center justify-center py-24"><Loader2 className="h-5 w-5 animate-spin text-text-3" /></div>
   }
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-[28px] font-extrabold tracking-tight text-foreground">{greeting()}{clientName ? `, ${clientName}` : ""}</h1>
-        <p className="mt-1 text-[14px] text-foreground/50">
+        <p className="mt-1 text-[14px] text-text-2">
           {buckets.total === 0
             ? "No hay prospectos activos pidiendo algo — cargá el primero desde Pipeline."
             : `${buckets.total} prospecto${buckets.total !== 1 ? "s" : ""} esperan que hagas algo.${buckets.atrasados.length > 0 ? ` ${buckets.atrasados.length} se ${buckets.atrasados.length === 1 ? "está" : "están"} atrasando.` : ""}`}
@@ -185,30 +185,30 @@ export function CrmHoyView({ clientId, clientName, readOnly }: { clientId: strin
               <span className="text-[13px] font-semibold text-foreground">Ann AI</span>
             </div>
             {buckets.atrasados.length > 0 || buckets.paraHoy.length > 0 ? (
-              <p className="mt-2.5 text-[12.5px] leading-relaxed text-foreground/55">
+              <p className="mt-2.5 text-[12.5px] leading-relaxed text-text-2">
                 {buckets.atrasados.length > 0 && (
                   <>Tenés <b className="text-foreground">{buckets.atrasados.length} prospecto{buckets.atrasados.length !== 1 ? "s" : ""} atrasado{buckets.atrasados.length !== 1 ? "s" : ""}</b> hace más de una semana sin moverse. </>
                 )}
                 {buckets.paraHoy.length > 0 && <>{buckets.paraHoy.length} más necesitan algo pronto.</>}
               </p>
             ) : (
-              <p className="mt-2.5 text-[12.5px] leading-relaxed text-foreground/45">Sin nada urgente pendiente hoy.</p>
+              <p className="mt-2.5 text-[12.5px] leading-relaxed text-text-2">Sin nada urgente pendiente hoy.</p>
             )}
-            <a href="/ann-ai" className="mt-3 flex items-center gap-2 rounded-lg border border-foreground/[0.08] px-3 py-2 text-[12px] text-foreground/45 hover:text-foreground hover:border-foreground/20 transition-colors">
+            <a href="/ann-ai" className="mt-3 flex items-center gap-2 rounded-lg border border-foreground/[0.08] px-3 py-2 text-[12px] text-text-2 hover:text-foreground hover:border-foreground/20 transition-colors">
               <Kanban className="h-3.5 w-3.5" /> Preguntale algo sobre tu pipeline…
             </a>
           </div>
 
           {stats && (
             <div>
-              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/40">Tu mes, hasta ahora</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-text-2">Tu mes, hasta ahora</p>
               <div className="rounded-2xl border border-foreground/[0.08] bg-card px-4">
                 <StatRow label="Llamadas agendadas" stat={stats.llamadas_agendadas} />
                 <StatRow label="OfferDocs enviados" stat={stats.offerdocs_enviados} />
                 <StatRow label="OfferDocs respondidos" stat={stats.offerdocs_respondidos} />
                 <StatRow label="Cierres" stat={stats.cierres} />
               </div>
-              <p className="mt-2 text-[11px] leading-relaxed text-foreground/35">Estos cuatro campos del reporte mensual se llenan solos con lo que movés en el Pipeline.</p>
+              <p className="mt-2 text-[11px] leading-relaxed text-text-3">Estos cuatro campos del reporte mensual se llenan solos con lo que movés en el Pipeline.</p>
             </div>
           )}
         </div>

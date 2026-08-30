@@ -83,7 +83,7 @@ export function RenovacionView() {
           <Sparkles className="h-6 w-6 text-[#dafc69]" />
           Próximo nivel
         </h1>
-        <p className="text-sm text-foreground/50 mt-1.5 max-w-2xl">
+        <p className="text-sm text-text-2 mt-1.5 max-w-2xl">
           Tu programa puede seguir creciendo. Estas son las formas de continuar el acompañamiento
           y llevar tu negocio al siguiente nivel.
         </p>
@@ -115,20 +115,20 @@ export function RenovacionView() {
                 >
                   <Icon className="h-4.5 w-4.5" style={{ color: o.highlight ? "#000" : "var(--muted-foreground)" }} />
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">{o.badge}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-text-2">{o.badge}</span>
               </div>
 
               <h2 className="text-lg font-bold text-foreground leading-tight">{o.title}</h2>
-              <p className="text-[13px] text-foreground/55 mt-1.5 leading-relaxed">{o.tagline}</p>
+              <p className="text-[13px] text-text-2 mt-1.5 leading-relaxed">{o.tagline}</p>
 
               {/* Precio */}
               <div className="mt-4 mb-4 border-y border-foreground/[0.06] py-3">
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-2xl font-extrabold text-foreground">{o.priceTotal}</span>
-                  <span className="text-[11px] font-medium text-foreground/45">pago único</span>
+                  <span className="text-[11px] font-medium text-text-2">pago único</span>
                 </div>
                 {o.priceMonthly && (
-                  <p className="text-[12.5px] text-foreground/60 mt-1">
+                  <p className="text-[12.5px] text-text-2 mt-1">
                     o <span className="font-semibold text-foreground">{o.priceMonthly}</span>{o.priceSuffix ?? "/mes"}
                   </p>
                 )}
@@ -137,7 +137,7 @@ export function RenovacionView() {
               {/* Features */}
               <ul className="space-y-2.5 flex-1">
                 {o.features.map((f, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-[13px] text-foreground/80 leading-snug">
+                  <li key={i} className="flex items-start gap-2.5 text-[13px] text-foreground leading-snug">
                     <span
                       className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full"
                       style={{ backgroundColor: o.highlight ? "var(--accent-soft)" : "var(--muted)" }}
@@ -150,7 +150,7 @@ export function RenovacionView() {
               </ul>
 
               {o.footnote && (
-                <p className="mt-4 pt-4 border-t border-foreground/[0.06] text-[11.5px] italic text-foreground/40">
+                <p className="mt-4 pt-4 border-t border-foreground/[0.06] text-[11.5px] italic text-text-2">
                   {o.footnote}
                 </p>
               )}
@@ -160,7 +160,7 @@ export function RenovacionView() {
       </div>
 
       {/* Nota al pie */}
-      <p className="mt-8 text-center text-[13px] text-foreground/45">
+      <p className="mt-8 text-center text-[13px] text-text-2">
         ¿Querés sumarte a alguno de estos planes? Hablalo directamente con Ann y lo coordinamos. 🚀
       </p>
     </div>

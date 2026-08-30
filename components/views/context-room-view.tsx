@@ -26,17 +26,17 @@ type SaveState = "idle" | "saving" | "ok" | "error"
 
 // ─── Shared styles ────────────────────────────────────────────────────────────
 
-const labelCls = "block text-[11px] font-bold uppercase tracking-[0.10em] text-foreground/40 mb-2"
-const hintCls  = "text-[12px] text-foreground/35 mt-2 leading-relaxed"
+const labelCls = "block text-[11px] font-bold uppercase tracking-[0.10em] text-text-2 mb-2"
+const hintCls  = "text-[12px] text-text-3 mt-2 leading-relaxed"
 
 const areaCls = cn(
   "w-full rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.03]",
-  "px-4 py-3 text-[14px] text-foreground placeholder:text-foreground/25",
+  "px-4 py-3 text-[14px] text-foreground placeholder:text-text-3",
   "outline-none focus:border-foreground/[0.22] transition-colors resize-none"
 )
 const inputCls = cn(
   "w-full rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.03]",
-  "px-3 py-2 text-[14px] text-foreground placeholder:text-foreground/25",
+  "px-3 py-2 text-[14px] text-foreground placeholder:text-text-3",
   "outline-none focus:border-foreground/[0.22] transition-colors"
 )
 
@@ -68,12 +68,12 @@ function MultiEntry({
         {values.map((v, i) => (
           <div key={i} className="flex gap-2">
             <input className={cn(inputCls, "flex-1")} value={v} onChange={e => upd(i, e.target.value)} placeholder={placeholder} />
-            <button onClick={() => del(i)} className="h-9 w-9 flex items-center justify-center rounded-[8px] border border-foreground/[0.08] text-foreground/40 hover:text-danger hover:border-danger/30 transition-colors">
+            <button onClick={() => del(i)} className="h-9 w-9 flex items-center justify-center rounded-[8px] border border-foreground/[0.08] text-text-2 hover:text-danger hover:border-danger/30 transition-colors">
               <X className="h-3.5 w-3.5" />
             </button>
           </div>
         ))}
-        <button onClick={add} className="flex items-center gap-2 rounded-[8px] border border-foreground/[0.10] px-3 py-2 text-[12px] font-semibold text-foreground/60 hover:text-foreground hover:border-foreground/[0.20] transition-colors">
+        <button onClick={add} className="flex items-center gap-2 rounded-[8px] border border-foreground/[0.10] px-3 py-2 text-[12px] font-semibold text-text-2 hover:text-foreground hover:border-foreground/[0.20] transition-colors">
           <Plus className="h-3.5 w-3.5" /> Agregar
         </button>
       </div>
@@ -141,7 +141,7 @@ function LocationTab({
               </button>
             )}
           </div>
-          <p className="text-[11px] text-foreground/35">JPG, PNG o WebP. Máximo 2MB.</p>
+          <p className="text-[11px] text-text-3">JPG, PNG o WebP. Máximo 2MB.</p>
           {account.photoMsg && <p className="text-[11px] text-success">{account.photoMsg}</p>}
         </div>
         <input ref={fileRef} type="file" accept="image/*" className="hidden"
@@ -195,7 +195,7 @@ function LocationTab({
       {/* Contraseña */}
       <div className="pt-6 border-t border-foreground/[0.07]">
         <div className="flex items-center gap-2 mb-4">
-          <Lock className="h-4 w-4 text-foreground/40" />
+          <Lock className="h-4 w-4 text-text-2" />
           <h3 className="text-[13px] font-bold text-foreground">Contraseña</h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl">
@@ -362,9 +362,9 @@ function TheNumbersTab({ ctx, set, reports }: { ctx: Ctx; set: (k: string, v: st
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-3">
           {months.length > 0 ? months.map(r => (
             <div key={r.month} className="rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.02] p-3">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/40 mb-1.5">{fmtMonthLabel(r.month)}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-text-2 mb-1.5">{fmtMonthLabel(r.month)}</p>
               <div className="flex items-center gap-1">
-                <span className="text-foreground/40 text-[13px]">$</span>
+                <span className="text-text-2 text-[13px]">$</span>
                 <input
                   className="flex-1 bg-transparent text-[15px] font-bold tabular-nums text-foreground outline-none border-0 border-b border-foreground/[0.10] pb-0.5 focus:border-accent transition-colors"
                   defaultValue={Math.round(r.total_revenue) || ""} placeholder="0" type="number"
@@ -375,7 +375,7 @@ function TheNumbersTab({ ctx, set, reports }: { ctx: Ctx; set: (k: string, v: st
           )) : Array.from({ length: 12 }, (_, i) => (
             <div key={i} className="rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.02] p-3">
               <div className="flex items-center gap-1">
-                <span className="text-foreground/40 text-[13px]">$</span>
+                <span className="text-text-2 text-[13px]">$</span>
                 <input className="flex-1 bg-transparent text-[15px] font-bold tabular-nums text-foreground outline-none border-0 border-b border-foreground/[0.10] pb-0.5" placeholder="0" type="number" />
               </div>
             </div>
@@ -699,7 +699,7 @@ export function ContextRoomView() {
       <div className="flex items-start justify-between mb-1">
         <div>
           <h1 className="text-[22px] font-bold text-foreground leading-tight">Context Room</h1>
-          <p className="text-[13px] text-foreground/50 mt-0.5">
+          <p className="text-[13px] text-text-2 mt-0.5">
             Tu contexto le da forma a todo lo que Smart Scale construye con vos. Los cambios se guardan automáticamente.
           </p>
         </div>
@@ -721,7 +721,7 @@ export function ContextRoomView() {
                 "relative pb-3 px-4 text-[13px] font-semibold whitespace-nowrap transition-colors",
                 tab === t.id
                   ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-accent after:rounded-full"
-                  : "text-foreground/40 hover:text-foreground/70"
+                  : "text-text-2 hover:text-foreground"
               )}
             >{t.label}</button>
           ))}

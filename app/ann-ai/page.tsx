@@ -280,10 +280,10 @@ function AnaiContent() {
           <h1 className="text-xl font-extrabold tracking-tight text-foreground leading-none flex items-center gap-2">
             Ann AI
           </h1>
-          <p className="text-[12px] text-foreground/40 mt-1">
+          <p className="text-[12px] text-text-2 mt-1">
             {internal
               ? (activeClientName
-                  ? <>Analizando a <span className="text-foreground/70 font-medium">{activeClientName}</span></>
+                  ? <>Analizando a <span className="text-foreground font-medium">{activeClientName}</span></>
                   : "Sin cliente seleccionado")
               : "Tu asistente de negocio personal"}
           </p>
@@ -308,11 +308,11 @@ function AnaiContent() {
             onClick={() => setHistorialOpen(v => !v)}
             className="flex w-full items-center gap-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-3 py-1.5 text-left transition hover:bg-foreground/[0.05]"
           >
-            <MessageSquare className="h-3.5 w-3.5 shrink-0 text-foreground/30" />
-            <span className="flex-1 truncate text-[12.5px] text-foreground/70">
+            <MessageSquare className="h-3.5 w-3.5 shrink-0 text-text-3" />
+            <span className="flex-1 truncate text-[12.5px] text-foreground">
               {activeConv ? activeConv.title : "Sin conversación activa"}
             </span>
-            <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-foreground/30 transition-transform ${historialOpen ? "rotate-180" : ""}`} />
+            <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-text-3 transition-transform ${historialOpen ? "rotate-180" : ""}`} />
           </button>
 
           {/* Dropdown historial */}
@@ -321,15 +321,15 @@ function AnaiContent() {
               <div className="max-h-72 overflow-y-auto">
                 {loadingConvs ? (
                   <div className="flex items-center justify-center py-6">
-                    <Loader2 className="h-4 w-4 animate-spin text-foreground/30" />
+                    <Loader2 className="h-4 w-4 animate-spin text-text-3" />
                   </div>
                 ) : conversations.length === 0 ? (
-                  <p className="px-4 py-4 text-center text-[12px] text-foreground/40">No hay conversaciones todavía.</p>
+                  <p className="px-4 py-4 text-center text-[12px] text-text-2">No hay conversaciones todavía.</p>
                 ) : (
                   <>
                     {thisMonthConvs.length > 0 && (
                       <>
-                        <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-foreground/25">Este mes</p>
+                        <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-text-3">Este mes</p>
                         {thisMonthConvs.map(c => (
                           <ConvItem
                             key={c.id} conv={c} active={c.id === activeConvId}
@@ -341,7 +341,7 @@ function AnaiContent() {
                     )}
                     {olderConvs.length > 0 && (
                       <>
-                        <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-foreground/25">Anteriores</p>
+                        <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-text-3">Anteriores</p>
                         {olderConvs.map(c => (
                           <ConvItem
                             key={c.id} conv={c} active={c.id === activeConvId}
@@ -365,7 +365,7 @@ function AnaiContent() {
               ? "bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400"
               : usage.used >= usage.limit - 1
                 ? "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                : "bg-foreground/[0.05] text-foreground/40"
+                : "bg-foreground/[0.05] text-text-2"
           }`}>
             {usage.used}/{usage.limit}
           </div>
@@ -380,7 +380,7 @@ function AnaiContent() {
               <Sparkles className="h-6 w-6 text-[#dafc69]" />
             </div>
             <p className="text-[15px] font-bold text-foreground">Preguntale lo que quieras sobre {internal ? "el negocio" : "tu negocio"}</p>
-            <p className="text-[13px] text-foreground/40 mt-1 max-w-sm">Ann AI cruza la metodología de Ann con {internal ? "los datos reales del cliente" : "tus datos reales"}.</p>
+            <p className="text-[13px] text-text-2 mt-1 max-w-sm">Ann AI cruza la metodología de Ann con {internal ? "los datos reales del cliente" : "tus datos reales"}.</p>
             {atMonthLimit ? (
               <p className="mt-6 rounded-xl border border-red-500/20 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-400">
                 Usaste las {MAX_CONVERSATIONS_PER_MONTH} conversaciones de este mes. Volvé el mes que viene.
@@ -389,7 +389,7 @@ function AnaiContent() {
               <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">
                 {suggestions.map(s => (
                   <button key={s} onClick={() => send(s)}
-                    className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-left text-[12.5px] text-foreground/70 transition-all hover:border-border hover:bg-secondary hover:text-foreground">
+                    className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-left text-[12.5px] text-foreground transition-all hover:border-border hover:bg-secondary hover:text-foreground">
                     {s}
                   </button>
                 ))}
@@ -403,14 +403,14 @@ function AnaiContent() {
                 m.role === "user" ? "bg-foreground/[0.06]" : "bg-[#dafc69]"
               }`}>
                 {m.role === "user"
-                  ? <User className="h-4 w-4 text-foreground/50" />
+                  ? <User className="h-4 w-4 text-text-2" />
                   : <Sparkles className="h-4 w-4 text-black" />}
               </div>
               <div className={`min-w-0 max-w-[82%] ${m.role === "user" ? "text-right" : ""}`}>
                 <div className={`inline-block rounded-2xl px-4 py-2.5 text-[13.5px] leading-relaxed ${
                   m.role === "user"
                     ? "bg-[#dafc69] text-black font-medium whitespace-pre-wrap"
-                    : "bg-foreground/[0.04] text-foreground/90"
+                    : "bg-foreground/[0.04] text-foreground"
                 }`}>
                   {m.role === "user" ? m.content : (
                     <ReactMarkdown
@@ -418,15 +418,15 @@ function AnaiContent() {
                       components={{
                         p:          ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
                         strong:     ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
-                        em:         ({ children }) => <em className="italic text-foreground/80">{children}</em>,
-                        ul:         ({ children }) => <ul className="mb-2 space-y-1 pl-4 list-disc marker:text-foreground/30">{children}</ul>,
-                        ol:         ({ children }) => <ol className="mb-2 space-y-1 pl-4 list-decimal marker:text-foreground/30">{children}</ol>,
+                        em:         ({ children }) => <em className="italic text-foreground">{children}</em>,
+                        ul:         ({ children }) => <ul className="mb-2 space-y-1 pl-4 list-disc marker:text-text-3">{children}</ul>,
+                        ol:         ({ children }) => <ol className="mb-2 space-y-1 pl-4 list-decimal marker:text-text-3">{children}</ol>,
                         li:         ({ children }) => <li className="leading-snug">{children}</li>,
                         h1:         ({ children }) => <h1 className="mb-2 text-base font-bold text-foreground">{children}</h1>,
                         h2:         ({ children }) => <h2 className="mb-1.5 text-sm font-bold text-foreground">{children}</h2>,
-                        h3:         ({ children }) => <h3 className="mb-1 text-[13px] font-semibold text-foreground/80">{children}</h3>,
+                        h3:         ({ children }) => <h3 className="mb-1 text-[13px] font-semibold text-foreground">{children}</h3>,
                         hr:         () => <hr className="my-3 border-foreground/[0.08]" />,
-                        blockquote: ({ children }) => <blockquote className="border-l-2 border-accent/40 pl-3 text-foreground/60 italic">{children}</blockquote>,
+                        blockquote: ({ children }) => <blockquote className="border-l-2 border-accent/40 pl-3 text-text-2 italic">{children}</blockquote>,
                         code:       ({ children }) => <code className="rounded bg-foreground/[0.07] px-1 py-0.5 text-[12px] font-mono">{children}</code>,
                         table:      ({ children }) => (
                           <div className="my-2 overflow-x-auto rounded-xl border border-foreground/[0.08]">
@@ -434,8 +434,8 @@ function AnaiContent() {
                           </div>
                         ),
                         thead: ({ children }) => <thead className="bg-foreground/[0.05]">{children}</thead>,
-                        th:    ({ children }) => <th className="px-3 py-2 text-left font-semibold text-foreground/70">{children}</th>,
-                        td:    ({ children }) => <td className="px-3 py-2 border-t border-foreground/[0.06] text-foreground/80">{children}</td>,
+                        th:    ({ children }) => <th className="px-3 py-2 text-left font-semibold text-foreground">{children}</th>,
+                        td:    ({ children }) => <td className="px-3 py-2 border-t border-foreground/[0.06] text-foreground">{children}</td>,
                       }}
                     >
                       {m.content}
@@ -443,7 +443,7 @@ function AnaiContent() {
                   )}
                 </div>
                 {m.tools && m.tools.length > 0 && (
-                  <div className="mt-1.5 flex items-center gap-1.5 text-[10px] text-foreground/25">
+                  <div className="mt-1.5 flex items-center gap-1.5 text-[10px] text-text-3">
                     <Wrench className="h-2.5 w-2.5" />
                     consultó: {Array.from(new Set(m.tools)).join(", ")}
                   </div>
@@ -458,7 +458,7 @@ function AnaiContent() {
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#dafc69]">
               <Sparkles className="h-4 w-4 text-black" />
             </div>
-            <div className="flex items-center gap-2 rounded-2xl bg-foreground/[0.04] px-4 py-2.5 text-[13px] text-foreground/50">
+            <div className="flex items-center gap-2 rounded-2xl bg-foreground/[0.04] px-4 py-2.5 text-[13px] text-text-2">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               Analizando los datos…
             </div>
@@ -483,7 +483,7 @@ function AnaiContent() {
       )}
 
       {nearMsgLimit && !atMsgLimit && (
-        <p className="mt-1.5 text-center text-[11px] text-foreground/30">
+        <p className="mt-1.5 text-center text-[11px] text-text-3">
           {MAX_MESSAGES_PER_CONVERSATION - msgCount} mensajes restantes en esta conversación
         </p>
       )}
@@ -512,7 +512,7 @@ function AnaiContent() {
           }
           rows={1}
           disabled={loading || atMsgLimit || atMonthLimit}
-          className="flex-1 resize-none bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-foreground/30 focus:outline-none disabled:opacity-50"
+          className="flex-1 resize-none bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-text-3 focus:outline-none disabled:opacity-50"
         />
         <button
           type="submit"
@@ -541,18 +541,18 @@ function ConvItem({
         active ? "bg-secondary" : ""
       }`}
     >
-      <MessageSquare className={`h-3.5 w-3.5 shrink-0 ${active ? "text-[#dafc69]/70" : "text-foreground/25"}`} />
+      <MessageSquare className={`h-3.5 w-3.5 shrink-0 ${active ? "text-[#dafc69]/70" : "text-text-3"}`} />
       <div className="flex-1 min-w-0">
-        <p className={`truncate text-[12.5px] font-medium ${active ? "text-foreground" : "text-foreground/70"}`}>
+        <p className={`truncate text-[12.5px] font-medium ${active ? "text-foreground" : "text-foreground"}`}>
           {conv.title}
         </p>
-        <p className="text-[10.5px] text-foreground/30 mt-0.5">
+        <p className="text-[10.5px] text-text-3 mt-0.5">
           {fmtDate(conv.updated_at)} · {conv.message_count} msg
         </p>
       </div>
       <button
         onClick={onDelete}
-        className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md text-foreground/20 opacity-0 group-hover:opacity-100 hover:text-red-500 hover:bg-red-500/10 transition-all"
+        className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md text-text-3 opacity-0 group-hover:opacity-100 hover:text-red-500 hover:bg-red-500/10 transition-all"
       >
         <Trash2 className="h-3 w-3" />
       </button>

@@ -65,8 +65,8 @@ function DetailRow({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null
   return (
     <div className="space-y-1">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">{label}</p>
-      <p className="text-[13px] text-foreground/75 leading-relaxed whitespace-pre-wrap">{value}</p>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">{label}</p>
+      <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-wrap">{value}</p>
     </div>
   )
 }
@@ -91,14 +91,14 @@ function DetailDrawer({
         <div className="sticky top-0 z-10 border-b border-foreground/[0.08] bg-background/95 backdrop-blur px-6 py-4 flex items-start justify-between gap-4">
           <div className="space-y-2 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-foreground/[0.06] text-foreground/50 border-foreground/10"}`}>
+              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-foreground/[0.06] text-text-2 border-foreground/10"}`}>
                 {roleLabel(app.role)}
               </span>
-              <span className="text-[11px] text-foreground/30">{fmtDate(app.created_at)}</span>
+              <span className="text-[11px] text-text-3">{fmtDate(app.created_at)}</span>
             </div>
             <h2 className="text-xl font-bold text-foreground truncate">{fullName(app)}</h2>
           </div>
-          <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
+          <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -116,7 +116,7 @@ function DetailDrawer({
                   className={`rounded-lg border px-3 py-1.5 text-[12px] font-semibold capitalize transition ${
                     app.status === s
                       ? STATUS_STYLE[s]
-                      : "border-foreground/10 bg-foreground/[0.02] text-foreground/45 hover:text-foreground/80 hover:border-foreground/20"
+                      : "border-foreground/10 bg-foreground/[0.02] text-text-2 hover:text-foreground hover:border-foreground/20"
                   }`}
                 >
                   {s}
@@ -138,18 +138,18 @@ function DetailDrawer({
             <h3 className="text-[11px] font-black uppercase tracking-widest text-[#dafc69]/50">Contacto</h3>
             <div className="space-y-2">
               {app.email && (
-                <a href={`mailto:${app.email}`} className="flex items-center gap-2.5 text-[13px] text-foreground/70 hover:text-foreground">
-                  <Mail className="h-3.5 w-3.5 text-foreground/30" /> {app.email}
+                <a href={`mailto:${app.email}`} className="flex items-center gap-2.5 text-[13px] text-foreground hover:text-foreground">
+                  <Mail className="h-3.5 w-3.5 text-text-3" /> {app.email}
                 </a>
               )}
               {app.whatsapp && (
-                <a href={`https://wa.me/${app.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[13px] text-foreground/70 hover:text-foreground">
-                  <Phone className="h-3.5 w-3.5 text-foreground/30" /> {app.whatsapp}
+                <a href={`https://wa.me/${app.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[13px] text-foreground hover:text-foreground">
+                  <Phone className="h-3.5 w-3.5 text-text-3" /> {app.whatsapp}
                 </a>
               )}
               {app.instagram_handle && (
-                <a href={`https://instagram.com/${app.instagram_handle.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[13px] text-foreground/70 hover:text-foreground">
-                  <Instagram className="h-3.5 w-3.5 text-foreground/30" /> {app.instagram_handle}
+                <a href={`https://instagram.com/${app.instagram_handle.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[13px] text-foreground hover:text-foreground">
+                  <Instagram className="h-3.5 w-3.5 text-text-3" /> {app.instagram_handle}
                 </a>
               )}
             </div>
@@ -185,7 +185,7 @@ function DetailDrawer({
               onChange={e => onNotesChange(app.id, e.target.value)}
               placeholder="Notas privadas sobre este candidato…"
               rows={4}
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-[13px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-accent transition-all resize-none"
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-accent transition-all resize-none"
             />
           </section>
         </div>
@@ -311,24 +311,24 @@ export function AdminTeamApplicationsView() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-foreground tracking-tight">Contratación</h1>
-            <p className="text-sm text-foreground/40 mt-0.5">{apps.length} aplicaciones de candidatos al equipo</p>
+            <p className="text-sm text-text-2 mt-0.5">{apps.length} aplicaciones de candidatos al equipo</p>
           </div>
           <div className="flex items-center gap-2">
             <a
               href={`/aplicar-equipo/${TEAM_APPLICATION_FORMS[0]?.role ?? ""}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all"
+              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               Ver formulario
             </a>
             <button onClick={fetchApps} disabled={loading}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
             <button onClick={exportCsv} disabled={!filtered.length}
-              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
@@ -339,7 +339,7 @@ export function AdminTeamApplicationsView() {
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {STATUS_LIST.map(s => (
             <div key={s} className="rounded-[14px] border border-foreground/[0.07] bg-card px-4 py-3.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25 capitalize">{s}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3 capitalize">{s}</p>
               <p className={`mt-1 text-2xl font-bold ${STATUS_STYLE[s].split(" ")[1]}`}>
                 {apps.filter(a => a.status === s).length}
               </p>
@@ -352,7 +352,7 @@ export function AdminTeamApplicationsView() {
           <select
             value={filterRole}
             onChange={e => setFilterRole(e.target.value)}
-            className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground/70 focus:outline-none focus:border-foreground/20"
+            className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-foreground/20"
           >
             <option value="todos">Todos los roles</option>
             {TEAM_APPLICATION_FORMS.map(f => (
@@ -362,7 +362,7 @@ export function AdminTeamApplicationsView() {
           <select
             value={filterStatus}
             onChange={e => setFilterStatus(e.target.value)}
-            className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground/70 focus:outline-none focus:border-foreground/20"
+            className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-foreground/20"
           >
             <option value="todas">Todos los estados</option>
             {STATUS_LIST.map(s => (
@@ -373,17 +373,17 @@ export function AdminTeamApplicationsView() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre, email, IG…"
-            className="h-9 flex-1 min-w-[200px] rounded-xl border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-foreground/20"
+            className="h-9 flex-1 min-w-[200px] rounded-xl border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-foreground/20"
           />
         </div>
 
         {/* List */}
         {loading ? (
-          <div className="flex items-center justify-center py-20 text-foreground/30">
+          <div className="flex items-center justify-center py-20 text-text-3">
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-20 text-center text-sm text-foreground/40">
+          <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-20 text-center text-sm text-text-2">
             {apps.length === 0
               ? "Todavía no hay candidatos. Compartí el link del formulario para empezar a recibir aplicaciones."
               : "Ningún candidato matchea los filtros actuales."}
@@ -398,20 +398,20 @@ export function AdminTeamApplicationsView() {
               >
                 <div className="flex-1 min-w-0 space-y-1.5">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-foreground/[0.06] text-foreground/50 border-foreground/10"}`}>
+                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-foreground/[0.06] text-text-2 border-foreground/10"}`}>
                       {roleLabel(app.role)}
                     </span>
                     <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${STATUS_STYLE[app.status]}`}>
                       {app.status}
                     </span>
-                    <span className="text-[11px] text-foreground/25">{fmtDate(app.created_at)}</span>
+                    <span className="text-[11px] text-text-3">{fmtDate(app.created_at)}</span>
                   </div>
                   <p className="text-[15px] font-semibold text-foreground truncate">{fullName(app)}</p>
-                  <p className="text-[12px] text-foreground/40 truncate">
+                  <p className="text-[12px] text-text-2 truncate">
                     {[app.email, app.whatsapp, app.instagram_handle].filter(Boolean).join(" · ")}
                   </p>
                 </div>
-                <ChevronRight className="h-4 w-4 text-foreground/20 group-hover:text-foreground/60 shrink-0" />
+                <ChevronRight className="h-4 w-4 text-text-3 group-hover:text-text-2 shrink-0" />
               </button>
             ))}
           </div>

@@ -69,7 +69,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
     <div className="rounded-[14px] border border-border bg-card p-5 mb-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-foreground">Agregar recurso</h3>
-        <button onClick={onClose} aria-label="Cerrar" className="text-foreground/30 hover:text-foreground/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 rounded">
+        <button onClick={onClose} aria-label="Cerrar" className="text-text-3 hover:text-text-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 rounded">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -120,7 +120,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium border transition-all ${
                   form.type === t
                     ? "border-accent bg-secondary text-[#dafc69]"
-                    : "border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground/70"
+                    : "border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground"
                 }`}
               >
                 <cfg.icon className="h-3 w-3" />
@@ -172,7 +172,7 @@ function ResourceCard({ resource, onDelete }: { resource: Resource; onDelete: (i
           </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground truncate">{resource.title}</p>
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-text-3">
               {resource.category}
             </span>
           </div>
@@ -180,14 +180,14 @@ function ResourceCard({ resource, onDelete }: { resource: Resource; onDelete: (i
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="opacity-0 group-hover:opacity-100 flex-shrink-0 text-foreground/20 hover:text-red-600 dark:hover:text-red-400 transition-all"
+          className="opacity-0 group-hover:opacity-100 flex-shrink-0 text-text-3 hover:text-red-600 dark:hover:text-red-400 transition-all"
         >
           {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
         </button>
       </div>
 
       {resource.description && (
-        <p className="text-xs text-foreground/40 leading-relaxed line-clamp-2">{resource.description}</p>
+        <p className="text-xs text-text-2 leading-relaxed line-clamp-2">{resource.description}</p>
       )}
 
       <a
@@ -237,9 +237,9 @@ export function ResourcesView() {
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-            <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Biblioteca</h1>
+            <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground">Biblioteca</h1>
           </div>
-          <p className="text-xs text-foreground/30 ml-[18px]">Links, docs y recursos guardados</p>
+          <p className="text-xs text-text-3 ml-[18px]">Links, docs y recursos guardados</p>
         </div>
         <button
           onClick={() => setShowForm(v => !v)}
@@ -261,7 +261,7 @@ export function ResourcesView() {
       {/* Search + category filter */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/30" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-text-3" />
           <input
             type="text"
             placeholder="Buscar…"
@@ -278,7 +278,7 @@ export function ResourcesView() {
               className={`rounded-lg px-3 py-2 text-xs font-medium border transition-all ${
                 activeCategory === cat
                   ? "border-accent bg-secondary text-[#dafc69]"
-                  : "border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground/70"
+                  : "border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground"
               }`}
             >
               {cat}
@@ -290,12 +290,12 @@ export function ResourcesView() {
       {/* Grid */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-foreground/20" />
+          <Loader2 className="h-6 w-6 animate-spin text-text-3" />
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <FolderOpen className="h-10 w-10 text-foreground/10" />
-          <p className="text-sm text-foreground/20">
+          <FolderOpen className="h-10 w-10 text-text-3" />
+          <p className="text-sm text-text-3">
             {search || activeCategory !== "Todos" ? "Sin resultados" : "Todavía no hay recursos guardados"}
           </p>
           {!showForm && (

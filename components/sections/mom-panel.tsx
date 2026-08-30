@@ -83,7 +83,7 @@ export function MoMPanel() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-xl font-bold text-foreground">Month vs Month</h2>
-          <p className="text-[13px] text-foreground/40 mt-0.5">
+          <p className="text-[13px] text-text-2 mt-0.5">
             {fmtMonthLong(current.month)} vs {fmtMonthLong(previous.month)} — ¿qué cambió?
           </p>
         </div>
@@ -99,7 +99,7 @@ export function MoMPanel() {
           <span className={`text-sm font-bold ${scorePositive ? "text-emerald-700 dark:text-emerald-300" : "text-red-700 dark:text-red-300"}`}>
             {scorePositive ? "Mes positivo" : "Mes para revisar"}
           </span>
-          <span className="text-foreground/30 text-xs ml-1">
+          <span className="text-text-3 text-xs ml-1">
             {totalUp}↑ · {totalDown}↓
           </span>
         </div>
@@ -109,10 +109,10 @@ export function MoMPanel() {
       <div className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
         {/* Column headers */}
         <div className="grid grid-cols-[1.4fr_1fr_1.6fr_1fr] border-b border-foreground/[0.06] px-6 py-3">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30">Métrica</span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30 text-right">{fmtMonthLong(previous.month)}</span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30 text-center">Cambio</span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30 text-right">{fmtMonthLong(current.month)}</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-text-3">Métrica</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-text-3 text-right">{fmtMonthLong(previous.month)}</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-text-3 text-center">Cambio</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-text-3 text-right">{fmtMonthLong(current.month)}</span>
         </div>
 
         {METRICS.map((metric) => {
@@ -138,11 +138,11 @@ export function MoMPanel() {
               <div className="flex items-center gap-2.5">
                 <span className="h-2.5 w-2.5 rounded-full flex-shrink-0 ring-2 ring-black/40"
                   style={{ backgroundColor: metric.color }} />
-                <span className="text-[13px] font-medium text-foreground/70">{metric.label}</span>
+                <span className="text-[13px] font-medium text-foreground">{metric.label}</span>
               </div>
 
               {/* Previous value */}
-              <span className="text-[13px] font-medium text-foreground/35 text-right tabular-nums pr-2">
+              <span className="text-[13px] font-medium text-text-3 text-right tabular-nums pr-2">
                 {fmtVal(prev)}
               </span>
 
@@ -151,7 +151,7 @@ export function MoMPanel() {
                 <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-bold ${
                   isUp   ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
                   : isDown ? "bg-red-500/15 text-red-700 dark:text-red-300"
-                  :           "bg-foreground/[0.06] text-foreground/40"
+                  :           "bg-foreground/[0.06] text-text-2"
                 }`}>
                   {isUp   && <TrendingUp   className="h-3 w-3 flex-shrink-0" />}
                   {isDown && <TrendingDown className="h-3 w-3 flex-shrink-0" />}

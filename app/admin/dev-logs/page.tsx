@@ -23,7 +23,7 @@ const LEVEL_CONFIG: Record<Level, { label: string; icon: React.ElementType; badg
   error: { label: "Error", icon: AlertCircle,   badge: "bg-red-500/15 text-red-400 ring-red-500/20",    row: "hover:bg-red-500/[0.04]",    dot: "bg-red-500" },
   warn:  { label: "Warn",  icon: AlertTriangle,  badge: "bg-amber-500/15 text-amber-400 ring-amber-500/20", row: "hover:bg-amber-500/[0.04]", dot: "bg-amber-400" },
   info:  { label: "Info",  icon: Info,           badge: "bg-blue-500/15 text-blue-400 ring-blue-500/20",  row: "hover:bg-blue-500/[0.04]",   dot: "bg-blue-400" },
-  debug: { label: "Debug", icon: Bug,            badge: "bg-foreground/10 text-foreground/40 ring-foreground/10", row: "hover:bg-foreground/[0.03]", dot: "bg-foreground/30" },
+  debug: { label: "Debug", icon: Bug,            badge: "bg-foreground/10 text-text-2 ring-foreground/10", row: "hover:bg-foreground/[0.03]", dot: "bg-foreground/30" },
 }
 
 function fmtTime(iso: string) {

@@ -73,7 +73,7 @@ const STAGE_META: Record<OnboardingStage, { label: string; dot: string }> = {
 function StageIndicator({ stage }: { stage: OnboardingStage }) {
   const meta = STAGE_META[stage]
   return (
-    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-foreground/50">
+    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-text-2">
       <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", meta.dot)} />
       {meta.label}
     </span>
@@ -96,7 +96,7 @@ function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; icon: any; cls: string }> = {
     activo:     { label: "Activo",     icon: CheckCircle2,  cls: "text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20" },
     inactivo:   { label: "Inactivo",   icon: AlertCircle,   cls: "text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-500/10 border-red-200 dark:border-red-500/20" },
-    completado: { label: "Completado", icon: CheckCircle2,  cls: "text-foreground/60 bg-foreground/[0.04] border-foreground/[0.08]" },
+    completado: { label: "Completado", icon: CheckCircle2,  cls: "text-text-2 bg-foreground/[0.04] border-foreground/[0.08]" },
     pendiente:  { label: "Pendiente",  icon: Clock,         cls: "text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20" },
   }
   const cfg = map[status] ?? map["pendiente"]
@@ -145,22 +145,22 @@ function SuccessModal({
           </span>
           <div>
             <h3 className="font-bold text-foreground">Onboarding creado</h3>
-            <p className="text-[12px] text-foreground/50">El cliente ya tiene acceso al dashboard.</p>
+            <p className="text-[12px] text-text-2">El cliente ya tiene acceso al dashboard.</p>
           </div>
         </div>
 
         <div className="space-y-3 rounded-xl border border-border bg-foreground/[0.02] p-4">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">Cliente</p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-text-2">Cliente</p>
             <p className="mt-0.5 font-semibold text-foreground">{name}</p>
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">Email</p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-text-2">Email</p>
             <p className="mt-0.5 text-[13px] text-foreground">{email}</p>
           </div>
           {magicLink && (
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">Magic Link (acceso inmediato)</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-text-2">Magic Link (acceso inmediato)</p>
               <div className="mt-1.5 flex items-start gap-2">
                 <a
                   href={magicLink}
@@ -172,29 +172,29 @@ function SuccessModal({
                 </a>
                 <button
                   onClick={() => copy(magicLink, "magic")}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-foreground/50 hover:text-foreground transition-colors"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-text-2 hover:text-foreground transition-colors"
                 >
                   {copied === "magic" ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="mt-1.5 text-[10px] text-foreground/35">El cliente puede usar este link para acceder sin contraseña. Válido por 24 horas.</p>
+              <p className="mt-1.5 text-[10px] text-text-3">El cliente puede usar este link para acceder sin contraseña. Válido por 24 horas.</p>
             </div>
           )}
           {tempPassword && (
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">Contraseña temporal</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-text-2">Contraseña temporal</p>
               <div className="mt-1.5 flex items-center gap-2">
                 <code className="flex-1 rounded-lg border border-border bg-background px-3 py-2 font-mono text-[13px] text-foreground">
                   {tempPassword}
                 </code>
                 <button
                   onClick={() => copy(tempPassword, "password")}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-foreground/50 hover:text-foreground transition-colors"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-text-2 hover:text-foreground transition-colors"
                 >
                   {copied === "password" ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="mt-1.5 text-[10px] text-foreground/35">Alternativa si no usa magic link. Puede cambiarla desde su perfil.</p>
+              <p className="mt-1.5 text-[10px] text-text-3">Alternativa si no usa magic link. Puede cambiarla desde su perfil.</p>
             </div>
           )}
         </div>
@@ -324,8 +324,8 @@ function OnboardingForm({
     }
   }
 
-  const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 text-[13px] text-foreground placeholder:text-foreground/25 outline-none transition-all focus:border-accent focus:bg-foreground/[0.05] focus:ring-2 focus:ring-accent/20"
-  const labelCls = "block text-[10px] font-semibold uppercase tracking-widest text-foreground/40 mb-1.5"
+  const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 text-[13px] text-foreground placeholder:text-text-3 outline-none transition-all focus:border-accent focus:bg-foreground/[0.05] focus:ring-2 focus:ring-accent/20"
+  const labelCls = "block text-[10px] font-semibold uppercase tracking-widest text-text-2 mb-1.5"
 
   return (
     <div className="rounded-[14px] border border-border bg-card p-6">
@@ -335,7 +335,7 @@ function OnboardingForm({
         </span>
         <div>
           <h2 className="font-bold text-foreground">Nuevo onboarding</h2>
-          <p className="text-[12px] text-foreground/45">Completá los datos del cliente para crear su cuenta.</p>
+          <p className="text-[12px] text-text-2">Completá los datos del cliente para crear su cuenta.</p>
         </div>
       </div>
 
@@ -356,7 +356,7 @@ function OnboardingForm({
             <div>
               <label className={labelCls}>Teléfono</label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/30" />
+                <Phone className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-3" />
                 <input className={cn(inputCls, "pl-8")} placeholder="+54 11 1234-5678" value={fields.phone} onChange={set("phone")} />
               </div>
             </div>
@@ -382,7 +382,7 @@ function OnboardingForm({
                 <button
                   type="button"
                   onClick={() => { setFields(prev => ({ ...prev, lead_id: "" })); setLeadQuery("") }}
-                  className="absolute right-2.5 top-[34px] text-foreground/30 hover:text-foreground"
+                  className="absolute right-2.5 top-[34px] text-text-3 hover:text-foreground"
                   aria-label="Quitar lead vinculado"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -404,15 +404,15 @@ function OnboardingForm({
                         className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[13px] text-foreground hover:bg-foreground/[0.05]"
                       >
                         <span className="truncate">{l.name}</span>
-                        {l.instagram && <span className="shrink-0 text-[11px] text-foreground/40">{l.instagram}</span>}
+                        {l.instagram && <span className="shrink-0 text-[11px] text-text-2">{l.instagram}</span>}
                       </button>
                     ))}
                   {leadOptions.filter(l => l.name.toLowerCase().includes(leadQuery.toLowerCase())).length === 0 && (
-                    <p className="px-3 py-2 text-[12px] text-foreground/40">Sin resultados</p>
+                    <p className="px-3 py-2 text-[12px] text-text-2">Sin resultados</p>
                   )}
                 </div>
               )}
-              <p className="mt-1 text-[10px] text-foreground/30">Vincula este cliente a su lead de origen para el análisis de Ann AI.</p>
+              <p className="mt-1 text-[10px] text-text-3">Vincula este cliente a su lead de origen para el análisis de Ann AI.</p>
             </div>
           </div>
         </div>
@@ -432,14 +432,14 @@ function OnboardingForm({
             <div>
               <label className={labelCls}>Monto total (USD)</label>
               <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/30" />
+                <DollarSign className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-3" />
                 <input className={cn(inputCls, "pl-8")} type="number" min="0" placeholder="9000" value={fields.total_amount} onChange={set("total_amount")} />
               </div>
             </div>
             <div>
               <label className={labelCls}>Fecha de inicio</label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/30" />
+                <Calendar className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-3" />
                 <input className={cn(inputCls, "pl-8")} type="date" value={fields.program_start} onChange={set("program_start")} />
               </div>
             </div>
@@ -454,7 +454,7 @@ function OnboardingForm({
             <div>
               <label className={labelCls}>Setter que cerró</label>
               {userRole === "setter" ? (
-                <div className="h-10 flex items-center rounded-xl border border-border bg-foreground/[0.03] px-3.5 text-[13px] text-foreground/60">
+                <div className="h-10 flex items-center rounded-xl border border-border bg-foreground/[0.03] px-3.5 text-[13px] text-text-2">
                   Se asignará automáticamente a ti
                 </div>
               ) : (
@@ -481,7 +481,7 @@ function OnboardingForm({
               <div key={i}>
                 <label className={labelCls}>Cuota {i}</label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/30" />
+                  <DollarSign className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-3" />
                   <input
                     className={cn(inputCls, "pl-8")}
                     type="number"
@@ -510,7 +510,7 @@ function OnboardingForm({
             type="button"
             onClick={onCancel}
             disabled={saving}
-            className="rounded-xl border border-border px-4 py-2 text-[13px] font-medium text-foreground/70 hover:bg-foreground/[0.04] transition-colors"
+            className="rounded-xl border border-border px-4 py-2 text-[13px] font-medium text-foreground hover:bg-foreground/[0.04] transition-colors"
           >
             Cancelar
           </button>
@@ -546,11 +546,11 @@ function ClientCard({ client, onClick }: { client: OnboardingClient; onClick: ()
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-foreground/[0.07] border border-foreground/[0.08]">
-            <User className="h-4 w-4 text-foreground/50" />
+            <User className="h-4 w-4 text-text-2" />
           </div>
           <div className="min-w-0">
             <p className="truncate font-semibold text-[14px] text-foreground">{client.name}</p>
-            <p className="truncate text-[11px] text-foreground/45">{client.email ?? "—"}</p>
+            <p className="truncate text-[11px] text-text-2">{client.email ?? "—"}</p>
           </div>
         </div>
         <StatusBadge status={client.status} />
@@ -559,34 +559,34 @@ function ClientCard({ client, onClick }: { client: OnboardingClient; onClick: ()
       <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border/60 pt-3 sm:grid-cols-4">
         {client.instagram && (
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Instagram</p>
-            <p className="mt-0.5 text-[12px] text-foreground/70">{client.instagram}</p>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-text-3">Instagram</p>
+            <p className="mt-0.5 text-[12px] text-foreground">{client.instagram}</p>
           </div>
         )}
         <div>
-          <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Inicio</p>
-          <p className="mt-0.5 text-[12px] text-foreground/70">{fmtDate(client.program_start)}</p>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-text-3">Inicio</p>
+          <p className="mt-0.5 text-[12px] text-foreground">{fmtDate(client.program_start)}</p>
         </div>
         <div>
-          <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Plan</p>
-          <p className="mt-0.5 text-[12px] text-foreground/70">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-text-3">Plan</p>
+          <p className="mt-0.5 text-[12px] text-foreground">
             1ª {fmtCurrency(client.installment_amount)} · {client.num_installments} cuota{client.num_installments !== 1 ? "s" : ""}
           </p>
         </div>
         <div>
-          <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Total</p>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-text-3">Total</p>
           <p className="mt-0.5 text-[12px] font-semibold text-foreground">{fmtCurrency(total)}</p>
         </div>
         {client.notes && (
           <div className="col-span-2 sm:col-span-4">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-foreground/30">Notas</p>
-            <p className="mt-0.5 text-[11px] text-foreground/55 line-clamp-1">{client.notes}</p>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-text-3">Notas</p>
+            <p className="mt-0.5 text-[11px] text-text-2 line-clamp-1">{client.notes}</p>
           </div>
         )}
       </div>
 
       <div className="mt-2 flex items-center justify-between gap-2">
-        <p className="text-[10px] text-foreground/25">{fmtDate(client.created_at)}</p>
+        <p className="text-[10px] text-text-3">{fmtDate(client.created_at)}</p>
         <StageIndicator stage={stage} />
       </div>
     </button>
@@ -612,7 +612,7 @@ function TimelineStep({
   const iconCls =
     state === "done"  ? "border-emerald-200 dark:border-emerald-500/20 bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" :
     state === "error" ? "border-red-200 dark:border-red-500/20 bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400" :
-    "border-foreground/[0.1] bg-foreground/[0.04] text-foreground/35"
+    "border-foreground/[0.1] bg-foreground/[0.04] text-text-3"
 
   return (
     <div className="flex gap-3">
@@ -624,13 +624,13 @@ function TimelineStep({
       </div>
       <div className={cn("min-w-0", !last && "pb-5")}>
         <p className="text-[13px] font-semibold text-foreground">{label}</p>
-        {state === "locked" && <p className="mt-0.5 text-[11px] text-foreground/35">Esperando etapa anterior</p>}
+        {state === "locked" && <p className="mt-0.5 text-[11px] text-text-3">Esperando etapa anterior</p>}
         {error && <p className="mt-0.5 text-[11px] text-red-700 dark:text-red-400">{error}</p>}
         {onAction && (
           <button
             onClick={onAction}
             disabled={actionLoading}
-            className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] px-2.5 py-1 text-[11px] font-semibold text-foreground/70 transition-colors hover:bg-foreground/[0.05] disabled:opacity-50"
+            className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] px-2.5 py-1 text-[11px] font-semibold text-foreground transition-colors hover:bg-foreground/[0.05] disabled:opacity-50"
           >
             {actionLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
             {actionLabel}
@@ -670,12 +670,12 @@ function OnboardingDetailDrawer({
         <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
           <div className="min-w-0">
             <h2 className="truncate text-lg font-bold text-foreground">{client.name}</h2>
-            <p className="mt-0.5 truncate text-[12px] text-foreground/35">{client.email}</p>
+            <p className="mt-0.5 truncate text-[12px] text-text-3">{client.email}</p>
           </div>
           <button
             onClick={onClose}
             aria-label="Cerrar"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-foreground/30 transition-all hover:bg-foreground/[0.06] hover:text-foreground"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-3 transition-all hover:bg-foreground/[0.06] hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>
@@ -849,7 +849,7 @@ export function AdminOnboardingView() {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Onboarding</h1>
-          <p className="mt-0.5 text-[13px] text-foreground/45">
+          <p className="mt-0.5 text-[13px] text-text-2">
             {clients.length} cliente{clients.length !== 1 ? "s" : ""} registrado{clients.length !== 1 ? "s" : ""}
           </p>
         </div>
@@ -857,7 +857,7 @@ export function AdminOnboardingView() {
           <button
             onClick={loadClients}
             disabled={loading}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-foreground/50 hover:text-foreground hover:bg-foreground/[0.04] transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-text-2 hover:text-foreground hover:bg-foreground/[0.04] transition-colors"
             title="Recargar"
           >
             <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
@@ -873,7 +873,7 @@ export function AdminOnboardingView() {
           ) : (
             <button
               onClick={() => setView("list")}
-              className="flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-[13px] font-medium text-foreground/70 hover:bg-foreground/[0.04] transition-colors"
+              className="flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-[13px] font-medium text-foreground hover:bg-foreground/[0.04] transition-colors"
             >
               <X className="h-3.5 w-3.5" />
               Cancelar
@@ -906,7 +906,7 @@ export function AdminOnboardingView() {
                     "inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[12.5px] font-semibold transition-all",
                     activeView === v.id
                       ? "bg-foreground text-background"
-                      : "text-foreground/45 hover:text-foreground hover:bg-foreground/[0.05]"
+                      : "text-text-2 hover:text-foreground hover:bg-foreground/[0.05]"
                   )}
                 >
                   {v.label}
@@ -917,13 +917,13 @@ export function AdminOnboardingView() {
 
           {loading ? (
             <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-6 w-6 animate-spin text-foreground/30" />
+              <Loader2 className="h-6 w-6 animate-spin text-text-3" />
             </div>
           ) : clients.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-foreground/[0.08] py-16 text-center">
-              <UserPlus className="mb-3 h-8 w-8 text-foreground/20" />
-              <p className="font-semibold text-foreground/50">Sin onboardings aún</p>
-              <p className="mt-1 text-[12px] text-foreground/30">Creá el primero con el botón de arriba.</p>
+              <UserPlus className="mb-3 h-8 w-8 text-text-3" />
+              <p className="font-semibold text-text-2">Sin onboardings aún</p>
+              <p className="mt-1 text-[12px] text-text-3">Creá el primero con el botón de arriba.</p>
               <button
                 onClick={() => setView("form")}
                 className="mt-4 flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-bold transition"
@@ -934,8 +934,8 @@ export function AdminOnboardingView() {
             </div>
           ) : filteredClients.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-foreground/[0.08] py-16 text-center">
-              <p className="font-semibold text-foreground/50">Nada en esta vista</p>
-              <p className="mt-1 text-[12px] text-foreground/30">Probá con otro filtro.</p>
+              <p className="font-semibold text-text-2">Nada en esta vista</p>
+              <p className="mt-1 text-[12px] text-text-3">Probá con otro filtro.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

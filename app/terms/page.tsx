@@ -20,14 +20,14 @@ export default function TermsPage() {
               Scale
             </span>
           </Link>
-          <span className="text-[11px] font-bold text-foreground/25 uppercase tracking-[0.18em]">Terms of Service</span>
+          <span className="text-[11px] font-bold text-text-3 uppercase tracking-[0.18em]">Terms of Service</span>
         </div>
       </div>
 
-      <div className="mx-auto max-w-2xl px-4 sm:px-5 pb-24 pt-10 space-y-8 text-foreground/80">
+      <div className="mx-auto max-w-2xl px-4 sm:px-5 pb-24 pt-10 space-y-8 text-foreground">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Términos de Servicio</h1>
-          <p className="mt-1.5 text-[13px] text-foreground/40">Última actualización: {LAST_UPDATED}</p>
+          <p className="mt-1.5 text-[13px] text-text-2">Última actualización: {LAST_UPDATED}</p>
         </div>
 
         <section className="space-y-2.5">

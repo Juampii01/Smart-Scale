@@ -82,7 +82,7 @@ function DeltaPill({ pct, diff, money, size = "sm" }: {
       size === "lg" ? "px-2.5 py-1 text-[13px]" : "px-2 py-0.5 text-[11px]",
       up   ? "text-emerald-700 dark:text-emerald-400"
       : down ? "text-red-700 dark:text-red-400"
-      :       "text-foreground/40"
+      :       "text-text-2"
     )}>
       {up && <TrendingUp className={size === "lg" ? "h-3.5 w-3.5" : "h-3 w-3"} />}
       {down && <TrendingDown className={size === "lg" ? "h-3.5 w-3.5" : "h-3 w-3"} />}
@@ -105,7 +105,7 @@ function RevenueTooltip({ active, payload }: any) {
   const p = payload[0].payload
   return (
     <div className="rounded-lg border border-foreground/10 bg-popover px-3 py-2 shadow-xl">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground/40">{monthLong(p.ym)}</p>
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-text-2">{monthLong(p.ym)}</p>
       <p className="text-[15px] font-bold text-foreground tabular-nums">{fmtMoney(p.v)}</p>
     </div>
   )
@@ -178,9 +178,9 @@ export function OverviewHero() {
       {/* Saludo */}
       <div>
         <h1 className="text-[28px] sm:text-[34px] font-bold tracking-tight text-foreground leading-tight" suppressHydrationWarning>
-          {greeting}{firstName ? <>, {firstName}</> : ""}<span className="text-foreground/25">.</span>
+          {greeting}{firstName ? <>, {firstName}</> : ""}<span className="text-text-3">.</span>
         </h1>
-        <p className="text-[13px] text-foreground/45 mt-1">
+        <p className="text-[13px] text-text-2 mt-1">
           {current ? `Tu resumen de ${monthLong(current.month)}` : "Cargá tu reporte mensual para ver tu resumen"}
         </p>
       </div>
@@ -189,8 +189,8 @@ export function OverviewHero() {
         {/* Revenue feature */}
         <div className="lg:col-span-2 rounded-2xl border border-foreground/[0.08] bg-card p-5 sm:p-6">
           <div className="flex items-start justify-between gap-3">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/40">
-              Revenue {current ? <span className="text-foreground/25">· {monthShort(current.month)}</span> : null}
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-2">
+              Revenue {current ? <span className="text-text-3">· {monthShort(current.month)}</span> : null}
             </p>
             {chartData.length > 1 && (
               <div className="flex items-center gap-0.5 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] p-0.5">
@@ -201,7 +201,7 @@ export function OverviewHero() {
                     onClick={() => setRange(r.id)}
                     className={cn(
                       "rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors",
-                      range === r.id ? "bg-secondary text-foreground" : "text-foreground/45 hover:text-foreground/70"
+                      range === r.id ? "bg-secondary text-foreground" : "text-text-2 hover:text-foreground"
                     )}
                   >
                     {r.label}
@@ -219,7 +219,7 @@ export function OverviewHero() {
               <span className="mb-1 flex items-center gap-2">
                 <DeltaPill pct={revDelta.pct} diff={revDelta.diff} money size="lg" />
                 {previous && (
-                  <span className="text-[12px] text-foreground/35">
+                  <span className="text-[12px] text-text-3">
                     vs {monthShort(previous.month)} · {fmtMoney(previous.total_revenue)}
                   </span>
                 )}
@@ -229,7 +229,7 @@ export function OverviewHero() {
 
           {/* Chart */}
           {chartData.length > 1 ? (
-            <div className="mt-5 h-[200px] text-foreground/35">
+            <div className="mt-5 h-[200px] text-text-3">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData} margin={{ top: 8, right: 6, left: 6, bottom: 0 }}>
                   <defs>
@@ -254,7 +254,7 @@ export function OverviewHero() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="mt-5 flex h-[200px] items-center justify-center rounded-xl border border-dashed border-foreground/[0.08] text-[13px] text-foreground/35">
+            <div className="mt-5 flex h-[200px] items-center justify-center rounded-xl border border-dashed border-foreground/[0.08] text-[13px] text-text-3">
               Necesitás al menos 2 meses de datos para ver la tendencia.
             </div>
           )}
@@ -263,7 +263,7 @@ export function OverviewHero() {
         {/* Métricas clave — panel integrado */}
         <div className="rounded-2xl border border-foreground/[0.08] bg-card overflow-hidden flex flex-col">
           <div className="border-b border-foreground/[0.06] px-5 py-3.5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/40">Métricas clave</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-2">Métricas clave</p>
           </div>
           <div className="flex-1 divide-y divide-foreground/[0.06]">
             {SECONDARY.map(kpi => {
@@ -275,7 +275,7 @@ export function OverviewHero() {
                 <div key={String(kpi.key)} className="flex items-center justify-between gap-3 px-5 py-[14px]">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: kpi.color }} />
-                    <span className="truncate text-[12.5px] text-foreground/55">{kpi.label}</span>
+                    <span className="truncate text-[12.5px] text-text-2">{kpi.label}</span>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <span className="text-[15px] font-bold text-foreground tabular-nums">{val}</span>
@@ -292,7 +292,7 @@ export function OverviewHero() {
       {current && (
         <div className="rounded-2xl border border-foreground/[0.08] bg-card overflow-hidden">
           <div className="border-b border-foreground/[0.06] px-5 py-3.5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground/40">Audiencia & canales</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-2">Audiencia & canales</p>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-foreground/[0.06]">
             {CHANNELS.map(ch => {
@@ -301,7 +301,7 @@ export function OverviewHero() {
               const d = delta(cur, prev)
               return (
                 <div key={String(ch.key)} className="bg-card px-5 py-4">
-                  <p className="text-[11.5px] text-foreground/45">{ch.label}</p>
+                  <p className="text-[11.5px] text-text-2">{ch.label}</p>
                   <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="text-[20px] font-bold text-foreground tabular-nums leading-none">{fmtNumber(cur)}</span>
                     <DeltaPill pct={d.pct} diff={d.diff} />

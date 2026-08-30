@@ -162,7 +162,7 @@ function SectionHeader({
           <Icon className="h-4 w-4 text-[#dafc69]" />
         </div>
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/40">{subtitle}</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-text-2">{subtitle}</p>
           <p className="text-[15px] font-bold text-foreground leading-tight">{title}</p>
         </div>
       </div>
@@ -186,7 +186,7 @@ function StatPill({
     green:   "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
     amber:   "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400",
     blue:    "bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400",
-    default: "bg-foreground/[0.05] text-foreground/70",
+    default: "bg-foreground/[0.05] text-foreground",
   }
   return (
     <div className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-semibold", colors[accent ?? "default"])}>
@@ -215,7 +215,7 @@ function NewCashBlock({ data }: { data: DashboardData["new_cash"] }) {
         </div>
 
         {data.clients.length === 0 ? (
-          <p className="py-6 text-center text-[13px] text-foreground/40">
+          <p className="py-6 text-center text-[13px] text-text-2">
             Sin clientes nuevos en este período
           </p>
         ) : (
@@ -223,10 +223,10 @@ function NewCashBlock({ data }: { data: DashboardData["new_cash"] }) {
             <table className="w-full text-[12px]">
               <thead>
                 <tr className="border-b border-foreground/[0.06]">
-                  <th className="pb-2 text-left font-semibold text-foreground/40 pr-3">Cliente</th>
-                  <th className="pb-2 text-right font-semibold text-foreground/40 pr-3">Contratado</th>
-                  <th className="pb-2 text-right font-semibold text-foreground/40 pr-3">Cobrado</th>
-                  <th className="pb-2 text-right font-semibold text-foreground/40">Pendiente</th>
+                  <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
+                  <th className="pb-2 text-right font-semibold text-text-2 pr-3">Contratado</th>
+                  <th className="pb-2 text-right font-semibold text-text-2 pr-3">Cobrado</th>
+                  <th className="pb-2 text-right font-semibold text-text-2">Pendiente</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-foreground/[0.04]">
@@ -235,7 +235,7 @@ function NewCashBlock({ data }: { data: DashboardData["new_cash"] }) {
                     <td className="py-2 pr-3">
                       <p className="font-medium text-foreground leading-tight">{c.name}</p>
                       {c.programa && (
-                        <p className="text-[10px] text-foreground/40 mt-0.5">{c.programa}</p>
+                        <p className="text-[10px] text-text-2 mt-0.5">{c.programa}</p>
                       )}
                     </td>
                     <td className="py-2 pr-3 text-right font-semibold text-foreground tabular-nums">
@@ -307,7 +307,7 @@ function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
         />
 
         {grouped.length === 0 ? (
-          <p className="py-6 text-center text-[13px] text-foreground/40">
+          <p className="py-6 text-center text-[13px] text-text-2">
             Sin cuotas recurrentes cobradas en este período
           </p>
         ) : (
@@ -315,21 +315,21 @@ function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
             <table className="w-full text-[12px]">
               <thead>
                 <tr className="border-b border-foreground/[0.06]">
-                  <th className="pb-2 text-left font-semibold text-foreground/40 pr-3">Cliente</th>
-                  <th className="pb-2 text-center font-semibold text-foreground/40 pr-3">Cuota</th>
-                  <th className="pb-2 text-right font-semibold text-foreground/40 pr-3">Monto</th>
-                  <th className="pb-2 text-right font-semibold text-foreground/40">Cobrado</th>
+                  <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
+                  <th className="pb-2 text-center font-semibold text-text-2 pr-3">Cuota</th>
+                  <th className="pb-2 text-right font-semibold text-text-2 pr-3">Monto</th>
+                  <th className="pb-2 text-right font-semibold text-text-2">Cobrado</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-foreground/[0.04]">
                 {grouped.map(g => (
                   <tr key={g.key} className="group hover:bg-foreground/[0.02] transition-colors">
                     <td className="py-2 pr-3 font-medium text-foreground">{g.client_name}</td>
-                    <td className="py-2 pr-3 text-center text-foreground/60">{g.label}</td>
+                    <td className="py-2 pr-3 text-center text-text-2">{g.label}</td>
                     <td className="py-2 pr-3 text-right font-semibold text-foreground tabular-nums">
                       {fmt(g.total)}
                     </td>
-                    <td className="py-2 text-right text-foreground/50 text-[11px]">
+                    <td className="py-2 text-right text-text-2 text-[11px]">
                       {fmtDate(g.paid_at)}
                     </td>
                   </tr>
@@ -377,7 +377,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
         />
 
         {data.by_setter.length === 0 ? (
-          <p className="py-6 text-center text-[13px] text-foreground/40">
+          <p className="py-6 text-center text-[13px] text-text-2">
             Sin actividad de setting en este período
           </p>
         ) : (
@@ -385,13 +385,13 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
             <table className="w-full text-[12px]">
               <thead>
                 <tr className="border-b border-foreground/[0.06]">
-                  <th className="pb-2 text-left font-semibold text-foreground/40 pr-4 min-w-[120px]">Setter</th>
+                  <th className="pb-2 text-left font-semibold text-text-2 pr-4 min-w-[120px]">Setter</th>
                   {cols.map(c => (
                     <th
                       key={c.key}
                       className={cn(
                         "pb-2 text-right font-semibold px-2 whitespace-nowrap",
-                        c.highlight ? "text-[#dafc69]/70" : "text-foreground/40",
+                        c.highlight ? "text-[#dafc69]/70" : "text-text-2",
                       )}
                     >
                       {c.label}
@@ -408,7 +408,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
                         key={c.key}
                         className={cn(
                           "py-2.5 px-2 text-right tabular-nums",
-                          c.highlight ? "font-bold text-[#dafc69]" : "text-foreground/80",
+                          c.highlight ? "font-bold text-[#dafc69]" : "text-foreground",
                           c.key === "cierre_amount" && "font-semibold text-foreground",
                         )}
                       >
@@ -424,7 +424,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
               {data.by_setter.length > 1 && (
                 <tfoot>
                   <tr className="border-t-2 border-foreground/[0.1] bg-foreground/[0.02]">
-                    <td className="py-2.5 pr-4 text-[11px] font-bold uppercase tracking-wider text-foreground/50">Total</td>
+                    <td className="py-2.5 pr-4 text-[11px] font-bold uppercase tracking-wider text-text-2">Total</td>
                     {cols.map(c => (
                       <td
                         key={c.key}
@@ -473,7 +473,7 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
         />
 
         {data.overdue.length === 0 && data.upcoming.length === 0 ? (
-          <p className="py-6 text-center text-[13px] text-foreground/40">
+          <p className="py-6 text-center text-[13px] text-text-2">
             Sin cuotas pendientes en este período
           </p>
         ) : (
@@ -491,20 +491,20 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                   <table className="w-full text-[12px]">
                     <thead>
                       <tr className="border-b border-foreground/[0.06]">
-                        <th className="pb-2 text-left font-semibold text-foreground/40 pr-3">Cliente</th>
-                        <th className="pb-2 text-center font-semibold text-foreground/40 pr-3">Cuota</th>
-                        <th className="pb-2 text-right font-semibold text-foreground/40 pr-3">Monto</th>
-                        <th className="pb-2 text-right font-semibold text-foreground/40 pr-3">Vencimiento</th>
-                        <th className="pb-2 text-right font-semibold text-foreground/40">Atraso</th>
+                        <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
+                        <th className="pb-2 text-center font-semibold text-text-2 pr-3">Cuota</th>
+                        <th className="pb-2 text-right font-semibold text-text-2 pr-3">Monto</th>
+                        <th className="pb-2 text-right font-semibold text-text-2 pr-3">Vencimiento</th>
+                        <th className="pb-2 text-right font-semibold text-text-2">Atraso</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-foreground/[0.04]">
                       {data.overdue.map(q => (
                         <tr key={q.id} className="group hover:bg-red-50 dark:hover:bg-red-500/[0.04] transition-colors">
                           <td className="py-2 pr-3 font-medium text-foreground">{q.client_name}</td>
-                          <td className="py-2 pr-3 text-center text-foreground/60">#{q.installment_number}</td>
+                          <td className="py-2 pr-3 text-center text-text-2">#{q.installment_number}</td>
                           <td className="py-2 pr-3 text-right font-semibold tabular-nums text-foreground">{fmt(q.amount)}</td>
-                          <td className="py-2 pr-3 text-right text-foreground/50">{fmtDate(q.due_date)}</td>
+                          <td className="py-2 pr-3 text-right text-text-2">{fmtDate(q.due_date)}</td>
                           <td className="py-2 text-right">
                             <span className="rounded-full bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 px-2 py-0.5 text-[10px] font-semibold">
                               {q.days_overdue}d
@@ -522,8 +522,8 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
             {data.upcoming.length > 0 && (
               <div>
                 <div className="flex items-center gap-2 mb-2.5">
-                  <Clock className="h-3.5 w-3.5 text-foreground/50" />
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-foreground/50">
+                  <Clock className="h-3.5 w-3.5 text-text-2" />
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-text-2">
                     Del mes ({data.upcoming_count}) — {fmt(data.upcoming_total)}
                   </span>
                 </div>
@@ -531,26 +531,26 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                   <table className="w-full text-[12px]">
                     <thead>
                       <tr className="border-b border-foreground/[0.06]">
-                        <th className="pb-2 text-left font-semibold text-foreground/40 pr-3">Cliente</th>
-                        <th className="pb-2 text-center font-semibold text-foreground/40 pr-3">Cuota</th>
-                        <th className="pb-2 text-right font-semibold text-foreground/40 pr-3">Monto</th>
-                        <th className="pb-2 text-right font-semibold text-foreground/40 pr-3">Vencimiento</th>
-                        <th className="pb-2 text-right font-semibold text-foreground/40">En</th>
+                        <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
+                        <th className="pb-2 text-center font-semibold text-text-2 pr-3">Cuota</th>
+                        <th className="pb-2 text-right font-semibold text-text-2 pr-3">Monto</th>
+                        <th className="pb-2 text-right font-semibold text-text-2 pr-3">Vencimiento</th>
+                        <th className="pb-2 text-right font-semibold text-text-2">En</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-foreground/[0.04]">
                       {data.upcoming.map(q => (
                         <tr key={q.id} className="group hover:bg-foreground/[0.02] transition-colors">
                           <td className="py-2 pr-3 font-medium text-foreground">{q.client_name}</td>
-                          <td className="py-2 pr-3 text-center text-foreground/60">#{q.installment_number}</td>
+                          <td className="py-2 pr-3 text-center text-text-2">#{q.installment_number}</td>
                           <td className="py-2 pr-3 text-right font-semibold tabular-nums text-foreground">{fmt(q.amount)}</td>
-                          <td className="py-2 pr-3 text-right text-foreground/50">{fmtDate(q.due_date)}</td>
+                          <td className="py-2 pr-3 text-right text-text-2">{fmtDate(q.due_date)}</td>
                           <td className="py-2 text-right">
                             <span className={cn(
                               "rounded-full px-2 py-0.5 text-[10px] font-semibold",
                               (q.days_until_due ?? 99) <= 3
                                 ? "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                                : "bg-foreground/[0.05] text-foreground/60"
+                                : "bg-foreground/[0.05] text-text-2"
                             )}>
                               {q.days_until_due === 0 ? "hoy" : `${q.days_until_due}d`}
                             </span>
@@ -632,7 +632,7 @@ export function AdminExecutiveDashboardView() {
           <div>
             <h1 className="text-[22px] font-bold text-foreground leading-tight">Dashboard Ejecutivo</h1>
             {!loading && data && (
-              <p className="text-[13px] text-foreground/50 mt-0.5">{periodLabel}</p>
+              <p className="text-[13px] text-text-2 mt-0.5">{periodLabel}</p>
             )}
           </div>
           {!loading && data && (

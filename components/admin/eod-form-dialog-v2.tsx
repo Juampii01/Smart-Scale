@@ -217,11 +217,11 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
         <div className="flex items-center justify-between border-b border-foreground/[0.06] px-6 py-4">
           <div className="flex items-center gap-2.5">
             <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground">
               {logId ? "Editar EOD" : "Cargar datos del día"}
             </h2>
           </div>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:bg-foreground/[0.06] hover:text-foreground transition-colors">
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:bg-foreground/[0.06] hover:text-foreground transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -233,7 +233,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
             <div className="relative flex items-center justify-between gap-4">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1.5">Fecha</p>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">Fecha</p>
                 <input
                   type="date"
                   value={date}
@@ -251,13 +251,13 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                 <div className="flex items-center justify-between border-b border-foreground/[0.05] px-5 py-3">
                   <div className="flex items-center gap-2">
                     <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
-                    <span className="text-sm font-semibold uppercase tracking-widest text-foreground/75">{group.label}</span>
+                    <span className="text-sm font-semibold uppercase tracking-widest text-foreground">{group.label}</span>
                   </div>
                 </div>
                 <div className="grid gap-4 p-5 sm:grid-cols-2">
                   {group.fields.map((field) => (
                     <div key={field.key}>
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">
                         {field.label}
                       </p>
                       <input
@@ -266,9 +266,9 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                         placeholder="0"
                         value={(values as any)[field.key]}
                         onChange={e => setValues(prev => ({ ...prev, [field.key]: e.target.value }))}
-                        className="h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm font-semibold text-foreground placeholder:text-foreground/20 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+                        className="h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
                       />
-                      <p className="mt-1 text-[10px] text-foreground/25">{field.hint}</p>
+                      <p className="mt-1 text-[10px] text-text-3">{field.hint}</p>
                     </div>
                   ))}
                 </div>
@@ -280,20 +280,20 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                   <div className="flex items-center justify-between border-b border-border px-5 py-3">
                     <div className="flex items-center gap-2">
                       <span className="h-3 w-[2px] rounded-full bg-[#dafc69]" />
-                      <span className="text-sm font-semibold uppercase tracking-widest text-foreground/75">Total Conversaciones</span>
+                      <span className="text-sm font-semibold uppercase tracking-widest text-foreground">Total Conversaciones</span>
                     </div>
-                    <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30">automático</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-widest text-text-3">automático</span>
                   </div>
                   <div className="flex items-end gap-4 px-5 py-4">
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">
                         Inbound + Resp. outbound
                       </p>
                       <p className="text-4xl font-bold text-[#dafc69] tabular-nums">
                         {totalConversaciones}
                       </p>
                     </div>
-                    <p className="pb-1 text-[11px] text-foreground/30">
+                    <p className="pb-1 text-[11px] text-text-3">
                       {values.new_conversations_inbound || "0"} inbound · {values.outbound_replies || "0"} resp. outbound
                     </p>
                   </div>
@@ -307,7 +307,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
             <div className="flex items-center border-b border-foreground/[0.05] px-5 py-3">
               <div className="flex items-center gap-2">
                 <span className="h-3 w-[2px] rounded-full bg-foreground/30" />
-                <span className="text-sm font-semibold uppercase tracking-widest text-foreground/75">Notas</span>
+                <span className="text-sm font-semibold uppercase tracking-widest text-foreground">Notas</span>
               </div>
             </div>
             <div className="p-5">
@@ -316,7 +316,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                 placeholder="Observaciones del día, contexto, bloqueos..."
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-sm text-foreground placeholder:text-foreground/20 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 resize-none"
+                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-sm text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 resize-none"
               />
             </div>
           </div>
@@ -348,7 +348,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-sm font-medium text-foreground/70 transition hover:bg-foreground/[0.08] hover:text-foreground"
+                className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-sm font-medium text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground"
               >
                 Cancelar
               </button>

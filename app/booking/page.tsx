@@ -64,8 +64,8 @@ function BookingContent() {
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Shield className="h-3.5 w-3.5 text-foreground/30" />
-            <span className="text-[11px] text-foreground/30 font-medium">Pago seguro con Stripe</span>
+            <Shield className="h-3.5 w-3.5 text-text-3" />
+            <span className="text-[11px] text-text-3 font-medium">Pago seguro con Stripe</span>
           </div>
         </div>
       </nav>
@@ -89,7 +89,7 @@ function BookingContent() {
               <h1 className="text-[36px] sm:text-[48px] font-black text-foreground leading-[1.05] tracking-tight">
                 {title}
               </h1>
-              <p className="text-[16px] text-foreground/50 leading-relaxed">
+              <p className="text-[16px] text-text-2 leading-relaxed">
                 {subtitle}
               </p>
             </div>
@@ -101,7 +101,7 @@ function BookingContent() {
                   <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent-soft shrink-0">
                     <Check className="h-3 w-3 text-[#dafc69]" />
                   </span>
-                  <span className="text-[14px] text-foreground/70">{f}</span>
+                  <span className="text-[14px] text-foreground">{f}</span>
                 </li>
               ))}
             </ul>
@@ -113,7 +113,7 @@ function BookingContent() {
                 { icon: Clock,  text: "Confirmación inmediata" },
                 { icon: Star,   text: "Smart Scale™" },
               ].map(({ icon: Icon, text }) => (
-                <div key={text} className="flex items-center gap-1.5 text-[12px] text-foreground/35">
+                <div key={text} className="flex items-center gap-1.5 text-[12px] text-text-3">
                   <Icon className="h-3.5 w-3.5" />
                   {text}
                 </div>
@@ -131,22 +131,22 @@ function BookingContent() {
               <div className="relative p-8 space-y-7">
                 {/* Price */}
                 <div>
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-2">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 mb-2">
                     Inversión
                   </p>
                   <div className="flex items-end gap-2">
                     <span className="text-[52px] font-black text-foreground leading-none tabular-nums">
                       ${price}
                     </span>
-                    <span className="text-[16px] text-foreground/40 font-semibold mb-1.5">USD</span>
+                    <span className="text-[16px] text-text-2 font-semibold mb-1.5">USD</span>
                   </div>
-                  <p className="text-[12px] text-foreground/30 mt-1">Sesión Sync · 45 minutos</p>
+                  <p className="text-[12px] text-text-3 mt-1">Sesión Sync · 45 minutos</p>
                 </div>
 
                 {/* What's included mini-list */}
                 <div className="rounded-2xl border border-foreground/[0.06] bg-foreground/[0.02] p-4 space-y-2.5">
                   {features.slice(0, 3).map((f, i) => (
-                    <div key={i} className="flex items-center gap-2.5 text-[12px] text-foreground/55">
+                    <div key={i} className="flex items-center gap-2.5 text-[12px] text-text-2">
                       <Zap className="h-3 w-3 text-[#dafc69]/70 shrink-0" />
                       {f}
                     </div>
@@ -172,8 +172,8 @@ function BookingContent() {
 
                 {/* Stripe badge */}
                 <div className="flex items-center justify-center gap-2 pt-1">
-                  <Shield className="h-3.5 w-3.5 text-foreground/20" />
-                  <span className="text-[10px] text-foreground/20 font-medium tracking-wide">
+                  <Shield className="h-3.5 w-3.5 text-text-3" />
+                  <span className="text-[10px] text-text-3 font-medium tracking-wide">
                     Procesado de forma segura por Stripe
                   </span>
                 </div>
@@ -187,8 +187,8 @@ function BookingContent() {
       {/* Footer */}
       <footer className="border-t border-foreground/[0.06] py-6">
         <div className="mx-auto max-w-4xl px-5 flex items-center justify-between">
-          <span className="text-[11px] text-foreground/25">© Smart Scale™</span>
-          <span className="text-[11px] text-foreground/25">Todos los derechos reservados</span>
+          <span className="text-[11px] text-text-3">© Smart Scale™</span>
+          <span className="text-[11px] text-text-3">Todos los derechos reservados</span>
         </div>
       </footer>
     </div>

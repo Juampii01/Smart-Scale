@@ -17,17 +17,17 @@ const NIVEL_OPTIONS = [
 function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-[10px] font-semibold uppercase tracking-widest text-foreground/40">
+      <label className="text-[10px] font-semibold uppercase tracking-widest text-text-2">
         {label}
         {required && <span className="ml-1 text-[#dafc69]">*</span>}
       </label>
-      {hint && <p className="text-[11px] text-foreground/30 -mt-1 leading-snug">{hint}</p>}
+      {hint && <p className="text-[11px] text-text-3 -mt-1 leading-snug">{hint}</p>}
       {children}
     </div>
   )
 }
 
-const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2.5 text-sm font-medium text-foreground placeholder:text-foreground/20 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
+const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2.5 text-sm font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
 
 // Reflexión obligatoria detrás del cierre (gamificación). Sin al menos
 // NOTAS_MIN caracteres el submit queda bloqueado.
@@ -122,11 +122,11 @@ export function ChiChangView() {
       {/* Tab switcher */}
       <div className="flex gap-1 mb-6 rounded-xl border border-foreground/[0.06] bg-card p-1 w-fit">
         <button type="button" onClick={() => setTab("form")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "form" ? "bg-secondary text-foreground" : "text-foreground/40 hover:text-foreground/70"}`}>
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "form" ? "bg-secondary text-foreground" : "text-text-2 hover:text-foreground"}`}>
           <FileText className="h-3.5 w-3.5" /> Registrar
         </button>
         <button type="button" onClick={() => setTab("history")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "history" ? "bg-secondary text-foreground" : "text-foreground/40 hover:text-foreground/70"}`}>
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "history" ? "bg-secondary text-foreground" : "text-text-2 hover:text-foreground"}`}>
           <History className="h-3.5 w-3.5" /> Historial
         </button>
       </div>
@@ -144,7 +144,7 @@ export function ChiChangView() {
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-widest text-[#dafc69]/70 mb-0.5">Cierre</p>
             <h2 className="text-lg font-bold text-foreground">Cha-Ching 💰</h2>
-            <p className="text-xs text-foreground/30 mt-0.5">¡Felicitaciones por cerrar el trato! Cargá los detalles.</p>
+            <p className="text-xs text-text-3 mt-0.5">¡Felicitaciones por cerrar el trato! Cargá los detalles.</p>
           </div>
         </div>
       </div>
@@ -155,7 +155,7 @@ export function ChiChangView() {
           <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Aviso · este Cha-Ching es tuyo</p>
-            <p className="text-[13px] text-foreground/75 mt-0.5">
+            <p className="text-[13px] text-foreground mt-0.5">
               Estás navegando como <span className="font-semibold text-foreground">{activeName ?? "otro cliente"}</span>, pero este formulario siempre se guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
             </p>
           </div>
@@ -166,7 +166,7 @@ export function ChiChangView() {
       <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card">
         <div className="flex items-center gap-2 border-b border-foreground/[0.05] px-5 py-3">
           <span className="h-3 w-[2px] rounded-full bg-[#dafc69]" />
-          <span className="text-xs font-semibold uppercase tracking-widest text-foreground/40">Detalles del Trato</span>
+          <span className="text-xs font-semibold uppercase tracking-widest text-text-2">Detalles del Trato</span>
         </div>
         <div className="p-5 space-y-5">
 
@@ -228,7 +228,7 @@ export function ChiChangView() {
                       className="h-3 w-3 rounded-full flex-shrink-0"
                       style={{ backgroundColor: opt.color, boxShadow: `0 0 6px color-mix(in srgb, ${opt.color} 50%, transparent)` }}
                     />
-                    <span className={`text-xs font-bold tabular-nums ${isActive ? "text-foreground" : "text-foreground/55"}`}>
+                    <span className={`text-xs font-bold tabular-nums ${isActive ? "text-foreground" : "text-text-2"}`}>
                       {opt.label}
                     </span>
                   </button>
@@ -247,14 +247,14 @@ export function ChiChangView() {
         <div className="flex items-center justify-between gap-2 border-b border-foreground/[0.05] px-5 py-3">
           <div className="flex items-center gap-2">
             <Quote className="h-3.5 w-3.5 text-[#dafc69]" />
-            <span className="text-xs font-semibold uppercase tracking-widest text-foreground/40">
+            <span className="text-xs font-semibold uppercase tracking-widest text-text-2">
               La historia detrás del cierre <span className="text-[#dafc69]">*</span>
             </span>
           </div>
           <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
             notasOk
               ? "bg-secondary text-[#dafc69]"
-              : "bg-foreground/[0.05] text-foreground/35"
+              : "bg-foreground/[0.05] text-text-3"
           }`}>
             <Sparkles className="h-3 w-3" />
             {notasOk ? "Reflexión +1" : "Sumá tu reflexión"}
@@ -262,12 +262,12 @@ export function ChiChangView() {
         </div>
 
         <div className="p-5 space-y-3">
-          <p className="text-[12px] text-foreground/45 leading-relaxed">
+          <p className="text-[12px] text-text-2 leading-relaxed">
             Compartí algo detrás de este cierre. Por ejemplo:
           </p>
           <ul className="space-y-1.5">
             {NOTAS_PROMPTS.map((p) => (
-              <li key={p} className="flex items-start gap-2 text-[12.5px] text-foreground/55">
+              <li key={p} className="flex items-start gap-2 text-[12.5px] text-text-2">
                 <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-accent" />
                 {p}
               </li>
@@ -285,13 +285,13 @@ export function ChiChangView() {
 
           <div className="flex items-center justify-between">
             <span className={`text-[11px] font-medium transition-colors ${
-              notasOk ? "text-[#dafc69]" : "text-foreground/30"
+              notasOk ? "text-[#dafc69]" : "text-text-3"
             }`}>
               {notasOk
                 ? "✨ Reflexión registrada"
                 : `Escribí al menos ${Math.max(0, NOTAS_MIN - notas.trim().length)} caracteres más`}
             </span>
-            <span className="text-[11px] tabular-nums text-foreground/25">{notas.trim().length}</span>
+            <span className="text-[11px] tabular-nums text-text-3">{notas.trim().length}</span>
           </div>
         </div>
       </div>

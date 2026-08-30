@@ -11,7 +11,7 @@ export default function CrmHoyPage() {
   if (access.status === "loading") {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="h-5 w-5 animate-spin text-foreground/30" />
+        <Loader2 className="h-5 w-5 animate-spin text-text-3" />
       </div>
     )
   }
@@ -19,8 +19,8 @@ export default function CrmHoyPage() {
   if (access.status === "no-access") {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-2 bg-background px-4 text-center">
-        <p className="text-sm font-medium text-foreground/60">Todavía no tenés acceso al CRM interno.</p>
-        <p className="text-[13px] text-foreground/40">Avisale al equipo de Smart Scale si creés que deberías tenerlo.</p>
+        <p className="text-sm font-medium text-text-2">Todavía no tenés acceso al CRM interno.</p>
+        <p className="text-[13px] text-text-2">Avisale al equipo de Smart Scale si creés que deberías tenerlo.</p>
       </div>
     )
   }

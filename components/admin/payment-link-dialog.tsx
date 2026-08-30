@@ -88,8 +88,8 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
 
   if (!open) return null
 
-  const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 focus:border-accent focus:outline-none transition-all"
-  const labelCls = "text-[10px] font-bold uppercase tracking-widest text-foreground/30 mb-1.5 block"
+  const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none transition-all"
+  const labelCls = "text-[10px] font-bold uppercase tracking-widest text-text-3 mb-1.5 block"
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
@@ -99,12 +99,12 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
         <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-4">
           <div className="flex items-center gap-2.5">
             <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground">
               Crear link de pago
             </h2>
           </div>
           <button onClick={handleClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:bg-foreground/[0.06] hover:text-foreground transition-colors">
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:bg-foreground/[0.06] hover:text-foreground transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -129,7 +129,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                   </button>
                 </div>
                 <a href={result.paymentUrl} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-[12px] text-foreground/40 hover:text-foreground transition-colors">
+                  className="flex items-center gap-1.5 text-[12px] text-text-2 hover:text-foreground transition-colors">
                   <ExternalLink className="h-3.5 w-3.5" />
                   Abrir en Stripe
                 </a>
@@ -142,16 +142,16 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                     <p className="text-[11px] font-semibold text-blue-700/80 dark:text-blue-400/80">
                       Después del pago → Calendly embebido
                     </p>
-                    <p className="text-[11px] text-foreground/35 break-all">{result.raw_calendly}</p>
-                    <p className="text-[10px] text-foreground/20">
-                      El cliente es redirigido a <code className="text-foreground/35">/booking/confirmed</code> donde ve el calendario inline
+                    <p className="text-[11px] text-text-3 break-all">{result.raw_calendly}</p>
+                    <p className="text-[10px] text-text-3">
+                      El cliente es redirigido a <code className="text-text-3">/booking/confirmed</code> donde ve el calendario inline
                     </p>
                   </div>
                 </div>
               )}
 
               <button onClick={reset}
-                className="w-full h-9 rounded-xl border border-foreground/[0.08] text-[13px] text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all">
+                className="w-full h-9 rounded-xl border border-foreground/[0.08] text-[13px] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all">
                 Crear otro link
               </button>
             </div>
@@ -164,7 +164,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                     className={`flex-1 py-2 text-[12px] font-semibold transition-all ${
                       type === t
                         ? "bg-secondary text-[#dafc69]"
-                        : "text-foreground/40 hover:text-foreground"
+                        : "text-text-2 hover:text-foreground"
                     }`}>
                     {t === "once" ? "Pago único" : "Cuotas mensuales"}
                   </button>
@@ -177,7 +177,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                   {type === "once" ? "Monto *" : "Monto por cuota *"}
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-foreground/40">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-text-2">$</span>
                   <input
                     type="number"
                     value={amount}
@@ -227,7 +227,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                   className={inputCls}
                 />
                 {calendlyUrl && (
-                  <p className="mt-1.5 text-[11px] text-foreground/30">
+                  <p className="mt-1.5 text-[11px] text-text-3">
                     ✓ Al pagar, el cliente es redirigido automáticamente a agendar su llamada
                   </p>
                 )}

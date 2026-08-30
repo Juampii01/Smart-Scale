@@ -105,7 +105,7 @@ interface ProspectingPattern {
 const RESULTADO_STYLES: Record<ProspectingPattern["resultado"], string> = {
   cerro:     "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400",
   no_cerro:  "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
-  pendiente: "bg-foreground/[0.06] text-foreground/50",
+  pendiente: "bg-foreground/[0.06] text-text-2",
 }
 const RESULTADO_LABELS: Record<ProspectingPattern["resultado"], string> = {
   cerro: "cerró", no_cerro: "no cerró", pendiente: "pendiente",
@@ -117,10 +117,10 @@ const RESULTADO_VARIANT: Record<ProspectingPattern["resultado"], StatusPillVaria
 const SEVERITY_STYLES: Record<"alta" | "media" | "baja", string> = {
   alta:  "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
   media: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
-  baja:  "bg-foreground/[0.06] text-foreground/50",
+  baja:  "bg-foreground/[0.06] text-text-2",
 }
 
-const IRREMONTABLE_STYLE = "bg-foreground/[0.10] text-foreground/60 dark:bg-foreground/[0.08] dark:text-foreground/50"
+const IRREMONTABLE_STYLE = "bg-foreground/[0.10] text-text-2 dark:bg-foreground/[0.08] dark:text-text-2"
 const SANO_STYLE = "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
 
 function fmtDateTime(iso: string | null): string {
@@ -172,11 +172,11 @@ interface UnansweredBriefing {
 function FindingsSection({ title, subtitle, findings }: { title: string; subtitle?: string; findings: SlackFinding[] }) {
   return (
     <div>
-      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
-        {title}{subtitle && <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">{subtitle}</span>}
+      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-text-3">
+        {title}{subtitle && <span className="ml-2 normal-case font-normal tracking-normal text-text-3">{subtitle}</span>}
       </p>
       {findings.length === 0 ? (
-        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
           No se encontraron patrones relevantes en los mensajes analizados.
         </div>
       ) : (
@@ -189,15 +189,15 @@ function FindingsSection({ title, subtitle, findings }: { title: string; subtitl
                   {f.severidad}
                 </span>
               </div>
-              <p className="mt-1.5 text-[12.5px] leading-relaxed text-foreground/60">{f.descripcion}</p>
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-text-2">{f.descripcion}</p>
               <div className="mt-2.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
-                <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
-                <p className="text-[12px] italic text-foreground/50">{f.evidencia}</p>
+                <Quote className="h-3 w-3 shrink-0 mt-0.5 text-text-3" />
+                <p className="text-[12px] italic text-text-2">{f.evidencia}</p>
               </div>
               {f.canales.length > 0 && (
                 <div className="mt-2.5 flex flex-wrap gap-1.5">
                   {f.canales.map(c => (
-                    <span key={c} className="rounded-md border border-foreground/[0.10] bg-foreground/[0.03] px-2 py-0.5 text-[11px] text-foreground/50">
+                    <span key={c} className="rounded-md border border-foreground/[0.10] bg-foreground/[0.03] px-2 py-0.5 text-[11px] text-text-2">
                       #{c}
                     </span>
                   ))}
@@ -223,14 +223,14 @@ function StatCard({ icon: Icon, label, value, sublabel, tone }: {
       <div className="flex items-center gap-2">
         <span className={cn(
           "flex h-7 w-7 items-center justify-center rounded-lg",
-          tone === "warn" ? "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400" : "bg-foreground/[0.05] text-foreground/50",
+          tone === "warn" ? "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400" : "bg-foreground/[0.05] text-text-2",
         )}>
           <Icon className="h-3.5 w-3.5" />
         </span>
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground/40">{label}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-text-2">{label}</p>
       </div>
       <p className="mt-2.5 text-2xl font-bold tracking-tight text-foreground">{value}</p>
-      {sublabel && <p className="mt-0.5 text-[11.5px] text-foreground/40">{sublabel}</p>}
+      {sublabel && <p className="mt-0.5 text-[11.5px] text-text-2">{sublabel}</p>}
     </div>
   )
 }
@@ -298,9 +298,9 @@ function RatingBreakdown({ title, subtitle, distribution, ratings }: {
   return (
     <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
       <div className="mb-3 flex items-center gap-2">
-        <Star className="h-3.5 w-3.5 text-foreground/40" />
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground/40">{title}</p>
-        <span className="ml-auto text-[11px] text-foreground/30">{subtitle}</span>
+        <Star className="h-3.5 w-3.5 text-text-2" />
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-text-2">{title}</p>
+        <span className="ml-auto text-[11px] text-text-3">{subtitle}</span>
       </div>
       <div className="space-y-1.5">
         {ratings.map(r => {
@@ -308,11 +308,11 @@ function RatingBreakdown({ title, subtitle, distribution, ratings }: {
           const pct = Math.round((count / maxRating) * 100)
           return (
             <div key={r} className="flex items-center gap-2">
-              <span className="w-10 shrink-0 text-[11px] text-foreground/40">{r}★</span>
+              <span className="w-10 shrink-0 text-[11px] text-text-2">{r}★</span>
               <div className="h-2 flex-1 overflow-hidden rounded-full bg-foreground/[0.06]">
                 <div className="h-full rounded-full bg-[#dafc69]" style={{ width: `${pct}%` }} />
               </div>
-              <span className="w-6 shrink-0 text-right text-[11px] text-foreground/40">{count}</span>
+              <span className="w-6 shrink-0 text-right text-[11px] text-text-2">{count}</span>
             </div>
           )
         })}
@@ -330,10 +330,10 @@ function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
   return (
     <div>
       <div className="mb-3 flex items-center justify-between gap-3">
-        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-text-3">
           Riesgos de prospección (en bloque)
           {briefing && (
-            <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">
+            <span className="ml-2 normal-case font-normal tracking-normal text-text-3">
               {fmtDateOnly(briefing.date)} · {briefing.messages_analyzed} conversaciones analizadas
             </span>
           )}
@@ -341,7 +341,7 @@ function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
         <button
           onClick={onRefresh}
           disabled={analyzing}
-          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
         >
           <RefreshCw className={cn("h-3 w-3", analyzing && "animate-spin")} />
           Actualizar
@@ -351,11 +351,11 @@ function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
         <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{error}</p>
       )}
       {!briefing ? (
-        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
           Todavía no corrió el análisis de riesgo de prospección — corré "Actualizar" o esperá al briefing diario.
         </div>
       ) : briefing.findings.length === 0 ? (
-        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
           Ningún prospecto activo en riesgo hoy, según los principios de Ann.
         </div>
       ) : (
@@ -371,17 +371,17 @@ function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
                   {f.estado === "irremontable" ? "irremontable" : f.severidad}
                 </span>
               </div>
-              <p className="mt-1.5 text-[12.5px] leading-relaxed text-foreground/60">{f.situacion}</p>
-              <p className="mt-2 text-[12px] font-semibold text-foreground/50">Principio: <span className="font-normal text-foreground/60">{f.principio}</span></p>
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-text-2">{f.situacion}</p>
+              <p className="mt-2 text-[12px] font-semibold text-text-2">Principio: <span className="font-normal text-text-2">{f.principio}</span></p>
               <div className="mt-2 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
-                <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
-                <p className="text-[12px] italic text-foreground/50">{f.evidencia}</p>
+                <Quote className="h-3 w-3 shrink-0 mt-0.5 text-text-3" />
+                <p className="text-[12px] italic text-text-2">{f.evidencia}</p>
               </div>
               <div className={cn(
                 "mt-2.5 rounded-lg border px-2.5 py-2",
                 f.estado === "irremontable" ? "border-foreground/[0.10] bg-foreground/[0.03]" : "border-border bg-secondary/30",
               )}>
-                <p className="text-[12px] font-semibold text-foreground/80">{f.estado === "irremontable" ? "Aprendizaje: " : ""}{f.accion}</p>
+                <p className="text-[12px] font-semibold text-foreground">{f.estado === "irremontable" ? "Aprendizaje: " : ""}{f.accion}</p>
               </div>
             </div>
           ))}
@@ -407,10 +407,10 @@ function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
   return (
     <div>
       <div className="mb-3 flex items-center justify-between gap-3">
-        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-text-3">
           Conversaciones sin responder
           {briefing && (
-            <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">
+            <span className="ml-2 normal-case font-normal tracking-normal text-text-3">
               {fmtDateOnly(briefing.date)} · {briefing.messages_analyzed} pendientes
             </span>
           )}
@@ -418,7 +418,7 @@ function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
         <button
           onClick={onRefresh}
           disabled={analyzing}
-          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
         >
           {analyzing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
           Hacer resumen
@@ -430,25 +430,25 @@ function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
       )}
 
       {!briefing ? (
-        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
           Todavía no corrió el resumen — corré "Hacer resumen" o esperá al de las 19hs (hora Miami).
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
             <div className="mb-2 flex items-center gap-2">
-              <Instagram className="h-3.5 w-3.5 text-foreground/40" />
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground/40">Instagram</p>
-              <span className="ml-auto text-[11px] text-foreground/30">{instagram.length}</span>
+              <Instagram className="h-3.5 w-3.5 text-text-2" />
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-text-2">Instagram</p>
+              <span className="ml-auto text-[11px] text-text-3">{instagram.length}</span>
             </div>
             {instagram.length === 0 ? (
-              <p className="text-[12.5px] text-foreground/35">Todo respondido.</p>
+              <p className="text-[12.5px] text-text-3">Todo respondido.</p>
             ) : (
               <div className="space-y-1.5">
                 {instagram.map(item => (
                   <div key={item.nombre} className="flex items-center justify-between gap-2 text-[12.5px]">
-                    <span className="truncate text-foreground/70">@{item.nombre}</span>
-                    <span className="shrink-0 text-foreground/35">{fmtHoursSince(item.horas_sin_responder)}</span>
+                    <span className="truncate text-foreground">@{item.nombre}</span>
+                    <span className="shrink-0 text-text-3">{fmtHoursSince(item.horas_sin_responder)}</span>
                   </div>
                 ))}
               </div>
@@ -457,18 +457,18 @@ function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
 
           <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
             <div className="mb-2 flex items-center gap-2">
-              <Slack className="h-3.5 w-3.5 text-foreground/40" />
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground/40">Slack</p>
-              <span className="ml-auto text-[11px] text-foreground/30">{slack.length}</span>
+              <Slack className="h-3.5 w-3.5 text-text-2" />
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-text-2">Slack</p>
+              <span className="ml-auto text-[11px] text-text-3">{slack.length}</span>
             </div>
             {slack.length === 0 ? (
-              <p className="text-[12.5px] text-foreground/35">Todo respondido.</p>
+              <p className="text-[12.5px] text-text-3">Todo respondido.</p>
             ) : (
               <div className="space-y-1.5">
                 {slack.map(item => (
                   <div key={item.nombre} className="flex items-center justify-between gap-2 text-[12.5px]">
-                    <span className="truncate text-foreground/70">#{item.nombre}</span>
-                    <span className="shrink-0 text-foreground/35">{fmtHoursSince(item.horas_sin_responder)}</span>
+                    <span className="truncate text-foreground">#{item.nombre}</span>
+                    <span className="shrink-0 text-text-3">{fmtHoursSince(item.horas_sin_responder)}</span>
                   </div>
                 ))}
               </div>
@@ -532,21 +532,21 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               </span>
             )}
             {conversation.lead_rating != null && (
-              <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] font-bold text-foreground/50">{conversation.lead_rating}★</span>
+              <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] font-bold text-text-2">{conversation.lead_rating}★</span>
             )}
           </div>
-          <p className="mt-1 text-[12px] text-foreground/40">
+          <p className="mt-1 text-[12px] text-text-2">
             {conversation.last_message_from === "lead" ? "Último mensaje del prospecto" : "Último mensaje de Ann"} · {fmtDateTime(conversation.last_message_at)}
           </p>
           {conversation.last_message_preview && (
-            <p className="mt-1.5 line-clamp-2 text-[12.5px] text-foreground/60">{conversation.last_message_preview}</p>
+            <p className="mt-1.5 line-clamp-2 text-[12.5px] text-text-2">{conversation.last_message_preview}</p>
           )}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           {a && (
             <button
               onClick={() => (correcting ? setCorrecting(false) : openCorrecting())}
-              className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[12px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all"
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[12px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all"
             >
               Corregir
             </button>
@@ -568,30 +568,30 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
             <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", badgeStyle)}>
               {a.estado === "en_riesgo" ? a.severidad : a.estado}
             </span>
-            <span className="text-[11px] text-foreground/30">analizado {fmtDateTime(a.analyzed_at)}</span>
+            <span className="text-[11px] text-text-3">analizado {fmtDateTime(a.analyzed_at)}</span>
             {isStale && (
               <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
                 desactualizado, hay mensajes nuevos
               </span>
             )}
           </div>
-          <p className="mt-1.5 text-[12.5px] leading-relaxed text-foreground/60">{a.situacion}</p>
-          <p className="mt-1.5 text-[12px] font-semibold text-foreground/50">Principio: <span className="font-normal text-foreground/60">{a.principio}</span></p>
+          <p className="mt-1.5 text-[12.5px] leading-relaxed text-text-2">{a.situacion}</p>
+          <p className="mt-1.5 text-[12px] font-semibold text-text-2">Principio: <span className="font-normal text-text-2">{a.principio}</span></p>
           <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
-            <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
-            <p className="text-[12px] italic text-foreground/50">{a.evidencia}</p>
+            <Quote className="h-3 w-3 shrink-0 mt-0.5 text-text-3" />
+            <p className="text-[12px] italic text-text-2">{a.evidencia}</p>
           </div>
           <div className="mt-1.5 rounded-lg border border-accent/20 bg-accent-soft px-2.5 py-2">
-            <p className="text-[12px] font-semibold text-foreground/80">{a.accion}</p>
+            <p className="text-[12px] font-semibold text-foreground">{a.accion}</p>
           </div>
         </div>
       )}
 
       {correcting && (
         <div className="mt-3 space-y-2.5 rounded-xl border border-foreground/[0.10] bg-foreground/[0.02] p-3">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/40">Registrar patrón de prospección</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-text-2">Registrar patrón de prospección</p>
           <div>
-            <label className="text-[11px] font-semibold text-foreground/50">Situación</label>
+            <label className="text-[11px] font-semibold text-text-2">Situación</label>
             <textarea
               value={situacion}
               onChange={e => setSituacion(e.target.value)}
@@ -600,17 +600,17 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
             />
           </div>
           <div>
-            <label className="text-[11px] font-semibold text-foreground/50">Qué enfoque/mensaje se usó</label>
+            <label className="text-[11px] font-semibold text-text-2">Qué enfoque/mensaje se usó</label>
             <textarea
               value={enfoque}
               onChange={e => setEnfoque(e.target.value)}
               rows={2}
               placeholder="Ej: le mandé el offer doc directo sin agendar llamada"
-              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-accent/20"
+              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
             />
           </div>
           <div>
-            <label className="text-[11px] font-semibold text-foreground/50">Resultado</label>
+            <label className="text-[11px] font-semibold text-text-2">Resultado</label>
             <div className="mt-1 flex gap-1.5">
               {(["cerro", "no_cerro", "pendiente"] as const).map(r => (
                 <button
@@ -619,7 +619,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
                   onClick={() => setResultado(r)}
                   className={cn(
                     "rounded-lg px-2.5 py-1 text-[11.5px] font-semibold transition-all",
-                    resultado === r ? RESULTADO_STYLES[r] : "bg-foreground/[0.04] text-foreground/40 hover:text-foreground/60"
+                    resultado === r ? RESULTADO_STYLES[r] : "bg-foreground/[0.04] text-text-2 hover:text-text-2"
                   )}
                 >
                   {RESULTADO_LABELS[r]}
@@ -628,20 +628,20 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
             </div>
           </div>
           <div>
-            <label className="text-[11px] font-semibold text-foreground/50">Corrección para la IA (opcional)</label>
+            <label className="text-[11px] font-semibold text-text-2">Corrección para la IA (opcional)</label>
             <textarea
               value={correccion}
               onChange={e => setCorreccion(e.target.value)}
               rows={2}
               placeholder="Ej: acá la IA sugirió esperar 4 semanas, pero este tipo de lead se enfría en días"
-              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-accent/20"
+              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
             />
           </div>
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={() => setCorrecting(false)}
-              className="h-8 rounded-lg px-3 text-[12px] font-medium text-foreground/50 hover:text-foreground transition-all"
+              className="h-8 rounded-lg px-3 text-[12px] font-medium text-text-2 hover:text-foreground transition-all"
             >
               Cancelar
             </button>
@@ -676,12 +676,12 @@ function ChannelListCard({ channel, analyzing, onAnalyze }: {
           <div className="flex flex-wrap items-center gap-1.5">
             <h3 className="text-[14px] font-semibold text-foreground">#{channel.name}</h3>
             {channel.is_client_channel && (
-              <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-foreground/50">
+              <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-text-2">
                 cliente
               </span>
             )}
           </div>
-          <p className="mt-1 text-[12px] text-foreground/40">{channel.message_count} mensajes sincronizados</p>
+          <p className="mt-1 text-[12px] text-text-2">{channel.message_count} mensajes sincronizados</p>
         </div>
         <button
           onClick={onAnalyze}
@@ -699,16 +699,16 @@ function ChannelListCard({ channel, analyzing, onAnalyze }: {
             <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", badgeStyle)}>
               {a.estado === "en_riesgo" ? a.severidad : a.estado}
             </span>
-            <span className="text-[11px] text-foreground/30">analizado {fmtDateTime(a.analyzed_at)}</span>
+            <span className="text-[11px] text-text-3">analizado {fmtDateTime(a.analyzed_at)}</span>
           </div>
-          <p className="mt-1.5 text-[12.5px] leading-relaxed text-foreground/60">{a.situacion}</p>
-          <p className="mt-1.5 text-[12px] font-semibold text-foreground/50">Principio: <span className="font-normal text-foreground/60">{a.principio}</span></p>
+          <p className="mt-1.5 text-[12.5px] leading-relaxed text-text-2">{a.situacion}</p>
+          <p className="mt-1.5 text-[12px] font-semibold text-text-2">Principio: <span className="font-normal text-text-2">{a.principio}</span></p>
           <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
-            <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
-            <p className="text-[12px] italic text-foreground/50">{a.evidencia}</p>
+            <Quote className="h-3 w-3 shrink-0 mt-0.5 text-text-3" />
+            <p className="text-[12px] italic text-text-2">{a.evidencia}</p>
           </div>
           <div className="mt-1.5 rounded-lg border border-accent/20 bg-accent-soft px-2.5 py-2">
-            <p className="text-[12px] font-semibold text-foreground/80">{a.accion}</p>
+            <p className="text-[12px] font-semibold text-foreground">{a.accion}</p>
           </div>
         </div>
       )}
@@ -738,7 +738,7 @@ function NewPatternForm({ onSubmit, onDone }: {
   return (
     <div className="mb-3 space-y-2.5 rounded-xl border border-foreground/[0.10] bg-foreground/[0.02] p-3">
       <div>
-        <label className="text-[11px] font-semibold text-foreground/50">Situación</label>
+        <label className="text-[11px] font-semibold text-text-2">Situación</label>
         <textarea
           value={situacion}
           onChange={e => setSituacion(e.target.value)}
@@ -747,7 +747,7 @@ function NewPatternForm({ onSubmit, onDone }: {
         />
       </div>
       <div>
-        <label className="text-[11px] font-semibold text-foreground/50">Qué enfoque/mensaje se usó</label>
+        <label className="text-[11px] font-semibold text-text-2">Qué enfoque/mensaje se usó</label>
         <textarea
           value={enfoque}
           onChange={e => setEnfoque(e.target.value)}
@@ -756,7 +756,7 @@ function NewPatternForm({ onSubmit, onDone }: {
         />
       </div>
       <div>
-        <label className="text-[11px] font-semibold text-foreground/50">Resultado</label>
+        <label className="text-[11px] font-semibold text-text-2">Resultado</label>
         <div className="mt-1 flex gap-1.5">
           {(["cerro", "no_cerro", "pendiente"] as const).map(r => (
             <button
@@ -765,7 +765,7 @@ function NewPatternForm({ onSubmit, onDone }: {
               onClick={() => setResultado(r)}
               className={cn(
                 "rounded-lg px-2.5 py-1 text-[11.5px] font-semibold transition-all",
-                resultado === r ? RESULTADO_STYLES[r] : "bg-foreground/[0.04] text-foreground/40 hover:text-foreground/60"
+                resultado === r ? RESULTADO_STYLES[r] : "bg-foreground/[0.04] text-text-2 hover:text-text-2"
               )}
             >
               {RESULTADO_LABELS[r]}
@@ -774,7 +774,7 @@ function NewPatternForm({ onSubmit, onDone }: {
         </div>
       </div>
       <div>
-        <label className="text-[11px] font-semibold text-foreground/50">Corrección para la IA (opcional)</label>
+        <label className="text-[11px] font-semibold text-text-2">Corrección para la IA (opcional)</label>
         <textarea
           value={correccion}
           onChange={e => setCorreccion(e.target.value)}
@@ -1214,10 +1214,10 @@ export function AdminOmniView() {
           </span>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">Ann AI</h1>
-            <p className="text-sm text-foreground/40">Sistema operativo de IA · Piloto con Ann</p>
+            <p className="text-sm text-text-2">Sistema operativo de IA · Piloto con Ann</p>
           </div>
         </div>
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-foreground/60">
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-2">
           El sector donde vive el sistema de IA de Ann. Mira el negocio todos los días,
           encuentra los mejores leads y dónde se escapa la plata — empezando por donde
           Ann cierra: los DMs, y la comunidad en Slack.
@@ -1233,7 +1233,7 @@ export function AdminOmniView() {
           onClick={() => setActiveTab("resumen")}
           className={cn(
             "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
-            activeTab === "resumen" ? "border-accent text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+            activeTab === "resumen" ? "border-accent text-foreground" : "border-transparent text-text-2 hover:text-foreground",
           )}
         >
           <LayoutDashboard className="h-3.5 w-3.5" />
@@ -1243,18 +1243,18 @@ export function AdminOmniView() {
           onClick={() => setActiveTab("conversaciones")}
           className={cn(
             "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
-            activeTab === "conversaciones" ? "border-accent text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+            activeTab === "conversaciones" ? "border-accent text-foreground" : "border-transparent text-text-2 hover:text-foreground",
           )}
         >
           <Instagram className="h-3.5 w-3.5" />
           Conversaciones
-          {conversations && <span className="text-foreground/30">{conversations.length}</span>}
+          {conversations && <span className="text-text-3">{conversations.length}</span>}
         </button>
         <button
           onClick={() => setActiveTab("comunidad")}
           className={cn(
             "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
-            activeTab === "comunidad" ? "border-accent text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+            activeTab === "comunidad" ? "border-accent text-foreground" : "border-transparent text-text-2 hover:text-foreground",
           )}
         >
           <Slack className="h-3.5 w-3.5" />
@@ -1264,12 +1264,12 @@ export function AdminOmniView() {
           onClick={() => setActiveTab("prospeccion")}
           className={cn(
             "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
-            activeTab === "prospeccion" ? "border-accent text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+            activeTab === "prospeccion" ? "border-accent text-foreground" : "border-transparent text-text-2 hover:text-foreground",
           )}
         >
           <TrendingUp className="h-3.5 w-3.5" />
           Prospección
-          {patterns && <span className="text-foreground/30">{patterns.length}</span>}
+          {patterns && <span className="text-text-3">{patterns.length}</span>}
         </button>
       </div>
 
@@ -1281,7 +1281,7 @@ export function AdminOmniView() {
 
           {/* Prospección — métricas visibles, sin preguntar nada */}
           <div>
-            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">Prospección</p>
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-text-3">Prospección</p>
             <ProspectingMetricsSection metrics={prospectingMetrics} />
           </div>
 
@@ -1306,12 +1306,12 @@ export function AdminOmniView() {
           {/* Instagram */}
           <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.05] text-foreground/50">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.05] text-text-2">
                 <Instagram className="h-4 w-4" />
               </span>
               <div className="min-w-0">
                 <h3 className="text-[14px] font-semibold text-foreground">Instagram DMs</h3>
-                <p className="text-[12px] text-foreground/40">
+                <p className="text-[12px] text-text-2">
                   {igStatus === undefined ? "Verificando…"
                     : igStatus ? `Conectado como @${igStatus.account_name}`
                     : "No conectado"}
@@ -1334,24 +1334,24 @@ export function AdminOmniView() {
                 <button
                   onClick={syncInstagram}
                   disabled={igSyncing}
-                  className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[12px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[12px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
                 >
                   <RefreshCw className={cn("h-3.5 w-3.5", igSyncing && "animate-spin")} />
                   Sincronizar
                 </button>
               )}
             </div>
-            {igSyncMsg && <p className="mt-2 text-[11.5px] text-foreground/45">{igSyncMsg}</p>}
-            <p className="mt-2 text-[12px] text-foreground/35">
+            {igSyncMsg && <p className="mt-2 text-[11.5px] text-text-2">{igSyncMsg}</p>}
+            <p className="mt-2 text-[12px] text-text-3">
               Requiere el permiso de mensajes habilitado en Meta (Instagram) — ver la conversación del setup para el detalle.
             </p>
           </div>
 
           {/* Todas las conversaciones — elegís cuál analizar */}
           <div>
-            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-text-3">
               Todas las conversaciones
-              {conversations && <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">{conversations.length}</span>}
+              {conversations && <span className="ml-2 normal-case font-normal tracking-normal text-text-3">{conversations.length}</span>}
             </p>
             {conversationsError && (
               <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{conversationsError}</p>
@@ -1363,7 +1363,7 @@ export function AdminOmniView() {
                 ))}
               </div>
             ) : conversations.length === 0 ? (
-              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
                 No hay conversaciones sincronizadas todavía.
               </div>
             ) : (
@@ -1394,12 +1394,12 @@ export function AdminOmniView() {
           {/* Slack */}
           <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.05] text-foreground/50">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.05] text-text-2">
                 <Slack className="h-4 w-4" />
               </span>
               <div className="min-w-0">
                 <h3 className="text-[14px] font-semibold text-foreground">Slack — Comunidad</h3>
-                <p className="text-[12px] text-foreground/40">
+                <p className="text-[12px] text-text-2">
                   {!slackUserConnected
                     ? (slackUserConnected === undefined ? "Verificando…" : "No conectado — falta autorizar como Ann")
                     : slackStatus
@@ -1424,7 +1424,7 @@ export function AdminOmniView() {
                 <button
                   onClick={syncSlack}
                   disabled={slackSyncing}
-                  className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[12px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[12px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
                 >
                   <RefreshCw className={cn("h-3.5 w-3.5", slackSyncing && "animate-spin")} />
                   Sincronizar
@@ -1441,18 +1441,18 @@ export function AdminOmniView() {
                 </button>
               )}
             </div>
-            {slackSyncMsg && <p className="mt-2 text-[11.5px] text-foreground/45">{slackSyncMsg}</p>}
-            {analyzeMsg && <p className="mt-1 text-[11.5px] text-foreground/45">{analyzeMsg}</p>}
-            <p className="mt-2 text-[12px] text-foreground/35">
+            {slackSyncMsg && <p className="mt-2 text-[11.5px] text-text-2">{slackSyncMsg}</p>}
+            {analyzeMsg && <p className="mt-1 text-[11.5px] text-text-2">{analyzeMsg}</p>}
+            <p className="mt-2 text-[12px] text-text-3">
               Requiere los scopes de lectura agregados al bot de Slack — ver la conversación del setup para el detalle.
             </p>
           </div>
 
           {/* Todos los canales — elegís cuál analizar */}
           <div>
-            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/35">
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-text-3">
               Todos los canales
-              {channels && <span className="ml-2 normal-case font-normal tracking-normal text-foreground/30">{channels.length}</span>}
+              {channels && <span className="ml-2 normal-case font-normal tracking-normal text-text-3">{channels.length}</span>}
             </p>
             {channelsError && (
               <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{channelsError}</p>
@@ -1464,7 +1464,7 @@ export function AdminOmniView() {
                 ))}
               </div>
             ) : channels.length === 0 ? (
-              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
                 No hay canales sincronizados todavía.
               </div>
             ) : (
@@ -1504,7 +1504,7 @@ export function AdminOmniView() {
           {/* Contexto de prospección — workflow propio, separado del Cerebro de Ann */}
           <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
             <SectionHeader icon={Compass} title="Tu contexto de prospección" />
-            <p className="mt-2 text-[12px] text-foreground/40">
+            <p className="mt-2 text-[12px] text-text-2">
               Separado del Cerebro de Ann — esto ajusta cómo se redacta el feedback de cada análisis de conversación (traducido a lenguaje simple, con foco en pasar de conversación a offer doc), sin tocar el criterio base de Ann.
             </p>
             {prospectingContextError && (
@@ -1515,27 +1515,27 @@ export function AdminOmniView() {
             ) : (
               <div className="mt-3 space-y-3">
                 <div>
-                  <label className="text-[11px] font-semibold text-foreground/50">Workflow inbound</label>
+                  <label className="text-[11px] font-semibold text-text-2">Workflow inbound</label>
                   <textarea
                     value={prospectingContext.workflow_inbound}
                     onChange={e => setProspectingContext({ ...prospectingContext, workflow_inbound: e.target.value })}
                     rows={3}
                     placeholder="Cómo trabajás los leads que llegan solos (DMs, formularios, etc.)"
-                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-accent/20"
+                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-foreground/50">Workflow outbound</label>
+                  <label className="text-[11px] font-semibold text-text-2">Workflow outbound</label>
                   <textarea
                     value={prospectingContext.workflow_outbound}
                     onChange={e => setProspectingContext({ ...prospectingContext, workflow_outbound: e.target.value })}
                     rows={3}
                     placeholder="Cómo contactás vos a los leads (prospección activa)"
-                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-accent/20"
+                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-foreground/50">Notas generales</label>
+                  <label className="text-[11px] font-semibold text-text-2">Notas generales</label>
                   <textarea
                     value={prospectingContext.notas_generales}
                     onChange={e => setProspectingContext({ ...prospectingContext, notas_generales: e.target.value })}
@@ -1567,7 +1567,7 @@ export function AdminOmniView() {
               action={
                 <button
                   onClick={() => setNewPatternOpen(v => !v)}
-                  className="flex h-7 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all"
+                  className="flex h-7 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all"
                 >
                   {newPatternOpen ? "Cancelar" : "+ Nuevo patrón"}
                 </button>
@@ -1587,7 +1587,7 @@ export function AdminOmniView() {
                 {[0, 1].map(i => <div key={i} className="h-16 animate-pulse rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]" />)}
               </div>
             ) : patterns.length === 0 ? (
-              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-foreground/40">
+              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
                 Todavía no hay patrones registrados — se van sumando desde el botón "Corregir" en cada análisis, o sueltos con "+ Nuevo patrón".
               </div>
             ) : (
@@ -1596,12 +1596,12 @@ export function AdminOmniView() {
                   <div key={p.id} className="rounded-xl border border-foreground/[0.07] bg-card p-3">
                     <div className="flex items-center justify-between gap-2">
                       <StatusPill variant={RESULTADO_VARIANT[p.resultado]}>{RESULTADO_LABELS[p.resultado]}</StatusPill>
-                      <span className="text-[11px] text-foreground/30">{fmtDateTime(p.created_at)}</span>
+                      <span className="text-[11px] text-text-3">{fmtDateTime(p.created_at)}</span>
                     </div>
-                    <p className="mt-1.5 text-[12.5px] text-foreground/70"><span className="font-semibold text-foreground/50">Situación:</span> {p.situacion}</p>
-                    <p className="mt-1 text-[12.5px] text-foreground/70"><span className="font-semibold text-foreground/50">Enfoque:</span> {p.enfoque}</p>
+                    <p className="mt-1.5 text-[12.5px] text-foreground"><span className="font-semibold text-text-2">Situación:</span> {p.situacion}</p>
+                    <p className="mt-1 text-[12.5px] text-foreground"><span className="font-semibold text-text-2">Enfoque:</span> {p.enfoque}</p>
                     {p.correccion && (
-                      <p className="mt-1.5 rounded-lg bg-accent-soft px-2.5 py-1.5 text-[12px] text-foreground/70">
+                      <p className="mt-1.5 rounded-lg bg-accent-soft px-2.5 py-1.5 text-[12px] text-foreground">
                         <span className="font-semibold">Corrección:</span> {p.correccion}
                       </p>
                     )}

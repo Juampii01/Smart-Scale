@@ -26,7 +26,7 @@ export function PipelineColumn({ id, title, accentColor, leads, onSelect, onPatc
       <div className="flex items-center gap-2 mb-3 px-1">
         <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: accentColor }} />
         <span className="text-sm font-semibold text-foreground">{title}</span>
-        <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-full tabular-nums bg-foreground/[0.06] text-foreground/40">
+        <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-full tabular-nums bg-foreground/[0.06] text-text-2">
           {leads.length}
         </span>
       </div>
@@ -45,7 +45,7 @@ export function PipelineColumn({ id, title, accentColor, leads, onSelect, onPatc
           ))}
         </SortableContext>
         {!leads.length && (
-          <div className="flex-1 flex items-center justify-center py-6 text-[12px] text-foreground/25">
+          <div className="flex-1 flex items-center justify-center py-6 text-[12px] text-text-3">
             Sin leads acá
           </div>
         )}

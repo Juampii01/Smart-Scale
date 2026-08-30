@@ -55,7 +55,7 @@ export function WhatsNew3() {
                 <Rocket className="h-6 w-6 text-black" />
               </div>
               <h2 className="text-xl font-extrabold tracking-tight text-foreground">Llegó Smart Scale 3.0</h2>
-              <p className="text-[13px] text-foreground/50 mt-1">Esto es lo nuevo que tenemos para vos</p>
+              <p className="text-[13px] text-text-2 mt-1">Esto es lo nuevo que tenemos para vos</p>
             </div>
 
             {/* Lista de novedades */}
@@ -69,7 +69,7 @@ export function WhatsNew3() {
                     </span>
                     <div>
                       <p className="text-[13.5px] font-semibold text-foreground leading-tight">{n.title}</p>
-                      <p className="text-[12px] text-foreground/50 mt-0.5 leading-snug">{n.desc}</p>
+                      <p className="text-[12px] text-text-2 mt-0.5 leading-snug">{n.desc}</p>
                     </div>
                   </div>
                 )

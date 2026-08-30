@@ -132,7 +132,7 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
       <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-xl font-bold text-foreground">Performance</h2>
-          <p className="text-[13px] text-foreground/40 mt-0.5">Key metrics for the selected month</p>
+          <p className="text-[13px] text-text-2 mt-0.5">Key metrics for the selected month</p>
         </div>
         {current && previous && (
           <div className="flex items-center gap-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-2">
@@ -150,9 +150,9 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
       {!current && !showSkeleton && (
         <div className="mb-6 flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-12 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
-            <BarChart3 className="h-5 w-5 text-foreground/20" />
+            <BarChart3 className="h-5 w-5 text-text-3" />
           </div>
-          <p className="text-sm text-foreground/40">
+          <p className="text-sm text-text-2">
             {isOwn ? "No hay reporte cargado para este mes." : "Este cliente no tiene reporte para este mes."}
           </p>
           {isOwn && (
@@ -191,7 +191,7 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
                     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
                       isUp   ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/20"
                       : isDown ? "bg-red-100 text-red-800 ring-1 ring-red-400 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/20"
-                      :           "bg-foreground/5 text-foreground/40 ring-1 ring-foreground/10"
+                      :           "bg-foreground/5 text-text-2 ring-1 ring-foreground/10"
                     }`}>
                       {isUp   && <TrendingUp   className="h-3 w-3" />}
                       {isDown && <TrendingDown className="h-3 w-3" />}
@@ -208,7 +208,7 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
                 </p>
 
                 {/* Label */}
-                <p className="mt-2 text-[13px] text-foreground/50">{kpi.label}</p>
+                <p className="mt-2 text-[13px] text-text-2">{kpi.label}</p>
 
                 {/* Previous */}
                 {previous && rawVal !== null && (() => {
@@ -216,7 +216,7 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
                   if (prev == null) return null
                   const fmted = kpi.money ? fmtMoney(prev) : fmtNumber(prev)
                   return (
-                    <p className="mt-1 text-[11px] text-foreground/25">
+                    <p className="mt-1 text-[11px] text-text-3">
                       vs {fmted} mes anterior
                     </p>
                   )
