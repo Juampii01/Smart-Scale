@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireAdmin } from "@/lib/auth/api-guards"
+import { requireSmartScaleInternal } from "@/lib/auth/api-guards"
 import { calculateCompanyMRR } from "@/lib/calculations/mrr"
 
 export const runtime = "nodejs"
@@ -37,7 +37,7 @@ function monthBounds(ym: string) {
 export async function GET(req: NextRequest) {
   try {
     const jwt    = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const caller = await requireAdmin(jwt)
+    const caller = await requireSmartScaleInternal(jwt)
     if (!caller) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     const { searchParams } = new URL(req.url)

@@ -6,7 +6,7 @@
  */
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireAdmin } from "@/lib/auth/api-guards"
+import { requireSmartScaleInternal } from "@/lib/auth/api-guards"
 import { sendPushToUser, sendPushToUsers } from "@/lib/push"
 
 export const runtime = "nodejs"
@@ -38,7 +38,7 @@ async function subCount(sb: ReturnType<typeof createServiceClient>, userIds: str
 
 export async function GET(req: NextRequest) {
   const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-  const user = await requireAdmin(jwt)
+  const user = await requireSmartScaleInternal(jwt)
   if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   const sb = createServiceClient()
@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-  const user = await requireAdmin(jwt)
+  const user = await requireSmartScaleInternal(jwt)
   if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   let body: { title?: string; body?: string; url?: string; audience?: Audience }

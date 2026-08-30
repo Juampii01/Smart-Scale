@@ -1,11 +1,11 @@
 /**
  * Gestión del "Cerebro de Ann" — la base de conocimiento que alimenta a Ann AI.
- * Gateado a admin/developer (requireAdmin incluye developer vía isAdmin).
+ * Gateado a admin/developer (requireSmartScaleInternal incluye developer vía isAdmin).
  */
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireAdmin } from "@/lib/auth/api-guards"
+import { requireSmartScaleInternal } from "@/lib/auth/api-guards"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -18,7 +18,7 @@ function getJwt(req: NextRequest) {
 
 // ─── GET — listar todo ────────────────────────────────────────────────────────
 export async function GET(req: NextRequest) {
-  const admin = await requireAdmin(getJwt(req))
+  const admin = await requireSmartScaleInternal(getJwt(req))
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   const sb = createServiceClient()
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
 
 // ─── POST — crear entrada ─────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
-  const admin = await requireAdmin(getJwt(req))
+  const admin = await requireSmartScaleInternal(getJwt(req))
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   let body: any
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
 
 // ─── PATCH — editar / activar-desactivar ──────────────────────────────────────
 export async function PATCH(req: NextRequest) {
-  const admin = await requireAdmin(getJwt(req))
+  const admin = await requireSmartScaleInternal(getJwt(req))
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   let body: any
@@ -86,7 +86,7 @@ export async function PATCH(req: NextRequest) {
 
 // ─── DELETE ───────────────────────────────────────────────────────────────────
 export async function DELETE(req: NextRequest) {
-  const admin = await requireAdmin(getJwt(req))
+  const admin = await requireSmartScaleInternal(getJwt(req))
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   let body: any

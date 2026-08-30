@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireAdmin } from "@/lib/auth/api-guards"
+import { requireSmartScaleInternal } from "@/lib/auth/api-guards"
 import { getSmartScaleTenantId } from "@/lib/auth/internal-scope"
 import { sendPaymentConfirmedEmail, sendRenewalEmail } from "@/lib/email"
 
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic"
 export async function GET(req: NextRequest) {
   try {
     const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
+    const user = await requireSmartScaleInternal(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     const supabase = createServiceClient()
@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
+    const user = await requireSmartScaleInternal(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     let body: any
@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
+    const user = await requireSmartScaleInternal(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     let body: any
@@ -457,7 +457,7 @@ export async function PATCH(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
+    const user = await requireSmartScaleInternal(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     let body: any
