@@ -77,8 +77,8 @@ function BookingContent() {
           {/* Left: copy */}
           <div className="space-y-8">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#dafc69]/25 bg-[#dafc69]/[0.07] px-4 py-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69]/70 shrink-0" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent-soft px-4 py-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
               <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">
                 Smart Scale · Opción Sync
               </span>
@@ -98,7 +98,7 @@ function BookingContent() {
             <ul className="space-y-3">
               {features.map((f, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#dafc69]/15 shrink-0">
+                  <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent-soft shrink-0">
                     <Check className="h-3 w-3 text-[#dafc69]" />
                   </span>
                   <span className="text-[14px] text-foreground/70">{f}</span>
@@ -199,7 +199,7 @@ export default function BookingPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="h-6 w-6 rounded-full border-2 border-[#dafc69]/40 border-t-[#dafc69] animate-spin" />
+        <div className="h-6 w-6 rounded-full border-2 border-accent/25 border-t-[#dafc69] animate-spin" />
       </div>
     }>
       <BookingContent />

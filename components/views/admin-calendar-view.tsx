@@ -78,7 +78,7 @@ function EventModal({
     }
   }
 
-  const inputCls = "h-9 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[13px] text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/20"
+  const inputCls = "h-9 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[13px] text-foreground placeholder:text-foreground/20 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
   const selectCls = `${inputCls} appearance-none cursor-pointer`
 
   return (

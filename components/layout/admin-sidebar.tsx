@@ -260,7 +260,7 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
             )}
           </div>
           <span className={cn(
-            "mt-2 inline-flex items-center gap-1 rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#dafc69]",
+            "mt-2 inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#dafc69]",
             collapsed && "lg:hidden"
           )}>
             <ShieldCheck className="h-2.5 w-2.5" />
@@ -312,8 +312,8 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
                 "flex items-center gap-2.5 rounded-lg border py-2 transition-all",
                 collapsed ? "px-3 lg:px-0 lg:justify-center" : "px-3",
                 pathname === "/admin/omni"
-                  ? "border-[#dafc69]/45 bg-[#dafc69]/[0.14] text-[#dafc69]"
-                  : "border-[#dafc69]/20 bg-[#dafc69]/[0.06] text-[#dafc69]/90 hover:bg-[#dafc69]/[0.12] hover:border-[#dafc69]/40"
+                  ? "border-accent bg-accent-soft text-[#dafc69]"
+                  : "border-accent/25 bg-accent-soft text-[#dafc69]/90 hover:bg-accent-soft/70 hover:border-accent/45"
               )}>
                 <Sparkles className="h-4 w-4 flex-shrink-0" />
                 <div className={cn("min-w-0 leading-none", collapsed && "lg:hidden")}>
@@ -363,7 +363,7 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
         {/* Footer — sin línea divisoria */}
         <div className={cn("flex-shrink-0 p-3", collapsed && "lg:px-2")}>
           <div className={cn(
-            "flex items-center gap-2.5 rounded-[14px] bg-[#dafc69]/[0.07] py-2.5 border border-[#dafc69]/15",
+            "flex items-center gap-2.5 rounded-[14px] bg-accent-soft py-2.5 border border-accent/20",
             collapsed ? "px-3 lg:px-0 lg:justify-center" : "px-3"
           )}>
             <ShieldCheck className="h-3.5 w-3.5 text-[#dafc69]/80 shrink-0" />

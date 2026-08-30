@@ -44,7 +44,7 @@ function renderMarkdown(text: string): React.ReactNode {
     if (line.startsWith("- ")) {
       return (
         <div key={idx} className="flex gap-2 leading-relaxed">
-          <span className="text-[#dafc69]/60 mt-1.5 h-1 w-1 rounded-full bg-[#dafc69]/60 flex-shrink-0" />
+          <span className="text-[#dafc69]/60 mt-1.5 h-1 w-1 rounded-full bg-accent flex-shrink-0" />
           <span>{renderInline(line.slice(2))}</span>
         </div>
       )
@@ -204,7 +204,7 @@ export function HelpChat() {
         {/* Header */}
         <div className="flex items-center justify-between gap-3 border-b border-foreground/[0.07] px-5 py-4 bg-card">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#dafc69]/10 ring-1 ring-[#dafc69]/20">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft ring-1 ring-accent/20">
               <Sparkles className="h-4 w-4 text-[#dafc69]" />
             </div>
             <div>
@@ -274,7 +274,7 @@ export function HelpChat() {
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
-                  className="block w-full text-left rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2 text-[12.5px] text-foreground/65 hover:text-foreground hover:border-[#dafc69]/30 hover:bg-[#dafc69]/[0.03] transition-all"
+                  className="block w-full text-left rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2 text-[12.5px] text-foreground/65 hover:text-foreground hover:border-border hover:bg-secondary transition-all"
                 >
                   {q}
                 </button>
@@ -299,7 +299,7 @@ export function HelpChat() {
               onKeyDown={handleKeyDown}
               placeholder="Preguntá cualquier cosa sobre el dashboard…"
               rows={1}
-              className="flex-1 resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-[#dafc69]/40 focus:bg-foreground/[0.05] transition-all max-h-32"
+              className="flex-1 resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-accent focus:bg-foreground/[0.05] transition-all max-h-32"
               style={{ minHeight: "42px" }}
               disabled={loading}
             />

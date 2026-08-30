@@ -189,7 +189,7 @@ export function ReflectionView() {
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.03),transparent_60%)]" />
                 <div className="relative">
                   <div className="flex items-center gap-2.5 mb-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#dafc69]/10 ring-1 ring-[#dafc69]/15">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent-soft ring-1 ring-accent/20">
                       <Icon className="h-4 w-4 text-[#dafc69]" />
                     </div>
                     <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35">{item.title}</p>

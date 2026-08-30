@@ -88,7 +88,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
 
   if (!open) return null
 
-  const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 focus:border-[#dafc69]/40 focus:outline-none transition-all"
+  const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 focus:border-accent focus:outline-none transition-all"
   const labelCls = "text-[10px] font-bold uppercase tracking-widest text-foreground/30 mb-1.5 block"
 
   return (
@@ -163,7 +163,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                   <button key={t} onClick={() => setType(t)}
                     className={`flex-1 py-2 text-[12px] font-semibold transition-all ${
                       type === t
-                        ? "bg-[#dafc69]/10 text-[#dafc69]"
+                        ? "bg-secondary text-[#dafc69]"
                         : "text-foreground/40 hover:text-foreground"
                     }`}>
                     {t === "once" ? "Pago único" : "Cuotas mensuales"}
@@ -193,7 +193,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                 <div>
                   <label className={labelCls}>Cantidad de cuotas *</label>
                   <select value={installments} onChange={e => setInstallments(e.target.value)}
-                    className="w-full appearance-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-[#dafc69]/40 focus:outline-none">
+                    className="w-full appearance-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-accent focus:outline-none">
                     {[1,2,3,4,5,6,8,10,12].map(n => (
                       <option key={n} value={n}>{n} {n === 1 ? "cuota" : "cuotas"}{amount ? ` — Total $${Number(amount) * n}` : ""}</option>
                     ))}

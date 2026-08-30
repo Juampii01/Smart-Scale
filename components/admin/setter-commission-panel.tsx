@@ -134,7 +134,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
       </div>
 
       {/* Summary card */}
-      <div className="rounded-2xl border border-[#dafc69]/30 bg-[#dafc69]/5 px-4 py-3">
+      <div className="rounded-2xl border border-accent/20 bg-accent-soft px-4 py-3">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-foreground">Total en comisiones</span>
           <span className="text-lg font-bold text-[#dafc69]">{formatCurrency(totalCommission)}</span>
@@ -192,7 +192,7 @@ function CommissionCard({ label, value, highlight, small }: { label: string; val
   return (
     <div className={`rounded-xl border px-3 py-3 text-center ${
       highlight
-        ? "border-[#dafc69]/30 bg-[#dafc69]/5"
+        ? "border-accent bg-secondary"
         : "border-foreground/[0.07] bg-card"
     }`}>
       <div className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50">

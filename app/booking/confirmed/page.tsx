@@ -52,7 +52,7 @@ function ConfirmedContent() {
 
           <div className="relative px-8 py-7 flex flex-col sm:flex-row items-center sm:items-start gap-5">
             {/* Check icon */}
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#dafc69]/15 border border-[#dafc69]/30">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-accent-soft border border-accent/25">
               <CheckCircle2 className="h-7 w-7 text-[#dafc69]" />
             </div>
 
@@ -69,11 +69,11 @@ function ConfirmedContent() {
 
             {/* Stats pills */}
             <div className="sm:ml-auto flex items-center gap-3 shrink-0">
-              <div className="flex items-center gap-1.5 rounded-xl border border-[#dafc69]/20 bg-[#dafc69]/[0.07] px-3 py-2">
+              <div className="flex items-center gap-1.5 rounded-xl border border-accent/20 bg-accent-soft px-3 py-2">
                 <Clock className="h-3.5 w-3.5 text-[#dafc69]/60" />
                 <span className="text-[12px] font-semibold text-[#dafc69]/80">45 min</span>
               </div>
-              <div className="flex items-center gap-1.5 rounded-xl border border-[#dafc69]/20 bg-[#dafc69]/[0.07] px-3 py-2">
+              <div className="flex items-center gap-1.5 rounded-xl border border-accent/20 bg-accent-soft px-3 py-2">
                 <CalendarDays className="h-3.5 w-3.5 text-[#dafc69]/60" />
                 <span className="text-[12px] font-semibold text-[#dafc69]/80">1:1 con Ann</span>
               </div>
@@ -120,7 +120,7 @@ export default function BookingConfirmedPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="h-6 w-6 rounded-full border-2 border-[#dafc69]/40 border-t-[#dafc69] animate-spin" />
+        <div className="h-6 w-6 rounded-full border-2 border-accent/25 border-t-[#dafc69] animate-spin" />
       </div>
     }>
       <ConfirmedContent />

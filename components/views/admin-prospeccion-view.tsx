@@ -412,7 +412,7 @@ export function AdminProspeccionView() {
         <div className="flex flex-wrap items-center gap-1.5">
           <button
             onClick={() => setFilterType(null)}
-            className={`h-7 rounded-full border px-3 text-[11px] font-semibold transition-all ${filterType == null ? "border-[#dafc69]/50 bg-[#dafc69]/15 text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
+            className={`h-7 rounded-full border px-3 text-[11px] font-semibold transition-all ${filterType == null ? "border-accent bg-secondary text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
           >
             Todos
           </button>
@@ -423,7 +423,7 @@ export function AdminProspeccionView() {
               <button
                 key={o.value}
                 onClick={() => setFilterType(active ? null : o.value)}
-                className={`inline-flex items-center gap-1 h-7 rounded-full border px-3 text-[11px] font-medium transition-all ${active ? "border-[#dafc69]/50 bg-[#dafc69]/15 text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
+                className={`inline-flex items-center gap-1 h-7 rounded-full border px-3 text-[11px] font-medium transition-all ${active ? "border-accent bg-secondary text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
               >
                 <Icon className="h-3 w-3" /> {o.label}
               </button>
@@ -451,7 +451,7 @@ export function AdminProspeccionView() {
               <button
                 key={t}
                 onClick={() => setActiveTag(activeTag === t ? null : t)}
-                className={`h-6 rounded-full border px-2.5 text-[10.5px] font-medium transition-all ${activeTag === t ? "border-[#dafc69]/50 bg-[#dafc69]/15 text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
+                className={`h-6 rounded-full border px-2.5 text-[10.5px] font-medium transition-all ${activeTag === t ? "border-accent bg-secondary text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
               >
                 #{t}
               </button>

@@ -260,7 +260,7 @@ function InstallmentRow({
                     if (e.key === "Escape") { setRawValue(String(inst.amount)); setEditing(false) }
                   }}
                   disabled={saving}
-                  className="w-24 rounded-lg border border-[#dafc69]/40 bg-[#dafc69]/[0.05] px-2 py-0.5 text-[13px] font-semibold text-foreground focus:outline-none focus:border-[#dafc69]/70 disabled:opacity-50"
+                  className="w-24 rounded-lg border border-border bg-secondary px-2 py-0.5 text-[13px] font-semibold text-foreground focus:outline-none focus:border-accent disabled:opacity-50"
                 />
                 {saving && <Loader2 className="h-3 w-3 animate-spin text-foreground/40" />}
               </div>
@@ -270,7 +270,7 @@ function InstallmentRow({
                 title={inst.status === "pagado" ? "No se puede editar una cuota ya pagada" : "Click para editar el monto"}
                 className={`text-[13px] font-semibold text-foreground rounded px-1 -mx-1 transition-all ${
                   inst.status !== "pagado"
-                    ? "hover:bg-[#dafc69]/10 hover:text-[#dafc69] cursor-pointer"
+                    ? "hover:bg-secondary hover:text-[#dafc69] cursor-pointer"
                     : "cursor-default"
                 }`}
               >
@@ -512,7 +512,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                         onChange={e => setValue(field.key, e.target.value)}
                         rows={2}
                         placeholder="—"
-                        className="w-full resize-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none"
+                        className="w-full resize-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-foreground/20 focus:border-accent focus:outline-none"
                       />
                     </div>
                   )
@@ -527,7 +527,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                             className={`h-8 w-8 rounded-lg text-xs font-bold transition-all ${
                               values[field.key] === String(n)
                                 ? "bg-[#dafc69] text-black"
-                                : "border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:border-[#dafc69]/30"
+                                : "border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:border-border"
                             }`}>
                             {n}
                           </button>
@@ -555,7 +555,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                       placeholder="0"
                       min={0}
                       step="any"
-                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm font-semibold text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none"
+                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm font-semibold text-foreground placeholder:text-foreground/20 focus:border-accent focus:outline-none"
                     />
                   </div>
                 )
@@ -914,7 +914,7 @@ function DetailDrawer({
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-foreground truncate">{client.name}</h2>
               {client.is_monthly_subscription && (
-                <span className="inline-flex items-center rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#dafc69] shrink-0">
+                <span className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#dafc69] shrink-0">
                   Mensual
                 </span>
               )}
@@ -948,7 +948,7 @@ function DetailDrawer({
                 disabled={reactivating}
                 aria-label="Reactivar cliente"
                 title="Renovó — carga el nuevo ciclo y vuelve a activo"
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-[#dafc69]/40 px-2.5 text-[11px] font-semibold text-foreground hover:bg-[#dafc69]/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-[#dafc69]/40 px-2.5 text-[11px] font-semibold text-foreground hover:bg-secondary transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
               >
                 {reactivating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
                 {!reactivating && <span>Reactivar</span>}
@@ -1210,7 +1210,7 @@ function DetailDrawer({
                   <select
                     value={client.program_duration ?? client.num_installments}
                     onChange={e => onPatchClient(client.id, { program_duration: Number(e.target.value) } as any)}
-                    className="h-6 rounded-lg border border-foreground/[0.1] bg-foreground/[0.04] px-2 text-[11px] font-semibold text-foreground focus:border-[#dafc69]/40 focus:outline-none"
+                    className="h-6 rounded-lg border border-foreground/[0.1] bg-foreground/[0.04] px-2 text-[11px] font-semibold text-foreground focus:border-accent focus:outline-none"
                   >
                     {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => (
                       <option key={m} value={m}>{m} {m === 1 ? "mes" : "meses"}</option>
@@ -1261,14 +1261,14 @@ function DetailDrawer({
               <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Seguimientos</p>
               <button
                 onClick={() => setShowFollowupForm(v => !v)}
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.08] text-foreground/40 hover:text-[#dafc69] hover:border-[#dafc69]/30 transition-all">
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.08] text-foreground/40 hover:text-[#dafc69] hover:border-border transition-all">
                 <Plus className="h-3.5 w-3.5" />
               </button>
             </div>
 
             {/* Add followup form */}
             {showFollowupForm && (
-              <div className="rounded-xl border border-[#dafc69]/15 bg-[#dafc69]/[0.02] p-3 space-y-3">
+              <div className="rounded-xl border border-border bg-secondary/20 p-3 space-y-3">
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <p className={labelCls}>Fecha</p>
@@ -1333,7 +1333,7 @@ function DetailDrawer({
                           {fu.type}
                         </span>
                         {fu.scheduled_date === todayStr() && !fu.completed && (
-                          <span className="rounded-full bg-[#dafc69]/10 border border-[#dafc69]/20 px-2 py-0.5 text-[10px] font-bold text-[#dafc69]">hoy</span>
+                          <span className="rounded-full bg-accent-soft border border-accent/25 px-2 py-0.5 text-[10px] font-bold text-[#dafc69]">hoy</span>
                         )}
                       </div>
                       {fu.notes && (
@@ -1770,7 +1770,7 @@ function SortableTh({
     >
       <span className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
         active
-          ? "bg-[#dafc69]/15 text-[#dafc69] ring-1 ring-[#dafc69]/25"
+          ? "bg-secondary text-[#dafc69] ring-1 ring-accent/25"
           : "text-foreground/40 hover:bg-foreground/[0.06] hover:text-foreground/75"
       }`}>
         {label}
@@ -2200,7 +2200,7 @@ export function AdminClientsView() {
               <button key={key} onClick={() => setFilterStatus(key)}
                 className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium transition-all ${
                   filterStatus === key
-                    ? "border-[#dafc69]/40 bg-[#dafc69]/10 text-[#dafc69]"
+                    ? "border-accent bg-secondary text-[#dafc69]"
                     : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
                 }`}>
                 {label}
@@ -2297,7 +2297,7 @@ export function AdminClientsView() {
                                 <p className="text-[13px] font-semibold text-foreground">{client.name}</p>
                                 {client.is_monthly_subscription && (
                                   <span
-                                    className="inline-flex items-center rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#dafc69]"
+                                    className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#dafc69]"
                                     title="Plan mensual auto-renovable"
                                   >
                                     Mensual

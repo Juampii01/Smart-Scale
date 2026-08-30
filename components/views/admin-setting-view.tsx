@@ -152,7 +152,7 @@ function EditableCell({
             if (e.key === "Enter") save()
             if (e.key === "Escape") cancel()
           }}
-          className="w-16 rounded-lg border border-[#dafc69]/40 bg-[#dafc69]/[0.07] px-2 py-1.5 text-center text-[12px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#dafc69]/60"
+          className="w-16 rounded-lg border border-border bg-secondary px-2 py-1.5 text-center text-[12px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
         />
       </td>
     )
@@ -478,7 +478,7 @@ export function AdminSettingView() {
                 ))}
 
                 {/* Total del mes */}
-                <div className="rounded-[14px] border-2 border-[#dafc69]/30 bg-foreground/[0.04] p-4">
+                <div className="rounded-[14px] border-2 border-accent/40 bg-foreground/[0.04] p-4">
                   <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-foreground/60">Total del mes</p>
                   <div className="grid grid-cols-3 gap-2">
                     {COLUMNS.map(col => (
@@ -536,7 +536,7 @@ export function AdminSettingView() {
                       ))}
 
                       {/* Fila de totales */}
-                      <tr className="border-t-2 border-[#dafc69]/30 bg-foreground/[0.05] font-bold">
+                      <tr className="border-t-2 border-accent/40 bg-foreground/[0.05] font-bold">
                         <td className="sticky left-0 z-10 bg-foreground/[0.05] px-4 py-3 text-[12px] uppercase tracking-wide text-foreground/70">
                           Total
                         </td>

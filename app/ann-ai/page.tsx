@@ -376,7 +376,7 @@ function AnaiContent() {
       <div ref={scrollRef} className="flex-1 overflow-y-auto rounded-[14px] border border-foreground/[0.07] bg-card p-5 space-y-5">
         {empty ? (
           <div className="flex h-full flex-col items-center justify-center text-center px-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-[#dafc69]/10 border border-[#dafc69]/20 mb-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-accent-soft border border-accent/25 mb-4">
               <Sparkles className="h-6 w-6 text-[#dafc69]" />
             </div>
             <p className="text-[15px] font-bold text-foreground">Preguntale lo que quieras sobre {internal ? "el negocio" : "tu negocio"}</p>
@@ -389,7 +389,7 @@ function AnaiContent() {
               <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">
                 {suggestions.map(s => (
                   <button key={s} onClick={() => send(s)}
-                    className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-left text-[12.5px] text-foreground/70 transition-all hover:border-[#dafc69]/30 hover:bg-[#dafc69]/[0.04] hover:text-foreground">
+                    className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-left text-[12.5px] text-foreground/70 transition-all hover:border-border hover:bg-secondary hover:text-foreground">
                     {s}
                   </button>
                 ))}
@@ -426,7 +426,7 @@ function AnaiContent() {
                         h2:         ({ children }) => <h2 className="mb-1.5 text-sm font-bold text-foreground">{children}</h2>,
                         h3:         ({ children }) => <h3 className="mb-1 text-[13px] font-semibold text-foreground/80">{children}</h3>,
                         hr:         () => <hr className="my-3 border-foreground/[0.08]" />,
-                        blockquote: ({ children }) => <blockquote className="border-l-2 border-[#dafc69]/40 pl-3 text-foreground/60 italic">{children}</blockquote>,
+                        blockquote: ({ children }) => <blockquote className="border-l-2 border-accent/40 pl-3 text-foreground/60 italic">{children}</blockquote>,
                         code:       ({ children }) => <code className="rounded bg-foreground/[0.07] px-1 py-0.5 text-[12px] font-mono">{children}</code>,
                         table:      ({ children }) => (
                           <div className="my-2 overflow-x-auto rounded-xl border border-foreground/[0.08]">
@@ -538,7 +538,7 @@ function ConvItem({
     <button
       onClick={onSelect}
       className={`group flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-foreground/[0.04] ${
-        active ? "bg-[#dafc69]/[0.06]" : ""
+        active ? "bg-secondary" : ""
       }`}
     >
       <MessageSquare className={`h-3.5 w-3.5 shrink-0 ${active ? "text-[#dafc69]/70" : "text-foreground/25"}`} />

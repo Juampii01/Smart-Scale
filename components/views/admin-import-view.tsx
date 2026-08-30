@@ -302,7 +302,7 @@ export function AdminImportView() {
                         : hasError
                           ? <AlertCircle className="h-4 w-4 text-red-700 dark:text-red-400 mx-auto" title={errors[row.month]} />
                           : hasData
-                            ? <div className="h-1.5 w-1.5 rounded-full bg-[#dafc69]/60 mx-auto" />
+                            ? <div className="h-1.5 w-1.5 rounded-full bg-accent mx-auto" />
                             : null}
                     </td>
                   </tr>

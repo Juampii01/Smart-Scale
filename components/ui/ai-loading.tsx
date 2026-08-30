@@ -38,9 +38,9 @@ export function AiLoading({ steps = DEFAULT_STEPS, title = "Investigando conteni
     <div className="flex flex-col items-center justify-center py-10 px-6 text-center space-y-6">
       {/* Rings animation */}
       <div className="relative flex items-center justify-center">
-        <span className="absolute h-16 w-16 rounded-full border border-[#dafc69]/10 animate-ping" style={{ animationDuration: "2s" }} />
-        <span className="absolute h-12 w-12 rounded-full border border-[#dafc69]/20 animate-ping" style={{ animationDuration: "1.5s", animationDelay: "0.3s" }} />
-        <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.06]">
+        <span className="absolute h-16 w-16 rounded-full border border-accent/10 animate-ping" style={{ animationDuration: "2s" }} />
+        <span className="absolute h-12 w-12 rounded-full border border-accent/20 animate-ping" style={{ animationDuration: "1.5s", animationDelay: "0.3s" }} />
+        <span className="flex h-10 w-10 items-center justify-center rounded-full border border-accent/25 bg-accent-soft">
           <Sparkles className="h-5 w-5 text-[#dafc69]" />
         </span>
       </div>
@@ -60,7 +60,7 @@ export function AiLoading({ steps = DEFAULT_STEPS, title = "Investigando conteni
             <div
               key={step}
               className={`flex items-center gap-2.5 rounded-xl px-3 py-2 transition-all duration-500 ${
-                isCurrent ? "bg-[#dafc69]/[0.07] border border-[#dafc69]/20" :
+                isCurrent ? "bg-secondary border border-accent" :
                 isPast    ? "opacity-40" : "opacity-20"
               }`}
             >

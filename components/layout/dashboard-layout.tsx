@@ -633,7 +633,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <h1 className="text-base sm:text-lg font-bold text-foreground leading-tight tracking-tight flex items-center gap-2">
                   {pageTitle}
                   {isAdminMode && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#dafc69]">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#dafc69]">
                       <ShieldCheck className="h-2.5 w-2.5" />
                       Internal
                     </span>
@@ -695,9 +695,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 >
                   {avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={avatarUrl} alt="Perfil" className="h-7 w-7 rounded-full object-cover border border-[#dafc69]/40" />
+                    <img src={avatarUrl} alt="Perfil" className="h-7 w-7 rounded-full object-cover border border-accent/30" />
                   ) : (
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-accent/30 bg-accent-soft">
                       <User className="h-4 w-4 text-[#dafc69]" />
                     </span>
                   )}
@@ -718,7 +718,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <button
                         type="button"
                         onClick={() => avatarInputRef.current?.click()}
-                        className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10 text-[#dafc69] text-[13px] font-bold overflow-hidden group/avatar"
+                        className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-accent-soft text-[#dafc69] text-[13px] font-bold overflow-hidden group/avatar"
                         title="Cambiar foto"
                       >
                         {avatarUrl
@@ -754,7 +754,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             role="menuitem"
                             className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
                               isActive
-                                ? "bg-[#dafc69]/15 text-foreground"
+                                ? "bg-secondary text-foreground"
                                 : "text-foreground hover:bg-foreground/[0.06]"
                             } ${!isSelectable ? "opacity-40 cursor-not-allowed hover:bg-transparent" : ""} ${!p.active ? "opacity-60" : ""}`}
                             disabled={!isSelectable}

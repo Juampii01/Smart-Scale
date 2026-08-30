@@ -173,7 +173,7 @@ export default function ApplyPage() {
               Revisamos cada aplicación personalmente. Si hay match, te contactamos por Instagram.
             </p>
           </div>
-          <div className="rounded-2xl border border-[#dafc69]/15 p-6 text-left space-y-3" style={{ backgroundColor: "var(--card)" }}>
+          <div className="rounded-2xl border border-border p-6 text-left space-y-3" style={{ backgroundColor: "var(--card)" }}>
             <p className="text-[11px] font-black text-[#dafc69]/60 uppercase tracking-[0.2em]">Próximos pasos</p>
             <ul className="space-y-2.5 text-[13px] text-foreground/55">
               <li className="flex items-start gap-2.5">
@@ -216,7 +216,7 @@ export default function ApplyPage() {
       <div className="mx-auto max-w-2xl px-4 sm:px-5 pb-20 sm:pb-28 pt-8 sm:pt-12 space-y-4 sm:space-y-5">
         {/* ── Hero */}
         <div className="space-y-5 pb-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#dafc69]/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
+          <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
             <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69] animate-pulse" />
             <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">Smart Scale™</span>
           </div>

@@ -190,7 +190,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
                       <Copy className="h-3 w-3" /> Copiar
                     </button>
                   </div>
-                  <div className="rounded-xl border border-[#dafc69]/10 bg-[#dafc69]/[0.03] px-4 py-3">
+                  <div className="rounded-xl border border-border bg-secondary/20 px-4 py-3">
                     <p className="text-xs text-foreground/60 leading-relaxed whitespace-pre-wrap">{video.analysis}</p>
                   </div>
                 </div>
@@ -300,7 +300,7 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
     <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
       <div className="flex items-center justify-between border-b border-foreground/[0.06] px-6 py-4">
         <div className="flex items-center gap-2.5">
-          <span className="h-3 w-[2px] rounded-full bg-[#dafc69]/60" />
+          <span className="h-3 w-[2px] rounded-full bg-accent" />
           <h2 className="text-xs font-semibold uppercase tracking-widest text-foreground/50">Investigaciones anteriores</h2>
         </div>
         <span className="text-[10px] text-foreground/25 tabular-nums">{items.length} registros</span>
@@ -326,7 +326,7 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
             <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={() => onSelect(item)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-xs font-medium text-foreground/50 hover:border-[#dafc69]/30 hover:text-[#dafc69] transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-xs font-medium text-foreground/50 hover:border-border hover:text-[#dafc69] transition-colors"
               >
                 Ver análisis
               </button>
@@ -429,7 +429,7 @@ function ContentResearchContent() {
 
       {/* Banner si admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-start gap-3 rounded-2xl border border-[#dafc69]/25 bg-[#dafc69]/[0.05] px-4 py-3">
+        <div className="flex items-start gap-3 rounded-2xl border border-accent/20 bg-accent-soft px-4 py-3">
           <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>
@@ -456,7 +456,7 @@ function ContentResearchContent() {
                   value={channelUrl}
                   onChange={e => { setChannelUrl(e.target.value); setError(null) }}
                   placeholder="https://youtube.com/@canal"
-                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] pl-10 pr-4 text-sm text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/15 transition-all"
+                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] pl-10 pr-4 text-sm text-foreground placeholder:text-foreground/20 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
                   disabled={loading}
                 />
               </div>

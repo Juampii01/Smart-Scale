@@ -88,7 +88,7 @@ function getHistoryStatus(item: HistoryItem): "pending" | "complete" {
 
 const SECTIONS: Record<string, { icon: string; color: string; border: string; bg: string }> = {
   "RESUMEN":      { icon: "📋", color: "text-blue-700 dark:text-blue-300",    border: "border-blue-300 dark:border-blue-500/20",    bg: "bg-blue-50 dark:bg-blue-500/[0.06]"   },
-  "PUNTOS CLAVE": { icon: "🎯", color: "text-amber-800 dark:text-[#dafc69]",   border: "border-amber-400 dark:border-[#dafc69]/20",   bg: "bg-amber-50 dark:bg-[#dafc69]/[0.05]" },
+  "PUNTOS CLAVE": { icon: "🎯", color: "text-amber-800 dark:text-[#dafc69]",   border: "border-amber-400 dark:border-accent/20",   bg: "bg-amber-50 dark:bg-accent-soft" },
   "CONCLUSIÓN":   { icon: "✅", color: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-300 dark:border-emerald-500/20", bg: "bg-emerald-50 dark:bg-emerald-500/[0.06]"},
 }
 
@@ -181,7 +181,7 @@ function TranscriptModal({
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
                 <div className="mb-3 flex items-center gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#dafc69]/20 bg-[#dafc69]/10">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-accent/25 bg-accent-soft">
                     <FileText className="h-4 w-4 text-[#dafc69]" />
                   </div>
                   <div className="min-w-0">
@@ -228,7 +228,7 @@ function TranscriptModal({
             <div className="h-full overflow-hidden rounded-[24px] border border-foreground/[0.07] bg-card shadow-inner">
               <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-3">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/25">
-                  <span className="h-2 w-2 rounded-full bg-[#dafc69]/80" />
+                  <span className="h-2 w-2 rounded-full bg-accent" />
                   Transcripción completa
                 </div>
                 <div className="text-[11px] text-foreground/20">Scroll para leer todo</div>
@@ -276,7 +276,7 @@ function DetailModal({
       <div className="relative w-full max-w-3xl max-h-[85vh] overflow-hidden rounded-[24px] border border-foreground/[0.08] bg-background shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
         <div className="flex items-center justify-between border-b border-foreground/[0.06] px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#dafc69]/20 bg-[#dafc69]/10">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-accent/25 bg-accent-soft">
               {data.kind === "transcript" ? <FileText className="h-4 w-4 text-[#dafc69]" /> : <Sparkles className="h-4 w-4 text-[#dafc69]" />}
             </div>
             <div>
@@ -438,7 +438,7 @@ export function TranscriptView() {
 
       {/* Banner si admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-start gap-3 rounded-[14px] border border-[#dafc69]/25 bg-[#dafc69]/[0.05] px-4 py-3">
+        <div className="flex items-start gap-3 rounded-[14px] border border-accent/20 bg-accent-soft px-4 py-3">
           <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>
@@ -564,8 +564,8 @@ export function TranscriptView() {
         {processingJobs.length > 0 && (
           <div className="border-t border-foreground/[0.05] px-6 py-4 space-y-2">
             {processingJobs.map(job => (
-              <div key={job.id} className="flex items-center gap-3 rounded-xl border border-[#dafc69]/20 bg-[#dafc69]/[0.05] px-4 py-2.5">
-                <span className="h-3.5 w-3.5 shrink-0 rounded-full border-2 border-[#dafc69]/30 border-t-[#dafc69] animate-spin" />
+              <div key={job.id} className="flex items-center gap-3 rounded-xl border border-accent/20 bg-accent-soft px-4 py-2.5">
+                <span className="h-3.5 w-3.5 shrink-0 rounded-full border-2 border-accent/25 border-t-[#dafc69] animate-spin" />
                 <p className="min-w-0 flex-1 truncate text-[13px] text-foreground/60">
                   Transcribiendo <span className="font-medium text-foreground/85">{job.url}</span>...
                 </p>
@@ -638,7 +638,7 @@ export function TranscriptView() {
                 {/* yellow top accent — this is the main product */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-foreground/[0.06]">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#dafc69]/10 border border-[#dafc69]/20">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent-soft border border-accent/25">
                       <FileText className="h-4 w-4 text-[#dafc69]" />
                     </div>
                     <div>
@@ -765,7 +765,7 @@ export function TranscriptView() {
                           Completado
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#dafc69]/20 bg-[#dafc69]/10 px-2.5 py-1 text-[11px] font-semibold text-[#dafc69] whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-accent-soft px-2.5 py-1 text-[11px] font-semibold text-[#dafc69] whitespace-nowrap">
                           <Loader2 className="h-3 w-3 animate-spin" />
                           Pendiente
                         </span>
@@ -845,7 +845,7 @@ export function TranscriptView() {
                       {status === "complete" ? (
                         <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400">Completado</span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-[#dafc69]/20 bg-[#dafc69]/10 px-2 py-0.5 text-[11px] font-semibold text-[#dafc69]">Pendiente</span>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-[#dafc69]">Pendiente</span>
                       )}
                       <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-[#dafc69] hover:text-[#f2ffc0]">
                         <ExternalLink className="h-3.5 w-3.5" />

@@ -76,7 +76,7 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
 
   return (
     <div className={`group relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-200 ${
-      isTop ? "border-[#dafc69]/30 shadow-[0_0_20px_rgba(255,222,33,0.05)]" : "border-foreground/[0.07]"
+      isTop ? "border-accent shadow-[0_0_20px_rgba(255,222,33,0.05)]" : "border-foreground/[0.07]"
     } bg-card`}>
 
       {isTop && (
@@ -396,7 +396,7 @@ function VideoFeedContent() {
     <div className="px-4 py-10 max-w-7xl mx-auto space-y-6">
       {/* Banner si admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-start gap-3 rounded-2xl border border-[#dafc69]/25 bg-[#dafc69]/[0.05] px-4 py-3">
+        <div className="flex items-start gap-3 rounded-2xl border border-accent/20 bg-accent-soft px-4 py-3">
           <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>

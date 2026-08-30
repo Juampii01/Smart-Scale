@@ -31,7 +31,7 @@ interface Level {
   questions: Question[]
 }
 
-const inputCls = "w-full rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/25"
+const inputCls = "w-full rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/25 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
 
 function computeScore(level: Level | null, answers: Record<string, any>): { correct: number; total: number } | null {
   if (!level) return null
@@ -251,7 +251,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
                   {q.type === "yesno" && (
                     <div className="flex gap-3">
                       {["Sí", "No"].map((opt, i) => (
-                        <label key={opt} className={`flex-1 flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium cursor-pointer transition-colors ${answers[q.id] === (i === 0) ? "border-[#dafc69]/60 bg-[#dafc69]/10 text-foreground" : "border-foreground/[0.1] text-foreground/60 hover:bg-foreground/[0.03]"}`}>
+                        <label key={opt} className={`flex-1 flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium cursor-pointer transition-colors ${answers[q.id] === (i === 0) ? "border-accent bg-secondary text-foreground" : "border-foreground/[0.1] text-foreground/60 hover:bg-foreground/[0.03]"}`}>
                           <input type="radio" name={q.id} className="sr-only" checked={answers[q.id] === (i === 0)} onChange={() => setAnswer(q.id, i === 0)} required />
                           {opt}
                         </label>
@@ -261,7 +261,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
                   {q.type === "multiple_choice" && (
                     <div className="space-y-2">
                       {(q.options ?? []).map((opt, i) => (
-                        <label key={i} className={`flex items-center gap-2.5 rounded-xl border px-4 py-2.5 text-sm cursor-pointer transition-colors ${answers[q.id] === i ? "border-[#dafc69]/60 bg-[#dafc69]/10 text-foreground" : "border-foreground/[0.1] text-foreground/70 hover:bg-foreground/[0.03]"}`}>
+                        <label key={i} className={`flex items-center gap-2.5 rounded-xl border px-4 py-2.5 text-sm cursor-pointer transition-colors ${answers[q.id] === i ? "border-accent bg-secondary text-foreground" : "border-foreground/[0.1] text-foreground/70 hover:bg-foreground/[0.03]"}`}>
                           <input type="radio" name={q.id} className="sr-only" checked={answers[q.id] === i} onChange={() => setAnswer(q.id, i)} required />
                           {opt}
                         </label>

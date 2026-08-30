@@ -120,7 +120,7 @@ function LocationTab({
       {/* Foto */}
       <div className="flex items-center gap-4">
         <button type="button" onClick={() => fileRef.current?.click()}
-          className="group relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10">
+          className="group relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-accent/30 bg-accent-soft">
           {account.avatarUrl
             ? <img src={account.avatarUrl} alt="Perfil" className="h-full w-full object-cover" />
             : <User className="h-7 w-7 text-[#dafc69]" />}
@@ -366,7 +366,7 @@ function TheNumbersTab({ ctx, set, reports }: { ctx: Ctx; set: (k: string, v: st
               <div className="flex items-center gap-1">
                 <span className="text-foreground/40 text-[13px]">$</span>
                 <input
-                  className="flex-1 bg-transparent text-[15px] font-bold tabular-nums text-foreground outline-none border-0 border-b border-foreground/[0.10] pb-0.5 focus:border-[#dafc69]/60 transition-colors"
+                  className="flex-1 bg-transparent text-[15px] font-bold tabular-nums text-foreground outline-none border-0 border-b border-foreground/[0.10] pb-0.5 focus:border-accent transition-colors"
                   defaultValue={Math.round(r.total_revenue) || ""} placeholder="0" type="number"
                   onChange={e => set(`rev_${r.month}`, e.target.value)}
                 />

@@ -40,7 +40,7 @@ interface Submission {
   wrong_question_ids?: string[]
 }
 
-const inputCls = "w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none"
+const inputCls = "w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-accent focus:outline-none"
 
 const QUESTION_TYPE_OPTIONS: { value: Question["type"]; label: string }[] = [
   { value: "text", label: "Texto libre" },
@@ -265,7 +265,7 @@ export function AdminPosiView() {
     <div className="space-y-8 pb-10">
       <div>
         {editingHeader ? (
-          <div className="space-y-2.5 rounded-xl border border-[#dafc69]/25 bg-[#dafc69]/[0.04] p-4 max-w-xl">
+          <div className="space-y-2.5 rounded-xl border border-accent/20 bg-accent-soft p-4 max-w-xl">
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Título</label>
               <input className={inputCls} value={headerDraft.title} onChange={(e) => setHeaderDraft((d) => ({ ...d, title: e.target.value }))} />
@@ -329,12 +329,12 @@ export function AdminPosiView() {
             <p className="text-[12px] text-foreground/35 mt-1.5 font-mono">{siteOrigin}/posi/{level.level_number}</p>
 
             {editingLevel === level.id && (
-              <div className="mt-4 rounded-2xl border border-[#dafc69]/25 bg-[#dafc69]/[0.035] p-5 space-y-5">
+              <div className="mt-4 rounded-2xl border border-border bg-secondary/20 p-5 space-y-5">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="block text-[11px] font-bold uppercase tracking-wider text-foreground/45 mb-1.5">Título del nivel</label>
                     <input
-                      className="w-full rounded-lg border border-foreground/[0.1] bg-card px-3.5 py-2.5 text-[14px] font-semibold text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:outline-none"
+                      className="w-full rounded-lg border border-foreground/[0.1] bg-card px-3.5 py-2.5 text-[14px] font-semibold text-foreground placeholder:text-foreground/25 focus:border-accent focus:outline-none"
                       value={editDraft.title}
                       onChange={(e) => setEditDraft((d) => ({ ...d, title: e.target.value }))}
                     />
@@ -342,7 +342,7 @@ export function AdminPosiView() {
                   <div>
                     <label className="block text-[11px] font-bold uppercase tracking-wider text-foreground/45 mb-1.5">Intro (arriba de las preguntas)</label>
                     <textarea
-                      className="w-full rounded-lg border border-foreground/[0.1] bg-card px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:outline-none resize-y leading-relaxed"
+                      className="w-full rounded-lg border border-foreground/[0.1] bg-card px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-foreground/25 focus:border-accent focus:outline-none resize-y leading-relaxed"
                       rows={2}
                       value={editDraft.intro}
                       onChange={(e) => setEditDraft((d) => ({ ...d, intro: e.target.value }))}
@@ -368,7 +368,7 @@ export function AdminPosiView() {
 
                           <div className="flex-1 min-w-0 space-y-2.5">
                             <input
-                              className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13.5px] font-medium text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none"
+                              className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13.5px] font-medium text-foreground placeholder:text-foreground/25 focus:border-accent focus:outline-none"
                               placeholder="Texto de la pregunta…"
                               value={q.label}
                               onChange={(e) => updateQuestion(idx, { label: e.target.value })}
@@ -382,7 +382,7 @@ export function AdminPosiView() {
                                   onClick={() => setQuestionType(idx, opt.value)}
                                   className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                                     q.type === opt.value
-                                      ? "border-[#dafc69]/60 bg-[#dafc69]/15 text-foreground"
+                                      ? "border-accent bg-secondary text-foreground"
                                       : "border-foreground/[0.1] text-foreground/50 hover:text-foreground hover:border-foreground/20"
                                   }`}
                                 >
@@ -410,7 +410,7 @@ export function AdminPosiView() {
                                       <Check className="h-3 w-3" />
                                     </button>
                                     <input
-                                      className="flex-1 rounded-md border border-foreground/[0.08] bg-foreground/[0.02] px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none"
+                                      className="flex-1 rounded-md border border-foreground/[0.08] bg-foreground/[0.02] px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:border-accent focus:outline-none"
                                       placeholder={`Opción ${oIdx + 1}`}
                                       value={opt}
                                       onChange={(e) => updateOption(idx, oIdx, e.target.value)}

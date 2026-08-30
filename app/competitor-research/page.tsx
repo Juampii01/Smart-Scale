@@ -241,7 +241,7 @@ function AnalysisCard({ item, onDelete, deletingId }: {
               Completado
             </span>
             {isThisWeek && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-[#dafc69]/30 bg-[#dafc69]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#dafc69]/80">
+              <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2.5 py-0.5 text-[11px] font-semibold text-[#dafc69]/80">
                 <Zap className="h-2.5 w-2.5" />
                 Esta semana
               </span>
@@ -399,7 +399,7 @@ function CompetitorResearchContent() {
 
       {/* Banner si admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-start gap-3 rounded-2xl border border-[#dafc69]/25 bg-[#dafc69]/[0.05] px-4 py-3">
+        <div className="flex items-start gap-3 rounded-2xl border border-accent/20 bg-accent-soft px-4 py-3">
           <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>

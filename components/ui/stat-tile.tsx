@@ -20,7 +20,7 @@ export function StatTile({ label, value, displayValue, format = "count", hint, c
   return (
     <div className={cn(
       "rounded-xl border px-3 py-2.5",
-      highlight ? "border-[#dafc69]/30 bg-[#dafc69]/[0.06]" : "border-foreground/10 bg-card",
+      highlight ? "border-accent/25 bg-accent-soft" : "border-foreground/10 bg-card",
       className,
     )}>
       <p className={cn("text-[10px] font-bold uppercase tracking-wider mb-1", highlight ? "text-[#dafc69]/70" : "text-foreground/40")}>{label}</p>

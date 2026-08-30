@@ -324,13 +324,13 @@ function OnboardingForm({
     }
   }
 
-  const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 text-[13px] text-foreground placeholder:text-foreground/25 outline-none transition-all focus:border-[#dafc69]/40 focus:bg-foreground/[0.05] focus:ring-2 focus:ring-[#dafc69]/10"
+  const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 text-[13px] text-foreground placeholder:text-foreground/25 outline-none transition-all focus:border-accent focus:bg-foreground/[0.05] focus:ring-2 focus:ring-accent/20"
   const labelCls = "block text-[10px] font-semibold uppercase tracking-widest text-foreground/40 mb-1.5"
 
   return (
     <div className="rounded-[14px] border border-border bg-card p-6">
       <div className="mb-6 flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#dafc69]/10 border border-[#dafc69]/20">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft border border-accent/25">
           <UserPlus className="h-4 w-4 text-[#dafc69]" />
         </span>
         <div>

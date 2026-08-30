@@ -173,7 +173,7 @@ function ReportRow({
     <div className="rounded-xl border border-foreground/[0.06] bg-card overflow-hidden transition-all">
       {/* Main row */}
       <div className="flex items-center gap-3 px-4 py-3.5">
-        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-[#dafc69]/10 border border-[#dafc69]/20">
+        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-accent-soft border border-accent/25">
           <FileText className="h-4 w-4 text-[#dafc69]" />
         </div>
 

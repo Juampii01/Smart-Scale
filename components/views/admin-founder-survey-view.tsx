@@ -31,7 +31,7 @@ function QuestionField({
         onChange={e => onChange(e.target.value)}
         rows={3}
         placeholder={question.placeholder ?? "Escribí tu respuesta..."}
-        className="mt-2 w-full rounded-lg border border-foreground/[0.10] bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
+        className="mt-2 w-full rounded-lg border border-foreground/[0.10] bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-accent/20"
       />
     )
   }
@@ -49,7 +49,7 @@ function QuestionField({
               className={cn(
                 "flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-[13px] transition-all",
                 selected
-                  ? "border-[#dafc69]/50 bg-[#dafc69]/[0.08] text-foreground font-semibold"
+                  ? "border-accent bg-secondary text-foreground font-semibold"
                   : "border-foreground/[0.08] text-foreground/70 hover:border-foreground/20",
               )}
             >
@@ -79,7 +79,7 @@ function QuestionField({
             className={cn(
               "flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-[13px] transition-all",
               selected
-                ? "border-[#dafc69]/50 bg-[#dafc69]/[0.08] text-foreground font-semibold"
+                ? "border-accent bg-secondary text-foreground font-semibold"
                 : "border-foreground/[0.08] text-foreground/70 hover:border-foreground/20",
             )}
           >

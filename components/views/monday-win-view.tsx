@@ -21,7 +21,7 @@ function Field({ label, required, hint, children }: { label: string; required?: 
   )
 }
 
-const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2.5 text-sm font-medium text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/20 transition-all"
+const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2.5 text-sm font-medium text-foreground placeholder:text-foreground/20 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
 const textareaCls = inputCls + " resize-none"
 
 export function MondayWinView() {
@@ -153,7 +153,7 @@ export function MondayWinView() {
       {/* Header */}
       <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-5">
         <div className="flex items-center gap-4">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#dafc69]/10 ring-1 ring-[#dafc69]/20">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft ring-1 ring-accent/20">
             <Star className="h-5 w-5 text-[#dafc69]" />
           </div>
           <div>
@@ -166,7 +166,7 @@ export function MondayWinView() {
 
       {/* Aviso si admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-start gap-3 rounded-[14px] border border-[#dafc69]/25 bg-[#dafc69]/[0.05] px-4 py-3">
+        <div className="flex items-start gap-3 rounded-[14px] border border-accent/20 bg-accent-soft px-4 py-3">
           <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Aviso · este Monday Win es tuyo</p>

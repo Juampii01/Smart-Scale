@@ -235,7 +235,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
 
         {/* Hero */}
         <div className="space-y-5 pb-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#dafc69]/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
+          <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
             <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69] animate-pulse" />
             <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">Smart Scale Team</span>
           </div>

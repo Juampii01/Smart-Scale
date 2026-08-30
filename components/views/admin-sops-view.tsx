@@ -170,7 +170,7 @@ function DetailDrawer({
               <ol className="space-y-2.5">
                 {sop.steps.map((s, idx) => (
                   <li key={idx} className="flex items-start gap-3 rounded-xl border border-foreground/[0.07] bg-foreground/[0.02] px-3 py-2.5">
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#dafc69]/20 text-[12px] font-bold text-[#dafc69] border border-[#dafc69]/30">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[12px] font-bold text-[#dafc69] border border-accent/30">
                       {idx + 1}
                     </span>
                     <span className="text-[13.5px] text-foreground leading-relaxed">{s.label}</span>
@@ -662,7 +662,7 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
           <div className="flex flex-wrap items-center gap-1.5">
             <button
               onClick={() => setActiveTag(null)}
-              className={`h-7 rounded-full border px-3 text-[11px] font-semibold transition-all ${activeTag == null ? "border-[#dafc69]/50 bg-[#dafc69]/15 text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
+              className={`h-7 rounded-full border px-3 text-[11px] font-semibold transition-all ${activeTag == null ? "border-accent bg-secondary text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
             >
               Todas
             </button>
@@ -670,7 +670,7 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
               <button
                 key={t}
                 onClick={() => setActiveTag(activeTag === t ? null : t)}
-                className={`h-7 rounded-full border px-3 text-[11px] font-medium transition-all ${activeTag === t ? "border-[#dafc69]/50 bg-[#dafc69]/15 text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
+                className={`h-7 rounded-full border px-3 text-[11px] font-medium transition-all ${activeTag === t ? "border-accent bg-secondary text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
               >
                 {t}
               </button>

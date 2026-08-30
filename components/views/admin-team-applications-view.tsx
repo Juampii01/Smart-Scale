@@ -48,7 +48,7 @@ const STATUS_STYLE: Record<Status, string> = {
 }
 
 const ROLE_BADGE: Record<string, string> = {
-  setter: "bg-amber-200 text-amber-900 border-amber-500 dark:bg-[#dafc69]/10 dark:text-[#dafc69] dark:border-[#dafc69]/20",
+  setter: "bg-amber-200 text-amber-900 border-amber-500 dark:bg-accent-soft dark:text-[#dafc69] dark:border-accent/20",
 }
 
 function fullName(app: TeamApplication) {
@@ -185,7 +185,7 @@ function DetailDrawer({
               onChange={e => onNotesChange(app.id, e.target.value)}
               placeholder="Notas privadas sobre este candidato…"
               rows={4}
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-[13px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-[#dafc69]/40 transition-all resize-none"
+              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-[13px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-accent transition-all resize-none"
             />
           </section>
         </div>

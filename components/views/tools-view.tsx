@@ -51,7 +51,7 @@ export function ToolsSection({
             <div className="relative p-5 space-y-4">
               {/* Header row */}
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#dafc69]/10 ring-1 ring-[#dafc69]/15">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent-soft ring-1 ring-accent/20">
                   {variant === "gpt" ? (
                     <Sparkles className="h-5 w-5 text-[#dafc69]" />
                   ) : (

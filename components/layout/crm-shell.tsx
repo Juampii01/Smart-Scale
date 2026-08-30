@@ -85,7 +85,7 @@ export function CrmShell({
         <div className="flex h-16 shrink-0 items-center justify-between pl-5 pr-3">
           <div className="flex items-center gap-2.5">
             <BrandLogo />
-            <span className="rounded-full border border-[#dafc69]/40 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-[#dafc69] leading-none">CRM</span>
+            <span className="rounded-full border border-accent/30 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-[#dafc69] leading-none">CRM</span>
           </div>
           <button className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-foreground/50 hover:text-foreground hover:bg-foreground/10 transition-all" onClick={() => setOpen(false)} aria-label="Cerrar menú">
             <X className="h-4 w-4" />

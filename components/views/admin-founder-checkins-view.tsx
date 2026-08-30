@@ -53,7 +53,7 @@ function fmtMoney(n: number | null): string {
   return `$${n.toLocaleString("es-AR")}`
 }
 
-const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3 text-sm text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/20"
+const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3 text-sm text-foreground placeholder:text-foreground/25 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
 const labelCls = "block text-[11px] font-bold uppercase tracking-wider text-foreground/40 mb-1.5"
 
 export function AdminFounderCheckinsView() {

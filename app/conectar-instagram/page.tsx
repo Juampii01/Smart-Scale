@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Check, AlertCircle, Loader2, Instagram, ShieldCheck } from "lucide-react"
 
 const inputCls =
-  "w-full rounded-xl border border-foreground/[0.10] bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/30 focus:border-[#dafc69]/45 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/20 transition-all"
+  "w-full rounded-xl border border-foreground/[0.10] bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/30 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
 
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -61,7 +61,7 @@ export default function ConectarInstagramPage() {
               Vamos a configurar el acceso a las métricas de tu Instagram. En breve te va a llegar una invitación de Meta para aceptar.
             </p>
           </div>
-          <div className="rounded-2xl border border-[#dafc69]/15 p-6 text-left space-y-3" style={{ backgroundColor: "var(--card)" }}>
+          <div className="rounded-2xl border border-border p-6 text-left space-y-3" style={{ backgroundColor: "var(--card)" }}>
             <p className="text-[11px] font-black text-[#dafc69]/60 uppercase tracking-[0.2em]">Próximos pasos</p>
             <ul className="space-y-2.5 text-[13px] text-foreground/55">
               <li className="flex items-start gap-2.5">
@@ -103,7 +103,7 @@ export default function ConectarInstagramPage() {
       <div className="mx-auto max-w-xl px-4 sm:px-5 pb-20 pt-8 sm:pt-12 space-y-6">
         {/* Hero */}
         <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#dafc69]/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
+          <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
             <Instagram className="h-3.5 w-3.5 text-[#dafc69]" />
             <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">Conectá tu Instagram</span>
           </div>

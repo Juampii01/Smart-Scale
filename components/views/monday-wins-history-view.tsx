@@ -91,7 +91,7 @@ export function MondayWinsHistoryView() {
             </div>
 
             {w.una_sola_cosa && (
-              <div className="rounded-xl border border-[#dafc69]/20 bg-[#dafc69]/[0.04] px-4 py-3">
+              <div className="rounded-xl border border-accent/20 bg-accent-soft px-4 py-3">
                 <div className="flex items-center gap-1.5 mb-1">
                   <Target className="h-3 w-3 text-[#dafc69]" />
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-[#dafc69]/80">Una sola cosa</p>

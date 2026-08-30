@@ -248,7 +248,7 @@ export function Sidebar({
 
           {crmEnabled && (
             <Link href="/crm/hoy" onClick={onClose}>
-              <div className="group flex items-center gap-2.5 rounded-lg border border-[#dafc69]/30 bg-[#dafc69]/[0.06] px-3 py-2.5 hover:bg-[#dafc69]/[0.1] transition-colors">
+              <div className="group flex items-center gap-2.5 rounded-lg border border-accent/25 bg-accent-soft px-3 py-2.5 hover:bg-accent-soft/70 transition-colors">
                 <Rocket className="h-4 w-4 shrink-0 text-[#dafc69]" />
                 <span className="min-w-0 flex-1">
                   <span className="block text-[13px] font-semibold text-foreground leading-none">CRM interno</span>
@@ -267,11 +267,11 @@ export function Sidebar({
               className={cn(
                 "group/profile flex w-full items-center gap-2.5 rounded-lg border px-2.5 py-2 transition-all duration-150",
                 pathname === "/perfil"
-                  ? "border-[#dafc69]/30 bg-[#dafc69]/[0.08]"
+                  ? "border-accent bg-secondary"
                   : "border-foreground/[0.06] bg-foreground/[0.02] hover:bg-foreground/[0.05]"
               )}
             >
-              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10 text-[13px] font-bold text-[#dafc69]">
+              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-accent/30 bg-accent-soft text-[13px] font-bold text-[#dafc69]">
                 {avatarUrl
                   ? <img src={avatarUrl} alt="Perfil" className="h-full w-full object-cover" />
                   : <User className="h-4 w-4 text-[#dafc69]" />}

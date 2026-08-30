@@ -379,7 +379,7 @@ function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
               </div>
               <div className={cn(
                 "mt-2.5 rounded-lg border px-2.5 py-2",
-                f.estado === "irremontable" ? "border-foreground/[0.10] bg-foreground/[0.03]" : "border-[#dafc69]/25 bg-[#dafc69]/[0.06]",
+                f.estado === "irremontable" ? "border-foreground/[0.10] bg-foreground/[0.03]" : "border-border bg-secondary/30",
               )}>
                 <p className="text-[12px] font-semibold text-foreground/80">{f.estado === "irremontable" ? "Aprendizaje: " : ""}{f.accion}</p>
               </div>
@@ -581,7 +581,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
             <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
             <p className="text-[12px] italic text-foreground/50">{a.evidencia}</p>
           </div>
-          <div className="mt-1.5 rounded-lg border border-[#dafc69]/25 bg-[#dafc69]/[0.06] px-2.5 py-2">
+          <div className="mt-1.5 rounded-lg border border-accent/20 bg-accent-soft px-2.5 py-2">
             <p className="text-[12px] font-semibold text-foreground/80">{a.accion}</p>
           </div>
         </div>
@@ -596,7 +596,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               value={situacion}
               onChange={e => setSituacion(e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
+              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
             />
           </div>
           <div>
@@ -606,7 +606,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               onChange={e => setEnfoque(e.target.value)}
               rows={2}
               placeholder="Ej: le mandé el offer doc directo sin agendar llamada"
-              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
+              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-accent/20"
             />
           </div>
           <div>
@@ -634,7 +634,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               onChange={e => setCorreccion(e.target.value)}
               rows={2}
               placeholder="Ej: acá la IA sugirió esperar 4 semanas, pero este tipo de lead se enfría en días"
-              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
+              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-accent/20"
             />
           </div>
           <div className="flex items-center justify-end gap-2">
@@ -707,7 +707,7 @@ function ChannelListCard({ channel, analyzing, onAnalyze }: {
             <Quote className="h-3 w-3 shrink-0 mt-0.5 text-foreground/30" />
             <p className="text-[12px] italic text-foreground/50">{a.evidencia}</p>
           </div>
-          <div className="mt-1.5 rounded-lg border border-[#dafc69]/25 bg-[#dafc69]/[0.06] px-2.5 py-2">
+          <div className="mt-1.5 rounded-lg border border-accent/20 bg-accent-soft px-2.5 py-2">
             <p className="text-[12px] font-semibold text-foreground/80">{a.accion}</p>
           </div>
         </div>
@@ -743,7 +743,7 @@ function NewPatternForm({ onSubmit, onDone }: {
           value={situacion}
           onChange={e => setSituacion(e.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
+          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
         />
       </div>
       <div>
@@ -752,7 +752,7 @@ function NewPatternForm({ onSubmit, onDone }: {
           value={enfoque}
           onChange={e => setEnfoque(e.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
+          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
         />
       </div>
       <div>
@@ -779,7 +779,7 @@ function NewPatternForm({ onSubmit, onDone }: {
           value={correccion}
           onChange={e => setCorreccion(e.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
+          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
         />
       </div>
       <div className="flex justify-end">
@@ -1209,7 +1209,7 @@ export function AdminOmniView() {
       {/* Hero */}
       <div>
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#dafc69]/25 bg-[#dafc69]/[0.12]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/25 bg-accent-soft">
             <Sparkles className="h-5 w-5 text-[#dafc69]" />
           </span>
           <div>
@@ -1521,7 +1521,7 @@ export function AdminOmniView() {
                     onChange={e => setProspectingContext({ ...prospectingContext, workflow_inbound: e.target.value })}
                     rows={3}
                     placeholder="Cómo trabajás los leads que llegan solos (DMs, formularios, etc.)"
-                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
+                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-accent/20"
                   />
                 </div>
                 <div>
@@ -1531,7 +1531,7 @@ export function AdminOmniView() {
                     onChange={e => setProspectingContext({ ...prospectingContext, workflow_outbound: e.target.value })}
                     rows={3}
                     placeholder="Cómo contactás vos a los leads (prospección activa)"
-                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
+                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-accent/20"
                   />
                 </div>
                 <div>
@@ -1540,7 +1540,7 @@ export function AdminOmniView() {
                     value={prospectingContext.notas_generales}
                     onChange={e => setProspectingContext({ ...prospectingContext, notas_generales: e.target.value })}
                     rows={2}
-                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
+                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
                   />
                 </div>
                 <div className="flex items-center gap-3">
@@ -1601,7 +1601,7 @@ export function AdminOmniView() {
                     <p className="mt-1.5 text-[12.5px] text-foreground/70"><span className="font-semibold text-foreground/50">Situación:</span> {p.situacion}</p>
                     <p className="mt-1 text-[12.5px] text-foreground/70"><span className="font-semibold text-foreground/50">Enfoque:</span> {p.enfoque}</p>
                     {p.correccion && (
-                      <p className="mt-1.5 rounded-lg bg-[#dafc69]/[0.06] px-2.5 py-1.5 text-[12px] text-foreground/70">
+                      <p className="mt-1.5 rounded-lg bg-accent-soft px-2.5 py-1.5 text-[12px] text-foreground/70">
                         <span className="font-semibold">Corrección:</span> {p.correccion}
                       </p>
                     )}

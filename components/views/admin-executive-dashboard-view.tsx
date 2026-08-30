@@ -158,7 +158,7 @@ function SectionHeader({
   return (
     <div className="flex items-start justify-between mb-4">
       <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#dafc69]/[0.1] border border-[#dafc69]/20">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft border border-accent/25">
           <Icon className="h-4 w-4 text-[#dafc69]" />
         </div>
         <div>
@@ -636,7 +636,7 @@ export function AdminExecutiveDashboardView() {
             )}
           </div>
           {!loading && data && (
-            <div className="rounded-xl border border-[#dafc69]/20 bg-[#dafc69]/[0.05] px-4 py-1.5">
+            <div className="rounded-xl border border-accent/20 bg-accent-soft px-4 py-1.5">
               <Stat value={data.mrr} label="MRR" format="currency" colorClass="text-[#dafc69]" />
             </div>
           )}

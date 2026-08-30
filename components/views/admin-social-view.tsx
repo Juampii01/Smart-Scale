@@ -53,7 +53,7 @@ export function AdminSocialView() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 space-y-6">
       <div className="flex items-center gap-3">
-        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#dafc69]/15">
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent-soft">
           <Link2 className="h-6 w-6 text-[#dafc69]" />
         </span>
         <div className="flex-1">
@@ -87,7 +87,7 @@ export function AdminSocialView() {
       <div className="flex gap-2">
         {(["all", "instagram", "youtube"] as const).map((p) => (
           <button key={p} onClick={() => setPlatform(p)}
-            className={`rounded-lg border px-3 py-1.5 text-[13px] font-medium capitalize transition ${platform === p ? "border-[#dafc69]/40 bg-[#dafc69]/[0.12] text-foreground" : "border-border bg-card text-foreground/60 hover:bg-foreground/[0.05]"}`}>
+            className={`rounded-lg border px-3 py-1.5 text-[13px] font-medium capitalize transition ${platform === p ? "border-accent bg-secondary text-foreground" : "border-border bg-card text-foreground/60 hover:bg-foreground/[0.05]"}`}>
             {p === "all" ? "Todas" : p}
           </button>
         ))}

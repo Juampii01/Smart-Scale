@@ -60,12 +60,12 @@ export function AdminPushView() {
     } catch { setState("error"); setMsg("Error de red.") }
   }
 
-  const inputCls = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/40 outline-none focus:border-[#dafc69]/60 transition-colors"
+  const inputCls = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/40 outline-none focus:border-accent transition-colors"
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
       <div className="flex items-center gap-3">
-        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#dafc69]/15">
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent-soft">
           <Bell className="h-6 w-6 text-[#dafc69]" />
         </span>
         <div>
@@ -100,7 +100,7 @@ export function AdminPushView() {
             const active = audience === a.key
             return (
               <button key={a.key} onClick={() => setAudience(a.key)}
-                className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${active ? "border-[#dafc69]/40 bg-[#dafc69]/[0.08]" : "border-border bg-background/40 hover:bg-foreground/[0.04]"}`}>
+                className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${active ? "border-accent bg-secondary" : "border-border bg-background/40 hover:bg-foreground/[0.04]"}`}>
                 <a.Icon className={`h-4 w-4 mt-0.5 shrink-0 ${active ? "text-[#dafc69]" : "text-foreground/40"}`} />
                 <div className="min-w-0">
                   <p className="text-[13px] font-semibold text-foreground">{a.label}</p>

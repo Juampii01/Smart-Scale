@@ -133,7 +133,7 @@ export function ChaChingHistoryView() {
         {items.map((d) => (
           <div key={d.id} className="px-5 py-3.5">
             <div className="flex items-center gap-4">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#dafc69]/10 border border-[#dafc69]/20">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-soft border border-accent/25">
                 <DollarSign className="h-4 w-4 text-[#dafc69]" />
               </div>
               <div className="flex-1 min-w-0">
@@ -170,7 +170,7 @@ export function ChaChingHistoryView() {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   placeholder="Ej: Este cliente me dijo 3 veces que no… y entendí que el seguimiento gana más tratos que el pitch."
-                  className="w-full rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] px-3.5 py-2.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none resize-y leading-relaxed"
+                  className="w-full rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] px-3.5 py-2.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:border-accent focus:outline-none resize-y leading-relaxed"
                 />
                 <div className="flex items-center gap-2">
                   <button

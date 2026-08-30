@@ -175,7 +175,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
         {/* Header */}
         <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5">
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10">
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-accent/30 bg-accent-soft">
               <UserPlus className="h-4 w-4 text-[#dafc69]" />
             </span>
             <div>
@@ -253,7 +253,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="usuario@email.com"
-                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:ring-2 focus:ring-[#dafc69]/10"
+                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
             </div>
 
@@ -266,7 +266,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Nombre del usuario"
-                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:ring-2 focus:ring-[#dafc69]/10"
+                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
             </div>
 
@@ -282,7 +282,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                     onClick={() => setRole(opt.value)}
                     className={`rounded-xl border px-3 py-2.5 text-left transition-colors ${
                       role === opt.value
-                        ? "border-[#dafc69] bg-[#dafc69]/[0.08] text-foreground"
+                        ? "border-accent bg-secondary text-foreground"
                         : "border-border bg-foreground/[0.02] text-foreground/70 hover:border-foreground/20 hover:text-foreground"
                     }`}
                   >
@@ -305,7 +305,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                   value={clientId}
                   onChange={e => setClientId(e.target.value)}
                   disabled={loadingClients}
-                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none focus:border-[#dafc69]/50 focus:ring-2 focus:ring-[#dafc69]/10 disabled:opacity-50"
+                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:opacity-50"
                 >
                   <option value="">— Sin cliente asociado —</option>
                   {clients.map(c => (
@@ -331,7 +331,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                   onChange={e => setInternalTenantId(e.target.value)}
                   disabled={loadingTenants}
                   required
-                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none focus:border-[#dafc69]/50 focus:ring-2 focus:ring-[#dafc69]/10 disabled:opacity-50"
+                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:opacity-50"
                 >
                   <option value="">— Elegí un sector —</option>
                   {internalTenants.map(t => (
@@ -364,7 +364,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                   placeholder="Contraseña (mín 8 caracteres)"
                   minLength={8}
                   required
-                  className="mt-2 h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:ring-2 focus:ring-[#dafc69]/10"
+                  className="mt-2 h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-foreground/25 focus:border-accent focus:ring-2 focus:ring-accent/20"
                 />
               )}
             </div>

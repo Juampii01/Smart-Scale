@@ -104,7 +104,7 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
   const inputCls = "h-8 rounded-lg border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground placeholder:text-foreground/20 focus:border-foreground/20 focus:outline-none w-full"
 
   return (
-    <tr className="border-b border-[#dafc69]/10 bg-[#dafc69]/[0.03]">
+    <tr className="border-b border-border bg-secondary/30">
       <td className="px-4 py-2.5"><input value={name}  onChange={e => setName(e.target.value)}  placeholder="Nombre completo *" className={inputCls} /></td>
       <td className="px-4 py-2.5"><input value={email} onChange={e => setEmail(e.target.value)} placeholder="email@ejemplo.com"  className={inputCls} /></td>
       <td className="px-4 py-2.5 text-[11px] text-foreground/25">Se resuelve solo por email</td>
@@ -283,7 +283,7 @@ export function AdminPaymentsView() {
             onClick={() => handleConfirmInstallment(p.id)}
             disabled={confirmingId === p.id}
             title={`Confirmar cuota ${p.suggested_installment.installment_number} (${fmtMoney(p.suggested_installment.amount)}, vence ${fmtDate(p.suggested_installment.due_date)}) como pagada`}
-            className="ml-2 inline-flex items-center gap-1 rounded-md border border-[#dafc69]/40 bg-[#dafc69]/10 px-2 py-0.5 text-[11px] font-medium text-[#7a9016] dark:text-[#dafc69] hover:bg-[#dafc69]/20 transition-colors disabled:opacity-40"
+            className="ml-2 inline-flex items-center gap-1 rounded-md border border-accent/30 bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-[#7a9016] dark:text-[#dafc69] hover:bg-secondary transition-colors disabled:opacity-40"
           >
             {confirmingId === p.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
             Cuota {p.suggested_installment.installment_number} sugerida
@@ -367,7 +367,7 @@ export function AdminPaymentsView() {
             CSV
           </button>
           <button onClick={() => setShowLinkDialog(true)}
-            className="flex items-center gap-2 h-9 rounded-xl border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-4 text-sm font-semibold text-[#dafc69] hover:bg-[#dafc69]/15 transition-all">
+            className="flex items-center gap-2 h-9 rounded-xl border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-4 text-sm font-semibold text-[#dafc69] hover:bg-secondary transition-all">
             <Link2 className="h-3.5 w-3.5" />
             Link de pago
           </button>
@@ -399,7 +399,7 @@ export function AdminPaymentsView() {
           <button key={s} onClick={() => setFilterStatus(s)}
             className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium capitalize transition-all ${
               filterStatus === s
-                ? "border-[#dafc69]/40 bg-[#dafc69]/10 text-[#dafc69]"
+                ? "border-accent bg-secondary text-[#dafc69]"
                 : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
             }`}>
             {s}

@@ -440,7 +440,7 @@ export function AdminApplicationsView() {
               <button key={s} onClick={() => setFilterStatus(s)}
                 className={`h-8 rounded-xl border px-3 text-[12px] font-medium capitalize transition-all ${
                   filterStatus === s
-                    ? "border-[#dafc69]/40 bg-[#dafc69]/10 text-[#dafc69]"
+                    ? "border-accent bg-secondary text-[#dafc69]"
                     : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
                 }`}>
                 {s}

@@ -148,7 +148,7 @@ export function ProgramChecklistView() {
 
       {/* Banner de "viendo cliente" — solo cuando admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-center gap-3 rounded-[14px] border border-[#dafc69]/25 bg-[#dafc69]/[0.05] px-4 py-3">
+        <div className="flex items-center gap-3 rounded-[14px] border border-accent/20 bg-accent-soft px-4 py-3">
           <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>
@@ -231,7 +231,7 @@ export function ProgramChecklistView() {
                       <ChevronDown
                         className={`h-3.5 w-3.5 flex-shrink-0 text-foreground/30 transition-transform duration-200 ${isWeekOpen ? "rotate-0" : "-rotate-90"}`}
                       />
-                      <span className="h-4 w-[3px] rounded-full bg-[#dafc69]/60 flex-shrink-0" />
+                      <span className="h-4 w-[3px] rounded-full bg-accent flex-shrink-0" />
                       <span className="flex-1 text-[13px] font-semibold text-foreground/70">{week.title}</span>
                       <span className="text-[11px] text-foreground/30 tabular-nums flex-shrink-0">
                         {weekDone}/{week.tasks.length}
@@ -257,7 +257,7 @@ export function ProgramChecklistView() {
                         <div
                           key={task.label}
                           className={`grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-t border-foreground/[0.04] transition-colors duration-150 ${
-                            isDone ? "bg-[#dafc69]/[0.02]" : "hover:bg-foreground/[0.015]"
+                            isDone ? "bg-secondary/40" : "hover:bg-foreground/[0.015]"
                           }`}
                         >
                           {/* STATUS */}

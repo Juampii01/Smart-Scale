@@ -197,7 +197,7 @@ function renderDiagnosisContent(content: string) {
     if (line.startsWith("- ")) {
       return (
         <div key={`bullet-${k}`} className="flex items-start gap-3 text-sm leading-7 text-foreground/60">
-          <span className="mt-2.5 h-1 w-1 rounded-full bg-[#dafc69]/60 flex-shrink-0" />
+          <span className="mt-2.5 h-1 w-1 rounded-full bg-accent flex-shrink-0" />
           <span>{renderInline(line.replace(/^-\s+/, ""), k)}</span>
         </div>
       )
@@ -917,7 +917,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                       key={item.request_id}
                       className={`flex flex-col h-full justify-between rounded-[14px] border p-5 transition-all duration-200 ${
                         isActiveDiagnosis
-                          ? "border-[#dafc69]/30 bg-[#dafc69]/[0.04]"
+                          ? "border-accent bg-secondary"
                           : "border-foreground/[0.07] bg-foreground/[0.02] hover:border-foreground/15"
                       }`}
                     >

@@ -207,7 +207,7 @@ function PasscodeBox({ value }: { value: string }) {
       type="button"
       onClick={async (e) => { e.preventDefault(); try { await navigator.clipboard.writeText(value); setCopied(true); setTimeout(() => setCopied(false), 1800) } catch {} }}
       title="Copiar contraseña"
-      className="inline-flex items-center gap-2 rounded-[8px] border border-[#dafc69]/25 bg-[#dafc69]/[0.06] px-2.5 py-1.5 transition-colors hover:bg-[#dafc69]/[0.12]"
+      className="inline-flex items-center gap-2 rounded-[8px] border border-[#dafc69]/25 bg-[#dafc69]/[0.06] px-2.5 py-1.5 transition-colors hover:bg-secondary"
     >
       <Lock className="h-3 w-3 text-[#dafc69]/70" />
       <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/40">Contraseña</span>
@@ -423,7 +423,7 @@ export function CalendarView() {
               {featured.map((o, i) => {
                 const localTime = o.ev.time ? toUserLocalTime(o.ev.time) : null
                 return (
-                  <div key={`${o.ev.id}-${i}`} className="rounded-[14px] border border-[#dafc69]/20 bg-[#dafc69]/[0.04] p-5">
+                  <div key={`${o.ev.id}-${i}`} className="rounded-[14px] border border-accent/20 bg-accent-soft p-5">
                     <div className="flex items-center gap-2 mb-2">
                       <StatusPill status={o.ev.status} />
                       <span className="text-[11px] font-semibold uppercase tracking-wider text-[#dafc69]/80">Próxima</span>
@@ -470,7 +470,7 @@ export function CalendarView() {
       <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-5 space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <span className="inline-flex items-center rounded-full border border-[#dafc69]/25 bg-[#dafc69]/[0.08] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-[#dafc69] mb-1">Mensual · 1:1</span>
+            <span className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-[#dafc69] mb-1">Mensual · 1:1</span>
             <h3 className="text-[15px] font-bold text-foreground leading-tight">Llamada con Ann</h3>
             <p className="text-[12px] text-foreground/40 mt-0.5">Sesión privada mensual · 1 llamada por mes</p>
           </div>
@@ -488,7 +488,7 @@ export function CalendarView() {
             "Si no se agenda en ese período, no se traslada al mes siguiente.",
           ].map(t => (
             <li key={t} className="flex items-start gap-2 list-none text-[11px] text-foreground/35">
-              <span className="mt-1.5 h-1 w-1 rounded-full bg-[#dafc69]/40 shrink-0" />
+              <span className="mt-1.5 h-1 w-1 rounded-full bg-accent shrink-0" />
               {t}
             </li>
           ))}
