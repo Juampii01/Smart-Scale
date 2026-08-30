@@ -96,39 +96,9 @@
 
 /* ─────────────────────────────────────────────────────────────────────────
    LIGHT MODE polish — solo aplica fuera de .dark
-   - Botones de acento: el relleno pasa a oliva (#93bc1e), nunca lima puro
-     (regla del manual: el lima brillante no se lee sobre el fondo "Papel")
    - Cards/popovers: shadow más visible para depth
    - Sidebar: separador y bg diferenciado del background principal
    ───────────────────────────────────────────────────────────────────────── */
-:root:not(.dark) button[class*="bg-[#dafc69]"],
-:root:not(.dark) a[class*="bg-[#dafc69]"],
-:root:not(.dark) [class*="bg-[#dafc69]"][role="button"],
-:root:not(.dark) button[class*="bg-[#f2ffc0]"],
-:root:not(.dark) a[class*="bg-[#f2ffc0]"] {
-  background-color: #93bc1e !important;
-  border: 1px solid rgba(76, 102, 6, 0.30) !important;
-  box-shadow: 0 1px 2px rgba(76, 102, 6, 0.10), 0 4px 12px rgba(147, 188, 30, 0.22);
-}
-
-:root:not(.dark) button[class*="bg-[#dafc69]"]:hover,
-:root:not(.dark) a[class*="bg-[#dafc69]"]:hover {
-  background-color: #a4cc3d !important;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(76, 102, 6, 0.12), 0 8px 20px rgba(147, 188, 30, 0.28);
-}
-
-:root:not(.dark) button[class*="bg-[#dafc69]"]:active,
-:root:not(.dark) a[class*="bg-[#dafc69]"]:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 2px rgba(76, 102, 6, 0.10);
-}
-
-/* Badges/dots/isotipo (spans) con bg-[#dafc69]: solo el relleno oliva,
-   sin borde/sombra de "botón" — son elementos decorativos, no CTAs. */
-:root:not(.dark) span[class*="bg-[#dafc69]"] {
-  background-color: #93bc1e !important;
-}
 
 /* Cards (rounded-2xl/xl con bg-card) en light: sombra suave y clara para depth */
 :root:not(.dark) [class*="bg-card"][class*="rounded-2xl"],
@@ -163,34 +133,6 @@
 :root:not(.dark) nav a > div[class*="bg-foreground/[0.07]"] {
   background-color: rgba(0, 0, 0, 0.08) !important;
   border: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
-   LIGHT MODE: lima accents legibles ("Papel")
-   ─────────────────────────────────────────────────────────────────────────
-   El lima brand (#dafc69) sobre el fondo "Papel" es ilegible cuando se usa
-   como TEXTO, LÍNEA o bg translúcido — no llega a 3:1 de contraste.
-   Regla del manual: ahí va la tinta oscura (#4c6606), nunca el lima pleno.
-   El bg-[#dafc69] SÓLIDO (botones/badges) pasa a relleno oliva (#93bc1e)
-   más arriba en "LIGHT MODE polish".
-   ───────────────────────────────────────────────────────────────────────── */
-
-/* Texto lima → tinta oscura (acc-ink) para máxima legibilidad */
-:root:not(.dark) [class*="text-[#dafc69]"],
-:root:not(.dark) [class*="text-[#f2ffc0]"] {
-  color: #4c6606 !important;
-}
-
-/* Backgrounds lima TRANSLÚCIDOS (badges, hover states) → wash oliva sutil */
-:root:not(.dark) [class*="bg-[#dafc69]/["],
-:root:not(.dark) [class*="bg-[#dafc69]/0"],
-:root:not(.dark) [class*="bg-[#dafc69]/1"] {
-  background-color: rgba(76, 102, 6, 0.08) !important;
-}
-
-/* Borders lima → tinta oscura translúcida/sólida */
-:root:not(.dark) [class*="border-[#dafc69]/"] {
-  border-color: rgba(76, 102, 6, 0.30) !important;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -412,10 +354,10 @@
 .progress-shimmer {
   background: linear-gradient(
     90deg,
-    #dafc69 0%,
-    #f2ffc0 40%,
-    #dafc69 60%,
-    #a9d42f 100%
+    var(--accent) 0%,
+    var(--accent-hover) 40%,
+    var(--accent) 60%,
+    var(--accent) 100%
   );
   background-size: 200% auto;
   animation: progress-shimmer 1.2s linear infinite;
