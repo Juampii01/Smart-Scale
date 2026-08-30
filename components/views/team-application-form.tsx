@@ -91,7 +91,7 @@ function RadioGroup({
       {options.map(opt => (
         <label key={opt} className="flex items-center gap-3 cursor-pointer group" onClick={() => onChange(opt)}>
           <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-            value === opt ? "border-[#dafc69] bg-[#dafc69]" : "border-foreground/20 group-hover:border-foreground/40"
+            value === opt ? "border-accent bg-accent" : "border-foreground/20 group-hover:border-foreground/40"
           }`}>
             {value === opt && <span className="h-2 w-2 rounded-full bg-black" />}
           </span>

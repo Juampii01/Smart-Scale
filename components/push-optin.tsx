@@ -110,7 +110,7 @@ export function PushOptIn({ banner = false, prompt }: { banner?: boolean; prompt
   const btn = (
     <button
       onClick={enable} disabled={state === "working"}
-      className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition active:scale-95 disabled:opacity-50 shrink-0 bg-[#dafc69] text-black"
+      className="btn-accent inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold active:scale-95 disabled:opacity-50 shrink-0"
     >
       {state === "working" ? <Loader2 size={14} className="animate-spin" /> : <BellRing size={14} />}
       Activar notificaciones

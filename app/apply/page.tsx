@@ -92,7 +92,7 @@ function RadioGroup({ options, value, onChange }: {
       {options.map(opt => (
         <label key={opt} className="flex items-center gap-3 cursor-pointer group" onClick={() => onChange(opt)}>
           <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-            value === opt ? "border-[#dafc69] bg-[#dafc69]" : "border-foreground/20 group-hover:border-foreground/40"
+            value === opt ? "border-accent bg-accent" : "border-foreground/20 group-hover:border-foreground/40"
           }`}>
             {value === opt && <span className="h-2 w-2 rounded-full bg-black" />}
           </span>
@@ -379,7 +379,7 @@ export default function ApplyPage() {
               onClick={() => setForm(f => ({ ...f, terms_accepted: !f.terms_accepted }))}>
               <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all ${
                 form.terms_accepted
-                  ? "border-[#dafc69] bg-[#dafc69]"
+                  ? "border-accent bg-accent"
                   : "border-foreground/20 group-hover:border-foreground/40"
               }`}>
                 {form.terms_accepted && <Check className="h-3 w-3 text-black" strokeWidth={3} />}
@@ -413,7 +413,7 @@ export default function ApplyPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 h-14 rounded-2xl text-[16px] font-black text-black hover:opacity-90 active:scale-[0.98] disabled:opacity-50 transition-all bg-[#dafc69]"
+            className="btn-accent w-full flex items-center justify-center gap-3 h-14 rounded-2xl text-[16px] font-black active:scale-[0.98] disabled:opacity-50"
           >
             {loading ? (
               <><Loader2 className="h-5 w-5 animate-spin" /> Enviando...</>

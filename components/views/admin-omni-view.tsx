@@ -1233,7 +1233,7 @@ export function AdminOmniView() {
           onClick={() => setActiveTab("resumen")}
           className={cn(
             "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
-            activeTab === "resumen" ? "border-[#dafc69] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+            activeTab === "resumen" ? "border-accent text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
           )}
         >
           <LayoutDashboard className="h-3.5 w-3.5" />
@@ -1243,7 +1243,7 @@ export function AdminOmniView() {
           onClick={() => setActiveTab("conversaciones")}
           className={cn(
             "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
-            activeTab === "conversaciones" ? "border-[#dafc69] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+            activeTab === "conversaciones" ? "border-accent text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
           )}
         >
           <Instagram className="h-3.5 w-3.5" />
@@ -1254,7 +1254,7 @@ export function AdminOmniView() {
           onClick={() => setActiveTab("comunidad")}
           className={cn(
             "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
-            activeTab === "comunidad" ? "border-[#dafc69] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+            activeTab === "comunidad" ? "border-accent text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
           )}
         >
           <Slack className="h-3.5 w-3.5" />
@@ -1264,7 +1264,7 @@ export function AdminOmniView() {
           onClick={() => setActiveTab("prospeccion")}
           className={cn(
             "flex items-center gap-2 border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-all",
-            activeTab === "prospeccion" ? "border-[#dafc69] text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
+            activeTab === "prospeccion" ? "border-accent text-foreground" : "border-transparent text-foreground/40 hover:text-foreground/70",
           )}
         >
           <TrendingUp className="h-3.5 w-3.5" />

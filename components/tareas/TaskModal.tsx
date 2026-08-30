@@ -441,7 +441,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                     style={{ color: "var(--foreground)" }}
                   />
                   <button onClick={sendComment} disabled={!newComment.trim() || sending}
-                    className="shrink-0 flex h-7 w-7 items-center justify-center rounded-md transition disabled:opacity-30 bg-[#dafc69] text-black">
+                    className="btn-accent shrink-0 flex h-7 w-7 items-center justify-center rounded-md disabled:opacity-30">
                     <Send size={13} />
                   </button>
                 </div>
@@ -467,7 +467,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                 Cancelar
               </button>
               <button type="button" onClick={handleSubmit} disabled={!title.trim()}
-                className="px-4 py-1.5 text-sm font-semibold rounded-lg cursor-pointer transition-colors disabled:opacity-40 bg-[#dafc69] text-black">
+                className="btn-accent px-4 py-1.5 text-sm font-semibold rounded-lg cursor-pointer disabled:opacity-40">
                 {task ? "Guardar" : "Crear tarea"}
               </button>
             </div>

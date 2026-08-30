@@ -76,6 +76,9 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
+  // Excluido a propósito del grep de #dafc69 del rediseño: es el color de
+  // la barra del navegador (meta tag), no acepta var(). El split por media
+  // query ya resuelve dark/light — no hace falta un token acá.
   themeColor: [
     { media: "(prefers-color-scheme: dark)",  color: "#dafc69" },
     { media: "(prefers-color-scheme: light)", color: "#4c6606" },

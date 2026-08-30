@@ -177,11 +177,37 @@
 :root:not(.dark) [class*="border-[#dafc69]/"] {
   border-color: rgba(76, 102, 6, 0.30) !important;
 }
-:root:not(.dark) [class*="border-[#dafc69]"]:not([class*="/"]) {
-  border-color: #4c6606 !important;
+
+/* ─────────────────────────────────────────────────────────────────────────
+   .btn-accent — botón de acento como UTILIDAD, no como parche.
+   Reemplaza el patrón "hex hardcodeado (bg-[#dafc69]) + parche que matchea
+   el string de la clase" — ese patrón es la deuda que este rediseño está
+   pagando, no la herramienta para escribir código nuevo. --accent y
+   --accent-hover ya resuelven distinto por tema, así que no hace falta
+   duplicar reglas para dark/light salvo el borde+sombra, que en dark no
+   existe (el botón queda plano, a propósito).
+   Primer consumidor: components/push-optin.tsx.
+   ───────────────────────────────────────────────────────────────────────── */
+.btn-accent {
+  background-color: var(--accent);
+  color: var(--on-accent);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 }
-/* Cubre también los puntos del isotipo (orbit mark), que usan border-[#dafc69]
-   sin opacidad en el atributo de color (la opacidad la da una clase aparte). */
+.btn-accent:hover {
+  background-color: var(--accent-hover);
+}
+:root:not(.dark) .btn-accent {
+  border: 1px solid color-mix(in srgb, var(--accent-ink) 30%, transparent);
+  box-shadow: 0 1px 2px rgba(76, 102, 6, 0.10), 0 4px 12px rgba(147, 188, 30, 0.22);
+}
+:root:not(.dark) .btn-accent:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(76, 102, 6, 0.12), 0 8px 20px rgba(147, 188, 30, 0.28);
+}
+:root:not(.dark) .btn-accent:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(76, 102, 6, 0.10);
+}
 
 /* ─────────────────────────────────────────────────────────────────────────
    DARK MODE — sistema de tokens del rediseno (spec del 24 ago 2026).

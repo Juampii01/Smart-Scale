@@ -17,7 +17,7 @@ function OrbitMark({ size = 28 }: { size?: number }) {
         {dots.map(a => (
           <i
             key={a}
-            className="absolute left-1/2 top-1/2 -m-[2px] h-1 w-1 rounded-full border-[1.3px] border-[#dafc69] opacity-50"
+            className="absolute left-1/2 top-1/2 -m-[2px] h-1 w-1 rounded-full border-[1.3px] border-accent opacity-50"
             style={{ transform: `rotate(${a}deg) translateY(-${size * 0.39}px) rotate(-${a}deg)` }}
           />
         ))}
