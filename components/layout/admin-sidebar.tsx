@@ -6,7 +6,7 @@ import {
   UserCheck, Layers, Briefcase, ArrowLeft, ShieldCheck,
   MessageSquareText, UserPlus,
   LayoutDashboard, CalendarDays, Brain, Terminal, CheckSquare, Bell, Share2, Instagram, Sparkles, Activity, RefreshCw, UserCircle, Wallet,
-  ChevronsLeft, ChevronsRight, Building2, Loader2, Check,
+  Building2, Loader2, Check,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -21,8 +21,6 @@ import { BrandLogo } from "@/components/theme/brand-logo"
 interface AdminSidebarProps {
   open: boolean
   onClose: () => void
-  collapsed?: boolean
-  onToggleCollapsed?: () => void
 }
 
 // El sidebar se organiza en 4 sectores — cada uno con su propio label, para
@@ -78,7 +76,7 @@ const CLIENT_SECTOR_HREFS = new Set(["/admin/leads", "/admin/setting", "/admin/c
 interface TenantEntry { id: string; name: string; is_internal_workspace: boolean }
 
 /** Selector "Ver Clientes" — exclusivo del platform owner. */
-function VerClientesPicker({ collapsed, ownTenant }: { collapsed: boolean; ownTenant: TenantEntry | null }) {
+function VerClientesPicker({ ownTenant }: { ownTenant: TenantEntry | null }) {
   const viewAsTenant = useViewAsTenant()
   const [openMenu, setOpenMenu] = useState(false)
   const [tenants, setTenants] = useState<TenantEntry[]>([])
@@ -116,15 +114,14 @@ function VerClientesPicker({ collapsed, ownTenant }: { collapsed: boolean; ownTe
         onClick={() => setOpenMenu(v => !v)}
         title="Ver Clientes — navegar el sector interno de cualquier cliente"
         className={cn(
-          "flex w-full items-center gap-2.5 rounded-lg border py-2 transition-all",
-          collapsed ? "px-3 lg:px-0 lg:justify-center" : "px-3",
+          "flex w-full items-center gap-2.5 rounded-lg border px-3 py-2 transition-all",
           viewAsTenant
             ? "border-amber-400/50 bg-amber-400/[0.12] text-amber-700 dark:text-amber-300"
             : "border-foreground/[0.07] bg-foreground/[0.02] text-text-2 hover:text-foreground hover:border-foreground/[0.15]"
         )}
       >
         <Building2 className="h-3.5 w-3.5 flex-shrink-0" />
-        <span className={cn("min-w-0 flex-1 truncate text-left text-[13px] font-semibold", collapsed && "lg:hidden")}>
+        <span className="min-w-0 flex-1 truncate text-left text-[14px] font-semibold">
           {viewAsTenant ? activeLabel : "Ver Clientes"}
         </span>
       </button>
@@ -166,7 +163,7 @@ function VerClientesPicker({ collapsed, ownTenant }: { collapsed: boolean; ownTe
   )
 }
 
-export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollapsed }: AdminSidebarProps) {
+export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
   const pathname = usePathname()
   const [userRole, setUserRole]  = useState<string | null | undefined>(undefined) // undefined = aún cargando
   const [userEmail, setUserEmail] = useState<string | null>(null)
@@ -223,8 +220,7 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-[220px] transition-[width,transform] duration-200 ease-in-out lg:translate-x-0",
-          collapsed ? "lg:w-[64px]" : "lg:w-[220px]",
+          "fixed left-0 top-0 z-50 h-full w-[240px] transition-transform duration-200 ease-in-out lg:translate-x-0",
           "bg-card flex flex-col pt-[env(safe-area-inset-top)] overflow-hidden",
           "border-r border-foreground/[0.07]",
           "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-foreground/[0.08] lg:shadow-[0_10px_36px_-18px_rgba(0,0,0,0.30)]",
@@ -232,11 +228,10 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
         )}
       >
         {/* Logo + INTERNAL badge (sin línea divisoria) */}
-        <div className={cn("flex-shrink-0 pt-4 pb-3", collapsed ? "px-5 lg:px-0 lg:flex lg:justify-center" : "px-5")}>
-          <div className={cn("flex items-center justify-between", collapsed && "lg:justify-center")}>
+        <div className="flex-shrink-0 px-5 pt-4 pb-3">
+          <div className="flex items-center justify-between">
             <a href="/admin/clients" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
-              <span className={collapsed ? "lg:hidden" : undefined}><BrandLogo /></span>
-              <span className={collapsed ? "hidden lg:flex" : "hidden"}><BrandLogo iconOnly /></span>
+              <BrandLogo />
             </a>
             <button
               className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-foreground/10 transition-all"
@@ -245,60 +240,27 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
             >
               <X className="h-4 w-4" />
             </button>
-            {onToggleCollapsed && (
-              <button
-                className={cn(
-                  "hidden lg:flex h-6 w-6 items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-foreground/10 transition-all",
-                  collapsed && "lg:hidden"
-                )}
-                onClick={onToggleCollapsed}
-                aria-label="Colapsar barra lateral"
-                title="Colapsar barra lateral (Ctrl+\)"
-              >
-                <ChevronsLeft className="h-3.5 w-3.5" />
-              </button>
-            )}
           </div>
-          <span className={cn(
-            "mt-2 inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.15em] text-[#dafc69]",
-            collapsed && "lg:hidden"
-          )}>
+          <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.15em] text-[#dafc69]">
             <ShieldCheck className="h-2.5 w-2.5" />
             Internal
           </span>
         </div>
 
-        {/* Reabrir cuando está colapsada */}
-        {collapsed && onToggleCollapsed && (
-          <div className="hidden lg:flex justify-center px-3 pb-1">
-            <button
-              className="flex h-6 w-6 items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-foreground/10 transition-all"
-              onClick={onToggleCollapsed}
-              aria-label="Expandir barra lateral"
-              title="Expandir barra lateral (Ctrl+\)"
-            >
-              <ChevronsRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        )}
-
         {/* "Ver Clientes" — exclusivo del platform owner */}
         {isPlatformOwner && (
-          <div className={cn("pt-1", collapsed ? "px-3 lg:px-2" : "px-3")}>
-            <VerClientesPicker collapsed={collapsed} ownTenant={ownTenant} />
+          <div className="pt-1 px-3">
+            <VerClientesPicker ownTenant={ownTenant} />
           </div>
         )}
 
         {/* Volver al portal (solo admin) */}
         {isAdmin(effectiveRole) && (
-          <div className={cn("pt-1", collapsed ? "px-3 lg:px-2" : "px-3")}>
+          <div className="pt-1 px-3">
             <Link href="/dashboard" onClick={onClose} title="Volver al portal">
-              <div className={cn(
-                "group flex items-center gap-2 rounded-lg border border-foreground/[0.07] bg-foreground/[0.02] py-2 text-[13px] font-semibold text-text-2 hover:text-foreground hover:border-foreground/[0.15] transition-all",
-                collapsed ? "px-3 lg:px-0 lg:justify-center" : "px-3"
-              )}>
+              <div className="group flex items-center gap-2 rounded-lg border border-foreground/[0.07] bg-foreground/[0.02] px-3 py-2 text-[14px] font-semibold text-text-2 hover:text-foreground hover:border-foreground/[0.15] transition-all">
                 <ArrowLeft className="h-3.5 w-3.5 flex-shrink-0" />
-                <span className={collapsed ? "lg:hidden" : undefined}>Volver al portal</span>
+                <span>Volver al portal</span>
               </div>
             </Link>
           </div>
@@ -306,18 +268,17 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
 
         {/* Ann AI (ex Omni) — sistema de IA (destacado, acceso restringido) */}
         {isOmniOwner && (
-          <div className={cn("pt-1", collapsed ? "px-3 lg:px-2" : "px-3")}>
+          <div className="pt-1 px-3">
             <Link href="/admin/omni" onClick={onClose} title="Ann AI — Sistema IA">
               <div className={cn(
-                "flex items-center gap-2.5 rounded-lg border py-2 transition-all",
-                collapsed ? "px-3 lg:px-0 lg:justify-center" : "px-3",
+                "flex items-center gap-2.5 rounded-lg border px-3 py-2 transition-all",
                 pathname === "/admin/omni"
                   ? "border-accent bg-accent-soft text-[#dafc69]"
                   : "border-accent/25 bg-accent-soft text-[#dafc69]/90 hover:bg-accent-soft/70 hover:border-accent/45"
               )}>
                 <Sparkles className="h-4 w-4 flex-shrink-0" />
-                <div className={cn("min-w-0 leading-none", collapsed && "lg:hidden")}>
-                  <p className="text-[13px] font-bold">Ann AI</p>
+                <div className="min-w-0 leading-none">
+                  <p className="text-[14px] font-bold">Ann AI</p>
                   <p className="mt-1 text-[13px] text-text-2">Sistema IA</p>
                 </div>
               </div>
@@ -326,29 +287,25 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
         )}
 
         {/* Navigation */}
-        <nav className={cn("flex-1 overflow-y-auto py-4", collapsed ? "px-3 lg:px-2" : "px-3")}>
+        <nav className="flex-1 overflow-y-auto py-4 px-3">
           {visibleSections.map((section, i) => (
             <div key={section.title} className={i > 0 ? "mt-5" : undefined}>
-              <p className={cn(
-                "px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-text-3",
-                collapsed && "lg:hidden"
-              )}>
+              <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-text-3">
                 {section.title}
               </p>
               <div className="space-y-0.5">
                 {section.items.map(item => {
                   const isActive = pathname === item.href
                   return (
-                    <Link key={item.name} href={item.href} onClick={onClose} title={collapsed ? item.name : undefined}>
+                    <Link key={item.name} href={item.href} onClick={onClose}>
                       <div className={cn(
-                        "flex items-center gap-2.5 rounded-lg py-[7px] transition-all duration-150",
-                        collapsed ? "px-3 lg:px-0 lg:justify-center" : "px-3",
+                        "flex h-[34px] items-center gap-2.5 rounded-lg px-3 transition-all duration-150",
                         isActive
-                          ? "bg-foreground/[0.07] text-[#dafc69]"
+                          ? "bg-secondary text-[#dafc69]"
                           : "text-foreground hover:bg-foreground/[0.05] hover:text-foreground"
                       )}>
                         <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
-                        <span className={cn("text-[13px] leading-none", isActive ? "font-semibold" : "font-medium", collapsed && "lg:hidden")}>
+                        <span className={cn("text-[14px] leading-none", isActive ? "font-semibold" : "font-medium")}>
                           {item.name}
                         </span>
                       </div>
@@ -361,13 +318,10 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
         </nav>
 
         {/* Footer — sin línea divisoria */}
-        <div className={cn("flex-shrink-0 p-3", collapsed && "lg:px-2")}>
-          <div className={cn(
-            "flex items-center gap-2.5 rounded-[14px] bg-accent-soft py-2.5 border border-accent/20",
-            collapsed ? "px-3 lg:px-0 lg:justify-center" : "px-3"
-          )}>
+        <div className="flex-shrink-0 p-3">
+          <div className="flex items-center gap-2.5 rounded-[14px] bg-accent-soft px-3 py-2.5 border border-accent/20">
             <ShieldCheck className="h-3.5 w-3.5 text-[#dafc69]/80 shrink-0" />
-            <div className={collapsed ? "lg:hidden" : undefined}>
+            <div>
               <p className="text-[11px] font-bold text-[#dafc69]/80 tracking-widest uppercase">Smart Scale Internal</p>
               <p className="text-[13px] text-text-3 mt-0.5">Admin only</p>
             </div>

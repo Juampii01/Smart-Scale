@@ -133,46 +133,15 @@ function currentMonthYM(): string {
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   // Default = mes actual. Sin persistencia — al recargar volvemos al mes actual.
   const [selectedMonth, setSelectedMonth] = useState<string>(currentMonthYM())
   const pathname = usePathname()
   const pageTitle = PAGE_TITLES[pathname] ?? "Smart Scale"
   const isAdminMode = pathname.startsWith("/admin/")
 
-  // Sidebar collapsed state persisted en localStorage (solo aplica en desktop)
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    const stored = window.localStorage.getItem("sidebarCollapsed")
-    if (stored) setSidebarCollapsed(stored === "true")
-  }, [])
-
   // Setter / team que aterrizan en /dashboard (portal cliente) caen a su landing
   // de admin: setter → /admin/setting, team → /admin/leads. Admin queda en /dashboard
   // como portal "modo cliente" para revisar; cliente final también.
-
-  const toggleSidebarCollapsed = () => {
-    setSidebarCollapsed(prev => {
-      const next = !prev
-      if (typeof window !== "undefined") window.localStorage.setItem("sidebarCollapsed", String(next))
-      return next
-    })
-  }
-
-  // Keyboard shortcut: Cmd/Ctrl + \ para toggle del sidebar
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null
-      const isInput = target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable
-      if (isInput) return
-      if ((e.metaKey || e.ctrlKey) && e.key === "\\") {
-        e.preventDefault()
-        toggleSidebarCollapsed()
-      }
-    }
-    window.addEventListener("keydown", handler)
-    return () => window.removeEventListener("keydown", handler)
-  }, [])
 
   // Selected month NO se persiste: al recargar volvemos al mes actual.
   // Si el user navega entre páginas mantiene la selección dentro de la sesión React.
@@ -564,23 +533,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       <NavigationProgress />
       <WhatsNew3 />
       {isAdminMode
-        ? <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />
+        ? <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         : <Sidebar
             open={sidebarOpen}
             onClose={() => setSidebarOpen(false)}
             isAdmin={isAdmin && !activeViewAs}
-            collapsed={sidebarCollapsed}
-            onToggleCollapsed={toggleSidebarCollapsed}
             avatarUrl={avatarUrl}
             displayName={clientDisplayName ?? userEmail}
             email={userEmail}
             crmEnabled={crmEnabled}
           />}
 
-      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-[margin] duration-200 bg-background pt-[env(safe-area-inset-top)] ${
+      <div className={`flex-1 flex flex-col h-full overflow-hidden bg-background pt-[env(safe-area-inset-top)] ${
         isAdminMode
-          ? (sidebarCollapsed ? 'lg:ml-[64px]'  : 'lg:ml-[220px]')              // admin: sidebar pegado
-          : (sidebarCollapsed ? 'lg:ml-[100px] lg:pt-4' : 'lg:ml-[252px] lg:pt-4') // cliente: alineado al sidebar flotante
+          ? 'lg:ml-[240px]'         // admin: sidebar pegado
+          : 'lg:ml-[272px] lg:pt-4' // cliente: alineado al sidebar flotante (240 + 16 offset + 16 gap)
       }`}>
 
         {/* "View as" banner — solo admin impersonando otro rol */}

@@ -17,8 +17,6 @@ interface SidebarProps {
   open: boolean
   onClose: () => void
   isAdmin?: boolean
-  collapsed?: boolean
-  onToggleCollapsed?: () => void
   avatarUrl?: string | null
   displayName?: string | null
   email?: string | null
@@ -131,7 +129,7 @@ export function Sidebar({
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-[220px] transition-transform duration-200 ease-in-out lg:translate-x-0",
+          "fixed left-0 top-0 z-50 h-full w-[240px] transition-transform duration-200 ease-in-out lg:translate-x-0",
           "bg-card flex flex-col pt-[env(safe-area-inset-top)] overflow-hidden",
           "border-r border-foreground/[0.07]",
           "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-foreground/[0.08] lg:shadow-[0_10px_36px_-18px_rgba(0,0,0,0.30)]",
@@ -178,14 +176,14 @@ export function Sidebar({
                         <button
                           onClick={() => toggleItem(item.name)}
                           className={cn(
-                            "w-full flex items-center gap-2.5 rounded-lg py-[7px] px-3 transition-all duration-150",
+                            "w-full flex h-[34px] items-center gap-2.5 rounded-lg px-3 transition-all duration-150",
                             (isItemExpanded || hasActiveChild)
                               ? "text-foreground"
                               : "text-foreground hover:bg-foreground/[0.05] hover:text-foreground"
                           )}
                         >
                           <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
-                          <span className={cn("text-[13px] leading-none flex-1 text-left", (isItemExpanded || hasActiveChild) ? "font-semibold" : "font-medium")}>
+                          <span className={cn("text-[14px] leading-none flex-1 text-left", (isItemExpanded || hasActiveChild) ? "font-semibold" : "font-medium")}>
                             {item.name}
                           </span>
                           <ChevronDown className={cn("h-3 w-3 text-text-3 transition-transform duration-200", isItemExpanded && "rotate-180")} />
@@ -197,7 +195,7 @@ export function Sidebar({
                             {item.children!.map(child => (
                               <Link key={child.href} href={child.href} onClick={onClose}>
                                 <div className={cn(
-                                  "py-1.5 px-2 rounded-md text-[13px] transition-colors duration-150",
+                                  "py-1.5 px-2 rounded-md text-[14px] transition-colors duration-150",
                                   pathname === child.href
                                     ? "text-[#dafc69] font-semibold"
                                     : "text-text-2 hover:text-foreground hover:bg-foreground/[0.04]"
@@ -216,13 +214,13 @@ export function Sidebar({
                   return (
                     <Link key={item.name} href={item.href} onClick={onClose}>
                       <div className={cn(
-                        "flex items-center gap-2.5 rounded-lg py-[7px] px-3 transition-all duration-150",
+                        "flex h-[34px] items-center gap-2.5 rounded-lg px-3 transition-all duration-150",
                         isActive
-                          ? "bg-foreground/[0.07] text-[#dafc69]"
+                          ? "bg-secondary text-[#dafc69]"
                           : "text-foreground hover:bg-foreground/[0.05] hover:text-foreground"
                       )}>
                         <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
-                        <span className={cn("text-[13px] leading-none", isActive ? "font-semibold" : "font-medium")}>
+                        <span className={cn("text-[14px] leading-none", isActive ? "font-semibold" : "font-medium")}>
                           {item.name}
                         </span>
                       </div>
