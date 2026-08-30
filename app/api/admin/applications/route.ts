@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireInternal } from "@/lib/auth/api-guards"
-import { isAdmin } from "@/lib/auth/permissions"
+import { resolveInternalScope } from "@/lib/auth/internal-scope"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
+
+function requestedTenantId(req: NextRequest, body?: any): string | null {
+  return req.nextUrl.searchParams.get("client_id") ?? body?.client_id ?? null
+}
 
 /*
   SQL — run once in Supabase SQL editor:
@@ -56,17 +59,6 @@ export const dynamic = "force-dynamic"
   alter table applications add column if not exists terms_accepted       boolean not null default false;
 */
 
-async function requireAdmin(jwt: string | null) {
-  if (!jwt) return null
-  const supabase = createServiceClient()
-  const { data: { user }, error } = await supabase.auth.getUser(jwt)
-  if (error || !user) return null
-  const { data: profile } = await supabase
-    .from("profiles").select("role").eq("id", user.id).maybeSingle()
-  if (!isAdmin(profile?.role)) return null
-  return user
-}
-
 const ALL_FIELDS = [
   "id","first_name","last_name","email","whatsapp","instagram_handle",
   "primary_channel","short_content_link","youtube_podcast_link",
@@ -75,17 +67,17 @@ const ALL_FIELDS = [
   "one_year_goal","terms_accepted","status","notes","purchased","created_at",
 ].join(", ")
 
-/** GET — all applications ordered by created_at desc. Lectura: admin OR team. */
+/** GET — all applications of the caller's tenant, ordered by created_at desc. */
 export async function GET(req: NextRequest) {
   try {
-    const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireInternal(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    const scope = await resolveInternalScope(req, requestedTenantId(req))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     const supabase = createServiceClient()
     const { data, error } = await supabase
       .from("applications")
       .select(ALL_FIELDS)
+      .eq("client_id", scope.tenantId)
       .order("created_at", { ascending: false })
       .limit(1000)
 
@@ -99,12 +91,11 @@ export async function GET(req: NextRequest) {
 /** POST — create a new application */
 export async function POST(req: NextRequest) {
   try {
-    const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
+
+    const scope = await resolveInternalScope(req, requestedTenantId(req, body))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     const {
       first_name, last_name, email, whatsapp, instagram_handle,
@@ -118,6 +109,7 @@ export async function POST(req: NextRequest) {
     const { data, error } = await supabase
       .from("applications")
       .insert({
+        client_id:            scope.tenantId,
         first_name:           first_name           || null,
         last_name:            last_name            || null,
         email:                email                || null,
@@ -153,12 +145,11 @@ export async function POST(req: NextRequest) {
 /** PATCH — update any allowed field */
 export async function PATCH(req: NextRequest) {
   try {
-    const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
+
+    const scope = await resolveInternalScope(req, requestedTenantId(req, body))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     const { id, ...updates } = body
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
@@ -175,7 +166,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const supabase = createServiceClient()
-    const { error } = await supabase.from("applications").update(allowed).eq("id", id)
+    const { error } = await supabase.from("applications").update(allowed).eq("id", id).eq("client_id", scope.tenantId)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ success: true })
   } catch (err: any) {
@@ -186,17 +177,15 @@ export async function PATCH(req: NextRequest) {
 /** DELETE — remove an application */
 export async function DELETE(req: NextRequest) {
   try {
-    const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
-
     if (!body.id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
+    const scope = await resolveInternalScope(req, requestedTenantId(req, body))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
+
     const supabase = createServiceClient()
-    const { error } = await supabase.from("applications").delete().eq("id", body.id)
+    const { error } = await supabase.from("applications").delete().eq("id", body.id).eq("client_id", scope.tenantId)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ success: true })
   } catch (err: any) {

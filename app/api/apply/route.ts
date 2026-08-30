@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { getSmartScaleTenantId } from "@/lib/auth/internal-scope"
 
 export const runtime = "nodejs"
 
@@ -26,9 +27,22 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = createServiceClient()
+
+    // El form público hoy no sabe a qué empresa está aplicando alguien (sin
+    // subdominio ni parámetro de campaña) — decisión de producto pendiente,
+    // ver prompt del panel interno multi-tenant. Hasta que se resuelva,
+    // TODAS las aplicaciones caen al sector interno de Smart Scale, que es
+    // el comportamiento de hoy (Aplicaciones todavía no está en el kit de
+    // ningún cliente, así que esto no cambia nada visible).
+    const smartScaleTenantId = await getSmartScaleTenantId(supabase)
+    if (!smartScaleTenantId) {
+      return NextResponse.json({ error: "No se encontró el tenant interno de Smart Scale" }, { status: 500 })
+    }
+
     const { data, error } = await supabase
       .from("applications")
       .insert({
+        client_id:            smartScaleTenantId,
         first_name:           first_name           || null,
         last_name:            last_name            || null,
         email:                email                || null,
