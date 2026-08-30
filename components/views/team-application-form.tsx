@@ -128,7 +128,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
               No encontramos el puesto <span className="font-mono text-amber-700 dark:text-amber-300">{rol}</span>. Puede que el link esté desactualizado o el puesto haya sido cerrado.
             </p>
           </div>
- <a href="/" className="inline-block rounded-xl btn-accent px-5 py-2.5 text-[13px] font-bold transition">
+          <a href="/" className="inline-block rounded-xl btn-accent px-5 py-2.5 text-[13px] font-bold transition">
             Volver al inicio
           </a>
         </div>

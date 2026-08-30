@@ -33,7 +33,7 @@ export function ChannelShellView({
             "flex items-center gap-2 rounded-[8px] px-4 py-2 text-[13px] font-semibold transition-all",
             comingSoon
               ? "bg-foreground/[0.05] text-foreground/30 cursor-not-allowed"
- : "btn-accent"
+              : "btn-accent"
           )}
         >
           {actionLabel}

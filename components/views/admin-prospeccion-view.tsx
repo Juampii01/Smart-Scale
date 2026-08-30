@@ -280,7 +280,7 @@ function CreateEditModal({
             <button onClick={onClose} type="button" className="h-9 rounded-lg border border-foreground/[0.08] px-4 text-[12.5px] font-semibold text-foreground/60 hover:text-foreground hover:border-foreground/20 transition-all">
               Cancelar
             </button>
- <button onClick={save} disabled={saving || !form.title.trim()} className="inline-flex items-center gap-2 h-9 rounded-lg btn-accent px-4 text-[12.5px] font-bold transition-all disabled:opacity-40">
+            <button onClick={save} disabled={saving || !form.title.trim()} className="inline-flex items-center gap-2 h-9 rounded-lg btn-accent px-4 text-[12.5px] font-bold transition-all disabled:opacity-40">
               {saving
                 ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Guardando…</>
                 : isEdit ? "Guardar cambios" : "Crear item"}

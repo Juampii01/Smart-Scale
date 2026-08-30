@@ -275,7 +275,7 @@ export function AdminPosiView() {
               <textarea className={inputCls} rows={2} value={headerDraft.subtitle} onChange={(e) => setHeaderDraft((d) => ({ ...d, subtitle: e.target.value }))} />
             </div>
             <div className="flex items-center gap-2">
- <button onClick={saveHeader} disabled={headerSaving} className="rounded-lg btn-accent px-4 py-1.5 text-[12px] font-bold disabled:opacity-50 transition-colors">
+            <button onClick={saveHeader} disabled={headerSaving} className="rounded-lg btn-accent px-4 py-1.5 text-[12px] font-bold disabled:opacity-50 transition-colors">
                 {headerSaving ? "Guardando…" : "Guardar"}
               </button>
               <button onClick={() => setEditingHeader(false)} className="rounded-lg px-3 py-1.5 text-[12px] font-semibold text-foreground/50 hover:text-foreground transition-colors">
