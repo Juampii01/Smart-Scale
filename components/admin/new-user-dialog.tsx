@@ -287,7 +287,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                     }`}
                   >
                     <span className="block text-sm font-bold">{opt.label}</span>
-                    <span className="block mt-0.5 text-[10px] leading-tight text-text-2">
+                    <span className="block mt-0.5 text-[13px] leading-tight text-text-2">
                       {opt.description}
                     </span>
                   </button>
@@ -312,7 +312,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
-                <p className="text-[11px] text-text-2 leading-relaxed flex items-start gap-1.5">
+                <p className="text-[13px] text-text-2 leading-relaxed flex items-start gap-1.5">
                   {loadingClients
                     ? <><Loader2 className="h-3 w-3 animate-spin shrink-0 mt-0.5" /> Cargando clientes…</>
                     : "El usuario va a poder ver el portal del cliente que selecciones. Si lo dejás vacío, lo asociás después desde Clientes."}
@@ -338,7 +338,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                     <option key={t.id} value={t.id}>{t.name}</option>
                   ))}
                 </select>
-                <p className="text-[11px] text-text-2 leading-relaxed flex items-start gap-1.5">
+                <p className="text-[13px] text-text-2 leading-relaxed flex items-start gap-1.5">
                   {loadingTenants
                     ? <><Loader2 className="h-3 w-3 animate-spin shrink-0 mt-0.5" /> Cargando sectores…</>
                     : "El usuario va a ver Leads/Setting/Prospección del sector que elijas — nunca los de otro cliente."}

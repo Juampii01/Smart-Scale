@@ -184,20 +184,20 @@ function FindingsSection({ title, subtitle, findings }: { title: string; subtitl
           {findings.map((f, i) => (
             <div key={i} className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
               <div className="flex items-start justify-between gap-3">
-                <h3 className="text-[14px] font-semibold text-foreground">{f.titulo}</h3>
-                <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", SEVERITY_STYLES[f.severidad])}>
+                <h3 className="text-[15px] font-semibold text-foreground">{f.titulo}</h3>
+                <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider", SEVERITY_STYLES[f.severidad])}>
                   {f.severidad}
                 </span>
               </div>
-              <p className="mt-1.5 text-[12.5px] leading-relaxed text-text-2">{f.descripcion}</p>
+              <p className="mt-1.5 text-[13px] leading-relaxed text-text-2">{f.descripcion}</p>
               <div className="mt-2.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
                 <Quote className="h-3 w-3 shrink-0 mt-0.5 text-text-3" />
-                <p className="text-[12px] italic text-text-2">{f.evidencia}</p>
+                <p className="text-[13px] italic text-text-2">{f.evidencia}</p>
               </div>
               {f.canales.length > 0 && (
                 <div className="mt-2.5 flex flex-wrap gap-1.5">
                   {f.canales.map(c => (
-                    <span key={c} className="rounded-md border border-foreground/[0.10] bg-foreground/[0.03] px-2 py-0.5 text-[11px] text-text-2">
+                    <span key={c} className="rounded-md border border-foreground/[0.10] bg-foreground/[0.03] px-2 py-0.5 text-[13px] text-text-2">
                       #{c}
                     </span>
                   ))}
@@ -230,7 +230,7 @@ function StatCard({ icon: Icon, label, value, sublabel, tone }: {
         <p className="text-[11px] font-semibold uppercase tracking-wide text-text-2">{label}</p>
       </div>
       <p className="mt-2.5 text-2xl font-bold tracking-tight text-foreground">{value}</p>
-      {sublabel && <p className="mt-0.5 text-[11.5px] text-text-2">{sublabel}</p>}
+      {sublabel && <p className="mt-0.5 text-[13px] text-text-2">{sublabel}</p>}
     </div>
   )
 }
@@ -300,7 +300,7 @@ function RatingBreakdown({ title, subtitle, distribution, ratings }: {
       <div className="mb-3 flex items-center gap-2">
         <Star className="h-3.5 w-3.5 text-text-2" />
         <p className="text-[11px] font-semibold uppercase tracking-wide text-text-2">{title}</p>
-        <span className="ml-auto text-[11px] text-text-3">{subtitle}</span>
+        <span className="ml-auto text-[13px] text-text-3">{subtitle}</span>
       </div>
       <div className="space-y-1.5">
         {ratings.map(r => {
@@ -308,11 +308,11 @@ function RatingBreakdown({ title, subtitle, distribution, ratings }: {
           const pct = Math.round((count / maxRating) * 100)
           return (
             <div key={r} className="flex items-center gap-2">
-              <span className="w-10 shrink-0 text-[11px] text-text-2">{r}★</span>
+              <span className="w-10 shrink-0 text-[13px] text-text-2">{r}★</span>
               <div className="h-2 flex-1 overflow-hidden rounded-full bg-foreground/[0.06]">
                 <div className="h-full rounded-full bg-[#dafc69]" style={{ width: `${pct}%` }} />
               </div>
-              <span className="w-6 shrink-0 text-right text-[11px] text-text-2">{count}</span>
+              <span className="w-6 shrink-0 text-right text-[13px] text-text-2">{count}</span>
             </div>
           )
         })}
@@ -341,14 +341,14 @@ function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
         <button
           onClick={onRefresh}
           disabled={analyzing}
-          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
         >
           <RefreshCw className={cn("h-3 w-3", analyzing && "animate-spin")} />
           Actualizar
         </button>
       </div>
       {error && (
-        <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{error}</p>
+        <p className="mb-2 text-[13px] text-red-700 dark:text-red-400">{error}</p>
       )}
       {!briefing ? (
         <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
@@ -363,25 +363,25 @@ function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
           {briefing.findings.map((f, i) => (
             <div key={i} className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
               <div className="flex items-start justify-between gap-3">
-                <h3 className="text-[14px] font-semibold text-foreground">@{f.prospecto}</h3>
+                <h3 className="text-[15px] font-semibold text-foreground">@{f.prospecto}</h3>
                 <span className={cn(
-                  "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                  "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider",
                   f.estado === "irremontable" ? IRREMONTABLE_STYLE : SEVERITY_STYLES[f.severidad],
                 )}>
                   {f.estado === "irremontable" ? "irremontable" : f.severidad}
                 </span>
               </div>
-              <p className="mt-1.5 text-[12.5px] leading-relaxed text-text-2">{f.situacion}</p>
-              <p className="mt-2 text-[12px] font-semibold text-text-2">Principio: <span className="font-normal text-text-2">{f.principio}</span></p>
+              <p className="mt-1.5 text-[13px] leading-relaxed text-text-2">{f.situacion}</p>
+              <p className="mt-2 text-[13px] font-semibold text-text-2">Principio: <span className="font-normal text-text-2">{f.principio}</span></p>
               <div className="mt-2 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
                 <Quote className="h-3 w-3 shrink-0 mt-0.5 text-text-3" />
-                <p className="text-[12px] italic text-text-2">{f.evidencia}</p>
+                <p className="text-[13px] italic text-text-2">{f.evidencia}</p>
               </div>
               <div className={cn(
                 "mt-2.5 rounded-lg border px-2.5 py-2",
                 f.estado === "irremontable" ? "border-foreground/[0.10] bg-foreground/[0.03]" : "border-border bg-secondary/30",
               )}>
-                <p className="text-[12px] font-semibold text-foreground">{f.estado === "irremontable" ? "Aprendizaje: " : ""}{f.accion}</p>
+                <p className="text-[13px] font-semibold text-foreground">{f.estado === "irremontable" ? "Aprendizaje: " : ""}{f.accion}</p>
               </div>
             </div>
           ))}
@@ -418,7 +418,7 @@ function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
         <button
           onClick={onRefresh}
           disabled={analyzing}
-          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
         >
           {analyzing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
           Hacer resumen
@@ -426,7 +426,7 @@ function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
       </div>
 
       {error && (
-        <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{error}</p>
+        <p className="mb-2 text-[13px] text-red-700 dark:text-red-400">{error}</p>
       )}
 
       {!briefing ? (
@@ -439,14 +439,14 @@ function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
             <div className="mb-2 flex items-center gap-2">
               <Instagram className="h-3.5 w-3.5 text-text-2" />
               <p className="text-[11px] font-semibold uppercase tracking-wide text-text-2">Instagram</p>
-              <span className="ml-auto text-[11px] text-text-3">{instagram.length}</span>
+              <span className="ml-auto text-[13px] text-text-3">{instagram.length}</span>
             </div>
             {instagram.length === 0 ? (
-              <p className="text-[12.5px] text-text-3">Todo respondido.</p>
+              <p className="text-[13px] text-text-3">Todo respondido.</p>
             ) : (
               <div className="space-y-1.5">
                 {instagram.map(item => (
-                  <div key={item.nombre} className="flex items-center justify-between gap-2 text-[12.5px]">
+                  <div key={item.nombre} className="flex items-center justify-between gap-2 text-[13px]">
                     <span className="truncate text-foreground">@{item.nombre}</span>
                     <span className="shrink-0 text-text-3">{fmtHoursSince(item.horas_sin_responder)}</span>
                   </div>
@@ -459,14 +459,14 @@ function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
             <div className="mb-2 flex items-center gap-2">
               <Slack className="h-3.5 w-3.5 text-text-2" />
               <p className="text-[11px] font-semibold uppercase tracking-wide text-text-2">Slack</p>
-              <span className="ml-auto text-[11px] text-text-3">{slack.length}</span>
+              <span className="ml-auto text-[13px] text-text-3">{slack.length}</span>
             </div>
             {slack.length === 0 ? (
-              <p className="text-[12.5px] text-text-3">Todo respondido.</p>
+              <p className="text-[13px] text-text-3">Todo respondido.</p>
             ) : (
               <div className="space-y-1.5">
                 {slack.map(item => (
-                  <div key={item.nombre} className="flex items-center justify-between gap-2 text-[12.5px]">
+                  <div key={item.nombre} className="flex items-center justify-between gap-2 text-[13px]">
                     <span className="truncate text-foreground">#{item.nombre}</span>
                     <span className="shrink-0 text-text-3">{fmtHoursSince(item.horas_sin_responder)}</span>
                   </div>
@@ -525,28 +525,28 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">
-            <h3 className="text-[14px] font-semibold text-foreground">@{conversation.participant_username ?? "desconocido"}</h3>
+            <h3 className="text-[15px] font-semibold text-foreground">@{conversation.participant_username ?? "desconocido"}</h3>
             {conversation.is_customer && (
-              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
                 cliente
               </span>
             )}
             {conversation.lead_rating != null && (
-              <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] font-bold text-text-2">{conversation.lead_rating}★</span>
+              <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[13px] font-bold text-text-2">{conversation.lead_rating}★</span>
             )}
           </div>
-          <p className="mt-1 text-[12px] text-text-2">
+          <p className="mt-1 text-[13px] text-text-2">
             {conversation.last_message_from === "lead" ? "Último mensaje del prospecto" : "Último mensaje de Ann"} · {fmtDateTime(conversation.last_message_at)}
           </p>
           {conversation.last_message_preview && (
-            <p className="mt-1.5 line-clamp-2 text-[12.5px] text-text-2">{conversation.last_message_preview}</p>
+            <p className="mt-1.5 line-clamp-2 text-[13px] text-text-2">{conversation.last_message_preview}</p>
           )}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           {a && (
             <button
               onClick={() => (correcting ? setCorrecting(false) : openCorrecting())}
-              className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[12px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all"
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all"
             >
               Corregir
             </button>
@@ -554,7 +554,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
           <button
             onClick={onAnalyze}
             disabled={analyzing}
-            className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
+            className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[13px] font-bold transition-all disabled:opacity-40"
           >
             {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
             {a ? "Re-analizar" : "Analizar"}
@@ -565,24 +565,24 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
       {a && (
         <div className="mt-3 border-t border-foreground/[0.07] pt-3">
           <div className="flex items-center gap-2">
-            <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", badgeStyle)}>
+            <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider", badgeStyle)}>
               {a.estado === "en_riesgo" ? a.severidad : a.estado}
             </span>
-            <span className="text-[11px] text-text-3">analizado {fmtDateTime(a.analyzed_at)}</span>
+            <span className="text-[13px] text-text-3">analizado {fmtDateTime(a.analyzed_at)}</span>
             {isStale && (
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
                 desactualizado, hay mensajes nuevos
               </span>
             )}
           </div>
-          <p className="mt-1.5 text-[12.5px] leading-relaxed text-text-2">{a.situacion}</p>
-          <p className="mt-1.5 text-[12px] font-semibold text-text-2">Principio: <span className="font-normal text-text-2">{a.principio}</span></p>
+          <p className="mt-1.5 text-[13px] leading-relaxed text-text-2">{a.situacion}</p>
+          <p className="mt-1.5 text-[13px] font-semibold text-text-2">Principio: <span className="font-normal text-text-2">{a.principio}</span></p>
           <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
             <Quote className="h-3 w-3 shrink-0 mt-0.5 text-text-3" />
-            <p className="text-[12px] italic text-text-2">{a.evidencia}</p>
+            <p className="text-[13px] italic text-text-2">{a.evidencia}</p>
           </div>
           <div className="mt-1.5 rounded-lg border border-accent/20 bg-accent-soft px-2.5 py-2">
-            <p className="text-[12px] font-semibold text-foreground">{a.accion}</p>
+            <p className="text-[13px] font-semibold text-foreground">{a.accion}</p>
           </div>
         </div>
       )}
@@ -591,26 +591,26 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
         <div className="mt-3 space-y-2.5 rounded-xl border border-foreground/[0.10] bg-foreground/[0.02] p-3">
           <p className="text-[11px] font-bold uppercase tracking-widest text-text-2">Registrar patrón de prospección</p>
           <div>
-            <label className="text-[11px] font-semibold text-text-2">Situación</label>
+            <label className="text-[13px] font-semibold text-text-2">Situación</label>
             <textarea
               value={situacion}
               onChange={e => setSituacion(e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
+              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
             />
           </div>
           <div>
-            <label className="text-[11px] font-semibold text-text-2">Qué enfoque/mensaje se usó</label>
+            <label className="text-[13px] font-semibold text-text-2">Qué enfoque/mensaje se usó</label>
             <textarea
               value={enfoque}
               onChange={e => setEnfoque(e.target.value)}
               rows={2}
               placeholder="Ej: le mandé el offer doc directo sin agendar llamada"
-              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
+              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
             />
           </div>
           <div>
-            <label className="text-[11px] font-semibold text-text-2">Resultado</label>
+            <label className="text-[13px] font-semibold text-text-2">Resultado</label>
             <div className="mt-1 flex gap-1.5">
               {(["cerro", "no_cerro", "pendiente"] as const).map(r => (
                 <button
@@ -618,7 +618,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
                   type="button"
                   onClick={() => setResultado(r)}
                   className={cn(
-                    "rounded-lg px-2.5 py-1 text-[11.5px] font-semibold transition-all",
+                    "rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-all",
                     resultado === r ? RESULTADO_STYLES[r] : "bg-foreground/[0.04] text-text-2 hover:text-text-2"
                   )}
                 >
@@ -628,20 +628,20 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
             </div>
           </div>
           <div>
-            <label className="text-[11px] font-semibold text-text-2">Corrección para la IA (opcional)</label>
+            <label className="text-[13px] font-semibold text-text-2">Corrección para la IA (opcional)</label>
             <textarea
               value={correccion}
               onChange={e => setCorreccion(e.target.value)}
               rows={2}
               placeholder="Ej: acá la IA sugirió esperar 4 semanas, pero este tipo de lead se enfría en días"
-              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
+              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
             />
           </div>
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={() => setCorrecting(false)}
-              className="h-8 rounded-lg px-3 text-[12px] font-medium text-text-2 hover:text-foreground transition-all"
+              className="h-8 rounded-lg px-3 text-[13px] font-medium text-text-2 hover:text-foreground transition-all"
             >
               Cancelar
             </button>
@@ -649,7 +649,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               type="button"
               onClick={submitCorrecting}
               disabled={submitting || !situacion.trim() || !enfoque.trim()}
-              className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
+              className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[13px] font-bold transition-all disabled:opacity-40"
             >
               {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : saved ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
               {saved ? "Guardado" : "Guardar patrón"}
@@ -674,19 +674,19 @@ function ChannelListCard({ channel, analyzing, onAnalyze }: {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">
-            <h3 className="text-[14px] font-semibold text-foreground">#{channel.name}</h3>
+            <h3 className="text-[15px] font-semibold text-foreground">#{channel.name}</h3>
             {channel.is_client_channel && (
-              <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-text-2">
+              <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-text-2">
                 cliente
               </span>
             )}
           </div>
-          <p className="mt-1 text-[12px] text-text-2">{channel.message_count} mensajes sincronizados</p>
+          <p className="mt-1 text-[13px] text-text-2">{channel.message_count} mensajes sincronizados</p>
         </div>
         <button
           onClick={onAnalyze}
           disabled={analyzing || channel.message_count === 0}
-          className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
+          className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg btn-accent px-3 text-[13px] font-bold transition-all disabled:opacity-40"
         >
           {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
           {a ? "Re-analizar" : "Analizar"}
@@ -696,19 +696,19 @@ function ChannelListCard({ channel, analyzing, onAnalyze }: {
       {a && (
         <div className="mt-3 border-t border-foreground/[0.07] pt-3">
           <div className="flex items-center gap-2">
-            <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", badgeStyle)}>
+            <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider", badgeStyle)}>
               {a.estado === "en_riesgo" ? a.severidad : a.estado}
             </span>
-            <span className="text-[11px] text-text-3">analizado {fmtDateTime(a.analyzed_at)}</span>
+            <span className="text-[13px] text-text-3">analizado {fmtDateTime(a.analyzed_at)}</span>
           </div>
-          <p className="mt-1.5 text-[12.5px] leading-relaxed text-text-2">{a.situacion}</p>
-          <p className="mt-1.5 text-[12px] font-semibold text-text-2">Principio: <span className="font-normal text-text-2">{a.principio}</span></p>
+          <p className="mt-1.5 text-[13px] leading-relaxed text-text-2">{a.situacion}</p>
+          <p className="mt-1.5 text-[13px] font-semibold text-text-2">Principio: <span className="font-normal text-text-2">{a.principio}</span></p>
           <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
             <Quote className="h-3 w-3 shrink-0 mt-0.5 text-text-3" />
-            <p className="text-[12px] italic text-text-2">{a.evidencia}</p>
+            <p className="text-[13px] italic text-text-2">{a.evidencia}</p>
           </div>
           <div className="mt-1.5 rounded-lg border border-accent/20 bg-accent-soft px-2.5 py-2">
-            <p className="text-[12px] font-semibold text-foreground">{a.accion}</p>
+            <p className="text-[13px] font-semibold text-foreground">{a.accion}</p>
           </div>
         </div>
       )}
@@ -738,25 +738,25 @@ function NewPatternForm({ onSubmit, onDone }: {
   return (
     <div className="mb-3 space-y-2.5 rounded-xl border border-foreground/[0.10] bg-foreground/[0.02] p-3">
       <div>
-        <label className="text-[11px] font-semibold text-text-2">Situación</label>
+        <label className="text-[13px] font-semibold text-text-2">Situación</label>
         <textarea
           value={situacion}
           onChange={e => setSituacion(e.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
+          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
         />
       </div>
       <div>
-        <label className="text-[11px] font-semibold text-text-2">Qué enfoque/mensaje se usó</label>
+        <label className="text-[13px] font-semibold text-text-2">Qué enfoque/mensaje se usó</label>
         <textarea
           value={enfoque}
           onChange={e => setEnfoque(e.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
+          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
         />
       </div>
       <div>
-        <label className="text-[11px] font-semibold text-text-2">Resultado</label>
+        <label className="text-[13px] font-semibold text-text-2">Resultado</label>
         <div className="mt-1 flex gap-1.5">
           {(["cerro", "no_cerro", "pendiente"] as const).map(r => (
             <button
@@ -764,7 +764,7 @@ function NewPatternForm({ onSubmit, onDone }: {
               type="button"
               onClick={() => setResultado(r)}
               className={cn(
-                "rounded-lg px-2.5 py-1 text-[11.5px] font-semibold transition-all",
+                "rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-all",
                 resultado === r ? RESULTADO_STYLES[r] : "bg-foreground/[0.04] text-text-2 hover:text-text-2"
               )}
             >
@@ -774,12 +774,12 @@ function NewPatternForm({ onSubmit, onDone }: {
         </div>
       </div>
       <div>
-        <label className="text-[11px] font-semibold text-text-2">Corrección para la IA (opcional)</label>
+        <label className="text-[13px] font-semibold text-text-2">Corrección para la IA (opcional)</label>
         <textarea
           value={correccion}
           onChange={e => setCorreccion(e.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
+          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
         />
       </div>
       <div className="flex justify-end">
@@ -787,7 +787,7 @@ function NewPatternForm({ onSubmit, onDone }: {
           type="button"
           onClick={submit}
           disabled={submitting || !situacion.trim() || !enfoque.trim()}
-          className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
+          className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[13px] font-bold transition-all disabled:opacity-40"
         >
           {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
           Guardar patrón
@@ -1310,8 +1310,8 @@ export function AdminOmniView() {
                 <Instagram className="h-4 w-4" />
               </span>
               <div className="min-w-0">
-                <h3 className="text-[14px] font-semibold text-foreground">Instagram DMs</h3>
-                <p className="text-[12px] text-text-2">
+                <h3 className="text-[15px] font-semibold text-foreground">Instagram DMs</h3>
+                <p className="text-[13px] text-text-2">
                   {igStatus === undefined ? "Verificando…"
                     : igStatus ? `Conectado como @${igStatus.account_name}`
                     : "No conectado"}
@@ -1324,7 +1324,7 @@ export function AdminOmniView() {
                 <button
                   onClick={connectInstagram}
                   disabled={igLoading}
-                  className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[13px] font-bold transition-all disabled:opacity-40"
                 >
                   {igLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   Conectar Instagram
@@ -1334,15 +1334,15 @@ export function AdminOmniView() {
                 <button
                   onClick={syncInstagram}
                   disabled={igSyncing}
-                  className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[12px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
                 >
                   <RefreshCw className={cn("h-3.5 w-3.5", igSyncing && "animate-spin")} />
                   Sincronizar
                 </button>
               )}
             </div>
-            {igSyncMsg && <p className="mt-2 text-[11.5px] text-text-2">{igSyncMsg}</p>}
-            <p className="mt-2 text-[12px] text-text-3">
+            {igSyncMsg && <p className="mt-2 text-[13px] text-text-2">{igSyncMsg}</p>}
+            <p className="mt-2 text-[13px] text-text-3">
               Requiere el permiso de mensajes habilitado en Meta (Instagram) — ver la conversación del setup para el detalle.
             </p>
           </div>
@@ -1354,7 +1354,7 @@ export function AdminOmniView() {
               {conversations && <span className="ml-2 normal-case font-normal tracking-normal text-text-3">{conversations.length}</span>}
             </p>
             {conversationsError && (
-              <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{conversationsError}</p>
+              <p className="mb-2 text-[13px] text-red-700 dark:text-red-400">{conversationsError}</p>
             )}
             {conversations === null ? (
               <div className="space-y-3">
@@ -1398,8 +1398,8 @@ export function AdminOmniView() {
                 <Slack className="h-4 w-4" />
               </span>
               <div className="min-w-0">
-                <h3 className="text-[14px] font-semibold text-foreground">Slack — Comunidad</h3>
-                <p className="text-[12px] text-text-2">
+                <h3 className="text-[15px] font-semibold text-foreground">Slack — Comunidad</h3>
+                <p className="text-[13px] text-text-2">
                   {!slackUserConnected
                     ? (slackUserConnected === undefined ? "Verificando…" : "No conectado — falta autorizar como Ann")
                     : slackStatus
@@ -1414,7 +1414,7 @@ export function AdminOmniView() {
                 <button
                   onClick={connectSlack}
                   disabled={slackConnecting}
-                  className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[13px] font-bold transition-all disabled:opacity-40"
                 >
                   {slackConnecting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   Conectar como Ann
@@ -1424,7 +1424,7 @@ export function AdminOmniView() {
                 <button
                   onClick={syncSlack}
                   disabled={slackSyncing}
-                  className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[12px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
                 >
                   <RefreshCw className={cn("h-3.5 w-3.5", slackSyncing && "animate-spin")} />
                   Sincronizar
@@ -1434,16 +1434,16 @@ export function AdminOmniView() {
                 <button
                   onClick={analyzeSlack}
                   disabled={analyzing}
-                  className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[13px] font-bold transition-all disabled:opacity-40"
                 >
                   {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
                   Analizar
                 </button>
               )}
             </div>
-            {slackSyncMsg && <p className="mt-2 text-[11.5px] text-text-2">{slackSyncMsg}</p>}
-            {analyzeMsg && <p className="mt-1 text-[11.5px] text-text-2">{analyzeMsg}</p>}
-            <p className="mt-2 text-[12px] text-text-3">
+            {slackSyncMsg && <p className="mt-2 text-[13px] text-text-2">{slackSyncMsg}</p>}
+            {analyzeMsg && <p className="mt-1 text-[13px] text-text-2">{analyzeMsg}</p>}
+            <p className="mt-2 text-[13px] text-text-3">
               Requiere los scopes de lectura agregados al bot de Slack — ver la conversación del setup para el detalle.
             </p>
           </div>
@@ -1455,7 +1455,7 @@ export function AdminOmniView() {
               {channels && <span className="ml-2 normal-case font-normal tracking-normal text-text-3">{channels.length}</span>}
             </p>
             {channelsError && (
-              <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{channelsError}</p>
+              <p className="mb-2 text-[13px] text-red-700 dark:text-red-400">{channelsError}</p>
             )}
             {channels === null ? (
               <div className="space-y-3">
@@ -1504,55 +1504,55 @@ export function AdminOmniView() {
           {/* Contexto de prospección — workflow propio, separado del Cerebro de Ann */}
           <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
             <SectionHeader icon={Compass} title="Tu contexto de prospección" />
-            <p className="mt-2 text-[12px] text-text-2">
+            <p className="mt-2 text-[13px] text-text-2">
               Separado del Cerebro de Ann — esto ajusta cómo se redacta el feedback de cada análisis de conversación (traducido a lenguaje simple, con foco en pasar de conversación a offer doc), sin tocar el criterio base de Ann.
             </p>
             {prospectingContextError && (
-              <p className="mt-2 text-[12px] text-red-700 dark:text-red-400">{prospectingContextError}</p>
+              <p className="mt-2 text-[13px] text-red-700 dark:text-red-400">{prospectingContextError}</p>
             )}
             {prospectingContext === null ? (
               <div className="mt-3 h-32 animate-pulse rounded-xl bg-foreground/[0.03]" />
             ) : (
               <div className="mt-3 space-y-3">
                 <div>
-                  <label className="text-[11px] font-semibold text-text-2">Workflow inbound</label>
+                  <label className="text-[13px] font-semibold text-text-2">Workflow inbound</label>
                   <textarea
                     value={prospectingContext.workflow_inbound}
                     onChange={e => setProspectingContext({ ...prospectingContext, workflow_inbound: e.target.value })}
                     rows={3}
                     placeholder="Cómo trabajás los leads que llegan solos (DMs, formularios, etc.)"
-                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
+                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-text-2">Workflow outbound</label>
+                  <label className="text-[13px] font-semibold text-text-2">Workflow outbound</label>
                   <textarea
                     value={prospectingContext.workflow_outbound}
                     onChange={e => setProspectingContext({ ...prospectingContext, workflow_outbound: e.target.value })}
                     rows={3}
                     placeholder="Cómo contactás vos a los leads (prospección activa)"
-                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
+                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-text-2">Notas generales</label>
+                  <label className="text-[13px] font-semibold text-text-2">Notas generales</label>
                   <textarea
                     value={prospectingContext.notas_generales}
                     onChange={e => setProspectingContext({ ...prospectingContext, notas_generales: e.target.value })}
                     rows={2}
-                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[12.5px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
+                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
                   />
                 </div>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={saveProspectingContext}
                     disabled={prospectingContextSaving}
-                    className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
+                    className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[13px] font-bold transition-all disabled:opacity-40"
                   >
                     {prospectingContextSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                     Guardar
                   </button>
-                  {prospectingContextMsg && <span className="text-[12px] text-emerald-700 dark:text-emerald-400">{prospectingContextMsg}</span>}
+                  {prospectingContextMsg && <span className="text-[13px] text-emerald-700 dark:text-emerald-400">{prospectingContextMsg}</span>}
                 </div>
               </div>
             )}
@@ -1567,7 +1567,7 @@ export function AdminOmniView() {
               action={
                 <button
                   onClick={() => setNewPatternOpen(v => !v)}
-                  className="flex h-7 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[11.5px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all"
+                  className="flex h-7 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all"
                 >
                   {newPatternOpen ? "Cancelar" : "+ Nuevo patrón"}
                 </button>
@@ -1580,7 +1580,7 @@ export function AdminOmniView() {
             )}
 
             {patternsError && (
-              <p className="mb-2 text-[12px] text-red-700 dark:text-red-400">{patternsError}</p>
+              <p className="mb-2 text-[13px] text-red-700 dark:text-red-400">{patternsError}</p>
             )}
             {patterns === null ? (
               <div className="space-y-2">
@@ -1596,12 +1596,12 @@ export function AdminOmniView() {
                   <div key={p.id} className="rounded-xl border border-foreground/[0.07] bg-card p-3">
                     <div className="flex items-center justify-between gap-2">
                       <StatusPill variant={RESULTADO_VARIANT[p.resultado]}>{RESULTADO_LABELS[p.resultado]}</StatusPill>
-                      <span className="text-[11px] text-text-3">{fmtDateTime(p.created_at)}</span>
+                      <span className="text-[13px] text-text-3">{fmtDateTime(p.created_at)}</span>
                     </div>
-                    <p className="mt-1.5 text-[12.5px] text-foreground"><span className="font-semibold text-text-2">Situación:</span> {p.situacion}</p>
-                    <p className="mt-1 text-[12.5px] text-foreground"><span className="font-semibold text-text-2">Enfoque:</span> {p.enfoque}</p>
+                    <p className="mt-1.5 text-[13px] text-foreground"><span className="font-semibold text-text-2">Situación:</span> {p.situacion}</p>
+                    <p className="mt-1 text-[13px] text-foreground"><span className="font-semibold text-text-2">Enfoque:</span> {p.enfoque}</p>
                     {p.correccion && (
-                      <p className="mt-1.5 rounded-lg bg-accent-soft px-2.5 py-1.5 text-[12px] text-foreground">
+                      <p className="mt-1.5 rounded-lg bg-accent-soft px-2.5 py-1.5 text-[13px] text-foreground">
                         <span className="font-semibold">Corrección:</span> {p.correccion}
                       </p>
                     )}

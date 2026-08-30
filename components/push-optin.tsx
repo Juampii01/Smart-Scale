@@ -123,7 +123,7 @@ export function PushOptIn({ banner = false, prompt }: { banner?: boolean; prompt
         <Bell size={18} className="shrink-0 text-text-2" />
         <div className="flex-1 min-w-0">
           <p className="text-[13px] font-semibold text-foreground">{prompt ?? "Activá las notificaciones"}</p>
-          {msg && <p className="text-[11px] mt-0.5" style={{ color: "var(--muted-foreground)" }}>{msg}</p>}
+          {msg && <p className="text-[13px] mt-0.5" style={{ color: "var(--muted-foreground)" }}>{msg}</p>}
         </div>
         {btn}
       </div>
@@ -133,7 +133,7 @@ export function PushOptIn({ banner = false, prompt }: { banner?: boolean; prompt
   return (
     <div className="inline-flex flex-col gap-1">
       {btn}
-      {msg && <span className="text-[11px]" style={{ color: "var(--muted-foreground)" }}>{msg}</span>}
+      {msg && <span className="text-[13px]" style={{ color: "var(--muted-foreground)" }}>{msg}</span>}
     </div>
   )
 }

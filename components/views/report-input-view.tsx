@@ -193,7 +193,7 @@ function ConfirmOverwriteDialog({
               <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-400" />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-1">Reporte existente</p>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">Reporte existente</p>
               <h3 className="text-base font-semibold text-foreground">¿Reemplazar los datos?</h3>
               <p className="mt-1.5 text-sm text-text-2">
                 Ya existe un reporte para <span className="font-semibold text-foreground">{month}</span>. Los datos actuales serán reemplazados por los que estás por guardar.
@@ -472,7 +472,7 @@ export function ReportInputView() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
           <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">Mes del reporte</p>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">Mes del reporte</p>
               <input
                 type="month"
                 value={month}
@@ -482,22 +482,22 @@ export function ReportInputView() {
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               {loadingExisting && (
-                <span className="flex items-center gap-1.5 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[10px] text-text-2">
+                <span className="flex items-center gap-1.5 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[13px] text-text-2">
                   <Loader2 className="h-3 w-3 animate-spin" />Cargando…
                 </span>
               )}
               {!loadingExisting && isUpdate && (
-                <span className="rounded-full border border-amber-400 bg-amber-100 text-amber-900 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-400">
+                <span className="rounded-full border border-amber-400 bg-amber-100 text-amber-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-400">
                   Reporte existente — se sobreescribirá
                 </span>
               )}
               {!loadingExisting && !isUpdate && ownClientId && (
-                <span className="rounded-full border border-emerald-400 bg-emerald-100 text-emerald-800 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-400">
+                <span className="rounded-full border border-emerald-400 bg-emerald-100 text-emerald-800 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-400">
                   Nuevo reporte
                 </span>
               )}
               {!ownClientId && (
-                <span className="rounded-full border border-red-400 bg-red-100 text-red-800 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-400">
+                <span className="rounded-full border border-red-400 bg-red-100 text-red-800 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-400">
                   Sin cliente seleccionado
                 </span>
               )}
@@ -513,7 +513,7 @@ export function ReportInputView() {
                 <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
                 <span className="text-sm font-semibold uppercase tracking-widest text-foreground">{group.label}</span>
               </div>
-              <span className="text-[10px] text-text-3">{group.fields.length} campos</span>
+              <span className="text-[13px] text-text-3">{group.fields.length} campos</span>
             </div>
 
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -594,7 +594,7 @@ export function ReportInputView() {
                           type="button"
                           onClick={fetchCalculatedMRR}
                           disabled={mrrCalc.loading}
-                          className="text-[11px] font-medium text-[#dafc69] hover:text-[#f2ffc0] transition-colors disabled:opacity-50"
+                          className="text-[13px] font-medium text-[#dafc69] hover:text-[#f2ffc0] transition-colors disabled:opacity-50"
                         >
                           {mrrCalc.loading ? "Calculando…" : "Usar calculado (todos los clientes activos)"}
                         </button>
@@ -602,12 +602,12 @@ export function ReportInputView() {
                           <button
                             type="button"
                             onClick={() => setValue("mrr", String(mrrCalc.value))}
-                            className="text-[11px] font-semibold text-foreground hover:text-foreground underline transition-colors"
+                            className="text-[13px] font-semibold text-foreground hover:text-foreground underline transition-colors"
                           >
                             ${mrrCalc.value.toLocaleString()} — usar
                           </button>
                         )}
-                        {mrrCalc.error && <span className="text-[11px] text-red-700 dark:text-red-400">{mrrCalc.error}</span>}
+                        {mrrCalc.error && <span className="text-[13px] text-red-700 dark:text-red-400">{mrrCalc.error}</span>}
                       </div>
                     )}
                   </div>

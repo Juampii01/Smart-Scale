@@ -55,7 +55,7 @@ export function KanbanColumn({
             {title}
           </span>
           <span
-            className="text-[11px] font-medium px-1.5 py-0.5 rounded-full tabular-nums"
+            className="text-[13px] font-medium px-1.5 py-0.5 rounded-full tabular-nums"
             style={{ backgroundColor: "var(--muted)", color: "var(--muted-foreground)" }}
           >
             {tasks.length}
@@ -112,7 +112,7 @@ export function KanbanColumn({
               style={{ color: "var(--foreground)" }}
             />
             <div className="flex items-center justify-between mt-2.5 gap-2">
-              <span className="text-[10px]" style={{ color: "var(--muted-foreground)", opacity: 0.5 }}>
+              <span className="text-[13px]" style={{ color: "var(--muted-foreground)", opacity: 0.5 }}>
                 ↵ crear · Esc cancelar
               </span>
               <div className="flex gap-1.5">
@@ -126,7 +126,7 @@ export function KanbanColumn({
                 <button
                   onPointerDown={e => { e.preventDefault(); submitQuickAdd() }}
                   disabled={!quickAddValue.trim()}
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold disabled:opacity-40 cursor-pointer transition-opacity"
+                  className="px-2.5 py-1 rounded-lg text-[13px] font-semibold disabled:opacity-40 cursor-pointer transition-opacity"
                   style={{ backgroundColor: "var(--accent)", color: "var(--accent-foreground)" }}
                 >
                   Crear

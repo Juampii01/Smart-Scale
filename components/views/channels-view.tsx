@@ -123,8 +123,8 @@ function ChannelCard({
           </div>
         ) : (
           <>
-            <p className="text-[36px] font-bold tracking-tight leading-none text-foreground">{audience}</p>
-            <p className="text-[11px] text-text-3 mt-1 mb-4">{audienceLabel}</p>
+            <p className="text-[32px] font-bold tracking-tight leading-none text-foreground">{audience}</p>
+            <p className="text-[13px] text-text-3 mt-1 mb-4">{audienceLabel}</p>
             <div className="space-y-0">
               {rows.map((row, i) => (
                 <div key={i} className={`flex items-center justify-between py-2 ${i < rows.length - 1 ? "border-b border-foreground/[0.05]" : ""}`}>
@@ -188,13 +188,13 @@ function GrowthIndexChart({ reports }: { reports: any[] }) {
     <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
       <div className="flex items-start justify-between mb-1">
         <div>
-          <h4 className="text-[16px] font-bold text-foreground">Índice de Crecimiento</h4>
+          <h4 className="text-[18px] font-bold text-foreground">Índice de Crecimiento</h4>
           <p className="text-xs text-text-3 mt-0.5">
             Base 100 = primer mes con datos. Muestra quién crece más rápido, sin importar la escala.
           </p>
         </div>
         {/* Tip */}
-        <span className="text-[10px] text-text-3 bg-foreground/[0.04] border border-foreground/[0.06] rounded-lg px-2 py-1 ml-4 mt-0.5 whitespace-nowrap">
+        <span className="text-[13px] text-text-3 bg-foreground/[0.04] border border-foreground/[0.06] rounded-lg px-2 py-1 ml-4 mt-0.5 whitespace-nowrap">
           200 = duplicó su audiencia
         </span>
       </div>
@@ -204,8 +204,8 @@ function GrowthIndexChart({ reports }: { reports: any[] }) {
         {activeChannels.map(ch => (
           <div key={ch.key} className="flex items-center gap-1.5">
             <span className="h-[3px] w-5 rounded-full" style={{ backgroundColor: ch.color }} />
-            <span className="text-[11px] text-text-2 font-medium">{ch.label}</span>
-            <span className="text-[10px] text-text-3">({fmtCompact(bases[ch.key])} base)</span>
+            <span className="text-[13px] text-text-2 font-medium">{ch.label}</span>
+            <span className="text-[13px] text-text-3">({fmtCompact(bases[ch.key])} base)</span>
           </div>
         ))}
       </div>
@@ -254,18 +254,18 @@ function ContentVsAudience({ reports }: { reports: any[] }) {
 
   return (
     <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
-      <h4 className="text-[16px] font-bold text-foreground mb-1">Posts vs Seguidores Instagram</h4>
+      <h4 className="text-[18px] font-bold text-foreground mb-1">Posts vs Seguidores Instagram</h4>
       <p className="text-xs text-text-3 mb-5">
         ¿Cuándo publicás más, la audiencia crece? Buscá el patrón entre las barras y la línea.
       </p>
       <div className="flex flex-wrap gap-5 mb-4">
         <div className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-sm bg-[#dafc69]" />
-          <span className="text-[11px] text-text-2">Posts publicados</span>
+          <span className="text-[13px] text-text-2">Posts publicados</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="h-[3px] w-5 rounded-full bg-[#818cf8]" />
-          <span className="text-[11px] text-text-2">Seguidores IG</span>
+          <span className="text-[13px] text-text-2">Seguidores IG</span>
         </div>
       </div>
       <ResponsiveContainer width="100%" height={220}>
@@ -315,16 +315,16 @@ function YouTubeTrend({ reports }: { reports: any[] }) {
 
   return (
     <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
-      <h4 className="text-[16px] font-bold text-foreground mb-1">YouTube — Suscriptores vs Vistas</h4>
+      <h4 className="text-[18px] font-bold text-foreground mb-1">YouTube — Suscriptores vs Vistas</h4>
       <p className="text-xs text-text-3 mb-5">¿Las vistas generan suscriptores o son independientes?</p>
       <div className="flex flex-wrap gap-5 mb-4">
         <div className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-sm bg-[#f87171]" />
-          <span className="text-[11px] text-text-2">Vistas</span>
+          <span className="text-[13px] text-text-2">Vistas</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="h-[3px] w-5 rounded-full bg-[#fbbf24]" />
-          <span className="text-[11px] text-text-2">Suscriptores</span>
+          <span className="text-[13px] text-text-2">Suscriptores</span>
         </div>
       </div>
       <ResponsiveContainer width="100%" height={200}>

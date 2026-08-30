@@ -79,7 +79,7 @@ function DeltaPill({ pct, diff, money, size = "sm" }: {
   return (
     <span className={cn(
       "inline-flex items-center gap-1 rounded-full font-bold",
-      size === "lg" ? "px-2.5 py-1 text-[13px]" : "px-2 py-0.5 text-[11px]",
+      size === "lg" ? "px-2.5 py-1 text-[13px]" : "px-2 py-0.5 text-[13px]",
       up   ? "text-emerald-700 dark:text-emerald-400"
       : down ? "text-red-700 dark:text-red-400"
       :       "text-text-2"
@@ -105,7 +105,7 @@ function RevenueTooltip({ active, payload }: any) {
   const p = payload[0].payload
   return (
     <div className="rounded-lg border border-foreground/10 bg-popover px-3 py-2 shadow-xl">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-text-2">{monthLong(p.ym)}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-text-2">{monthLong(p.ym)}</p>
       <p className="text-[15px] font-bold text-foreground tabular-nums">{fmtMoney(p.v)}</p>
     </div>
   )
@@ -177,7 +177,7 @@ export function OverviewHero() {
     <section className="space-y-6">
       {/* Saludo */}
       <div>
-        <h1 className="text-[28px] sm:text-[34px] font-bold tracking-tight text-foreground leading-tight" suppressHydrationWarning>
+        <h1 className="text-[32px] sm:text-[32px] font-bold tracking-tight text-foreground leading-tight" suppressHydrationWarning>
           {greeting}{firstName ? <>, {firstName}</> : ""}<span className="text-text-3">.</span>
         </h1>
         <p className="text-[13px] text-text-2 mt-1">
@@ -200,7 +200,7 @@ export function OverviewHero() {
                     type="button"
                     onClick={() => setRange(r.id)}
                     className={cn(
-                      "rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors",
+                      "rounded-md px-2.5 py-1 text-[13px] font-semibold transition-colors",
                       range === r.id ? "bg-secondary text-foreground" : "text-text-2 hover:text-foreground"
                     )}
                   >
@@ -212,14 +212,14 @@ export function OverviewHero() {
           </div>
 
           <div className="mt-3 flex flex-wrap items-end gap-3">
-            <p className="text-[40px] sm:text-[44px] font-bold tracking-tight text-foreground leading-none tabular-nums">
+            <p className="text-[32px] sm:text-[32px] font-bold tracking-tight text-foreground leading-none tabular-nums">
               {current ? fmtMoney(current.total_revenue) : "—"}
             </p>
             {revDelta.diff != null && (
               <span className="mb-1 flex items-center gap-2">
                 <DeltaPill pct={revDelta.pct} diff={revDelta.diff} money size="lg" />
                 {previous && (
-                  <span className="text-[12px] text-text-3">
+                  <span className="text-[13px] text-text-3">
                     vs {monthShort(previous.month)} · {fmtMoney(previous.total_revenue)}
                   </span>
                 )}
@@ -275,7 +275,7 @@ export function OverviewHero() {
                 <div key={String(kpi.key)} className="flex items-center justify-between gap-3 px-5 py-[14px]">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: kpi.color }} />
-                    <span className="truncate text-[12.5px] text-text-2">{kpi.label}</span>
+                    <span className="truncate text-[13px] text-text-2">{kpi.label}</span>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <span className="text-[15px] font-bold text-foreground tabular-nums">{val}</span>
@@ -301,9 +301,9 @@ export function OverviewHero() {
               const d = delta(cur, prev)
               return (
                 <div key={String(ch.key)} className="bg-card px-5 py-4">
-                  <p className="text-[11.5px] text-text-2">{ch.label}</p>
+                  <p className="text-[13px] text-text-2">{ch.label}</p>
                   <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className="text-[20px] font-bold text-foreground tabular-nums leading-none">{fmtNumber(cur)}</span>
+                    <span className="text-[24px] font-bold text-foreground tabular-nums leading-none">{fmtNumber(cur)}</span>
                     <DeltaPill pct={d.pct} diff={d.diff} />
                   </div>
                 </div>

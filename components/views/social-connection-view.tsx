@@ -179,7 +179,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
             )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-foreground">{status.accountName ?? "Cuenta conectada"}</p>
-              <p className="flex items-center gap-1 text-[12px] text-emerald-700 dark:text-emerald-400">
+              <p className="flex items-center gap-1 text-[13px] text-emerald-700 dark:text-emerald-400">
                 <Check className="h-3 w-3" /> Conectado{status.connectedAt ? ` · ${new Date(status.connectedAt).toLocaleDateString("es-AR")}` : ""}
               </p>
             </div>
@@ -192,7 +192,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
           </div>
 
           {status.tokenExpired && (
-            <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300">
+            <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[13px] text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300">
               <AlertTriangle className="h-3.5 w-3.5 shrink-0" /> El acceso venció.
               <button onClick={handleConnect} disabled={busy} className="ml-auto inline-flex items-center gap-1 font-semibold underline"><RefreshCw className="h-3 w-3" /> Reconectar</button>
             </div>
@@ -256,7 +256,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                   <div className="flex items-center gap-2 border-b border-border px-5 py-3">
                     <Flame className="h-4 w-4 text-text-2" />
                     <span className="text-sm font-semibold text-foreground">Métricas detalladas</span>
-                    <span className="ml-auto text-[11px] text-text-2">
+                    <span className="ml-auto text-[13px] text-text-2">
                       {bucket.key === "total" ? "todo el período" : bucket.label} · {bucket.count} {platform === "youtube" ? "videos" : "publicaciones"}
                     </span>
                   </div>
@@ -265,7 +265,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                       <div key={s.label} className="rounded-xl border border-border bg-background/40 p-4">
                         <p className="text-xs text-text-2">{s.label}</p>
                         <p className="mt-1 text-xl font-bold text-foreground tabular-nums">{s.value}</p>
-                        {s.sub && <p className="mt-0.5 text-[11px] text-text-2">{s.sub}</p>}
+                        {s.sub && <p className="mt-0.5 text-[13px] text-text-2">{s.sub}</p>}
                       </div>
                     ))}
                   </div>
@@ -290,8 +290,8 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                           </span>
                         </div>
                         <div className="p-2.5">
-                          {m.caption && <p className="mb-1.5 line-clamp-2 text-[11px] text-text-2 leading-snug">{m.caption}</p>}
-                          <div className="flex items-center gap-3 text-[11px] text-text-2">
+                          {m.caption && <p className="mb-1.5 line-clamp-2 text-[13px] text-text-2 leading-snug">{m.caption}</p>}
+                          <div className="flex items-center gap-3 text-[13px] text-text-2">
                             {(m.views ?? 0) > 0 && <span className="flex items-center gap-0.5" title="Views"><Eye className="h-3 w-3" /> {fmt(m.views ?? 0)}</span>}
                             <span className="flex items-center gap-0.5" title="Likes"><Heart className="h-3 w-3" /> {fmt(m.likes)}</span>
                             <span className="flex items-center gap-0.5" title="Comentarios"><MessageCircle className="h-3 w-3" /> {fmt(m.comments)}</span>

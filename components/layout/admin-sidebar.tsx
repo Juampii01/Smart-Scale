@@ -124,7 +124,7 @@ function VerClientesPicker({ collapsed, ownTenant }: { collapsed: boolean; ownTe
         )}
       >
         <Building2 className="h-3.5 w-3.5 flex-shrink-0" />
-        <span className={cn("min-w-0 flex-1 truncate text-left text-[12px] font-semibold", collapsed && "lg:hidden")}>
+        <span className={cn("min-w-0 flex-1 truncate text-left text-[13px] font-semibold", collapsed && "lg:hidden")}>
           {viewAsTenant ? activeLabel : "Ver Clientes"}
         </span>
       </button>
@@ -142,7 +142,7 @@ function VerClientesPicker({ collapsed, ownTenant }: { collapsed: boolean; ownTe
                 {viewAsTenant && (
                   <button
                     onClick={() => { setViewAsTenant(null); setOpenMenu(false) }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] font-semibold text-foreground hover:bg-foreground/[0.06] hover:text-foreground transition-colors border-b border-foreground/[0.06]"
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] font-semibold text-foreground hover:bg-foreground/[0.06] hover:text-foreground transition-colors border-b border-foreground/[0.06]"
                   >
                     <ArrowLeft className="h-3 w-3" /> Volver a mi sector
                   </button>
@@ -151,7 +151,7 @@ function VerClientesPicker({ collapsed, ownTenant }: { collapsed: boolean; ownTe
                   <button
                     key={t.id}
                     onClick={() => pick(t)}
-                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[12px] text-foreground hover:bg-foreground/[0.06] hover:text-foreground transition-colors"
+                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[13px] text-foreground hover:bg-foreground/[0.06] hover:text-foreground transition-colors"
                   >
                     <span className="truncate">{t.is_internal_workspace ? `${t.name} (interno)` : t.name}</span>
                     {viewAsTenant?.id === t.id && <Check className="h-3 w-3 shrink-0 text-amber-500" />}
@@ -260,7 +260,7 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
             )}
           </div>
           <span className={cn(
-            "mt-2 inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#dafc69]",
+            "mt-2 inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.15em] text-[#dafc69]",
             collapsed && "lg:hidden"
           )}>
             <ShieldCheck className="h-2.5 w-2.5" />
@@ -294,7 +294,7 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
           <div className={cn("pt-1", collapsed ? "px-3 lg:px-2" : "px-3")}>
             <Link href="/dashboard" onClick={onClose} title="Volver al portal">
               <div className={cn(
-                "group flex items-center gap-2 rounded-lg border border-foreground/[0.07] bg-foreground/[0.02] py-2 text-[12px] font-semibold text-text-2 hover:text-foreground hover:border-foreground/[0.15] transition-all",
+                "group flex items-center gap-2 rounded-lg border border-foreground/[0.07] bg-foreground/[0.02] py-2 text-[13px] font-semibold text-text-2 hover:text-foreground hover:border-foreground/[0.15] transition-all",
                 collapsed ? "px-3 lg:px-0 lg:justify-center" : "px-3"
               )}>
                 <ArrowLeft className="h-3.5 w-3.5 flex-shrink-0" />
@@ -318,7 +318,7 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
                 <Sparkles className="h-4 w-4 flex-shrink-0" />
                 <div className={cn("min-w-0 leading-none", collapsed && "lg:hidden")}>
                   <p className="text-[13px] font-bold">Ann AI</p>
-                  <p className="mt-1 text-[10px] text-text-2">Sistema IA</p>
+                  <p className="mt-1 text-[13px] text-text-2">Sistema IA</p>
                 </div>
               </div>
             </Link>
@@ -368,8 +368,8 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
           )}>
             <ShieldCheck className="h-3.5 w-3.5 text-[#dafc69]/80 shrink-0" />
             <div className={collapsed ? "lg:hidden" : undefined}>
-              <p className="text-[10px] font-bold text-[#dafc69]/80 tracking-widest uppercase">Smart Scale Internal</p>
-              <p className="text-[10px] text-text-3 mt-0.5">Admin only</p>
+              <p className="text-[11px] font-bold text-[#dafc69]/80 tracking-widest uppercase">Smart Scale Internal</p>
+              <p className="text-[13px] text-text-3 mt-0.5">Admin only</p>
             </div>
           </div>
         </div>

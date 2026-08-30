@@ -181,7 +181,7 @@ function ResultsTable({ videos, channelName, platform }: { videos: VideoResult[]
         <thead>
           <tr className="border-b border-foreground/[0.06] bg-background/40">
             {headers.map((h, i) => (
-              <th key={i} className={`px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-text-3 ${h === "VIEWS" ? "text-right" : h === "DURACIÓN" ? "text-center" : "text-left"} ${h === "—" ? "opacity-0" : ""}`}>
+              <th key={i} className={`px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-text-3 ${h === "VIEWS" ? "text-right" : h === "DURACIÓN" ? "text-center" : "text-left"} ${h === "—" ? "opacity-0" : ""}`}>
                 {h}
               </th>
             ))}
@@ -236,12 +236,12 @@ function AnalysisCard({ item, onDelete, deletingId }: {
             <span className="text-[15px] font-semibold text-foreground">
               {isInstagram ? "Instagram" : "Youtube"}
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-100 dark:bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-100 dark:bg-emerald-500/10 px-2.5 py-0.5 text-[13px] font-semibold text-emerald-700 dark:text-emerald-400">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 inline-block" />
               Completado
             </span>
             {isThisWeek && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2.5 py-0.5 text-[11px] font-semibold text-[#dafc69]/80">
+              <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2.5 py-0.5 text-[13px] font-semibold text-[#dafc69]/80">
                 <Zap className="h-2.5 w-2.5" />
                 Esta semana
               </span>
@@ -250,7 +250,7 @@ function AnalysisCard({ item, onDelete, deletingId }: {
           {item.channel_name && (
             <p className="mt-0.5 text-[13px] font-medium text-foreground truncate">{item.channel_name}</p>
           )}
-          <p className="mt-0.5 text-[12px] text-text-3 truncate">
+          <p className="mt-0.5 text-[13px] text-text-3 truncate">
             {dateStr}
             <span className="mx-1.5">-</span>
             Últimos {item.timeframe_days} días
@@ -466,7 +466,7 @@ function CompetitorResearchContent() {
                 className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-card px-4 text-sm text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none transition-all"
                 disabled={loading}
               />
-              <p className="text-[12px] text-text-3">Un perfil de competidor por envío</p>
+              <p className="text-[13px] text-text-3">Un perfil de competidor por envío</p>
             </div>
 
             <button
@@ -539,7 +539,7 @@ function CompetitorResearchContent() {
                   type="button"
                   onClick={() => { document.querySelector<HTMLFormElement>("form")?.requestSubmit() }}
                   disabled={loading}
-                  className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-red-400/40 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-700 transition-all hover:bg-red-100 disabled:opacity-40 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300"
+                  className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-red-400/40 bg-red-50 px-3 py-1.5 text-[13px] font-semibold text-red-700 transition-all hover:bg-red-100 disabled:opacity-40 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300"
                 >
                   <RefreshCw className="h-3 w-3" />
                   Reintentar

@@ -113,7 +113,7 @@ function SummaryBlock({ text }: { text: string }) {
             {s.header && cfg && (
               <div className={`flex items-center gap-2.5 px-4 py-3 ${cfg.bg} border-b ${cfg.border}`}>
                 <span className="text-base leading-none">{cfg.icon}</span>
-                <span className={`text-[10px] font-bold uppercase tracking-widest ${cfg.color}`}>{s.header}</span>
+                <span className={`text-[11px] font-bold uppercase tracking-widest ${cfg.color}`}>{s.header}</span>
               </div>
             )}
             <div className="px-4 py-3.5 bg-foreground/[0.01]">
@@ -186,11 +186,11 @@ function TranscriptModal({
                   </div>
                   <div className="min-w-0">
                     <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#dafc69]/70">Transcript Viewer</p>
-                    <p className="text-[11px] text-text-3">Lectura completa en una vista cómoda</p>
+                    <p className="text-[13px] text-text-3">Lectura completa en una vista cómoda</p>
                   </div>
                 </div>
 
-                <h3 className="max-w-3xl text-lg font-semibold leading-tight text-foreground sm:text-[22px]">
+                <h3 className="max-w-3xl text-lg font-semibold leading-tight text-foreground sm:text-[24px]">
                   {data.title}
                 </h3>
 
@@ -231,7 +231,7 @@ function TranscriptModal({
                   <span className="h-2 w-2 rounded-full bg-accent" />
                   Transcripción completa
                 </div>
-                <div className="text-[11px] text-text-3">Scroll para leer todo</div>
+                <div className="text-[13px] text-text-3">Scroll para leer todo</div>
               </div>
 
               <div className="h-[calc(100%-53px)] overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
@@ -510,7 +510,7 @@ export function TranscriptView() {
                     : "border-foreground/[0.08] focus:border-foreground/20"
                 }`}
               />
-              <p className="text-[12px] text-text-3">
+              <p className="text-[13px] text-text-3">
                 {platform === "instagram" && isIGReel
                   ? "Solo reels públicos con audio. El proceso puede tardar hasta 2 minutos."
                   : platform === "instagram" && url.trim() && isIGNonReel
@@ -540,12 +540,12 @@ export function TranscriptView() {
             <div key={job.id} className="flex items-start gap-3 rounded-xl border border-red-300 bg-red-100 px-4 py-3 dark:border-red-500/20 dark:bg-red-500/10">
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-red-800 dark:text-red-300">{job.error}</p>
-                <p className="mt-0.5 truncate text-[11px] text-red-800/50 dark:text-red-300/40">{job.url}</p>
+                <p className="mt-0.5 truncate text-[13px] text-red-800/50 dark:text-red-300/40">{job.url}</p>
               </div>
               <button
                 type="button"
                 onClick={() => retryJob(job)}
-                className="shrink-0 rounded-lg border border-red-400/40 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-700 transition-all hover:bg-red-200 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
+                className="shrink-0 rounded-lg border border-red-400/40 bg-red-50 px-3 py-1.5 text-[13px] font-semibold text-red-700 transition-all hover:bg-red-200 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
               >
                 Reintentar
               </button>
@@ -569,7 +569,7 @@ export function TranscriptView() {
                 <p className="min-w-0 flex-1 truncate text-[13px] text-text-2">
                   Transcribiendo <span className="font-medium text-foreground">{job.url}</span>...
                 </p>
-                <span className="shrink-0 text-[11px] text-text-3">1-2 min</span>
+                <span className="shrink-0 text-[13px] text-text-3">1-2 min</span>
               </div>
             ))}
           </div>
@@ -643,7 +643,7 @@ export function TranscriptView() {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-foreground">Transcripción</p>
-                      <p className="text-[11px] text-text-3 mt-0.5">{jobWordCount.toLocaleString()} palabras</p>
+                      <p className="text-[13px] text-text-3 mt-0.5">{jobWordCount.toLocaleString()} palabras</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -680,7 +680,7 @@ export function TranscriptView() {
                   <Sparkles className="h-3.5 w-3.5 text-text-3 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Análisis IA</p>
-                    <p className="text-[10px] text-text-3 mt-0.5">Generado por Claude · basado en la transcripción</p>
+                    <p className="text-[13px] text-text-3 mt-0.5">Generado por Claude · basado en la transcripción</p>
                   </div>
                   <CopyBtn text={jobResult.summary} />
                 </div>
@@ -711,7 +711,7 @@ export function TranscriptView() {
           {/* Desktop table — hidden on mobile */}
           <div className="hidden md:block overflow-x-auto">
             <div className="min-w-[800px]">
-              <div className="grid grid-cols-[140px_160px_90px_130px_minmax(180px,1fr)_minmax(180px,1fr)] border-b border-foreground/[0.06] bg-foreground/[0.01] px-6 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-text-3">
+              <div className="grid grid-cols-[140px_160px_90px_130px_minmax(180px,1fr)_minmax(180px,1fr)] border-b border-foreground/[0.06] bg-foreground/[0.01] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-text-3">
                 <div>Plataforma</div>
                 <div>Fecha</div>
                 <div>URL</div>
@@ -760,12 +760,12 @@ export function TranscriptView() {
                     {/* Status */}
                     <div className="pr-4">
                       {status === "complete" ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold text-emerald-800 whitespace-nowrap dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-100 px-2.5 py-1 text-[13px] font-semibold text-emerald-800 whitespace-nowrap dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400">
                           <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
                           Completado
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-accent-soft px-2.5 py-1 text-[11px] font-semibold text-[#dafc69] whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-accent-soft px-2.5 py-1 text-[13px] font-semibold text-[#dafc69] whitespace-nowrap">
                           <Loader2 className="h-3 w-3 animate-spin" />
                           Pendiente
                         </span>
@@ -843,22 +843,22 @@ export function TranscriptView() {
                     </div>
                     <div className="flex items-center gap-2">
                       {status === "complete" ? (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400">Completado</span>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[13px] font-semibold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400">Completado</span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-[#dafc69]">Pendiente</span>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[13px] font-semibold text-[#dafc69]">Pendiente</span>
                       )}
                       <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-[#dafc69] hover:text-[#f2ffc0]">
                         <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                     </div>
                   </div>
-                  <p className="text-[11px] text-text-3">{formatDate(item.created_at)}</p>
+                  <p className="text-[13px] text-text-3">{formatDate(item.created_at)}</p>
                   {item.title && <p className="text-[13px] font-medium text-foreground line-clamp-2">{item.title}</p>}
                   <div className="flex gap-2">
                     {item.transcript && (
                       <button
                         onClick={() => setDetailModal({ title: item.title ?? "Transcripción", content: item.transcript!, kind: "transcript" })}
-                        className="flex-1 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-[12px] font-medium text-text-2 hover:text-foreground transition-colors text-center"
+                        className="flex-1 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-[13px] font-medium text-text-2 hover:text-foreground transition-colors text-center"
                       >
                         Ver transcript
                       </button>
@@ -866,7 +866,7 @@ export function TranscriptView() {
                     {item.summary && (
                       <button
                         onClick={() => setDetailModal({ title: item.title ?? "Análisis", content: item.summary!, kind: "summary" })}
-                        className="flex-1 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-[12px] font-medium text-text-2 hover:text-foreground transition-colors text-center"
+                        className="flex-1 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-[13px] font-medium text-text-2 hover:text-foreground transition-colors text-center"
                       >
                         Ver análisis
                       </button>

@@ -158,7 +158,7 @@ const FOLLOWUP_TYPE_ICON: Record<string, React.ReactNode> = {
 }
 
 const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all"
-const labelCls = "text-[10px] font-bold uppercase tracking-widest text-text-3"
+const labelCls = "text-[11px] font-bold uppercase tracking-widest text-text-3"
 
 // ─── Webhook Card ─────────────────────────────────────────────────────────────
 
@@ -182,15 +182,15 @@ function WebhookCard() {
         Webhook URL — Zapier / Formulario de onboarding
       </p>
       <div className="flex items-center gap-2">
-        <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-[#dafc69]/70 font-mono truncate" suppressHydrationWarning>
+        <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[13px] text-[#dafc69]/70 font-mono truncate" suppressHydrationWarning>
           {url ?? "Cargando…"}
         </code>
         <button onClick={copy} disabled={!url}
-          className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+          className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[13px] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
           {copied ? "✓ Copiado" : "Copiar"}
         </button>
       </div>
-      <p className="text-[11px] text-text-3 mt-1.5">
+      <p className="text-[13px] text-text-3 mt-1.5">
         Campos: <code className="text-text-2">nombre</code>, <code className="text-text-2">email</code>, <code className="text-text-2">telefono</code>, <code className="text-text-2">fecha_cierre</code>, <code className="text-text-2">programa</code>, <code className="text-text-2">cantidad_meses</code> (duración del programa), <code className="text-text-2">cantidad_pagos</code> (cuotas de pago), <code className="text-text-2">primer_pago</code>, <code className="text-text-2">mes_2</code>…<code className="text-text-2">mes_6</code>
       </p>
     </div>
@@ -239,7 +239,7 @@ function InstallmentRow({
   return (
     <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] p-3 space-y-2">
       <div className="flex items-center gap-3">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground/[0.06] text-[11px] font-bold text-text-2 shrink-0">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground/[0.06] text-[13px] font-bold text-text-2 shrink-0">
           {inst.installment_number}
         </span>
         <div className="flex-1 min-w-0">
@@ -247,7 +247,7 @@ function InstallmentRow({
             {/* Monto editable — click o Tab para activar */}
             {editing ? (
               <div className="flex items-center gap-1">
-                <span className="text-[12px] text-text-2">$</span>
+                <span className="text-[13px] text-text-2">$</span>
                 <input
                   autoFocus
                   type="text"
@@ -277,8 +277,8 @@ function InstallmentRow({
                 {fmtMoney(inst.amount)}
               </button>
             )}
-            <span className="text-[12px] text-text-2">{fmtDate(inst.due_date)}</span>
-            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${INST_STATUS_STYLE[inst.status]}`}>
+            <span className="text-[13px] text-text-2">{fmtDate(inst.due_date)}</span>
+            <span className={`rounded-full border px-2 py-0.5 text-[13px] font-semibold ${INST_STATUS_STYLE[inst.status]}`}>
               {inst.status}
             </span>
           </div>
@@ -286,7 +286,7 @@ function InstallmentRow({
         <button
           onClick={onToggle}
           disabled={togglingInst === inst.id || saving || editing}
-          className={`shrink-0 h-7 rounded-lg border px-2.5 text-[11px] font-semibold transition-all disabled:opacity-40 ${
+          className={`shrink-0 h-7 rounded-lg border px-2.5 text-[13px] font-semibold transition-all disabled:opacity-40 ${
             inst.status === "pagado"
               ? "border-red-300 text-red-700 hover:bg-red-100 dark:border-red-500/25 dark:text-red-300 dark:hover:bg-red-500/10"
               : "border-emerald-300 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
@@ -300,7 +300,7 @@ function InstallmentRow({
             onClick={() => onSnooze(inst.overdue_alert_snoozed_until ? null : 7)}
             disabled={snoozingInst === inst.id}
             title="Posponer el email de cuota vencida al cliente — no afecta el aviso interno de Slack"
-            className="shrink-0 h-7 rounded-lg border border-border px-2.5 text-[11px] font-semibold text-text-2 hover:bg-foreground/[0.05] transition-all disabled:opacity-40"
+            className="shrink-0 h-7 rounded-lg border border-border px-2.5 text-[13px] font-semibold text-text-2 hover:bg-foreground/[0.05] transition-all disabled:opacity-40"
           >
             {snoozingInst === inst.id
               ? <Loader2 className="h-3 w-3 animate-spin" />
@@ -309,10 +309,10 @@ function InstallmentRow({
         )}
       </div>
       {inst.paid_at && (
-        <p className="text-[11px] text-text-3 pl-9">Pagado el {fmtDate(inst.paid_at)}</p>
+        <p className="text-[13px] text-text-3 pl-9">Pagado el {fmtDate(inst.paid_at)}</p>
       )}
       {inst.overdue_alert_snoozed_until && (
-        <p className="text-[11px] text-amber-700 dark:text-amber-400 pl-9">
+        <p className="text-[13px] text-amber-700 dark:text-amber-400 pl-9">
           Email de vencido pospuesto hasta {fmtDate(inst.overdue_alert_snoozed_until)}
         </p>
       )}
@@ -476,7 +476,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
     <div className="flex flex-col" style={{ height: "calc(100% - 1px)" }}>
       {/* Month selector */}
       <div className="border-b border-foreground/[0.06] px-6 py-4 shrink-0">
-        <p className="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-text-3">Mes del reporte</p>
+        <p className="mb-2.5 text-[11px] font-bold uppercase tracking-widest text-text-3">Mes del reporte</p>
         <div className="flex gap-1.5 overflow-x-auto pb-1">
           {monthList.map(m => (
             <button key={m} onClick={() => setSelMonth(m)}
@@ -490,7 +490,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
             </button>
           ))}
         </div>
-        <p className="mt-1.5 text-[10px] text-text-3 flex items-center gap-3">
+        <p className="mt-1.5 text-[13px] text-text-3 flex items-center gap-3">
           <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />cargado</span>
           <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-foreground/20" />vacío</span>
         </p>
@@ -500,13 +500,13 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
       <div className="flex-1 overflow-y-auto divide-y divide-foreground/[0.05]">
         {REPORT_GROUPS.map(group => (
           <div key={group.key} className="px-6 py-4 space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">{group.label}</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{group.label}</p>
             <div className="grid grid-cols-2 gap-2">
               {group.fields.map(field => {
                 if (field.type === "text") {
                   return (
                     <div key={field.key} className="col-span-2 space-y-1">
-                      <label className="block text-[10px] font-semibold uppercase tracking-wider text-text-2">{field.label}</label>
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-text-2">{field.label}</label>
                       <textarea
                         value={values[field.key] ?? ""}
                         onChange={e => setValue(field.key, e.target.value)}
@@ -520,7 +520,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                 if (field.type === "nps") {
                   return (
                     <div key={field.key} className="col-span-2 space-y-1.5">
-                      <label className="block text-[10px] font-semibold uppercase tracking-wider text-text-2">{field.label}</label>
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-text-2">{field.label}</label>
                       <div className="flex gap-1 flex-wrap">
                         {[1,2,3,4,5,6,7,8,9,10].map(n => (
                           <button key={n} type="button" onClick={() => setValue(field.key, String(n))}
@@ -542,7 +542,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                 }
                 return (
                   <div key={field.key} className="space-y-1">
-                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-text-2 truncate">
+                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-text-2 truncate">
                       {field.label}
                       {"hint" in field && (field as any).hint && (
                         <span className="ml-1 normal-case font-normal text-text-3 tracking-normal">({(field as any).hint})</span>
@@ -738,7 +738,7 @@ function ReactivateModal({
           <div className="flex items-center justify-between mb-1">
             <div>
               <h3 className="text-base font-bold text-foreground">Reactivar cliente</h3>
-              <p className="text-[12px] text-text-2 mt-0.5">{clientName} — nuevo ciclo</p>
+              <p className="text-[13px] text-text-2 mt-0.5">{clientName} — nuevo ciclo</p>
             </div>
             <button type="button" onClick={onClose}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
@@ -747,7 +747,7 @@ function ReactivateModal({
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Programa</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Programa</p>
             <input type="text" value={program} onChange={e => setProgram(e.target.value)}
               placeholder="ej: Smart Scale, Mastermind..."
               className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all" />
@@ -755,37 +755,37 @@ function ReactivateModal({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Monto total *</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Monto total *</p>
               <input type="number" min={0} step="any" required value={totalAmount} onChange={e => setTotalAmount(e.target.value)}
                 placeholder="USD"
                 className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all" />
             </div>
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Cant. cuotas</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Cant. cuotas</p>
               <input type="number" min={1} max={24} value={numInstallments} onChange={e => setNumInstallments(e.target.value)}
                 className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
             </div>
           </div>
           {perInstallment && (
-            <p className="text-[11px] text-text-2 -mt-2">
+            <p className="text-[13px] text-text-2 -mt-2">
               {numInstallments === "1" ? "Pago único" : `${numInstallments} cuotas de USD ${perInstallment} c/u`} — la primera se marca pagada al guardar.
             </p>
           )}
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Inicio del ciclo</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Inicio del ciclo</p>
               <input type="date" value={programStart} onChange={e => setProgramStart(e.target.value)}
                 className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
             </div>
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Duración (meses)</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Duración (meses)</p>
               <input type="number" min={1} max={24} value={programDuration} onChange={e => setProgramDuration(e.target.value)}
                 className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
             </div>
           </div>
 
-          <label className="flex items-center gap-2 text-[12.5px] text-text-2">
+          <label className="flex items-center gap-2 text-[13px] text-text-2">
             <input type="checkbox" checked={isMonthly} onChange={e => setIsMonthly(e.target.checked)}
               className="h-4 w-4 rounded border-foreground/20" />
             Suscripción mensual (genera la próxima cuota sola cada mes)
@@ -914,16 +914,16 @@ function DetailDrawer({
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-foreground truncate">{client.name}</h2>
               {client.is_monthly_subscription && (
-                <span className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#dafc69] shrink-0">
+                <span className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest text-[#dafc69] shrink-0">
                   Mensual
                 </span>
               )}
             </div>
             <div className="flex items-center gap-2 mt-1">
-              <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${CLIENT_STATUS_STYLE[client.status] ?? ""}`}>
+              <span className={`rounded-full border px-2.5 py-0.5 text-[13px] font-semibold ${CLIENT_STATUS_STYLE[client.status] ?? ""}`}>
                 {CLIENT_STATUS_LABEL[client.status] ?? client.status}
               </span>
-              <span className="text-[12px] text-text-3">desde {fmtDate(client.program_start)}</span>
+              <span className="text-[13px] text-text-3">desde {fmtDate(client.program_start)}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -935,7 +935,7 @@ function DetailDrawer({
                 disabled={sendingRenewal || offboarding || deleting || !client.email}
                 aria-label="Enviar email de renovación"
                 title={client.email ? "Manda el email de renovación ahora, sin esperar al aviso automático" : "Este cliente no tiene email cargado — completalo arriba para poder enviarle"}
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-emerald-300/50 px-2.5 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-100/60 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-emerald-300/50 px-2.5 text-[13px] font-semibold text-emerald-700 hover:bg-emerald-100/60 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
               >
                 {sendingRenewal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
                 {!sendingRenewal && <span>Enviar renovación</span>}
@@ -948,7 +948,7 @@ function DetailDrawer({
                 disabled={reactivating}
                 aria-label="Reactivar cliente"
                 title="Renovó — carga el nuevo ciclo y vuelve a activo"
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-[#dafc69]/40 px-2.5 text-[11px] font-semibold text-foreground hover:bg-secondary transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-[#dafc69]/40 px-2.5 text-[13px] font-semibold text-foreground hover:bg-secondary transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
               >
                 {reactivating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
                 {!reactivating && <span>Reactivar</span>}
@@ -961,7 +961,7 @@ function DetailDrawer({
                 disabled={offboarding || deleting}
                 aria-label="Dar de baja"
                 title="Dar de baja: pasa a offboarding y elimina cuotas pendientes"
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-amber-300/40 px-2.5 text-[11px] font-semibold text-amber-700 hover:bg-amber-100/60 dark:border-amber-500/25 dark:text-amber-400 dark:hover:bg-amber-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-amber-300/40 px-2.5 text-[13px] font-semibold text-amber-700 hover:bg-amber-100/60 dark:border-amber-500/25 dark:text-amber-400 dark:hover:bg-amber-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
               >
                 {offboarding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserX className="h-3.5 w-3.5" />}
                 {!offboarding && <span>Dar de baja</span>}
@@ -1029,7 +1029,7 @@ function DetailDrawer({
 
           {/* Section 1: Info fields */}
           <div className="px-6 py-5 space-y-4 border-b border-foreground/[0.06]">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Información</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Información</p>
 
             <div className="space-y-1.5">
               <p className={labelCls}>Nombre</p>
@@ -1127,7 +1127,7 @@ function DetailDrawer({
               />
               <label htmlFor={`monthly-${client.id}`} className="flex-1 cursor-pointer">
                 <p className="text-[13px] font-semibold text-foreground">Plan mensual auto-renovable</p>
-                <p className="text-[11px] text-text-2 mt-0.5 leading-snug">
+                <p className="text-[13px] text-text-2 mt-0.5 leading-snug">
                   Cuando se marque la cuota como pagada, el sistema genera la siguiente automáticamente. Slack alerta 5 días antes de cada cobro. Apagá esto para finalizar la suscripción.
                 </p>
               </label>
@@ -1168,13 +1168,13 @@ function DetailDrawer({
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) (e.target as HTMLTextAreaElement).blur() }}
                 className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all"
               />
-              <p className="text-[11px] text-text-2">Ann AI usa esto para hablar del negocio específico del cliente desde el primer mensaje.</p>
+              <p className="text-[13px] text-text-2">Ann AI usa esto para hablar del negocio específico del cliente desde el primer mensaje.</p>
             </div>
           </div>
 
           {/* Section: Credenciales del dashboard */}
           <div className="px-6 py-5 space-y-4 border-b border-foreground/[0.06]">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Credenciales del Dashboard</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Credenciales del Dashboard</p>
             <div className="space-y-1.5">
               <p className={labelCls}>Email de acceso</p>
               <input
@@ -1203,25 +1203,25 @@ function DetailDrawer({
           <div className="px-6 py-5 space-y-3 border-b border-foreground/[0.06]">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Cuotas de pago</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Cuotas de pago</p>
                 {/* Duración del programa — editable */}
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[11px] text-text-3">Duración del programa:</span>
+                  <span className="text-[13px] text-text-3">Duración del programa:</span>
                   <select
                     value={client.program_duration ?? client.num_installments}
                     onChange={e => onPatchClient(client.id, { program_duration: Number(e.target.value) } as any)}
-                    className="h-6 rounded-lg border border-foreground/[0.1] bg-foreground/[0.04] px-2 text-[11px] font-semibold text-foreground focus:border-accent focus:outline-none"
+                    className="h-6 rounded-lg border border-foreground/[0.1] bg-foreground/[0.04] px-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none"
                   >
                     {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => (
                       <option key={m} value={m}>{m} {m === 1 ? "mes" : "meses"}</option>
                     ))}
                   </select>
-                  <span className="text-[11px] text-text-3">
+                  <span className="text-[13px] text-text-3">
                     · {client.num_installments} cuota{client.num_installments !== 1 ? "s" : ""}
                   </span>
                 </div>
               </div>
-              <span className="rounded-full bg-foreground/[0.05] px-2.5 py-0.5 text-[11px] font-bold text-text-2 shrink-0">
+              <span className="rounded-full bg-foreground/[0.05] px-2.5 py-0.5 text-[13px] font-bold text-text-2 shrink-0">
                 {paidCount}/{client.num_installments} pagadas
               </span>
             </div>
@@ -1250,7 +1250,7 @@ function DetailDrawer({
               ))}
 
               {client.installments.length === 0 && (
-                <p className="text-[12px] text-text-3 text-center py-3">Sin cuotas generadas.</p>
+                <p className="text-[13px] text-text-3 text-center py-3">Sin cuotas generadas.</p>
               )}
             </div>
           </div>
@@ -1258,7 +1258,7 @@ function DetailDrawer({
           {/* Section 3: Follow-ups */}
           <div className="px-6 py-5 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Seguimientos</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Seguimientos</p>
               <button
                 onClick={() => setShowFollowupForm(v => !v)}
                 className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.08] text-text-2 hover:text-[#dafc69] hover:border-border transition-all">
@@ -1273,12 +1273,12 @@ function DetailDrawer({
                   <div className="space-y-1">
                     <p className={labelCls}>Fecha</p>
                     <input type="date" value={fuDate} onChange={e => setFuDate(e.target.value)}
-                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12px] text-foreground focus:border-foreground/20 focus:outline-none [color-scheme:dark]" />
+                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none [color-scheme:dark]" />
                   </div>
                   <div className="space-y-1">
                     <p className={labelCls}>Tipo</p>
                     <select value={fuType} onChange={e => setFuType(e.target.value as Followup["type"])}
-                      className="w-full appearance-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12px] text-foreground focus:border-foreground/20 focus:outline-none">
+                      className="w-full appearance-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none">
                       <option value="whatsapp">WhatsApp</option>
                       <option value="llamada">Llamada</option>
                       <option value="email">Email</option>
@@ -1288,15 +1288,15 @@ function DetailDrawer({
                 </div>
                 <input value={fuNotes} onChange={e => setFuNotes(e.target.value)}
                   placeholder="Notas del seguimiento..."
-                  className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none" />
+                  className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none" />
                 <div className="flex items-center gap-2">
                   <button onClick={handleSaveFollowup} disabled={savingFu || !fuDate}
-                  className="flex items-center gap-1.5 h-7 rounded-lg btn-accent px-3 text-[12px] font-bold disabled:opacity-40 transition-all">
+                  className="flex items-center gap-1.5 h-7 rounded-lg btn-accent px-3 text-[13px] font-bold disabled:opacity-40 transition-all">
                     {savingFu ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                     Guardar
                   </button>
                   <button onClick={() => setShowFollowupForm(false)}
-                    className="h-7 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-text-2 hover:text-foreground transition-all">
+                    className="h-7 rounded-lg border border-foreground/[0.08] px-3 text-[13px] text-text-2 hover:text-foreground transition-all">
                     Cancelar
                   </button>
                 </div>
@@ -1327,17 +1327,17 @@ function DetailDrawer({
                     </button>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[12px] font-semibold text-foreground">{fmtDate(fu.scheduled_date)}</span>
-                        <span className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${FOLLOWUP_TYPE_STYLE[fu.type]}`}>
+                        <span className="text-[13px] font-semibold text-foreground">{fmtDate(fu.scheduled_date)}</span>
+                        <span className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[13px] font-semibold ${FOLLOWUP_TYPE_STYLE[fu.type]}`}>
                           {FOLLOWUP_TYPE_ICON[fu.type]}
                           {fu.type}
                         </span>
                         {fu.scheduled_date === todayStr() && !fu.completed && (
-                          <span className="rounded-full bg-accent-soft border border-accent/25 px-2 py-0.5 text-[10px] font-bold text-[#dafc69]">hoy</span>
+                          <span className="rounded-full bg-accent-soft border border-accent/25 px-2 py-0.5 text-[13px] font-bold text-[#dafc69]">hoy</span>
                         )}
                       </div>
                       {fu.notes && (
-                        <p className="text-[11px] text-text-2 mt-1">{fu.notes}</p>
+                        <p className="text-[13px] text-text-2 mt-1">{fu.notes}</p>
                       )}
                     </div>
                     <button
@@ -1350,7 +1350,7 @@ function DetailDrawer({
                 ))}
 
               {client.followups.length === 0 && !showFollowupForm && (
-                <p className="text-[12px] text-text-3 text-center py-3">Sin seguimientos agendados.</p>
+                <p className="text-[13px] text-text-3 text-center py-3">Sin seguimientos agendados.</p>
               )}
             </div>
           </div>
@@ -1361,7 +1361,7 @@ function DetailDrawer({
         {/* Footer with summary (CRM tab only) */}
         {drawerTab === "crm" && (
         <div className="border-t border-foreground/[0.06] px-6 py-3" style={{ backgroundColor: "var(--card)" }}>
-          <div className="flex items-center gap-4 text-[11px] text-text-3">
+          <div className="flex items-center gap-4 text-[13px] text-text-3">
             <span>
               Fin estimado:{" "}
               <span className="text-text-2 font-semibold">{fmtDate(endDate)}</span>
@@ -1591,7 +1591,7 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
         <div>
           <p className="text-[11px] text-text-3 mb-1 font-semibold uppercase tracking-wider">New Cash</p>
           <p className="text-3xl font-bold text-[#dafc69] tabular-nums">{fmtMoney(newCash)}</p>
-          <p className="text-[12px] text-text-3 mt-1.5">
+          <p className="text-[13px] text-text-3 mt-1.5">
             {newClients.length > 0
               ? `${newClients.length} cliente${newClients.length !== 1 ? "s" : ""} nuevo${newClients.length !== 1 ? "s" : ""} este mes`
               : "Sin clientes nuevos este mes"}
@@ -1601,7 +1601,7 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
               {newClients.map(c => {
                 const first = c.installments.find(i => i.installment_number === 1)
                 return (
-                  <div key={c.id} className="flex items-center justify-between text-[11px]">
+                  <div key={c.id} className="flex items-center justify-between text-[13px]">
                     <span className="text-text-2 truncate max-w-[140px]">{c.name}</span>
                     <span className="text-text-2 tabular-nums shrink-0">{fmtMoney(first?.amount ?? c.installment_amount)}</span>
                   </div>
@@ -1616,7 +1616,7 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
           <div>
             <p className="text-[11px] text-text-3 mb-1 font-semibold uppercase tracking-wider">Old Cash</p>
             <p className="text-3xl font-bold text-foreground tabular-nums">{fmtMoney(oldCashCobrado)}</p>
-            <p className="text-[11px] text-text-3 mt-0.5">recibido de clientes anteriores</p>
+            <p className="text-[13px] text-text-3 mt-0.5">recibido de clientes anteriores</p>
           </div>
 
           {/* Vencido expandible */}
@@ -1639,12 +1639,12 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
                   {vencidoByClient.map(({ name, items, total }) => (
                     <div key={name}>
                       <div className="flex items-center justify-between">
-                        <span className="text-[12px] font-semibold text-foreground truncate max-w-[160px]">{name}</span>
-                        <span className="text-[12px] font-bold text-red-700 dark:text-red-400 tabular-nums shrink-0">{fmtMoney(total)}</span>
+                        <span className="text-[13px] font-semibold text-foreground truncate max-w-[160px]">{name}</span>
+                        <span className="text-[13px] font-bold text-red-700 dark:text-red-400 tabular-nums shrink-0">{fmtMoney(total)}</span>
                       </div>
                       <div className="flex flex-wrap gap-x-3 mt-0.5">
                         {items.map(i => (
-                          <span key={i.id} className="text-[10px] text-text-2">
+                          <span key={i.id} className="text-[13px] text-text-2">
                             {fmtShortMonth(i.due_date)} · {fmtMoney(i.amount)}
                           </span>
                         ))}
@@ -1675,10 +1675,10 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
                 <div className="border-t border-amber-500/10 px-3 py-2 space-y-1.5">
                   {pendienteDetails.map((item, idx) => (
                     <div key={idx} className="flex items-center justify-between gap-2">
-                      <span className="text-[11px] text-text-2 truncate max-w-[150px]">{item.name}</span>
+                      <span className="text-[13px] text-text-2 truncate max-w-[150px]">{item.name}</span>
                       <div className="flex items-center gap-3 shrink-0">
-                        <span className="text-[10px] text-text-3">vence {fmtShortMonth(item.due_date)}</span>
-                        <span className="text-[12px] font-semibold text-amber-700 dark:text-amber-300 tabular-nums">{fmtMoney(item.amount)}</span>
+                        <span className="text-[13px] text-text-3">vence {fmtShortMonth(item.due_date)}</span>
+                        <span className="text-[13px] font-semibold text-amber-700 dark:text-amber-300 tabular-nums">{fmtMoney(item.amount)}</span>
                       </div>
                     </div>
                   ))}
@@ -1693,7 +1693,7 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
               <div className="flex-1 h-1.5 rounded-full bg-foreground/[0.06] overflow-hidden">
                 <div className="h-full rounded-full bg-emerald-500 transition-all duration-500" style={{ width: `${pct}%` }} />
               </div>
-              <span className="text-[10px] text-text-3 shrink-0 tabular-nums">{Math.round(pct)}% del mes</span>
+              <span className="text-[13px] text-text-3 shrink-0 tabular-nums">{Math.round(pct)}% del mes</span>
             </div>
           )}
         </div>
@@ -1712,7 +1712,7 @@ function InstallmentProgress({ client }: { client: Client }) {
 
   return (
     <div className="space-y-1">
-      <span className="text-[12px] text-text-2 tabular-nums">{paid}/{total} pagadas</span>
+      <span className="text-[13px] text-text-2 tabular-nums">{paid}/{total} pagadas</span>
       <div className="h-1.5 w-24 rounded-full bg-foreground/[0.06] overflow-hidden">
         <div
           className="h-full rounded-full bg-[#dafc69] transition-all duration-500"
@@ -1768,7 +1768,7 @@ function SortableTh({
       title={active ? `Ordenado ${dir === "asc" ? "↑ ascendente" : "↓ descendente"} · click para invertir` : "Click para ordenar"}
       className="px-2 py-2.5 text-left whitespace-nowrap cursor-pointer select-none"
     >
-      <span className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
+      <span className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider transition-all ${
         active
           ? "bg-secondary text-[#dafc69] ring-1 ring-accent/25"
           : "text-text-2 hover:bg-foreground/[0.06] hover:text-foreground"
@@ -2198,14 +2198,14 @@ export function AdminClientsView() {
               { key: "offboarding", label: "Offboarding" },
             ].map(({ key, label }) => (
               <button key={key} onClick={() => setFilterStatus(key)}
-                className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium transition-all ${
+                className={`h-8 rounded-xl border px-3.5 text-[13px] font-medium transition-all ${
                   filterStatus === key
                     ? "border-accent bg-secondary text-[#dafc69]"
                     : "border-foreground/[0.07] text-text-2 hover:text-foreground hover:border-foreground/20"
                 }`}>
                 {label}
                 {key !== "todos" && (
-                  <span className="ml-1.5 text-[10px] opacity-60">
+                  <span className="ml-1.5 text-[13px] opacity-60">
                     {clients.filter(c => c.status === key).length}
                   </span>
                 )}
@@ -2229,7 +2229,7 @@ export function AdminClientsView() {
                 <thead>
                   <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
                     {["Cliente", "Inicio", "Fin", "Cuotas", "Próx. cuota", "Estado", "Alertas", "Próx. follow-up", ""].map(h => (
-                      <th key={h} className="px-2 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-text-3 whitespace-nowrap">{h}</th>
+                      <th key={h} className="px-2 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-text-3 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -2258,7 +2258,7 @@ export function AdminClientsView() {
                     <SortableTh label="Próx. cuota"  sortKey="amount"    currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("amount")} />
                     <SortableTh label="Estado"       sortKey="status"    currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("status")} />
                     {["Alertas", "Próx. follow-up", ""].map(h => (
-                      <th key={h} className="px-2 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-text-3 whitespace-nowrap">
+                      <th key={h} className="px-2 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-text-3 whitespace-nowrap">
                         {h}
                       </th>
                     ))}
@@ -2297,14 +2297,14 @@ export function AdminClientsView() {
                                 <p className="text-[13px] font-semibold text-foreground">{client.name}</p>
                                 {client.is_monthly_subscription && (
                                   <span
-                                    className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#dafc69]"
+                                    className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest text-[#dafc69]"
                                     title="Plan mensual auto-renovable"
                                   >
                                     Mensual
                                   </span>
                                 )}
                               </div>
-                              <p className="text-[10px] text-text-3 mt-0.5">
+                              <p className="text-[13px] text-text-3 mt-0.5">
                                 {client.instagram
                                   ? <span className="text-pink-400/50">{client.instagram}</span>
                                   : fmtDateShort(client.created_at)}
@@ -2314,12 +2314,12 @@ export function AdminClientsView() {
 
                           {/* Inicio */}
                           <td className="px-3 py-2.5 whitespace-nowrap">
-                            <span className="text-[12px] text-text-2">{fmtDateShort(client.program_start)}</span>
+                            <span className="text-[13px] text-text-2">{fmtDateShort(client.program_start)}</span>
                           </td>
 
                           {/* Fin */}
                           <td className="px-3 py-2.5 whitespace-nowrap">
-                            <span className="text-[12px] text-text-2">{fmtDateShort(endDate)}</span>
+                            <span className="text-[13px] text-text-2">{fmtDateShort(endDate)}</span>
                           </td>
 
                           {/* Cuotas */}
@@ -2335,7 +2335,7 @@ export function AdminClientsView() {
                                 ?.sort((a, b) => a.installment_number - b.installment_number)[0]
                               if (!nextInst) {
                                 return (
-                                  <span className="inline-flex items-center rounded-full border border-sky-300 bg-sky-100 px-2.5 py-0.5 text-[11px] font-semibold text-sky-800 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-300">
+                                  <span className="inline-flex items-center rounded-full border border-sky-300 bg-sky-100 px-2.5 py-0.5 text-[13px] font-semibold text-sky-800 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-300">
                                     Pago completado
                                   </span>
                                 )
@@ -2350,7 +2350,7 @@ export function AdminClientsView() {
 
                           {/* Estado */}
                           <td className="px-3 py-2.5 whitespace-nowrap">
-                            <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${CLIENT_STATUS_STYLE[client.status] ?? ""}`}>
+                            <span className={`rounded-full border px-2.5 py-0.5 text-[13px] font-semibold ${CLIENT_STATUS_STYLE[client.status] ?? ""}`}>
                               {CLIENT_STATUS_LABEL[client.status] ?? client.status}
                             </span>
                           </td>
@@ -2374,7 +2374,7 @@ export function AdminClientsView() {
                           <td className="px-3 py-2.5 whitespace-nowrap">
                             {nextFu ? (
                               <div className="flex items-center gap-1.5">
-                                <span className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${FOLLOWUP_TYPE_STYLE[nextFu.type]}`}>
+                                <span className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[13px] font-semibold ${FOLLOWUP_TYPE_STYLE[nextFu.type]}`}>
                                   {FOLLOWUP_TYPE_ICON[nextFu.type]}
                                   {fmtDateShort(nextFu.scheduled_date)}
                                 </span>
@@ -2383,7 +2383,7 @@ export function AdminClientsView() {
                                 )}
                               </div>
                             ) : (
-                              <span className="text-text-3 text-[12px]">—</span>
+                              <span className="text-text-3 text-[13px]">—</span>
                             )}
                           </td>
 

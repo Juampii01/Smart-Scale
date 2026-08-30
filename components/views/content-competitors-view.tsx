@@ -72,7 +72,7 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
     <div className="space-y-6 pb-10">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-[22px] font-bold text-foreground leading-tight">{channelLabel} — Competitors</h1>
+          <h1 className="text-[24px] font-bold text-foreground leading-tight">{channelLabel} — Competitors</h1>
           <p className="text-[13px] text-text-2 mt-0.5">{items.length} {items.length === 1 ? "competidor" : "competidores"}</p>
         </div>
         <button onClick={() => setOpen(true)}
@@ -111,17 +111,17 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
                   <Icon className="h-4 w-4" style={{ color: iconColor }} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[14px] font-semibold text-foreground leading-tight truncate">{c.name}</p>
-                  {c.handle && <p className="text-[12px] text-text-2 truncate">{c.handle}</p>}
+                  <p className="text-[15px] font-semibold text-foreground leading-tight truncate">{c.name}</p>
+                  {c.handle && <p className="text-[13px] text-text-2 truncate">{c.handle}</p>}
                 </div>
               </div>
               {c.url && (
                 <a href={c.url} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[12px] text-text-2 hover:text-foreground transition-colors truncate max-w-full mt-1">
+                  className="inline-flex items-center gap-1 text-[13px] text-text-2 hover:text-foreground transition-colors truncate max-w-full mt-1">
                   <ExternalLink className="h-3 w-3 shrink-0" /> <span className="truncate">{c.url}</span>
                 </a>
               )}
-              {c.notes && <p className="text-[11px] text-text-3 mt-1.5 line-clamp-2">{c.notes}</p>}
+              {c.notes && <p className="text-[13px] text-text-3 mt-1.5 line-clamp-2">{c.notes}</p>}
             </div>
           ))}
         </div>
@@ -143,22 +143,22 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
             </div>
             <div className="px-6 py-5 space-y-5">
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-text-2">Nombre <span className="text-danger">*</span></label>
+                <label className="text-[13px] font-semibold text-text-2">Nombre <span className="text-danger">*</span></label>
                 <input autoFocus value={name} onChange={e => setName(e.target.value)} placeholder={isIG ? "Nombre del perfil" : "Nombre del canal"}
                   className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-text-2">{isIG ? "@handle" : "Handle / @"}</label>
+                <label className="text-[13px] font-semibold text-text-2">{isIG ? "@handle" : "Handle / @"}</label>
                 <input value={handle} onChange={e => setHandle(e.target.value)} placeholder={isIG ? "@usuario" : "@canal"}
                   className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-text-2">Link</label>
+                <label className="text-[13px] font-semibold text-text-2">Link</label>
                 <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..."
                   className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-text-2">Notas</label>
+                <label className="text-[13px] font-semibold text-text-2">Notas</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Por qué seguirlo, qué hace bien…" rows={2}
                   className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors resize-none" />
               </div>

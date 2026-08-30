@@ -192,7 +192,7 @@ export function ReflectionView() {
                     <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent-soft ring-1 ring-accent/20">
                       <Icon className="h-4 w-4 text-[#dafc69]" />
                     </div>
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3">{item.title}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3">{item.title}</p>
                   </div>
                   {item.numeric !== null ? (
                     <p className={`text-2xl sm:text-3xl font-bold tabular-nums ${
@@ -203,7 +203,7 @@ export function ReflectionView() {
                       {item.numeric > 0 ? `+${item.numeric}` : item.numeric}
                     </p>
                   ) : isEmpty ? (
-                    <a href="/report-input" className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#dafc69]/70 hover:text-[#dafc69] transition">
+                    <a href="/report-input" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#dafc69]/70 hover:text-[#dafc69] transition">
                       Agregar →
                     </a>
                   ) : (

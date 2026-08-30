@@ -555,7 +555,7 @@ export function AnnKnowledgeView() {
                         className="w-full bg-transparent text-[13px] font-semibold text-foreground focus:outline-none truncate"
                         disabled={item.status === "extracting"}
                       />
-                      <p className="text-[11px] text-text-2 mt-0.5">
+                      <p className="text-[13px] text-text-2 mt-0.5">
                         {EXT_LABELS[item.file.name.split(".").pop()?.toLowerCase() ?? ""] ?? "Archivo"} · {fmtSize(item.file.size)}
                         {item.status === "extracting" && <span className="ml-1.5 text-[#dafc69]/70">Extrayendo…</span>}
                         {item.status === "ready"      && <span className="ml-1.5 text-emerald-600 dark:text-emerald-400">Listo</span>}
@@ -620,7 +620,7 @@ export function AnnKnowledgeView() {
                 className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-sm text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
               />
               {content.length > 0 && (
-                <span className="pointer-events-none absolute bottom-3 right-3 text-[10px] text-text-3">
+                <span className="pointer-events-none absolute bottom-3 right-3 text-[13px] text-text-3">
                   {content.length.toLocaleString()} chars
                 </span>
               )}
@@ -674,7 +674,7 @@ export function AnnKnowledgeView() {
                 }`}>
                 {tab.label}
                 {counts[tab.value] != null && counts[tab.value] > 0 && (
-                  <span className={`rounded px-1 text-[10px] font-bold tabular-nums ${
+                  <span className={`rounded px-1 text-[13px] font-bold tabular-nums ${
                     filterPillar === tab.value ? "text-text-2" : "text-text-3"
                   }`}>
                     {counts[tab.value]}
@@ -737,17 +737,17 @@ export function AnnKnowledgeView() {
                 <div className="flex items-center gap-3 px-5 py-4">
                   <button onClick={() => openEdit(e)} className="min-w-0 flex-1 text-left group">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[14px] font-semibold text-foreground group-hover:text-[#dafc69] transition-colors">
+                      <span className="text-[15px] font-semibold text-foreground group-hover:text-[#dafc69] transition-colors">
                         {e.title}
                       </span>
-                      <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${cfg.badge}`}>
+                      <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider ${cfg.badge}`}>
                         {cfg.label}
                       </span>
-                      <span className="flex items-center gap-1 text-[10px] text-text-3">
+                      <span className="flex items-center gap-1 text-[13px] text-text-3">
                         <SrcIcon className="h-3 w-3" />{src?.label ?? "Manual"}
                       </span>
                     </div>
-                    <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-text-2">
+                    <p className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-text-2">
                       {e.content}
                     </p>
                   </button>
@@ -776,12 +776,12 @@ export function AnnKnowledgeView() {
                     <div className="relative">
                       <textarea value={editContent} onChange={ev => setEditContent(ev.target.value)} rows={10}
                         className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-card px-4 py-3 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition" />
-                      <span className="pointer-events-none absolute bottom-3 right-3 text-[10px] text-text-3">
+                      <span className="pointer-events-none absolute bottom-3 right-3 text-[13px] text-text-3">
                         {editContent.length.toLocaleString()} chars
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] text-text-3">
+                      <span className="text-[13px] text-text-3">
                         Actualizado {new Date(e.updated_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}
                       </span>
                       <button onClick={() => saveEdit(e.id)}

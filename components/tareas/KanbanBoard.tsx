@@ -517,7 +517,7 @@ export function KanbanBoard() {
               key={m}
               onClick={() => setFilterAssignee(a => a === m ? null : m)}
               title={`Filtrar por ${m}`}
-              className={`flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold text-white transition-all ${
+              className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold text-white transition-all ${
                 active ? "ring-2 ring-offset-1 ring-offset-[var(--background)]" : "opacity-50 hover:opacity-100"
               }`}
               style={{ backgroundColor: avatarColor(m), ...(active ? { boxShadow: `0 0 0 2px ${avatarColor(m)}` } : {}) }}

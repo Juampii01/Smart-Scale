@@ -65,12 +65,12 @@ function MetricCard({ label, value, pct, noData }: {
   const showDelta = pct !== null && !noData
   return (
     <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-4 py-3.5 flex flex-col gap-1.5">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.10em] text-text-2">{label}</p>
-      <p className={cn("text-[26px] font-bold tabular-nums leading-none", noData ? "text-text-3" : "text-foreground")}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.10em] text-text-2">{label}</p>
+      <p className={cn("text-[24px] font-bold tabular-nums leading-none", noData ? "text-text-3" : "text-foreground")}>
         {value}
       </p>
       {showDelta && (
-        <p className={cn("text-[12px] font-semibold", up ? "text-success" : "text-danger")}>
+        <p className={cn("text-[13px] font-semibold", up ? "text-success" : "text-danger")}>
           {up ? "+" : ""}{pct!.toFixed(1)}%
         </p>
       )}
@@ -141,15 +141,15 @@ function GrowthIndexChart({ reports }: { reports: MonthlyReport[] }) {
       <div className="flex items-start justify-between mb-1">
         <div>
           <p className="text-[15px] font-bold text-foreground">Índice de crecimiento</p>
-          <p className="text-[11px] text-text-2 mt-0.5">Base 100 = primer mes con datos — quién crece más rápido</p>
+          <p className="text-[13px] text-text-2 mt-0.5">Base 100 = primer mes con datos — quién crece más rápido</p>
         </div>
-        <span className="text-[10px] text-text-3 bg-foreground/[0.04] border border-foreground/[0.06] rounded-lg px-2 py-1 ml-4 whitespace-nowrap">200 = duplicó</span>
+        <span className="text-[13px] text-text-3 bg-foreground/[0.04] border border-foreground/[0.06] rounded-lg px-2 py-1 ml-4 whitespace-nowrap">200 = duplicó</span>
       </div>
       <div className="flex flex-wrap gap-5 mt-4 mb-4">
         {active.map(ch => (
           <div key={ch.key} className="flex items-center gap-1.5">
             <span className="h-[3px] w-5 rounded-full" style={{ backgroundColor: ch.color }} />
-            <span className="text-[11px] text-text-2">{ch.label}</span>
+            <span className="text-[13px] text-text-2">{ch.label}</span>
           </div>
         ))}
       </div>
@@ -184,8 +184,8 @@ function PostsVsFollowers({ reports, className }: { reports: MonthlyReport[]; cl
           <p className="text-[15px] font-bold text-foreground mt-0.5">Posts vs Seguidores IG</p>
         </div>
         <div className="flex gap-4">
-          <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#dafc69]" /><span className="text-[11px] text-text-2">Posts</span></div>
-          <div className="flex items-center gap-1.5"><span className="h-[3px] w-5 rounded-full bg-[#818cf8]" /><span className="text-[11px] text-text-2">Seguidores</span></div>
+          <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#dafc69]" /><span className="text-[13px] text-text-2">Posts</span></div>
+          <div className="flex items-center gap-1.5"><span className="h-[3px] w-5 rounded-full bg-[#818cf8]" /><span className="text-[13px] text-text-2">Seguidores</span></div>
         </div>
       </div>
       <ResponsiveContainer width="100%" height={220}>
@@ -213,10 +213,10 @@ function YouTubeTrend({ reports }: { reports: MonthlyReport[] }) {
   return (
     <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-5">
       <p className="text-[15px] font-bold text-foreground mb-0.5">YouTube — Suscriptores vs Vistas</p>
-      <p className="text-[11px] text-text-2 mb-4">¿Las vistas generan suscriptores o son independientes?</p>
+      <p className="text-[13px] text-text-2 mb-4">¿Las vistas generan suscriptores o son independientes?</p>
       <div className="flex flex-wrap gap-5 mb-4">
-        <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#f87171]" /><span className="text-[11px] text-text-2">Vistas</span></div>
-        <div className="flex items-center gap-1.5"><span className="h-[3px] w-5 rounded-full bg-[#fbbf24]" /><span className="text-[11px] text-text-2">Suscriptores</span></div>
+        <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#f87171]" /><span className="text-[13px] text-text-2">Vistas</span></div>
+        <div className="flex items-center gap-1.5"><span className="h-[3px] w-5 rounded-full bg-[#fbbf24]" /><span className="text-[13px] text-text-2">Suscriptores</span></div>
       </div>
       <ResponsiveContainer width="100%" height={200}>
         <ComposedChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
@@ -247,8 +247,8 @@ function FascinateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
     <div className="space-y-5">
       <div className="pb-4 border-b border-foreground/[0.07]">
         <div className="flex items-center gap-3 mb-1">
-          <h2 className="text-[22px] font-bold text-foreground">Fascinate</h2>
-          <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span>
+          <h2 className="text-[24px] font-bold text-foreground">Fascinate</h2>
+          <span className={cn("rounded-full px-2.5 py-0.5 text-[13px] font-semibold", status.className)}>{status.label}</span>
         </div>
         <p className="text-[13px] text-text-2">Captar atención — crecer la audiencia que alimenta el motor.</p>
       </div>
@@ -275,8 +275,8 @@ function EducateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Month
     <div className="space-y-5">
       <div className="pb-4 border-b border-foreground/[0.07]">
         <div className="flex items-center gap-3 mb-1">
-          <h2 className="text-[22px] font-bold text-foreground">Educate</h2>
-          <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span>
+          <h2 className="text-[24px] font-bold text-foreground">Educate</h2>
+          <span className={cn("rounded-full px-2.5 py-0.5 text-[13px] font-semibold", status.className)}>{status.label}</span>
         </div>
         <p className="text-[13px] text-text-2">Construir autoridad — convertir atención en audiencia comprometida.</p>
       </div>
@@ -303,8 +303,8 @@ function InviteTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Monthl
     <div className="space-y-4">
       <div className="pb-4 border-b border-foreground/[0.07]">
         <div className="flex items-center gap-3 mb-1">
-          <h2 className="text-[22px] font-bold text-foreground">Invite</h2>
-          <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span>
+          <h2 className="text-[24px] font-bold text-foreground">Invite</h2>
+          <span className={cn("rounded-full px-2.5 py-0.5 text-[13px] font-semibold", status.className)}>{status.label}</span>
         </div>
         <p className="text-[13px] text-text-2">Conversión eficiente — convertir audiencia pre-calentada en clientes.</p>
       </div>
@@ -338,8 +338,8 @@ function TransformTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
     <div className="space-y-4">
       <div className="pb-4 border-b border-foreground/[0.07]">
         <div className="flex items-center gap-3 mb-1">
-          <h2 className="text-[22px] font-bold text-foreground">Transform</h2>
-          <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span>
+          <h2 className="text-[24px] font-bold text-foreground">Transform</h2>
+          <span className={cn("rounded-full px-2.5 py-0.5 text-[13px] font-semibold", status.className)}>{status.label}</span>
         </div>
         <p className="text-[13px] text-text-2">Retención y eficiencia — sostener y escalar lo que funciona.</p>
       </div>
@@ -385,7 +385,7 @@ export function PerformanceView() {
   return (
     <div className="space-y-6 pb-10">
       <div>
-        <h1 className="text-[22px] font-bold text-foreground leading-tight">Performance</h1>
+        <h1 className="text-[24px] font-bold text-foreground leading-tight">Performance</h1>
         <p className="text-[13px] text-text-2 mt-0.5">Tu pulso a través de las 4 etapas del modelo</p>
       </div>
 
@@ -397,7 +397,7 @@ export function PerformanceView() {
               key={t.id}
               onClick={() => setTab(t.id)}
               className={cn(
-                "relative pb-3 px-4 text-[14px] font-semibold transition-colors",
+                "relative pb-3 px-4 text-[15px] font-semibold transition-colors",
                 tab === t.id
                   ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-accent after:rounded-full"
                   : "text-text-2 hover:text-foreground"

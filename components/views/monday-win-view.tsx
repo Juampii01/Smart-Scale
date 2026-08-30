@@ -11,11 +11,11 @@ import { CheckCircle, AlertCircle, Loader2, Star, Eye, FlaskConical, FileText, H
 function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-[10px] font-semibold uppercase tracking-widest text-text-2">
+      <label className="text-[11px] font-semibold uppercase tracking-widest text-text-2">
         {label}
         {required && <span className="ml-1 text-[#dafc69]">*</span>}
       </label>
-      {hint && <p className="text-[11px] text-text-3 -mt-1">{hint}</p>}
+      {hint && <p className="text-[13px] text-text-3 -mt-1">{hint}</p>}
       {children}
     </div>
   )
@@ -157,7 +157,7 @@ export function MondayWinView() {
             <Star className="h-5 w-5 text-[#dafc69]" />
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#dafc69]/70 mb-0.5">Semanal</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-[#dafc69]/70 mb-0.5">Semanal</p>
             <h2 className="text-lg font-bold text-foreground">Monday Win</h2>
             <p className="text-xs text-text-3 mt-0.5">Compartí tus logros y enfoque de la semana.</p>
           </div>

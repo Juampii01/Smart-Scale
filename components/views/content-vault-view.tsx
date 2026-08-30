@@ -78,7 +78,7 @@ export function ContentVaultView({ channel }: { channel: Channel }) {
     <div className="space-y-6 pb-10">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-[22px] font-bold text-foreground leading-tight">{channelLabel} — Vault</h1>
+          <h1 className="text-[24px] font-bold text-foreground leading-tight">{channelLabel} — Vault</h1>
           <p className="text-[13px] text-text-2 mt-0.5">{items.length} {items.length === 1 ? "guardado" : "guardados"}</p>
         </div>
         <button onClick={() => setOpen(true)}
@@ -122,12 +122,12 @@ export function ContentVaultView({ channel }: { channel: Channel }) {
                 <Icon className="h-3.5 w-3.5" style={{ color: iconColor }} />
                 {item.favorite && <Star className="h-3 w-3 text-[#dafc69]" fill="currentColor" />}
               </div>
-              <p className="text-[14px] font-semibold text-foreground leading-snug mb-1 line-clamp-2">{item.title || "Sin título"}</p>
+              <p className="text-[15px] font-semibold text-foreground leading-snug mb-1 line-clamp-2">{item.title || "Sin título"}</p>
               <a href={item.url} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-[12px] text-text-2 hover:text-foreground transition-colors truncate max-w-full">
+                className="inline-flex items-center gap-1 text-[13px] text-text-2 hover:text-foreground transition-colors truncate max-w-full">
                 <ExternalLink className="h-3 w-3 shrink-0" /> <span className="truncate">{item.url}</span>
               </a>
-              {item.notes && <p className="text-[11px] text-text-3 mt-1.5 line-clamp-2">{item.notes}</p>}
+              {item.notes && <p className="text-[13px] text-text-3 mt-1.5 line-clamp-2">{item.notes}</p>}
             </div>
           ))}
         </div>
@@ -149,17 +149,17 @@ export function ContentVaultView({ channel }: { channel: Channel }) {
             </div>
             <div className="px-6 py-5 space-y-5">
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-text-2">Link <span className="text-danger">*</span></label>
+                <label className="text-[13px] font-semibold text-text-2">Link <span className="text-danger">*</span></label>
                 <input autoFocus value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..."
                   className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-text-2">Título</label>
+                <label className="text-[13px] font-semibold text-text-2">Título</label>
                 <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Cómo lo querés recordar"
                   className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-text-2">Notas</label>
+                <label className="text-[13px] font-semibold text-text-2">Notas</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Qué te gustó, qué copiar…" rows={2}
                   className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors resize-none" />
               </div>

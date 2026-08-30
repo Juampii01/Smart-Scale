@@ -98,7 +98,7 @@ export default function LoginPage() {
         <div className="relative space-y-6">
           <div className="flex items-center gap-2.5">
             <span className="h-[3px] w-8 rounded-full bg-[#dafc69]" />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#dafc69]/70">Portal {APP_VERSION}</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#dafc69]/70">Portal {APP_VERSION}</span>
           </div>
 
           <h2 className="text-4xl font-bold leading-[1.15] tracking-tight text-foreground">
@@ -122,7 +122,7 @@ export default function LoginPage() {
                 key={s.label}
                 className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.03] px-4 py-2.5"
               >
-                <p className="text-[10px] text-text-3 uppercase tracking-widest">{s.label}</p>
+                <p className="text-[11px] text-text-3 uppercase tracking-widest">{s.label}</p>
                 <p className="mt-0.5 text-sm font-bold text-foreground">{s.value}</p>
               </div>
             ))}
@@ -131,7 +131,7 @@ export default function LoginPage() {
 
         {/* Bottom: Version */}
         <div className="relative">
-          <p className="text-[10px] uppercase tracking-widest text-text-3">
+          <p className="text-[11px] uppercase tracking-widest text-text-3">
             © {new Date().getFullYear()} Smart Scale · v{APP_VERSION}
           </p>
         </div>
@@ -183,7 +183,7 @@ export default function LoginPage() {
                 </label>
                 <a
                   href="/forgot-password"
-                  className="text-[11px] text-text-3 transition hover:text-[#dafc69]"
+                  className="text-[13px] text-text-3 transition hover:text-[#dafc69]"
                 >
                   ¿La olvidaste?
                 </a>
@@ -221,7 +221,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-8 text-center text-[11px] leading-relaxed text-text-3">
+          <p className="mt-8 text-center text-[13px] leading-relaxed text-text-3">
             Si tu cuenta requiere verificación, revisá tu inbox antes de entrar.
           </p>
         </div>

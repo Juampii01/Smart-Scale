@@ -47,7 +47,7 @@ const VIEWS: { id: ViewId; label: string }[] = [
 function StatCard({ label, value, tone }: { label: string; value: number; tone: "neutral" | "warn" }) {
   return (
     <div className="rounded-[14px] border border-border bg-card p-4">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-text-2">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-widest text-text-2">{label}</p>
       <p className={cn(
         "mt-1 text-2xl font-bold tabular-nums",
         tone === "warn" && value > 0 ? "text-amber-700 dark:text-amber-400" : "text-foreground"
@@ -137,7 +137,7 @@ export function AdminClientActivityView() {
             key={v.id}
             onClick={() => setView(v.id)}
             className={cn(
-              "inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[12.5px] font-semibold transition-all",
+              "inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[13px] font-semibold transition-all",
               view === v.id
                 ? "bg-foreground text-background"
                 : "text-text-2 hover:text-foreground hover:bg-foreground/[0.05]"
@@ -157,13 +157,13 @@ export function AdminClientActivityView() {
         <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-foreground/[0.08] py-16 text-center">
           <Activity className="mb-3 h-8 w-8 text-text-3" />
           <p className="font-semibold text-text-2">Nada en esta vista</p>
-          <p className="mt-1 text-[12px] text-text-3">Probá con otro filtro.</p>
+          <p className="mt-1 text-[13px] text-text-3">Probá con otro filtro.</p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
           <div className="overflow-x-auto">
             <div className="min-w-[640px]">
-              <div className="grid grid-cols-[minmax(180px,1fr)_150px_140px_140px] border-b border-foreground/[0.06] bg-foreground/[0.01] px-6 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-text-3">
+              <div className="grid grid-cols-[minmax(180px,1fr)_150px_140px_140px] border-b border-foreground/[0.06] bg-foreground/[0.01] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-text-3">
                 <div>Cliente</div>
                 <div>Último login</div>
                 <div>Monday Win</div>
@@ -176,11 +176,11 @@ export function AdminClientActivityView() {
                   className="grid grid-cols-[minmax(180px,1fr)_150px_140px_140px] items-center border-b border-foreground/[0.05] px-6 py-4 hover:bg-foreground/[0.02] transition-colors"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-semibold text-[14px] text-foreground">{c.name}</p>
-                    <p className="truncate text-[11px] text-text-2">{c.email ?? "—"}</p>
+                    <p className="truncate font-semibold text-[15px] text-foreground">{c.name}</p>
+                    <p className="truncate text-[13px] text-text-2">{c.email ?? "—"}</p>
                   </div>
                   <div>
-                    <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold", loginBadgeCls(c.daysSinceLogin))}>
+                    <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[13px] font-semibold", loginBadgeCls(c.daysSinceLogin))}>
                       <Clock className="h-3 w-3" />
                       {c.lastSignInAt
                         ? `${fmtDate(c.lastSignInAt)} · ${c.daysSinceLogin}d`

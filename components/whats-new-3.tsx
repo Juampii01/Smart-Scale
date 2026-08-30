@@ -68,8 +68,8 @@ export function WhatsNew3() {
                       <Icon className="h-4 w-4 text-[#dafc69]" />
                     </span>
                     <div>
-                      <p className="text-[13.5px] font-semibold text-foreground leading-tight">{n.title}</p>
-                      <p className="text-[12px] text-text-2 mt-0.5 leading-snug">{n.desc}</p>
+                      <p className="text-[13px] font-semibold text-foreground leading-tight">{n.title}</p>
+                      <p className="text-[13px] text-text-2 mt-0.5 leading-snug">{n.desc}</p>
                     </div>
                   </div>
                 )

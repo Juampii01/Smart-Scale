@@ -80,7 +80,7 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
     } bg-card`}>
 
       {isTop && (
-        <div className="absolute top-2.5 left-2.5 z-10 rounded-lg bg-[#dafc69] px-2 py-0.5 text-[10px] font-bold text-black shadow-sm">
+        <div className="absolute top-2.5 left-2.5 z-10 rounded-lg bg-[#dafc69] px-2 py-0.5 text-[13px] font-bold text-black shadow-sm">
           {mult.toFixed(1)}x
         </div>
       )}
@@ -104,11 +104,11 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
             </div>}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between px-2.5 pb-2">
-          <span className="flex items-center gap-1 text-[11px] font-semibold text-foreground">
+          <span className="flex items-center gap-1 text-[13px] font-semibold text-foreground">
             <Eye className="h-3 w-3 opacity-70" />{post.views > 0 ? fmt(post.views) : "—"}
           </span>
           {post.duration && (
-            <span className="rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-foreground tabular-nums">
+            <span className="rounded-md bg-black/60 px-1.5 py-0.5 text-[13px] font-semibold text-foreground tabular-nums">
               {post.duration}
             </span>
           )}
@@ -120,24 +120,24 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
         <p className="text-xs font-medium text-foreground leading-snug line-clamp-2 mb-2">{post.title}</p>
 
         <div className="flex items-center gap-2.5 text-text-3 mb-2">
-          <span className="flex items-center gap-0.5 text-[10px]"><ThumbsUp className="h-2.5 w-2.5" />{fmt(post.likes)}</span>
-          <span className="flex items-center gap-0.5 text-[10px]"><MessageCircle className="h-2.5 w-2.5" />{fmt(post.comments)}</span>
-          {post.published_at && <span className="text-[10px] ml-auto">{timeAgo(post.published_at)}</span>}
+          <span className="flex items-center gap-0.5 text-[13px]"><ThumbsUp className="h-2.5 w-2.5" />{fmt(post.likes)}</span>
+          <span className="flex items-center gap-0.5 text-[13px]"><MessageCircle className="h-2.5 w-2.5" />{fmt(post.comments)}</span>
+          {post.published_at && <span className="text-[13px] ml-auto">{timeAgo(post.published_at)}</span>}
         </div>
 
         {post.analysis && (
           <div className="border-t border-foreground/[0.05] pt-2 mt-auto">
             <button onClick={() => setExpanded(v => !v)} className="flex w-full items-center gap-1.5 text-left">
               <Sparkles className="h-2.5 w-2.5 text-[#dafc69]/50" />
-              <span className="text-[9px] font-semibold uppercase tracking-widest text-[#dafc69]/50 flex-1">Análisis IA</span>
+              <span className="text-[11px] font-semibold uppercase tracking-widest text-[#dafc69]/50 flex-1">Análisis IA</span>
               {expanded ? <ChevronUp className="h-3 w-3 text-text-3" /> : <ChevronDown className="h-3 w-3 text-text-3" />}
             </button>
             {expanded && (
               <div className="mt-2 space-y-2">
-                <p className="text-[10px] text-text-2 leading-relaxed">{post.analysis}</p>
+                <p className="text-[13px] text-text-2 leading-relaxed">{post.analysis}</p>
                 <button
                   onClick={() => { navigator.clipboard.writeText(post.analysis!); setCopied(true); setTimeout(() => setCopied(false), 1500) }}
-                  className="inline-flex items-center gap-1 text-[9px] text-text-3 hover:text-text-2 transition-colors"
+                  className="inline-flex items-center gap-1 text-[11px] text-text-3 hover:text-text-2 transition-colors"
                 >
                   {copied ? <Check className="h-2.5 w-2.5 text-emerald-700 dark:text-emerald-400" /> : <Copy className="h-2.5 w-2.5" />}
                   Copiar análisis
@@ -284,7 +284,7 @@ function FeedView({ account, onRefresh }: {
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
-          <p className="text-[11px] text-text-3 mt-0.5">
+          <p className="text-[13px] text-text-3 mt-0.5">
             {account.posts.length} posts · últimos 30 días · Actualizado {timeAgo(account.updated_at)}
             {lastNew !== null && (
               <span className={`ml-2 font-medium ${lastNew > 0 ? "text-emerald-700 dark:text-emerald-400" : "text-text-3"}`}>
@@ -317,7 +317,7 @@ function FeedView({ account, onRefresh }: {
             {f === "all" ? "Todos" : "Top Performing"}
           </button>
         ))}
-        <span className="ml-auto text-[11px] text-text-3">{filtered.length} publicaciones</span>
+        <span className="ml-auto text-[13px] text-text-3">{filtered.length} publicaciones</span>
       </div>
 
       {/* Grid — portrait 9:16 */}

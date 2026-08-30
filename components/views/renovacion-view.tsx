@@ -103,7 +103,7 @@ export function RenovacionView() {
               }}
             >
               {o.highlight && (
-                <span className="absolute -top-3 left-6 rounded-full bg-[#dafc69] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-black">
+                <span className="absolute -top-3 left-6 rounded-full bg-[#dafc69] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-black">
                   Recomendado
                 </span>
               )}
@@ -115,7 +115,7 @@ export function RenovacionView() {
                 >
                   <Icon className="h-4.5 w-4.5" style={{ color: o.highlight ? "#000" : "var(--muted-foreground)" }} />
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-text-2">{o.badge}</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-text-2">{o.badge}</span>
               </div>
 
               <h2 className="text-lg font-bold text-foreground leading-tight">{o.title}</h2>
@@ -125,10 +125,10 @@ export function RenovacionView() {
               <div className="mt-4 mb-4 border-y border-foreground/[0.06] py-3">
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-2xl font-extrabold text-foreground">{o.priceTotal}</span>
-                  <span className="text-[11px] font-medium text-text-2">pago único</span>
+                  <span className="text-[13px] font-medium text-text-2">pago único</span>
                 </div>
                 {o.priceMonthly && (
-                  <p className="text-[12.5px] text-text-2 mt-1">
+                  <p className="text-[13px] text-text-2 mt-1">
                     o <span className="font-semibold text-foreground">{o.priceMonthly}</span>{o.priceSuffix ?? "/mes"}
                   </p>
                 )}
@@ -150,7 +150,7 @@ export function RenovacionView() {
               </ul>
 
               {o.footnote && (
-                <p className="mt-4 pt-4 border-t border-foreground/[0.06] text-[11.5px] italic text-text-2">
+                <p className="mt-4 pt-4 border-t border-foreground/[0.06] text-[13px] italic text-text-2">
                   {o.footnote}
                 </p>
               )}

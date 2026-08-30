@@ -172,7 +172,7 @@ export function ProgramChecklistView() {
         {/* Column headers */}
         <div className="grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-b border-foreground/[0.07] bg-foreground/[0.03]">
           {["STATUS","IMPLEMENTATION MILESTONE","LEVEL","OUTCOME","ROADMAP","URL"].map((col) => (
-            <div key={col} className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-text-2">
+            <div key={col} className="px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-text-2">
               {col}
             </div>
           ))}
@@ -197,10 +197,10 @@ export function ProgramChecklistView() {
                 <ChevronDown
                   className={`h-4 w-4 flex-shrink-0 text-text-2 transition-transform duration-200 ${isMonthOpen ? "rotate-0" : "-rotate-90"}`}
                 />
-                <span className="flex-1 text-[14px] font-bold text-foreground">{month.month}</span>
+                <span className="flex-1 text-[15px] font-bold text-foreground">{month.month}</span>
                 {/* Progress right */}
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  <span className="text-[12px] text-text-2 tabular-nums">{monthDone}/{monthTotal}</span>
+                  <span className="text-[13px] text-text-2 tabular-nums">{monthDone}/{monthTotal}</span>
                   <div className="w-32 h-1.5 bg-foreground/[0.08] rounded-full overflow-hidden">
                     <div
                       className="h-1.5 rounded-full transition-all duration-500"
@@ -210,7 +210,7 @@ export function ProgramChecklistView() {
                       }}
                     />
                   </div>
-                  <span className="text-[12px] text-text-2 tabular-nums w-8 text-right">{monthPct}%</span>
+                  <span className="text-[13px] text-text-2 tabular-nums w-8 text-right">{monthPct}%</span>
                 </div>
               </div>
 
@@ -233,7 +233,7 @@ export function ProgramChecklistView() {
                       />
                       <span className="h-4 w-[3px] rounded-full bg-accent flex-shrink-0" />
                       <span className="flex-1 text-[13px] font-semibold text-foreground">{week.title}</span>
-                      <span className="text-[11px] text-text-3 tabular-nums flex-shrink-0">
+                      <span className="text-[13px] text-text-3 tabular-nums flex-shrink-0">
                         {weekDone}/{week.tasks.length}
                       </span>
                     </div>
@@ -241,8 +241,8 @@ export function ProgramChecklistView() {
                     {/* Note banner */}
                     {isWeekOpen && week.note && (
                       <div className="mx-4 mt-2 mb-1 flex items-start gap-2.5 rounded-lg border border-amber-400 bg-amber-100 px-4 py-2.5 dark:border-amber-400/20 dark:bg-amber-500/[0.07]">
-                        <span className="text-amber-700 text-[11px] flex-shrink-0 mt-0.5 dark:text-amber-400">⚡</span>
-                        <p className="text-[11px] text-amber-900 leading-snug dark:text-amber-300/80">{week.note}</p>
+                        <span className="text-amber-700 text-[13px] flex-shrink-0 mt-0.5 dark:text-amber-400">⚡</span>
+                        <p className="text-[13px] text-amber-900 leading-snug dark:text-amber-300/80">{week.note}</p>
                       </div>
                     )}
 
@@ -278,7 +278,7 @@ export function ProgramChecklistView() {
                                 </svg>
                               )}
                             </div>
-                            <span className={`text-[11px] ${isDone ? "text-emerald-700 dark:text-emerald-400" : "text-text-3"}`}>
+                            <span className={`text-[13px] ${isDone ? "text-emerald-700 dark:text-emerald-400" : "text-text-3"}`}>
                               {isDone ? "Completado" : "No iniciado"}
                             </span>
                           </div>
@@ -292,7 +292,7 @@ export function ProgramChecklistView() {
 
                           {/* LEVEL */}
                           <div className="flex items-center px-4 py-3">
-                            <span className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap ${lc}`}>
+                            <span className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[13px] font-semibold whitespace-nowrap ${lc}`}>
                               <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70 flex-shrink-0" />
                               {task.level}
                             </span>
@@ -301,23 +301,23 @@ export function ProgramChecklistView() {
                           {/* OUTCOME */}
                           <div className="flex items-center px-4 py-3">
                             {oc ? (
-                              <span className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap ${oc.bg} ${oc.text} ${oc.border}`}>
+                              <span className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[13px] font-semibold whitespace-nowrap ${oc.bg} ${oc.text} ${oc.border}`}>
                                 {task.outcome} {oc.emoji}
                               </span>
                             ) : (
-                              <span className="text-[11px] text-text-3">—</span>
+                              <span className="text-[13px] text-text-3">—</span>
                             )}
                           </div>
 
                           {/* ROADMAP */}
                           <div className="flex items-center px-4 py-3">
-                            <span className="text-[11px] text-text-3 truncate">{week.title.split(" - ")[0]}</span>
+                            <span className="text-[13px] text-text-3 truncate">{week.title.split(" - ")[0]}</span>
                           </div>
 
                           {/* URL */}
                           <div className="flex items-center px-4 py-3">
                             {task.link === "pending" ? (
-                              <span className="inline-flex items-center rounded-md border border-amber-400 bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/[0.07] dark:text-amber-400/70">
+                              <span className="inline-flex items-center rounded-md border border-amber-400 bg-amber-100 px-2 py-0.5 text-[13px] font-medium text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/[0.07] dark:text-amber-400/70">
                                 Módulo en creación
                               </span>
                             ) : task.link ? (
@@ -325,7 +325,7 @@ export function ProgramChecklistView() {
                                 href={task.link}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1.5 text-[11px] text-text-3 hover:text-[#dafc69] transition-colors truncate max-w-full"
+                                className="inline-flex items-center gap-1.5 text-[13px] text-text-3 hover:text-[#dafc69] transition-colors truncate max-w-full"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <ExternalLink className="h-3 w-3 flex-shrink-0" />
@@ -334,7 +334,7 @@ export function ProgramChecklistView() {
                                 </span>
                               </a>
                             ) : (
-                              <span className="text-[11px] text-text-3">—</span>
+                              <span className="text-[13px] text-text-3">—</span>
                             )}
                           </div>
                         </div>

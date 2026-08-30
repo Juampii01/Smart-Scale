@@ -283,14 +283,14 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
     <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
       {/* Save indicator bar */}
       <div className="flex items-center justify-between gap-3 border-b border-foreground/[0.06] px-6 py-2.5">
-        <div className="flex items-center gap-2 text-[12px]">
+        <div className="flex items-center gap-2 text-[13px]">
           {!canManage && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] px-2.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wider text-text-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-text-2">
               Solo checkboxes editables
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] min-w-[140px] justify-end">
+        <div className="flex items-center gap-1.5 text-[13px] min-w-[140px] justify-end">
           {savingState === "saving" && <span className="text-text-2 inline-flex items-center gap-1.5"><Loader2 className="h-3 w-3 animate-spin" />Guardando…</span>}
           {savingState === "saved"  && <span className="text-emerald-700 dark:text-emerald-400">✓ Guardado</span>}
           {savingState === "error"  && (

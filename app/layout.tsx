@@ -1,16 +1,10 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono, Instrument_Serif, Inter, Inter_Tight } from "next/font/google"
+import { Geist_Mono, Inter, Inter_Tight } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import { PwaRegister } from "@/components/pwa-register"
 import "./globals.css"
-
-const geistSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist-sans",
-  display: "swap",
-})
 
 // Fuente principal del UI — manual de marca Smart Scale (Inter / Inter Tight).
 const inter = Inter({
@@ -31,14 +25,6 @@ const interTight = Inter_Tight({
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
-  display: "swap",
-})
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: ["400"],
-  style: ["normal", "italic"],
-  variable: "--font-instrument-serif",
   display: "swap",
 })
 
@@ -97,7 +83,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${interTight.variable} ${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable}`}
+      className={`${inter.variable} ${interTight.variable} ${geistMono.variable}`}
     >
       <body className={`font-sans antialiased`}>
         <ThemeProvider>

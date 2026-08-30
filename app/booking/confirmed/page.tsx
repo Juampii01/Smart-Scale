@@ -25,12 +25,12 @@ function ConfirmedContent() {
       <nav className="border-b border-foreground/[0.06] bg-background/90 backdrop-blur-md sticky top-0 z-10">
         <div className="mx-auto max-w-5xl px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-foreground text-[17px] font-bold tracking-tight">Smart</span>
-            <span className="rounded-md bg-foreground px-2 py-0.5 text-[14px] font-bold tracking-tight text-background">
+            <span className="text-foreground text-[18px] font-bold tracking-tight">Smart</span>
+            <span className="rounded-md bg-foreground px-2 py-0.5 text-[15px] font-bold tracking-tight text-background">
               Scale
             </span>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] text-text-3">
+          <div className="flex items-center gap-1.5 text-[13px] text-text-3">
             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
             <span className="text-emerald-700 dark:text-emerald-400 font-medium">Pago confirmado</span>
           </div>
@@ -58,10 +58,10 @@ function ConfirmedContent() {
 
             {/* Text */}
             <div className="text-center sm:text-left">
-              <h1 className="text-[24px] sm:text-[30px] font-black text-foreground tracking-tight leading-tight">
+              <h1 className="text-[24px] sm:text-[32px] font-black text-foreground tracking-tight leading-tight">
                 ¡Tu pago fue confirmado!
               </h1>
-              <p className="mt-1.5 text-[14px] text-text-2 max-w-xl">
+              <p className="mt-1.5 text-[15px] text-text-2 max-w-xl">
                 Ya podés elegir el día y horario para tu sesión con Ann.
                 Seleccioná una fecha en el calendario de abajo.
               </p>
@@ -71,11 +71,11 @@ function ConfirmedContent() {
             <div className="sm:ml-auto flex items-center gap-3 shrink-0">
               <div className="flex items-center gap-1.5 rounded-xl border border-accent/20 bg-accent-soft px-3 py-2">
                 <Clock className="h-3.5 w-3.5 text-[#dafc69]/60" />
-                <span className="text-[12px] font-semibold text-[#dafc69]/80">45 min</span>
+                <span className="text-[13px] font-semibold text-[#dafc69]/80">45 min</span>
               </div>
               <div className="flex items-center gap-1.5 rounded-xl border border-accent/20 bg-accent-soft px-3 py-2">
                 <CalendarDays className="h-3.5 w-3.5 text-[#dafc69]/60" />
-                <span className="text-[12px] font-semibold text-[#dafc69]/80">1:1 con Ann</span>
+                <span className="text-[13px] font-semibold text-[#dafc69]/80">1:1 con Ann</span>
               </div>
             </div>
           </div>

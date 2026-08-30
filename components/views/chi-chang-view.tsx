@@ -17,11 +17,11 @@ const NIVEL_OPTIONS = [
 function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-[10px] font-semibold uppercase tracking-widest text-text-2">
+      <label className="text-[11px] font-semibold uppercase tracking-widest text-text-2">
         {label}
         {required && <span className="ml-1 text-[#dafc69]">*</span>}
       </label>
-      {hint && <p className="text-[11px] text-text-3 -mt-1 leading-snug">{hint}</p>}
+      {hint && <p className="text-[13px] text-text-3 -mt-1 leading-snug">{hint}</p>}
       {children}
     </div>
   )
@@ -142,7 +142,7 @@ export function ChiChangView() {
             <Trophy className="h-5 w-5 text-[#dafc69]" />
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#dafc69]/70 mb-0.5">Cierre</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-[#dafc69]/70 mb-0.5">Cierre</p>
             <h2 className="text-lg font-bold text-foreground">Cha-Ching 💰</h2>
             <p className="text-xs text-text-3 mt-0.5">¡Felicitaciones por cerrar el trato! Cargá los detalles.</p>
           </div>
@@ -251,7 +251,7 @@ export function ChiChangView() {
               La historia detrás del cierre <span className="text-[#dafc69]">*</span>
             </span>
           </div>
-          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
+          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider transition-all ${
             notasOk
               ? "bg-secondary text-[#dafc69]"
               : "bg-foreground/[0.05] text-text-3"
@@ -262,12 +262,12 @@ export function ChiChangView() {
         </div>
 
         <div className="p-5 space-y-3">
-          <p className="text-[12px] text-text-2 leading-relaxed">
+          <p className="text-[13px] text-text-2 leading-relaxed">
             Compartí algo detrás de este cierre. Por ejemplo:
           </p>
           <ul className="space-y-1.5">
             {NOTAS_PROMPTS.map((p) => (
-              <li key={p} className="flex items-start gap-2 text-[12.5px] text-text-2">
+              <li key={p} className="flex items-start gap-2 text-[13px] text-text-2">
                 <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-accent" />
                 {p}
               </li>
@@ -284,14 +284,14 @@ export function ChiChangView() {
           />
 
           <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-medium transition-colors ${
+            <span className={`text-[13px] font-medium transition-colors ${
               notasOk ? "text-[#dafc69]" : "text-text-3"
             }`}>
               {notasOk
                 ? "✨ Reflexión registrada"
                 : `Escribí al menos ${Math.max(0, NOTAS_MIN - notas.trim().length)} caracteres más`}
             </span>
-            <span className="text-[11px] tabular-nums text-text-3">{notas.trim().length}</span>
+            <span className="text-[13px] tabular-nums text-text-3">{notas.trim().length}</span>
           </div>
         </div>
       </div>

@@ -14,7 +14,7 @@ export function PurchasedToggle({ value, onChange, mono = false }: { value: bool
       onClick={(e) => { e.stopPropagation(); onChange(!value) }}
       title={value ? "Compró — click para desmarcar" : "Marcar como que compró"}
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[12px] font-semibold transition-colors",
+        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[13px] font-semibold transition-colors",
         value
           ? onStyle
           : "border-foreground/10 bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20"

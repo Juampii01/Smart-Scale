@@ -152,7 +152,7 @@ function EditableCell({
             if (e.key === "Enter") save()
             if (e.key === "Escape") cancel()
           }}
-          className="w-16 rounded-lg border border-border bg-secondary px-2 py-1.5 text-center text-[12px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
+          className="w-16 rounded-lg border border-border bg-secondary px-2 py-1.5 text-center text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
         />
       </td>
     )
@@ -438,7 +438,7 @@ export function AdminSettingView() {
               icon={Table2}
               title="CRM Diario"
               action={
-                <span className="text-[10px] text-text-2">
+                <span className="text-[13px] text-text-2">
                   {logs.length} {logs.length === 1 ? "registro" : "registros"}
                 </span>
               }
@@ -462,12 +462,12 @@ export function AdminSettingView() {
                   >
                     <div className="mb-3 flex items-center justify-between gap-2">
                       <span className="text-[13px] font-semibold text-foreground">{dateLabel(log.date)}</span>
-                      <span className="truncate text-[12px] text-text-2">{log.setter_name || "—"}</span>
+                      <span className="truncate text-[13px] text-text-2">{log.setter_name || "—"}</span>
                     </div>
                     <div className="grid grid-cols-3 gap-2">
                       {COLUMNS.map(col => (
                         <div key={col.key} className="rounded-lg border border-foreground/[0.06] bg-foreground/[0.02] px-2.5 py-2">
-                          <p className="truncate text-[9px] font-bold uppercase tracking-wider text-text-3" title={col.label}>{col.short}</p>
+                          <p className="truncate text-[11px] font-bold uppercase tracking-wider text-text-3" title={col.label}>{col.short}</p>
                           <p className="mt-0.5 text-[15px] font-bold tabular-nums text-foreground">
                             {log[col.key] != null ? log[col.key] : "—"}
                           </p>
@@ -483,7 +483,7 @@ export function AdminSettingView() {
                   <div className="grid grid-cols-3 gap-2">
                     {COLUMNS.map(col => (
                       <div key={`m-total-${col.key}`} className="rounded-lg bg-foreground/[0.03] px-2.5 py-2">
-                        <p className="truncate text-[9px] font-bold uppercase tracking-wider text-text-3" title={col.label}>{col.short}</p>
+                        <p className="truncate text-[11px] font-bold uppercase tracking-wider text-text-3" title={col.label}>{col.short}</p>
                         <p className="mt-0.5 text-[15px] font-bold tabular-nums text-foreground">{monthTotals[col.key]}</p>
                       </div>
                     ))}
@@ -517,10 +517,10 @@ export function AdminSettingView() {
                     <tbody>
                       {logs.map(log => (
                         <tr key={log.id} onClick={() => setEditingLog(log)} className="border-b border-foreground/[0.04] hover:bg-foreground/[0.04] cursor-pointer transition-colors group">
-                          <td className="sticky left-0 z-10 bg-card group-hover:bg-foreground/[0.04] px-4 py-2.5 font-medium text-[12px] text-foreground">
+                          <td className="sticky left-0 z-10 bg-card group-hover:bg-foreground/[0.04] px-4 py-2.5 font-medium text-[13px] text-foreground">
                             {dateLabel(log.date)}
                           </td>
-                          <td className="px-4 py-2.5 text-[12px] text-foreground">
+                          <td className="px-4 py-2.5 text-[13px] text-foreground">
                             {log.setter_name || "—"}
                           </td>
                           {COLUMNS.map(col => (
@@ -537,7 +537,7 @@ export function AdminSettingView() {
 
                       {/* Fila de totales */}
                       <tr className="border-t-2 border-accent/40 bg-foreground/[0.05] font-bold">
-                        <td className="sticky left-0 z-10 bg-foreground/[0.05] px-4 py-3 text-[12px] uppercase tracking-wide text-foreground">
+                        <td className="sticky left-0 z-10 bg-foreground/[0.05] px-4 py-3 text-[13px] uppercase tracking-wide text-foreground">
                           Total
                         </td>
                         <td className="px-4 py-3" />

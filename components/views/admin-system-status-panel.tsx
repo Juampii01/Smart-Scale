@@ -66,8 +66,8 @@ function StatusCard({ item }: { item: StatusItem }) {
     <div className="rounded-xl border border-foreground/[0.07] bg-card p-3.5">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-[12.5px] font-semibold text-foreground truncate">{item.name}</p>
-          <p className="text-[11px] text-text-2 mt-0.5">{item.trigger}</p>
+          <p className="text-[13px] font-semibold text-foreground truncate">{item.name}</p>
+          <p className="text-[13px] text-text-2 mt-0.5">{item.trigger}</p>
         </div>
         <button
           type="button"
@@ -80,9 +80,9 @@ function StatusCard({ item }: { item: StatusItem }) {
           </StatusPill>
         </button>
       </div>
-      <p className="text-[11.5px] text-text-2 mt-2 leading-snug">{item.description}</p>
+      <p className="text-[13px] text-text-2 mt-2 leading-snug">{item.description}</p>
       {expanded && hasDetail && (
-        <p className="text-[11px] text-red-700 dark:text-red-400 mt-2 rounded-lg bg-red-50 dark:bg-red-500/[0.06] p-2 break-words">
+        <p className="text-[13px] text-red-700 dark:text-red-400 mt-2 rounded-lg bg-red-50 dark:bg-red-500/[0.06] p-2 break-words">
           {item.detail}
         </p>
       )}
@@ -127,7 +127,7 @@ export function AdminSystemStatusPanel() {
           action={
             <div className="flex items-center gap-2.5">
               {data && (
-                <span className="text-[11px] text-text-2 hidden sm:inline">
+                <span className="text-[13px] text-text-2 hidden sm:inline">
                   {allItems.length} procesos
                 </span>
               )}
@@ -141,7 +141,7 @@ export function AdminSystemStatusPanel() {
 
       {open && (
         error ? (
-          <p className="text-[12px] text-text-2 mt-5">{error}</p>
+          <p className="text-[13px] text-text-2 mt-5">{error}</p>
         ) : !data ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
             {Array.from({ length: 4 }).map((_, i) => (

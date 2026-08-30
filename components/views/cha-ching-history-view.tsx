@@ -111,15 +111,15 @@ export function ChaChingHistoryView() {
       {/* Resumen */}
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
-          <div className="flex items-center gap-1.5 text-text-3 mb-1.5"><TrendingUp className="h-3 w-3" /><span className="text-[10px] font-semibold uppercase tracking-widest">Total cerrado</span></div>
+          <div className="flex items-center gap-1.5 text-text-3 mb-1.5"><TrendingUp className="h-3 w-3" /><span className="text-[11px] font-semibold uppercase tracking-widest">Total cerrado</span></div>
           <p className="text-xl font-bold text-foreground tabular-nums">{fmtMoney(totals.totalDeals)}</p>
         </div>
         <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
-          <div className="flex items-center gap-1.5 text-text-3 mb-1.5"><Wallet className="h-3 w-3" /><span className="text-[10px] font-semibold uppercase tracking-widest">Cash total</span></div>
+          <div className="flex items-center gap-1.5 text-text-3 mb-1.5"><Wallet className="h-3 w-3" /><span className="text-[11px] font-semibold uppercase tracking-widest">Cash total</span></div>
           <p className="text-xl font-bold text-[#dafc69] tabular-nums">{fmtMoney(totals.totalCash)}</p>
         </div>
         <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
-          <div className="flex items-center gap-1.5 text-text-3 mb-1.5"><DollarSign className="h-3 w-3" /><span className="text-[10px] font-semibold uppercase tracking-widest">Cash este mes</span></div>
+          <div className="flex items-center gap-1.5 text-text-3 mb-1.5"><DollarSign className="h-3 w-3" /><span className="text-[11px] font-semibold uppercase tracking-widest">Cash este mes</span></div>
           <p className="text-xl font-bold text-foreground tabular-nums">{fmtMoney(totals.mesCash)}</p>
         </div>
       </div>
@@ -138,17 +138,17 @@ export function ChaChingHistoryView() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-foreground tabular-nums">{fmtMoney(d.valor_trato)}</p>
-                <p className="text-[11px] text-text-3">{fmtDate(d.fecha)}{d.proximo_nivel ? ` · próximo: ${d.proximo_nivel}` : ""}</p>
+                <p className="text-[13px] text-text-3">{fmtDate(d.fecha)}{d.proximo_nivel ? ` · próximo: ${d.proximo_nivel}` : ""}</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] uppercase tracking-widest text-text-3">Cash</p>
+                <p className="text-[11px] uppercase tracking-widest text-text-3">Cash</p>
                 <p className="text-[13px] font-bold text-[#dafc69] tabular-nums">{fmtMoney(d.cash_collected)}</p>
               </div>
             </div>
             {d.notas && editingId !== d.id && (
               <div className="mt-3 flex items-start gap-2 rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3.5 py-2.5">
                 <Quote className="h-3.5 w-3.5 shrink-0 text-[#dafc69]/60 mt-0.5" />
-                <p className="text-[12.5px] text-foreground leading-relaxed whitespace-pre-wrap">{d.notas}</p>
+                <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-wrap">{d.notas}</p>
               </div>
             )}
 
@@ -156,7 +156,7 @@ export function ChaChingHistoryView() {
               <button
                 type="button"
                 onClick={() => startEditing(d)}
-                className="mt-3 flex items-center gap-1.5 text-[11.5px] font-semibold text-text-2 hover:text-foreground transition-colors"
+                className="mt-3 flex items-center gap-1.5 text-[13px] font-semibold text-text-2 hover:text-foreground transition-colors"
               >
                 <Plus className="h-3 w-3" /> Agregar reflexión
               </button>
@@ -170,21 +170,21 @@ export function ChaChingHistoryView() {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   placeholder="Ej: Este cliente me dijo 3 veces que no… y entendí que el seguimiento gana más tratos que el pitch."
-                  className="w-full rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] px-3.5 py-2.5 text-[12.5px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none resize-y leading-relaxed"
+                  className="w-full rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none resize-y leading-relaxed"
                 />
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => saveNotas(d.id)}
                     disabled={saving || !draft.trim()}
-                    className="rounded-lg btn-accent px-3.5 py-1.5 text-[11.5px] font-bold disabled:opacity-50 transition-colors"
+                    className="rounded-lg btn-accent px-3.5 py-1.5 text-[13px] font-bold disabled:opacity-50 transition-colors"
                   >
                     {saving ? "Guardando…" : "Guardar"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setEditingId(null)}
-                    className="rounded-lg px-3 py-1.5 text-[11.5px] font-semibold text-text-2 hover:text-foreground transition-colors"
+                    className="rounded-lg px-3 py-1.5 text-[13px] font-semibold text-text-2 hover:text-foreground transition-colors"
                   >
                     Cancelar
                   </button>

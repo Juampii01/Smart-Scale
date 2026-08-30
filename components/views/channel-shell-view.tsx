@@ -24,7 +24,7 @@ export function ChannelShellView({
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-[22px] font-bold text-foreground leading-tight">{title}</h1>
+          <h1 className="text-[24px] font-bold text-foreground leading-tight">{title}</h1>
           <p className="text-[13px] text-text-2 mt-0.5">{description}</p>
         </div>
         <button
@@ -37,7 +37,7 @@ export function ChannelShellView({
           )}
         >
           {actionLabel}
-          {comingSoon && <span className="text-[10px] font-bold uppercase tracking-wider text-text-3 ml-1">pronto</span>}
+          {comingSoon && <span className="text-[11px] font-bold uppercase tracking-wider text-text-3 ml-1">pronto</span>}
         </button>
       </div>
 
@@ -53,7 +53,7 @@ export function ChannelShellView({
           <p className="text-[15px] font-semibold text-foreground">{emptyText}</p>
           <p className="text-[13px] text-text-2 mt-1">{emptySubtext}</p>
           {comingSoon && (
-            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-foreground/[0.06] px-3 py-1 text-[11px] font-semibold text-text-2">
+            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-foreground/[0.06] px-3 py-1 text-[13px] font-semibold text-text-2">
               Próximamente
             </span>
           )}

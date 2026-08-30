@@ -75,7 +75,7 @@ function DetailRow({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null
   return (
     <div className="space-y-1">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{label}</p>
       <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-wrap">{value}</p>
     </div>
   )
@@ -85,7 +85,7 @@ function DetailLink({ label, value }: { label: string; value?: string | null }) 
   if (!value) return null
   return (
     <div className="space-y-1">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{label}</p>
       <a href={value} target="_blank" rel="noopener noreferrer"
         className="flex items-center gap-1.5 text-[13px] text-[#dafc69]/70 hover:text-[#dafc69] transition-colors truncate">
         <Link2 className="h-3.5 w-3.5 shrink-0" />
@@ -122,7 +122,7 @@ function DetailDrawer({
         <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
           <div className="min-w-0">
             <h2 className="text-lg font-bold text-foreground truncate">{fullName(app)}</h2>
-            <p className="text-[12px] text-text-2 mt-0.5">{fmtDate(app.created_at)}</p>
+            <p className="text-[13px] text-text-2 mt-0.5">{fmtDate(app.created_at)}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => onDelete(app.id)} disabled={deleting} aria-label="Eliminar aplicación"
@@ -142,7 +142,7 @@ function DetailDrawer({
             <select
               value={app.status}
               onChange={e => onStatusChange(app.id, e.target.value)}
-              className={`h-8 cursor-pointer appearance-none rounded-lg border px-3 pr-7 text-[12px] font-bold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[app.status]}`}
+              className={`h-8 cursor-pointer appearance-none rounded-lg border px-3 pr-7 text-[13px] font-bold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[app.status]}`}
             >
               <option value="nueva">Nueva</option>
               <option value="revisada">Revisada</option>
@@ -150,7 +150,7 @@ function DetailDrawer({
               <option value="rechazada">Rechazada</option>
             </select>
             {app.primary_channel && (
-              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-foreground/5 text-text-2 border-foreground/10"}`}>
+              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[13px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-foreground/5 text-text-2 border-foreground/10"}`}>
                 {app.primary_channel}
               </span>
             )}
@@ -161,7 +161,7 @@ function DetailDrawer({
             placeholder="Agregar nota interna..."
             onBlur={e => onNotesChange(app.id, e.target.value)}
             onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-            className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[12px] text-text-2 placeholder:text-text-3 focus:border-foreground/20 focus:text-foreground focus:outline-none transition-all"
+            className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13px] text-text-2 placeholder:text-text-3 focus:border-foreground/20 focus:text-foreground focus:outline-none transition-all"
           />
         </div>
 
@@ -219,7 +219,7 @@ function DetailDrawer({
                 { label: "Modelo de trabajo", value: app.client_work_style },
               ].map(({ label, value }) => value ? (
                 <div key={label} className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2.5 space-y-0.5">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">{label}</p>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{label}</p>
                   <p className="text-[13px] font-semibold text-foreground">{value}</p>
                 </div>
               ) : null)}
@@ -418,7 +418,7 @@ export function AdminApplicationsView() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {(["nueva","revisada","aceptada","rechazada"] as const).map(s => (
             <div key={s} className="rounded-[14px] border border-foreground/[0.07] bg-card px-4 py-3.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3 capitalize">{s}</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 capitalize">{s}</p>
               <p className={`mt-1 text-2xl font-bold ${STATUS_NUMBER_COLOR[s]}`}>
                 {apps.filter(a => a.status === s).length}
               </p>
@@ -438,13 +438,13 @@ export function AdminApplicationsView() {
           <div className="flex items-center gap-2 flex-wrap">
             {["todas","nueva","revisada","aceptada","rechazada"].map(s => (
               <button key={s} onClick={() => setFilterStatus(s)}
-                className={`h-8 rounded-xl border px-3 text-[12px] font-medium capitalize transition-all ${
+                className={`h-8 rounded-xl border px-3 text-[13px] font-medium capitalize transition-all ${
                   filterStatus === s
                     ? "border-accent bg-secondary text-[#dafc69]"
                     : "border-foreground/[0.07] text-text-2 hover:text-foreground hover:border-foreground/20"
                 }`}>
                 {s}
-                {s !== "todas" && <span className="ml-1 text-[10px] opacity-60">{apps.filter(a => a.status === s).length}</span>}
+                {s !== "todas" && <span className="ml-1 text-[13px] opacity-60">{apps.filter(a => a.status === s).length}</span>}
               </button>
             ))}
           </div>
@@ -462,7 +462,7 @@ export function AdminApplicationsView() {
                 <thead>
                   <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
                     {["Nombre","Email","Instagram","Canal","Facturación","Estado","Compró","Fecha",""].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-text-3 whitespace-nowrap">{h}</th>
+                      <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.18em] text-text-3 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -495,7 +495,7 @@ export function AdminApplicationsView() {
                       {/* Canal */}
                       <td className="px-4 py-3 whitespace-nowrap">
                         {app.primary_channel
-                          ? <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-foreground/5 text-text-2 border-foreground/10"}`}>
+                          ? <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[13px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-foreground/5 text-text-2 border-foreground/10"}`}>
                               {app.primary_channel}
                             </span>
                           : <span className="text-text-3 text-[13px]">—</span>}
@@ -503,7 +503,7 @@ export function AdminApplicationsView() {
 
                       {/* Facturación */}
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="text-[12px] text-text-2">{app.monthly_revenue ?? <span className="text-text-3">—</span>}</span>
+                        <span className="text-[13px] text-text-2">{app.monthly_revenue ?? <span className="text-text-3">—</span>}</span>
                       </td>
 
                       {/* Status */}
@@ -511,7 +511,7 @@ export function AdminApplicationsView() {
                         <select
                           value={app.status}
                           onChange={e => handleStatusChange(app.id, e.target.value)}
-                          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[11px] font-semibold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[app.status]}`}
+                          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[13px] font-semibold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[app.status]}`}
                         >
                           <option value="nueva">Nueva</option>
                           <option value="revisada">Revisada</option>
@@ -527,7 +527,7 @@ export function AdminApplicationsView() {
 
                       {/* Date */}
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="text-[11px] text-text-3">{fmtDate(app.created_at)}</span>
+                        <span className="text-[13px] text-text-3">{fmtDate(app.created_at)}</span>
                       </td>
 
                       {/* Arrow */}

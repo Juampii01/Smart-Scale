@@ -189,7 +189,7 @@ function StatPill({
     default: "bg-foreground/[0.05] text-foreground",
   }
   return (
-    <div className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-semibold", colors[accent ?? "default"])}>
+    <div className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-semibold", colors[accent ?? "default"])}>
       <span className="opacity-70">{label}</span>
       <span>{value}</span>
     </div>
@@ -220,7 +220,7 @@ function NewCashBlock({ data }: { data: DashboardData["new_cash"] }) {
           </p>
         ) : (
           <div className="overflow-x-auto -mx-1">
-            <table className="w-full text-[12px]">
+            <table className="w-full text-[13px]">
               <thead>
                 <tr className="border-b border-foreground/[0.06]">
                   <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
@@ -235,7 +235,7 @@ function NewCashBlock({ data }: { data: DashboardData["new_cash"] }) {
                     <td className="py-2 pr-3">
                       <p className="font-medium text-foreground leading-tight">{c.name}</p>
                       {c.programa && (
-                        <p className="text-[10px] text-text-2 mt-0.5">{c.programa}</p>
+                        <p className="text-[13px] text-text-2 mt-0.5">{c.programa}</p>
                       )}
                     </td>
                     <td className="py-2 pr-3 text-right font-semibold text-foreground tabular-nums">
@@ -312,7 +312,7 @@ function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
           </p>
         ) : (
           <div className="overflow-x-auto -mx-1">
-            <table className="w-full text-[12px]">
+            <table className="w-full text-[13px]">
               <thead>
                 <tr className="border-b border-foreground/[0.06]">
                   <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
@@ -329,7 +329,7 @@ function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
                     <td className="py-2 pr-3 text-right font-semibold text-foreground tabular-nums">
                       {fmt(g.total)}
                     </td>
-                    <td className="py-2 text-right text-text-2 text-[11px]">
+                    <td className="py-2 text-right text-text-2 text-[13px]">
                       {fmtDate(g.paid_at)}
                     </td>
                   </tr>
@@ -382,7 +382,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
           </p>
         ) : (
           <div className="overflow-x-auto -mx-1">
-            <table className="w-full text-[12px]">
+            <table className="w-full text-[13px]">
               <thead>
                 <tr className="border-b border-foreground/[0.06]">
                   <th className="pb-2 text-left font-semibold text-text-2 pr-4 min-w-[120px]">Setter</th>
@@ -488,7 +488,7 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                   </span>
                 </div>
                 <div className="overflow-x-auto -mx-1">
-                  <table className="w-full text-[12px]">
+                  <table className="w-full text-[13px]">
                     <thead>
                       <tr className="border-b border-foreground/[0.06]">
                         <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
@@ -506,7 +506,7 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                           <td className="py-2 pr-3 text-right font-semibold tabular-nums text-foreground">{fmt(q.amount)}</td>
                           <td className="py-2 pr-3 text-right text-text-2">{fmtDate(q.due_date)}</td>
                           <td className="py-2 text-right">
-                            <span className="rounded-full bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 px-2 py-0.5 text-[10px] font-semibold">
+                            <span className="rounded-full bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 px-2 py-0.5 text-[13px] font-semibold">
                               {q.days_overdue}d
                             </span>
                           </td>
@@ -528,7 +528,7 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                   </span>
                 </div>
                 <div className="overflow-x-auto -mx-1">
-                  <table className="w-full text-[12px]">
+                  <table className="w-full text-[13px]">
                     <thead>
                       <tr className="border-b border-foreground/[0.06]">
                         <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
@@ -547,7 +547,7 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                           <td className="py-2 pr-3 text-right text-text-2">{fmtDate(q.due_date)}</td>
                           <td className="py-2 text-right">
                             <span className={cn(
-                              "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                              "rounded-full px-2 py-0.5 text-[13px] font-semibold",
                               (q.days_until_due ?? 99) <= 3
                                 ? "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400"
                                 : "bg-foreground/[0.05] text-text-2"
@@ -630,7 +630,7 @@ export function AdminExecutiveDashboardView() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-5">
           <div>
-            <h1 className="text-[22px] font-bold text-foreground leading-tight">Dashboard Ejecutivo</h1>
+            <h1 className="text-[24px] font-bold text-foreground leading-tight">Dashboard Ejecutivo</h1>
             {!loading && data && (
               <p className="text-[13px] text-text-2 mt-0.5">{periodLabel}</p>
             )}
@@ -663,7 +663,7 @@ export function AdminExecutiveDashboardView() {
           <p className="text-[13px] text-red-700 dark:text-red-400">{error}</p>
           <button
             onClick={fetchData}
-            className="ml-auto text-[12px] font-semibold text-red-600 dark:text-red-400 hover:underline"
+            className="ml-auto text-[13px] font-semibold text-red-600 dark:text-red-400 hover:underline"
           >
             Reintentar
           </button>

@@ -110,7 +110,7 @@ export function AdminInstagramAccessView() {
       {/* Link del form */}
       <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
         <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 mb-2">Link del formulario (compartilo con los clientes)</p>
-        <code className="rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-text-2 font-mono">/conectar-instagram</code>
+        <code className="rounded-lg bg-foreground/[0.04] px-3 py-2 text-[13px] text-text-2 font-mono">/conectar-instagram</code>
       </div>
 
       {!migrated && (
@@ -152,7 +152,7 @@ export function AdminInstagramAccessView() {
               ) : filtered.map(item => (
                 <tr key={item.id} className="border-b border-foreground/[0.04] hover:bg-muted transition-colors">
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="text-[14px] font-semibold text-foreground">{item.name}</span>
+                    <span className="text-[15px] font-semibold text-foreground">{item.name}</span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
                     <a href={igHref(item.instagram)} target="_blank" rel="noopener noreferrer"
@@ -165,7 +165,7 @@ export function AdminInstagramAccessView() {
                     <span className="text-[13px] text-foreground">{item.email || <span className="text-text-3">—</span>}</span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[13px] font-semibold ${
                       item.is_professional
                         ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300"
                         : "bg-foreground/[0.05] text-text-2"
@@ -177,13 +177,13 @@ export function AdminInstagramAccessView() {
                     <select
                       value={item.status}
                       onChange={e => updateStatus(item.id, e.target.value)}
-                      className="h-8 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2 text-[12px] font-medium text-foreground capitalize focus:border-foreground/20 focus:outline-none"
+                      className="h-8 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2 text-[13px] font-medium text-foreground capitalize focus:border-foreground/20 focus:outline-none"
                     >
                       {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="text-[12px] tabular-nums text-text-2">{fmtDate(item.created_at)}</span>
+                    <span className="text-[13px] tabular-nums text-text-2">{fmtDate(item.created_at)}</span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
                     <button onClick={() => handleDelete(item)} disabled={deletingId === item.id}

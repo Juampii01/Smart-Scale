@@ -20,7 +20,7 @@ export function SectionHeader({ icon: Icon, title, subtitle, action, className }
         </div>
         <div className="min-w-0">
           <p className="text-[13px] font-bold text-foreground truncate">{title}</p>
-          {subtitle && <p className="text-[11px] text-text-2 truncate">{subtitle}</p>}
+          {subtitle && <p className="text-[13px] text-text-2 truncate">{subtitle}</p>}
         </div>
       </div>
       {action && <div className="shrink-0">{action}</div>}

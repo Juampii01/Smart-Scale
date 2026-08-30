@@ -107,7 +107,7 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
     <tr className="border-b border-border bg-secondary/30">
       <td className="px-4 py-2.5"><input value={name}  onChange={e => setName(e.target.value)}  placeholder="Nombre completo *" className={inputCls} /></td>
       <td className="px-4 py-2.5"><input value={email} onChange={e => setEmail(e.target.value)} placeholder="email@ejemplo.com"  className={inputCls} /></td>
-      <td className="px-4 py-2.5 text-[11px] text-text-3">Se resuelve solo por email</td>
+      <td className="px-4 py-2.5 text-[13px] text-text-3">Se resuelve solo por email</td>
       <td className="px-4 py-2.5">
         <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0 *" className={`${inputCls} text-right`} />
       </td>
@@ -276,14 +276,14 @@ export function AdminPaymentsView() {
         {p.client_name ? (
           <span className="text-foreground">{p.client_name}</span>
         ) : (
-          <span className="rounded-md border border-amber-400/40 bg-amber-100 dark:bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-900 dark:text-amber-300">Sin asignar</span>
+          <span className="rounded-md border border-amber-400/40 bg-amber-100 dark:bg-amber-500/10 px-2 py-0.5 text-[13px] font-medium text-amber-900 dark:text-amber-300">Sin asignar</span>
         )}
         {p.suggested_installment && !p.suggested_installment.paid_at && (
           <button
             onClick={() => handleConfirmInstallment(p.id)}
             disabled={confirmingId === p.id}
             title={`Confirmar cuota ${p.suggested_installment.installment_number} (${fmtMoney(p.suggested_installment.amount)}, vence ${fmtDate(p.suggested_installment.due_date)}) como pagada`}
-            className="ml-2 inline-flex items-center gap-1 rounded-md border border-accent/30 bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-[#7a9016] dark:text-[#dafc69] hover:bg-secondary transition-colors disabled:opacity-40"
+            className="ml-2 inline-flex items-center gap-1 rounded-md border border-accent/30 bg-accent-soft px-2 py-0.5 text-[13px] font-medium text-[#7a9016] dark:text-[#dafc69] hover:bg-secondary transition-colors disabled:opacity-40"
           >
             {confirmingId === p.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
             Cuota {p.suggested_installment.installment_number} sugerida
@@ -297,7 +297,7 @@ export function AdminPaymentsView() {
         <select
           value={p.status}
           onChange={e => handleStatusChange(p.id, e.target.value)}
-          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[11px] font-semibold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[p.status]}`}
+          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[13px] font-semibold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[p.status]}`}
         >
           <option value="aceptado">Aceptado</option>
           <option value="rechazado">Rechazado</option>
@@ -307,7 +307,7 @@ export function AdminPaymentsView() {
       <td className="px-4 py-3 text-[13px] text-text-2 max-w-[260px] truncate">
         {p.description ?? <span className="text-text-3">—</span>}
       </td>
-      <td className="px-4 py-3 whitespace-nowrap text-[12px] text-text-3">
+      <td className="px-4 py-3 whitespace-nowrap text-[13px] text-text-3">
         <div className="flex items-center gap-3">
           <span>{fmtDate(p.created_at)}</span>
           <button onClick={() => handleDelete(p.id)} disabled={deletingId === p.id}
@@ -323,7 +323,7 @@ export function AdminPaymentsView() {
     <thead>
       <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
         {["Nombre","Email","Cliente","Monto","Estado","Descripción","Fecha",""].map(h => (
-          <th key={h} className={`px-4 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-text-3 whitespace-nowrap ${h === "Monto" ? "text-right" : "text-left"}`}>{h}</th>
+          <th key={h} className={`px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-text-3 whitespace-nowrap ${h === "Monto" ? "text-right" : "text-left"}`}>{h}</th>
         ))}
       </tr>
     </thead>
@@ -397,24 +397,24 @@ export function AdminPaymentsView() {
       <div className="flex items-center gap-2 flex-wrap">
         {["todos","aceptado","rechazado","pendiente"].map(s => (
           <button key={s} onClick={() => setFilterStatus(s)}
-            className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium capitalize transition-all ${
+            className={`h-8 rounded-xl border px-3.5 text-[13px] font-medium capitalize transition-all ${
               filterStatus === s
                 ? "border-accent bg-secondary text-[#dafc69]"
                 : "border-foreground/[0.07] text-text-2 hover:text-foreground hover:border-foreground/20"
             }`}>
             {s}
-            {s !== "todos" && <span className="ml-1.5 text-[10px] opacity-60">{payments.filter(p => p.status === s).length}</span>}
+            {s !== "todos" && <span className="ml-1.5 text-[13px] opacity-60">{payments.filter(p => p.status === s).length}</span>}
           </button>
         ))}
         {unassignedCount > 0 && (
           <button onClick={() => setFilterUnassigned(v => !v)}
-            className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium transition-all ${
+            className={`h-8 rounded-xl border px-3.5 text-[13px] font-medium transition-all ${
               filterUnassigned
                 ? "border-amber-400/50 bg-amber-100 dark:bg-amber-500/10 text-amber-900 dark:text-amber-300"
                 : "border-foreground/[0.07] text-text-2 hover:text-foreground hover:border-foreground/20"
             }`}>
             Sin asignar
-            <span className="ml-1.5 text-[10px] opacity-60">{unassignedCount}</span>
+            <span className="ml-1.5 text-[13px] opacity-60">{unassignedCount}</span>
           </button>
         )}
       </div>
@@ -422,10 +422,10 @@ export function AdminPaymentsView() {
       {/* Month filters */}
       {availableMonths.length > 1 && (
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-text-3 mr-1">Mes</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-text-3 mr-1">Mes</span>
           <button
             onClick={() => setFilterMonth("todos")}
-            className={`h-7 rounded-lg border px-3 text-[11px] font-medium transition-all ${
+            className={`h-7 rounded-lg border px-3 text-[13px] font-medium transition-all ${
               filterMonth === "todos"
                 ? "border-foreground/20 bg-foreground/[0.06] text-foreground"
                 : "border-foreground/[0.07] text-text-3 hover:text-text-2 hover:border-foreground/15"
@@ -434,7 +434,7 @@ export function AdminPaymentsView() {
           </button>
           {availableMonths.map(m => (
             <button key={m} onClick={() => setFilterMonth(m)}
-              className={`h-7 rounded-lg border px-3 text-[11px] font-medium capitalize transition-all ${
+              className={`h-7 rounded-lg border px-3 text-[13px] font-medium capitalize transition-all ${
                 filterMonth === m
                   ? "border-foreground/20 bg-foreground/[0.06] text-foreground"
                   : "border-foreground/[0.07] text-text-3 hover:text-text-2 hover:border-foreground/15"
@@ -483,11 +483,11 @@ export function AdminPaymentsView() {
                   {/* Two stat cards per month */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-xl border border-foreground/[0.07] bg-card px-4 py-3">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Cobrado</p>
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Cobrado</p>
                       <p className="mt-1 text-xl font-bold tabular-nums text-emerald-700 dark:text-emerald-300">{fmtMoney(monthAceptado)}</p>
                     </div>
                     <div className="rounded-xl border border-foreground/[0.07] bg-card px-4 py-3">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Pagos</p>
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Pagos</p>
                       <p className="mt-1 text-xl font-bold tabular-nums text-foreground">{monthCount}</p>
                     </div>
                   </div>

@@ -153,7 +153,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
             <div className="flex items-center gap-1.5">
               <span className="text-sm font-bold text-foreground tabular-nums">{viewYear}</span>
               {viewYear === todayYear && (
-                <span className="rounded-full bg-accent-soft px-1.5 py-0.5 text-[9px] font-bold text-[#dafc69] uppercase tracking-wider">
+                <span className="rounded-full bg-accent-soft px-1.5 py-0.5 text-[11px] font-bold text-[#dafc69] uppercase tracking-wider">
                   Actual
                 </span>
               )}
@@ -206,7 +206,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
               <button
                 type="button"
                 onClick={() => pick(today)}
-                className="flex w-full items-center justify-center gap-1.5 rounded-md py-1.5 text-[12px] font-semibold text-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                className="flex w-full items-center justify-center gap-1.5 rounded-md py-1.5 text-[13px] font-semibold text-foreground hover:bg-secondary hover:text-foreground transition-colors"
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69]" />
                 Ir a hoy · {formatLong(today)}

@@ -33,14 +33,14 @@ export function Stat({
   return (
     <div className={cn("text-right", className)}>
       {label && (
-        <p className="text-[10px] font-bold uppercase tracking-wider text-text-2 mb-0.5">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-text-2 mb-0.5">
           {label}
         </p>
       )}
       <p
         className={cn(
           "tabular-nums leading-none font-semibold",
-          size === "hero" ? "text-[34px] font-medium" : "text-[26px] font-bold",
+          size === "hero" ? "text-[32px] font-medium" : "text-[24px] font-bold",
           colorClass ?? "text-foreground",
         )}
       >

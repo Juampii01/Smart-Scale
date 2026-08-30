@@ -109,10 +109,10 @@ export function MoMPanel() {
       <div className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
         {/* Column headers */}
         <div className="grid grid-cols-[1.4fr_1fr_1.6fr_1fr] border-b border-foreground/[0.06] px-6 py-3">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-text-3">Métrica</span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-text-3 text-right">{fmtMonthLong(previous.month)}</span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-text-3 text-center">Cambio</span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-text-3 text-right">{fmtMonthLong(current.month)}</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-text-3">Métrica</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-text-3 text-right">{fmtMonthLong(previous.month)}</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-text-3 text-center">Cambio</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-text-3 text-right">{fmtMonthLong(current.month)}</span>
         </div>
 
         {METRICS.map((metric) => {
@@ -148,7 +148,7 @@ export function MoMPanel() {
 
               {/* Change — THE KEY COLUMN */}
               <div className="flex flex-col items-center gap-1.5 px-2">
-                <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-bold ${
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-bold ${
                   isUp   ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
                   : isDown ? "bg-red-500/15 text-red-700 dark:text-red-300"
                   :           "bg-foreground/[0.06] text-text-2"

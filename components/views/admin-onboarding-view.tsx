@@ -73,7 +73,7 @@ const STAGE_META: Record<OnboardingStage, { label: string; dot: string }> = {
 function StageIndicator({ stage }: { stage: OnboardingStage }) {
   const meta = STAGE_META[stage]
   return (
-    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-text-2">
+    <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-text-2">
       <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", meta.dot)} />
       {meta.label}
     </span>
@@ -102,7 +102,7 @@ function StatusBadge({ status }: { status: string }) {
   const cfg = map[status] ?? map["pendiente"]
   const Icon = cfg.icon
   return (
-    <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide", cfg.cls)}>
+    <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide", cfg.cls)}>
       <Icon className="h-2.5 w-2.5" />
       {cfg.label}
     </span>
@@ -145,28 +145,28 @@ function SuccessModal({
           </span>
           <div>
             <h3 className="font-bold text-foreground">Onboarding creado</h3>
-            <p className="text-[12px] text-text-2">El cliente ya tiene acceso al dashboard.</p>
+            <p className="text-[13px] text-text-2">El cliente ya tiene acceso al dashboard.</p>
           </div>
         </div>
 
         <div className="space-y-3 rounded-xl border border-border bg-foreground/[0.02] p-4">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-text-2">Cliente</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-text-2">Cliente</p>
             <p className="mt-0.5 font-semibold text-foreground">{name}</p>
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-text-2">Email</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-text-2">Email</p>
             <p className="mt-0.5 text-[13px] text-foreground">{email}</p>
           </div>
           {magicLink && (
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-text-2">Magic Link (acceso inmediato)</p>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-text-2">Magic Link (acceso inmediato)</p>
               <div className="mt-1.5 flex items-start gap-2">
                 <a
                   href={magicLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 text-[12px] text-[#dafc69] hover:text-[#f2ffc0] break-all line-clamp-2 underline"
+                  className="flex-1 text-[13px] text-[#dafc69] hover:text-[#f2ffc0] break-all line-clamp-2 underline"
                 >
                   {magicLink}
                 </a>
@@ -177,12 +177,12 @@ function SuccessModal({
                   {copied === "magic" ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="mt-1.5 text-[10px] text-text-3">El cliente puede usar este link para acceder sin contraseña. Válido por 24 horas.</p>
+              <p className="mt-1.5 text-[13px] text-text-3">El cliente puede usar este link para acceder sin contraseña. Válido por 24 horas.</p>
             </div>
           )}
           {tempPassword && (
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-text-2">Contraseña temporal</p>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-text-2">Contraseña temporal</p>
               <div className="mt-1.5 flex items-center gap-2">
                 <code className="flex-1 rounded-lg border border-border bg-background px-3 py-2 font-mono text-[13px] text-foreground">
                   {tempPassword}
@@ -194,7 +194,7 @@ function SuccessModal({
                   {copied === "password" ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="mt-1.5 text-[10px] text-text-3">Alternativa si no usa magic link. Puede cambiarla desde su perfil.</p>
+              <p className="mt-1.5 text-[13px] text-text-3">Alternativa si no usa magic link. Puede cambiarla desde su perfil.</p>
             </div>
           )}
         </div>
@@ -325,7 +325,7 @@ function OnboardingForm({
   }
 
   const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 text-[13px] text-foreground placeholder:text-text-3 outline-none transition-all focus:border-accent focus:bg-foreground/[0.05] focus:ring-2 focus:ring-accent/20"
-  const labelCls = "block text-[10px] font-semibold uppercase tracking-widest text-text-2 mb-1.5"
+  const labelCls = "block text-[11px] font-semibold uppercase tracking-widest text-text-2 mb-1.5"
 
   return (
     <div className="rounded-[14px] border border-border bg-card p-6">
@@ -335,7 +335,7 @@ function OnboardingForm({
         </span>
         <div>
           <h2 className="font-bold text-foreground">Nuevo onboarding</h2>
-          <p className="text-[12px] text-text-2">Completá los datos del cliente para crear su cuenta.</p>
+          <p className="text-[13px] text-text-2">Completá los datos del cliente para crear su cuenta.</p>
         </div>
       </div>
 
@@ -343,7 +343,7 @@ function OnboardingForm({
 
         {/* Datos personales */}
         <div>
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#dafc69]/60">Datos del cliente</p>
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#dafc69]/60">Datos del cliente</p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={labelCls}>Nombre completo *</label>
@@ -404,22 +404,22 @@ function OnboardingForm({
                         className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[13px] text-foreground hover:bg-foreground/[0.05]"
                       >
                         <span className="truncate">{l.name}</span>
-                        {l.instagram && <span className="shrink-0 text-[11px] text-text-2">{l.instagram}</span>}
+                        {l.instagram && <span className="shrink-0 text-[13px] text-text-2">{l.instagram}</span>}
                       </button>
                     ))}
                   {leadOptions.filter(l => l.name.toLowerCase().includes(leadQuery.toLowerCase())).length === 0 && (
-                    <p className="px-3 py-2 text-[12px] text-text-2">Sin resultados</p>
+                    <p className="px-3 py-2 text-[13px] text-text-2">Sin resultados</p>
                   )}
                 </div>
               )}
-              <p className="mt-1 text-[10px] text-text-3">Vincula este cliente a su lead de origen para el análisis de Ann AI.</p>
+              <p className="mt-1 text-[13px] text-text-3">Vincula este cliente a su lead de origen para el análisis de Ann AI.</p>
             </div>
           </div>
         </div>
 
         {/* Programa */}
         <div>
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#dafc69]/60">Programa</p>
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#dafc69]/60">Programa</p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="sm:col-span-2">
               <label className={labelCls}>Programa *</label>
@@ -475,7 +475,7 @@ function OnboardingForm({
 
         {/* Cuotas */}
         <div>
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#dafc69]/60">Cuotas (llenar las que correspondan)</p>
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#dafc69]/60">Cuotas (llenar las que correspondan)</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
             {[1, 2, 3, 4, 5, 6].map(i => (
               <div key={i}>
@@ -498,7 +498,7 @@ function OnboardingForm({
 
         {/* Error */}
         {error && (
-          <div className="flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-[12px] text-red-700 dark:text-red-400">
+          <div className="flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-[13px] text-red-700 dark:text-red-400">
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             {error}
           </div>
@@ -549,8 +549,8 @@ function ClientCard({ client, onClick }: { client: OnboardingClient; onClick: ()
             <User className="h-4 w-4 text-text-2" />
           </div>
           <div className="min-w-0">
-            <p className="truncate font-semibold text-[14px] text-foreground">{client.name}</p>
-            <p className="truncate text-[11px] text-text-2">{client.email ?? "—"}</p>
+            <p className="truncate font-semibold text-[15px] text-foreground">{client.name}</p>
+            <p className="truncate text-[13px] text-text-2">{client.email ?? "—"}</p>
           </div>
         </div>
         <StatusBadge status={client.status} />
@@ -559,34 +559,34 @@ function ClientCard({ client, onClick }: { client: OnboardingClient; onClick: ()
       <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border/60 pt-3 sm:grid-cols-4">
         {client.instagram && (
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-widest text-text-3">Instagram</p>
-            <p className="mt-0.5 text-[12px] text-foreground">{client.instagram}</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Instagram</p>
+            <p className="mt-0.5 text-[13px] text-foreground">{client.instagram}</p>
           </div>
         )}
         <div>
-          <p className="text-[9px] font-bold uppercase tracking-widest text-text-3">Inicio</p>
-          <p className="mt-0.5 text-[12px] text-foreground">{fmtDate(client.program_start)}</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Inicio</p>
+          <p className="mt-0.5 text-[13px] text-foreground">{fmtDate(client.program_start)}</p>
         </div>
         <div>
-          <p className="text-[9px] font-bold uppercase tracking-widest text-text-3">Plan</p>
-          <p className="mt-0.5 text-[12px] text-foreground">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Plan</p>
+          <p className="mt-0.5 text-[13px] text-foreground">
             1ª {fmtCurrency(client.installment_amount)} · {client.num_installments} cuota{client.num_installments !== 1 ? "s" : ""}
           </p>
         </div>
         <div>
-          <p className="text-[9px] font-bold uppercase tracking-widest text-text-3">Total</p>
-          <p className="mt-0.5 text-[12px] font-semibold text-foreground">{fmtCurrency(total)}</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Total</p>
+          <p className="mt-0.5 text-[13px] font-semibold text-foreground">{fmtCurrency(total)}</p>
         </div>
         {client.notes && (
           <div className="col-span-2 sm:col-span-4">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-text-3">Notas</p>
-            <p className="mt-0.5 text-[11px] text-text-2 line-clamp-1">{client.notes}</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Notas</p>
+            <p className="mt-0.5 text-[13px] text-text-2 line-clamp-1">{client.notes}</p>
           </div>
         )}
       </div>
 
       <div className="mt-2 flex items-center justify-between gap-2">
-        <p className="text-[10px] text-text-3">{fmtDate(client.created_at)}</p>
+        <p className="text-[13px] text-text-3">{fmtDate(client.created_at)}</p>
         <StageIndicator stage={stage} />
       </div>
     </button>
@@ -624,13 +624,13 @@ function TimelineStep({
       </div>
       <div className={cn("min-w-0", !last && "pb-5")}>
         <p className="text-[13px] font-semibold text-foreground">{label}</p>
-        {state === "locked" && <p className="mt-0.5 text-[11px] text-text-3">Esperando etapa anterior</p>}
-        {error && <p className="mt-0.5 text-[11px] text-red-700 dark:text-red-400">{error}</p>}
+        {state === "locked" && <p className="mt-0.5 text-[13px] text-text-3">Esperando etapa anterior</p>}
+        {error && <p className="mt-0.5 text-[13px] text-red-700 dark:text-red-400">{error}</p>}
         {onAction && (
           <button
             onClick={onAction}
             disabled={actionLoading}
-            className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] px-2.5 py-1 text-[11px] font-semibold text-foreground transition-colors hover:bg-foreground/[0.05] disabled:opacity-50"
+            className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] px-2.5 py-1 text-[13px] font-semibold text-foreground transition-colors hover:bg-foreground/[0.05] disabled:opacity-50"
           >
             {actionLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
             {actionLabel}
@@ -670,7 +670,7 @@ function OnboardingDetailDrawer({
         <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
           <div className="min-w-0">
             <h2 className="truncate text-lg font-bold text-foreground">{client.name}</h2>
-            <p className="mt-0.5 truncate text-[12px] text-text-3">{client.email}</p>
+            <p className="mt-0.5 truncate text-[13px] text-text-3">{client.email}</p>
           </div>
           <button
             onClick={onClose}
@@ -683,7 +683,7 @@ function OnboardingDetailDrawer({
 
         <div className="flex-1 overflow-y-auto px-6 py-6">
           {actionError && (
-            <div className="mb-5 flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3.5 py-2.5 text-[12px] text-red-700 dark:text-red-400">
+            <div className="mb-5 flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3.5 py-2.5 text-[13px] text-red-700 dark:text-red-400">
               <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               {actionError}
             </div>
@@ -903,7 +903,7 @@ export function AdminOnboardingView() {
                   key={v.id}
                   onClick={() => setActiveView(v.id)}
                   className={cn(
-                    "inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[12.5px] font-semibold transition-all",
+                    "inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[13px] font-semibold transition-all",
                     activeView === v.id
                       ? "bg-foreground text-background"
                       : "text-text-2 hover:text-foreground hover:bg-foreground/[0.05]"
@@ -923,7 +923,7 @@ export function AdminOnboardingView() {
             <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-foreground/[0.08] py-16 text-center">
               <UserPlus className="mb-3 h-8 w-8 text-text-3" />
               <p className="font-semibold text-text-2">Sin onboardings aún</p>
-              <p className="mt-1 text-[12px] text-text-3">Creá el primero con el botón de arriba.</p>
+              <p className="mt-1 text-[13px] text-text-3">Creá el primero con el botón de arriba.</p>
               <button
                 onClick={() => setView("form")}
                 className="mt-4 flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-bold transition"
@@ -935,7 +935,7 @@ export function AdminOnboardingView() {
           ) : filteredClients.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-foreground/[0.08] py-16 text-center">
               <p className="font-semibold text-text-2">Nada en esta vista</p>
-              <p className="mt-1 text-[12px] text-text-3">Probá con otro filtro.</p>
+              <p className="mt-1 text-[13px] text-text-3">Probá con otro filtro.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

@@ -59,7 +59,7 @@ function ResultBanner({ passed, score, levelTitle, onRetry }: {
     return (
       <div className="rounded-2xl border border-emerald-500/30 bg-emerald-100 dark:bg-emerald-500/10 p-8 text-center">
         <Check className="h-8 w-8 text-emerald-700 dark:text-emerald-400 mx-auto mb-3" />
-        <p className="text-[17px] font-bold text-emerald-700 dark:text-emerald-400">Has aprobado 🎉</p>
+        <p className="text-[18px] font-bold text-emerald-700 dark:text-emerald-400">Has aprobado 🎉</p>
         <p className="text-sm text-text-2 mt-1">
           Gracias por completar {levelTitle ?? "el nivel"}.
           {score && ` Respondiste correctamente ${score.correct} de ${score.total}.`}
@@ -79,7 +79,7 @@ function ResultBanner({ passed, score, levelTitle, onRetry }: {
   return (
     <div className="rounded-2xl border border-red-500/30 bg-red-100 dark:bg-red-500/10 p-8 text-center">
       <X className="h-8 w-8 text-red-700 dark:text-red-400 mx-auto mb-3" />
-      <p className="text-[17px] font-bold text-red-700 dark:text-red-400">No has aprobado</p>
+      <p className="text-[18px] font-bold text-red-700 dark:text-red-400">No has aprobado</p>
       <p className="text-sm text-text-2 mt-1">
         {score && `Respondiste correctamente ${score.correct} de ${score.total} en `}
         {levelTitle ?? "Este nivel"}. Repasá el contenido en Skool antes de seguir.
@@ -244,7 +244,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
             <form onSubmit={handleSubmit} className="space-y-6">
               {level.questions.map((q) => (
                 <div key={q.id}>
-                  <label className="block text-[14px] font-medium text-foreground mb-2">{q.label}</label>
+                  <label className="block text-[15px] font-medium text-foreground mb-2">{q.label}</label>
                   {q.type === "text" && (
                     <textarea className={inputCls} rows={2} value={answers[q.id] ?? ""} onChange={(e) => setAnswer(q.id, e.target.value)} required />
                   )}

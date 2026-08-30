@@ -116,15 +116,15 @@ export function AdminSocialView() {
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-foreground">{c.clientName}</p>
-                <p className="truncate text-[12px] text-text-2">@{c.accountName}</p>
+                <p className="truncate text-[13px] text-text-2">@{c.accountName}</p>
               </div>
               <div className="text-right">
                 {c.tokenExpired ? (
-                  <span className="inline-flex items-center gap-1 text-[11px] text-amber-700 dark:text-amber-400"><AlertTriangle className="h-3 w-3" /> Reconectar</span>
+                  <span className="inline-flex items-center gap-1 text-[13px] text-amber-700 dark:text-amber-400"><AlertTriangle className="h-3 w-3" /> Reconectar</span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400"><Check className="h-3 w-3" /> Activo</span>
+                  <span className="inline-flex items-center gap-1 text-[13px] text-emerald-700 dark:text-emerald-400"><Check className="h-3 w-3" /> Activo</span>
                 )}
-                <p className="text-[11px] text-text-3 mt-0.5">{new Date(c.connectedAt).toLocaleDateString("es-AR")}</p>
+                <p className="text-[13px] text-text-3 mt-0.5">{new Date(c.connectedAt).toLocaleDateString("es-AR")}</p>
               </div>
             </div>
           ))}

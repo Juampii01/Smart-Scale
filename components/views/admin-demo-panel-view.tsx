@@ -26,7 +26,7 @@ export function AdminDemoPanelView() {
   return (
     <div className="pb-10 space-y-10">
       <div>
-        <h1 className="text-[22px] font-bold text-foreground leading-tight">Panel Interno</h1>
+        <h1 className="text-[24px] font-bold text-foreground leading-tight">Panel Interno</h1>
         <p className="text-[13px] text-text-2 mt-0.5">
           Así se ve la estructura del panel de gestión — sin datos cargados todavía.
         </p>

@@ -96,7 +96,7 @@ function RadioGroup({ options, value, onChange }: {
           }`}>
             {value === opt && <span className="h-2 w-2 rounded-full bg-black" />}
           </span>
-          <span className="text-[14px] text-foreground group-hover:text-foreground transition-colors">{opt}</span>
+          <span className="text-[15px] text-foreground group-hover:text-foreground transition-colors">{opt}</span>
         </label>
       ))}
     </div>
@@ -204,11 +204,11 @@ export default function ApplyPage() {
       >
         <div className="mx-auto max-w-2xl px-5 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="text-foreground text-[17px] font-bold tracking-tight">Smart</span>
-            <span className="rounded-md bg-foreground px-2 py-0.5 text-[14px] font-bold tracking-tight text-background shadow-sm">
+            <span className="text-foreground text-[18px] font-bold tracking-tight">Smart</span>
+            <span className="rounded-md bg-foreground px-2 py-0.5 text-[15px] font-bold tracking-tight text-background shadow-sm">
               Scale
             </span>
-            <span className="text-[9px] font-semibold text-text-3 tracking-widest uppercase ml-0.5">v2.0</span>
+            <span className="text-[11px] font-semibold text-text-3 tracking-widest uppercase ml-0.5">v2.0</span>
           </div>
           <span className="text-[11px] font-bold text-text-3 uppercase tracking-[0.18em]">Application</span>
         </div>
@@ -220,7 +220,7 @@ export default function ApplyPage() {
             <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69] animate-pulse" />
             <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">Smart Scale™</span>
           </div>
-          <h1 className="text-[28px] sm:text-[38px] font-black text-foreground leading-[1.1] tracking-tight">
+          <h1 className="text-[32px] sm:text-[32px] font-black text-foreground leading-[1.1] tracking-tight">
             Aplicá a<br />Smart Scale
           </h1>
           <p className="text-[15px] text-text-2 leading-relaxed max-w-lg">
@@ -384,7 +384,7 @@ export default function ApplyPage() {
               }`}>
                 {form.terms_accepted && <Check className="h-3 w-3 text-black" strokeWidth={3} />}
               </span>
-              <span className="text-[14px] text-text-2 leading-relaxed group-hover:text-foreground transition-colors">
+              <span className="text-[15px] text-text-2 leading-relaxed group-hover:text-foreground transition-colors">
                 He leído y acepto los{" "}
                 <span className="text-[#dafc69] hover:underline">Términos y Condiciones</span>
                 <span className="text-[#dafc69] ml-1">*</span>
@@ -413,7 +413,7 @@ export default function ApplyPage() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-accent w-full flex items-center justify-center gap-3 h-14 rounded-2xl text-[16px] font-black active:scale-[0.98] disabled:opacity-50"
+            className="btn-accent w-full flex items-center justify-center gap-3 h-14 rounded-2xl text-[18px] font-black active:scale-[0.98] disabled:opacity-50"
           >
             {loading ? (
               <><Loader2 className="h-5 w-5 animate-spin" /> Enviando...</>

@@ -233,7 +233,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
             <div className="relative flex items-center justify-between gap-4">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">Fecha</p>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">Fecha</p>
                 <input
                   type="date"
                   value={date}
@@ -257,7 +257,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                 <div className="grid gap-4 p-5 sm:grid-cols-2">
                   {group.fields.map((field) => (
                     <div key={field.key}>
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">
                         {field.label}
                       </p>
                       <input
@@ -268,7 +268,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                         onChange={e => setValues(prev => ({ ...prev, [field.key]: e.target.value }))}
                         className="h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
                       />
-                      <p className="mt-1 text-[10px] text-text-3">{field.hint}</p>
+                      <p className="mt-1 text-[13px] text-text-3">{field.hint}</p>
                     </div>
                   ))}
                 </div>
@@ -282,18 +282,18 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                       <span className="h-3 w-[2px] rounded-full bg-[#dafc69]" />
                       <span className="text-sm font-semibold uppercase tracking-widest text-foreground">Total Conversaciones</span>
                     </div>
-                    <span className="text-[10px] font-semibold uppercase tracking-widest text-text-3">automático</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">automático</span>
                   </div>
                   <div className="flex items-end gap-4 px-5 py-4">
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">
                         Inbound + Resp. outbound
                       </p>
                       <p className="text-4xl font-bold text-[#dafc69] tabular-nums">
                         {totalConversaciones}
                       </p>
                     </div>
-                    <p className="pb-1 text-[11px] text-text-3">
+                    <p className="pb-1 text-[13px] text-text-3">
                       {values.new_conversations_inbound || "0"} inbound · {values.outbound_replies || "0"} resp. outbound
                     </p>
                   </div>

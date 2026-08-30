@@ -100,37 +100,37 @@ function EventModal({
         {/* Form */}
         <div className="p-5 space-y-3">
           <div>
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-text-3">Título *</p>
+            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Título *</p>
             <input value={form.title} onChange={e => set("title", e.target.value)} placeholder="Q&A: Ads · Content · Mindset" className={inputCls} />
           </div>
 
           <div>
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-text-3">Host / Descripción</p>
+            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Host / Descripción</p>
             <input value={form.description ?? ""} onChange={e => set("description", e.target.value)} placeholder="Con Ann Sahakyan" className={inputCls} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-text-3">Día</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Día</p>
               <select value={form.day_of_week ?? ""} onChange={e => set("day_of_week", e.target.value)} className={selectCls}>
                 {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
             <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-text-3">Hora</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Hora</p>
               <input value={form.time ?? ""} onChange={e => set("time", e.target.value)} placeholder="3:00 PM" className={inputCls} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-text-3">Recurrencia</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Recurrencia</p>
               <select value={form.recurrence} onChange={e => set("recurrence", e.target.value)} className={selectCls}>
                 {RECURR.map(r => <option key={r} value={r}>{RECURR_LABEL[r]}</option>)}
               </select>
             </div>
             <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-text-3">Estado</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Estado</p>
               <select value={form.status} onChange={e => set("status", e.target.value)} className={selectCls}>
                 {STATUS.map(s => <option key={s} value={s}>{s === "active" ? "Activo" : s === "cancelled" ? "Cancelado" : "Próximamente"}</option>)}
               </select>
@@ -139,7 +139,7 @@ function EventModal({
 
           {/* Próxima fecha específica — útil para biweekly/monthly */}
           <div>
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-text-3">
+            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">
               Próxima fecha específica
               <span className="ml-2 text-text-3 normal-case font-normal tracking-normal">
                 (opcional · biweekly / mensual)
@@ -155,7 +155,7 @@ function EventModal({
               <button
                 type="button"
                 onClick={() => set("next_date", null)}
-                className="mt-1 text-[11px] text-text-3 hover:text-text-2 transition-colors"
+                className="mt-1 text-[13px] text-text-3 hover:text-text-2 transition-colors"
               >
                 × Borrar fecha
               </button>
@@ -163,17 +163,17 @@ function EventModal({
           </div>
 
           <div>
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-text-3">Zoom URL</p>
+            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Zoom URL</p>
             <input value={form.zoom_url ?? ""} onChange={e => set("zoom_url", e.target.value)} placeholder="https://us06web.zoom.us/j/..." className={inputCls} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-text-3">Código Zoom</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Código Zoom</p>
               <input value={form.passcode ?? ""} onChange={e => set("passcode", e.target.value)} placeholder="123456" className={inputCls} />
             </div>
             <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-text-3">Orden</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Orden</p>
               <input type="number" value={form.sort_order} onChange={e => set("sort_order", Number(e.target.value))} className={inputCls} />
             </div>
           </div>
@@ -309,7 +309,7 @@ export function AdminCalendarView() {
               <thead>
                 <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
                   {["Día", "Título", "Hora", "Recurrencia", "Estado", ""].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-text-3 whitespace-nowrap">{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.18em] text-text-3 whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -321,16 +321,16 @@ export function AdminCalendarView() {
                     </td>
                     <td className="px-4 py-3">
                       <p className="text-[13px] font-medium text-foreground">{ev.title}</p>
-                      {ev.description && <p className="text-[11px] text-text-2">{ev.description}</p>}
+                      {ev.description && <p className="text-[13px] text-text-2">{ev.description}</p>}
                     </td>
                     <td className="px-4 py-3 text-[13px] text-text-2 whitespace-nowrap">
                       {ev.time ? `${ev.time} ${ev.tz_label}` : "—"}
                     </td>
-                    <td className="px-4 py-3 text-[12px] text-text-2 whitespace-nowrap">
+                    <td className="px-4 py-3 text-[13px] text-text-2 whitespace-nowrap">
                       {RECURR_LABEL[ev.recurrence] ?? ev.recurrence}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-[11px] font-semibold capitalize ${STATUS_STYLE[ev.status] ?? ""}`}>
+                      <span className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-[13px] font-semibold capitalize ${STATUS_STYLE[ev.status] ?? ""}`}>
                         {ev.status === "active" ? "Activo" : ev.status === "cancelled" ? "Cancelado" : "Próximamente"}
                       </span>
                     </td>

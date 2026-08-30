@@ -154,7 +154,7 @@ function SectionCard({
         <button
           onClick={() => handleSave(false)}
           disabled={saving}
-          className="flex h-9 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[12.5px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+          className="flex h-9 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
         >
           {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           Guardar borrador
@@ -162,12 +162,12 @@ function SectionCard({
         <button
           onClick={() => handleSave(true)}
           disabled={saving || !isComplete}
-          className="flex h-9 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12.5px] font-bold transition-all disabled:opacity-40"
+          className="flex h-9 items-center gap-1.5 rounded-lg btn-accent px-3 text-[13px] font-bold transition-all disabled:opacity-40"
           title={!isComplete ? "Respondé todas las preguntas para marcar como completo" : undefined}
         >
           Marcar sección como completa
         </button>
-        {savedMsg && <span className="text-[12px] text-emerald-700 dark:text-emerald-400">✓ Guardado</span>}
+        {savedMsg && <span className="text-[13px] text-emerald-700 dark:text-emerald-400">✓ Guardado</span>}
       </div>
     </div>
   )
@@ -222,7 +222,7 @@ export function AdminFounderSurveyView() {
           Respondé estas preguntas para que todo el sistema de IA (Ann, los asistentes, y lo que se construya después) tenga el contexto real del negocio — sin tener que escribir markdown.
         </p>
         {sections && (
-          <p className="text-[12px] text-text-3 mt-2">{completedSections}/{totalSections} secciones completas</p>
+          <p className="text-[13px] text-text-3 mt-2">{completedSections}/{totalSections} secciones completas</p>
         )}
       </div>
 

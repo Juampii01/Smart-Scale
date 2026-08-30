@@ -172,7 +172,7 @@ function ResourceCard({ resource, onDelete }: { resource: Resource; onDelete: (i
           </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground truncate">{resource.title}</p>
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-text-3">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">
               {resource.category}
             </span>
           </div>

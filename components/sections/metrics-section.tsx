@@ -199,7 +199,7 @@ export function MetricsSection({
                   <span className="h-3 w-[2px] rounded-full bg-accent" />
                   <span className="text-xs font-semibold uppercase tracking-widest text-text-2">{category}</span>
                 </div>
-                <span className="text-[10px] text-text-3 tabular-nums">{items.length} campos</span>
+                <span className="text-[13px] text-text-3 tabular-nums">{items.length} campos</span>
               </div>
 
               {/* Table */}
@@ -207,9 +207,9 @@ export function MetricsSection({
                 <table className="w-full">
                   <thead className="sticky top-0 bg-card/95 backdrop-blur-sm">
                     <tr className="border-b border-foreground/[0.05]">
-                      <th className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-text-3">Campo</th>
-                      <th className="px-5 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider text-text-3">Mensual</th>
-                      <th className="px-5 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider text-text-3">Últ. 12 meses</th>
+                      <th className="px-5 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-3">Campo</th>
+                      <th className="px-5 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-3">Mensual</th>
+                      <th className="px-5 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-3">Últ. 12 meses</th>
                     </tr>
                   </thead>
                   <tbody>

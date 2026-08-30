@@ -192,7 +192,7 @@ export function PipelineBoard({ leads, onSelect, onPatch, readOnly = false }: Pi
         <button
           onClick={() => setFilterUnrated(f => !f)}
           title={filterUnrated ? "Mostrando solo 4-5★ — click para ver también las sin calificar" : "Mostrando todos — click para ocultar las sin 4-5★"}
-          className={`inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[12.5px] font-semibold transition-all ${
+          className={`inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[13px] font-semibold transition-all ${
             filterUnrated
               ? "bg-foreground text-background"
               : "border border-foreground/[0.12] text-text-2 hover:text-foreground hover:border-foreground/25"

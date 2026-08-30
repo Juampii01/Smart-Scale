@@ -89,7 +89,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
   if (!open) return null
 
   const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none transition-all"
-  const labelCls = "text-[10px] font-bold uppercase tracking-widest text-text-3 mb-1.5 block"
+  const labelCls = "text-[11px] font-bold uppercase tracking-widest text-text-3 mb-1.5 block"
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
@@ -119,17 +119,17 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                   Link creado ✓
                 </p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 truncate rounded-lg bg-foreground/[0.05] px-3 py-2 text-[12px] font-mono text-[#dafc69]/80">
+                  <code className="flex-1 truncate rounded-lg bg-foreground/[0.05] px-3 py-2 text-[13px] font-mono text-[#dafc69]/80">
                     {result.paymentUrl}
                   </code>
                   <button onClick={copyLink}
-                  className="shrink-0 flex items-center gap-1.5 h-8 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all">
+                  className="shrink-0 flex items-center gap-1.5 h-8 rounded-lg btn-accent px-3 text-[13px] font-bold transition-all">
                     {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                     {copied ? "Copiado" : "Copiar"}
                   </button>
                 </div>
                 <a href={result.paymentUrl} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-[12px] text-text-2 hover:text-foreground transition-colors">
+                  className="flex items-center gap-1.5 text-[13px] text-text-2 hover:text-foreground transition-colors">
                   <ExternalLink className="h-3.5 w-3.5" />
                   Abrir en Stripe
                 </a>
@@ -139,11 +139,11 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                 <div className="rounded-xl border border-blue-400/20 bg-blue-500/[0.05] p-3 flex items-start gap-2.5">
                   <CalendarDays className="h-4 w-4 text-blue-700/70 dark:text-blue-400/70 shrink-0 mt-0.5" />
                   <div className="space-y-1">
-                    <p className="text-[11px] font-semibold text-blue-700/80 dark:text-blue-400/80">
+                    <p className="text-[13px] font-semibold text-blue-700/80 dark:text-blue-400/80">
                       Después del pago → Calendly embebido
                     </p>
-                    <p className="text-[11px] text-text-3 break-all">{result.raw_calendly}</p>
-                    <p className="text-[10px] text-text-3">
+                    <p className="text-[13px] text-text-3 break-all">{result.raw_calendly}</p>
+                    <p className="text-[13px] text-text-3">
                       El cliente es redirigido a <code className="text-text-3">/booking/confirmed</code> donde ve el calendario inline
                     </p>
                   </div>
@@ -161,7 +161,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
               <div className="flex rounded-xl border border-foreground/[0.08] overflow-hidden">
                 {(["once", "recurring"] as const).map(t => (
                   <button key={t} onClick={() => setType(t)}
-                    className={`flex-1 py-2 text-[12px] font-semibold transition-all ${
+                    className={`flex-1 py-2 text-[13px] font-semibold transition-all ${
                       type === t
                         ? "bg-secondary text-[#dafc69]"
                         : "text-text-2 hover:text-foreground"
@@ -227,7 +227,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                   className={inputCls}
                 />
                 {calendlyUrl && (
-                  <p className="mt-1.5 text-[11px] text-text-3">
+                  <p className="mt-1.5 text-[13px] text-text-3">
                     ✓ Al pagar, el cliente es redirigido automáticamente a agendar su llamada
                   </p>
                 )}
@@ -235,7 +235,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
 
               {/* Error */}
               {error && (
-                <p className="rounded-xl border border-red-400/25 bg-red-500/[0.07] px-3 py-2.5 text-[12px] text-red-700 dark:text-red-400">
+                <p className="rounded-xl border border-red-400/25 bg-red-500/[0.07] px-3 py-2.5 text-[13px] text-red-700 dark:text-red-400">
                   {error}
                 </p>
               )}

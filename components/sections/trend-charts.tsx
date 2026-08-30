@@ -110,7 +110,7 @@ function ChartCard({
         {/* Header */}
         <div className="flex items-start justify-between mb-1">
           <div>
-            <h3 className="text-[19px] font-bold text-foreground leading-tight tracking-tight">{cfg.label}</h3>
+            <h3 className="text-[18px] font-bold text-foreground leading-tight tracking-tight">{cfg.label}</h3>
             <p className="text-[13px] text-text-2 mt-0.5">{cfg.subtitle}</p>
           </div>
           {diff !== null && (

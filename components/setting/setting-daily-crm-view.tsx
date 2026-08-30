@@ -285,7 +285,7 @@ export function SettingDailyCRMView({ logs }: SettingDailyCRMViewProps) {
       )}
 
       {logs.length > 0 && (
-        <p className="mt-4 text-[11px] text-text-2">
+        <p className="mt-4 text-[13px] text-text-2">
           {logs.length} {logs.length === 1 ? "registro" : "registros"} · Verde (&gt;80%), Amarillo (50-80%), Rojo (&lt;50%)
         </p>
       )}

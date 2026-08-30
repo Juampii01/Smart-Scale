@@ -130,7 +130,7 @@ function DetailSection({
     <div>
       <div className="flex items-center gap-1.5 mb-2">
         <Icon className="h-3 w-3 text-text-3" />
-        <p className="text-[9px] font-bold uppercase tracking-widest text-text-3">{label}</p>
+        <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{label}</p>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-3">
         {children}
@@ -142,7 +142,7 @@ function DetailSection({
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
     <div>
-      <p className="text-[10px] text-text-3 uppercase tracking-wider mb-0.5">{label}</p>
+      <p className="text-[11px] text-text-3 uppercase tracking-wider mb-0.5">{label}</p>
       <p className="text-sm font-medium text-foreground">{String(value)}</p>
     </div>
   )
@@ -152,7 +152,7 @@ function TextBlock({ label, value }: { label: string; value: string | null }) {
   if (!value) return null
   return (
     <div className="col-span-2 sm:col-span-3 lg:col-span-4">
-      <p className="text-[10px] text-text-3 uppercase tracking-wider mb-0.5">{label}</p>
+      <p className="text-[11px] text-text-3 uppercase tracking-wider mb-0.5">{label}</p>
       <p className="text-sm text-foreground leading-relaxed">{value}</p>
     </div>
   )
@@ -179,22 +179,22 @@ function ReportRow({
 
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-foreground">{fmtMonth(report.month)}</p>
-          <p className="text-[10px] text-text-3 mt-0.5">
+          <p className="text-[13px] text-text-3 mt-0.5">
             Creado {new Date(report.created_at).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" })}
           </p>
         </div>
 
         <div className="hidden sm:flex items-center gap-6">
           <div className="text-right">
-            <p className="text-[10px] text-text-3 uppercase tracking-wider">Revenue</p>
+            <p className="text-[11px] text-text-3 uppercase tracking-wider">Revenue</p>
             <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{fmt(report.total_revenue)}</p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-text-3 uppercase tracking-wider">Cash</p>
+            <p className="text-[11px] text-text-3 uppercase tracking-wider">Cash</p>
             <p className="text-sm font-medium text-foreground">{fmt(report.cash_collected)}</p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-text-3 uppercase tracking-wider">Nuevos</p>
+            <p className="text-[11px] text-text-3 uppercase tracking-wider">Nuevos</p>
             <p className="text-sm font-semibold text-[#dafc69]">{report.new_clients ?? "—"}</p>
           </div>
         </div>
@@ -391,7 +391,7 @@ export function ReportHistoryView() {
       {/* Header */}
       <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card px-6 py-5">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#dafc69]/70 mb-1">Datos</p>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-[#dafc69]/70 mb-1">Datos</p>
           <h2 className="text-xl font-bold text-foreground">Historial de Reportes</h2>
           <p className="text-sm text-text-2 mt-1">
             {loading ? "Cargando…" : `${reports.length} reporte${reports.length !== 1 ? "s" : ""} encontrado${reports.length !== 1 ? "s" : ""}`}

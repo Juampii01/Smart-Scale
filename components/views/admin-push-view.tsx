@@ -78,12 +78,12 @@ export function AdminPushView() {
         <div>
           <label className="block text-[13px] font-medium text-foreground mb-1.5">Título</label>
           <input className={inputCls} value={title} maxLength={60} placeholder="Ej: 📞 Hoy hay llamada" onChange={(e) => { setTitle(e.target.value); setState("idle") }} />
-          <p className="mt-1 text-[11px] text-text-3 text-right">{title.length}/60</p>
+          <p className="mt-1 text-[13px] text-text-3 text-right">{title.length}/60</p>
         </div>
         <div>
           <label className="block text-[13px] font-medium text-foreground mb-1.5">Mensaje</label>
           <textarea className={`${inputCls} resize-none`} rows={3} value={body} maxLength={160} placeholder="Ej: A las 13:00 (Miami). Te esperamos 👇" onChange={(e) => { setBody(e.target.value); setState("idle") }} />
-          <p className="mt-1 text-[11px] text-text-3 text-right">{body.length}/160</p>
+          <p className="mt-1 text-[13px] text-text-3 text-right">{body.length}/160</p>
         </div>
         <div>
           <label className="block text-[13px] font-medium text-foreground mb-1.5">Link al tocar <span className="text-text-3">(opcional)</span></label>
@@ -104,8 +104,8 @@ export function AdminPushView() {
                 <a.Icon className={`h-4 w-4 mt-0.5 shrink-0 ${active ? "text-[#dafc69]" : "text-text-2"}`} />
                 <div className="min-w-0">
                   <p className="text-[13px] font-semibold text-foreground">{a.label}</p>
-                  <p className="text-[11px] text-text-2">{a.desc}</p>
-                  {a.key !== "me" && <p className="text-[11px] text-text-3 mt-0.5">{n ?? "…"} dispositivos</p>}
+                  <p className="text-[13px] text-text-2">{a.desc}</p>
+                  {a.key !== "me" && <p className="text-[13px] text-text-3 mt-0.5">{n ?? "…"} dispositivos</p>}
                 </div>
               </button>
             )
@@ -129,7 +129,7 @@ export function AdminPushView() {
         {state === "sending" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         Enviar notificación
       </button>
-      <p className="text-[11px] text-text-3">Tip: probá primero con <strong>"Solo a mí"</strong> para ver cómo queda antes de mandarla a todos.</p>
+      <p className="text-[13px] text-text-3">Tip: probá primero con <strong>"Solo a mí"</strong> para ver cómo queda antes de mandarla a todos.</p>
     </div>
   )
 }

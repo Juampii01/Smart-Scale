@@ -99,7 +99,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
         <td className="px-4 py-3 max-w-[220px]">
           <p className="text-sm font-medium text-foreground leading-snug line-clamp-2">{video.title}</p>
           {video.published_at && (
-            <p className="text-[10px] text-text-3 mt-0.5 tabular-nums">
+            <p className="text-[13px] text-text-3 mt-0.5 tabular-nums">
               {new Date(video.published_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}
             </p>
           )}
@@ -171,7 +171,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
                 </div>
                 {video.description && (
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-2">Descripción</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-2">Descripción</p>
                     <p className="text-xs text-text-2 leading-relaxed">{video.description}</p>
                   </div>
                 )}
@@ -181,11 +181,11 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
               {video.analysis && (
                 <div>
                   <div className="flex items-center gap-1.5 mb-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[#dafc69]/50">Análisis IA</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-[#dafc69]/50">Análisis IA</p>
                     <Sparkles className="h-3 w-3 text-[#dafc69]/30" />
                     <button
                       onClick={() => navigator.clipboard.writeText(video.analysis)}
-                      className="ml-auto inline-flex items-center gap-1 text-[10px] text-text-3 hover:text-text-2 transition-colors"
+                      className="ml-auto inline-flex items-center gap-1 text-[13px] text-text-3 hover:text-text-2 transition-colors"
                     >
                       <Copy className="h-3 w-3" /> Copiar
                     </button>
@@ -237,7 +237,7 @@ function ResultsTable({ result }: { result: ResearchResult }) {
             { icon: MessageCircle, label: "Comentarios", value: fmt(totalComments) },
           ].map(({ icon: Icon, label, value }) => (
             <div key={label} className="text-center">
-              <p className="text-[10px] text-text-3 uppercase tracking-widest flex items-center gap-1"><Icon className="h-2.5 w-2.5" />{label}</p>
+              <p className="text-[11px] text-text-3 uppercase tracking-widest flex items-center gap-1"><Icon className="h-2.5 w-2.5" />{label}</p>
               <p className="text-sm font-bold text-foreground tabular-nums">{value}</p>
             </div>
           ))}
@@ -250,7 +250,7 @@ function ResultsTable({ result }: { result: ResearchResult }) {
           <thead>
             <tr className="border-b border-foreground/[0.06]">
               {["#", "THUMB", "TÍTULO", "VIEWS", "DURACIÓN", "LIKES", "COMENT.", "ANÁLISIS", ""].map((h, i) => (
-                <th key={i} className={`px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-text-3 ${i >= 3 && i <= 6 ? "text-right" : "text-left"}`}>
+                <th key={i} className={`px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-text-3 ${i >= 3 && i <= 6 ? "text-right" : "text-left"}`}>
                   {h}
                 </th>
               ))}
@@ -303,7 +303,7 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
           <span className="h-3 w-[2px] rounded-full bg-accent" />
           <h2 className="text-xs font-semibold uppercase tracking-widest text-text-2">Investigaciones anteriores</h2>
         </div>
-        <span className="text-[10px] text-text-3 tabular-nums">{items.length} registros</span>
+        <span className="text-[13px] text-text-3 tabular-nums">{items.length} registros</span>
       </div>
       <div className="divide-y divide-white/[0.04]">
         {items.map(item => (
@@ -314,11 +314,11 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">{item.channel_name}</p>
               <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-[11px] text-text-3">Últimos {item.timeframe_days} días</span>
+                <span className="text-[13px] text-text-3">Últimos {item.timeframe_days} días</span>
                 <span className="text-text-3">·</span>
-                <span className="text-[11px] text-text-3">{item.videos?.length ?? 0} videos</span>
+                <span className="text-[13px] text-text-3">{item.videos?.length ?? 0} videos</span>
                 <span className="text-text-3">·</span>
-                <span className="text-[11px] text-text-3 tabular-nums">
+                <span className="text-[13px] text-text-3 tabular-nums">
                   {new Date(item.created_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}
                 </span>
               </div>
@@ -421,7 +421,7 @@ function ContentResearchContent() {
       <div>
         <div className="flex items-center gap-2.5 mb-1">
           <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-text-3">Smart Scale · IA 1.0</span>
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">Smart Scale · IA 1.0</span>
         </div>
         <h1 className="text-2xl font-bold text-foreground tracking-tight mb-1">Content Research</h1>
         <p className="text-sm text-text-2">Analizá los top 5 videos de cualquier canal de YouTube por métricas reales.</p>

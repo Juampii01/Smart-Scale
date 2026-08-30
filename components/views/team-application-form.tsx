@@ -31,7 +31,7 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
 }
 
 function HelpText({ children }: { children: React.ReactNode }) {
-  return <p className="-mt-1 mb-1 text-[12px] text-text-2 leading-relaxed">{children}</p>
+  return <p className="-mt-1 mb-1 text-[13px] text-text-2 leading-relaxed">{children}</p>
 }
 
 function SectionCard({ children }: { children: React.ReactNode }) {
@@ -95,7 +95,7 @@ function RadioGroup({
           }`}>
             {value === opt && <span className="h-2 w-2 rounded-full bg-black" />}
           </span>
-          <span className="text-[14px] text-foreground group-hover:text-foreground transition-colors">{opt}</span>
+          <span className="text-[15px] text-foreground group-hover:text-foreground transition-colors">{opt}</span>
         </label>
       ))}
     </div>
@@ -124,7 +124,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl font-black text-foreground">Puesto no disponible</h1>
-            <p className="text-text-2 text-[14px] leading-relaxed">
+            <p className="text-text-2 text-[15px] leading-relaxed">
               No encontramos el puesto <span className="font-mono text-amber-700 dark:text-amber-300">{rol}</span>. Puede que el link esté desactualizado o el puesto haya sido cerrado.
             </p>
           </div>
@@ -223,9 +223,9 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
       <div className="sticky top-0 z-10 border-b border-foreground/[0.07] backdrop-blur-md" style={{ backgroundColor: "color-mix(in srgb, var(--background) 96%, transparent)" }}>
         <div className="mx-auto max-w-2xl px-5 py-3.5 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-            <span className="text-foreground text-[17px] font-bold tracking-tight">Smart</span>
-            <span className="rounded-md bg-foreground px-2 py-0.5 text-[14px] font-bold tracking-tight text-background shadow-sm">Scale</span>
-            <span className="text-[9px] font-semibold text-text-3 tracking-widest uppercase ml-0.5">v2.0</span>
+            <span className="text-foreground text-[18px] font-bold tracking-tight">Smart</span>
+            <span className="rounded-md bg-foreground px-2 py-0.5 text-[15px] font-bold tracking-tight text-background shadow-sm">Scale</span>
+            <span className="text-[11px] font-semibold text-text-3 tracking-widest uppercase ml-0.5">v2.0</span>
           </a>
           <span className="text-[11px] font-bold text-text-3 uppercase tracking-[0.18em]">Equipo</span>
         </div>
@@ -239,7 +239,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
             <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69] animate-pulse" />
             <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">Smart Scale Team</span>
           </div>
-          <h1 className="text-[28px] sm:text-[38px] font-black text-foreground leading-[1.1] tracking-tight">
+          <h1 className="text-[32px] sm:text-[32px] font-black text-foreground leading-[1.1] tracking-tight">
             {form.title}
           </h1>
           {form.subtitle && (
@@ -261,7 +261,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
         {gated && (
           <div className="rounded-2xl border border-amber-500/25 px-5 py-4" style={{ backgroundColor: "rgba(245,158,11,0.06)" }}>
             <p className="text-[11px] font-bold text-amber-700/80 dark:text-amber-300/80 uppercase tracking-[0.18em] mb-2">Este puesto no es para vos</p>
-            <p className="text-[14px] text-amber-200/85 leading-relaxed">{gated.message}</p>
+            <p className="text-[15px] text-amber-200/85 leading-relaxed">{gated.message}</p>
           </div>
         )}
 
@@ -274,7 +274,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
               return (
                 <SectionCard key={`info-${sIdx}`}>
                   <SectionHeader number={number} title={section.title} />
-                  <div className="text-[14px] text-text-2 leading-relaxed whitespace-pre-line pl-[52px]">
+                  <div className="text-[15px] text-text-2 leading-relaxed whitespace-pre-line pl-[52px]">
                     {section.info}
                   </div>
                 </SectionCard>

@@ -129,7 +129,7 @@ export function AdminFounderCheckinsView() {
   return (
     <div className="space-y-8 pb-10">
       <div>
-        <h1 className="text-[22px] font-bold text-foreground leading-tight">Check-in Trimestral de Dinero</h1>
+        <h1 className="text-[24px] font-bold text-foreground leading-tight">Check-in Trimestral de Dinero</h1>
         <p className="text-[13px] text-text-2 mt-0.5">
           Facturación, meta y clientes nuevos necesarios por cliente, cada trimestre. Se carga a mano después de la llamada — todavía no es automático.
         </p>
@@ -182,7 +182,7 @@ export function AdminFounderCheckinsView() {
             <textarea className={inputCls.replace("h-10", "min-h-[70px] py-2")} rows={2} value={notes} onChange={e => setNotes(e.target.value)} placeholder="Contexto de la llamada, observaciones…" />
           </div>
 
-          {saveState === "error" && <p className="text-[12px] text-red-700 dark:text-red-400">{errorMsg}</p>}
+          {saveState === "error" && <p className="text-[13px] text-red-700 dark:text-red-400">{errorMsg}</p>}
 
           <div className="flex justify-end">
             <button
@@ -214,7 +214,7 @@ export function AdminFounderCheckinsView() {
               <thead>
                 <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
                   {["Cliente", "Trimestre", "Cash collected top", "Escalón", "Meta próx.", "Nuevos clientes", "Notas"].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-text-2">{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-widest text-text-2">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -227,7 +227,7 @@ export function AdminFounderCheckinsView() {
                     <td className="px-4 py-3 text-sm tabular-nums text-foreground">{fmtMoney(c.revenue_bracket)}</td>
                     <td className="px-4 py-3 text-sm tabular-nums text-foreground">{fmtMoney(c.next_quarter_goal_cash)}</td>
                     <td className="px-4 py-3 text-sm tabular-nums text-foreground">{c.new_clients_needed ?? "—"}</td>
-                    <td className="px-4 py-3 text-[12px] text-text-2 max-w-[220px] truncate">{c.notes || "—"}</td>
+                    <td className="px-4 py-3 text-[13px] text-text-2 max-w-[220px] truncate">{c.notes || "—"}</td>
                   </tr>
                 ))}
               </tbody>

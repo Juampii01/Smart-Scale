@@ -92,7 +92,7 @@ export function igLabel(v: string) {
 function Pill({ value }: { value: string | null }) {
   if (!value || !value.trim()) return <span className="text-text-3 text-[13px]">—</span>
   return (
-    <span className="inline-block max-w-[180px] truncate rounded-md border border-foreground/[0.10] bg-foreground/[0.06] px-2 py-0.5 text-[12px] font-medium text-foreground align-middle">
+    <span className="inline-block max-w-[180px] truncate rounded-md border border-foreground/[0.10] bg-foreground/[0.06] px-2 py-0.5 text-[13px] font-medium text-foreground align-middle">
       {value}
     </span>
   )
@@ -292,7 +292,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
 
   const textField = (label: string, key: keyof Lead, placeholder: string) => (
     <div className="space-y-1.5">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{label}</p>
       <input
         type="text"
         defaultValue={(lead[key] as string) ?? ""}
@@ -327,7 +327,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
             )}
             <div className="min-w-0">
               <h2 className="text-lg font-bold text-foreground truncate">{lead.name ?? "Lead"}</h2>
-              <p className="text-[12px] text-text-3 mt-0.5">{fmtDate(lead.created_at)}</p>
+              <p className="text-[13px] text-text-3 mt-0.5">{fmtDate(lead.created_at)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -348,7 +348,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
             <StarRating size="md" value={lead.rating}
               onChange={n => onPatch(lead.id, { rating: n || null })} />
             {lead.tag && (
-              <span className="rounded-full border border-foreground/[0.12] bg-foreground/[0.06] px-3 py-0.5 text-[11px] font-bold text-foreground">
+              <span className="rounded-full border border-foreground/[0.12] bg-foreground/[0.06] px-3 py-0.5 text-[13px] font-bold text-foreground">
                 {lead.tag}
               </span>
             )}
@@ -367,7 +367,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4" style={{ backgroundColor: "var(--card)" }}>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Etapa del pipeline</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Etapa del pipeline</p>
             <select
               value={effectiveStage(lead) ?? "__none__"}
               onChange={e => {
@@ -386,7 +386,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Próximo seguimiento</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Próximo seguimiento</p>
               <input
                 type="date"
                 defaultValue={lead.next_follow_up_at ?? ""}
@@ -395,7 +395,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
               />
             </div>
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">&nbsp;</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">&nbsp;</p>
               <button
                 type="button"
                 disabled={!lead.next_follow_up_at}
@@ -415,7 +415,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
           {textField("Email",              "email",     "correo@ejemplo.com")}
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Algo acerca del lead</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Algo acerca del lead</p>
 
             <div className="flex items-start gap-2">
               <textarea
@@ -430,7 +430,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
                 type="button"
                 onClick={addNote}
                 disabled={addingNote || !newNote.trim()}
-                className="shrink-0 flex h-9 items-center gap-1.5 rounded-xl bg-foreground/[0.08] px-3 text-[12px] font-semibold text-foreground hover:bg-foreground/[0.14] hover:text-foreground disabled:opacity-40 transition-all"
+                className="shrink-0 flex h-9 items-center gap-1.5 rounded-xl bg-foreground/[0.08] px-3 text-[13px] font-semibold text-foreground hover:bg-foreground/[0.14] hover:text-foreground disabled:opacity-40 transition-all"
               >
                 {addingNote ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
                 Agregar
@@ -441,7 +441,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
               {notesLoading ? (
                 <div className="flex justify-center py-3"><Loader2 className="h-4 w-4 animate-spin text-text-3" /></div>
               ) : notes.length === 0 ? (
-                <p className="text-[12px] text-text-3">Todavía no hay notas.</p>
+                <p className="text-[13px] text-text-3">Todavía no hay notas.</p>
               ) : (
                 notes.map(n => {
                   const isEditing = editingNoteId === n.id
@@ -461,7 +461,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
                               type="button"
                               onClick={() => saveEditNote(n.id)}
                               disabled={savingNoteId === n.id || !editingNoteBody.trim()}
-                              className="flex items-center gap-1 rounded-md bg-foreground/[0.08] px-2 py-1 text-[11px] font-semibold text-foreground hover:bg-foreground/[0.14] hover:text-foreground disabled:opacity-40 transition-all"
+                              className="flex items-center gap-1 rounded-md bg-foreground/[0.08] px-2 py-1 text-[13px] font-semibold text-foreground hover:bg-foreground/[0.14] hover:text-foreground disabled:opacity-40 transition-all"
                             >
                               {savingNoteId === n.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                               Guardar
@@ -469,7 +469,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
                             <button
                               type="button"
                               onClick={cancelEditNote}
-                              className="rounded-md px-2 py-1 text-[11px] font-semibold text-text-2 hover:text-foreground transition-all"
+                              className="rounded-md px-2 py-1 text-[13px] font-semibold text-text-2 hover:text-foreground transition-all"
                             >
                               Cancelar
                             </button>
@@ -499,7 +499,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
                               </button>
                             </div>
                           </div>
-                          <p className="mt-1 text-[10.5px] text-text-3">
+                          <p className="mt-1 text-[13px] text-text-3">
                             {n.author ?? "—"} · {fmtDate(n.created_at)}
                           </p>
                         </>
@@ -558,7 +558,7 @@ function NewLeadModal({
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Nombre *</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Nombre *</p>
             <input
               autoFocus
               type="text"
@@ -570,7 +570,7 @@ function NewLeadModal({
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Instagram</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Instagram</p>
             <input
               type="text"
               value={instagram}
@@ -581,7 +581,7 @@ function NewLeadModal({
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Desde dónde llegó</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Desde dónde llegó</p>
             <input
               type="text"
               value={source}
@@ -592,7 +592,7 @@ function NewLeadModal({
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Nicho</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Nicho</p>
             <input
               type="text"
               value={niche}
@@ -603,7 +603,7 @@ function NewLeadModal({
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Calificación</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Calificación</p>
             <StarRating size="md" value={rating || null} onChange={n => setRating(n === rating ? 0 : n)} />
           </div>
 
@@ -653,7 +653,7 @@ function ColumnModal({ onClose, onCreate, creating }: {
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Nombre de la columna *</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Nombre de la columna *</p>
             <input
               autoFocus type="text" value={label} onChange={e => setLabel(e.target.value)}
               placeholder="ej: Presupuesto, Ciudad, Objeción..."
@@ -662,7 +662,7 @@ function ColumnModal({ onClose, onCreate, creating }: {
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Tipo</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Tipo</p>
             <div className="flex gap-2">
               {([["text", "Texto"], ["number", "Número"]] as const).map(([val, lbl]) => (
                 <button key={val} type="button" onClick={() => setType(val)}
@@ -1003,19 +1003,19 @@ export function AdminLeadsView() {
               Webhook URL — ManyChat / Zapier
             </p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-text-2 font-mono truncate" suppressHydrationWarning>
+              <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[13px] text-text-2 font-mono truncate" suppressHydrationWarning>
                 {webhookUrl ?? "Cargando…"}
               </code>
               <button
                 onClick={() => webhookUrl && navigator.clipboard.writeText(webhookUrl)}
                 disabled={!webhookUrl}
-                className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
+                className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[13px] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
               >
                 Copiar
               </button>
             </div>
           </div>
-          <div className="text-[11px] text-text-2 leading-relaxed border-t border-foreground/[0.06] pt-3">
+          <div className="text-[13px] text-text-2 leading-relaxed border-t border-foreground/[0.06] pt-3">
             <p className="font-semibold text-text-2 mb-1">Setup en ManyChat (Automation → External Request):</p>
             <p>1. Un flow por etiqueta, disparado por el growth tool "Tag Added".</p>
             <p>
@@ -1044,7 +1044,7 @@ export function AdminLeadsView() {
               <button
                 key={v.id}
                 onClick={() => setView(v.id)}
-                className={`inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[12.5px] font-semibold transition-all ${
+                className={`inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[13px] font-semibold transition-all ${
                   view === v.id
                     ? "bg-foreground text-background"
                     : "text-text-2 hover:text-foreground hover:bg-foreground/[0.05]"
@@ -1067,7 +1067,7 @@ export function AdminLeadsView() {
               className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-sm text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none flex-1 min-w-[220px] max-w-sm"
             />
             <div className="flex items-center gap-2">
-              <span className="text-[12px] text-text-2 whitespace-nowrap">Agrupar por</span>
+              <span className="text-[13px] text-text-2 whitespace-nowrap">Agrupar por</span>
               <select
                 value={groupBy}
                 onChange={e => setGroupBy(e.target.value as GroupId)}
@@ -1075,7 +1075,7 @@ export function AdminLeadsView() {
                 {GROUPS.map(g => <option key={g.id} value={g.id}>{g.label}</option>)}
               </select>
             </div>
-            <span className="ml-auto text-[12px] tabular-nums text-text-3">{filtered.length} de {leads.length}</span>
+            <span className="ml-auto text-[13px] tabular-nums text-text-3">{filtered.length} de {leads.length}</span>
           </div>
         </div>
 
@@ -1122,9 +1122,9 @@ export function AdminLeadsView() {
                                 className="flex items-center gap-2 focus:outline-none">
                                 <ChevronRight className={`h-3.5 w-3.5 text-text-2 transition-transform ${isCollapsed ? "" : "rotate-90"}`} />
                                 {group.label === "Sin asignar"
-                                  ? <span className="text-[12.5px] font-semibold text-text-2">Sin asignar</span>
+                                  ? <span className="text-[13px] font-semibold text-text-2">Sin asignar</span>
                                   : <Pill value={group.label} />}
-                                <span className="text-[11px] tabular-nums text-text-3">{group.leads.length}</span>
+                                <span className="text-[13px] tabular-nums text-text-3">{group.leads.length}</span>
                               </button>
                             </td>
                           </tr>
@@ -1145,12 +1145,12 @@ export function AdminLeadsView() {
                                     onError={e => { (e.target as HTMLImageElement).style.display = "none" }}
                                   />
                                 ) : null}
-                                <span className="text-[14px] font-semibold text-foreground">{lead.name ?? <span className="text-text-3">—</span>}</span>
+                                <span className="text-[15px] font-semibold text-foreground">{lead.name ?? <span className="text-text-3">—</span>}</span>
                               </div>
                             </td>
 
                             <td className="px-4 py-3 whitespace-nowrap">
-                              <span className="text-[12px] tabular-nums text-text-2">{fmtDate(lead.created_at)}</span>
+                              <span className="text-[13px] tabular-nums text-text-2">{fmtDate(lead.created_at)}</span>
                             </td>
 
                             <td className="px-4 py-3 whitespace-nowrap"><Pill value={lead.source} /></td>

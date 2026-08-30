@@ -102,14 +102,14 @@ export function TaskCard({ task, onClick, onComplete, isOverlay = false }: TaskC
           ? <LabelBadge label={task.label} small />
           : <span />
         }
-        <span className="flex items-center gap-1 text-[10.5px] font-semibold shrink-0" style={{ color: prio.color }}>
+        <span className="flex items-center gap-1 text-[13px] font-semibold shrink-0" style={{ color: prio.color }}>
           <Flag size={11} /> {prio.label}
         </span>
       </div>
 
       {/* Title (con badge BLOQUEADA) */}
       <p
-        className="text-[13.5px] font-medium leading-snug"
+        className="text-[13px] font-medium leading-snug"
         style={{
           color:          "var(--foreground)",
           textDecoration: isDone ? "line-through" : "none",
@@ -118,7 +118,7 @@ export function TaskCard({ task, onClick, onComplete, isOverlay = false }: TaskC
       >
         {task.blocked && (
           <span
-            className="inline-flex items-center gap-1 text-[9.5px] font-bold uppercase tracking-wide rounded mr-1.5 px-1.5 py-0.5 align-middle text-red-700 dark:text-red-400"
+            className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide rounded mr-1.5 px-1.5 py-0.5 align-middle text-red-700 dark:text-red-400"
             style={{ backgroundColor: "color-mix(in srgb, #ef4444 12%, transparent)", border: "1px solid color-mix(in srgb, #ef4444 30%, transparent)" }}
           >
             <Ban size={9} /> Bloqueada
@@ -130,7 +130,7 @@ export function TaskCard({ task, onClick, onComplete, isOverlay = false }: TaskC
       {/* Progreso de subtareas */}
       {total > 0 && (
         <div className="mt-2.5">
-          <div className="flex items-center justify-between text-[10.5px] mb-1" style={{ color: "var(--muted-foreground)" }}>
+          <div className="flex items-center justify-between text-[13px] mb-1" style={{ color: "var(--muted-foreground)" }}>
             <span className="flex items-center gap-1"><CheckSquare size={11} /> {done}/{total}</span>
             <span>{pct}%</span>
           </div>
@@ -142,7 +142,7 @@ export function TaskCard({ task, onClick, onComplete, isOverlay = false }: TaskC
 
       {/* Footer: fecha + comentarios/adjuntos + avatares */}
       <div className="flex items-center justify-between mt-2.5">
-        <div className="flex items-center gap-2.5 text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+        <div className="flex items-center gap-2.5 text-[13px]" style={{ color: "var(--muted-foreground)" }}>
           {dueDateFormatted && (
             <span className="flex items-center gap-1 font-medium" style={{ color: dueDateColor }}>
               <Calendar size={11} /> {isOverdue ? `${dueDateFormatted}` : isToday ? "Hoy" : dueDateFormatted}
@@ -162,7 +162,7 @@ export function TaskCard({ task, onClick, onComplete, isOverlay = false }: TaskC
             {people.map((p, i) => (
               <div
                 key={p}
-                className="flex h-5 w-5 items-center justify-center rounded-full text-[8.5px] font-bold text-white"
+                className="flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold text-white"
                 style={{ backgroundColor: avatarColor(p), marginLeft: i ? -7 : 0, border: "2px solid var(--card)" }}
                 title={p}
               >

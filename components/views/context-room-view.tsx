@@ -27,16 +27,16 @@ type SaveState = "idle" | "saving" | "ok" | "error"
 // ─── Shared styles ────────────────────────────────────────────────────────────
 
 const labelCls = "block text-[11px] font-bold uppercase tracking-[0.10em] text-text-2 mb-2"
-const hintCls  = "text-[12px] text-text-3 mt-2 leading-relaxed"
+const hintCls  = "text-[13px] text-text-3 mt-2 leading-relaxed"
 
 const areaCls = cn(
   "w-full rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.03]",
-  "px-4 py-3 text-[14px] text-foreground placeholder:text-text-3",
+  "px-4 py-3 text-[15px] text-foreground placeholder:text-text-3",
   "outline-none focus:border-foreground/[0.22] transition-colors resize-none"
 )
 const inputCls = cn(
   "w-full rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.03]",
-  "px-3 py-2 text-[14px] text-foreground placeholder:text-text-3",
+  "px-3 py-2 text-[15px] text-foreground placeholder:text-text-3",
   "outline-none focus:border-foreground/[0.22] transition-colors"
 )
 
@@ -73,7 +73,7 @@ function MultiEntry({
             </button>
           </div>
         ))}
-        <button onClick={add} className="flex items-center gap-2 rounded-[8px] border border-foreground/[0.10] px-3 py-2 text-[12px] font-semibold text-text-2 hover:text-foreground hover:border-foreground/[0.20] transition-colors">
+        <button onClick={add} className="flex items-center gap-2 rounded-[8px] border border-foreground/[0.10] px-3 py-2 text-[13px] font-semibold text-text-2 hover:text-foreground hover:border-foreground/[0.20] transition-colors">
           <Plus className="h-3.5 w-3.5" /> Agregar
         </button>
       </div>
@@ -131,18 +131,18 @@ function LocationTab({
         <div className="space-y-1.5">
           <div className="flex gap-2">
             <button onClick={() => fileRef.current?.click()} disabled={account.photoBusy}
-              className="inline-flex items-center gap-1.5 rounded-[8px] border border-foreground/[0.10] px-3 py-1.5 text-[12px] font-semibold text-foreground hover:bg-foreground/[0.05] transition disabled:opacity-50">
+              className="inline-flex items-center gap-1.5 rounded-[8px] border border-foreground/[0.10] px-3 py-1.5 text-[13px] font-semibold text-foreground hover:bg-foreground/[0.05] transition disabled:opacity-50">
               <Camera className="h-3.5 w-3.5" /> {account.avatarUrl ? "Cambiar foto" : "Subir foto"}
             </button>
             {account.avatarUrl && (
               <button onClick={account.onRemovePhoto} disabled={account.photoBusy}
-                className="inline-flex items-center gap-1.5 rounded-[8px] border border-foreground/[0.10] px-3 py-1.5 text-[12px] font-semibold text-danger hover:bg-foreground/[0.05] transition disabled:opacity-50">
+                className="inline-flex items-center gap-1.5 rounded-[8px] border border-foreground/[0.10] px-3 py-1.5 text-[13px] font-semibold text-danger hover:bg-foreground/[0.05] transition disabled:opacity-50">
                 <Trash2 className="h-3.5 w-3.5" /> Quitar
               </button>
             )}
           </div>
-          <p className="text-[11px] text-text-3">JPG, PNG o WebP. Máximo 2MB.</p>
-          {account.photoMsg && <p className="text-[11px] text-success">{account.photoMsg}</p>}
+          <p className="text-[13px] text-text-3">JPG, PNG o WebP. Máximo 2MB.</p>
+          {account.photoMsg && <p className="text-[13px] text-success">{account.photoMsg}</p>}
         </div>
         <input ref={fileRef} type="file" accept="image/*" className="hidden"
           onChange={e => { const f = e.target.files?.[0]; if (f) account.onPickPhoto(f); e.target.value = "" }} />
@@ -211,7 +211,7 @@ function LocationTab({
           className="rounded-[8px] btn-accent px-4 py-2 text-[13px] font-semibold disabled:opacity-50 transition-colors">
             {account.pwState === "saving" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : account.pwState === "ok" ? "✓ Actualizada" : "Actualizar contraseña"}
           </button>
-          {account.pwMsg && <p className={cn("text-[12px]", account.pwState === "error" ? "text-danger" : "text-success")}>{account.pwMsg}</p>}
+          {account.pwMsg && <p className={cn("text-[13px]", account.pwState === "error" ? "text-danger" : "text-success")}>{account.pwMsg}</p>}
         </div>
       </div>
     </div>
@@ -362,7 +362,7 @@ function TheNumbersTab({ ctx, set, reports }: { ctx: Ctx; set: (k: string, v: st
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-3">
           {months.length > 0 ? months.map(r => (
             <div key={r.month} className="rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.02] p-3">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-text-2 mb-1.5">{fmtMonthLabel(r.month)}</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1.5">{fmtMonthLabel(r.month)}</p>
               <div className="flex items-center gap-1">
                 <span className="text-text-2 text-[13px]">$</span>
                 <input
@@ -698,13 +698,13 @@ export function ContextRoomView() {
       {/* Header */}
       <div className="flex items-start justify-between mb-1">
         <div>
-          <h1 className="text-[22px] font-bold text-foreground leading-tight">Context Room</h1>
+          <h1 className="text-[24px] font-bold text-foreground leading-tight">Context Room</h1>
           <p className="text-[13px] text-text-2 mt-0.5">
             Tu contexto le da forma a todo lo que Smart Scale construye con vos. Los cambios se guardan automáticamente.
           </p>
         </div>
         {saved && (
-          <div className="flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1.5 text-[12px] font-semibold text-success">
+          <div className="flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1.5 text-[13px] font-semibold text-success">
             <Check className="h-3.5 w-3.5" /> Guardado
           </div>
         )}

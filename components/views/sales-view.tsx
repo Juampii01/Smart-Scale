@@ -55,7 +55,7 @@ function FunnelStep({
 
         <div className="relative flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-2 mb-1">{label}</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-2 mb-1">{label}</p>
             <p className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground leading-none">
               {count > 0 ? count : "—"}
             </p>
@@ -65,10 +65,10 @@ function FunnelStep({
             <span className={`text-2xl font-bold tabular-nums ${col.text}`}>
               {pctOfTop}%
             </span>
-            <p className="text-[10px] text-text-3">del total agendado</p>
+            <p className="text-[13px] text-text-3">del total agendado</p>
             {/* Conversion from previous step */}
             {!isLast && convFromPrev < 100 && (
-              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ring-1 ${col.bg} ${col.text} ${col.ring}`}>
+              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[13px] font-bold ring-1 ${col.bg} ${col.text} ${col.ring}`}>
                 {convLabel} vs paso anterior
               </span>
             )}
@@ -92,7 +92,7 @@ function FunnelStep({
 function MiniStat({ label, value, sub, color = "var(--accent-ink)" }: { label: string; value: string | number; sub?: string; color?: string }) {
   return (
     <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card p-5 hover:border-foreground/[0.12] transition-colors">
-      <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: `color-mix(in srgb, ${color} 60%, transparent)` }}>{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: `color-mix(in srgb, ${color} 60%, transparent)` }}>{label}</p>
       <p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground leading-none">{value}</p>
       {sub && <p className="mt-2 text-xs text-text-3">{sub}</p>}
     </div>
@@ -262,7 +262,7 @@ export function SalesView() {
               : "border-red-400 bg-red-100 dark:border-red-500/20 dark:bg-red-500/[0.04]"
           }`}>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-2">Tasa de cierre</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-2">Tasa de cierre</p>
               <p className="text-xs text-text-3 mt-0.5">cierres / llamadas atendidas</p>
             </div>
             <p className={`text-2xl sm:text-4xl font-bold tabular-nums ${
@@ -299,7 +299,7 @@ export function SalesView() {
           {/* Offer Doc funnel */}
           {odSent > 0 && (
             <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-5 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-2">Funnel Offer Doc</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-2">Funnel Offer Doc</p>
               {[
                 { label: "Enviados", value: odSent,    pctW: 100,                         color: "#60a5fa" },
                 { label: "Respondidos", value: odResp, pctW: pct(odResp, odSent),         color: "#4ade80" },
@@ -337,7 +337,7 @@ export function SalesView() {
               ].map(l => (
                 <div key={l.label} className="flex items-center gap-1.5">
                   <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: l.color }} />
-                  <span className="text-[11px] text-text-2">{l.label}</span>
+                  <span className="text-[13px] text-text-2">{l.label}</span>
                 </div>
               ))}
             </div>
@@ -376,7 +376,7 @@ export function SalesView() {
               ].map(l => (
                 <div key={l.label} className="flex items-center gap-1.5">
                   <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: l.color }} />
-                  <span className="text-[11px] text-text-2">{l.label}</span>
+                  <span className="text-[13px] text-text-2">{l.label}</span>
                 </div>
               ))}
             </div>

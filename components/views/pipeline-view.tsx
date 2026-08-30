@@ -51,7 +51,7 @@ function fieldInput(
 ) {
   return (
     <div className="space-y-1.5">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{label}</p>
       <input
         type="text"
         defaultValue={value}
@@ -82,7 +82,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
         <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
           <div className="min-w-0">
             <h2 className="text-lg font-bold text-foreground truncate">{prospect.name ?? "Prospecto"}</h2>
-            <p className="text-[12px] text-text-3 mt-0.5">{fmtDate(prospect.created_at)}</p>
+            <p className="text-[13px] text-text-3 mt-0.5">{fmtDate(prospect.created_at)}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {!readOnly && (
@@ -112,7 +112,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
 
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Etapa del pipeline</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Etapa del pipeline</p>
             <select
               value={effectiveStage(prospect) ?? "__none__"}
               disabled={readOnly}
@@ -132,7 +132,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Próximo seguimiento</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Próximo seguimiento</p>
               <input
                 type="date"
                 defaultValue={prospect.next_follow_up_at ?? ""}
@@ -142,7 +142,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
               />
             </div>
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">&nbsp;</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">&nbsp;</p>
               <button
                 type="button"
                 disabled={!prospect.next_follow_up_at || readOnly}
@@ -161,7 +161,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
           {fieldInput("Email", prospect.email ?? "", v => onPatch(prospect.id, { email: v || null }), "correo@ejemplo.com", readOnly)}
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Notas</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Notas</p>
             <textarea
               defaultValue={prospect.notes ?? ""}
               placeholder="Observaciones, contexto..."
@@ -209,28 +209,28 @@ function NewProspectModal({ onClose, onCreate, creating }: {
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Nombre *</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Nombre *</p>
             <input autoFocus type="text" value={name} onChange={e => setName(e.target.value)}
               placeholder="Nombre completo"
               className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Instagram</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Instagram</p>
             <input type="text" value={instagram} onChange={e => setInstagram(e.target.value)}
               placeholder="@usuario"
               className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Desde dónde llegó</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Desde dónde llegó</p>
             <input type="text" value={source} onChange={e => setSource(e.target.value)}
               placeholder="ej: Instagram, referido, evento..."
               className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">Calificación</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Calificación</p>
             <StarRating value={rating || null} onChange={n => setRating(n)} />
           </div>
 

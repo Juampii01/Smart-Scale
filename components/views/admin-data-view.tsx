@@ -276,7 +276,7 @@ export function AdminDataView() {
                 <tr className="border-b border-foreground/[0.04]">
                   <th
                     rowSpan={2}
-                    className="sticky left-0 z-20 border-r-2 border-border bg-card px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/70 align-bottom min-w-[140px]"
+                    className="sticky left-0 z-20 border-r-2 border-border bg-card px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/70 align-bottom min-w-[140px]"
                   >
                     Mes
                   </th>
@@ -284,7 +284,7 @@ export function AdminDataView() {
                     <th
                       key={group.label}
                       colSpan={group.metrics.length}
-                      className="bg-foreground/[0.02] px-4 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-text-2 border-l border-foreground/[0.06]"
+                      className="bg-foreground/[0.02] px-4 py-2.5 text-center text-[11px] font-bold uppercase tracking-[0.18em] text-text-2 border-l border-foreground/[0.06]"
                     >
                       {group.label}
                     </th>
@@ -296,7 +296,7 @@ export function AdminDataView() {
                     group.metrics.map((metric, idx) => (
                       <th
                         key={metric.key}
-                        className={`px-4 py-3 text-right text-[11px] font-semibold text-text-2 whitespace-nowrap min-w-[120px] ${idx === 0 ? "border-l border-foreground/[0.06]" : ""}`}
+                        className={`px-4 py-3 text-right text-[13px] font-semibold text-text-2 whitespace-nowrap min-w-[120px] ${idx === 0 ? "border-l border-foreground/[0.06]" : ""}`}
                       >
                         {metric.label}
                       </th>
@@ -333,7 +333,7 @@ export function AdminDataView() {
       </div>
 
       {!loading && months.length > 0 && (
-        <p className="text-[11px] text-text-3 text-center">
+        <p className="text-[13px] text-text-3 text-center">
           Click en cualquier número para editar · Enter para guardar · Esc para cancelar
         </p>
       )}

@@ -302,7 +302,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
             const style = stateStyles[s.estado]
             return (
               <div key={key} className="rounded-[14px] border border-foreground/[0.07] bg-card p-5">
-                <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-text-2 mb-2">
+                <p className="text-[13px] font-semibold uppercase tracking-[0.16em] text-text-2 mb-2">
                   {s.name}
                 </p>
                 <p className={`text-3xl font-bold tracking-tight ${style.score}`}>
@@ -312,7 +312,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
                   <div className={`h-full rounded-full ${style.bar}`} style={{ width: `${(s.puntos / 6) * 100}%` }} />
                 </div>
                 <div className="mt-3">
-                  <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${style.pill}`}>
+                  <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[13px] font-semibold ${style.pill}`}>
                     {s.estado}
                   </span>
                 </div>
@@ -337,13 +337,13 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
         <div className="space-y-4">
           {data.focos.map((f, idx) => (
             <div key={idx} className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
-              <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${priorityPill(idx)}`}>
+              <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[13px] font-semibold ${priorityPill(idx)}`}>
                 {f.etiqueta}
               </span>
               <h3 className="mt-3 text-xl font-bold tracking-tight text-foreground md:text-2xl">
                 {f.titulo}
               </h3>
-              <p className="mt-2 text-[14px] leading-7 text-text-2 md:text-[15px]">
+              <p className="mt-2 text-[15px] leading-7 text-text-2 md:text-[15px]">
                 {f.diagnostico}
               </p>
               {f.skool_modulo && (
@@ -680,7 +680,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
         <div className="relative flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
           <div className="space-y-1">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3">
               Revenue total rolling 12 meses
             </p>
             <div className="text-3xl font-bold tracking-tight text-foreground">
@@ -695,7 +695,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
           </div>
 
           <div className="flex flex-col items-start gap-2 md:items-end">
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-text-3">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">
               Audit activo
             </span>
             <span
@@ -744,10 +744,10 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                       >
                         {/* ID + statement */}
                         <div className="flex items-start gap-3">
-                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-foreground/[0.08] bg-foreground/[0.05] px-2 text-[12px] font-bold text-[#dafc69] flex-shrink-0">
+                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-foreground/[0.08] bg-foreground/[0.05] px-2 text-[13px] font-bold text-[#dafc69] flex-shrink-0">
                             {item.id}
                           </span>
-                          <p className="text-[14px] leading-snug text-foreground pt-0.5">
+                          <p className="text-[15px] leading-snug text-foreground pt-0.5">
                             {item.label}
                           </p>
                         </div>
@@ -776,7 +776,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
           <div className="relative border-b border-foreground/[0.05] px-6 py-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-1">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">
                   Audit Controls
                 </p>
                 <h3 className="text-base font-semibold text-foreground">
@@ -785,10 +785,10 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-text-2">
+                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
                   {selectedAnswersCount} respuestas
                 </span>
-                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-text-2">
+                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
                   {auditType === 'mas20k' ? "Audit +$20k" : "Audit -$20k"}
                 </span>
               </div>
@@ -805,7 +805,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
               {loading ? "Generando…" : "Generar Diagnóstico Estratégico"}
             </button>
             {selectedAnswersCount === 0 && !loading && (
-              <p className="text-[12px] text-text-3">Respondé al menos una pregunta arriba para activar.</p>
+              <p className="text-[13px] text-text-3">Respondé al menos una pregunta arriba para activar.</p>
             )}
           </div>
         </div>
@@ -834,7 +834,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
             <div className="relative border-b border-foreground/[0.05] px-6 py-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">
                     Strategic Output
                   </p>
                   <h3 className="text-base font-semibold text-foreground">
@@ -844,7 +844,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                     Una lectura ejecutiva del cuello de botella, las debilidades y la prioridad estratégica del negocio.
                   </p>
                 </div>
-                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-text-2">
+                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
                   {loading ? "Procesando" : "Listo"}
                 </span>
               </div>
@@ -877,7 +877,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
           <div className="relative border-b border-foreground/[0.05] px-6 py-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-1">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">
                   Audit Archive
                 </p>
                 <h3 className="text-base font-semibold text-foreground">
@@ -888,7 +888,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                 </p>
               </div>
               <div className="rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-4 py-3 text-right">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3">Registros</p>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3">Registros</p>
                 <p className="mt-0.5 text-lg font-bold text-foreground">
                   {loadingHistory ? "…" : diagnosisHistory.length}
                 </p>
@@ -922,14 +922,14 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-4 flex-wrap">
-                        <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-text-3">
+                        <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">
                           #{String(diagnosisHistory.length - index).padStart(2, "0")}
                         </span>
-                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${statusMeta.className}`}>
+                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-widest ${statusMeta.className}`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${statusMeta.dotClassName}`} />
                           {statusMeta.label}
                         </span>
-                        <span className="ml-auto text-[10px] text-text-3 font-mono">
+                        <span className="ml-auto text-[13px] text-text-3 font-mono">
                           {formatDiagnosisDate(item.created_at)}
                         </span>
                         <button
@@ -946,11 +946,11 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                       </div>
 
                       <details className="mb-3 group/id">
-                        <summary className="text-[10px] text-text-3 hover:text-text-2 cursor-pointer select-none transition-colors list-none">
+                        <summary className="text-[13px] text-text-3 hover:text-text-2 cursor-pointer select-none transition-colors list-none">
                           <span className="group-open/id:hidden">Mostrar ID técnico</span>
                           <span className="hidden group-open/id:inline">Ocultar ID</span>
                         </summary>
-                        <div className="mt-1 text-[10px] text-text-3 font-mono break-all">
+                        <div className="mt-1 text-[13px] text-text-3 font-mono break-all">
                           {item.request_id}
                         </div>
                       </details>

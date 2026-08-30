@@ -93,8 +93,8 @@ export default function ConectarInstagramPage() {
       >
         <div className="mx-auto max-w-xl px-5 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="text-foreground text-[17px] font-bold tracking-tight">Smart</span>
-            <span className="rounded-md bg-foreground px-2 py-0.5 text-[14px] font-bold tracking-tight text-background shadow-sm">Scale</span>
+            <span className="text-foreground text-[18px] font-bold tracking-tight">Smart</span>
+            <span className="rounded-md bg-foreground px-2 py-0.5 text-[15px] font-bold tracking-tight text-background shadow-sm">Scale</span>
           </div>
           <span className="text-[11px] font-bold text-text-3 uppercase tracking-[0.18em]">Métricas</span>
         </div>
@@ -107,7 +107,7 @@ export default function ConectarInstagramPage() {
             <Instagram className="h-3.5 w-3.5 text-[#dafc69]" />
             <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">Conectá tu Instagram</span>
           </div>
-          <h1 className="text-[26px] sm:text-[34px] font-black text-foreground leading-[1.1] tracking-tight">
+          <h1 className="text-[24px] sm:text-[32px] font-black text-foreground leading-[1.1] tracking-tight">
             Dejanos traer las métricas de tu Instagram
           </h1>
           <p className="text-[15px] text-text-2 leading-relaxed">
@@ -119,7 +119,7 @@ export default function ConectarInstagramPage() {
         {/* Requisito: cuenta profesional */}
         <div className="flex items-start gap-3 rounded-xl border border-foreground/[0.08] px-4 py-3.5" style={{ backgroundColor: "var(--card)" }}>
           <ShieldCheck className="h-4 w-4 text-[#dafc69] shrink-0 mt-0.5" />
-          <p className="text-[12.5px] text-text-2 leading-relaxed">
+          <p className="text-[13px] text-text-2 leading-relaxed">
             <span className="font-semibold text-foreground">Tu cuenta tiene que ser Profesional</span> (Business o Creator).
             Si todavía no lo es, cambiala desde Instagram → Configuración → Tipo de cuenta y herramientas → Cambiar a cuenta profesional.
           </p>
@@ -142,19 +142,19 @@ export default function ConectarInstagramPage() {
           <div>
             <Label required>Usuario de Instagram</Label>
             <input type="text" value={instagram} onChange={e => setInstagram(e.target.value)} placeholder="@tucuenta (o el link de tu perfil)" className={inputCls} />
-            <p className="text-[11.5px] text-text-3 mt-1.5">Podés poner tu @usuario o pegar el link de tu perfil — las dos formas valen.</p>
+            <p className="text-[13px] text-text-3 mt-1.5">Podés poner tu @usuario o pegar el link de tu perfil — las dos formas valen.</p>
           </div>
 
           <button
             type="submit"
             disabled={loading || !name.trim() || !instagram.trim()}
-            className="w-full h-12 rounded-xl btn-accent text-[14px] font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full h-12 rounded-xl btn-accent text-[15px] font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {loading ? "Enviando…" : "Conectar mi Instagram"}
           </button>
 
-          <p className="text-[11.5px] text-text-3 text-center leading-relaxed">
+          <p className="text-[13px] text-text-3 text-center leading-relaxed">
             Usamos tu usuario únicamente para conectar las métricas de tu cuenta a tu portal. No publicamos ni accedemos a tus mensajes.
           </p>
         </form>

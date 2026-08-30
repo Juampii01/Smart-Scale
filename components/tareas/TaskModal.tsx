@@ -33,7 +33,7 @@ interface TaskModalProps {
   onClose:          () => void
 }
 
-const labelCls = "text-[10px] font-semibold uppercase tracking-wider mb-2 block"
+const labelCls = "text-[11px] font-semibold uppercase tracking-wider mb-2 block"
 
 export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelete, onClose }: TaskModalProps) {
   const [title,       setTitle]       = useState(task?.title ?? "")
@@ -305,7 +305,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                         border:          `1px solid ${active ? "color-mix(in srgb, var(--accent) 40%, transparent)" : "var(--border)"}`,
                       }}
                     >
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full text-[8.5px] font-bold text-white"
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold text-white"
                         style={{ backgroundColor: avatarColor(m) }}>
                         {initials(m)}
                       </span>
@@ -332,7 +332,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
 
             {/* Subtareas */}
             <div>
-              <label className="text-[10px] font-semibold uppercase tracking-wider mb-2 flex items-center justify-between" style={{ color: "var(--muted-foreground)" }}>
+              <label className="text-[11px] font-semibold uppercase tracking-wider mb-2 flex items-center justify-between" style={{ color: "var(--muted-foreground)" }}>
                 <span>Subtareas</span>
                 {subtasks.length > 0 && <span style={{ color: "var(--foreground)" }}>{doneCount}/{subtasks.length}</span>}
               </label>
@@ -367,7 +367,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
             {/* Adjuntos (solo en tareas existentes) */}
             {taskId && (
               <div>
-                <label className="text-[10px] font-semibold uppercase tracking-wider mb-2 flex items-center gap-1" style={{ color: "var(--muted-foreground)" }}>
+                <label className="text-[11px] font-semibold uppercase tracking-wider mb-2 flex items-center gap-1" style={{ color: "var(--muted-foreground)" }}>
                   <Paperclip size={10} /> Adjuntos {attachments.length > 0 && <span style={{ color: "var(--foreground)" }}>· {attachments.length}</span>}
                 </label>
 
@@ -376,7 +376,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                     <div key={a.id} className="group/att flex items-center gap-2.5 rounded-lg px-3 py-2" style={{ backgroundColor: "var(--muted)" }}>
                       <Paperclip size={13} style={{ color: "var(--muted-foreground)" }} className="shrink-0" />
                       <span className="flex-1 min-w-0 truncate text-[13px]" style={{ color: "var(--foreground)" }}>{a.file_name}</span>
-                      <span className="shrink-0 text-[10.5px]" style={{ color: "var(--muted-foreground)" }}>{fmtSize(a.size_bytes)}</span>
+                      <span className="shrink-0 text-[13px]" style={{ color: "var(--muted-foreground)" }}>{fmtSize(a.size_bytes)}</span>
                       {a.url && (
                         <a href={a.url} target="_blank" rel="noopener noreferrer" className="shrink-0 p-1 rounded hover:opacity-70" title="Descargar">
                           <Download size={13} style={{ color: "var(--muted-foreground)" }} />
@@ -393,7 +393,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                   onChange={e => { const f = e.target.files?.[0]; if (f) uploadFile(f); e.target.value = "" }} />
                 <button
                   onClick={() => fileRef.current?.click()} disabled={uploading}
-                  className="flex items-center justify-center gap-2 w-full text-[12.5px] rounded-lg py-2 transition-all disabled:opacity-50"
+                  className="flex items-center justify-center gap-2 w-full text-[13px] rounded-lg py-2 transition-all disabled:opacity-50"
                   style={{ border: "1px dashed var(--border)", color: "var(--muted-foreground)" }}
                 >
                   {uploading ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
@@ -405,21 +405,21 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
             {/* Comentarios (solo en tareas existentes) */}
             {taskId && (
               <div>
-                <label className="text-[10px] font-semibold uppercase tracking-wider mb-2 flex items-center gap-1" style={{ color: "var(--muted-foreground)" }}>
+                <label className="text-[11px] font-semibold uppercase tracking-wider mb-2 flex items-center gap-1" style={{ color: "var(--muted-foreground)" }}>
                   <MessageSquare size={10} /> Comentarios {comments.length > 0 && <span style={{ color: "var(--foreground)" }}>· {comments.length}</span>}
                 </label>
 
                 <div className="space-y-2.5 mb-2.5">
                   {comments.map(c => (
                     <div key={c.id} className="flex gap-2.5">
-                      <span className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold text-white mt-0.5"
+                      <span className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold text-white mt-0.5"
                         style={{ backgroundColor: avatarColor(c.author) }} title={c.author}>
                         {initials(c.author)}
                       </span>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-[12px] font-semibold" style={{ color: "var(--foreground)" }}>{c.author}</span>
-                          <span className="text-[10.5px]" style={{ color: "var(--muted-foreground)" }}>
+                          <span className="text-[13px] font-semibold" style={{ color: "var(--foreground)" }}>{c.author}</span>
+                          <span className="text-[13px]" style={{ color: "var(--muted-foreground)" }}>
                             {new Date(c.created_at).toLocaleString("es-AR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                           </span>
                         </div>
@@ -428,7 +428,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                     </div>
                   ))}
                   {comments.length === 0 && (
-                    <p className="text-[12px] italic" style={{ color: "var(--muted-foreground)" }}>Sin comentarios todavía.</p>
+                    <p className="text-[13px] italic" style={{ color: "var(--muted-foreground)" }}>Sin comentarios todavía.</p>
                   )}
                 </div>
 

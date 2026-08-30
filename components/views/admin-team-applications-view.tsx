@@ -65,7 +65,7 @@ function DetailRow({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null
   return (
     <div className="space-y-1">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-text-3">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{label}</p>
       <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-wrap">{value}</p>
     </div>
   )
@@ -91,10 +91,10 @@ function DetailDrawer({
         <div className="sticky top-0 z-10 border-b border-foreground/[0.08] bg-background/95 backdrop-blur px-6 py-4 flex items-start justify-between gap-4">
           <div className="space-y-2 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-foreground/[0.06] text-text-2 border-foreground/10"}`}>
+              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-foreground/[0.06] text-text-2 border-foreground/10"}`}>
                 {roleLabel(app.role)}
               </span>
-              <span className="text-[11px] text-text-3">{fmtDate(app.created_at)}</span>
+              <span className="text-[13px] text-text-3">{fmtDate(app.created_at)}</span>
             </div>
             <h2 className="text-xl font-bold text-foreground truncate">{fullName(app)}</h2>
           </div>
@@ -113,7 +113,7 @@ function DetailDrawer({
                 <button
                   key={s}
                   onClick={() => onStatusChange(app.id, s)}
-                  className={`rounded-lg border px-3 py-1.5 text-[12px] font-semibold capitalize transition ${
+                  className={`rounded-lg border px-3 py-1.5 text-[13px] font-semibold capitalize transition ${
                     app.status === s
                       ? STATUS_STYLE[s]
                       : "border-foreground/10 bg-foreground/[0.02] text-text-2 hover:text-foreground hover:border-foreground/20"
@@ -125,7 +125,7 @@ function DetailDrawer({
               <button
                 onClick={() => onDelete(app.id)}
                 disabled={deleting}
-                className="ml-auto flex items-center gap-1.5 rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-800 hover:bg-red-100 dark:border-red-500/20 dark:bg-red-500/[0.04] dark:text-red-300 dark:hover:bg-red-500/10 disabled:opacity-40"
+                className="ml-auto flex items-center gap-1.5 rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-[13px] font-semibold text-red-800 hover:bg-red-100 dark:border-red-500/20 dark:bg-red-500/[0.04] dark:text-red-300 dark:hover:bg-red-500/10 disabled:opacity-40"
               >
                 {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                 Eliminar
@@ -339,7 +339,7 @@ export function AdminTeamApplicationsView() {
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {STATUS_LIST.map(s => (
             <div key={s} className="rounded-[14px] border border-foreground/[0.07] bg-card px-4 py-3.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3 capitalize">{s}</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 capitalize">{s}</p>
               <p className={`mt-1 text-2xl font-bold ${STATUS_STYLE[s].split(" ")[1]}`}>
                 {apps.filter(a => a.status === s).length}
               </p>
@@ -398,16 +398,16 @@ export function AdminTeamApplicationsView() {
               >
                 <div className="flex-1 min-w-0 space-y-1.5">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-foreground/[0.06] text-text-2 border-foreground/10"}`}>
+                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-foreground/[0.06] text-text-2 border-foreground/10"}`}>
                       {roleLabel(app.role)}
                     </span>
-                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${STATUS_STYLE[app.status]}`}>
+                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest ${STATUS_STYLE[app.status]}`}>
                       {app.status}
                     </span>
-                    <span className="text-[11px] text-text-3">{fmtDate(app.created_at)}</span>
+                    <span className="text-[13px] text-text-3">{fmtDate(app.created_at)}</span>
                   </div>
                   <p className="text-[15px] font-semibold text-foreground truncate">{fullName(app)}</p>
-                  <p className="text-[12px] text-text-2 truncate">
+                  <p className="text-[13px] text-text-2 truncate">
                     {[app.email, app.whatsapp, app.instagram_handle].filter(Boolean).join(" · ")}
                   </p>
                 </div>

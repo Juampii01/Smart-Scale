@@ -280,7 +280,7 @@ function AnaiContent() {
           <h1 className="text-xl font-extrabold tracking-tight text-foreground leading-none flex items-center gap-2">
             Ann AI
           </h1>
-          <p className="text-[12px] text-text-2 mt-1">
+          <p className="text-[13px] text-text-2 mt-1">
             {internal
               ? (activeClientName
                   ? <>Analizando a <span className="text-foreground font-medium">{activeClientName}</span></>
@@ -309,7 +309,7 @@ function AnaiContent() {
             className="flex w-full items-center gap-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-3 py-1.5 text-left transition hover:bg-foreground/[0.05]"
           >
             <MessageSquare className="h-3.5 w-3.5 shrink-0 text-text-3" />
-            <span className="flex-1 truncate text-[12.5px] text-foreground">
+            <span className="flex-1 truncate text-[13px] text-foreground">
               {activeConv ? activeConv.title : "Sin conversación activa"}
             </span>
             <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-text-3 transition-transform ${historialOpen ? "rotate-180" : ""}`} />
@@ -324,12 +324,12 @@ function AnaiContent() {
                     <Loader2 className="h-4 w-4 animate-spin text-text-3" />
                   </div>
                 ) : conversations.length === 0 ? (
-                  <p className="px-4 py-4 text-center text-[12px] text-text-2">No hay conversaciones todavía.</p>
+                  <p className="px-4 py-4 text-center text-[13px] text-text-2">No hay conversaciones todavía.</p>
                 ) : (
                   <>
                     {thisMonthConvs.length > 0 && (
                       <>
-                        <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-text-3">Este mes</p>
+                        <p className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-text-3">Este mes</p>
                         {thisMonthConvs.map(c => (
                           <ConvItem
                             key={c.id} conv={c} active={c.id === activeConvId}
@@ -341,7 +341,7 @@ function AnaiContent() {
                     )}
                     {olderConvs.length > 0 && (
                       <>
-                        <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-text-3">Anteriores</p>
+                        <p className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-text-3">Anteriores</p>
                         {olderConvs.map(c => (
                           <ConvItem
                             key={c.id} conv={c} active={c.id === activeConvId}
@@ -360,7 +360,7 @@ function AnaiContent() {
 
         {/* Contador mensual */}
         {usage && (
-          <div className={`shrink-0 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold tabular-nums ${
+          <div className={`shrink-0 rounded-lg px-2.5 py-1.5 text-[13px] font-semibold tabular-nums ${
             atMonthLimit
               ? "bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400"
               : usage.used >= usage.limit - 1
@@ -389,7 +389,7 @@ function AnaiContent() {
               <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">
                 {suggestions.map(s => (
                   <button key={s} onClick={() => send(s)}
-                    className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-left text-[12.5px] text-foreground transition-all hover:border-border hover:bg-secondary hover:text-foreground">
+                    className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-left text-[13px] text-foreground transition-all hover:border-border hover:bg-secondary hover:text-foreground">
                     {s}
                   </button>
                 ))}
@@ -407,7 +407,7 @@ function AnaiContent() {
                   : <Sparkles className="h-4 w-4 text-black" />}
               </div>
               <div className={`min-w-0 max-w-[82%] ${m.role === "user" ? "text-right" : ""}`}>
-                <div className={`inline-block rounded-2xl px-4 py-2.5 text-[13.5px] leading-relaxed ${
+                <div className={`inline-block rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed ${
                   m.role === "user"
                     ? "bg-[#dafc69] text-black font-medium whitespace-pre-wrap"
                     : "bg-foreground/[0.04] text-foreground"
@@ -427,10 +427,10 @@ function AnaiContent() {
                         h3:         ({ children }) => <h3 className="mb-1 text-[13px] font-semibold text-foreground">{children}</h3>,
                         hr:         () => <hr className="my-3 border-foreground/[0.08]" />,
                         blockquote: ({ children }) => <blockquote className="border-l-2 border-accent/40 pl-3 text-text-2 italic">{children}</blockquote>,
-                        code:       ({ children }) => <code className="rounded bg-foreground/[0.07] px-1 py-0.5 text-[12px] font-mono">{children}</code>,
+                        code:       ({ children }) => <code className="rounded bg-foreground/[0.07] px-1 py-0.5 text-[13px] font-mono">{children}</code>,
                         table:      ({ children }) => (
                           <div className="my-2 overflow-x-auto rounded-xl border border-foreground/[0.08]">
-                            <table className="w-full text-[12.5px]">{children}</table>
+                            <table className="w-full text-[13px]">{children}</table>
                           </div>
                         ),
                         thead: ({ children }) => <thead className="bg-foreground/[0.05]">{children}</thead>,
@@ -443,7 +443,7 @@ function AnaiContent() {
                   )}
                 </div>
                 {m.tools && m.tools.length > 0 && (
-                  <div className="mt-1.5 flex items-center gap-1.5 text-[10px] text-text-3">
+                  <div className="mt-1.5 flex items-center gap-1.5 text-[13px] text-text-3">
                     <Wrench className="h-2.5 w-2.5" />
                     consultó: {Array.from(new Set(m.tools)).join(", ")}
                   </div>
@@ -469,13 +469,13 @@ function AnaiContent() {
       {/* ── Aviso límite de mensajes ──────────────────────────────────────── */}
       {atMsgLimit && (
         <div className="mt-2 flex items-center justify-between rounded-xl border border-amber-500/20 bg-amber-50 dark:bg-amber-500/10 px-4 py-2.5">
-          <p className="text-[12.5px] text-amber-700 dark:text-amber-400">
+          <p className="text-[13px] text-amber-700 dark:text-amber-400">
             Límite de {MAX_MESSAGES_PER_CONVERSATION} mensajes alcanzado en esta conversación.
           </p>
           <button
             onClick={newConversation}
             disabled={atMonthLimit || creatingConv}
-            className="ml-3 shrink-0 rounded-lg bg-amber-500/20 px-3 py-1 text-[11px] font-semibold text-amber-700 dark:text-amber-400 hover:bg-amber-500/30 transition disabled:opacity-40"
+            className="ml-3 shrink-0 rounded-lg bg-amber-500/20 px-3 py-1 text-[13px] font-semibold text-amber-700 dark:text-amber-400 hover:bg-amber-500/30 transition disabled:opacity-40"
           >
             Nueva conversación
           </button>
@@ -483,7 +483,7 @@ function AnaiContent() {
       )}
 
       {nearMsgLimit && !atMsgLimit && (
-        <p className="mt-1.5 text-center text-[11px] text-text-3">
+        <p className="mt-1.5 text-center text-[13px] text-text-3">
           {MAX_MESSAGES_PER_CONVERSATION - msgCount} mensajes restantes en esta conversación
         </p>
       )}
@@ -543,10 +543,10 @@ function ConvItem({
     >
       <MessageSquare className={`h-3.5 w-3.5 shrink-0 ${active ? "text-[#dafc69]/70" : "text-text-3"}`} />
       <div className="flex-1 min-w-0">
-        <p className={`truncate text-[12.5px] font-medium ${active ? "text-foreground" : "text-foreground"}`}>
+        <p className={`truncate text-[13px] font-medium ${active ? "text-foreground" : "text-foreground"}`}>
           {conv.title}
         </p>
-        <p className="text-[10.5px] text-text-3 mt-0.5">
+        <p className="text-[13px] text-text-3 mt-0.5">
           {fmtDate(conv.updated_at)} · {conv.message_count} msg
         </p>
       </div>

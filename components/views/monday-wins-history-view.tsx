@@ -79,7 +79,7 @@ export function MondayWinsHistoryView() {
           <div className="p-5 space-y-4">
             {/* Logros */}
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3 mb-2">Logros</p>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-2">Logros</p>
               <ul className="space-y-1.5">
                 {[w.logro_1, w.logro_2, w.logro_3].filter(Boolean).map((l, i) => (
                   <li key={i} className="flex gap-2 text-[13px] text-foreground">
@@ -94,7 +94,7 @@ export function MondayWinsHistoryView() {
               <div className="rounded-xl border border-accent/20 bg-accent-soft px-4 py-3">
                 <div className="flex items-center gap-1.5 mb-1">
                   <Target className="h-3 w-3 text-[#dafc69]" />
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[#dafc69]/80">Una sola cosa</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-[#dafc69]/80">Una sola cosa</p>
                 </div>
                 <p className="text-[13px] text-foreground">{w.una_sola_cosa}</p>
               </div>
@@ -104,7 +104,7 @@ export function MondayWinsHistoryView() {
               <div>
                 <div className="flex items-center gap-1.5 mb-1">
                   <AlertCircle className="h-3 w-3 text-text-3" />
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-text-3">Bloqueo / pregunta</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3">Bloqueo / pregunta</p>
                 </div>
                 <p className="text-[13px] text-text-2">{w.bloqueo}</p>
               </div>

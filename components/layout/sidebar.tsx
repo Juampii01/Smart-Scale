@@ -142,7 +142,7 @@ export function Sidebar({
         <div className="flex h-16 flex-shrink-0 items-center justify-between pl-5 pr-3">
           <a href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
             <BrandLogo />
-            <span className="self-start rounded-full bg-secondary px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-text-2 leading-none">{APP_VERSION}</span>
+            <span className="self-start rounded-full bg-secondary px-1.5 py-0.5 text-[11px] font-bold tracking-wider text-text-2 leading-none">{APP_VERSION}</span>
           </a>
           <button
             className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-foreground/10 transition-all"
@@ -197,7 +197,7 @@ export function Sidebar({
                             {item.children!.map(child => (
                               <Link key={child.href} href={child.href} onClick={onClose}>
                                 <div className={cn(
-                                  "py-1.5 px-2 rounded-md text-[12px] transition-colors duration-150",
+                                  "py-1.5 px-2 rounded-md text-[13px] transition-colors duration-150",
                                   pathname === child.href
                                     ? "text-[#dafc69] font-semibold"
                                     : "text-text-2 hover:text-foreground hover:bg-foreground/[0.04]"
@@ -252,7 +252,7 @@ export function Sidebar({
                 <Rocket className="h-4 w-4 shrink-0 text-[#dafc69]" />
                 <span className="min-w-0 flex-1">
                   <span className="block text-[13px] font-semibold text-foreground leading-none">CRM interno</span>
-                  <span className="mt-0.5 block text-[11px] text-text-2">Tu pipeline</span>
+                  <span className="mt-0.5 block text-[13px] text-text-2">Tu pipeline</span>
                 </span>
                 <ArrowRight className="h-3.5 w-3.5 text-text-3 group-hover:translate-x-0.5 transition-transform" />
               </div>
@@ -284,7 +284,7 @@ export function Sidebar({
               </span>
               <span className="min-w-0 flex-1 text-left">
                 <span className="block truncate text-[13px] font-semibold text-foreground">{profileLabel}</span>
-                <span className="block truncate text-[11px] text-text-2">Context Room</span>
+                <span className="block truncate text-[13px] text-text-2">Context Room</span>
               </span>
             </Link>
           )}

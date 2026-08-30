@@ -60,7 +60,7 @@ export function ToolsSection({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground tracking-tight leading-tight">{t.name}</p>
-                  <p className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-[#dafc69]/60">
+                  <p className="mt-0.5 text-[11px] font-bold uppercase tracking-widest text-[#dafc69]/60">
                     {variant === "gpt" ? "AI Tool" : "Form"}
                   </p>
                 </div>

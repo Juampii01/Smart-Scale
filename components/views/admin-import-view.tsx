@@ -188,7 +188,7 @@ export function AdminImportView() {
                   setErrors({})
                   setDone(false)
                 }}
-                className={`h-7 rounded-lg px-3 text-[12px] font-semibold transition-all ${
+                className={`h-7 rounded-lg px-3 text-[13px] font-semibold transition-all ${
                   year === y
                     ? "bg-secondary text-foreground"
                     : "text-text-2 hover:text-foreground"
@@ -229,7 +229,7 @@ export function AdminImportView() {
             {Object.keys(errors).length > 0 && (
               <div className="mt-1 space-y-0.5">
                 {Object.entries(errors).map(([m, msg]) => (
-                  <p key={m} className="text-[12px] opacity-70">{m}: {msg}</p>
+                  <p key={m} className="text-[13px] opacity-70">{m}: {msg}</p>
                 ))}
               </div>
             )}
@@ -249,10 +249,10 @@ export function AdminImportView() {
                 {COLUMNS.map(col => (
                   <th key={col.key} className="px-3 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-text-3 whitespace-nowrap">
                     <span className="block">{col.label}</span>
-                    <span className="text-text-3 text-[9px] normal-case font-normal tracking-normal">{col.fmt === "money" ? "USD" : "#"}</span>
+                    <span className="text-text-3 text-[11px] normal-case font-normal tracking-normal">{col.fmt === "money" ? "USD" : "#"}</span>
                   </th>
                 ))}
-                <th className="px-3 py-3 text-center text-[11px] text-text-3 w-[60px]">OK</th>
+                <th className="px-3 py-3 text-center text-[13px] text-text-3 w-[60px]">OK</th>
               </tr>
             </thead>
             <tbody>
@@ -332,7 +332,7 @@ export function AdminImportView() {
             ["Qualified Calls", "Calls Calificadas"],
             ["New Leads / Aplicaciones", "Aplicaciones"],
           ].map(([from, to]) => (
-            <div key={from} className="flex items-center gap-1.5 text-[11px]">
+            <div key={from} className="flex items-center gap-1.5 text-[13px]">
               <span className="text-text-3">{from}</span>
               <span className="text-text-3">→</span>
               <span className="text-[#dafc69]/60 font-medium">{to}</span>
