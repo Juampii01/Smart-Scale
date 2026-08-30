@@ -68,6 +68,17 @@
   --danger:        #c0492b;  --danger-soft:  #fbe6df;
   --warn:          #9a6407;  --warn-soft:    #fbeed6;
 
+  /* Paleta de series para KPIs/charts comparativos (Total Revenue, MRR, Ad
+     Spend, Seguidores, Nuevos Clientes — business-kpis.tsx y el chart de
+     evolución financiera de metrics-view.tsx). Mismo hue que dark, pero un
+     tono -700 en vez de -400: los pasteles de dark quedan ilegibles sobre
+     "Papel" (mismo problema que ya resolvimos con --accent-ink). */
+  --series-1:      #c2410c;  /* Total Revenue (naranja) */
+  --series-2:      #1d4ed8;  /* MRR (azul) */
+  --series-3:      #b91c1c;  /* Ad Spend (rojo) */
+  --series-4:      #4338ca;  /* Seguidores (indigo) */
+  --series-5:      #15803d;  /* Nuevos Clientes (verde) */
+
   /* ── CONGELADO: "Tu Performance Status" ───────────────────────────────────
      Decision de Juampi (25 ago 2026): el bloque "Tu Performance Status" queda
      EXCLUIDO del rediseno y NO hereda los tokens nuevos. Ann lo aprobo como
@@ -272,6 +283,13 @@
   --danger:        #ff6679;  --danger-soft:  #2e1620;
   --warn:          #ffae2e;  --warn-soft:    #2e2413;
 
+  /* Paleta de series — ver nota en :root. Valores originales del rediseno. */
+  --series-1:      #fb923c;  /* Total Revenue (naranja) */
+  --series-2:      #60a5fa;  /* MRR (azul) */
+  --series-3:      #ef4444;  /* Ad Spend (rojo) */
+  --series-4:      #818cf8;  /* Seguidores (indigo) */
+  --series-5:      #4ade80;  /* Nuevos Clientes (verde) */
+
   /* CONGELADO — ver la nota en :root. Valor de --card previo al rediseno. */
   --ps-surface:    #131313;
 }
@@ -336,6 +354,11 @@
   --color-danger-soft: var(--danger-soft);
   --color-warn: var(--warn);
   --color-warn-soft: var(--warn-soft);
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --color-series-4: var(--series-4);
+  --color-series-5: var(--series-5);
   --color-ps-surface: var(--ps-surface);
   --radius-card: var(--r-card);
   --radius-ctrl: var(--r-ctrl);

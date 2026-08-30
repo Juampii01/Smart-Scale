@@ -97,11 +97,11 @@ function HealthRadar({ reports }: { reports: any[] }) {
 
 const SUMMARY_KPIS = [
   { key: "cash_collected",  label: "Cash Collected",  money: true,  color: "var(--accent-ink)" },
-  { key: "total_revenue",   label: "Total Revenue",    money: true,  color: "#fb923c" },
-  { key: "mrr",             label: "MRR",              money: true,  color: "#60a5fa" },
-  { key: "new_clients",     label: "Nuevos Clientes",  money: false, color: "#4ade80" },
-  { key: "short_followers", label: "IG Seguidores",    money: false, color: "#818cf8" },
-  { key: "ad_spend",        label: "Ad Spend",         money: true,  color: "#ef4444" },
+  { key: "total_revenue",   label: "Total Revenue",    money: true,  color: "var(--text-3)" },
+  { key: "mrr",             label: "MRR",              money: true,  color: "var(--text-3)" },
+  { key: "new_clients",     label: "Nuevos Clientes",  money: false, color: "var(--text-3)" },
+  { key: "short_followers", label: "IG Seguidores",    money: false, color: "var(--text-3)" },
+  { key: "ad_spend",        label: "Ad Spend",         money: true,  color: "var(--text-3)" },
 ]
 
 function SummaryStrip({ current, previous }: { current: any; previous: any }) {
@@ -151,7 +151,7 @@ function RollingTrend({ reports }: { reports: any[] }) {
 
   const tooltipStyle = {
     contentStyle: { backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "12px", padding: "10px 14px" },
-    labelStyle: { color: "#fff", fontWeight: 700, fontSize: 12 },
+    labelStyle: { color: "var(--foreground)", fontWeight: 700, fontSize: 12 },
     itemStyle: { fontSize: 12, fontWeight: 600 },
   }
 
@@ -162,8 +162,8 @@ function RollingTrend({ reports }: { reports: any[] }) {
       <div className="flex flex-wrap gap-5 mb-4">
         {[
           { label: "Cash Collected", color: "var(--accent-ink)" },
-          { label: "Total Revenue",  color: "#fb923c" },
-          { label: "MRR",            color: "#60a5fa" },
+          { label: "Total Revenue",  color: "var(--series-1)" },
+          { label: "MRR",            color: "var(--series-2)" },
         ].map(l => (
           <div key={l.label} className="flex items-center gap-1.5">
             <span className="h-[3px] w-5 rounded-full" style={{ backgroundColor: l.color }} />
@@ -174,7 +174,7 @@ function RollingTrend({ reports }: { reports: any[] }) {
       <ResponsiveContainer width="100%" height={220}>
         <AreaChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
           <defs>
-            {[["cash","var(--accent-ink)"],["revenue","#fb923c"],["mrr","#60a5fa"]].map(([key, color]) => (
+            {[["cash","var(--accent-ink)"],["revenue","var(--series-1)"],["mrr","var(--series-2)"]].map(([key, color]) => (
               <linearGradient key={key} id={`grad_all_${key}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%"  stopColor={color} stopOpacity={0.2} />
                 <stop offset="95%" stopColor={color} stopOpacity={0}   />
@@ -187,8 +187,8 @@ function RollingTrend({ reports }: { reports: any[] }) {
             tickFormatter={v => v >= 1000 ? `$${(v/1000).toFixed(0)}K` : `$${v}`} width={48} />
           <Tooltip {...tooltipStyle} formatter={(v: number, name: string) => [fmtVal(v, true), name]} />
           <Area type="monotone" dataKey="cash"    name="Cash Collected" stroke="var(--accent-ink)" strokeWidth={2} fill="url(#grad_all_cash)"    dot={false} />
-          <Area type="monotone" dataKey="revenue" name="Total Revenue"  stroke="#fb923c" strokeWidth={2} fill="url(#grad_all_revenue)" dot={false} />
-          <Area type="monotone" dataKey="mrr"     name="MRR"           stroke="#60a5fa" strokeWidth={2} fill="url(#grad_all_mrr)"     dot={false} />
+          <Area type="monotone" dataKey="revenue" name="Total Revenue"  stroke="var(--series-1)" strokeWidth={2} fill="url(#grad_all_revenue)" dot={false} />
+          <Area type="monotone" dataKey="mrr"     name="MRR"           stroke="var(--series-2)" strokeWidth={2} fill="url(#grad_all_mrr)"     dot={false} />
         </AreaChart>
       </ResponsiveContainer>
     </div>

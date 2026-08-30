@@ -30,11 +30,11 @@ function fmtNum(v: number) {
 
 const METRICS = [
   { key: "cash_collected",  label: "Cash Collected",      format: "money"  as const, color: "var(--accent-ink)", weight: 3 },
-  { key: "total_revenue",   label: "Total Revenue",        format: "money"  as const, color: "#fb923c", weight: 2 },
-  { key: "mrr",             label: "MRR",                  format: "money"  as const, color: "#60a5fa", weight: 2 },
-  { key: "new_clients",     label: "Nuevos Clientes",      format: "number" as const, color: "#4ade80", weight: 2 },
-  { key: "short_followers", label: "Seguidores Instagram", format: "number" as const, color: "#818cf8", weight: 1 },
-  { key: "ad_spend",        label: "Gasto Publicitario",   format: "money"  as const, color: "#ef4444", weight: 1 },
+  { key: "total_revenue",   label: "Total Revenue",        format: "money"  as const, color: "var(--text-3)", weight: 2 },
+  { key: "mrr",             label: "MRR",                  format: "money"  as const, color: "var(--text-3)", weight: 2 },
+  { key: "new_clients",     label: "Nuevos Clientes",      format: "number" as const, color: "var(--text-3)", weight: 2 },
+  { key: "short_followers", label: "Seguidores Instagram", format: "number" as const, color: "var(--text-3)", weight: 1 },
+  { key: "ad_spend",        label: "Gasto Publicitario",   format: "money"  as const, color: "var(--text-3)", weight: 1 },
 ]
 
 // ─── Component ────────────────────────────────────────────────────────────────
