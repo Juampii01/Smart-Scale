@@ -98,7 +98,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
+            <span className="h-4 w-[3px] rounded-full bg-accent" />
             <h2 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">
               Crear link de pago
             </h2>
@@ -119,7 +119,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                   Link creado ✓
                 </p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 truncate rounded-lg bg-foreground/[0.05] px-3 py-2 text-[13px] font-mono text-[#dafc69]/80">
+                  <code className="flex-1 truncate rounded-lg bg-foreground/[0.05] px-3 py-2 text-[13px] font-mono text-accent-ink/80">
                     {result.paymentUrl}
                   </code>
                   <button onClick={copyLink}
@@ -163,7 +163,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                   <button key={t} onClick={() => setType(t)}
                     className={`flex-1 py-2 text-[13px] font-semibold transition-all ${
                       type === t
-                        ? "bg-secondary text-[#dafc69]"
+                        ? "bg-secondary text-accent-ink"
                         : "text-text-2 hover:text-foreground"
                     }`}>
                     {t === "once" ? "Pago único" : "Cuotas mensuales"}

@@ -139,7 +139,7 @@ export function ProgramChecklistView() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
+          <span className="h-4 w-[3px] rounded-full bg-accent" />
           <h1 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Program Journey Checklist</h1>
           {loading && <Loader2 className="h-3.5 w-3.5 text-text-2 animate-spin" />}
         </div>
@@ -149,9 +149,9 @@ export function ProgramChecklistView() {
       {/* Banner de "viendo cliente" — solo cuando admin está viendo otro cliente */}
       {isViewingOther && (
         <div className="flex items-center gap-3 rounded-[14px] border border-accent/20 bg-accent-soft px-4 py-3">
-          <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0" />
+          <Eye className="h-4 w-4 text-accent-ink flex-shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent-ink/80">Viendo otro cliente</p>
             <p className="text-[13px] text-foreground mt-0.5">
               Estás viendo el checklist de <span className="font-semibold text-foreground">{activeClientName ?? "(sin nombre)"}</span>. Los cambios que hagas se guardan en su cuenta.
             </p>
@@ -325,7 +325,7 @@ export function ProgramChecklistView() {
                                 href={task.link}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1.5 text-[13px] text-text-3 hover:text-[#dafc69] transition-colors truncate max-w-full"
+                                className="inline-flex items-center gap-1.5 text-[13px] text-text-3 hover:text-accent-ink transition-colors truncate max-w-full"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <ExternalLink className="h-3 w-3 flex-shrink-0" />

@@ -157,7 +157,7 @@ export function ReflectionView() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
+          <span className="h-4 w-[3px] rounded-full bg-accent" />
           <h1 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Reflexión Estratégica</h1>
         </div>
         <p className="text-text-3 text-[13px] ml-[18px]">Insights del mes · {selectedMonth}</p>
@@ -190,7 +190,7 @@ export function ReflectionView() {
                 <div className="relative">
                   <div className="flex items-center gap-2.5 mb-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent-soft ring-1 ring-accent/20">
-                      <Icon className="h-4 w-4 text-[#dafc69]" />
+                      <Icon className="h-4 w-4 text-accent-ink" />
                     </div>
                     <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3">{item.title}</p>
                   </div>
@@ -203,7 +203,7 @@ export function ReflectionView() {
                       {item.numeric > 0 ? `+${item.numeric}` : item.numeric}
                     </p>
                   ) : isEmpty ? (
-                    <a href="/report-input" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#dafc69]/70 hover:text-[#dafc69] transition">
+                    <a href="/report-input" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent-ink/70 hover:text-accent-ink transition">
                       Agregar →
                     </a>
                   ) : (

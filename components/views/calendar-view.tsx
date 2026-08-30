@@ -178,7 +178,7 @@ function SessionRow({ occ }: { occ: Occurrence }) {
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[13px] text-text-2">
           <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />{fullDate(date)}</span>
           {ev.time && <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" />{ev.time} · {ev.tz_label}</span>}
-          {localTime && <span className="text-[#dafc69]/80 font-semibold">Tu hora: {localTime}</span>}
+          {localTime && <span className="text-accent-ink/80 font-semibold">Tu hora: {localTime}</span>}
           {ev.passcode && <span className="text-text-3">Código <span className="font-mono text-text-2">{ev.passcode}</span></span>}
         </div>
       </div>
@@ -207,9 +207,9 @@ function PasscodeBox({ value }: { value: string }) {
       type="button"
       onClick={async (e) => { e.preventDefault(); try { await navigator.clipboard.writeText(value); setCopied(true); setTimeout(() => setCopied(false), 1800) } catch {} }}
       title="Copiar contraseña"
-      className="inline-flex items-center gap-2 rounded-[8px] border border-[#dafc69]/25 bg-[#dafc69]/[0.06] px-2.5 py-1.5 transition-colors hover:bg-secondary"
+      className="inline-flex items-center gap-2 rounded-[8px] border border-accent-ink/25 bg-accent-ink/[0.06] px-2.5 py-1.5 transition-colors hover:bg-secondary"
     >
-      <Lock className="h-3 w-3 text-[#dafc69]/70" />
+      <Lock className="h-3 w-3 text-accent-ink/70" />
       <span className="text-[11px] font-bold uppercase tracking-wider text-text-2">Contraseña</span>
       <span className="font-mono text-[13px] font-semibold text-foreground">{value}</span>
       {copied
@@ -368,7 +368,7 @@ export function CalendarView() {
                   : "text-text-2 hover:text-foreground"
               )}>
               {label}
-              <span className={cn("rounded-full px-1.5 py-0.5 text-[13px] font-bold tabular-nums", tab === id ? "bg-[#dafc69] text-black" : "bg-foreground/[0.06] text-text-2")}>{count}</span>
+              <span className={cn("rounded-full px-1.5 py-0.5 text-[13px] font-bold tabular-nums", tab === id ? "bg-accent text-black" : "bg-foreground/[0.06] text-text-2")}>{count}</span>
             </button>
           ))}
         </div>
@@ -382,7 +382,7 @@ export function CalendarView() {
 
       {/* Content */}
       {loading ? (
-        <div className="flex items-center justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-[#dafc69]/40" /></div>
+        <div className="flex items-center justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-accent-ink/40" /></div>
       ) : error ? (
         <div className="rounded-[14px] border border-red-500/20 bg-red-500/5 px-4 py-3 text-[13px] text-red-700 dark:text-red-400">{error}</div>
       ) : tab === "recordings" ? (
@@ -426,7 +426,7 @@ export function CalendarView() {
                   <div key={`${o.ev.id}-${i}`} className="rounded-[14px] border border-accent/20 bg-accent-soft p-5">
                     <div className="flex items-center gap-2 mb-2">
                       <StatusPill status={o.ev.status} />
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-[#dafc69]/80">Próxima</span>
+                      <span className="text-[11px] font-semibold uppercase tracking-wider text-accent-ink/80">Próxima</span>
                     </div>
                     <p className="text-[18px] font-bold text-foreground leading-tight">{o.ev.title}</p>
                     <p className="text-[13px] text-text-2 mt-1">
@@ -470,7 +470,7 @@ export function CalendarView() {
       <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-5 space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <span className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-widest text-[#dafc69] mb-1">Mensual · 1:1</span>
+            <span className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-widest text-accent-ink mb-1">Mensual · 1:1</span>
             <h3 className="text-[15px] font-bold text-foreground leading-tight">Llamada con Ann</h3>
             <p className="text-[13px] text-text-2 mt-0.5">Sesión privada mensual · 1 llamada por mes</p>
           </div>

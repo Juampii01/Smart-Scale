@@ -87,7 +87,7 @@ function EventModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
+            <span className="h-4 w-[3px] rounded-full bg-accent" />
             <h2 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">
               {isEdit ? "Editar llamada" : "Nueva llamada"}
             </h2>
@@ -297,7 +297,7 @@ export function AdminCalendarView() {
       <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-5 w-5 animate-spin text-[#dafc69]/40" />
+            <Loader2 className="h-5 w-5 animate-spin text-accent-ink/40" />
           </div>
         ) : sorted.length === 0 ? (
           <div className="py-16 text-center text-[13px] text-text-3">

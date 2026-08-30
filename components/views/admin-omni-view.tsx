@@ -310,7 +310,7 @@ function RatingBreakdown({ title, subtitle, distribution, ratings }: {
             <div key={r} className="flex items-center gap-2">
               <span className="w-10 shrink-0 text-[13px] text-text-2">{r}★</span>
               <div className="h-2 flex-1 overflow-hidden rounded-full bg-foreground/[0.06]">
-                <div className="h-full rounded-full bg-[#dafc69]" style={{ width: `${pct}%` }} />
+                <div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
               </div>
               <span className="w-6 shrink-0 text-right text-[13px] text-text-2">{count}</span>
             </div>
@@ -1210,7 +1210,7 @@ export function AdminOmniView() {
       <div>
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/25 bg-accent-soft">
-            <Sparkles className="h-5 w-5 text-[#dafc69]" />
+            <Sparkles className="h-5 w-5 text-accent-ink" />
           </span>
           <div>
             <h1 className="text-[24px] font-bold tracking-tight text-foreground">Ann AI</h1>

@@ -160,7 +160,7 @@ function StarRating({
           className="transition-transform hover:scale-110 focus:outline-none focus-visible:scale-110 focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-1 rounded-sm"
         >
           <Star className={`${dim} transition-colors ${
-            star <= active ? "fill-[#dafc69] text-[#dafc69]" : "fill-transparent text-text-3"
+            star <= active ? "fill-accent-ink text-accent-ink" : "fill-transparent text-text-3"
           }`} />
         </button>
       ))}
@@ -355,7 +355,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
           </div>
           {ig && (
             <a href={igHref(ig)} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 text-[13px] text-[#dafc69] hover:text-[#f2ffc0] transition-colors">
+              className="flex items-center gap-2 text-[13px] text-accent-ink hover:text-accent-hover transition-colors">
               <Instagram className="h-4 w-4 shrink-0" />
               <span className="min-w-0 truncate">{igLabel(ig)}</span>
               <ExternalLink className="h-3 w-3 opacity-50 shrink-0" />
@@ -1160,7 +1160,7 @@ export function AdminLeadsView() {
                               {lead.instagram?.trim()
                                 ? <a href={igHref(lead.instagram)}
                                     target="_blank" rel="noopener noreferrer"
-                                    className="inline-flex max-w-[200px] items-center gap-1.5 text-[13px] text-[#dafc69] hover:text-[#f2ffc0] transition-colors">
+                                    className="inline-flex max-w-[200px] items-center gap-1.5 text-[13px] text-accent-ink hover:text-accent-hover transition-colors">
                                     <Instagram className="h-3.5 w-3.5 shrink-0" />
                                     <span className="min-w-0 truncate">{igLabel(lead.instagram)}</span>
                                   </a>

@@ -44,7 +44,7 @@ function renderMarkdown(text: string): React.ReactNode {
     if (line.startsWith("- ")) {
       return (
         <div key={idx} className="flex gap-2 leading-relaxed">
-          <span className="text-[#dafc69]/60 mt-1.5 h-1 w-1 rounded-full bg-accent flex-shrink-0" />
+          <span className="text-accent-ink/60 mt-1.5 h-1 w-1 rounded-full bg-accent flex-shrink-0" />
           <span>{renderInline(line.slice(2))}</span>
         </div>
       )
@@ -65,7 +65,7 @@ function renderInline(text: string): React.ReactNode[] {
     if (m[1]) {
       parts.push(<strong key={`b${key++}`} className="font-semibold text-foreground">{m[2]}</strong>)
     } else if (m[3]) {
-      parts.push(<code key={`c${key++}`} className="rounded bg-foreground/[0.08] px-1 py-0.5 text-[13px] font-mono text-[#dafc69]/90">{m[4]}</code>)
+      parts.push(<code key={`c${key++}`} className="rounded bg-foreground/[0.08] px-1 py-0.5 text-[13px] font-mono text-accent-ink/90">{m[4]}</code>)
     }
     lastIdx = m.index + m[0].length
   }
@@ -205,7 +205,7 @@ export function HelpChat() {
         <div className="flex items-center justify-between gap-3 border-b border-foreground/[0.07] px-5 py-4 bg-card">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft ring-1 ring-accent/20">
-              <Sparkles className="h-4 w-4 text-[#dafc69]" />
+              <Sparkles className="h-4 w-4 text-accent-ink" />
             </div>
             <div>
               <p className="text-[15px] font-bold text-foreground leading-tight">Asistente del dashboard</p>
@@ -242,7 +242,7 @@ export function HelpChat() {
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[13px] ${
                   m.role === "user"
-                    ? "bg-[#dafc69] text-black font-medium"
+                    ? "bg-accent text-black font-medium"
                     : "bg-foreground/[0.04] border border-foreground/[0.06] text-foreground"
                 }`}
               >

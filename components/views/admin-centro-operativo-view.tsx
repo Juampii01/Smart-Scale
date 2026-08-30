@@ -91,7 +91,7 @@ export function AdminCentroOperativoView() {
               <Icon className="h-3.5 w-3.5" />
               {t.label}
               {active && (
-                <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#dafc69] rounded-full" />
+                <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-accent rounded-full" />
               )}
             </button>
           )

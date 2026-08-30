@@ -122,7 +122,7 @@ function renderInline(text: string, key: string) {
       // [label](url)
       nodes.push(
         <a key={`ml-${key}-${m.index}`} href={m[3]} target="_blank" rel="noreferrer"
-          className="inline-flex items-center gap-1 font-medium text-[#dafc69] hover:text-[#f2ffc0] underline underline-offset-2 transition-colors">
+          className="inline-flex items-center gap-1 font-medium text-accent-ink hover:text-accent-hover underline underline-offset-2 transition-colors">
           {m[2]}
         </a>
       )
@@ -137,7 +137,7 @@ function renderInline(text: string, key: string) {
         <Fragment key={`arr-${key}-${m.index}`}>
           {" → "}
           <a href={url} target="_blank" rel="noreferrer"
-            className="inline-flex items-center gap-1 font-medium text-[#dafc69] hover:text-[#f2ffc0] underline underline-offset-2 transition-colors">
+            className="inline-flex items-center gap-1 font-medium text-accent-ink hover:text-accent-hover underline underline-offset-2 transition-colors">
             {label}
           </a>
         </Fragment>
@@ -147,7 +147,7 @@ function renderInline(text: string, key: string) {
       const url = m[8]
       nodes.push(
         <a key={`url-${key}-${m.index}`} href={url} target="_blank" rel="noreferrer"
-          className="font-medium text-[#dafc69] hover:text-[#f2ffc0] underline underline-offset-2 transition-colors break-all">
+          className="font-medium text-accent-ink hover:text-accent-hover underline underline-offset-2 transition-colors break-all">
           {url.replace(/^https?:\/\//, "")}
         </a>
       )
@@ -668,7 +668,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
       {/* Header */}
       <div>
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
+          <span className="h-4 w-[3px] rounded-full bg-accent" />
           <h1 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Auditoría Estratégica</h1>
         </div>
         <p className="text-[13px] text-text-3 ml-[18px]">Evaluación del Ecosistema Circular · {selectedMonth}</p>
@@ -744,7 +744,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                       >
                         {/* ID + statement */}
                         <div className="flex items-start gap-3">
-                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-foreground/[0.08] bg-foreground/[0.05] px-2 text-[13px] font-bold text-[#dafc69] flex-shrink-0">
+                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-foreground/[0.08] bg-foreground/[0.05] px-2 text-[13px] font-bold text-accent-ink flex-shrink-0">
                             {item.id}
                           </span>
                           <p className="text-[15px] leading-snug text-foreground pt-0.5">

@@ -80,7 +80,7 @@ export function RenovacionView() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-[24px] font-extrabold tracking-tight text-foreground flex items-center gap-2">
-          <Sparkles className="h-6 w-6 text-[#dafc69]" />
+          <Sparkles className="h-6 w-6 text-accent-ink" />
           Próximo nivel
         </h1>
         <p className="text-[13px] text-text-2 mt-1.5 max-w-2xl">
@@ -103,7 +103,7 @@ export function RenovacionView() {
               }}
             >
               {o.highlight && (
-                <span className="absolute -top-3 left-6 rounded-full bg-[#dafc69] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-black">
+                <span className="absolute -top-3 left-6 rounded-full bg-accent px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-black">
                   Recomendado
                 </span>
               )}

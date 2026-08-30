@@ -48,7 +48,7 @@ function NavRow({ label, href, icon: Icon, active }: NavItem & { active: boolean
       className={cn(
         "flex h-[34px] items-center gap-2.5 rounded-lg px-3 transition-all duration-150",
         active
-          ? "bg-secondary text-[#dafc69]"
+          ? "bg-secondary text-accent-ink"
           : locked
             ? "text-text-3 cursor-not-allowed"
             : "text-foreground hover:bg-foreground/[0.05] hover:text-foreground",
@@ -85,7 +85,7 @@ export function CrmShell({
         <div className="flex h-16 shrink-0 items-center justify-between pl-5 pr-3">
           <div className="flex items-center gap-2.5">
             <BrandLogo />
-            <span className="rounded-full border border-accent/30 px-1.5 py-0.5 text-[11px] font-bold tracking-wider text-[#dafc69] leading-none">CRM</span>
+            <span className="rounded-full border border-accent/30 px-1.5 py-0.5 text-[11px] font-bold tracking-wider text-accent-ink leading-none">CRM</span>
           </div>
           <button className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-foreground/10 transition-all" onClick={() => setOpen(false)} aria-label="Cerrar menú">
             <X className="h-4 w-4" />

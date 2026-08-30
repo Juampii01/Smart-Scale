@@ -184,7 +184,7 @@ function PostsVsFollowers({ reports, className }: { reports: MonthlyReport[]; cl
           <p className="text-[15px] font-bold text-foreground mt-0.5">Posts vs Seguidores IG</p>
         </div>
         <div className="flex gap-4">
-          <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#dafc69]" /><span className="text-[13px] text-text-2">Posts</span></div>
+          <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-accent" /><span className="text-[13px] text-text-2">Posts</span></div>
           <div className="flex items-center gap-1.5"><span className="h-[3px] w-5 rounded-full bg-[#818cf8]" /><span className="text-[13px] text-text-2">Seguidores</span></div>
         </div>
       </div>

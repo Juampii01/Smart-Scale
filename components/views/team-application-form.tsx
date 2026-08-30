@@ -25,7 +25,7 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
   return (
     <label className="block text-[13px] font-semibold text-text-2 mb-2 tracking-wide leading-snug">
       {children}
-      {required && <span className="ml-1 text-[#dafc69]">*</span>}
+      {required && <span className="ml-1 text-accent-ink">*</span>}
     </label>
   )
 }
@@ -48,7 +48,7 @@ function SectionCard({ children }: { children: React.ReactNode }) {
 function SectionHeader({ number, title }: { number: string; title: string }) {
   return (
     <div className="flex items-start gap-4 pb-1">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#dafc69] text-[13px] font-black text-black mt-0.5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-[13px] font-black text-black mt-0.5">
         {number}
       </div>
       <h2 className="text-[18px] font-bold text-foreground leading-tight pt-1.5">{title}</h2>
@@ -200,7 +200,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "var(--background)" }}>
         <div className="max-w-md w-full text-center space-y-6 sm:space-y-8 px-2">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#dafc69]">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent">
             <Check className="h-10 w-10 text-black" strokeWidth={3} />
           </div>
           <div className="space-y-3">
@@ -236,8 +236,8 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
         {/* Hero */}
         <div className="space-y-5 pb-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
-            <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69] animate-pulse" />
-            <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">Smart Scale Team</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+            <span className="text-[11px] font-bold text-accent-ink uppercase tracking-[0.18em]">Smart Scale Team</span>
           </div>
           <h1 className="text-[32px] sm:text-[32px] font-black text-foreground leading-[1.1] tracking-tight">
             {form.title}

@@ -79,7 +79,7 @@ function BookingContent() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent-soft px-4 py-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
-              <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">
+              <span className="text-[11px] font-bold text-accent-ink uppercase tracking-[0.18em]">
                 Smart Scale · Opción Sync
               </span>
             </div>
@@ -99,7 +99,7 @@ function BookingContent() {
               {features.map((f, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent-soft shrink-0">
-                    <Check className="h-3 w-3 text-[#dafc69]" />
+                    <Check className="h-3 w-3 text-accent-ink" />
                   </span>
                   <span className="text-[15px] text-foreground">{f}</span>
                 </li>
@@ -125,7 +125,7 @@ function BookingContent() {
           <div className="lg:sticky lg:top-24">
             <div className="relative overflow-hidden rounded-3xl border border-foreground/[0.08] bg-card shadow-2xl shadow-black/20">
               {/* Gradient top */}
-              <div className="h-[3px] w-full bg-gradient-to-r from-[#dafc69]/80 via-[#dafc69] to-[#dafc69]/80" />
+              <div className="h-[3px] w-full bg-gradient-to-r from-accent-ink/80 via-accent-ink to-accent-ink/80" />
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.06),transparent_60%)]" />
 
               <div className="relative p-8 space-y-7">
@@ -147,7 +147,7 @@ function BookingContent() {
                 <div className="rounded-2xl border border-foreground/[0.06] bg-foreground/[0.02] p-4 space-y-2.5">
                   {features.slice(0, 3).map((f, i) => (
                     <div key={i} className="flex items-center gap-2.5 text-[13px] text-text-2">
-                      <Zap className="h-3 w-3 text-[#dafc69]/70 shrink-0" />
+                      <Zap className="h-3 w-3 text-accent-ink/70 shrink-0" />
                       {f}
                     </div>
                   ))}
@@ -199,7 +199,7 @@ export default function BookingPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="h-6 w-6 rounded-full border-2 border-accent/25 border-t-[#dafc69] animate-spin" />
+        <div className="h-6 w-6 rounded-full border-2 border-accent/25 border-t-accent-ink animate-spin" />
       </div>
     }>
       <BookingContent />

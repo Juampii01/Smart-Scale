@@ -601,7 +601,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <h1 className="text-[15px] sm:text-[18px] font-bold text-foreground leading-tight tracking-tight flex items-center gap-2">
                   {pageTitle}
                   {isAdminMode && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.15em] text-[#dafc69]">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.15em] text-accent-ink">
                       <ShieldCheck className="h-2.5 w-2.5" />
                       Internal
                     </span>
@@ -625,7 +625,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       aria-label={label}
                       className="inline-flex h-9 items-center gap-1.5 rounded-md border border-foreground/[0.10] bg-card px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/[0.18] hover:bg-foreground/[0.04] transition-colors"
                     >
-                      <Icon className="h-4 w-4 text-[#dafc69]" />
+                      <Icon className="h-4 w-4 text-accent-ink" />
                       <span className="hidden xl:inline">{label}</span>
                     </button>
                   ))}
@@ -666,13 +666,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     <img src={avatarUrl} alt="Perfil" className="h-7 w-7 rounded-full object-cover border border-accent/30" />
                   ) : (
                     <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-accent/30 bg-accent-soft">
-                      <User className="h-4 w-4 text-[#dafc69]" />
+                      <User className="h-4 w-4 text-accent-ink" />
                     </span>
                   )}
                   <span className="hidden sm:inline text-foreground font-semibold">
                     {activeClientName ?? clientDisplayName ?? userEmail ?? "—"}
                   </span>
-                  <ChevronDown className="h-4 w-4 opacity-80 text-[#dafc69]" />
+                  <ChevronDown className="h-4 w-4 opacity-80 text-accent-ink" />
                 </Button>
 
                 {profileMenuOpen && (
@@ -686,7 +686,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <button
                         type="button"
                         onClick={() => avatarInputRef.current?.click()}
-                        className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-accent-soft text-[#dafc69] text-[13px] font-bold overflow-hidden group/avatar"
+                        className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-accent-soft text-accent-ink text-[13px] font-bold overflow-hidden group/avatar"
                         title="Cambiar foto"
                       >
                         {avatarUrl
@@ -736,7 +736,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                           >
                             <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[13px] font-bold ${
                               isActive
-                                ? "bg-[#dafc69] text-black"
+                                ? "bg-accent text-black"
                                 : "bg-foreground/[0.08] text-foreground"
                             }`}>
                               {initial}
@@ -885,7 +885,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   onClick={() => router.push(href)}
                   className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-foreground/[0.10] bg-card px-3 text-[13px] font-semibold text-foreground hover:text-foreground active:scale-[0.98] transition-all"
                 >
-                  <Icon className="h-3.5 w-3.5 text-[#dafc69]" />
+                  <Icon className="h-3.5 w-3.5 text-accent-ink" />
                   {short}
                 </button>
               ))}

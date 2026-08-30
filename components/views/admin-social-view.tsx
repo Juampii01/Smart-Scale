@@ -54,7 +54,7 @@ export function AdminSocialView() {
     <div className="mx-auto max-w-4xl px-4 py-8 space-y-6">
       <div className="flex items-center gap-3">
         <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent-soft">
-          <Link2 className="h-6 w-6 text-[#dafc69]" />
+          <Link2 className="h-6 w-6 text-accent-ink" />
         </span>
         <div className="flex-1">
           <h1 className="text-[24px] font-extrabold tracking-tight text-foreground leading-none">Conexiones sociales</h1>

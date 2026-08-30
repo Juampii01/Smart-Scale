@@ -129,7 +129,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
         >
           <Calendar className="h-3.5 w-3.5 text-text-2 shrink-0" />
           <span className="flex-1 text-left">{formatShort(selected)}</span>
-          {isToday && <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" title="Mes actual" />}
+          {isToday && <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" title="Mes actual" />}
         </button>
       </Popover.Trigger>
 
@@ -153,7 +153,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
             <div className="flex items-center gap-1.5">
               <span className="text-[13px] font-bold text-foreground tabular-nums">{viewYear}</span>
               {viewYear === todayYear && (
-                <span className="rounded-full bg-accent-soft px-1.5 py-0.5 text-[11px] font-bold text-[#dafc69] uppercase tracking-wider">
+                <span className="rounded-full bg-accent-soft px-1.5 py-0.5 text-[11px] font-bold text-accent-ink uppercase tracking-wider">
                   Actual
                 </span>
               )}
@@ -187,13 +187,13 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
                     isSelected
                       ? "bg-secondary text-foreground shadow-sm"
                       : has
-                        ? `text-foreground hover:bg-foreground/[0.08] ${isCurrentMonth ? "ring-1 ring-[#dafc69]/50" : ""}`
+                        ? `text-foreground hover:bg-foreground/[0.08] ${isCurrentMonth ? "ring-1 ring-accent-ink/50" : ""}`
                         : "text-text-3 cursor-not-allowed"
                   }`}
                 >
                   {label}
                   {isCurrentMonth && !isSelected && (
-                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-[#dafc69]" />
+                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-accent" />
                   )}
                 </button>
               )
@@ -208,7 +208,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
                 onClick={() => pick(today)}
                 className="flex w-full items-center justify-center gap-1.5 rounded-md py-1.5 text-[13px] font-semibold text-foreground hover:bg-secondary hover:text-foreground transition-colors"
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
                 Ir a hoy · {formatLong(today)}
               </button>
             </div>

@@ -335,7 +335,7 @@ export function AdminImportView() {
             <div key={from} className="flex items-center gap-1.5 text-[13px]">
               <span className="text-text-3">{from}</span>
               <span className="text-text-3">→</span>
-              <span className="text-[#dafc69]/60 font-medium">{to}</span>
+              <span className="text-accent-ink/60 font-medium">{to}</span>
             </div>
           ))}
         </div>

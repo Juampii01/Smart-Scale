@@ -123,7 +123,7 @@ function LocationTab({
           className="group relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-accent/30 bg-accent-soft">
           {account.avatarUrl
             ? <img src={account.avatarUrl} alt="Perfil" className="h-full w-full object-cover" />
-            : <User className="h-7 w-7 text-[#dafc69]" />}
+            : <User className="h-7 w-7 text-accent-ink" />}
           <span className="absolute inset-0 hidden items-center justify-center bg-black/45 group-hover:flex">
             {account.photoBusy ? <Loader2 className="h-5 w-5 animate-spin text-white" /> : <Camera className="h-5 w-5 text-white" />}
           </span>

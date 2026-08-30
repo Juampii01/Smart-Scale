@@ -379,7 +379,7 @@ export function AnnKnowledgeView() {
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-[#dafc69] shadow-[0_0_32px_rgba(255,222,33,0.35)]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-accent shadow-[0_0_32px_rgba(255,222,33,0.35)]">
             <Brain className="h-6 w-6 text-black" />
           </div>
           <div>
@@ -465,7 +465,7 @@ export function AnnKnowledgeView() {
                   <button key={value} onClick={() => setSourceType(value)}
                     className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all ${
                       sourceType === value
-                        ? "bg-secondary text-[#dafc69]/90 ring-1 ring-inset ring-accent/20"
+                        ? "bg-secondary text-accent-ink/90 ring-1 ring-inset ring-accent/20"
                         : "bg-foreground/[0.05] text-text-2 hover:bg-foreground/[0.08]"
                     }`}>
                     <Icon className="h-3 w-3" />{label}
@@ -518,7 +518,7 @@ export function AnnKnowledgeView() {
                 <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
                   isDragging ? "bg-secondary" : "bg-foreground/[0.05]"
                 }`}>
-                  <Upload className={`h-5 w-5 transition-colors ${isDragging ? "text-[#dafc69]/70" : "text-text-3"}`} />
+                  <Upload className={`h-5 w-5 transition-colors ${isDragging ? "text-accent-ink/70" : "text-text-3"}`} />
                 </div>
                 <div>
                   <p className="text-[13px] font-medium text-text-2">
@@ -542,7 +542,7 @@ export function AnnKnowledgeView() {
                       : "bg-accent-soft"
                     }`}>
                       {item.status === "extracting"
-                        ? <Loader2 className="h-4 w-4 animate-spin text-[#dafc69]/60" />
+                        ? <Loader2 className="h-4 w-4 animate-spin text-accent-ink/60" />
                         : item.status === "ready"
                           ? <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                           : <X className="h-4 w-4 text-red-600 dark:text-red-400" />
@@ -557,7 +557,7 @@ export function AnnKnowledgeView() {
                       />
                       <p className="text-[13px] text-text-2 mt-0.5">
                         {EXT_LABELS[item.file.name.split(".").pop()?.toLowerCase() ?? ""] ?? "Archivo"} · {fmtSize(item.file.size)}
-                        {item.status === "extracting" && <span className="ml-1.5 text-[#dafc69]/70">Extrayendo…</span>}
+                        {item.status === "extracting" && <span className="ml-1.5 text-accent-ink/70">Extrayendo…</span>}
                         {item.status === "ready"      && <span className="ml-1.5 text-emerald-600 dark:text-emerald-400">Listo</span>}
                         {item.status === "error"      && <span className="ml-1.5 text-red-600 dark:text-red-400">{item.error}</span>}
                       </p>
@@ -586,17 +586,17 @@ export function AnnKnowledgeView() {
                   extractDone ? "bg-emerald-500/10" : "bg-accent-soft"
                 }`}>
                   {extracting
-                    ? <Loader2 className="h-5 w-5 animate-spin text-[#dafc69]/60" />
+                    ? <Loader2 className="h-5 w-5 animate-spin text-accent-ink/60" />
                     : extractDone
                       ? <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                      : <FileText className="h-5 w-5 text-[#dafc69]/60" />
+                      : <FileText className="h-5 w-5 text-accent-ink/60" />
                   }
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] font-semibold text-foreground truncate">{uploadFile!.name}</p>
                   <p className="text-[13px] text-text-2 mt-0.5">
                     {EXT_LABELS[uploadFile!.name.split(".").pop()?.toLowerCase() ?? ""] ?? "Archivo"} · {fmtSize(uploadFile!.size)}
-                    {extracting && <span className="ml-2 text-[#dafc69]/70">Extrayendo texto con IA…</span>}
+                    {extracting && <span className="ml-2 text-accent-ink/70">Extrayendo texto con IA…</span>}
                     {extractDone && <span className="ml-2 text-emerald-600 dark:text-emerald-400">Texto extraído · podés editar abajo</span>}
                   </p>
                 </div>
@@ -737,7 +737,7 @@ export function AnnKnowledgeView() {
                 <div className="flex items-center gap-3 px-5 py-4">
                   <button onClick={() => openEdit(e)} className="min-w-0 flex-1 text-left group">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[15px] font-semibold text-foreground group-hover:text-[#dafc69] transition-colors">
+                      <span className="text-[15px] font-semibold text-foreground group-hover:text-accent-ink transition-colors">
                         {e.title}
                       </span>
                       <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider ${cfg.badge}`}>

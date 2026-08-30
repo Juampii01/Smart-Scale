@@ -306,7 +306,7 @@ export function TrendCharts() {
           {isOwn ? "Todavía no tenés reportes cargados." : "Este cliente todavía no tiene reportes cargados."}
         </p>
         {isOwn && (
-          <Link href="/report-input" className="text-[13px] font-medium text-[#dafc69] transition-colors hover:text-[#f2ffc0]">
+          <Link href="/report-input" className="text-[13px] font-medium text-accent-ink transition-colors hover:text-accent-hover">
             Cargar primer reporte →
           </Link>
         )}
@@ -317,7 +317,7 @@ export function TrendCharts() {
   return (
     <section className="space-y-5">
       <div className="flex items-center gap-2.5">
-        <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
+        <span className="h-4 w-[3px] rounded-full bg-accent" />
         <h2 className="text-[13px] font-bold uppercase tracking-widest text-foreground">Analytics</h2>
         <span className="ml-auto text-[13px] text-text-3 tabular-nums">{rows.length} meses</span>
       </div>

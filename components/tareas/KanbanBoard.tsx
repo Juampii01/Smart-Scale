@@ -446,7 +446,7 @@ export function KanbanBoard() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-[24px] font-extrabold tracking-tight text-foreground flex items-center gap-2">
-            <CheckSquare className="h-6 w-6 text-[#dafc69]" />
+            <CheckSquare className="h-6 w-6 text-accent-ink" />
             Tareas
           </h1>
           <p className="text-[13px] text-text-2 mt-1">Tablero compartido · Ann · Steffano · Juan</p>

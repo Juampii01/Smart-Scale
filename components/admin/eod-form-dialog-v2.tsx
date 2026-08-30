@@ -30,7 +30,7 @@ const FIELD_GROUPS = [
   {
     key: "conversion",
     label: "Conversión",
-    color: "bg-[#dafc69]",
+    color: "bg-accent",
     fields: [
       { key: "inbound_applications",  label: "Aplicaciones inbound",    hint: "Formularios / apps" },
       { key: "qualified_leads",       label: "Leads 4-5 estrellas",     hint: "Calificados" },
@@ -216,7 +216,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
         {/* Header */}
         <div className="flex items-center justify-between border-b border-foreground/[0.06] px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
+            <span className="h-4 w-[3px] rounded-full bg-accent" />
             <h2 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">
               {logId ? "Editar EOD" : "Cargar datos del día"}
             </h2>
@@ -279,7 +279,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                 <div className="relative overflow-hidden rounded-2xl border border-accent/20 bg-accent-soft">
                   <div className="flex items-center justify-between border-b border-border px-5 py-3">
                     <div className="flex items-center gap-2">
-                      <span className="h-3 w-[2px] rounded-full bg-[#dafc69]" />
+                      <span className="h-3 w-[2px] rounded-full bg-accent" />
                       <span className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Total Conversaciones</span>
                     </div>
                     <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">automático</span>
@@ -289,7 +289,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                       <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">
                         Inbound + Resp. outbound
                       </p>
-                      <p className="text-[32px] font-bold text-[#dafc69] tabular-nums">
+                      <p className="text-[32px] font-bold text-accent-ink tabular-nums">
                         {totalConversaciones}
                       </p>
                     </div>

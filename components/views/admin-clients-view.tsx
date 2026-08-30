@@ -182,7 +182,7 @@ function WebhookCard() {
         Webhook URL — Zapier / Formulario de onboarding
       </p>
       <div className="flex items-center gap-2">
-        <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[13px] text-[#dafc69]/70 font-mono truncate" suppressHydrationWarning>
+        <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[13px] text-accent-ink/70 font-mono truncate" suppressHydrationWarning>
           {url ?? "Cargando…"}
         </code>
         <button onClick={copy} disabled={!url}
@@ -270,7 +270,7 @@ function InstallmentRow({
                 title={inst.status === "pagado" ? "No se puede editar una cuota ya pagada" : "Click para editar el monto"}
                 className={`text-[13px] font-semibold text-foreground rounded px-1 -mx-1 transition-all ${
                   inst.status !== "pagado"
-                    ? "hover:bg-secondary hover:text-[#dafc69] cursor-pointer"
+                    ? "hover:bg-secondary hover:text-accent-ink cursor-pointer"
                     : "cursor-default"
                 }`}
               >
@@ -660,7 +660,7 @@ function ClientCallsPanel({ clientId }: { clientId: string }) {
               <div className="border-t border-foreground/[0.06] px-4 py-3 space-y-3">
                 {call.recording_url && (
                   <a href={call.recording_url} target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#dafc69] hover:text-[#f2ffc0] transition-colors">
+                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-accent-ink hover:text-accent-hover transition-colors">
                     <PhoneCall className="h-3.5 w-3.5" />
                     Ver grabación
                   </a>
@@ -914,7 +914,7 @@ function DetailDrawer({
             <div className="flex items-center gap-2">
               <h2 className="text-[18px] font-bold text-foreground truncate">{client.name}</h2>
               {client.is_monthly_subscription && (
-                <span className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest text-[#dafc69] shrink-0">
+                <span className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest text-accent-ink shrink-0">
                   Mensual
                 </span>
               )}
@@ -935,7 +935,7 @@ function DetailDrawer({
                 disabled={sendingRenewal || offboarding || deleting || !client.email}
                 aria-label="Enviar email de renovación"
                 title={client.email ? "Manda el email de renovación ahora, sin esperar al aviso automático" : "Este cliente no tiene email cargado — completalo arriba para poder enviarle"}
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-emerald-300/50 px-2.5 text-[13px] font-semibold text-emerald-700 hover:bg-emerald-100/60 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-emerald-300/50 px-2.5 text-[13px] font-semibold text-emerald-700 hover:bg-emerald-100/60 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40"
               >
                 {sendingRenewal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
                 {!sendingRenewal && <span>Enviar renovación</span>}
@@ -948,7 +948,7 @@ function DetailDrawer({
                 disabled={reactivating}
                 aria-label="Reactivar cliente"
                 title="Renovó — carga el nuevo ciclo y vuelve a activo"
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-[#dafc69]/40 px-2.5 text-[13px] font-semibold text-foreground hover:bg-secondary transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-accent-ink/40 px-2.5 text-[13px] font-semibold text-foreground hover:bg-secondary transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40"
               >
                 {reactivating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
                 {!reactivating && <span>Reactivar</span>}
@@ -961,18 +961,18 @@ function DetailDrawer({
                 disabled={offboarding || deleting}
                 aria-label="Dar de baja"
                 title="Dar de baja: pasa a offboarding y elimina cuotas pendientes"
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-amber-300/40 px-2.5 text-[13px] font-semibold text-amber-700 hover:bg-amber-100/60 dark:border-amber-500/25 dark:text-amber-400 dark:hover:bg-amber-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-amber-300/40 px-2.5 text-[13px] font-semibold text-amber-700 hover:bg-amber-100/60 dark:border-amber-500/25 dark:text-amber-400 dark:hover:bg-amber-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40"
               >
                 {offboarding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserX className="h-3.5 w-3.5" />}
                 {!offboarding && <span>Dar de baja</span>}
               </button>
             )}
             <button onClick={() => onDeleteClient(client.id)} disabled={deleting || offboarding} aria-label="Eliminar cliente"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
             <button onClick={onClose} aria-label="Cerrar"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -1123,7 +1123,7 @@ function DetailDrawer({
                 id={`monthly-${client.id}`}
                 defaultChecked={!!client.is_monthly_subscription}
                 onChange={e => onPatchClient(client.id, { is_monthly_subscription: e.target.checked } as any)}
-                className="mt-0.5 h-4 w-4 rounded border-foreground/20 bg-foreground/[0.05] accent-[#dafc69] cursor-pointer"
+                className="mt-0.5 h-4 w-4 rounded border-foreground/20 bg-foreground/[0.05] accent-accent cursor-pointer"
               />
               <label htmlFor={`monthly-${client.id}`} className="flex-1 cursor-pointer">
                 <p className="text-[13px] font-semibold text-foreground">Plan mensual auto-renovable</p>
@@ -1229,7 +1229,7 @@ function DetailDrawer({
             {/* Progress bar */}
             <div className="h-1.5 rounded-full bg-foreground/[0.06] overflow-hidden">
               <div
-                className="h-full rounded-full bg-[#dafc69] transition-all duration-500"
+                className="h-full rounded-full bg-accent transition-all duration-500"
                 style={{ width: `${client.num_installments > 0 ? (paidCount / client.num_installments) * 100 : 0}%` }}
               />
             </div>
@@ -1261,7 +1261,7 @@ function DetailDrawer({
               <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Seguimientos</p>
               <button
                 onClick={() => setShowFollowupForm(v => !v)}
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.08] text-text-2 hover:text-[#dafc69] hover:border-border transition-all">
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.08] text-text-2 hover:text-accent-ink hover:border-border transition-all">
                 <Plus className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -1333,7 +1333,7 @@ function DetailDrawer({
                           {fu.type}
                         </span>
                         {fu.scheduled_date === todayStr() && !fu.completed && (
-                          <span className="rounded-full bg-accent-soft border border-accent/25 px-2 py-0.5 text-[13px] font-bold text-[#dafc69]">hoy</span>
+                          <span className="rounded-full bg-accent-soft border border-accent/25 px-2 py-0.5 text-[13px] font-bold text-accent-ink">hoy</span>
                         )}
                       </div>
                       {fu.notes && (
@@ -1437,7 +1437,7 @@ function SummaryCards({ clients, viewMonth }: { clients: Client[], viewMonth: st
     {
       label: `Nuevos clientes`,
       value: String(newClientsCount),
-      color: newClientsCount > 0 ? "text-[#dafc69]" : "text-text-2",
+      color: newClientsCount > 0 ? "text-accent-ink" : "text-text-2",
       icon:  <Users className="h-4 w-4" />,
     },
     {
@@ -1455,7 +1455,7 @@ function SummaryCards({ clients, viewMonth }: { clients: Client[], viewMonth: st
     ...(isCurrentMonth ? [{
       label: "Follow-ups hoy",
       value: String(followupsHoy),
-      color: followupsHoy > 0 ? "text-[#dafc69]" : "text-text-2" as string,
+      color: followupsHoy > 0 ? "text-accent-ink" : "text-text-2" as string,
       icon:  <Calendar className="h-4 w-4" />,
     }] : []),
   ]
@@ -1590,7 +1590,7 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
         {/* New Cash */}
         <div>
           <p className="text-[11px] text-text-3 mb-1 font-semibold uppercase tracking-wider">New Cash</p>
-          <p className="text-[32px] font-bold text-[#dafc69] tabular-nums">{fmtMoney(newCash)}</p>
+          <p className="text-[32px] font-bold text-accent-ink tabular-nums">{fmtMoney(newCash)}</p>
           <p className="text-[13px] text-text-3 mt-1.5">
             {newClients.length > 0
               ? `${newClients.length} cliente${newClients.length !== 1 ? "s" : ""} nuevo${newClients.length !== 1 ? "s" : ""} este mes`
@@ -1715,7 +1715,7 @@ function InstallmentProgress({ client }: { client: Client }) {
       <span className="text-[13px] text-text-2 tabular-nums">{paid}/{total} pagadas</span>
       <div className="h-1.5 w-24 rounded-full bg-foreground/[0.06] overflow-hidden">
         <div
-          className="h-full rounded-full bg-[#dafc69] transition-all duration-500"
+          className="h-full rounded-full bg-accent transition-all duration-500"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -1770,7 +1770,7 @@ function SortableTh({
     >
       <span className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider transition-all ${
         active
-          ? "bg-secondary text-[#dafc69] ring-1 ring-accent/25"
+          ? "bg-secondary text-accent-ink ring-1 ring-accent/25"
           : "text-text-2 hover:bg-foreground/[0.06] hover:text-foreground"
       }`}>
         {label}
@@ -2200,7 +2200,7 @@ export function AdminClientsView() {
               <button key={key} onClick={() => setFilterStatus(key)}
                 className={`h-8 rounded-xl border px-3.5 text-[13px] font-medium transition-all ${
                   filterStatus === key
-                    ? "border-accent bg-secondary text-[#dafc69]"
+                    ? "border-accent bg-secondary text-accent-ink"
                     : "border-foreground/[0.07] text-text-2 hover:text-foreground hover:border-foreground/20"
                 }`}>
                 {label}
@@ -2297,7 +2297,7 @@ export function AdminClientsView() {
                                 <p className="text-[13px] font-semibold text-foreground">{client.name}</p>
                                 {client.is_monthly_subscription && (
                                   <span
-                                    className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest text-[#dafc69]"
+                                    className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest text-accent-ink"
                                     title="Plan mensual auto-renovable"
                                   >
                                     Mensual
@@ -2379,7 +2379,7 @@ export function AdminClientsView() {
                                   {fmtDateShort(nextFu.scheduled_date)}
                                 </span>
                                 {nextFu.scheduled_date === today && (
-                                  <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69] animate-pulse" />
+                                  <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
                                 )}
                               </div>
                             ) : (

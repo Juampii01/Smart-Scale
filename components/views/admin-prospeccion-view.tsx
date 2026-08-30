@@ -102,7 +102,7 @@ function DetailDrawer({
             <button onClick={() => onDelete(item.id)} disabled={deleting} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40" title="Borrar">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
-            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
+            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -207,7 +207,7 @@ function CreateEditModal({
 
           <div className="flex items-center justify-between gap-4 border-b border-foreground/[0.06] px-6 py-4 shrink-0">
             <h2 className="text-[18px] font-bold text-foreground">{isEdit ? "Editar item" : "Nuevo item"}</h2>
-            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
+            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -412,7 +412,7 @@ export function AdminProspeccionView() {
         <div className="flex flex-wrap items-center gap-1.5">
           <button
             onClick={() => setFilterType(null)}
-            className={`h-7 rounded-full border px-3 text-[13px] font-semibold transition-all ${filterType == null ? "border-accent bg-secondary text-[#dafc69]" : "border-foreground/[0.08] text-text-2 hover:text-foreground hover:border-foreground/20"}`}
+            className={`h-7 rounded-full border px-3 text-[13px] font-semibold transition-all ${filterType == null ? "border-accent bg-secondary text-accent-ink" : "border-foreground/[0.08] text-text-2 hover:text-foreground hover:border-foreground/20"}`}
           >
             Todos
           </button>
@@ -423,7 +423,7 @@ export function AdminProspeccionView() {
               <button
                 key={o.value}
                 onClick={() => setFilterType(active ? null : o.value)}
-                className={`inline-flex items-center gap-1 h-7 rounded-full border px-3 text-[13px] font-medium transition-all ${active ? "border-accent bg-secondary text-[#dafc69]" : "border-foreground/[0.08] text-text-2 hover:text-foreground hover:border-foreground/20"}`}
+                className={`inline-flex items-center gap-1 h-7 rounded-full border px-3 text-[13px] font-medium transition-all ${active ? "border-accent bg-secondary text-accent-ink" : "border-foreground/[0.08] text-text-2 hover:text-foreground hover:border-foreground/20"}`}
               >
                 <Icon className="h-3 w-3" /> {o.label}
               </button>
@@ -451,7 +451,7 @@ export function AdminProspeccionView() {
               <button
                 key={t}
                 onClick={() => setActiveTag(activeTag === t ? null : t)}
-                className={`h-6 rounded-full border px-2.5 text-[13px] font-medium transition-all ${activeTag === t ? "border-accent bg-secondary text-[#dafc69]" : "border-foreground/[0.08] text-text-2 hover:text-foreground hover:border-foreground/20"}`}
+                className={`h-6 rounded-full border px-2.5 text-[13px] font-medium transition-all ${activeTag === t ? "border-accent bg-secondary text-accent-ink" : "border-foreground/[0.08] text-text-2 hover:text-foreground hover:border-foreground/20"}`}
               >
                 #{t}
               </button>
@@ -463,7 +463,7 @@ export function AdminProspeccionView() {
       {/* List */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-[#dafc69]/50" />
+          <Loader2 className="h-6 w-6 animate-spin text-accent-ink/50" />
         </div>
       ) : !filtered.length ? (
         <div className="rounded-[14px] border border-foreground/[0.08] bg-card py-16 text-center">
@@ -495,7 +495,7 @@ export function AdminProspeccionView() {
                         {item.status}
                       </span>
                     </div>
-                    <h3 className="text-[15px] font-bold text-foreground leading-snug group-hover:text-[#dafc69] transition-colors">{item.title}</h3>
+                    <h3 className="text-[15px] font-bold text-foreground leading-snug group-hover:text-accent-ink transition-colors">{item.title}</h3>
                     {item.content && (
                       <p className="text-[13px] text-text-2 mt-1 line-clamp-2 whitespace-pre-wrap">{item.content}</p>
                     )}

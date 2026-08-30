@@ -113,7 +113,7 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
       </td>
       <td className="px-4 py-2.5">
         <select value={status} onChange={e => setStatus(e.target.value as Payment["status"])}
-          className="h-8 w-full appearance-none rounded-lg border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1">
+          className="h-8 w-full appearance-none rounded-lg border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40 focus-visible:ring-offset-1">
           <option value="aceptado">Aceptado</option>
           <option value="rechazado">Rechazado</option>
           <option value="pendiente">Pendiente</option>
@@ -131,10 +131,10 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
       <td className="px-4 py-2.5 whitespace-nowrap">
         <div className="flex items-center gap-1.5">
           <button onClick={handleSave} disabled={saving || !name.trim() || !amount.trim()} aria-label="Guardar"
-          className="flex h-8 w-8 items-center justify-center rounded-lg btn-accent disabled:opacity-40 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1">
+          className="flex h-8 w-8 items-center justify-center rounded-lg btn-accent disabled:opacity-40 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40 focus-visible:ring-offset-1">
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
           </button>
-          <button onClick={onCancel} aria-label="Cancelar" className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.08] text-text-2 hover:text-foreground transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
+          <button onClick={onCancel} aria-label="Cancelar" className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.08] text-text-2 hover:text-foreground transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -283,7 +283,7 @@ export function AdminPaymentsView() {
             onClick={() => handleConfirmInstallment(p.id)}
             disabled={confirmingId === p.id}
             title={`Confirmar cuota ${p.suggested_installment.installment_number} (${fmtMoney(p.suggested_installment.amount)}, vence ${fmtDate(p.suggested_installment.due_date)}) como pagada`}
-            className="ml-2 inline-flex items-center gap-1 rounded-md border border-accent/30 bg-accent-soft px-2 py-0.5 text-[13px] font-medium text-[#7a9016] dark:text-[#dafc69] hover:bg-secondary transition-colors disabled:opacity-40"
+            className="ml-2 inline-flex items-center gap-1 rounded-md border border-accent/30 bg-accent-soft px-2 py-0.5 text-[13px] font-medium text-[#7a9016] dark:text-accent-ink hover:bg-secondary transition-colors disabled:opacity-40"
           >
             {confirmingId === p.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
             Cuota {p.suggested_installment.installment_number} sugerida
@@ -297,7 +297,7 @@ export function AdminPaymentsView() {
         <select
           value={p.status}
           onChange={e => handleStatusChange(p.id, e.target.value)}
-          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[13px] font-semibold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1 ${STATUS_STYLE[p.status]}`}
+          className={`h-7 cursor-pointer appearance-none rounded-lg border px-2.5 pr-6 text-[13px] font-semibold capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40 focus-visible:ring-offset-1 ${STATUS_STYLE[p.status]}`}
         >
           <option value="aceptado">Aceptado</option>
           <option value="rechazado">Rechazado</option>
@@ -367,7 +367,7 @@ export function AdminPaymentsView() {
             CSV
           </button>
           <button onClick={() => setShowLinkDialog(true)}
-            className="flex items-center gap-2 h-9 rounded-xl border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-4 text-[13px] font-semibold text-[#dafc69] hover:bg-secondary transition-all">
+            className="flex items-center gap-2 h-9 rounded-xl border border-accent-ink/30 bg-accent-ink/[0.08] px-4 text-[13px] font-semibold text-accent-ink hover:bg-secondary transition-all">
             <Link2 className="h-3.5 w-3.5" />
             Link de pago
           </button>
@@ -399,7 +399,7 @@ export function AdminPaymentsView() {
           <button key={s} onClick={() => setFilterStatus(s)}
             className={`h-8 rounded-xl border px-3.5 text-[13px] font-medium capitalize transition-all ${
               filterStatus === s
-                ? "border-accent bg-secondary text-[#dafc69]"
+                ? "border-accent bg-secondary text-accent-ink"
                 : "border-foreground/[0.07] text-text-2 hover:text-foreground hover:border-foreground/20"
             }`}>
             {s}
@@ -446,7 +446,7 @@ export function AdminPaymentsView() {
       )}
 
       {loading ? (
-        <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-[#dafc69]/40" /></div>
+        <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-accent-ink/40" /></div>
       ) : viewMode === "mes" ? (
 
         /* ── Vista por mes ─────────────────────────────────────────────── */

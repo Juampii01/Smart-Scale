@@ -203,7 +203,7 @@ export function AdminFounderCheckinsView() {
       <div>
         <SectionHeader icon={DollarSign} title="Historial" subtitle={`${checkins.length} registro${checkins.length !== 1 ? "s" : ""}`} className="mb-4" />
         {loading ? (
-          <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-[#dafc69]/40" /></div>
+          <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-accent-ink/40" /></div>
         ) : checkins.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-10 text-center text-[13px] text-text-3">
             Todavía no hay check-ins cargados.

@@ -68,7 +68,7 @@ function ProgressBarInner() {
           transition: completing
             ? "width 0.2s ease-out, opacity 0.3s ease"
             : "width 0.08s linear",
-          boxShadow: "0 0 10px #dafc69, 0 0 4px #dafc6980",
+          boxShadow: "0 0 10px var(--accent-ink), 0 0 4px color-mix(in srgb, var(--accent-ink) 50%, transparent)",
         }}
       />
     </div>

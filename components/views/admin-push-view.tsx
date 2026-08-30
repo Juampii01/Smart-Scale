@@ -66,7 +66,7 @@ export function AdminPushView() {
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
       <div className="flex items-center gap-3">
         <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent-soft">
-          <Bell className="h-6 w-6 text-[#dafc69]" />
+          <Bell className="h-6 w-6 text-accent-ink" />
         </span>
         <div>
           <h1 className="text-[24px] font-extrabold tracking-tight text-foreground leading-none">Notificaciones</h1>
@@ -101,7 +101,7 @@ export function AdminPushView() {
             return (
               <button key={a.key} onClick={() => setAudience(a.key)}
                 className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${active ? "border-accent bg-secondary" : "border-border bg-background/40 hover:bg-foreground/[0.04]"}`}>
-                <a.Icon className={`h-4 w-4 mt-0.5 shrink-0 ${active ? "text-[#dafc69]" : "text-text-2"}`} />
+                <a.Icon className={`h-4 w-4 mt-0.5 shrink-0 ${active ? "text-accent-ink" : "text-text-2"}`} />
                 <div className="min-w-0">
                   <p className="text-[13px] font-semibold text-foreground">{a.label}</p>
                   <p className="text-[13px] text-text-2">{a.desc}</p>

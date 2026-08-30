@@ -181,7 +181,7 @@ export function CrmHoyView({ clientId, clientName, readOnly }: { clientId: strin
         <div className="space-y-5">
           <div className="rounded-2xl border border-foreground/[0.08] bg-card p-4">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-[#dafc69]" />
+              <Sparkles className="h-4 w-4 text-accent-ink" />
               <span className="text-[13px] font-semibold text-foreground">Ann AI</span>
             </div>
             {buckets.atrasados.length > 0 || buckets.paraHoy.length > 0 ? (

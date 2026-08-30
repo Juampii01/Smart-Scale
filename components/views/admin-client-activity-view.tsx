@@ -103,7 +103,7 @@ export function AdminClientActivityView() {
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft border border-accent/25">
-            <Activity className="h-4 w-4 text-[#dafc69]" />
+            <Activity className="h-4 w-4 text-accent-ink" />
           </span>
           <div>
             <h1 className="text-[24px] font-bold text-foreground">Actividad de clientes</h1>

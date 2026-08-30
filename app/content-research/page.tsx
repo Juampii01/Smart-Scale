@@ -56,7 +56,7 @@ function CopyBtn({ text }: { text: string | null }) {
   return (
     <button
       onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500) }}
-      className="inline-flex items-center gap-1.5 text-[13px] text-text-2 hover:text-[#dafc69] transition-colors"
+      className="inline-flex items-center gap-1.5 text-[13px] text-text-2 hover:text-accent-ink transition-colors"
     >
       <span className="max-w-[140px] truncate text-text-2">{text.slice(0, 60)}{text.length > 60 ? "…" : ""}</span>
       {copied ? <Check className="h-3 w-3 text-emerald-700 dark:text-emerald-400 flex-shrink-0" /> : <Copy className="h-3 w-3 flex-shrink-0" />}
@@ -181,8 +181,8 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
               {video.analysis && (
                 <div>
                   <div className="flex items-center gap-1.5 mb-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-widest text-[#dafc69]/50">Análisis IA</p>
-                    <Sparkles className="h-3 w-3 text-[#dafc69]/30" />
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-accent-ink/50">Análisis IA</p>
+                    <Sparkles className="h-3 w-3 text-accent-ink/30" />
                     <button
                       onClick={() => navigator.clipboard.writeText(video.analysis)}
                       className="ml-auto inline-flex items-center gap-1 text-[13px] text-text-3 hover:text-text-2 transition-colors"
@@ -223,7 +223,7 @@ function ResultsTable({ result }: { result: ResearchResult }) {
           <div className="flex items-center gap-2">
             <p className="text-[13px] font-semibold text-foreground truncate">{result.channelName}</p>
             <a href={result.channelUrl} target="_blank" rel="noopener noreferrer"
-              className="text-text-3 hover:text-[#dafc69] transition-colors flex-shrink-0">
+              className="text-text-3 hover:text-accent-ink transition-colors flex-shrink-0">
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
@@ -326,7 +326,7 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
             <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={() => onSelect(item)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-[13px] font-medium text-text-2 hover:border-border hover:text-[#dafc69] transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-[13px] font-medium text-text-2 hover:border-border hover:text-accent-ink transition-colors"
               >
                 Ver análisis
               </button>
@@ -420,7 +420,7 @@ function ContentResearchContent() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
+          <span className="h-4 w-[3px] rounded-full bg-accent" />
           <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">Smart Scale · IA 1.0</span>
         </div>
         <h1 className="text-[24px] font-bold text-foreground tracking-tight mb-1">Content Research</h1>
@@ -430,9 +430,9 @@ function ContentResearchContent() {
       {/* Banner si admin está viendo otro cliente */}
       {isViewingOther && (
         <div className="flex items-start gap-3 rounded-2xl border border-accent/20 bg-accent-soft px-4 py-3">
-          <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
+          <Eye className="h-4 w-4 text-accent-ink flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent-ink/80">Viendo otro cliente</p>
             <p className="text-[13px] text-foreground mt-0.5">
               Estás viendo las investigaciones de <span className="font-semibold text-foreground">{activeName ?? "(sin nombre)"}</span>. Cualquier nueva investigación se guarda en su cuenta.
             </p>
@@ -442,7 +442,7 @@ function ContentResearchContent() {
 
       {/* Form */}
       <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
-        <div className="h-[2px] w-full bg-gradient-to-r from-[#dafc69]/0 via-[#dafc69]/50 to-[#dafc69]/0" />
+        <div className="h-[2px] w-full bg-gradient-to-r from-accent-ink/0 via-accent-ink/50 to-accent-ink/0" />
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex flex-col sm:flex-row gap-3">

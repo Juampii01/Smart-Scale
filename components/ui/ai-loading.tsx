@@ -41,7 +41,7 @@ export function AiLoading({ steps = DEFAULT_STEPS, title = "Investigando conteni
         <span className="absolute h-16 w-16 rounded-full border border-accent/10 animate-ping" style={{ animationDuration: "2s" }} />
         <span className="absolute h-12 w-12 rounded-full border border-accent/20 animate-ping" style={{ animationDuration: "1.5s", animationDelay: "0.3s" }} />
         <span className="flex h-10 w-10 items-center justify-center rounded-full border border-accent/25 bg-accent-soft">
-          <Sparkles className="h-5 w-5 text-[#dafc69]" />
+          <Sparkles className="h-5 w-5 text-accent-ink" />
         </span>
       </div>
 
@@ -65,7 +65,7 @@ export function AiLoading({ steps = DEFAULT_STEPS, title = "Investigando conteni
               }`}
             >
               <span className={`flex h-1.5 w-1.5 rounded-full flex-shrink-0 ${
-                isCurrent ? "bg-[#dafc69] animate-pulse" :
+                isCurrent ? "bg-accent animate-pulse" :
                 isPast    ? "bg-foreground/40" : "bg-foreground/15"
               }`} />
               <p className={`text-[13px] ${isCurrent ? "text-foreground" : "text-text-2"}`}>
@@ -90,7 +90,7 @@ export function AiLoadingInline({ label = "Procesando" }: { label?: string }) {
 
   return (
     <span className="inline-flex items-center gap-2 text-[13px] text-text-2">
-      <Sparkles className="h-3.5 w-3.5 text-[#dafc69] animate-pulse" />
+      <Sparkles className="h-3.5 w-3.5 text-accent-ink animate-pulse" />
       {label}{dots}
     </span>
   )

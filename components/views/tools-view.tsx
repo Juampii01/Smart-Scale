@@ -29,7 +29,7 @@ export function ToolsSection({
     <section className={cn("space-y-5", className)}>
       <div>
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
+          <span className="h-4 w-[3px] rounded-full bg-accent" />
           <h2 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">{title}</h2>
         </div>
         {subtitle && (
@@ -53,14 +53,14 @@ export function ToolsSection({
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent-soft ring-1 ring-accent/20">
                   {variant === "gpt" ? (
-                    <Sparkles className="h-5 w-5 text-[#dafc69]" />
+                    <Sparkles className="h-5 w-5 text-accent-ink" />
                   ) : (
-                    <FileText className="h-5 w-5 text-[#dafc69]" />
+                    <FileText className="h-5 w-5 text-accent-ink" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] font-semibold text-foreground tracking-tight leading-tight">{t.name}</p>
-                  <p className="mt-0.5 text-[11px] font-bold uppercase tracking-widest text-[#dafc69]/60">
+                  <p className="mt-0.5 text-[11px] font-bold uppercase tracking-widest text-accent-ink/60">
                     {variant === "gpt" ? "AI Tool" : "Form"}
                   </p>
                 </div>
@@ -90,7 +90,7 @@ export function ToolsSection({
                 <Button
                   asChild
                   size="sm"
-                  className="h-7 rounded-lg bg-[#dafc69] px-3 text-[13px] font-bold text-black hover:bg-[#f2ffc0]"
+                  className="btn-accent h-7 rounded-lg px-3 text-[13px] font-bold"
                 >
                   <Link href={t.href} target="_blank" rel="noreferrer">
                     {variant === "gpt" ? "Abrir →" : "Abrir →"}

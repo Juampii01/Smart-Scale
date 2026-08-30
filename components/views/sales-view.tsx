@@ -214,7 +214,7 @@ export function SalesView() {
             {isOwn ? "No hay reporte para este mes." : "Este cliente no tiene reporte para este mes."}
           </p>
           {isOwn && (
-            <Link href="/report-input" className="text-[13px] font-medium text-[#dafc69] transition-colors hover:text-[#f2ffc0]">
+            <Link href="/report-input" className="text-[13px] font-medium text-accent-ink transition-colors hover:text-accent-hover">
               Cargar reporte mensual →
             </Link>
           )}

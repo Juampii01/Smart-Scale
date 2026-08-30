@@ -13,7 +13,7 @@ function Field({ label, required, hint, children }: { label: string; required?: 
     <div className="flex flex-col gap-2">
       <label className="text-[11px] font-semibold uppercase tracking-widest text-text-2">
         {label}
-        {required && <span className="ml-1 text-[#dafc69]">*</span>}
+        {required && <span className="ml-1 text-accent-ink">*</span>}
       </label>
       {hint && <p className="text-[13px] text-text-3 -mt-1">{hint}</p>}
       {children}
@@ -154,10 +154,10 @@ export function MondayWinView() {
       <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-5">
         <div className="flex items-center gap-4">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft ring-1 ring-accent/20">
-            <Star className="h-5 w-5 text-[#dafc69]" />
+            <Star className="h-5 w-5 text-accent-ink" />
           </div>
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-[#dafc69]/70 mb-0.5">Semanal</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-accent-ink/70 mb-0.5">Semanal</p>
             <h2 className="text-[18px] font-bold text-foreground">Monday Win</h2>
             <p className="text-[13px] text-text-3 mt-0.5">Compartí tus logros y enfoque de la semana.</p>
           </div>
@@ -167,9 +167,9 @@ export function MondayWinView() {
       {/* Aviso si admin está viendo otro cliente */}
       {isViewingOther && (
         <div className="flex items-start gap-3 rounded-[14px] border border-accent/20 bg-accent-soft px-4 py-3">
-          <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
+          <Eye className="h-4 w-4 text-accent-ink flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Aviso · este Monday Win es tuyo</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent-ink/80">Aviso · este Monday Win es tuyo</p>
             <p className="text-[13px] text-foreground mt-0.5">
               Estás navegando como <span className="font-semibold text-foreground">{activeName ?? "otro cliente"}</span>, pero este formulario siempre se guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
             </p>
@@ -180,7 +180,7 @@ export function MondayWinView() {
       {/* Fields */}
       <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card">
         <div className="flex items-center gap-2 border-b border-foreground/[0.05] px-5 py-3">
-          <span className="h-3 w-[2px] rounded-full bg-[#dafc69]" />
+          <span className="h-3 w-[2px] rounded-full bg-accent" />
           <span className="text-[11px] font-semibold uppercase tracking-widest text-text-2">Semana en revisión</span>
         </div>
         <div className="p-5 space-y-5">
@@ -231,7 +231,7 @@ export function MondayWinView() {
 
       <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card">
         <div className="flex items-center gap-2 border-b border-foreground/[0.05] px-5 py-3">
-          <span className="h-3 w-[2px] rounded-full bg-[#dafc69]" />
+          <span className="h-3 w-[2px] rounded-full bg-accent" />
           <span className="text-[11px] font-semibold uppercase tracking-widest text-text-2">Esta semana</span>
         </div>
         <div className="p-5 space-y-5">

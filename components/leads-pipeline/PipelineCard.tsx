@@ -67,7 +67,7 @@ export function PipelineCard({ lead, onClick, onPatch, isOverlay = false, readOn
         </span>
         {lead.rating ? (
           <span className="inline-flex items-center gap-0.5 shrink-0">
-            <Star className="h-3 w-3 fill-[#dafc69] text-[#dafc69]" />
+            <Star className="h-3 w-3 fill-accent-ink text-accent-ink" />
             <span className="text-[13px] font-bold text-text-2">{lead.rating}</span>
           </span>
         ) : null}
@@ -81,7 +81,7 @@ export function PipelineCard({ lead, onClick, onPatch, isOverlay = false, readOn
           target="_blank"
           rel="noopener noreferrer"
           onClick={e => e.stopPropagation()}
-          className="flex items-center gap-1.5 text-[13px] text-[#dafc69] hover:text-[#f2ffc0] transition-colors"
+          className="flex items-center gap-1.5 text-[13px] text-accent-ink hover:text-accent-hover transition-colors"
         >
           <Instagram className="h-3 w-3 shrink-0" />
           <span className="min-w-0 truncate">{igLabel(ig)}</span>

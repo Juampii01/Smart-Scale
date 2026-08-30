@@ -166,7 +166,7 @@ function SuccessModal({
                   href={magicLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 text-[13px] text-[#dafc69] hover:text-[#f2ffc0] break-all line-clamp-2 underline"
+                  className="flex-1 text-[13px] text-accent-ink hover:text-accent-hover break-all line-clamp-2 underline"
                 >
                   {magicLink}
                 </a>
@@ -331,7 +331,7 @@ function OnboardingForm({
     <div className="rounded-[14px] border border-border bg-card p-6">
       <div className="mb-6 flex items-center gap-3">
         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft border border-accent/25">
-          <UserPlus className="h-4 w-4 text-[#dafc69]" />
+          <UserPlus className="h-4 w-4 text-accent-ink" />
         </span>
         <div>
           <h2 className="font-bold text-foreground">Nuevo onboarding</h2>
@@ -343,7 +343,7 @@ function OnboardingForm({
 
         {/* Datos personales */}
         <div>
-          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#dafc69]/60">Datos del cliente</p>
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-accent-ink/60">Datos del cliente</p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={labelCls}>Nombre completo *</label>
@@ -419,7 +419,7 @@ function OnboardingForm({
 
         {/* Programa */}
         <div>
-          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#dafc69]/60">Programa</p>
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-accent-ink/60">Programa</p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="sm:col-span-2">
               <label className={labelCls}>Programa *</label>
@@ -475,7 +475,7 @@ function OnboardingForm({
 
         {/* Cuotas */}
         <div>
-          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#dafc69]/60">Cuotas (llenar las que correspondan)</p>
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-accent-ink/60">Cuotas (llenar las que correspondan)</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
             {[1, 2, 3, 4, 5, 6].map(i => (
               <div key={i}>

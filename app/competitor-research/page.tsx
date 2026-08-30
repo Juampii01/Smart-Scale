@@ -102,7 +102,7 @@ function ExpandCell({ label, content, preview, yellow }: { label: string; conten
     <>
       <button
         onClick={e => { e.stopPropagation(); setOpen(true) }}
-        className={`block w-full text-left text-[13px] leading-snug line-clamp-2 overflow-hidden hover:opacity-80 transition-opacity ${yellow ? "text-[#dafc69]/80 font-medium" : "text-text-2"}`}
+        className={`block w-full text-left text-[13px] leading-snug line-clamp-2 overflow-hidden hover:opacity-80 transition-opacity ${yellow ? "text-accent-ink/80 font-medium" : "text-text-2"}`}
       >
         {preview ?? content.slice(0, 90)}{content.length > 90 ? "…" : ""}
       </button>
@@ -128,7 +128,7 @@ function VideoRow({ video, channelName, platform }: { video: VideoResult; channe
       {/* URL */}
       <td className="px-4 py-4" onClick={e => e.stopPropagation()}>
         <a href={video.video_url} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-[13px] text-[#dafc69] hover:text-[#f2ffc0] transition-colors">
+          className="inline-flex items-center gap-1 text-[13px] text-accent-ink hover:text-accent-hover transition-colors">
           Ver <ExternalLink className="h-3.5 w-3.5" />
         </a>
       </td>
@@ -142,7 +142,7 @@ function VideoRow({ video, channelName, platform }: { video: VideoResult; channe
       </td>
       {/* VIEWS */}
       <td className="px-4 py-4 text-right whitespace-nowrap">
-        <span className="text-[13px] font-bold text-[#dafc69] tabular-nums">{fmt(video.views)}</span>
+        <span className="text-[13px] font-bold text-accent-ink tabular-nums">{fmt(video.views)}</span>
       </td>
       {/* DURATION */}
       <td className="px-4 py-4 text-center whitespace-nowrap">
@@ -226,8 +226,8 @@ function AnalysisCard({ item, onDelete, deletingId }: {
         {/* Platform icon */}
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-foreground/[0.07] bg-card">
           {isInstagram
-            ? <Instagram className="h-[18px] w-[18px] text-[#dafc69]" />
-            : <Youtube className="h-[18px] w-[18px] text-[#dafc69]" />}
+            ? <Instagram className="h-[18px] w-[18px] text-accent-ink" />
+            : <Youtube className="h-[18px] w-[18px] text-accent-ink" />}
         </div>
 
         {/* Info */}
@@ -241,7 +241,7 @@ function AnalysisCard({ item, onDelete, deletingId }: {
               Completado
             </span>
             {isThisWeek && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2.5 py-0.5 text-[13px] font-semibold text-[#dafc69]/80">
+              <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2.5 py-0.5 text-[13px] font-semibold text-accent-ink/80">
                 <Zap className="h-2.5 w-2.5" />
                 Esta semana
               </span>
@@ -400,9 +400,9 @@ function CompetitorResearchContent() {
       {/* Banner si admin está viendo otro cliente */}
       {isViewingOther && (
         <div className="flex items-start gap-3 rounded-2xl border border-accent/20 bg-accent-soft px-4 py-3">
-          <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
+          <Eye className="h-4 w-4 text-accent-ink flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent-ink/80">Viendo otro cliente</p>
             <p className="text-[13px] text-foreground mt-0.5">
               Estás viendo las investigaciones de <span className="font-semibold text-foreground">{activeName ?? "(sin nombre)"}</span>. Cualquier nueva investigación se guarda en su cuenta.
             </p>
@@ -491,7 +491,7 @@ function CompetitorResearchContent() {
           {/* Usage counter — visible as soon as history loads */}
           {weekUsage && !limitReached && (
             <div className="flex items-center gap-2 rounded-xl border border-foreground/[0.06] bg-foreground/[0.03] px-4 py-2.5">
-              <Zap className="h-3.5 w-3.5 text-[#dafc69]/60 shrink-0" />
+              <Zap className="h-3.5 w-3.5 text-accent-ink/60 shrink-0" />
               <span className="text-[13px] text-text-2">
                 Análisis esta semana:{" "}
                 <span className={`font-semibold ${weekUsage.used >= weekUsage.limit ? "text-red-700 dark:text-red-400" : "text-foreground"}`}>

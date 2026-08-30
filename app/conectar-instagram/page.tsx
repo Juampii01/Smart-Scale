@@ -10,7 +10,7 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
   return (
     <label className="block text-[13px] font-semibold text-text-2 mb-2 tracking-wide">
       {children}
-      {required && <span className="ml-1 text-[#dafc69]">*</span>}
+      {required && <span className="ml-1 text-accent-ink">*</span>}
     </label>
   )
 }
@@ -52,7 +52,7 @@ export default function ConectarInstagramPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "var(--background)" }}>
         <div className="max-w-md w-full text-center space-y-7 px-2">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#dafc69]">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent">
             <Check className="h-10 w-10 text-black" strokeWidth={3} />
           </div>
           <div className="space-y-3">
@@ -62,18 +62,18 @@ export default function ConectarInstagramPage() {
             </p>
           </div>
           <div className="rounded-2xl border border-border p-6 text-left space-y-3" style={{ backgroundColor: "var(--card)" }}>
-            <p className="text-[11px] font-black text-[#dafc69]/60 uppercase tracking-[0.2em]">Próximos pasos</p>
+            <p className="text-[11px] font-black text-accent-ink/60 uppercase tracking-[0.2em]">Próximos pasos</p>
             <ul className="space-y-2.5 text-[13px] text-text-2">
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
                 Te agregamos como tester en nuestra herramienta de Meta
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
                 Recibís una invitación en Instagram / Meta — aceptala
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
                 Tus métricas empiezan a verse en el portal de Smart Scale
               </li>
             </ul>
@@ -104,8 +104,8 @@ export default function ConectarInstagramPage() {
         {/* Hero */}
         <div className="space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
-            <Instagram className="h-3.5 w-3.5 text-[#dafc69]" />
-            <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">Conectá tu Instagram</span>
+            <Instagram className="h-3.5 w-3.5 text-accent-ink" />
+            <span className="text-[11px] font-bold text-accent-ink uppercase tracking-[0.18em]">Conectá tu Instagram</span>
           </div>
           <h1 className="text-[24px] sm:text-[32px] font-black text-foreground leading-[1.1] tracking-tight">
             Dejanos traer las métricas de tu Instagram
@@ -118,7 +118,7 @@ export default function ConectarInstagramPage() {
 
         {/* Requisito: cuenta profesional */}
         <div className="flex items-start gap-3 rounded-xl border border-foreground/[0.08] px-4 py-3.5" style={{ backgroundColor: "var(--card)" }}>
-          <ShieldCheck className="h-4 w-4 text-[#dafc69] shrink-0 mt-0.5" />
+          <ShieldCheck className="h-4 w-4 text-accent-ink shrink-0 mt-0.5" />
           <p className="text-[13px] text-text-2 leading-relaxed">
             <span className="font-semibold text-foreground">Tu cuenta tiene que ser Profesional</span> (Business o Creator).
             Si todavía no lo es, cambiala desde Instagram → Configuración → Tipo de cuenta y herramientas → Cambiar a cuenta profesional.

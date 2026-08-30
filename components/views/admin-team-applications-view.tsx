@@ -48,7 +48,7 @@ const STATUS_STYLE: Record<Status, string> = {
 }
 
 const ROLE_BADGE: Record<string, string> = {
-  setter: "bg-amber-200 text-amber-900 border-amber-500 dark:bg-accent-soft dark:text-[#dafc69] dark:border-accent/20",
+  setter: "bg-amber-200 text-amber-900 border-amber-500 dark:bg-accent-soft dark:text-accent-ink dark:border-accent/20",
 }
 
 function fullName(app: TeamApplication) {
@@ -98,7 +98,7 @@ function DetailDrawer({
             </div>
             <h2 className="text-[24px] font-bold text-foreground truncate">{fullName(app)}</h2>
           </div>
-          <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
+          <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -107,7 +107,7 @@ function DetailDrawer({
 
           {/* Status + delete row */}
           <section className="space-y-3">
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#dafc69]/50">Estado</h3>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-accent-ink/50">Estado</h3>
             <div className="flex flex-wrap gap-2">
               {STATUS_LIST.map(s => (
                 <button
@@ -135,7 +135,7 @@ function DetailDrawer({
 
           {/* Contacto */}
           <section className="space-y-3">
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#dafc69]/50">Contacto</h3>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-accent-ink/50">Contacto</h3>
             <div className="space-y-2">
               {app.email && (
                 <a href={`mailto:${app.email}`} className="flex items-center gap-2.5 text-[13px] text-foreground hover:text-foreground">
@@ -163,7 +163,7 @@ function DetailDrawer({
 
             return (
               <section key={`s-${sIdx}`} className="space-y-3">
-                <h3 className="text-[11px] font-black uppercase tracking-widest text-[#dafc69]/50">{section.title}</h3>
+                <h3 className="text-[11px] font-black uppercase tracking-widest text-accent-ink/50">{section.title}</h3>
                 <div className="space-y-3">
                   {fieldsToShow.map(field => (
                     <DetailRow
@@ -179,7 +179,7 @@ function DetailDrawer({
 
           {/* Notas */}
           <section className="space-y-3">
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-[#dafc69]/50">Notas internas</h3>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-accent-ink/50">Notas internas</h3>
             <textarea
               value={app.notes ?? ""}
               onChange={e => onNotesChange(app.id, e.target.value)}

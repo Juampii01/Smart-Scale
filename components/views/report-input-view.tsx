@@ -27,7 +27,7 @@ const FIELD_GROUPS = [
   {
     key: "sales",
     label: "Sales",
-    color: "bg-[#dafc69]",
+    color: "bg-accent",
     fields: [
       { key: "scheduled_calls",      label: "Llamadas Agendadas",     type: "number" },
       { key: "attended_calls",       label: "Llamadas Atendidas",     type: "number" },
@@ -138,10 +138,10 @@ function CelebrationOverlay({
           {/* Animated icon */}
           <div className="relative mx-auto w-fit">
             <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent-soft ring-4 ring-accent/20">
-              <CheckCircle className="h-10 w-10 text-[#dafc69]" style={{ animation: "bounce 1.5s infinite" }} />
+              <CheckCircle className="h-10 w-10 text-accent-ink" style={{ animation: "bounce 1.5s infinite" }} />
             </div>
-            <Sparkles className="absolute -right-1 -top-1 h-5 w-5 animate-pulse text-[#dafc69]/70" />
-            <Sparkles className="absolute -bottom-1 -left-1 h-4 w-4 animate-pulse text-[#dafc69]/40" style={{ animationDelay: "0.6s" }} />
+            <Sparkles className="absolute -right-1 -top-1 h-5 w-5 animate-pulse text-accent-ink/70" />
+            <Sparkles className="absolute -bottom-1 -left-1 h-4 w-4 animate-pulse text-accent-ink/40" style={{ animationDelay: "0.6s" }} />
           </div>
 
           {/* Message */}
@@ -444,7 +444,7 @@ export function ReportInputView() {
         {/* Header */}
         <div>
           <div className="flex items-center gap-2.5 mb-1">
-            <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
+            <span className="h-4 w-[3px] rounded-full bg-accent" />
             <h1 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">
               Cargar Reporte Mensual
             </h1>
@@ -457,9 +457,9 @@ export function ReportInputView() {
         {/* Aviso si admin está viendo otro cliente */}
         {isViewingOther && (
           <div className="flex items-start gap-3 rounded-[14px] border border-accent/20 bg-accent-soft px-4 py-3">
-            <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
+            <Eye className="h-4 w-4 text-accent-ink flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Aviso · este reporte es tuyo</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent-ink/80">Aviso · este reporte es tuyo</p>
               <p className="text-[13px] text-foreground mt-0.5">
                 Estás navegando como <span className="font-semibold text-foreground">{activeName ?? "otro cliente"}</span>, pero este formulario siempre carga y guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
               </p>
@@ -594,7 +594,7 @@ export function ReportInputView() {
                           type="button"
                           onClick={fetchCalculatedMRR}
                           disabled={mrrCalc.loading}
-                          className="text-[13px] font-medium text-[#dafc69] hover:text-[#f2ffc0] transition-colors disabled:opacity-50"
+                          className="text-[13px] font-medium text-accent-ink hover:text-accent-hover transition-colors disabled:opacity-50"
                         >
                           {mrrCalc.loading ? "Calculando…" : "Usar calculado (todos los clientes activos)"}
                         </button>

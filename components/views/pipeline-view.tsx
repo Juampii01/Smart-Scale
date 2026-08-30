@@ -33,7 +33,7 @@ function StarRating({ value, onChange }: { value: number | null; onChange: (n: n
         >
           <Star
             className={`h-5 w-5 transition-colors ${
-              (value ?? 0) >= n ? "fill-[var(--accent-ink)] text-[#dafc69]" : "text-text-3"
+              (value ?? 0) >= n ? "fill-[var(--accent-ink)] text-accent-ink" : "text-text-3"
             }`}
           />
         </button>
@@ -102,7 +102,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
           <StarRating value={prospect.rating} onChange={n => !readOnly && onPatch(prospect.id, { rating: n || null })} />
           {ig && (
             <a href={igHref(ig)} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 text-[13px] text-[#dafc69] hover:text-[#f2ffc0] transition-colors">
+              className="flex items-center gap-2 text-[13px] text-accent-ink hover:text-accent-hover transition-colors">
               <Instagram className="h-4 w-4 shrink-0" />
               <span className="min-w-0 truncate">{igLabel(ig)}</span>
               <ExternalLink className="h-3 w-3 opacity-50 shrink-0" />

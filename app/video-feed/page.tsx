@@ -80,7 +80,7 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
     } bg-card`}>
 
       {isTop && (
-        <div className="absolute top-2.5 left-2.5 z-10 rounded-lg bg-[#dafc69] px-2 py-0.5 text-[13px] font-bold text-black shadow-sm">
+        <div className="absolute top-2.5 left-2.5 z-10 rounded-lg bg-accent px-2 py-0.5 text-[13px] font-bold text-black shadow-sm">
           {mult.toFixed(1)}x
         </div>
       )}
@@ -128,8 +128,8 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
         {post.analysis && (
           <div className="border-t border-foreground/[0.05] pt-2 mt-auto">
             <button onClick={() => setExpanded(v => !v)} className="flex w-full items-center gap-1.5 text-left">
-              <Sparkles className="h-2.5 w-2.5 text-[#dafc69]/50" />
-              <span className="text-[11px] font-semibold uppercase tracking-widest text-[#dafc69]/50 flex-1">Análisis IA</span>
+              <Sparkles className="h-2.5 w-2.5 text-accent-ink/50" />
+              <span className="text-[11px] font-semibold uppercase tracking-widest text-accent-ink/50 flex-1">Análisis IA</span>
               {expanded ? <ChevronUp className="h-3 w-3 text-text-3" /> : <ChevronDown className="h-3 w-3 text-text-3" />}
             </button>
             {expanded && (
@@ -280,7 +280,7 @@ function FeedView({ account, onRefresh }: {
           <div className="flex items-center gap-2">
             <span className="text-[13px] font-semibold text-foreground">@{account.channel_name}</span>
             <a href={account.channel_url} target="_blank" rel="noopener noreferrer"
-              className="text-text-3 hover:text-[#dafc69] transition-colors">
+              className="text-text-3 hover:text-accent-ink transition-colors">
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
@@ -328,7 +328,7 @@ function FeedView({ account, onRefresh }: {
       ) : (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
           <p className="text-[13px] text-text-3">No hay publicaciones que superen el umbral.</p>
-          <button onClick={() => setFilter("all")} className="text-[13px] text-[#dafc69]/60 hover:text-[#dafc69] transition-colors">
+          <button onClick={() => setFilter("all")} className="text-[13px] text-accent-ink/60 hover:text-accent-ink transition-colors">
             Ver todas →
           </button>
         </div>
@@ -397,9 +397,9 @@ function VideoFeedContent() {
       {/* Banner si admin está viendo otro cliente */}
       {isViewingOther && (
         <div className="flex items-start gap-3 rounded-2xl border border-accent/20 bg-accent-soft px-4 py-3">
-          <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
+          <Eye className="h-4 w-4 text-accent-ink flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent-ink/80">Viendo otro cliente</p>
             <p className="text-[13px] text-foreground mt-0.5">
               Estás viendo el video feed de <span className="font-semibold text-foreground">{activeName ?? "(sin nombre)"}</span>. Cualquier conexión o refresh se guarda en su cuenta.
             </p>

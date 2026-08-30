@@ -241,7 +241,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
               <X className="h-4 w-4" />
             </button>
           </div>
-          <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.15em] text-[#dafc69]">
+          <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.15em] text-accent-ink">
             <ShieldCheck className="h-2.5 w-2.5" />
             Internal
           </span>
@@ -273,8 +273,8 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
               <div className={cn(
                 "flex items-center gap-2.5 rounded-lg border px-3 py-2 transition-all",
                 pathname === "/admin/omni"
-                  ? "border-accent bg-accent-soft text-[#dafc69]"
-                  : "border-accent/25 bg-accent-soft text-[#dafc69]/90 hover:bg-accent-soft/70 hover:border-accent/45"
+                  ? "border-accent bg-accent-soft text-accent-ink"
+                  : "border-accent/25 bg-accent-soft text-accent-ink/90 hover:bg-accent-soft/70 hover:border-accent/45"
               )}>
                 <Sparkles className="h-4 w-4 flex-shrink-0" />
                 <div className="min-w-0 leading-none">
@@ -301,7 +301,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
                       <div className={cn(
                         "flex h-[34px] items-center gap-2.5 rounded-lg px-3 transition-all duration-150",
                         isActive
-                          ? "bg-secondary text-[#dafc69]"
+                          ? "bg-secondary text-accent-ink"
                           : "text-foreground hover:bg-foreground/[0.05] hover:text-foreground"
                       )}>
                         <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
@@ -320,9 +320,9 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
         {/* Footer — sin línea divisoria */}
         <div className="flex-shrink-0 p-3">
           <div className="flex items-center gap-2.5 rounded-[14px] bg-accent-soft px-3 py-2.5 border border-accent/20">
-            <ShieldCheck className="h-3.5 w-3.5 text-[#dafc69]/80 shrink-0" />
+            <ShieldCheck className="h-3.5 w-3.5 text-accent-ink/80 shrink-0" />
             <div>
-              <p className="text-[11px] font-bold text-[#dafc69]/80 tracking-widest uppercase">Smart Scale Internal</p>
+              <p className="text-[11px] font-bold text-accent-ink/80 tracking-widest uppercase">Smart Scale Internal</p>
               <p className="text-[13px] text-text-3 mt-0.5">Admin only</p>
             </div>
           </div>

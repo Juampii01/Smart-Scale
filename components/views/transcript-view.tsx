@@ -88,7 +88,7 @@ function getHistoryStatus(item: HistoryItem): "pending" | "complete" {
 
 const SECTIONS: Record<string, { icon: string; color: string; border: string; bg: string }> = {
   "RESUMEN":      { icon: "📋", color: "text-blue-700 dark:text-blue-300",    border: "border-blue-300 dark:border-blue-500/20",    bg: "bg-blue-50 dark:bg-blue-500/[0.06]"   },
-  "PUNTOS CLAVE": { icon: "🎯", color: "text-amber-800 dark:text-[#dafc69]",   border: "border-amber-400 dark:border-accent/20",   bg: "bg-amber-50 dark:bg-accent-soft" },
+  "PUNTOS CLAVE": { icon: "🎯", color: "text-amber-800 dark:text-accent-ink",   border: "border-amber-400 dark:border-accent/20",   bg: "bg-amber-50 dark:bg-accent-soft" },
   "CONCLUSIÓN":   { icon: "✅", color: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-300 dark:border-emerald-500/20", bg: "bg-emerald-50 dark:bg-emerald-500/[0.06]"},
 }
 
@@ -133,7 +133,7 @@ function CopyBtn({ text }: { text: string }) {
       onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
       className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-3 hover:text-foreground hover:border-foreground/20 hover:bg-foreground/[0.06] transition-all shrink-0"
     >
-      {copied ? <Check className="h-4 w-4 text-[#dafc69]" /> : <Copy className="h-4 w-4" />}
+      {copied ? <Check className="h-4 w-4 text-accent-ink" /> : <Copy className="h-4 w-4" />}
     </button>
   )
 }
@@ -182,10 +182,10 @@ function TranscriptModal({
               <div className="min-w-0 flex-1">
                 <div className="mb-3 flex items-center gap-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-accent/25 bg-accent-soft">
-                    <FileText className="h-4 w-4 text-[#dafc69]" />
+                    <FileText className="h-4 w-4 text-accent-ink" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#dafc69]/70">Transcript Viewer</p>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-accent-ink/70">Transcript Viewer</p>
                     <p className="text-[13px] text-text-3">Lectura completa en una vista cómoda</p>
                   </div>
                 </div>
@@ -211,7 +211,7 @@ function TranscriptModal({
                   onClick={handleCopy}
                   className="inline-flex h-10 items-center gap-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-[13px] font-medium text-text-2 hover:border-foreground/[0.16] hover:bg-foreground/[0.07] hover:text-foreground transition-all"
                 >
-                  {copied ? <Check className="h-4 w-4 text-[#dafc69]" /> : <Copy className="h-4 w-4" />}
+                  {copied ? <Check className="h-4 w-4 text-accent-ink" /> : <Copy className="h-4 w-4" />}
                   {copied ? "Copiado" : "Copiar"}
                 </button>
                 <button
@@ -277,10 +277,10 @@ function DetailModal({
         <div className="flex items-center justify-between border-b border-foreground/[0.06] px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-accent/25 bg-accent-soft">
-              {data.kind === "transcript" ? <FileText className="h-4 w-4 text-[#dafc69]" /> : <Sparkles className="h-4 w-4 text-[#dafc69]" />}
+              {data.kind === "transcript" ? <FileText className="h-4 w-4 text-accent-ink" /> : <Sparkles className="h-4 w-4 text-accent-ink" />}
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#dafc69]/70">
+              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-accent-ink/70">
                 {data.kind === "transcript" ? "Transcripción" : "Análisis"}
               </p>
               <h3 className="text-[18px] font-semibold text-foreground">{data.title}</h3>
@@ -439,9 +439,9 @@ export function TranscriptView() {
       {/* Banner si admin está viendo otro cliente */}
       {isViewingOther && (
         <div className="flex items-start gap-3 rounded-[14px] border border-accent/20 bg-accent-soft px-4 py-3">
-          <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
+          <Eye className="h-4 w-4 text-accent-ink flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent-ink/80">Viendo otro cliente</p>
             <p className="text-[13px] text-foreground mt-0.5">
               Estás viendo los transcripts de <span className="font-semibold text-foreground">{activeName ?? "(sin nombre)"}</span>. Cualquier transcript que generes se guarda en su cuenta.
             </p>
@@ -565,7 +565,7 @@ export function TranscriptView() {
           <div className="border-t border-foreground/[0.05] px-6 py-4 space-y-2">
             {processingJobs.map(job => (
               <div key={job.id} className="flex items-center gap-3 rounded-xl border border-accent/20 bg-accent-soft px-4 py-2.5">
-                <span className="h-3.5 w-3.5 shrink-0 rounded-full border-2 border-accent/25 border-t-[#dafc69] animate-spin" />
+                <span className="h-3.5 w-3.5 shrink-0 rounded-full border-2 border-accent/25 border-t-accent-ink animate-spin" />
                 <p className="min-w-0 flex-1 truncate text-[13px] text-text-2">
                   Transcribiendo <span className="font-medium text-foreground">{job.url}</span>...
                 </p>
@@ -639,7 +639,7 @@ export function TranscriptView() {
                 <div className="flex items-center justify-between px-6 py-4 border-b border-foreground/[0.06]">
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent-soft border border-accent/25">
-                      <FileText className="h-4 w-4 text-[#dafc69]" />
+                      <FileText className="h-4 w-4 text-accent-ink" />
                     </div>
                     <div>
                       <p className="text-[13px] font-bold text-foreground">Transcripción</p>
@@ -734,7 +734,7 @@ export function TranscriptView() {
                     {/* Platform */}
                     <div className="flex items-center gap-2.5 pr-3">
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-foreground/[0.07] bg-card">
-                        {isYT ? <Youtube className="h-[15px] w-[15px] text-[#dafc69]" /> : <Instagram className="h-[15px] w-[15px] text-[#dafc69]" />}
+                        {isYT ? <Youtube className="h-[15px] w-[15px] text-accent-ink" /> : <Instagram className="h-[15px] w-[15px] text-accent-ink" />}
                       </div>
                       <span className="text-[13px] font-semibold text-foreground">{isYT ? "YouTube" : "Instagram"}</span>
                     </div>
@@ -750,7 +750,7 @@ export function TranscriptView() {
                         href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[13px] font-semibold text-[#dafc69] hover:text-[#f2ffc0] transition-colors whitespace-nowrap"
+                        className="inline-flex items-center gap-1 text-[13px] font-semibold text-accent-ink hover:text-accent-hover transition-colors whitespace-nowrap"
                       >
                         Ver
                         <ExternalLink className="h-3.5 w-3.5" />
@@ -765,7 +765,7 @@ export function TranscriptView() {
                           Completado
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-accent-soft px-2.5 py-1 text-[13px] font-semibold text-[#dafc69] whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-accent-soft px-2.5 py-1 text-[13px] font-semibold text-accent-ink whitespace-nowrap">
                           <Loader2 className="h-3 w-3 animate-spin" />
                           Pendiente
                         </span>
@@ -783,7 +783,7 @@ export function TranscriptView() {
                         disabled={!item.transcript}
                         className="min-w-0 flex-1 text-left"
                       >
-                        <p className={`block min-w-0 line-clamp-2 break-words text-[13px] leading-[1.6] ${item.transcript ? "text-[#dafc69]/90 hover:text-[#dafc69] transition-colors" : "text-text-3 italic"}`}>
+                        <p className={`block min-w-0 line-clamp-2 break-words text-[13px] leading-[1.6] ${item.transcript ? "text-accent-ink/90 hover:text-accent-ink transition-colors" : "text-text-3 italic"}`}>
                           {transcriptPreview || "Pendiente..."}
                         </p>
                       </button>
@@ -808,7 +808,7 @@ export function TranscriptView() {
                         disabled={!item.summary}
                         className="min-w-0 flex-1 text-left"
                       >
-                        <p className={`block min-w-0 line-clamp-2 break-words text-[13px] leading-[1.6] ${item.summary ? "text-[#dafc69]/90 hover:text-[#dafc69] transition-colors" : "text-text-3 italic"}`}>
+                        <p className={`block min-w-0 line-clamp-2 break-words text-[13px] leading-[1.6] ${item.summary ? "text-accent-ink/90 hover:text-accent-ink transition-colors" : "text-text-3 italic"}`}>
                           {summaryPreview || "Pendiente..."}
                         </p>
                       </button>
@@ -837,7 +837,7 @@ export function TranscriptView() {
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-foreground/[0.07] bg-card">
-                        {isYT ? <Youtube className="h-3.5 w-3.5 text-[#dafc69]" /> : <Instagram className="h-3.5 w-3.5 text-[#dafc69]" />}
+                        {isYT ? <Youtube className="h-3.5 w-3.5 text-accent-ink" /> : <Instagram className="h-3.5 w-3.5 text-accent-ink" />}
                       </div>
                       <span className="text-[13px] font-semibold text-foreground">{isYT ? "YouTube" : "Instagram"}</span>
                     </div>
@@ -845,9 +845,9 @@ export function TranscriptView() {
                       {status === "complete" ? (
                         <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[13px] font-semibold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400">Completado</span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[13px] font-semibold text-[#dafc69]">Pendiente</span>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[13px] font-semibold text-accent-ink">Pendiente</span>
                       )}
-                      <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-[#dafc69] hover:text-[#f2ffc0]">
+                      <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-accent-ink hover:text-accent-hover">
                         <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                     </div>

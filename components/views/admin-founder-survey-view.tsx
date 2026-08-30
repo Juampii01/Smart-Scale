@@ -53,7 +53,7 @@ function QuestionField({
                   : "border-foreground/[0.08] text-foreground hover:border-foreground/20",
               )}
             >
-              {selected ? <CheckCircle2 className="h-4 w-4 text-[#dafc69] shrink-0" /> : <Circle className="h-4 w-4 text-text-3 shrink-0" />}
+              {selected ? <CheckCircle2 className="h-4 w-4 text-accent-ink shrink-0" /> : <Circle className="h-4 w-4 text-text-3 shrink-0" />}
               {opt}
             </button>
           )
@@ -83,7 +83,7 @@ function QuestionField({
                 : "border-foreground/[0.08] text-foreground hover:border-foreground/20",
             )}
           >
-            {selected ? <CheckCircle2 className="h-4 w-4 text-[#dafc69] shrink-0" /> : <Circle className="h-4 w-4 text-text-3 shrink-0" />}
+            {selected ? <CheckCircle2 className="h-4 w-4 text-accent-ink shrink-0" /> : <Circle className="h-4 w-4 text-text-3 shrink-0" />}
             {opt}
           </button>
         )
@@ -230,7 +230,7 @@ export function AdminFounderSurveyView() {
 
       {!sections ? (
         <div className="flex items-center justify-center py-24">
-          <Loader2 className="h-6 w-6 animate-spin text-[#dafc69]/40" />
+          <Loader2 className="h-6 w-6 animate-spin text-accent-ink/40" />
         </div>
       ) : (
         SURVEY_SECTIONS.map(s => (

@@ -116,7 +116,7 @@ export function ChaChingHistoryView() {
         </div>
         <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
           <div className="flex items-center gap-1.5 text-text-3 mb-1.5"><Wallet className="h-3 w-3" /><span className="text-[11px] font-semibold uppercase tracking-widest">Cash total</span></div>
-          <p className="text-[24px] font-bold text-[#dafc69] tabular-nums">{fmtMoney(totals.totalCash)}</p>
+          <p className="text-[24px] font-bold text-accent-ink tabular-nums">{fmtMoney(totals.totalCash)}</p>
         </div>
         <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
           <div className="flex items-center gap-1.5 text-text-3 mb-1.5"><DollarSign className="h-3 w-3" /><span className="text-[11px] font-semibold uppercase tracking-widest">Cash este mes</span></div>
@@ -134,7 +134,7 @@ export function ChaChingHistoryView() {
           <div key={d.id} className="px-5 py-3.5">
             <div className="flex items-center gap-4">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-soft border border-accent/25">
-                <DollarSign className="h-4 w-4 text-[#dafc69]" />
+                <DollarSign className="h-4 w-4 text-accent-ink" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-foreground tabular-nums">{fmtMoney(d.valor_trato)}</p>
@@ -142,12 +142,12 @@ export function ChaChingHistoryView() {
               </div>
               <div className="text-right">
                 <p className="text-[11px] uppercase tracking-widest text-text-3">Cash</p>
-                <p className="text-[13px] font-bold text-[#dafc69] tabular-nums">{fmtMoney(d.cash_collected)}</p>
+                <p className="text-[13px] font-bold text-accent-ink tabular-nums">{fmtMoney(d.cash_collected)}</p>
               </div>
             </div>
             {d.notas && editingId !== d.id && (
               <div className="mt-3 flex items-start gap-2 rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3.5 py-2.5">
-                <Quote className="h-3.5 w-3.5 shrink-0 text-[#dafc69]/60 mt-0.5" />
+                <Quote className="h-3.5 w-3.5 shrink-0 text-accent-ink/60 mt-0.5" />
                 <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-wrap">{d.notas}</p>
               </div>
             )}

@@ -258,7 +258,7 @@ export function AdminPosiView() {
   }, {})
 
   if (loading) {
-    return <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-[#dafc69]/40" /></div>
+    return <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-accent-ink/40" /></div>
   }
 
   return (

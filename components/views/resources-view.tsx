@@ -69,7 +69,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
     <div className="rounded-[14px] border border-border bg-card p-5 mb-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[13px] font-semibold text-foreground">Agregar recurso</h3>
-        <button onClick={onClose} aria-label="Cerrar" className="text-text-3 hover:text-text-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 rounded">
+        <button onClick={onClose} aria-label="Cerrar" className="text-text-3 hover:text-text-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40 rounded">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -119,7 +119,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
                 onClick={() => setForm(f => ({ ...f, type: t }))}
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium border transition-all ${
                   form.type === t
-                    ? "border-accent bg-secondary text-[#dafc69]"
+                    ? "border-accent bg-secondary text-accent-ink"
                     : "border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground"
                 }`}
               >
@@ -194,7 +194,7 @@ function ResourceCard({ resource, onDelete }: { resource: Resource; onDelete: (i
         href={resource.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-auto flex items-center gap-1.5 text-[13px] font-medium text-[#dafc69]/70 hover:text-[#dafc69] transition-colors"
+        className="mt-auto flex items-center gap-1.5 text-[13px] font-medium text-accent-ink/70 hover:text-accent-ink transition-colors"
       >
         <ExternalLink className="h-3 w-3" />
         Abrir
@@ -236,7 +236,7 @@ export function ResourcesView() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
-            <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
+            <span className="h-4 w-[3px] rounded-full bg-accent" />
             <h1 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Biblioteca</h1>
           </div>
           <p className="text-[13px] text-text-3 ml-[18px]">Links, docs y recursos guardados</p>
@@ -277,7 +277,7 @@ export function ResourcesView() {
               onClick={() => setActiveCategory(cat)}
               className={`rounded-lg px-3 py-2 text-[13px] font-medium border transition-all ${
                 activeCategory === cat
-                  ? "border-accent bg-secondary text-[#dafc69]"
+                  ? "border-accent bg-secondary text-accent-ink"
                   : "border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground"
               }`}
             >
@@ -301,7 +301,7 @@ export function ResourcesView() {
           {!showForm && (
             <button
               onClick={() => setShowForm(true)}
-              className="text-[13px] text-[#dafc69]/50 hover:text-[#dafc69] transition-colors"
+              className="text-[13px] text-accent-ink/50 hover:text-accent-ink transition-colors"
             >
               + Agregar el primero
             </button>

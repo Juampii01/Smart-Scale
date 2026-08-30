@@ -176,7 +176,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
         <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5">
           <div className="flex items-center gap-3">
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-accent/30 bg-accent-soft">
-              <UserPlus className="h-4 w-4 text-[#dafc69]" />
+              <UserPlus className="h-4 w-4 text-accent-ink" />
             </span>
             <div>
               <h2 className="text-[15px] font-bold text-foreground">Nuevo usuario</h2>
@@ -352,7 +352,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                   type="checkbox"
                   checked={autoPassword}
                   onChange={(e) => setAutoPassword(e.target.checked)}
-                  className="h-3.5 w-3.5 accent-[#dafc69]"
+                  className="h-3.5 w-3.5 accent-accent"
                 />
                 Generar contraseña temporal automática
               </label>

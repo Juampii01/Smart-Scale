@@ -27,7 +27,7 @@ function OrbitMark({ size = 28, mono = false }: { size?: number; mono?: boolean 
       <span
         className={mono
           ? "rounded-full bg-foreground animate-[ss-pulse_3.6s_ease-out_infinite] motion-reduce:animate-none"
-          : "rounded-full bg-[#dafc69] animate-[ss-pulse_3.6s_ease-out_infinite] motion-reduce:animate-none"}
+          : "rounded-full bg-accent animate-[ss-pulse_3.6s_ease-out_infinite] motion-reduce:animate-none"}
         style={{ width: "44%", aspectRatio: "1" }}
       />
     </span>

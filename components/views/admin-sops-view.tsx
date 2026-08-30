@@ -170,7 +170,7 @@ function DetailDrawer({
               <ol className="space-y-2.5">
                 {sop.steps.map((s, idx) => (
                   <li key={idx} className="flex items-start gap-3 rounded-xl border border-foreground/[0.07] bg-foreground/[0.02] px-3 py-2.5">
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[13px] font-bold text-[#dafc69] border border-accent/30">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[13px] font-bold text-accent-ink border border-accent/30">
                       {idx + 1}
                     </span>
                     <span className="text-[13px] text-foreground leading-relaxed">{s.label}</span>
@@ -356,7 +356,7 @@ function CreateEditModal({
           {/* Header */}
           <div className="flex items-center justify-between gap-4 border-b border-foreground/[0.06] px-6 py-4 shrink-0">
             <h2 className="text-[18px] font-bold text-foreground">{isEdit ? "Editar SOP" : "Nuevo SOP"}</h2>
-            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
+            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -371,14 +371,14 @@ function CreateEditModal({
                 <span className="inline-flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5" /> Con IA
                 </span>
-                {tab === "ai" && <span className="absolute inset-x-0 bottom-0 h-[2px] bg-[#dafc69]" />}
+                {tab === "ai" && <span className="absolute inset-x-0 bottom-0 h-[2px] bg-accent" />}
               </button>
               <button
                 onClick={() => setTab("manual")}
                 className={`relative h-11 px-4 text-[13px] font-semibold transition-colors ${tab === "manual" ? "text-foreground" : "text-text-2 hover:text-foreground"}`}
               >
                 Manual
-                {tab === "manual" && <span className="absolute inset-x-0 bottom-0 h-[2px] bg-[#dafc69]" />}
+                {tab === "manual" && <span className="absolute inset-x-0 bottom-0 h-[2px] bg-accent" />}
               </button>
             </div>
           )}
@@ -662,7 +662,7 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
           <div className="flex flex-wrap items-center gap-1.5">
             <button
               onClick={() => setActiveTag(null)}
-              className={`h-7 rounded-full border px-3 text-[13px] font-semibold transition-all ${activeTag == null ? "border-accent bg-secondary text-[#dafc69]" : "border-foreground/[0.08] text-text-2 hover:text-foreground hover:border-foreground/20"}`}
+              className={`h-7 rounded-full border px-3 text-[13px] font-semibold transition-all ${activeTag == null ? "border-accent bg-secondary text-accent-ink" : "border-foreground/[0.08] text-text-2 hover:text-foreground hover:border-foreground/20"}`}
             >
               Todas
             </button>
@@ -670,7 +670,7 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
               <button
                 key={t}
                 onClick={() => setActiveTag(activeTag === t ? null : t)}
-                className={`h-7 rounded-full border px-3 text-[13px] font-medium transition-all ${activeTag === t ? "border-accent bg-secondary text-[#dafc69]" : "border-foreground/[0.08] text-text-2 hover:text-foreground hover:border-foreground/20"}`}
+                className={`h-7 rounded-full border px-3 text-[13px] font-medium transition-all ${activeTag === t ? "border-accent bg-secondary text-accent-ink" : "border-foreground/[0.08] text-text-2 hover:text-foreground hover:border-foreground/20"}`}
               >
                 {t}
               </button>
@@ -682,7 +682,7 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
       {/* List */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-[#dafc69]/50" />
+          <Loader2 className="h-6 w-6 animate-spin text-accent-ink/50" />
         </div>
       ) : !filtered.length ? (
         <div className="rounded-[14px] border border-foreground/[0.08] bg-card py-16 text-center">
@@ -716,7 +716,7 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
                       </span>
                     )}
                   </div>
-                  <h3 className="text-[15px] font-bold text-foreground leading-snug group-hover:text-[#dafc69] transition-colors">{sop.title}</h3>
+                  <h3 className="text-[15px] font-bold text-foreground leading-snug group-hover:text-accent-ink transition-colors">{sop.title}</h3>
                   {sop.description && (
                     <p className="text-[13px] text-text-2 mt-1 line-clamp-2">{sop.description}</p>
                   )}

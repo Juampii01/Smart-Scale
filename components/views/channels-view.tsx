@@ -260,7 +260,7 @@ function ContentVsAudience({ reports }: { reports: any[] }) {
       </p>
       <div className="flex flex-wrap gap-5 mb-4">
         <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-sm bg-[#dafc69]" />
+          <span className="h-2.5 w-2.5 rounded-sm bg-accent" />
           <span className="text-[13px] text-text-2">Posts publicados</span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -450,7 +450,7 @@ export function ChannelsView() {
             {isOwn ? "No hay reporte para este mes." : "Este cliente no tiene reporte para este mes."}
           </p>
           {isOwn && (
-            <Link href="/report-input" className="text-[13px] font-medium text-[#dafc69] transition-colors hover:text-[#f2ffc0]">
+            <Link href="/report-input" className="text-[13px] font-medium text-accent-ink transition-colors hover:text-accent-hover">
               Cargar reporte mensual →
             </Link>
           )}
