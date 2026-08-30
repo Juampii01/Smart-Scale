@@ -118,12 +118,18 @@ export async function calculateMRRForSetter(
 }
 
 /**
- * Calculate MRR para TODA la empresa (todos los clientes activos, sin
- * filtrar por setter) — usado en el Dashboard Ejecutivo y para pre-llenar
- * el MRR del Reporte Mensual de Ann/Smart Scale.
+ * Calculate MRR para TODA la empresa de UN tenant (todos sus clientes
+ * activos, sin filtrar por setter) — usado en el Dashboard Ejecutivo y
+ * para pre-llenar el MRR del Reporte Mensual. `tenantId` es obligatorio:
+ * crm_clients ahora es multi-tenant (20260814000001), y "toda la empresa"
+ * sin ese filtro mezclaría la facturación de todos los sectores internos
+ * en un solo número — ambos callers (executive-dashboard, mrr) son
+ * pantallas exclusivas del tenant de Smart Scale, así que siempre pasan
+ * ese tenant, pero la función no asume cuál es.
  */
 export async function calculateCompanyMRR(
-  month: string  // YYYY-MM-01 format
+  month: string,  // YYYY-MM-01 format
+  tenantId: string,
 ): Promise<{ mrr: number; breakdown: ClientMRRCalculation[] }> {
   const supabase = createServiceClient()
 
@@ -131,6 +137,7 @@ export async function calculateCompanyMRR(
     .from("crm_clients")
     .select("id, name, status, is_monthly_subscription, installment_amount, num_installments, program_start, program_duration")
     .eq("status", "activo")
+    .eq("client_id", tenantId)
 
   if (clientsErr || !clients) {
     console.error("Error querying clients for company MRR:", clientsErr)

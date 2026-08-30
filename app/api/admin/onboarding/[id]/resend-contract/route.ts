@@ -10,27 +10,38 @@
  */
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireInternal } from "@/lib/auth/api-guards"
+import { requireSmartScaleInternal } from "@/lib/auth/api-guards"
+import { getSmartScaleTenantId } from "@/lib/auth/internal-scope"
 import { sendContractForSignature, cancelContractInvite } from "@/lib/signnow"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
+// SignNow es un concepto 100% de Smart Scale (contrato y términos propios) —
+// ver decisión del panel interno multi-tenant: el onboarding de un cliente
+// entra a SU crm sin SignNow. Este endpoint queda exclusivo del tenant de
+// Smart Scale, tanto en el guard como en el lookup del crm_client.
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-  const caller = await requireInternal(jwt)
+  const caller = await requireSmartScaleInternal(jwt)
   if (!caller) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   const { id } = await params
   const sb = createServiceClient()
 
+  const smartScaleTenantId = await getSmartScaleTenantId(sb)
+  if (!smartScaleTenantId) {
+    return NextResponse.json({ error: "No se encontró el tenant interno de Smart Scale" }, { status: 500 })
+  }
+
   const { data: client, error: clientErr } = await sb
     .from("crm_clients")
     .select("id, name, email, address, programa, total_amount")
     .eq("id", id)
+    .eq("client_id", smartScaleTenantId)
     .maybeSingle()
   if (clientErr) return NextResponse.json({ error: clientErr.message }, { status: 500 })
   if (!client) return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 })
