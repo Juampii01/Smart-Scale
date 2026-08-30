@@ -51,7 +51,11 @@
   --surface:       #ffffff;
   --elevated:      #fafaf6;
   --text-2:        rgba(23, 28, 16, 0.62);
-  --text-3:        rgba(23, 28, 16, 0.42);
+  /* Subido de 0.42 a 0.60 (decisión de Juampi, paso 2-verificación):
+     0.42 daba ~2.6:1 sobre blanco, muy por debajo de AA. 0.60 llega a
+     ~4.5:1 — cálculo manual, conviene chequear con un medidor real
+     sobre el deploy antes de darlo por cerrado. */
+  --text-3:        rgba(23, 28, 16, 0.60);
   --border-hover:  rgba(23, 28, 16, 0.16);
   --accent-hover:  #a4cc3d;
   --accent-soft:   #eaf0da;
@@ -256,7 +260,9 @@
   --surface:       #171718;
   --elevated:      #1f1f21;
   --text-2:        #9b9e97;
-  --text-3:        #6c6f69;
+  /* Subido de #6c6f69 (3.51:1 sobre #171718, falla AA) a #82857b
+     (4.5:1) — decisión de Juampi, paso 2-verificación. */
+  --text-3:        #82857b;
   --border-hover:  #34343a;
   --accent-hover:  #f2ffc0;
   --accent-soft:   #1c2410;
