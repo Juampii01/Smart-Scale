@@ -34,6 +34,23 @@ function OrbitMark({ size = 28, mono = false }: { size?: number; mono?: boolean 
   )
 }
 
+/**
+ * Marca de las pantallas de auth (login, signup, forgot/reset-password):
+ * el isotipo real, monocromo, dentro de un aro circular — no un
+ * monograma aparte. Único consumidor de la marca en las 4 pantallas de
+ * auth, para que nadie vuelva a inventar un logo nuevo ahí.
+ */
+export function AuthMark({ size = 56 }: { size?: number }) {
+  return (
+    <span
+      className="inline-flex shrink-0 items-center justify-center rounded-full border border-foreground/15 bg-foreground/[0.03]"
+      style={{ width: size, height: size }}
+    >
+      <OrbitMark size={size * 0.5} mono />
+    </span>
+  )
+}
+
 export function BrandLogo({ size = 28, wordmarkSize = 15, iconOnly = false, mono = false }: { size?: number; wordmarkSize?: number; iconOnly?: boolean; mono?: boolean }) {
   if (iconOnly) return <OrbitMark size={size} mono={mono} />
   return (

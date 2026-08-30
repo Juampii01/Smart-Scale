@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { AuthMark } from "@/components/theme/brand-logo";
 import { createClient } from "@/lib/supabase";
 
 export default function ForgotPasswordPage() {
@@ -49,7 +50,10 @@ export default function ForgotPasswordPage() {
         onSubmit={onSubmit}
         className="w-full max-w-sm space-y-4 p-6 border border-foreground/10 rounded-xl"
       >
-        <h1 className="text-foreground text-[24px] font-semibold">Forgot password</h1>
+        <div className="mb-2 flex flex-col items-center gap-3 text-center">
+          <AuthMark size={48} />
+          <h1 className="text-foreground text-[24px] font-semibold">Recuperar contraseña</h1>
+        </div>
 
         <input
           className="w-full rounded-md border border-foreground/10 bg-black/30 px-3 py-2 text-foreground outline-none"

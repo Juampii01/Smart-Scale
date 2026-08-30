@@ -183,7 +183,7 @@ export function Sidebar({
                           )}
                         >
                           <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
-                          <span className={cn("text-[14px] leading-none flex-1 text-left", (isItemExpanded || hasActiveChild) ? "font-semibold" : "font-medium")}>
+                          <span className={cn("text-[15px] leading-none flex-1 text-left", (isItemExpanded || hasActiveChild) ? "font-semibold" : "font-medium")}>
                             {item.name}
                           </span>
                           <ChevronDown className={cn("h-3 w-3 text-text-3 transition-transform duration-200", isItemExpanded && "rotate-180")} />
@@ -195,7 +195,7 @@ export function Sidebar({
                             {item.children!.map(child => (
                               <Link key={child.href} href={child.href} onClick={onClose}>
                                 <div className={cn(
-                                  "py-1.5 px-2 rounded-md text-[14px] transition-colors duration-150",
+                                  "py-1.5 px-2 rounded-md text-[15px] transition-colors duration-150",
                                   pathname === child.href
                                     ? "text-[#dafc69] font-semibold"
                                     : "text-text-2 hover:text-foreground hover:bg-foreground/[0.04]"
@@ -220,7 +220,7 @@ export function Sidebar({
                           : "text-foreground hover:bg-foreground/[0.05] hover:text-foreground"
                       )}>
                         <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
-                        <span className={cn("text-[14px] leading-none", isActive ? "font-semibold" : "font-medium")}>
+                        <span className={cn("text-[15px] leading-none", isActive ? "font-semibold" : "font-medium")}>
                           {item.name}
                         </span>
                       </div>

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { AuthMark } from "@/components/theme/brand-logo";
 import { createClient } from "@/lib/supabase";
 
 function parseHashParams(hash: string) {
@@ -299,8 +300,8 @@ export default function ResetPasswordPage() {
         <div className="w-full max-w-md">
           {/* Brand */}
           <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-foreground/10 bg-foreground/5 backdrop-blur">
-              <span className="text-[13px] font-semibold tracking-widest text-foreground">SS</span>
+            <div className="mx-auto mb-3 flex justify-center">
+              <AuthMark size={48} />
             </div>
             <div className="text-[13px] font-semibold tracking-[0.35em] text-foreground">
               SMART SCALE

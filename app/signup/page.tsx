@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AuthMark } from "@/components/theme/brand-logo";
 import { createClient } from "@/lib/supabase";
 
 function isAlreadyRegisteredError(error: any) {
@@ -199,8 +200,8 @@ export default function SignupPage() {
         <div className="w-full max-w-md">
           {/* Brand */}
           <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-foreground/10 bg-foreground/5 backdrop-blur">
-              <span className="text-[13px] font-semibold tracking-widest text-foreground">SS</span>
+            <div className="mx-auto mb-3 flex justify-center">
+              <AuthMark size={48} />
             </div>
             <div className="text-[13px] font-semibold tracking-[0.35em] text-foreground">SMART SCALE</div>
             <h1 className="mt-2 text-[24px] font-semibold tracking-tight">Crear cuenta</h1>

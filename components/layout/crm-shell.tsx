@@ -56,7 +56,7 @@ function NavRow({ label, href, icon: Icon, active }: NavItem & { active: boolean
       title={locked ? "Próximamente" : undefined}
     >
       <Icon className="h-[14px] w-[14px] shrink-0" />
-      <span className={cn("flex-1 text-[14px] leading-none", active && "font-semibold")}>{label}</span>
+      <span className={cn("flex-1 text-[15px] leading-none", active && "font-semibold")}>{label}</span>
       {locked && <Lock className="h-3 w-3 text-text-3" />}
     </div>
   )
@@ -109,7 +109,7 @@ export function CrmShell({
           <Link href="/dashboard" onClick={() => setOpen(false)}>
             <div className="group flex items-center gap-2.5 rounded-lg px-3 py-2 text-foreground hover:bg-foreground/[0.05] hover:text-foreground transition-all duration-150">
               <ArrowLeft className="h-4 w-4 shrink-0" />
-              <span className="flex-1 text-[14px] font-medium">Volver al panel externo</span>
+              <span className="flex-1 text-[15px] font-medium">Volver al panel externo</span>
             </div>
           </Link>
         </div>

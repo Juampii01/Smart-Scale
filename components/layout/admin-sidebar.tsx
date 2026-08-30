@@ -121,7 +121,7 @@ function VerClientesPicker({ ownTenant }: { ownTenant: TenantEntry | null }) {
         )}
       >
         <Building2 className="h-3.5 w-3.5 flex-shrink-0" />
-        <span className="min-w-0 flex-1 truncate text-left text-[14px] font-semibold">
+        <span className="min-w-0 flex-1 truncate text-left text-[15px] font-semibold">
           {viewAsTenant ? activeLabel : "Ver Clientes"}
         </span>
       </button>
@@ -258,7 +258,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
         {isAdmin(effectiveRole) && (
           <div className="pt-1 px-3">
             <Link href="/dashboard" onClick={onClose} title="Volver al portal">
-              <div className="group flex items-center gap-2 rounded-lg border border-foreground/[0.07] bg-foreground/[0.02] px-3 py-2 text-[14px] font-semibold text-text-2 hover:text-foreground hover:border-foreground/[0.15] transition-all">
+              <div className="group flex items-center gap-2 rounded-lg border border-foreground/[0.07] bg-foreground/[0.02] px-3 py-2 text-[15px] font-semibold text-text-2 hover:text-foreground hover:border-foreground/[0.15] transition-all">
                 <ArrowLeft className="h-3.5 w-3.5 flex-shrink-0" />
                 <span>Volver al portal</span>
               </div>
@@ -278,7 +278,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
               )}>
                 <Sparkles className="h-4 w-4 flex-shrink-0" />
                 <div className="min-w-0 leading-none">
-                  <p className="text-[14px] font-bold">Ann AI</p>
+                  <p className="text-[15px] font-bold">Ann AI</p>
                   <p className="mt-1 text-[13px] text-text-2">Sistema IA</p>
                 </div>
               </div>
@@ -305,7 +305,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
                           : "text-foreground hover:bg-foreground/[0.05] hover:text-foreground"
                       )}>
                         <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
-                        <span className={cn("text-[14px] leading-none", isActive ? "font-semibold" : "font-medium")}>
+                        <span className={cn("text-[15px] leading-none", isActive ? "font-semibold" : "font-medium")}>
                           {item.name}
                         </span>
                       </div>

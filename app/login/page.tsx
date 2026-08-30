@@ -6,24 +6,9 @@ import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import { BrandLogo } from "@/components/theme/brand-logo";
+import { AuthMark } from "@/components/theme/brand-logo";
 import { getDefaultLandingForRole } from "@/lib/auth/permissions";
 import { APP_VERSION } from "@/lib/utils";
-
-// Marca del login: el isotipo real de Smart Scale (OrbitMark), en su
-// variante monocroma, dentro de un círculo — no una marca inventada.
-// "Sin verde" se resuelve con la variante mono; "logo con círculo" es
-// el isotipo real más el aro que lo enmarca acá.
-function LoginMark({ size = 64 }: { size?: number }) {
-  return (
-    <span
-      className="inline-flex shrink-0 items-center justify-center rounded-full border border-foreground/15 bg-foreground/[0.03]"
-      style={{ width: size, height: size }}
-    >
-      <BrandLogo iconOnly size={size * 0.5} mono />
-    </span>
-  );
-}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -107,7 +92,7 @@ export default function LoginPage() {
 
         {/* Top: Logo */}
         <div className="relative flex items-center gap-3.5">
-          <LoginMark />
+          <AuthMark size={64} />
           <div className="flex flex-col leading-none">
             <span className="text-foreground text-[15px] font-black tracking-[0.18em]">SMART SCALE</span>
             <span className="mt-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-text-3">Portal {APP_VERSION}</span>
@@ -159,7 +144,7 @@ export default function LoginPage() {
 
         {/* Mobile logo */}
         <div className="mb-10 flex items-center gap-3 lg:hidden">
-          <LoginMark size={48} />
+          <AuthMark size={48} />
           <span className="text-foreground text-[14px] font-black tracking-[0.18em]">SMART SCALE</span>
         </div>
 
