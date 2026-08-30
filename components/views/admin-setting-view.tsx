@@ -359,7 +359,7 @@ export function AdminSettingView() {
 
             <button
               onClick={() => setEodOpen(true)}
-              className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg bg-[#dafc69] hover:bg-[#f2ffc0] text-black text-sm font-bold transition-colors"
+              className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg btn-accent text-sm font-bold transition-colors"
               title="Cargar datos diarios"
             >
               <PlusCircle className="h-3.5 w-3.5" />

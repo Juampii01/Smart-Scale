@@ -482,7 +482,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
             <button key={m} onClick={() => setSelMonth(m)}
               className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
                 selMonth === m
-                  ? "bg-[#dafc69] text-black"
+                  ? "bg-secondary text-foreground"
                   : "border border-foreground/[0.08] bg-foreground/[0.04] text-foreground/50 hover:text-foreground hover:border-foreground/20"
               }`}>
               {fmtMonth(m)}
@@ -526,7 +526,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                           <button key={n} type="button" onClick={() => setValue(field.key, String(n))}
                             className={`h-8 w-8 rounded-lg text-xs font-bold transition-all ${
                               values[field.key] === String(n)
-                                ? "bg-[#dafc69] text-black"
+                                ? "bg-secondary text-foreground"
                                 : "border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:border-border"
                             }`}>
                             {n}
@@ -568,7 +568,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
       {/* Save bar (sticky) */}
       <div className="shrink-0 border-t border-foreground/[0.06] bg-card px-6 py-3 flex items-center gap-3">
         <button onClick={save} disabled={saving}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95 disabled:opacity-50">
+        className="inline-flex items-center gap-2 rounded-xl btn-accent px-5 py-2.5 text-sm font-bold transition active:scale-95 disabled:opacity-50">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
           {saving ? "Guardando…" : "Guardar reporte"}
         </button>
@@ -792,7 +792,7 @@ function ReactivateModal({
           </label>
 
           <button type="submit" disabled={!totalAmount || Number(totalAmount) <= 0 || submitting}
-            className="w-full h-10 rounded-xl bg-[#dafc69] text-black text-[13px] font-bold hover:bg-[#f2ffc0] transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+          className="w-full h-10 rounded-xl btn-accent text-[13px] font-bold transition-all disabled:opacity-40 flex items-center justify-center gap-2">
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
             Reactivar
           </button>
@@ -1291,7 +1291,7 @@ function DetailDrawer({
                   className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none" />
                 <div className="flex items-center gap-2">
                   <button onClick={handleSaveFollowup} disabled={savingFu || !fuDate}
-                    className="flex items-center gap-1.5 h-7 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition-all">
+                  className="flex items-center gap-1.5 h-7 rounded-lg btn-accent px-3 text-[12px] font-bold disabled:opacity-40 transition-all">
                     {savingFu ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                     Guardar
                   </button>

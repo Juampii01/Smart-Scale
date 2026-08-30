@@ -153,7 +153,7 @@ function LocationTab({
           <div className="flex gap-2">
             <input className={cn(inputCls, "flex-1")} value={name} onChange={e => setName(e.target.value)} placeholder="Tu nombre" />
             <button onClick={onSaveName} disabled={nameState === "saving"}
-              className="px-3 py-2 rounded-[8px] bg-[#dafc69] text-black text-[13px] font-semibold hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors">
+            className="px-3 py-2 rounded-[8px] btn-accent text-[13px] font-semibold disabled:opacity-50 transition-colors">
               {nameState === "saving" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : nameState === "ok" ? <Check className="h-3.5 w-3.5" /> : "Guardar"}
             </button>
           </div>
@@ -208,7 +208,7 @@ function LocationTab({
         </div>
         <div className="mt-3 flex items-center gap-3">
           <button onClick={account.onSavePassword} disabled={account.pwState === "saving" || !account.pw.cur || !account.pw.n1}
-            className="rounded-[8px] bg-[#dafc69] px-4 py-2 text-[13px] font-semibold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors">
+          className="rounded-[8px] btn-accent px-4 py-2 text-[13px] font-semibold disabled:opacity-50 transition-colors">
             {account.pwState === "saving" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : account.pwState === "ok" ? "✓ Actualizada" : "Actualizar contraseña"}
           </button>
           {account.pwMsg && <p className={cn("text-[12px]", account.pwState === "error" ? "text-danger" : "text-success")}>{account.pwMsg}</p>}
@@ -720,7 +720,7 @@ export function ContextRoomView() {
               className={cn(
                 "relative pb-3 px-4 text-[13px] font-semibold whitespace-nowrap transition-colors",
                 tab === t.id
-                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#dafc69] after:rounded-full"
+                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-accent after:rounded-full"
                   : "text-foreground/40 hover:text-foreground/70"
               )}
             >{t.label}</button>

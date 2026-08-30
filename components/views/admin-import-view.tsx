@@ -190,7 +190,7 @@ export function AdminImportView() {
                 }}
                 className={`h-7 rounded-lg px-3 text-[12px] font-semibold transition-all ${
                   year === y
-                    ? "bg-[#dafc69] text-black"
+                    ? "bg-secondary text-foreground"
                     : "text-foreground/40 hover:text-foreground"
                 }`}
               >
@@ -202,7 +202,7 @@ export function AdminImportView() {
           <button
             onClick={handleImport}
             disabled={saving || filledCount === 0}
-            className="flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-5 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
+            className="flex items-center gap-2 h-9 rounded-xl btn-accent px-5 text-[13px] font-bold transition-all disabled:opacity-40"
           >
             {saving
               ? <Loader2 className="h-4 w-4 animate-spin" />

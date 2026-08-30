@@ -88,7 +88,7 @@ function ResultBanner({ passed, score, levelTitle, onRetry }: {
         <button
           type="button"
           onClick={onRetry}
-          className="mt-5 rounded-xl bg-[#dafc69] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0]"
+          className="mt-5 rounded-xl btn-accent px-5 py-2.5 text-sm font-bold transition"
         >
           Volver a intentar
         </button>
@@ -276,7 +276,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
               <button
                 type="submit"
                 disabled={status === "submitting"}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#dafc69] px-5 py-3 text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors"
+                className="w-full flex items-center justify-center gap-2 rounded-xl btn-accent px-5 py-3 text-sm font-bold disabled:opacity-50 transition-colors"
               >
                 {status === "submitting" && <Loader2 className="h-4 w-4 animate-spin" />}
                 {status === "submitting" ? "Enviando…" : "Enviar"}

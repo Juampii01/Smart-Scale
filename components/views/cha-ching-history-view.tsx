@@ -177,7 +177,7 @@ export function ChaChingHistoryView() {
                     type="button"
                     onClick={() => saveNotas(d.id)}
                     disabled={saving || !draft.trim()}
-                    className="rounded-lg bg-[#dafc69] px-3.5 py-1.5 text-[11.5px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors"
+                    className="rounded-lg btn-accent px-3.5 py-1.5 text-[11.5px] font-bold disabled:opacity-50 transition-colors"
                   >
                     {saving ? "Guardando…" : "Guardar"}
                   </button>

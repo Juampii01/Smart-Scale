@@ -401,7 +401,7 @@ function CreateEditModal({
                 <button
                   onClick={generateWithAI}
                   disabled={generating || !aiPrompt.trim()}
-                  className="inline-flex items-center gap-2 h-10 rounded-xl bg-[#dafc69] px-4 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 h-10 rounded-xl btn-accent px-4 text-[13px] font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {generating
                     ? <><Loader2 className="h-4 w-4 animate-spin" /> Generando…</>
@@ -535,7 +535,7 @@ function CreateEditModal({
               <button
                 onClick={save}
                 disabled={saving || !form.title.trim()}
-                className="inline-flex items-center gap-2 h-9 rounded-lg bg-[#dafc69] px-4 text-[12.5px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
+                className="inline-flex items-center gap-2 h-9 rounded-lg btn-accent px-4 text-[12.5px] font-bold transition-all disabled:opacity-40"
               >
                 {saving
                   ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Guardando…</>
@@ -639,7 +639,7 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
           isAdmin && (
             <button
               onClick={() => setCreating(true)}
-              className="inline-flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-4 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition-all"
+              className="inline-flex items-center gap-2 h-9 rounded-xl btn-accent px-4 text-[13px] font-bold transition-all"
             >
               <Plus className="h-4 w-4" /> Nuevo SOP
             </button>

@@ -82,7 +82,7 @@ export function ContentVaultView({ channel }: { channel: Channel }) {
           <p className="text-[13px] text-foreground/50 mt-0.5">{items.length} {items.length === 1 ? "guardado" : "guardados"}</p>
         </div>
         <button onClick={() => setOpen(true)}
-          className="flex items-center gap-2 rounded-[8px] bg-[#dafc69] px-4 py-2 text-[13px] font-semibold text-black hover:bg-[#f2ffc0] transition-colors">
+        className="flex items-center gap-2 rounded-[8px] btn-accent px-4 py-2 text-[13px] font-semibold transition-colors">
           <Plus className="h-4 w-4" /> Guardar {itemLabel}
         </button>
       </div>

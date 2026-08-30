@@ -468,7 +468,7 @@ function ContentResearchContent() {
                     key={t}
                     type="button"
                     onClick={() => setTimeframe(t)}
-                    className={`px-4 py-2 text-sm font-medium transition-colors ${timeframe === t ? "bg-[#dafc69] text-black" : "text-foreground/40 hover:text-foreground/70"}`}
+                    className={`px-4 py-2 text-sm font-medium transition-colors ${timeframe === t ? "bg-secondary text-foreground" : "text-foreground/40 hover:text-foreground/70"}`}
                   >
                     {t}d
                   </button>
@@ -478,7 +478,7 @@ function ContentResearchContent() {
               <button
                 type="submit"
                 disabled={!channelUrl.trim() || loading}
-                className="h-11 rounded-xl bg-[#dafc69] px-6 text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition shrink-0"
+                className="h-11 rounded-xl btn-accent px-6 text-sm font-bold disabled:opacity-40 transition shrink-0"
               >
                 {loading ? "Investigando…" : "Investigar"}
               </button>

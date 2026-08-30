@@ -188,7 +188,7 @@ export function AdminFounderCheckinsView() {
             <button
               type="submit"
               disabled={saveState === "saving" || !clientId}
-              className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-5 py-2 text-sm font-bold text-black transition hover:bg-[#f2ffc0] disabled:opacity-50"
+              className="flex items-center gap-2 rounded-xl btn-accent px-5 py-2 text-sm font-bold transition disabled:opacity-50"
             >
               {saveState === "saving" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               {saveState === "saved" && <Check className="h-3.5 w-3.5" />}

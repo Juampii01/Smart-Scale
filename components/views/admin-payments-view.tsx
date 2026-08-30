@@ -131,7 +131,7 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
       <td className="px-4 py-2.5 whitespace-nowrap">
         <div className="flex items-center gap-1.5">
           <button onClick={handleSave} disabled={saving || !name.trim() || !amount.trim()} aria-label="Guardar"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#dafc69] text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1">
+          className="flex h-8 w-8 items-center justify-center rounded-lg btn-accent disabled:opacity-40 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 focus-visible:ring-offset-1">
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
           </button>
           <button onClick={onCancel} aria-label="Cancelar" className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.08] text-foreground/40 hover:text-foreground transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
@@ -346,13 +346,13 @@ export function AdminPaymentsView() {
             <button
               onClick={() => setViewMode("mes")}
               title="Vista por mes"
-              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${viewMode === "mes" ? "bg-[#dafc69] text-black" : "text-foreground/40 hover:text-foreground"}`}>
+              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${viewMode === "mes" ? "bg-secondary text-foreground" : "text-foreground/40 hover:text-foreground"}`}>
               <CalendarDays className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={() => setViewMode("tabla")}
               title="Vista tabla"
-              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${viewMode === "tabla" ? "bg-[#dafc69] text-black" : "text-foreground/40 hover:text-foreground"}`}>
+              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${viewMode === "tabla" ? "bg-secondary text-foreground" : "text-foreground/40 hover:text-foreground"}`}>
               <LayoutList className="h-3.5 w-3.5" />
             </button>
           </div>
@@ -372,7 +372,7 @@ export function AdminPaymentsView() {
             Link de pago
           </button>
           <button onClick={() => setAdding(true)} disabled={adding}
-            className="flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-4 text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-all">
+          className="flex items-center gap-2 h-9 rounded-xl btn-accent px-4 text-sm font-bold disabled:opacity-50 transition-all">
             <Plus className="h-4 w-4" />
             Nuevo pago
           </button>

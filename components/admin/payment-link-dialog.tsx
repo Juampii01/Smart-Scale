@@ -123,7 +123,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                     {result.paymentUrl}
                   </code>
                   <button onClick={copyLink}
-                    className="shrink-0 flex items-center gap-1.5 h-8 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all">
+                  className="shrink-0 flex items-center gap-1.5 h-8 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all">
                     {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                     {copied ? "Copiado" : "Copiar"}
                   </button>
@@ -242,7 +242,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
 
               {/* CTA */}
               <button onClick={handleCreate} disabled={loading || !amount}
-                className="w-full h-10 rounded-xl bg-[#dafc69] text-[13px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition-all flex items-center justify-center gap-2">
+              className="w-full h-10 rounded-xl btn-accent text-[13px] font-bold disabled:opacity-40 transition-all flex items-center justify-center gap-2">
                 {loading
                   ? <><Loader2 className="h-4 w-4 animate-spin" /> Creando...</>
                   : <><Link2 className="h-4 w-4" /> Crear link de Stripe</>

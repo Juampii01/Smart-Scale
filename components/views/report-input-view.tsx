@@ -162,7 +162,7 @@ function CelebrationOverlay({
           {/* CTA with countdown */}
           <button
             onClick={onClose}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-7 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95"
+            className="inline-flex items-center gap-2 rounded-xl btn-accent px-7 py-2.5 text-sm font-bold transition active:scale-95"
           >
             Continuar
             <span className="text-xs font-normal text-black/40">({secs}s)</span>
@@ -408,7 +408,7 @@ export function ReportInputView() {
           onClick={() => setTab("form")}
           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
             tab === "form"
-              ? "bg-[#dafc69] text-black"
+              ? "bg-secondary text-foreground"
               : "text-foreground/40 hover:text-foreground/70"
           }`}
         >
@@ -420,7 +420,7 @@ export function ReportInputView() {
           onClick={() => setTab("history")}
           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
             tab === "history"
-              ? "bg-[#dafc69] text-black"
+              ? "bg-secondary text-foreground"
               : "text-foreground/40 hover:text-foreground/70"
           }`}
         >
@@ -536,7 +536,7 @@ export function ReportInputView() {
                             onClick={() => setValue(field.key, String(n))}
                             className={`h-10 w-10 rounded-xl text-sm font-bold transition-all ${
                               values[field.key] === String(n)
-                                ? "bg-[#dafc69] text-black"
+                                ? "bg-secondary text-foreground"
                                 : "border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:border-border hover:text-foreground"
                             }`}
                           >
@@ -637,7 +637,7 @@ export function ReportInputView() {
           <button
             type="submit"
             disabled={status === "loading" || !ownClientId}
-            className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded-xl btn-accent px-6 py-2.5 text-sm font-bold transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
             {status === "loading" ? "Guardando…" : isUpdate ? "Actualizar reporte" : "Guardar reporte"}

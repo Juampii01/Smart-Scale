@@ -159,7 +159,7 @@ function BookingContent() {
                     href={stripeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-[#dafc69] py-4 text-[15px] font-black text-black hover:bg-[#f2ffc0] transition-all duration-200 shadow-lg shadow-[#dafc69]/20 hover:shadow-[#dafc69]/30 hover:scale-[1.01]"
+                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl btn-accent py-4 text-[15px] font-black hover:scale-[1.01]"
                   >
                     {cta}
                     <ArrowRight className="h-4 w-4" />

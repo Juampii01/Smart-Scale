@@ -453,7 +453,7 @@ export function KanbanBoard() {
         </div>
         <button
           onClick={() => openCreateModal()}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95"
+          className="inline-flex items-center gap-2 rounded-xl btn-accent px-4 py-2.5 text-sm font-bold transition active:scale-95"
         >
           <Plus className="h-4 w-4" />
           Nueva tarea

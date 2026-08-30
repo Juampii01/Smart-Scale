@@ -296,7 +296,7 @@ function AnaiContent() {
         <button
           onClick={newConversation}
           disabled={creatingConv || atMonthLimit}
-          className="flex items-center gap-1.5 rounded-xl bg-[#dafc69] px-3 py-1.5 text-xs font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95 disabled:opacity-40 shrink-0"
+          className="flex items-center gap-1.5 rounded-xl btn-accent px-3 py-1.5 text-xs font-bold transition active:scale-95 disabled:opacity-40 shrink-0"
         >
           {creatingConv ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
           Nueva
@@ -517,7 +517,7 @@ function AnaiContent() {
         <button
           type="submit"
           disabled={loading || !input.trim() || atMsgLimit || atMonthLimit}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#dafc69] text-black transition hover:bg-[#f2ffc0] disabled:opacity-40"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl btn-accent transition disabled:opacity-40"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </button>

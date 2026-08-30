@@ -128,7 +128,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
               No encontramos el puesto <span className="font-mono text-amber-700 dark:text-amber-300">{rol}</span>. Puede que el link esté desactualizado o el puesto haya sido cerrado.
             </p>
           </div>
-          <a href="/" className="inline-block rounded-xl bg-[#dafc69] px-5 py-2.5 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition">
+ <a href="/" className="inline-block rounded-xl btn-accent px-5 py-2.5 text-[13px] font-bold transition">
             Volver al inicio
           </a>
         </div>
@@ -301,7 +301,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
           <button
             type="submit"
             disabled={loading || !!gated}
-            className="w-full rounded-2xl bg-[#dafc69] px-6 py-4 text-[15px] font-black text-black transition hover:bg-[#f2ffc0] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full rounded-2xl btn-accent px-6 py-4 text-[15px] font-black transition disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {loading ? "Enviando…" : gated ? "Aplicación bloqueada" : "Enviar aplicación"}
           </button>

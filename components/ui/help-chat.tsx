@@ -182,7 +182,7 @@ export function HelpChat() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Abrir asistente"
-        className={`fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-[#dafc69] pl-4 pr-5 py-3 text-[13px] font-bold text-black shadow-lg shadow-black/40 hover:bg-[#f2ffc0] hover:scale-105 active:scale-95 transition-all ${open ? "opacity-0 pointer-events-none scale-90" : "opacity-100"}`}
+        className={`fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full btn-accent pl-4 pr-5 py-3 text-[13px] font-bold shadow-lg shadow-black/40 hover:scale-105 active:scale-95 transition-all ${open ? "opacity-0 pointer-events-none scale-90" : "opacity-100"}`}
       >
         <Sparkles className="h-4 w-4" />
         <span className="hidden sm:inline">Asistente</span>
@@ -306,7 +306,7 @@ export function HelpChat() {
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="flex h-[42px] w-[42px] items-center justify-center rounded-xl bg-[#dafc69] text-black hover:bg-[#f2ffc0] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="flex h-[42px] w-[42px] items-center justify-center rounded-xl btn-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               aria-label="Enviar"
             >
               <Send className="h-4 w-4" />

@@ -161,7 +161,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
       ) : !status?.connected ? (
         <div className="mt-6 rounded-[14px] border border-border bg-card p-8 text-center">
           <p className="text-sm text-foreground/60 mb-4">Tu cuenta de {brand.name} todavía no está conectada.</p>
-          <button onClick={handleConnect} disabled={busy} className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-[0.98] disabled:opacity-50">
+ <button onClick={handleConnect} disabled={busy} className="inline-flex items-center gap-2 rounded-xl btn-accent px-5 py-2.5 text-sm font-bold transition active:scale-[0.98] disabled:opacity-50">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
             Conectar {brand.name}
           </button>

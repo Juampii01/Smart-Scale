@@ -201,7 +201,7 @@ function SuccessModal({
 
         <button
           onClick={onClose}
-          className="mt-4 w-full rounded-xl bg-[#dafc69] py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0]"
+          className="mt-4 w-full rounded-xl btn-accent py-2.5 text-sm font-bold transition"
         >
           Listo
         </button>
@@ -517,7 +517,7 @@ function OnboardingForm({
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-5 py-2 text-[13px] font-bold text-black transition hover:bg-[#f2ffc0] disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl btn-accent px-5 py-2 text-[13px] font-bold transition disabled:opacity-50"
           >
             {saving
               ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Creando…</>
@@ -865,7 +865,7 @@ export function AdminOnboardingView() {
           {view === "list" ? (
             <button
               onClick={() => setView("form")}
-              className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2 text-[13px] font-bold text-black transition hover:bg-[#f2ffc0]"
+              className="flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-bold transition"
             >
               <UserPlus className="h-3.5 w-3.5" />
               Nuevo onboarding
@@ -926,7 +926,7 @@ export function AdminOnboardingView() {
               <p className="mt-1 text-[12px] text-foreground/30">Creá el primero con el botón de arriba.</p>
               <button
                 onClick={() => setView("form")}
-                className="mt-4 flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2 text-[13px] font-bold text-black transition hover:bg-[#f2ffc0]"
+                className="mt-4 flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-bold transition"
               >
                 <UserPlus className="h-3.5 w-3.5" />
                 Nuevo onboarding

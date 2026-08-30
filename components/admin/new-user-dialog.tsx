@@ -228,7 +228,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
               </button>
               <button
                 onClick={handleClose}
-                className="flex-1 rounded-xl bg-[#dafc69] px-4 py-2.5 text-sm font-bold text-black hover:bg-[#f2ffc0] transition-colors"
+                className="flex-1 rounded-xl btn-accent px-4 py-2.5 text-sm font-bold transition-colors"
               >
                 Listo
               </button>
@@ -381,7 +381,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
               <button
                 type="submit"
                 disabled={loading || !email || !role || (showTenantSelector && !internalTenantId)}
-                className="flex-1 rounded-xl bg-[#dafc69] px-4 py-2.5 text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors"
+                className="flex-1 rounded-xl btn-accent px-4 py-2.5 text-sm font-bold disabled:opacity-50 transition-colors"
               >
                 {loading ? "Creando…" : "Crear usuario"}
               </button>

@@ -472,7 +472,7 @@ function CompetitorResearchContent() {
             <button
               type="submit"
               disabled={!channelUrl.trim() || loading}
-              className="inline-flex items-center gap-2 h-10 rounded-xl bg-[#dafc69] px-5 text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition"
+              className="inline-flex items-center gap-2 h-10 rounded-xl btn-accent px-5 text-sm font-bold disabled:opacity-40 transition"
             >
               {loading ? (
                 <>

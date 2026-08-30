@@ -187,7 +187,7 @@ function SessionRow({ occ }: { occ: Occurrence }) {
       <div className="shrink-0 self-center">
         {ev.zoom_url ? (
           <a href={ev.zoom_url} target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-[8px] bg-[#dafc69] px-3.5 py-2 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-colors whitespace-nowrap">
+          className="inline-flex items-center gap-1.5 rounded-[8px] btn-accent px-3.5 py-2 text-[12px] font-bold transition-colors whitespace-nowrap">
             Unirse <ExternalLink className="h-3.5 w-3.5" />
           </a>
         ) : (
@@ -254,7 +254,7 @@ function RecordingRow({ rec }: { rec: Recording }) {
           </a>
         )}
         <a href={rec.recording_url} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-[8px] bg-[#dafc69] px-3.5 py-2 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-colors whitespace-nowrap">
+        className="inline-flex items-center gap-1.5 rounded-[8px] btn-accent px-3.5 py-2 text-[12px] font-bold transition-colors whitespace-nowrap">
           <Play className="h-3.5 w-3.5" /> Ver
         </a>
       </div>
@@ -364,7 +364,7 @@ export function CalendarView() {
               className={cn(
                 "relative flex items-center gap-2 pb-3 px-4 text-[14px] font-semibold transition-colors",
                 tab === id
-                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#dafc69] after:rounded-full"
+                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-accent after:rounded-full"
                   : "text-foreground/40 hover:text-foreground/70"
               )}>
               {label}
@@ -435,7 +435,7 @@ export function CalendarView() {
                     </p>
                     {o.ev.zoom_url && (
                       <a href={o.ev.zoom_url} target="_blank" rel="noopener noreferrer"
-                        className="mt-3 inline-flex items-center gap-1.5 rounded-[8px] bg-[#dafc69] px-4 py-2 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-colors">
+                      className="mt-3 inline-flex items-center gap-1.5 rounded-[8px] btn-accent px-4 py-2 text-[12px] font-bold transition-colors">
                         Unirse a la sesión <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                     )}
@@ -475,7 +475,7 @@ export function CalendarView() {
             <p className="text-[12px] text-foreground/40 mt-0.5">Sesión privada mensual · 1 llamada por mes</p>
           </div>
           <a href="https://calendly.com/smartscale-strategycoach/30min" target="_blank" rel="noreferrer"
-            className="shrink-0 flex items-center gap-1.5 rounded-[8px] bg-[#dafc69] px-4 py-2 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-colors">
+          className="shrink-0 flex items-center gap-1.5 rounded-[8px] btn-accent px-4 py-2 text-[12px] font-bold transition-colors">
             <Calendar className="h-3.5 w-3.5" />
             Agendar llamada
           </a>

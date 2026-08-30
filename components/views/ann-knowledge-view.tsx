@@ -407,7 +407,7 @@ export function AnnKnowledgeView() {
           </button>
           <button
             onClick={() => setFormOpen(v => !v)}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95"
+            className="inline-flex items-center gap-2 rounded-xl btn-accent px-4 py-2.5 text-sm font-bold transition active:scale-95"
           >
             {formOpen ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
             {formOpen ? "Cancelar" : "Nueva entrada"}
@@ -639,7 +639,7 @@ export function AnnKnowledgeView() {
               <button
                 onClick={addBatch}
                 disabled={batchSaving || queue.every(q => q.status !== "ready") || queue.some(q => q.status === "extracting")}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95 disabled:opacity-40">
+                className="inline-flex items-center gap-2 rounded-xl btn-accent px-6 py-2.5 text-sm font-bold transition active:scale-95 disabled:opacity-40">
                 {batchSaving
                   ? <Loader2 className="h-4 w-4 animate-spin" />
                   : <Brain className="h-4 w-4" />
@@ -652,7 +652,7 @@ export function AnnKnowledgeView() {
             ) : (
               /* Single mode button */
               <button onClick={add} disabled={saving || !title.trim() || !content.trim() || extracting}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95 disabled:opacity-40">
+              className="inline-flex items-center gap-2 rounded-xl btn-accent px-6 py-2.5 text-sm font-bold transition active:scale-95 disabled:opacity-40">
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
                 Agregar al cerebro
               </button>
@@ -785,7 +785,7 @@ export function AnnKnowledgeView() {
                         Actualizado {new Date(e.updated_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}
                       </span>
                       <button onClick={() => saveEdit(e.id)}
-                        className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95">
+                      className="inline-flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-sm font-bold transition active:scale-95">
                         <Save className="h-3.5 w-3.5" /> Guardar cambios
                       </button>
                     </div>

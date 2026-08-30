@@ -80,7 +80,7 @@ export function WhatsNew3() {
             <div className="px-5 pb-5 pt-1">
               <button
                 onClick={close}
-                className="w-full rounded-xl bg-[#dafc69] py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-[0.98]"
+                className="w-full rounded-xl btn-accent py-2.5 text-sm font-bold transition active:scale-[0.98]"
               >
                 ¡Vamos! 🚀
               </button>

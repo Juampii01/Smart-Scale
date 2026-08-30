@@ -169,7 +169,7 @@ export function ReflectionView() {
           <p className="text-sm text-foreground/40 mb-3">No hay reflexión cargada para este mes.</p>
           <a
             href="/report-input"
-            className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition"
+            className="inline-flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-bold transition"
           >
             Cargar reporte mensual →
           </a>

@@ -554,7 +554,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
           <button
             onClick={onAnalyze}
             disabled={analyzing}
-            className="flex h-8 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
+            className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
           >
             {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
             {a ? "Re-analizar" : "Analizar"}
@@ -649,7 +649,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               type="button"
               onClick={submitCorrecting}
               disabled={submitting || !situacion.trim() || !enfoque.trim()}
-              className="flex h-8 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
+              className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
             >
               {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : saved ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
               {saved ? "Guardado" : "Guardar patrón"}
@@ -686,7 +686,7 @@ function ChannelListCard({ channel, analyzing, onAnalyze }: {
         <button
           onClick={onAnalyze}
           disabled={analyzing || channel.message_count === 0}
-          className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
+          className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
         >
           {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
           {a ? "Re-analizar" : "Analizar"}
@@ -787,7 +787,7 @@ function NewPatternForm({ onSubmit, onDone }: {
           type="button"
           onClick={submit}
           disabled={submitting || !situacion.trim() || !enfoque.trim()}
-          className="flex h-8 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
+          className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
         >
           {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
           Guardar patrón
@@ -1324,7 +1324,7 @@ export function AdminOmniView() {
                 <button
                   onClick={connectInstagram}
                   disabled={igLoading}
-                  className="flex h-8 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
                 >
                   {igLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   Conectar Instagram
@@ -1414,7 +1414,7 @@ export function AdminOmniView() {
                 <button
                   onClick={connectSlack}
                   disabled={slackConnecting}
-                  className="flex h-8 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
                 >
                   {slackConnecting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   Conectar como Ann
@@ -1434,7 +1434,7 @@ export function AdminOmniView() {
                 <button
                   onClick={analyzeSlack}
                   disabled={analyzing}
-                  className="flex h-8 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
                 >
                   {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
                   Analizar
@@ -1547,7 +1547,7 @@ export function AdminOmniView() {
                   <button
                     onClick={saveProspectingContext}
                     disabled={prospectingContextSaving}
-                    className="flex h-8 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
+                    className="flex h-8 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12px] font-bold transition-all disabled:opacity-40"
                   >
                     {prospectingContextSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                     Guardar

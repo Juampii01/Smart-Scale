@@ -799,7 +799,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
             <button
               onClick={generateAIResponse}
               disabled={loading || selectedAnswersCount === 0}
-              className="rounded-xl bg-[#dafc69] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-xl btn-accent px-6 py-2.5 text-sm font-bold transition disabled:opacity-50 disabled:cursor-not-allowed"
               title={selectedAnswersCount === 0 ? "Respondé al menos una pregunta para generar el diagnóstico" : undefined}
             >
               {loading ? "Generando…" : "Generar Diagnóstico Estratégico"}
@@ -975,7 +975,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                           disabled={!item.result}
                           className={`rounded-xl px-4 py-2 text-xs font-bold transition-all duration-150 ${
                             isActiveDiagnosis
-                              ? "bg-[#dafc69] text-black"
+                              ? "bg-secondary text-foreground"
                               : "border border-foreground/[0.08] bg-foreground/[0.04] text-foreground/70 hover:bg-foreground/[0.08] hover:text-foreground"
                           } disabled:cursor-not-allowed disabled:opacity-40`}
                         >

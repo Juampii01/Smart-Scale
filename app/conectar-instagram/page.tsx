@@ -148,7 +148,7 @@ export default function ConectarInstagramPage() {
           <button
             type="submit"
             disabled={loading || !name.trim() || !instagram.trim()}
-            className="w-full h-12 rounded-xl bg-[#dafc69] text-black text-[14px] font-bold hover:bg-[#f2ffc0] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full h-12 rounded-xl btn-accent text-[14px] font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {loading ? "Enviando…" : "Conectar mi Instagram"}

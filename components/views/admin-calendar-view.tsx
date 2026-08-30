@@ -187,7 +187,7 @@ function EventModal({
           <button
             onClick={handleSave}
             disabled={saving || saved || !form.title.trim()}
-            className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2 text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-60 transition-colors"
+            className="flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-sm font-bold disabled:opacity-60 transition-colors"
           >
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : saved ? <Check className="h-3.5 w-3.5" /> : <Save className="h-3.5 w-3.5" />}
             {saving ? "Guardando…" : saved ? "Guardado ✓" : "Guardar"}
@@ -286,7 +286,7 @@ export function AdminCalendarView() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button onClick={() => setModal({})}
-            className="flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-4 text-sm font-bold text-black hover:bg-[#f2ffc0] transition-colors">
+          className="flex items-center gap-2 h-9 rounded-xl btn-accent px-4 text-sm font-bold transition-colors">
             <Plus className="h-4 w-4" />
             Nueva llamada
           </button>

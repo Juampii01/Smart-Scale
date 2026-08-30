@@ -185,7 +185,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
                   title={has ? formatLong(ym) : `${formatLong(ym)} — sin datos`}
                   className={`relative h-9 rounded-md text-xs font-semibold transition-all ${
                     isSelected
-                      ? "bg-[#dafc69] text-black shadow-sm"
+                      ? "bg-secondary text-foreground shadow-sm"
                       : has
                         ? `text-foreground hover:bg-foreground/[0.08] ${isCurrentMonth ? "ring-1 ring-[#dafc69]/50" : ""}`
                         : "text-foreground/25 cursor-not-allowed"

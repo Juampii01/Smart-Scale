@@ -275,7 +275,7 @@ export function AdminPosiView() {
               <textarea className={inputCls} rows={2} value={headerDraft.subtitle} onChange={(e) => setHeaderDraft((d) => ({ ...d, subtitle: e.target.value }))} />
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={saveHeader} disabled={headerSaving} className="rounded-lg bg-[#dafc69] px-4 py-1.5 text-[12px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors">
+ <button onClick={saveHeader} disabled={headerSaving} className="rounded-lg btn-accent px-4 py-1.5 text-[12px] font-bold disabled:opacity-50 transition-colors">
                 {headerSaving ? "Guardando…" : "Guardar"}
               </button>
               <button onClick={() => setEditingHeader(false)} className="rounded-lg px-3 py-1.5 text-[12px] font-semibold text-foreground/50 hover:text-foreground transition-colors">
@@ -488,7 +488,7 @@ export function AdminPosiView() {
                   <button
                     onClick={() => saveEdit(level)}
                     disabled={savingLevel}
-                    className="flex items-center gap-2 rounded-lg bg-[#dafc69] px-4 py-2 text-[12.5px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors"
+                    className="flex items-center gap-2 rounded-lg btn-accent px-4 py-2 text-[12.5px] font-bold disabled:opacity-50 transition-colors"
                   >
                     {savingLevel && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                     {savingLevel ? "Guardando…" : "Guardar"}

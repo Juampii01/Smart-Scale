@@ -122,11 +122,11 @@ export function ChiChangView() {
       {/* Tab switcher */}
       <div className="flex gap-1 mb-6 rounded-xl border border-foreground/[0.06] bg-card p-1 w-fit">
         <button type="button" onClick={() => setTab("form")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "form" ? "bg-[#dafc69] text-black" : "text-foreground/40 hover:text-foreground/70"}`}>
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "form" ? "bg-secondary text-foreground" : "text-foreground/40 hover:text-foreground/70"}`}>
           <FileText className="h-3.5 w-3.5" /> Registrar
         </button>
         <button type="button" onClick={() => setTab("history")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "history" ? "bg-[#dafc69] text-black" : "text-foreground/40 hover:text-foreground/70"}`}>
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${tab === "history" ? "bg-secondary text-foreground" : "text-foreground/40 hover:text-foreground/70"}`}>
           <History className="h-3.5 w-3.5" /> Historial
         </button>
       </div>
@@ -315,7 +315,7 @@ export function ChiChangView() {
         <button
           type="submit"
           disabled={status === "loading" || !ownClientId || !notasOk}
-          className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 rounded-xl btn-accent px-6 py-2.5 text-sm font-bold transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
           {status === "loading" ? "Registrando…" : "Registrar venta"}

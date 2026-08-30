@@ -399,7 +399,7 @@ export function PerformanceView() {
               className={cn(
                 "relative pb-3 px-4 text-[14px] font-semibold transition-colors",
                 tab === t.id
-                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#dafc69] after:rounded-full"
+                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-accent after:rounded-full"
                   : "text-foreground/40 hover:text-foreground/70"
               )}
             >

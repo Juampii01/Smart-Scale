@@ -162,7 +162,7 @@ function SectionCard({
         <button
           onClick={() => handleSave(true)}
           disabled={saving || !isComplete}
-          className="flex h-9 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12.5px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
+          className="flex h-9 items-center gap-1.5 rounded-lg btn-accent px-3 text-[12.5px] font-bold transition-all disabled:opacity-40"
           title={!isComplete ? "Respondé todas las preguntas para marcar como completo" : undefined}
         >
           Marcar sección como completa

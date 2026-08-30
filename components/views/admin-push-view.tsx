@@ -125,7 +125,7 @@ export function AdminPushView() {
       )}
 
       <button onClick={send} disabled={state === "sending"}
-        className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-[0.98] disabled:opacity-50">
+      className="inline-flex items-center gap-2 rounded-xl btn-accent px-5 py-2.5 text-sm font-bold transition active:scale-[0.98] disabled:opacity-50">
         {state === "sending" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         Enviar notificación
       </button>

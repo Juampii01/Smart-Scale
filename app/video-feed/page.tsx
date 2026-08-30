@@ -219,7 +219,7 @@ function ConnectForm({ onConnect, clientId }: { onConnect: (account: Account) =>
               <button
                 type="submit"
                 disabled={!url.trim() || loading}
-                className="h-11 w-full rounded-xl bg-[#dafc69] text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition"
+                className="h-11 w-full rounded-xl btn-accent text-sm font-bold disabled:opacity-40 transition"
               >
                 {loading ? "Cargando tu perfil…" : "Conectar Instagram"}
               </button>
@@ -311,7 +311,7 @@ function FeedView({ account, onRefresh }: {
           <button key={f} onClick={() => setFilter(f)}
             className={`h-8 rounded-lg px-4 text-xs font-semibold transition-all ${
               filter === f
-                ? "bg-[#dafc69] text-black"
+                ? "bg-secondary text-foreground"
                 : "border border-foreground/[0.07] bg-foreground/[0.03] text-foreground/40 hover:text-foreground/70"
             }`}>
             {f === "all" ? "Todos" : "Top Performing"}
