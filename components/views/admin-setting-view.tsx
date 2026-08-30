@@ -326,8 +326,8 @@ export function AdminSettingView() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Setting CRM</h1>
-          <p className="text-sm text-text-2 mt-0.5">Métricas diarias de setter · click en celdas para editar</p>
+          <h1 className="text-[24px] font-bold text-foreground tracking-tight">Setting CRM</h1>
+          <p className="text-[13px] text-text-2 mt-0.5">Métricas diarias de setter · click en celdas para editar</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -338,7 +338,7 @@ export function AdminSettingView() {
             </button>
 
             <div className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-foreground/10 min-w-0 sm:min-w-[220px] text-center">
-              <span className="text-sm font-bold text-foreground">{monthLabel(month)}</span>
+              <span className="text-[13px] font-bold text-foreground">{monthLabel(month)}</span>
             </div>
 
             <button onClick={() => changMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
@@ -352,14 +352,14 @@ export function AdminSettingView() {
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
 
-            <button onClick={exportCsv} className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg border border-foreground/10 hover:bg-foreground/5 text-sm font-medium transition-colors" title="Descargar CSV">
+            <button onClick={exportCsv} className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg border border-foreground/10 hover:bg-foreground/5 text-[13px] font-medium transition-colors" title="Descargar CSV">
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
 
             <button
               onClick={() => setEodOpen(true)}
-              className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg btn-accent text-sm font-bold transition-colors"
+              className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg btn-accent text-[13px] font-bold transition-colors"
               title="Cargar datos diarios"
             >
               <PlusCircle className="h-3.5 w-3.5" />
@@ -447,7 +447,7 @@ export function AdminSettingView() {
 
             {logs.length === 0 ? (
               <div className="rounded-[14px] border border-foreground/10 py-12 text-center">
-                <p className="text-sm text-text-2">Sin registros cargados para este mes</p>
+                <p className="text-[13px] text-text-2">Sin registros cargados para este mes</p>
               </div>
             ) : (
               <>

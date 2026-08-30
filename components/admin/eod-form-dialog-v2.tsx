@@ -217,7 +217,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
         <div className="flex items-center justify-between border-b border-foreground/[0.06] px-6 py-4">
           <div className="flex items-center gap-2.5">
             <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground">
+            <h2 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">
               {logId ? "Editar EOD" : "Cargar datos del día"}
             </h2>
           </div>
@@ -238,7 +238,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                   type="date"
                   value={date}
                   onChange={e => setDate(e.target.value)}
-                  className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2 text-sm font-semibold text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 [color-scheme:dark]"
+                  className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 [color-scheme:dark]"
                 />
               </div>
             </div>
@@ -251,7 +251,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                 <div className="flex items-center justify-between border-b border-foreground/[0.05] px-5 py-3">
                   <div className="flex items-center gap-2">
                     <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
-                    <span className="text-sm font-semibold uppercase tracking-widest text-foreground">{group.label}</span>
+                    <span className="text-[13px] font-semibold uppercase tracking-widest text-foreground">{group.label}</span>
                   </div>
                 </div>
                 <div className="grid gap-4 p-5 sm:grid-cols-2">
@@ -266,7 +266,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                         placeholder="0"
                         value={(values as any)[field.key]}
                         onChange={e => setValues(prev => ({ ...prev, [field.key]: e.target.value }))}
-                        className="h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+                        className="h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-[13px] font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
                       />
                       <p className="mt-1 text-[13px] text-text-3">{field.hint}</p>
                     </div>
@@ -280,7 +280,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                   <div className="flex items-center justify-between border-b border-border px-5 py-3">
                     <div className="flex items-center gap-2">
                       <span className="h-3 w-[2px] rounded-full bg-[#dafc69]" />
-                      <span className="text-sm font-semibold uppercase tracking-widest text-foreground">Total Conversaciones</span>
+                      <span className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Total Conversaciones</span>
                     </div>
                     <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">automático</span>
                   </div>
@@ -289,7 +289,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                       <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">
                         Inbound + Resp. outbound
                       </p>
-                      <p className="text-4xl font-bold text-[#dafc69] tabular-nums">
+                      <p className="text-[32px] font-bold text-[#dafc69] tabular-nums">
                         {totalConversaciones}
                       </p>
                     </div>
@@ -307,7 +307,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
             <div className="flex items-center border-b border-foreground/[0.05] px-5 py-3">
               <div className="flex items-center gap-2">
                 <span className="h-3 w-[2px] rounded-full bg-foreground/30" />
-                <span className="text-sm font-semibold uppercase tracking-widest text-foreground">Notas</span>
+                <span className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Notas</span>
               </div>
             </div>
             <div className="p-5">
@@ -316,14 +316,14 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                 placeholder="Observaciones del día, contexto, bloqueos..."
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-sm text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 resize-none"
+                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 resize-none"
               />
             </div>
           </div>
 
           {/* Error */}
           {status === "error" && (
-            <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-4 py-3 text-sm text-red-700 dark:text-red-400">
+            <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-4 py-3 text-[13px] text-red-700 dark:text-red-400">
               <AlertCircle className="h-4 w-4 shrink-0" />
               {errorMsg}
             </div>
@@ -337,7 +337,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                 type="button"
                 onClick={handleDelete}
                 disabled={deleting}
-                className="flex items-center gap-2 rounded-xl border border-red-500/20 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
+                className="flex items-center gap-2 rounded-xl border border-red-500/20 px-4 py-2 text-[13px] font-medium text-red-600 dark:text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
               >
                 {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                 Eliminar
@@ -348,14 +348,14 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-sm font-medium text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground"
+                className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-[13px] font-medium text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={status === "saving" || status === "saved"}
-                className="flex items-center gap-2 rounded-xl btn-accent px-5 py-2 text-sm font-bold transition disabled:opacity-60"
+                className="flex items-center gap-2 rounded-xl btn-accent px-5 py-2 text-[13px] font-bold transition disabled:opacity-60"
               >
                 {status === "saving" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 {status === "saved"  && <Check   className="h-3.5 w-3.5" />}

@@ -201,7 +201,7 @@ function SuccessModal({
 
         <button
           onClick={onClose}
-          className="mt-4 w-full rounded-xl btn-accent py-2.5 text-sm font-bold transition"
+          className="mt-4 w-full rounded-xl btn-accent py-2.5 text-[13px] font-bold transition"
         >
           Listo
         </button>
@@ -669,7 +669,7 @@ function OnboardingDetailDrawer({
 
         <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
           <div className="min-w-0">
-            <h2 className="truncate text-lg font-bold text-foreground">{client.name}</h2>
+            <h2 className="truncate text-[18px] font-bold text-foreground">{client.name}</h2>
             <p className="mt-0.5 truncate text-[13px] text-text-3">{client.email}</p>
           </div>
           <button
@@ -848,7 +848,7 @@ export function AdminOnboardingView() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Onboarding</h1>
+          <h1 className="text-[24px] font-bold text-foreground">Onboarding</h1>
           <p className="mt-0.5 text-[13px] text-text-2">
             {clients.length} cliente{clients.length !== 1 ? "s" : ""} registrado{clients.length !== 1 ? "s" : ""}
           </p>

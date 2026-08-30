@@ -49,7 +49,7 @@ function StatCard({ label, value, tone }: { label: string; value: number; tone: 
     <div className="rounded-[14px] border border-border bg-card p-4">
       <p className="text-[11px] font-bold uppercase tracking-widest text-text-2">{label}</p>
       <p className={cn(
-        "mt-1 text-2xl font-bold tabular-nums",
+        "mt-1 text-[24px] font-bold tabular-nums",
         tone === "warn" && value > 0 ? "text-amber-700 dark:text-amber-400" : "text-foreground"
       )}>
         {value}
@@ -106,7 +106,7 @@ export function AdminClientActivityView() {
             <Activity className="h-4 w-4 text-[#dafc69]" />
           </span>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Actividad de clientes</h1>
+            <h1 className="text-[24px] font-bold text-foreground">Actividad de clientes</h1>
             <p className="mt-0.5 text-[13px] text-text-2">
               {activity.length} cliente{activity.length !== 1 ? "s" : ""} con cuenta
             </p>

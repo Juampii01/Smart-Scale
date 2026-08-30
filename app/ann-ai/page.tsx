@@ -277,7 +277,7 @@ function AnaiContent() {
           <Sparkles className="h-5 w-5 text-black" />
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-xl font-extrabold tracking-tight text-foreground leading-none flex items-center gap-2">
+          <h1 className="text-[24px] font-extrabold tracking-tight text-foreground leading-none flex items-center gap-2">
             Ann AI
           </h1>
           <p className="text-[13px] text-text-2 mt-1">
@@ -296,7 +296,7 @@ function AnaiContent() {
         <button
           onClick={newConversation}
           disabled={creatingConv || atMonthLimit}
-          className="flex items-center gap-1.5 rounded-xl btn-accent px-3 py-1.5 text-xs font-bold transition active:scale-95 disabled:opacity-40 shrink-0"
+          className="flex items-center gap-1.5 rounded-xl btn-accent px-3 py-1.5 text-[13px] font-bold transition active:scale-95 disabled:opacity-40 shrink-0"
         >
           {creatingConv ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
           Nueva
@@ -382,7 +382,7 @@ function AnaiContent() {
             <p className="text-[15px] font-bold text-foreground">Preguntale lo que quieras sobre {internal ? "el negocio" : "tu negocio"}</p>
             <p className="text-[13px] text-text-2 mt-1 max-w-sm">Ann AI cruza la metodología de Ann con {internal ? "los datos reales del cliente" : "tus datos reales"}.</p>
             {atMonthLimit ? (
-              <p className="mt-6 rounded-xl border border-red-500/20 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-400">
+              <p className="mt-6 rounded-xl border border-red-500/20 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-[13px] text-red-700 dark:text-red-400">
                 Usaste las {MAX_CONVERSATIONS_PER_MONTH} conversaciones de este mes. Volvé el mes que viene.
               </p>
             ) : (
@@ -422,8 +422,8 @@ function AnaiContent() {
                         ul:         ({ children }) => <ul className="mb-2 space-y-1 pl-4 list-disc marker:text-text-3">{children}</ul>,
                         ol:         ({ children }) => <ol className="mb-2 space-y-1 pl-4 list-decimal marker:text-text-3">{children}</ol>,
                         li:         ({ children }) => <li className="leading-snug">{children}</li>,
-                        h1:         ({ children }) => <h1 className="mb-2 text-base font-bold text-foreground">{children}</h1>,
-                        h2:         ({ children }) => <h2 className="mb-1.5 text-sm font-bold text-foreground">{children}</h2>,
+                        h1:         ({ children }) => <h1 className="mb-2 text-[15px] font-bold text-foreground">{children}</h1>,
+                        h2:         ({ children }) => <h2 className="mb-1.5 text-[13px] font-bold text-foreground">{children}</h2>,
                         h3:         ({ children }) => <h3 className="mb-1 text-[13px] font-semibold text-foreground">{children}</h3>,
                         hr:         () => <hr className="my-3 border-foreground/[0.08]" />,
                         blockquote: ({ children }) => <blockquote className="border-l-2 border-accent/40 pl-3 text-text-2 italic">{children}</blockquote>,
@@ -489,7 +489,7 @@ function AnaiContent() {
       )}
 
       {error && (
-        <div className="mt-2 flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-50 px-4 py-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-300">
+        <div className="mt-2 flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-50 px-4 py-2.5 text-[13px] text-red-700 dark:bg-red-500/10 dark:text-red-300">
           <span className="flex-1">{error}</span>
           <button onClick={() => setError(null)}><X className="h-4 w-4 mt-0.5 shrink-0 opacity-50 hover:opacity-100" /></button>
         </div>
@@ -512,7 +512,7 @@ function AnaiContent() {
           }
           rows={1}
           disabled={loading || atMsgLimit || atMonthLimit}
-          className="flex-1 resize-none bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-text-3 focus:outline-none disabled:opacity-50"
+          className="flex-1 resize-none bg-transparent px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none disabled:opacity-50"
         />
         <button
           type="submit"

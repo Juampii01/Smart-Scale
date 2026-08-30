@@ -115,7 +115,7 @@ function DetailDrawer({
                 </span>
               )}
             </div>
-            <h2 className="text-lg font-bold text-foreground">{sop.title}</h2>
+            <h2 className="text-[18px] font-bold text-foreground">{sop.title}</h2>
             {sop.description && (
               <p className="text-[13px] text-text-2 mt-1">{sop.description}</p>
             )}
@@ -355,7 +355,7 @@ function CreateEditModal({
 
           {/* Header */}
           <div className="flex items-center justify-between gap-4 border-b border-foreground/[0.06] px-6 py-4 shrink-0">
-            <h2 className="text-lg font-bold text-foreground">{isEdit ? "Editar SOP" : "Nuevo SOP"}</h2>
+            <h2 className="text-[18px] font-bold text-foreground">{isEdit ? "Editar SOP" : "Nuevo SOP"}</h2>
             <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
               <X className="h-4 w-4" />
             </button>

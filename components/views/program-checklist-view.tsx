@@ -140,10 +140,10 @@ export function ProgramChecklistView() {
       <div>
         <div className="flex items-center gap-2.5 mb-1">
           <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-          <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground">Program Journey Checklist</h1>
+          <h1 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Program Journey Checklist</h1>
           {loading && <Loader2 className="h-3.5 w-3.5 text-text-2 animate-spin" />}
         </div>
-        <p className="text-xs text-text-3 ml-[18px]">Ecosistema circular mínimo viable · {completedCount}/{totalTasks} tareas completadas</p>
+        <p className="text-[13px] text-text-3 ml-[18px]">Ecosistema circular mínimo viable · {completedCount}/{totalTasks} tareas completadas</p>
       </div>
 
       {/* Banner de "viendo cliente" — solo cuando admin está viendo otro cliente */}
@@ -161,7 +161,7 @@ export function ProgramChecklistView() {
 
       {/* Estado vacío si no hay cliente activo */}
       {!activeClientId && !loading && (
-        <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-sm text-text-2">
+        <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-[13px] text-text-2">
           No hay un cliente activo seleccionado. Cambiá de perfil desde el menú superior para ver un checklist.
         </div>
       )}

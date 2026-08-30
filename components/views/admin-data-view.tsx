@@ -230,8 +230,8 @@ export function AdminDataView() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Adquisition Stats</h1>
-          <p className="text-sm text-text-2 mt-0.5">
+          <h1 className="text-[24px] font-bold text-foreground tracking-tight">Adquisition Stats</h1>
+          <p className="text-[13px] text-text-2 mt-0.5">
             {activeClientName ? `Datos de ${activeClientName}` : "Sin cliente activo"} · {months.length
               ? `${months.length} ${months.length === 1 ? "mes" : "meses"} · click en cualquier celda para editar`
               : "métricas mensuales"}
@@ -248,7 +248,7 @@ export function AdminDataView() {
           <button
             onClick={exportCsv}
             disabled={!months.length}
-            className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
+            className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
           >
             <Download className="h-3.5 w-3.5" />
             CSV
@@ -264,7 +264,7 @@ export function AdminDataView() {
           </div>
         ) : !months.length ? (
           <div className="py-24 text-center">
-            <p className="text-sm text-text-3">
+            <p className="text-[13px] text-text-3">
               {clientId ? "No hay reportes cargados todavía." : "Seleccioná un cliente activo desde el menú de perfil arriba a la derecha."}
             </p>
           </div>

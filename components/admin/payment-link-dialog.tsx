@@ -99,7 +99,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
         <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-4">
           <div className="flex items-center gap-2.5">
             <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground">
+            <h2 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">
               Crear link de pago
             </h2>
           </div>

@@ -116,8 +116,8 @@ export function SettingDailyCRMView({ logs }: SettingDailyCRMViewProps) {
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-foreground">CRM Diario Detallado</h3>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h3 className="text-[18px] font-semibold text-foreground">CRM Diario Detallado</h3>
+          <p className="text-[13px] text-muted-foreground mt-1">
             Desglose completo de métricas día por día
           </p>
         </div>
@@ -125,14 +125,14 @@ export function SettingDailyCRMView({ logs }: SettingDailyCRMViewProps) {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as "date" | "setter")}
-            className="px-3 py-2 rounded-lg border border-border bg-foreground/[0.03] text-sm font-medium outline-none focus:border-accent"
+            className="px-3 py-2 rounded-lg border border-border bg-foreground/[0.03] text-[13px] font-medium outline-none focus:border-accent"
           >
             <option value="date">Ordenar por Fecha</option>
             <option value="setter">Ordenar por Setter</option>
           </select>
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-foreground/[0.03] text-sm font-medium hover:bg-foreground/[0.06] transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-foreground/[0.03] text-[13px] font-medium hover:bg-foreground/[0.06] transition-colors"
             title="Descargar como CSV"
           >
             <Download className="h-4 w-4" />
@@ -147,58 +147,58 @@ export function SettingDailyCRMView({ logs }: SettingDailyCRMViewProps) {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                <th className="px-3 py-3 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-left text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   Fecha
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-left text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   Setter
                 </th>
-                <th className="px-3 py-3 text-right text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-right text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   Convos
                 </th>
-                <th className="px-3 py-3 text-center text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-center text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   📥 Inbound
                 </th>
-                <th className="px-3 py-3 text-right text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-right text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   Apps
                 </th>
-                <th className="px-3 py-3 text-right text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-right text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   Resp
                 </th>
-                <th className="px-3 py-3 text-center text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-center text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   %
                 </th>
-                <th className="px-3 py-3 text-center text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-center text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   📤 Outbound
                 </th>
-                <th className="px-3 py-3 text-right text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-right text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   Leads
                 </th>
-                <th className="px-3 py-3 text-right text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-right text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   Resp
                 </th>
-                <th className="px-3 py-3 text-center text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-center text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   %
                 </th>
-                <th className="px-3 py-3 text-center text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-center text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   🎯 Conversion
                 </th>
-                <th className="px-3 py-3 text-right text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-right text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   Qual
                 </th>
-                <th className="px-3 py-3 text-right text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-right text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   Docs
                 </th>
-                <th className="px-3 py-3 text-right text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-right text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   Resp
                 </th>
-                <th className="px-3 py-3 text-center text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-center text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   %
                 </th>
-                <th className="px-3 py-3 text-right text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                <th className="px-3 py-3 text-right text-[13px] font-semibold text-muted-foreground whitespace-nowrap">
                   Calls
                 </th>
               </tr>
@@ -225,7 +225,7 @@ export function SettingDailyCRMView({ logs }: SettingDailyCRMViewProps) {
                         month: "short",
                       })}
                     </td>
-                    <td className="px-3 py-2 text-foreground text-xs whitespace-nowrap">
+                    <td className="px-3 py-2 text-foreground text-[13px] whitespace-nowrap">
                       {log.setter_name}
                       {log.setter_role && (
                         <span className="ml-1 text-text-2">({log.setter_role})</span>

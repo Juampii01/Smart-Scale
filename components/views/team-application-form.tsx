@@ -123,7 +123,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
             <AlertCircle className="h-8 w-8 text-amber-700 dark:text-amber-400" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-2xl font-black text-foreground">Puesto no disponible</h1>
+            <h1 className="text-[24px] font-black text-foreground">Puesto no disponible</h1>
             <p className="text-text-2 text-[15px] leading-relaxed">
               No encontramos el puesto <span className="font-mono text-amber-700 dark:text-amber-300">{rol}</span>. Puede que el link esté desactualizado o el puesto haya sido cerrado.
             </p>
@@ -204,7 +204,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
             <Check className="h-10 w-10 text-black" strokeWidth={3} />
           </div>
           <div className="space-y-3">
-            <h1 className="text-3xl font-black text-foreground">¡Aplicación enviada!</h1>
+            <h1 className="text-[32px] font-black text-foreground">¡Aplicación enviada!</h1>
             <p className="text-text-2 text-[15px] leading-relaxed">
               Revisamos cada aplicación. Si hay fit, te contactamos en los próximos días.
               Si no recibís respuesta en 7 días, no hubo match por ahora — pero guardamos tu perfil para futuras aperturas.

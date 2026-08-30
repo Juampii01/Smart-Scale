@@ -326,7 +326,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
               </div>
             )}
             <div className="min-w-0">
-              <h2 className="text-lg font-bold text-foreground truncate">{lead.name ?? "Lead"}</h2>
+              <h2 className="text-[18px] font-bold text-foreground truncate">{lead.name ?? "Lead"}</h2>
               <p className="text-[13px] text-text-3 mt-0.5">{fmtDate(lead.created_at)}</p>
             </div>
           </div>
@@ -550,7 +550,7 @@ function NewLeadModal({
           style={{ backgroundColor: "var(--card)" }}
         >
           <div className="flex items-center justify-between mb-1">
-            <h3 className="text-base font-bold text-foreground">Nuevo lead</h3>
+            <h3 className="text-[15px] font-bold text-foreground">Nuevo lead</h3>
             <button type="button" onClick={onClose}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
               <X className="h-4 w-4" />
@@ -645,7 +645,7 @@ function ColumnModal({ onClose, onCreate, creating }: {
           className="w-full max-w-sm rounded-[14px] border border-foreground/[0.10] shadow-2xl p-6 space-y-4"
           style={{ backgroundColor: "var(--card)" }}>
           <div className="flex items-center justify-between mb-1">
-            <h3 className="text-base font-bold text-foreground">Nueva columna</h3>
+            <h3 className="text-[15px] font-bold text-foreground">Nueva columna</h3>
             <button type="button" onClick={onClose}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
               <X className="h-4 w-4" />
@@ -956,8 +956,8 @@ export function AdminLeadsView() {
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">Leads</h1>
-            <p className="text-sm text-text-2 mt-0.5">{leads.length} leads</p>
+            <h1 className="text-[24px] font-bold text-foreground tracking-tight">Leads</h1>
+            <p className="text-[13px] text-text-2 mt-0.5">{leads.length} leads</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] p-0.5">
@@ -983,13 +983,13 @@ export function AdminLeadsView() {
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
             <button onClick={exportCsv} disabled={!filtered.length}
-              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
             <button
               onClick={() => setShowNewForm(true)}
-              className="flex items-center gap-2 h-9 rounded-xl bg-foreground px-4 text-sm font-bold text-background hover:bg-foreground/90 transition-all">
+              className="flex items-center gap-2 h-9 rounded-xl bg-foreground px-4 text-[13px] font-bold text-background hover:bg-foreground/90 transition-all">
               <Plus className="h-3.5 w-3.5" />
               Nuevo lead
             </button>
@@ -1064,7 +1064,7 @@ export function AdminLeadsView() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Buscar por nombre, tag, nicho, instagram..."
-              className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-sm text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none flex-1 min-w-[220px] max-w-sm"
+              className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none flex-1 min-w-[220px] max-w-sm"
             />
             <div className="flex items-center gap-2">
               <span className="text-[13px] text-text-2 whitespace-nowrap">Agrupar por</span>
@@ -1108,7 +1108,7 @@ export function AdminLeadsView() {
                 </thead>
                 <tbody>
                   {!filtered.length ? (
-                    <tr><td colSpan={colCount} className="py-16 text-center text-sm text-text-3">
+                    <tr><td colSpan={colCount} className="py-16 text-center text-[13px] text-text-3">
                       {leads.length ? "No hay leads con esa búsqueda." : "Todavía no hay leads. Conectá ManyChat al webhook."}
                     </td></tr>
                   ) : groups.map(group => {

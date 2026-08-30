@@ -58,7 +58,7 @@ export function MondayWinsHistoryView() {
         <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
           <Trophy className="h-5 w-5 text-text-3" />
         </div>
-        <p className="text-sm text-text-2">Todavía no hay Monday Wins registrados.</p>
+        <p className="text-[13px] text-text-2">Todavía no hay Monday Wins registrados.</p>
       </div>
     )
   }
@@ -66,8 +66,8 @@ export function MondayWinsHistoryView() {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-sm font-bold text-foreground">Historial de Monday Wins</h3>
-        <span className="text-xs text-text-3 tabular-nums">{items.length} registro{items.length !== 1 ? "s" : ""}</span>
+        <h3 className="text-[13px] font-bold text-foreground">Historial de Monday Wins</h3>
+        <span className="text-[13px] text-text-3 tabular-nums">{items.length} registro{items.length !== 1 ? "s" : ""}</span>
       </div>
 
       {items.map((w) => (

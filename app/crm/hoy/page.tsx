@@ -19,7 +19,7 @@ export default function CrmHoyPage() {
   if (access.status === "no-access") {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-2 bg-background px-4 text-center">
-        <p className="text-sm font-medium text-text-2">Todavía no tenés acceso al CRM interno.</p>
+        <p className="text-[13px] font-medium text-text-2">Todavía no tenés acceso al CRM interno.</p>
         <p className="text-[13px] text-text-2">Avisale al equipo de Smart Scale si creés que deberías tenerlo.</p>
       </div>
     )

@@ -88,8 +88,8 @@ function ConfirmDeleteDialog({
         <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-red-100 border border-red-300 dark:bg-red-500/10 dark:border-red-500/20">
           <AlertTriangle className="h-5 w-5 text-red-700 dark:text-red-400" />
         </div>
-        <h3 className="text-sm font-semibold uppercase tracking-widest text-foreground mb-1">Eliminar reporte</h3>
-        <p className="text-sm text-text-2 mb-5">
+        <h3 className="text-[13px] font-semibold uppercase tracking-widest text-foreground mb-1">Eliminar reporte</h3>
+        <p className="text-[13px] text-text-2 mb-5">
           Vas a eliminar el reporte de <span className="text-foreground font-medium">{fmtMonth(month)}</span>.
           Esta acción no se puede deshacer.
         </p>
@@ -97,14 +97,14 @@ function ConfirmDeleteDialog({
           <button
             onClick={onCancel}
             disabled={loading}
-            className="flex-1 rounded-lg border border-foreground/10 bg-foreground/[0.04] px-4 py-2 text-sm text-text-2 hover:bg-foreground/[0.08] hover:text-foreground transition-all disabled:opacity-50"
+            className="flex-1 rounded-lg border border-foreground/10 bg-foreground/[0.04] px-4 py-2 text-[13px] text-text-2 hover:bg-foreground/[0.08] hover:text-foreground transition-all disabled:opacity-50"
           >
             Cancelar
           </button>
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="flex-1 rounded-lg border border-red-400 bg-red-100 px-4 py-2 text-sm font-medium text-red-800 hover:bg-red-200 hover:border-red-500 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 dark:hover:border-red-500/60 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 rounded-lg border border-red-400 bg-red-100 px-4 py-2 text-[13px] font-medium text-red-800 hover:bg-red-200 hover:border-red-500 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 dark:hover:border-red-500/60 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
             {loading ? "Eliminando…" : "Eliminar"}
@@ -143,7 +143,7 @@ function Stat({ label, value }: { label: string; value: string | number }) {
   return (
     <div>
       <p className="text-[11px] text-text-3 uppercase tracking-wider mb-0.5">{label}</p>
-      <p className="text-sm font-medium text-foreground">{String(value)}</p>
+      <p className="text-[13px] font-medium text-foreground">{String(value)}</p>
     </div>
   )
 }
@@ -153,7 +153,7 @@ function TextBlock({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="col-span-2 sm:col-span-3 lg:col-span-4">
       <p className="text-[11px] text-text-3 uppercase tracking-wider mb-0.5">{label}</p>
-      <p className="text-sm text-foreground leading-relaxed">{value}</p>
+      <p className="text-[13px] text-foreground leading-relaxed">{value}</p>
     </div>
   )
 }
@@ -178,7 +178,7 @@ function ReportRow({
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-foreground">{fmtMonth(report.month)}</p>
+          <p className="text-[13px] font-semibold text-foreground">{fmtMonth(report.month)}</p>
           <p className="text-[13px] text-text-3 mt-0.5">
             Creado {new Date(report.created_at).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" })}
           </p>
@@ -187,15 +187,15 @@ function ReportRow({
         <div className="hidden sm:flex items-center gap-6">
           <div className="text-right">
             <p className="text-[11px] text-text-3 uppercase tracking-wider">Revenue</p>
-            <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{fmt(report.total_revenue)}</p>
+            <p className="text-[13px] font-semibold text-emerald-700 dark:text-emerald-400">{fmt(report.total_revenue)}</p>
           </div>
           <div className="text-right">
             <p className="text-[11px] text-text-3 uppercase tracking-wider">Cash</p>
-            <p className="text-sm font-medium text-foreground">{fmt(report.cash_collected)}</p>
+            <p className="text-[13px] font-medium text-foreground">{fmt(report.cash_collected)}</p>
           </div>
           <div className="text-right">
             <p className="text-[11px] text-text-3 uppercase tracking-wider">Nuevos</p>
-            <p className="text-sm font-semibold text-[#dafc69]">{report.new_clients ?? "—"}</p>
+            <p className="text-[13px] font-semibold text-[#dafc69]">{report.new_clients ?? "—"}</p>
           </div>
         </div>
 
@@ -392,8 +392,8 @@ export function ReportHistoryView() {
       <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card px-6 py-5">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-[#dafc69]/70 mb-1">Datos</p>
-          <h2 className="text-xl font-bold text-foreground">Historial de Reportes</h2>
-          <p className="text-sm text-text-2 mt-1">
+          <h2 className="text-[24px] font-bold text-foreground">Historial de Reportes</h2>
+          <p className="text-[13px] text-text-2 mt-1">
             {loading ? "Cargando…" : `${reports.length} reporte${reports.length !== 1 ? "s" : ""} encontrado${reports.length !== 1 ? "s" : ""}`}
           </p>
         </div>
@@ -407,16 +407,16 @@ export function ReportHistoryView() {
       ) : error ? (
         <div className="flex items-center gap-3 rounded-xl border border-red-300 bg-red-50 px-4 py-3 dark:border-red-500/20 dark:bg-red-500/5">
           <AlertTriangle className="h-4 w-4 text-red-700 dark:text-red-400 flex-shrink-0" />
-          <p className="text-sm text-red-800 dark:text-red-400">{error}</p>
+          <p className="text-[13px] text-red-800 dark:text-red-400">{error}</p>
         </div>
       ) : !activeClientId ? (
         <div className="flex items-center justify-center py-20">
-          <p className="text-sm text-text-3">Seleccioná un cliente para ver el historial.</p>
+          <p className="text-[13px] text-text-3">Seleccioná un cliente para ver el historial.</p>
         </div>
       ) : reports.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
           <FileText className="h-10 w-10 text-text-3" />
-          <p className="text-sm text-text-3">
+          <p className="text-[13px] text-text-3">
             {isOwn ? "Todavía no tenés reportes cargados." : "No hay reportes cargados para este cliente."}
           </p>
         </div>
@@ -425,7 +425,7 @@ export function ReportHistoryView() {
           {deleteError && (
             <div className="flex items-center gap-3 rounded-xl border border-red-300 bg-red-50 px-4 py-3 mb-4 dark:border-red-500/20 dark:bg-red-500/5">
               <AlertTriangle className="h-4 w-4 text-red-700 dark:text-red-400 flex-shrink-0" />
-              <p className="text-sm text-red-700 dark:text-red-400">{deleteError}</p>
+              <p className="text-[13px] text-red-700 dark:text-red-400">{deleteError}</p>
             </div>
           )}
           {reports.map((report) => (

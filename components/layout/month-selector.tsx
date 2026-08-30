@@ -125,7 +125,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
       <Popover.Trigger asChild>
         <button
           type="button"
-          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-foreground/5 px-2.5 text-xs sm:text-sm font-semibold text-foreground hover:bg-foreground/10 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors w-[120px] sm:w-[140px]"
+          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-foreground/5 px-2.5 text-[13px] sm:text-[13px] font-semibold text-foreground hover:bg-foreground/10 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors w-[120px] sm:w-[140px]"
         >
           <Calendar className="h-3.5 w-3.5 text-text-2 shrink-0" />
           <span className="flex-1 text-left">{formatShort(selected)}</span>
@@ -151,7 +151,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
               <ChevronLeft className="h-4 w-4" />
             </button>
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-bold text-foreground tabular-nums">{viewYear}</span>
+              <span className="text-[13px] font-bold text-foreground tabular-nums">{viewYear}</span>
               {viewYear === todayYear && (
                 <span className="rounded-full bg-accent-soft px-1.5 py-0.5 text-[11px] font-bold text-[#dafc69] uppercase tracking-wider">
                   Actual
@@ -183,7 +183,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
                   onClick={() => pick(ym)}
                   disabled={!has}
                   title={has ? formatLong(ym) : `${formatLong(ym)} — sin datos`}
-                  className={`relative h-9 rounded-md text-xs font-semibold transition-all ${
+                  className={`relative h-9 rounded-md text-[13px] font-semibold transition-all ${
                     isSelected
                       ? "bg-secondary text-foreground shadow-sm"
                       : has

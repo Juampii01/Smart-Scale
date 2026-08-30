@@ -157,7 +157,7 @@ export function AdminImportView() {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <AlertCircle className="h-8 w-8 text-amber-700/50 dark:text-amber-400/50 mb-3" />
-        <p className="text-text-2 text-sm">
+        <p className="text-text-2 text-[13px]">
           Seleccioná un cliente en el selector de arriba para importar datos.
         </p>
       </div>
@@ -170,8 +170,8 @@ export function AdminImportView() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Importar datos históricos</h1>
-          <p className="text-sm text-text-2 mt-0.5">
+          <h1 className="text-[24px] font-bold text-foreground tracking-tight">Importar datos históricos</h1>
+          <p className="text-[13px] text-text-2 mt-0.5">
             Completá los datos de cada mes y presioná Importar. Los meses vacíos se omiten.
           </p>
         </div>

@@ -170,25 +170,25 @@ function renderDiagnosisContent(content: string) {
     if (line === "---") return <div key={`divider-${k}`} className="my-5 h-px w-full bg-foreground/10" />
 
     if (line.startsWith("# ")) {
-      return <h2 key={`h1-${k}`} className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">{renderInline(line.replace(/^#\s+/, ""), k)}</h2>
+      return <h2 key={`h1-${k}`} className="text-[24px] font-semibold tracking-tight text-foreground md:text-[32px]">{renderInline(line.replace(/^#\s+/, ""), k)}</h2>
     }
 
     if (line.startsWith("## ")) {
       return (
         <div key={`h2-${k}`} className="pt-3">
-          <h3 className="text-lg font-semibold uppercase tracking-[0.14em] text-foreground">{renderInline(line.replace(/^##\s+/, ""), k)}</h3>
+          <h3 className="text-[18px] font-semibold uppercase tracking-[0.14em] text-foreground">{renderInline(line.replace(/^##\s+/, ""), k)}</h3>
           <div className="mt-2 h-px w-full bg-foreground/10" />
         </div>
       )
     }
 
     if (line.startsWith("### ")) {
-      return <h4 key={`h3-${k}`} className="pt-2 text-base font-semibold text-foreground">{renderInline(line.replace(/^###\s+/, ""), k)}</h4>
+      return <h4 key={`h3-${k}`} className="pt-2 text-[15px] font-semibold text-foreground">{renderInline(line.replace(/^###\s+/, ""), k)}</h4>
     }
 
     if (line.startsWith("> ")) {
       return (
-        <div key={`quote-${k}`} className="rounded-xl border border-foreground/10 bg-foreground/[0.03] px-4 py-3 text-sm text-foreground">
+        <div key={`quote-${k}`} className="rounded-xl border border-foreground/10 bg-foreground/[0.03] px-4 py-3 text-[13px] text-foreground">
           {renderInline(line.replace(/^>\s+/, ""), k)}
         </div>
       )
@@ -196,7 +196,7 @@ function renderDiagnosisContent(content: string) {
 
     if (line.startsWith("- ")) {
       return (
-        <div key={`bullet-${k}`} className="flex items-start gap-3 text-sm leading-7 text-text-2">
+        <div key={`bullet-${k}`} className="flex items-start gap-3 text-[13px] leading-7 text-text-2">
           <span className="mt-2.5 h-1 w-1 rounded-full bg-accent flex-shrink-0" />
           <span>{renderInline(line.replace(/^-\s+/, ""), k)}</span>
         </div>
@@ -204,7 +204,7 @@ function renderDiagnosisContent(content: string) {
     }
 
     return (
-      <p key={`p-${k}`} className="text-sm leading-7 text-text-2 md:text-[15px]">
+      <p key={`p-${k}`} className="text-[13px] leading-7 text-text-2 md:text-[15px]">
         {renderInline(line, k)}
       </p>
     )
@@ -305,8 +305,8 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
                 <p className="text-[13px] font-semibold uppercase tracking-[0.16em] text-text-2 mb-2">
                   {s.name}
                 </p>
-                <p className={`text-3xl font-bold tracking-tight ${style.score}`}>
-                  {s.puntos}<span className="text-text-3 text-2xl font-medium">/6</span>
+                <p className={`text-[32px] font-bold tracking-tight ${style.score}`}>
+                  {s.puntos}<span className="text-text-3 text-[24px] font-medium">/6</span>
                 </p>
                 <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-foreground/[0.06]">
                   <div className={`h-full rounded-full ${style.bar}`} style={{ width: `${(s.puntos / 6) * 100}%` }} />
@@ -340,7 +340,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
               <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[13px] font-semibold ${priorityPill(idx)}`}>
                 {f.etiqueta}
               </span>
-              <h3 className="mt-3 text-xl font-bold tracking-tight text-foreground md:text-2xl">
+              <h3 className="mt-3 text-[24px] font-bold tracking-tight text-foreground md:text-[24px]">
                 {f.titulo}
               </h3>
               <p className="mt-2 text-[15px] leading-7 text-text-2 md:text-[15px]">
@@ -669,9 +669,9 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
       <div>
         <div className="flex items-center gap-2.5 mb-1">
           <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-          <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground">Auditoría Estratégica</h1>
+          <h1 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Auditoría Estratégica</h1>
         </div>
-        <p className="text-xs text-text-3 ml-[18px]">Evaluación del Ecosistema Circular · {selectedMonth}</p>
+        <p className="text-[13px] text-text-3 ml-[18px]">Evaluación del Ecosistema Circular · {selectedMonth}</p>
       </div>
 
       {/* Revenue card */}
@@ -683,7 +683,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
             <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3">
               Revenue total rolling 12 meses
             </p>
-            <div className="text-3xl font-bold tracking-tight text-foreground">
+            <div className="text-[32px] font-bold tracking-tight text-foreground">
               {annualMetrics && typeof annualMetrics.total_revenue === 'number'
                 ? annualMetrics.total_revenue.toLocaleString('en-US', {
                     style: 'currency',
@@ -699,7 +699,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
               Audit activo
             </span>
             <span
-              className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-semibold ${
+              className={`inline-flex items-center rounded-full px-4 py-1.5 text-[13px] font-semibold ${
                 auditType === 'mas20k'
                   ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-400/20'
                   : 'bg-amber-100 text-amber-900 ring-1 ring-amber-400 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-400/20'
@@ -712,7 +712,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
       </div>
 
       {loadingAudit ? (
-        <p className="text-text-2 text-sm">Cargando tipo de auditoría…</p>
+        <p className="text-text-2 text-[13px]">Cargando tipo de auditoría…</p>
       ) : (
         <div className="relative overflow-hidden rounded-[28px] border border-foreground/[0.07] bg-card shadow-[0_0_0_1px_rgba(0,0,0,0.02)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(0,0,0,0.015),transparent_55%)] dark:bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.015),transparent_55%)]" />
@@ -779,7 +779,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">
                   Audit Controls
                 </p>
-                <h3 className="text-base font-semibold text-foreground">
+                <h3 className="text-[15px] font-semibold text-foreground">
                   Generar diagnóstico estratégico
                 </h3>
               </div>
@@ -799,7 +799,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
             <button
               onClick={generateAIResponse}
               disabled={loading || selectedAnswersCount === 0}
-              className="rounded-xl btn-accent px-6 py-2.5 text-sm font-bold transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-xl btn-accent px-6 py-2.5 text-[13px] font-bold transition disabled:opacity-50 disabled:cursor-not-allowed"
               title={selectedAnswersCount === 0 ? "Respondé al menos una pregunta para generar el diagnóstico" : undefined}
             >
               {loading ? "Generando…" : "Generar Diagnóstico Estratégico"}
@@ -837,10 +837,10 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">
                     Strategic Output
                   </p>
-                  <h3 className="text-base font-semibold text-foreground">
+                  <h3 className="text-[15px] font-semibold text-foreground">
                     Diagnóstico Estratégico
                   </h3>
-                  <p className="mt-1.5 text-xs text-text-3 max-w-lg">
+                  <p className="mt-1.5 text-[13px] text-text-3 max-w-lg">
                     Una lectura ejecutiva del cuello de botella, las debilidades y la prioridad estratégica del negocio.
                   </p>
                 </div>
@@ -852,11 +852,11 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
             <div className="relative px-6 py-6">
               {aiResponse.startsWith("Diagnóstico en proceso") || aiResponse.startsWith("El diagnóstico está tardando") ? (
-                <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 px-4 py-4 text-sm leading-7 text-amber-200">
+                <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 px-4 py-4 text-[13px] leading-7 text-amber-200">
                   {aiResponse}
                 </div>
               ) : aiResponse.startsWith("No se pudo") || aiResponse.startsWith("Error") ? (
-                <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm leading-7 text-red-200">
+                <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-[13px] leading-7 text-red-200">
                   {aiResponse}
                 </div>
               ) : structuredDiagnosis ? (
@@ -880,16 +880,16 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">
                   Audit Archive
                 </p>
-                <h3 className="text-base font-semibold text-foreground">
+                <h3 className="text-[15px] font-semibold text-foreground">
                   Historial de diagnósticos
                 </h3>
-                <p className="mt-1 text-xs text-text-3 max-w-lg">
+                <p className="mt-1 text-[13px] text-text-3 max-w-lg">
                   Revisá auditorías anteriores, compará estados y abrí cualquier diagnóstico guardado en un clic.
                 </p>
               </div>
               <div className="rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-4 py-3 text-right">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3">Registros</p>
-                <p className="mt-0.5 text-lg font-bold text-foreground">
+                <p className="mt-0.5 text-[18px] font-bold text-foreground">
                   {loadingHistory ? "…" : diagnosisHistory.length}
                 </p>
               </div>
@@ -898,11 +898,11 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
           <div className="relative px-6 py-6">
             {loadingHistory ? (
-              <div className="rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-5 py-5 text-sm text-text-2">
+              <div className="rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-5 py-5 text-[13px] text-text-2">
                 Cargando diagnósticos guardados…
               </div>
             ) : diagnosisHistory.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-5 text-sm text-text-3">
+              <div className="rounded-xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-5 text-[13px] text-text-3">
                 {isOwnClient
                   ? "Todavía no tenés diagnósticos guardados."
                   : "Todavía no hay diagnósticos guardados para este cliente."}
@@ -957,7 +957,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
                       <div className="flex-1 flex flex-col justify-between">
                         <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-4 py-3 min-h-[100px] mb-4">
-                          <div className="text-xs leading-6 text-text-2 whitespace-pre-line max-h-40 overflow-y-auto">
+                          <div className="text-[13px] leading-6 text-text-2 whitespace-pre-line max-h-40 overflow-y-auto">
                             {item.result
                               ? previewDiagnosis(item.result)
                               : item.status === "pending"
@@ -973,7 +973,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                             }
                           }}
                           disabled={!item.result}
-                          className={`rounded-xl px-4 py-2 text-xs font-bold transition-all duration-150 ${
+                          className={`rounded-xl px-4 py-2 text-[13px] font-bold transition-all duration-150 ${
                             isActiveDiagnosis
                               ? "bg-secondary text-foreground"
                               : "border border-foreground/[0.08] bg-foreground/[0.04] text-foreground hover:bg-foreground/[0.08] hover:text-foreground"

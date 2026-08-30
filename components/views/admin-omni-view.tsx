@@ -176,7 +176,7 @@ function FindingsSection({ title, subtitle, findings }: { title: string; subtitl
         {title}{subtitle && <span className="ml-2 normal-case font-normal tracking-normal text-text-3">{subtitle}</span>}
       </p>
       {findings.length === 0 ? (
-        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
           No se encontraron patrones relevantes en los mensajes analizados.
         </div>
       ) : (
@@ -229,7 +229,7 @@ function StatCard({ icon: Icon, label, value, sublabel, tone }: {
         </span>
         <p className="text-[11px] font-semibold uppercase tracking-wide text-text-2">{label}</p>
       </div>
-      <p className="mt-2.5 text-2xl font-bold tracking-tight text-foreground">{value}</p>
+      <p className="mt-2.5 text-[24px] font-bold tracking-tight text-foreground">{value}</p>
       {sublabel && <p className="mt-0.5 text-[13px] text-text-2">{sublabel}</p>}
     </div>
   )
@@ -351,11 +351,11 @@ function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
         <p className="mb-2 text-[13px] text-red-700 dark:text-red-400">{error}</p>
       )}
       {!briefing ? (
-        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
           Todavía no corrió el análisis de riesgo de prospección — corré "Actualizar" o esperá al briefing diario.
         </div>
       ) : briefing.findings.length === 0 ? (
-        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
           Ningún prospecto activo en riesgo hoy, según los principios de Ann.
         </div>
       ) : (
@@ -430,7 +430,7 @@ function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
       )}
 
       {!briefing ? (
-        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
+        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
           Todavía no corrió el resumen — corré "Hacer resumen" o esperá al de las 19hs (hora Miami).
         </div>
       ) : (
@@ -1213,11 +1213,11 @@ export function AdminOmniView() {
             <Sparkles className="h-5 w-5 text-[#dafc69]" />
           </span>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">Ann AI</h1>
-            <p className="text-sm text-text-2">Sistema operativo de IA · Piloto con Ann</p>
+            <h1 className="text-[24px] font-bold tracking-tight text-foreground">Ann AI</h1>
+            <p className="text-[13px] text-text-2">Sistema operativo de IA · Piloto con Ann</p>
           </div>
         </div>
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-2">
+        <p className="mt-4 max-w-2xl text-[13px] leading-relaxed text-text-2">
           El sector donde vive el sistema de IA de Ann. Mira el negocio todos los días,
           encuentra los mejores leads y dónde se escapa la plata — empezando por donde
           Ann cierra: los DMs, y la comunidad en Slack.
@@ -1363,7 +1363,7 @@ export function AdminOmniView() {
                 ))}
               </div>
             ) : conversations.length === 0 ? (
-              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
+              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
                 No hay conversaciones sincronizadas todavía.
               </div>
             ) : (
@@ -1464,7 +1464,7 @@ export function AdminOmniView() {
                 ))}
               </div>
             ) : channels.length === 0 ? (
-              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
+              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
                 No hay canales sincronizados todavía.
               </div>
             ) : (
@@ -1587,7 +1587,7 @@ export function AdminOmniView() {
                 {[0, 1].map(i => <div key={i} className="h-16 animate-pulse rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]" />)}
               </div>
             ) : patterns.length === 0 ? (
-              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
+              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
                 Todavía no hay patrones registrados — se van sumando desde el botón "Corregir" en cada análisis, o sueltos con "+ Nuevo patrón".
               </div>
             ) : (

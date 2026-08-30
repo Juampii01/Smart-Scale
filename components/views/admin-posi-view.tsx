@@ -40,7 +40,7 @@ interface Submission {
   wrong_question_ids?: string[]
 }
 
-const inputCls = "w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
+const inputCls = "w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
 
 const QUESTION_TYPE_OPTIONS: { value: Question["type"]; label: string }[] = [
   { value: "text", label: "Texto libre" },
@@ -509,7 +509,7 @@ export function AdminPosiView() {
       <div>
         <SectionHeader icon={ClipboardList} title="Respuestas recibidas" subtitle={`${submissions.length} en total`} className="mb-4" />
         {submissions.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-10 text-center text-sm text-text-3">
+          <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-10 text-center text-[13px] text-text-3">
             Todavía no llegó ninguna respuesta.
           </div>
         ) : (

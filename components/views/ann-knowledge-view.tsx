@@ -383,7 +383,7 @@ export function AnnKnowledgeView() {
             <Brain className="h-6 w-6 text-black" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-foreground leading-none">
+            <h1 className="text-[24px] font-extrabold tracking-tight text-foreground leading-none">
               Cerebro de Ann
             </h1>
             <p className="mt-1.5 text-[13px] text-text-2">
@@ -400,14 +400,14 @@ export function AnnKnowledgeView() {
           <button
             onClick={handleExportDrive}
             disabled={exportingDrive}
-            className="inline-flex items-center gap-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.02] px-4 py-2.5 text-sm font-semibold text-foreground hover:border-foreground/20 hover:text-foreground disabled:opacity-50 transition-all"
+            className="inline-flex items-center gap-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.02] px-4 py-2.5 text-[13px] font-semibold text-foreground hover:border-foreground/20 hover:text-foreground disabled:opacity-50 transition-all"
           >
             {exportingDrive ? <Loader2 className="h-4 w-4 animate-spin" /> : <FolderUp className="h-4 w-4" />}
             {exportingDrive ? "Exportando…" : "Exportar a Drive"}
           </button>
           <button
             onClick={() => setFormOpen(v => !v)}
-            className="inline-flex items-center gap-2 rounded-xl btn-accent px-4 py-2.5 text-sm font-bold transition active:scale-95"
+            className="inline-flex items-center gap-2 rounded-xl btn-accent px-4 py-2.5 text-[13px] font-bold transition active:scale-95"
           >
             {formOpen ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
             {formOpen ? "Cancelar" : "Nueva entrada"}
@@ -438,7 +438,7 @@ export function AnnKnowledgeView() {
           <input
             value={title} onChange={e => setTitle(e.target.value)}
             placeholder="Título de la entrada…"
-            className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-sm font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
+            className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-[13px] font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
           />
 
           {/* Pillar + Source type */}
@@ -448,7 +448,7 @@ export function AnnKnowledgeView() {
               <div className="flex flex-wrap gap-1.5">
                 {PILLAR_BTNS.map(p => (
                   <button key={p.value} onClick={() => setPillar(p.value)}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
+                    className={`rounded-lg px-3 py-1.5 text-[13px] font-bold transition-all ${
                       pillar === p.value
                         ? `${pc(p.value).badge} ring-1 ring-inset ${pc(p.value).ring}`
                         : "bg-foreground/[0.05] text-text-2 hover:bg-foreground/[0.08]"
@@ -463,7 +463,7 @@ export function AnnKnowledgeView() {
               <div className="flex flex-wrap gap-1.5">
                 {SOURCE_TYPES.map(({ value, label, Icon }) => (
                   <button key={value} onClick={() => setSourceType(value)}
-                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all ${
                       sourceType === value
                         ? "bg-secondary text-[#dafc69]/90 ring-1 ring-inset ring-accent/20"
                         : "bg-foreground/[0.05] text-text-2 hover:bg-foreground/[0.08]"
@@ -521,10 +521,10 @@ export function AnnKnowledgeView() {
                   <Upload className={`h-5 w-5 transition-colors ${isDragging ? "text-[#dafc69]/70" : "text-text-3"}`} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-text-2">
+                  <p className="text-[13px] font-medium text-text-2">
                     {isDragging ? "Soltá los archivos acá" : "Arrastrá o hacé click para subir"}
                   </p>
-                  <p className="mt-1 text-xs text-text-3">PDF, DOCX, TXT, MD · máx. 10 MB · podés subir varios a la vez</p>
+                  <p className="mt-1 text-[13px] text-text-3">PDF, DOCX, TXT, MD · máx. 10 MB · podés subir varios a la vez</p>
                 </div>
               </div>
             ) : queue.length > 0 ? (
@@ -571,7 +571,7 @@ export function AnnKnowledgeView() {
                 ))}
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full rounded-xl border border-dashed border-foreground/[0.10] py-2 text-xs text-text-2 hover:border-foreground/20 hover:text-text-2 transition-all">
+                  className="w-full rounded-xl border border-dashed border-foreground/[0.10] py-2 text-[13px] text-text-2 hover:border-foreground/20 hover:text-text-2 transition-all">
                   + Agregar más archivos
                 </button>
               </div>
@@ -593,8 +593,8 @@ export function AnnKnowledgeView() {
                   }
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{uploadFile!.name}</p>
-                  <p className="text-xs text-text-2 mt-0.5">
+                  <p className="text-[13px] font-semibold text-foreground truncate">{uploadFile!.name}</p>
+                  <p className="text-[13px] text-text-2 mt-0.5">
                     {EXT_LABELS[uploadFile!.name.split(".").pop()?.toLowerCase() ?? ""] ?? "Archivo"} · {fmtSize(uploadFile!.size)}
                     {extracting && <span className="ml-2 text-[#dafc69]/70">Extrayendo texto con IA…</span>}
                     {extractDone && <span className="ml-2 text-emerald-600 dark:text-emerald-400">Texto extraído · podés editar abajo</span>}
@@ -617,7 +617,7 @@ export function AnnKnowledgeView() {
               <textarea
                 value={content} onChange={e => setContent(e.target.value)} rows={8}
                 placeholder="Pegá o escribí el contenido… o subí un archivo arriba para extraerlo automáticamente."
-                className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-sm text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
+                className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
               />
               {content.length > 0 && (
                 <span className="pointer-events-none absolute bottom-3 right-3 text-[13px] text-text-3">
@@ -628,7 +628,7 @@ export function AnnKnowledgeView() {
           )}
 
           {error && (
-            <p className="rounded-lg bg-red-50 dark:bg-red-500/10 px-3 py-2 text-xs text-red-700 dark:text-red-400">
+            <p className="rounded-lg bg-red-50 dark:bg-red-500/10 px-3 py-2 text-[13px] text-red-700 dark:text-red-400">
               {error}
             </p>
           )}
@@ -639,7 +639,7 @@ export function AnnKnowledgeView() {
               <button
                 onClick={addBatch}
                 disabled={batchSaving || queue.every(q => q.status !== "ready") || queue.some(q => q.status === "extracting")}
-                className="inline-flex items-center gap-2 rounded-xl btn-accent px-6 py-2.5 text-sm font-bold transition active:scale-95 disabled:opacity-40">
+                className="inline-flex items-center gap-2 rounded-xl btn-accent px-6 py-2.5 text-[13px] font-bold transition active:scale-95 disabled:opacity-40">
                 {batchSaving
                   ? <Loader2 className="h-4 w-4 animate-spin" />
                   : <Brain className="h-4 w-4" />
@@ -652,7 +652,7 @@ export function AnnKnowledgeView() {
             ) : (
               /* Single mode button */
               <button onClick={add} disabled={saving || !title.trim() || !content.trim() || extracting}
-              className="inline-flex items-center gap-2 rounded-xl btn-accent px-6 py-2.5 text-sm font-bold transition active:scale-95 disabled:opacity-40">
+              className="inline-flex items-center gap-2 rounded-xl btn-accent px-6 py-2.5 text-[13px] font-bold transition active:scale-95 disabled:opacity-40">
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
                 Agregar al cerebro
               </button>
@@ -667,7 +667,7 @@ export function AnnKnowledgeView() {
           <div className="flex items-center gap-0.5 overflow-x-auto">
             {FILTER_TABS.map(tab => (
               <button key={tab.value} onClick={() => setFilterPillar(tab.value)}
-                className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all ${
                   filterPillar === tab.value
                     ? "bg-foreground/[0.08] text-foreground"
                     : "text-text-2 hover:text-foreground hover:bg-foreground/[0.05]"
@@ -688,7 +688,7 @@ export function AnnKnowledgeView() {
             <input
               value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Buscar…"
-              className="w-36 rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] pl-8 pr-7 py-1.5 text-xs text-foreground placeholder:text-text-3 focus:outline-none focus:border-foreground/20 focus:w-48 transition-all"
+              className="w-36 rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] pl-8 pr-7 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-foreground/20 focus:w-48 transition-all"
             />
             {search && (
               <button onClick={() => setSearch("")}
@@ -711,10 +711,10 @@ export function AnnKnowledgeView() {
             <Sparkles className="h-5 w-5 text-text-3" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-text-2">
+            <p className="text-[13px] font-semibold text-text-2">
               {search || filterPillar !== "all" ? "Sin resultados" : "El cerebro está vacío"}
             </p>
-            <p className="mt-1 text-xs text-text-3">
+            <p className="mt-1 text-[13px] text-text-3">
               {search || filterPillar !== "all"
                 ? "Probá con otros filtros."
                 : "Agregá la primera pieza de conocimiento arriba."}
@@ -772,10 +772,10 @@ export function AnnKnowledgeView() {
                 {isExp && (
                   <div className="border-t border-foreground/[0.06] bg-foreground/[0.015] p-5 space-y-3">
                     <input value={editTitle} onChange={ev => setEditTitle(ev.target.value)}
-                      className="w-full rounded-xl border border-foreground/[0.08] bg-card px-4 py-2.5 text-sm font-medium text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition" />
+                      className="w-full rounded-xl border border-foreground/[0.08] bg-card px-4 py-2.5 text-[13px] font-medium text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition" />
                     <div className="relative">
                       <textarea value={editContent} onChange={ev => setEditContent(ev.target.value)} rows={10}
-                        className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-card px-4 py-3 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition" />
+                        className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-card px-4 py-3 text-[13px] text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition" />
                       <span className="pointer-events-none absolute bottom-3 right-3 text-[13px] text-text-3">
                         {editContent.length.toLocaleString()} chars
                       </span>
@@ -785,7 +785,7 @@ export function AnnKnowledgeView() {
                         Actualizado {new Date(e.updated_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}
                       </span>
                       <button onClick={() => saveEdit(e.id)}
-                      className="inline-flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-sm font-bold transition active:scale-95">
+                      className="inline-flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-bold transition active:scale-95">
                         <Save className="h-3.5 w-3.5" /> Guardar cambios
                       </button>
                     </div>

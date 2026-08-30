@@ -56,7 +56,7 @@ export default function ConectarInstagramPage() {
             <Check className="h-10 w-10 text-black" strokeWidth={3} />
           </div>
           <div className="space-y-3">
-            <h1 className="text-3xl font-black text-foreground">¡Listo, lo recibimos!</h1>
+            <h1 className="text-[32px] font-black text-foreground">¡Listo, lo recibimos!</h1>
             <p className="text-text-2 text-[15px] leading-relaxed">
               Vamos a configurar el acceso a las métricas de tu Instagram. En breve te va a llegar una invitación de Meta para aceptar.
             </p>

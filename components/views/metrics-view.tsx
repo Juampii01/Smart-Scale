@@ -69,7 +69,7 @@ function HealthRadar({ reports }: { reports: any[] }) {
   return (
     <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
       <h3 className="text-[18px] font-bold text-foreground mb-1">Health Score</h3>
-      <p className="text-xs text-text-3 mb-4">
+      <p className="text-[13px] text-text-3 mb-4">
         Cada eje muestra qué tan cerca estás de tu mejor mes histórico (100 = tu máximo)
       </p>
       <ResponsiveContainer width="100%" height={280}>
@@ -126,7 +126,7 @@ function SummaryStrip({ current, previous }: { current: any; previous: any }) {
                 </span>
               )}
             </div>
-            <p className="text-xl font-bold text-foreground leading-none tabular-nums">
+            <p className="text-[24px] font-bold text-foreground leading-none tabular-nums">
               {fmtVal(cur, kpi.money)}
             </p>
             <p className="text-[13px] text-text-2 leading-tight">{kpi.label}</p>
@@ -158,7 +158,7 @@ function RollingTrend({ reports }: { reports: any[] }) {
   return (
     <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
       <h3 className="text-[18px] font-bold text-foreground mb-1">Evolución financiera — 12 meses</h3>
-      <p className="text-xs text-text-3 mb-5">Cash Collected, Total Revenue y MRR en el tiempo</p>
+      <p className="text-[13px] text-text-3 mb-5">Cash Collected, Total Revenue y MRR en el tiempo</p>
       <div className="flex flex-wrap gap-5 mb-4">
         {[
           { label: "Cash Collected", color: "var(--accent-ink)" },
@@ -309,7 +309,7 @@ export function MetricsView() {
     <div className="space-y-12">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-bold text-foreground">All Metrics</h2>
+        <h2 className="text-[24px] font-bold text-foreground">All Metrics</h2>
         <p suppressHydrationWarning className="text-[13px] text-text-2 mt-0.5">
           {selectedMonth} · {annualRange ? `Últimos 12 meses: ${annualRange.label}` : "—"}
         </p>
@@ -318,7 +318,7 @@ export function MetricsView() {
       {/* 1. Summary KPI strip */}
       {(curReport || metrics) && (
         <section className="space-y-3">
-          <h3 className="text-base font-bold text-foreground">Snapshot del mes</h3>
+          <h3 className="text-[15px] font-bold text-foreground">Snapshot del mes</h3>
           <SummaryStrip current={curReport ?? metrics} previous={prevReport} />
         </section>
       )}
@@ -340,11 +340,11 @@ export function MetricsView() {
           {/* Texto explicativo */}
           <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6 flex flex-col justify-center gap-4">
             <h3 className="text-[18px] font-bold text-foreground">¿Cómo leer el radar?</h3>
-            <div className="space-y-3 text-sm text-text-2 leading-relaxed">
+            <div className="space-y-3 text-[13px] text-text-2 leading-relaxed">
               <p>Cada eje representa una métrica clave. <span className="text-foreground font-medium">100 = tu mejor mes histórico</span> en esa categoría.</p>
               <p>Un radar balanceado y grande → negocio saludable en todos los frentes.</p>
               <p>Un eje caído → ahí está el problema. Si Instagram cae y el cash cae, la correlación es clara.</p>
-              <p className="text-text-3 text-xs">Los valores se normalizan automáticamente cada vez que hay un nuevo máximo histórico.</p>
+              <p className="text-text-3 text-[13px]">Los valores se normalizan automáticamente cada vez que hay un nuevo máximo histórico.</p>
             </div>
           </div>
         </section>
@@ -353,8 +353,8 @@ export function MetricsView() {
       {/* 5. Tabla completa de métricas */}
       <section className="space-y-4">
         <div>
-          <h3 className="text-base font-bold text-foreground">Tabla completa</h3>
-          <p className="text-xs text-text-3 mt-0.5">Todos los campos del reporte mensual + acumulado 12 meses</p>
+          <h3 className="text-[15px] font-bold text-foreground">Tabla completa</h3>
+          <p className="text-[13px] text-text-3 mt-0.5">Todos los campos del reporte mensual + acumulado 12 meses</p>
         </div>
         <MetricsSection
           metrics={metrics}

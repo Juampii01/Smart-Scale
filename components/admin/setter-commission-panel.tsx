@@ -90,7 +90,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-red-700/20 bg-red-700/5 px-4 py-3 text-sm text-red-700 dark:text-red-400">
+      <div className="rounded-2xl border border-red-700/20 bg-red-700/5 px-4 py-3 text-[13px] text-red-700 dark:text-red-400">
         {error}
       </div>
     )
@@ -98,7 +98,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
 
   if (commissions.length === 0) {
     return (
-      <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-sm text-text-2">
+      <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
         Sin comisiones registradas
       </div>
     )
@@ -110,7 +110,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
     return (
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-text-2">Mi comisión — <span className="text-[#dafc69]">{monthLabel(month)}</span></h3>
+          <h3 className="text-[11px] font-bold uppercase tracking-widest text-text-2">Mi comisión — <span className="text-[#dafc69]">{monthLabel(month)}</span></h3>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <CommissionCard label="Nuevos" value={String(c.new_count)} />
@@ -130,20 +130,20 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-text-2">Comisiones del equipo — <span className="text-[#dafc69]">{monthLabel(month)}</span></h3>
+        <h3 className="text-[11px] font-bold uppercase tracking-widest text-text-2">Comisiones del equipo — <span className="text-[#dafc69]">{monthLabel(month)}</span></h3>
       </div>
 
       {/* Summary card */}
       <div className="rounded-2xl border border-accent/20 bg-accent-soft px-4 py-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-foreground">Total en comisiones</span>
-          <span className="text-lg font-bold text-[#dafc69]">{formatCurrency(totalCommission)}</span>
+          <span className="text-[13px] font-medium text-foreground">Total en comisiones</span>
+          <span className="text-[18px] font-bold text-[#dafc69]">{formatCurrency(totalCommission)}</span>
         </div>
       </div>
 
       {/* Per-setter table */}
       <div className="overflow-x-auto rounded-2xl border border-foreground/[0.07]">
-        <table className="w-full text-sm">
+        <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
               <th className="px-4 py-2.5 text-left font-semibold text-foreground">Setter</th>
@@ -173,7 +173,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
                 <td className="px-4 py-2.5 text-right text-foreground tabular-nums">
                   {c.new_cash > 0 ? formatCurrency(c.new_cash) : "—"}
                 </td>
-                <td className="px-4 py-2.5 text-right text-[#dafc69]/60 text-xs tabular-nums">
+                <td className="px-4 py-2.5 text-right text-[#dafc69]/60 text-[13px] tabular-nums">
                   {c.old_cash > 0 ? formatCurrency(c.old_cash) : "—"}
                 </td>
                 <td className="px-4 py-2.5 text-right font-semibold text-[#dafc69] tabular-nums">
@@ -199,7 +199,7 @@ function CommissionCard({ label, value, highlight, small }: { label: string; val
         {label}
       </div>
       <div className={`mt-1.5 font-bold ${
-        small ? "text-sm" : "text-lg"
+        small ? "text-[13px]" : "text-[18px]"
       } ${
         highlight ? "text-[#dafc69]" : "text-foreground"
       }`}>

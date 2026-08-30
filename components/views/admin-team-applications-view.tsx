@@ -96,7 +96,7 @@ function DetailDrawer({
               </span>
               <span className="text-[13px] text-text-3">{fmtDate(app.created_at)}</span>
             </div>
-            <h2 className="text-xl font-bold text-foreground truncate">{fullName(app)}</h2>
+            <h2 className="text-[24px] font-bold text-foreground truncate">{fullName(app)}</h2>
           </div>
           <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
             <X className="h-4 w-4" />
@@ -310,15 +310,15 @@ export function AdminTeamApplicationsView() {
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">Contratación</h1>
-            <p className="text-sm text-text-2 mt-0.5">{apps.length} aplicaciones de candidatos al equipo</p>
+            <h1 className="text-[24px] font-bold text-foreground tracking-tight">Contratación</h1>
+            <p className="text-[13px] text-text-2 mt-0.5">{apps.length} aplicaciones de candidatos al equipo</p>
           </div>
           <div className="flex items-center gap-2">
             <a
               href={`/aplicar-equipo/${TEAM_APPLICATION_FORMS[0]?.role ?? ""}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all"
+              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               Ver formulario
@@ -328,7 +328,7 @@ export function AdminTeamApplicationsView() {
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
             <button onClick={exportCsv} disabled={!filtered.length}
-              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
@@ -340,7 +340,7 @@ export function AdminTeamApplicationsView() {
           {STATUS_LIST.map(s => (
             <div key={s} className="rounded-[14px] border border-foreground/[0.07] bg-card px-4 py-3.5">
               <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 capitalize">{s}</p>
-              <p className={`mt-1 text-2xl font-bold ${STATUS_STYLE[s].split(" ")[1]}`}>
+              <p className={`mt-1 text-[24px] font-bold ${STATUS_STYLE[s].split(" ")[1]}`}>
                 {apps.filter(a => a.status === s).length}
               </p>
             </div>
@@ -383,7 +383,7 @@ export function AdminTeamApplicationsView() {
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-20 text-center text-sm text-text-2">
+          <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-20 text-center text-[13px] text-text-2">
             {apps.length === 0
               ? "Todavía no hay candidatos. Compartí el link del formulario para empezar a recibir aplicaciones."
               : "Ningún candidato matchea los filtros actuales."}

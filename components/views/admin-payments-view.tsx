@@ -337,8 +337,8 @@ export function AdminPaymentsView() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Pagos</h1>
-          <p className="text-sm text-text-2 mt-0.5">{payments.length} registros</p>
+          <h1 className="text-[24px] font-bold text-foreground tracking-tight">Pagos</h1>
+          <p className="text-[13px] text-text-2 mt-0.5">{payments.length} registros</p>
         </div>
         <div className="flex items-center gap-2">
           {/* View toggle */}
@@ -362,17 +362,17 @@ export function AdminPaymentsView() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button onClick={exportCsv} disabled={!filtered.length}
-            className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+            className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
             <Download className="h-3.5 w-3.5" />
             CSV
           </button>
           <button onClick={() => setShowLinkDialog(true)}
-            className="flex items-center gap-2 h-9 rounded-xl border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-4 text-sm font-semibold text-[#dafc69] hover:bg-secondary transition-all">
+            className="flex items-center gap-2 h-9 rounded-xl border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-4 text-[13px] font-semibold text-[#dafc69] hover:bg-secondary transition-all">
             <Link2 className="h-3.5 w-3.5" />
             Link de pago
           </button>
           <button onClick={() => setAdding(true)} disabled={adding}
-          className="flex items-center gap-2 h-9 rounded-xl btn-accent px-4 text-sm font-bold disabled:opacity-50 transition-all">
+          className="flex items-center gap-2 h-9 rounded-xl btn-accent px-4 text-[13px] font-bold disabled:opacity-50 transition-all">
             <Plus className="h-4 w-4" />
             Nuevo pago
           </button>
@@ -388,7 +388,7 @@ export function AdminPaymentsView() {
         ].map(card => (
           <div key={card.label} className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
             <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{card.label}</p>
-            <p className={`mt-1.5 text-2xl font-bold tabular-nums ${card.color}`}>{card.value}</p>
+            <p className={`mt-1.5 text-[24px] font-bold tabular-nums ${card.color}`}>{card.value}</p>
           </div>
         ))}
       </div>
@@ -465,7 +465,7 @@ export function AdminPaymentsView() {
           )}
 
           {monthGroups.length === 0 && !adding ? (
-            <div className="flex items-center justify-center py-20 text-sm text-text-3">
+            <div className="flex items-center justify-center py-20 text-[13px] text-text-3">
               {payments.length ? "No hay pagos con ese estado." : "Todavía no hay pagos registrados."}
             </div>
           ) : (
@@ -484,11 +484,11 @@ export function AdminPaymentsView() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-xl border border-foreground/[0.07] bg-card px-4 py-3">
                       <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Cobrado</p>
-                      <p className="mt-1 text-xl font-bold tabular-nums text-emerald-700 dark:text-emerald-300">{fmtMoney(monthAceptado)}</p>
+                      <p className="mt-1 text-[24px] font-bold tabular-nums text-emerald-700 dark:text-emerald-300">{fmtMoney(monthAceptado)}</p>
                     </div>
                     <div className="rounded-xl border border-foreground/[0.07] bg-card px-4 py-3">
                       <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Pagos</p>
-                      <p className="mt-1 text-xl font-bold tabular-nums text-foreground">{monthCount}</p>
+                      <p className="mt-1 text-[24px] font-bold tabular-nums text-foreground">{monthCount}</p>
                     </div>
                   </div>
 
@@ -521,7 +521,7 @@ export function AdminPaymentsView() {
                   <NewPaymentRow onSave={handleAdd} onCancel={() => setAdding(false)} />
                 )}
                 {!filtered.length && !adding ? (
-                  <tr><td colSpan={8} className="py-16 text-center text-sm text-text-3">
+                  <tr><td colSpan={8} className="py-16 text-center text-[13px] text-text-3">
                     {payments.length ? "No hay pagos con ese estado." : "Todavía no hay pagos registrados."}
                   </td></tr>
                 ) : (

@@ -98,8 +98,8 @@ export function AdminInstagramAccessView() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Instagram · Acceso a métricas</h1>
-          <p className="text-sm text-text-2 mt-0.5">{items.length} solicitud{items.length !== 1 ? "es" : ""} desde el form público</p>
+          <h1 className="text-[24px] font-bold text-foreground tracking-tight">Instagram · Acceso a métricas</h1>
+          <p className="text-[13px] text-text-2 mt-0.5">{items.length} solicitud{items.length !== 1 ? "es" : ""} desde el form público</p>
         </div>
         <button onClick={fetchItems} disabled={loading}
           className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
@@ -128,7 +128,7 @@ export function AdminInstagramAccessView() {
         value={search}
         onChange={e => setSearch(e.target.value)}
         placeholder="Buscar por nombre, instagram, email..."
-        className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-sm text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none w-full max-w-sm"
+        className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none w-full max-w-sm"
       />
 
       {/* Table */}
@@ -146,7 +146,7 @@ export function AdminInstagramAccessView() {
               {loading ? (
                 <tr><td colSpan={7} className="py-16 text-center"><Loader2 className="inline h-5 w-5 animate-spin text-text-3" /></td></tr>
               ) : !filtered.length ? (
-                <tr><td colSpan={7} className="py-16 text-center text-sm text-text-3">
+                <tr><td colSpan={7} className="py-16 text-center text-[13px] text-text-3">
                   {items.length ? "No hay solicitudes con esa búsqueda." : "Todavía no llegó ninguna solicitud."}
                 </td></tr>
               ) : filtered.map(item => (

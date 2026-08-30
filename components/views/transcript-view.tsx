@@ -102,7 +102,7 @@ function SummaryBlock({ text }: { text: string }) {
     return { header: null, body: block.trim() }
   }).filter(s => s.body)
 
-  if (!sections.length) return <p className="text-sm text-text-2 leading-relaxed">{clean}</p>
+  if (!sections.length) return <p className="text-[13px] text-text-2 leading-relaxed">{clean}</p>
 
   return (
     <div className="grid gap-3">
@@ -112,12 +112,12 @@ function SummaryBlock({ text }: { text: string }) {
           <div key={i} className={`rounded-[14px] border overflow-hidden ${cfg ? cfg.border : "border-foreground/[0.07]"}`}>
             {s.header && cfg && (
               <div className={`flex items-center gap-2.5 px-4 py-3 ${cfg.bg} border-b ${cfg.border}`}>
-                <span className="text-base leading-none">{cfg.icon}</span>
+                <span className="text-[15px] leading-none">{cfg.icon}</span>
                 <span className={`text-[11px] font-bold uppercase tracking-widest ${cfg.color}`}>{s.header}</span>
               </div>
             )}
             <div className="px-4 py-3.5 bg-foreground/[0.01]">
-              <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{s.body}</p>
+              <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-wrap">{s.body}</p>
             </div>
           </div>
         )
@@ -190,11 +190,11 @@ function TranscriptModal({
                   </div>
                 </div>
 
-                <h3 className="max-w-3xl text-lg font-semibold leading-tight text-foreground sm:text-[24px]">
+                <h3 className="max-w-3xl text-[18px] font-semibold leading-tight text-foreground sm:text-[24px]">
                   {data.title}
                 </h3>
 
-                <div className="mt-3 flex flex-wrap items-center gap-2.5 text-xs text-text-3">
+                <div className="mt-3 flex flex-wrap items-center gap-2.5 text-[13px] text-text-3">
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-1.5">
                     <FileText className="h-3 w-3" />
                     {data.wordCount.toLocaleString()} palabras
@@ -209,7 +209,7 @@ function TranscriptModal({
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={handleCopy}
-                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm font-medium text-text-2 hover:border-foreground/[0.16] hover:bg-foreground/[0.07] hover:text-foreground transition-all"
+                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-[13px] font-medium text-text-2 hover:border-foreground/[0.16] hover:bg-foreground/[0.07] hover:text-foreground transition-all"
                 >
                   {copied ? <Check className="h-4 w-4 text-[#dafc69]" /> : <Copy className="h-4 w-4" />}
                   {copied ? "Copiado" : "Copiar"}
@@ -283,7 +283,7 @@ function DetailModal({
               <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#dafc69]/70">
                 {data.kind === "transcript" ? "Transcripción" : "Análisis"}
               </p>
-              <h3 className="text-lg font-semibold text-foreground">{data.title}</h3>
+              <h3 className="text-[18px] font-semibold text-foreground">{data.title}</h3>
             </div>
           </div>
 
@@ -469,7 +469,7 @@ export function TranscriptView() {
                     setUrl("")
                     setFormError(null)
                   }}
-                  className="h-11 w-full appearance-none cursor-pointer rounded-xl border border-foreground/[0.08] bg-card px-4 pr-10 text-sm text-foreground focus:border-foreground/20 focus:outline-none disabled:opacity-60"
+                  className="h-11 w-full appearance-none cursor-pointer rounded-xl border border-foreground/[0.08] bg-card px-4 pr-10 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none disabled:opacity-60"
                 >
                   <option value="youtube">YouTube</option>
                   <option value="instagram">Instagram</option>
@@ -484,7 +484,7 @@ export function TranscriptView() {
                 <select
                   value={outputType}
                   onChange={e => setOutputType(e.target.value as any)}
-                  className="h-11 w-full appearance-none cursor-pointer rounded-xl border border-foreground/[0.08] bg-card px-4 pr-10 text-sm text-foreground focus:border-foreground/20 focus:outline-none disabled:opacity-60"
+                  className="h-11 w-full appearance-none cursor-pointer rounded-xl border border-foreground/[0.08] bg-card px-4 pr-10 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none disabled:opacity-60"
                 >
                   <option value="both">Transcripción + Resumen IA</option>
                   <option value="transcript">Solo transcripción</option>
@@ -504,7 +504,7 @@ export function TranscriptView() {
                 value={url}
                 onChange={e => { setUrl(e.target.value); setFormError(null) }}
                 placeholder={platform === "youtube" ? "Ingresá la URL del video de YouTube..." : "Ingresá la URL del reel de Instagram..."}
-                className={`h-11 w-full rounded-xl border px-4 text-sm text-foreground placeholder:text-text-3 focus:outline-none transition-all bg-card ${
+                className={`h-11 w-full rounded-xl border px-4 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none transition-all bg-card ${
                   platform === "instagram" && isIGNonReel
                     ? "border-orange-500/40 focus:border-orange-500/60"
                     : "border-foreground/[0.08] focus:border-foreground/20"
@@ -522,7 +522,7 @@ export function TranscriptView() {
             <button
               type="submit"
               disabled={!url.trim()}
-              className="inline-flex items-center gap-2 h-10 rounded-xl btn-accent px-5 text-sm font-bold disabled:opacity-40 transition"
+              className="inline-flex items-center gap-2 h-10 rounded-xl btn-accent px-5 text-[13px] font-bold disabled:opacity-40 transition"
             >
               <FileVideo className="h-3.5 w-3.5" />
               Transcribir
@@ -531,7 +531,7 @@ export function TranscriptView() {
 
           {formError && (
             <div className="flex items-start gap-3 rounded-xl border border-red-300 bg-red-100 px-4 py-3 dark:border-red-500/20 dark:bg-red-500/10">
-              <p className="flex-1 text-sm text-red-800 dark:text-red-300">{formError}</p>
+              <p className="flex-1 text-[13px] text-red-800 dark:text-red-300">{formError}</p>
             </div>
           )}
 
@@ -539,7 +539,7 @@ export function TranscriptView() {
           {errorJobs.map(job => (
             <div key={job.id} className="flex items-start gap-3 rounded-xl border border-red-300 bg-red-100 px-4 py-3 dark:border-red-500/20 dark:bg-red-500/10">
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-red-800 dark:text-red-300">{job.error}</p>
+                <p className="text-[13px] text-red-800 dark:text-red-300">{job.error}</p>
                 <p className="mt-0.5 truncate text-[13px] text-red-800/50 dark:text-red-300/40">{job.url}</p>
               </div>
               <button
@@ -607,11 +607,11 @@ export function TranscriptView() {
                       : <div className="flex h-full items-center justify-center"><Youtube className="h-5 w-5 text-red-500/40" /></div>}
                   </div>
                   <div className="min-w-0">
-                    {jobResult.title && <p className="text-sm font-semibold text-foreground leading-snug line-clamp-2">{jobResult.title}</p>}
+                    {jobResult.title && <p className="text-[13px] font-semibold text-foreground leading-snug line-clamp-2">{jobResult.title}</p>}
                     {jobResult.creator && (
                       <div className="flex items-center gap-1.5 mt-1">
                         <User className="h-3 w-3 text-text-3" />
-                        <p className="text-xs text-text-2">{jobResult.creator}</p>
+                        <p className="text-[13px] text-text-2">{jobResult.creator}</p>
                       </div>
                     )}
                   </div>
@@ -620,13 +620,13 @@ export function TranscriptView() {
                   {jobResult.duration && (
                     <div className="flex items-center gap-1.5 rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-3 py-2">
                       <Clock className="h-3 w-3 text-text-3" />
-                      <span className="text-sm font-bold text-foreground tabular-nums">{jobResult.duration}</span>
+                      <span className="text-[13px] font-bold text-foreground tabular-nums">{jobResult.duration}</span>
                     </div>
                   )}
                   <div className="flex items-center gap-1.5 rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-3 py-2">
                     <FileText className="h-3 w-3 text-text-3" />
-                    <span className="text-sm font-bold text-foreground tabular-nums">{jobWordCount.toLocaleString()}</span>
-                    <span className="text-xs text-text-3">palabras</span>
+                    <span className="text-[13px] font-bold text-foreground tabular-nums">{jobWordCount.toLocaleString()}</span>
+                    <span className="text-[13px] text-text-3">palabras</span>
                   </div>
                 </div>
               </div>
@@ -642,7 +642,7 @@ export function TranscriptView() {
                       <FileText className="h-4 w-4 text-[#dafc69]" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-foreground">Transcripción</p>
+                      <p className="text-[13px] font-bold text-foreground">Transcripción</p>
                       <p className="text-[13px] text-text-3 mt-0.5">{jobWordCount.toLocaleString()} palabras</p>
                     </div>
                   </div>
@@ -654,7 +654,7 @@ export function TranscriptView() {
                         transcript: jobResult.transcript,
                         wordCount: jobWordCount,
                       })}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-xs font-medium text-text-2 hover:text-foreground hover:border-foreground/20 hover:bg-foreground/[0.06] transition-all"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 hover:bg-foreground/[0.06] transition-all"
                     >
                       <Maximize2 className="h-3 w-3" />
                       Ver completa
@@ -697,14 +697,14 @@ export function TranscriptView() {
 
         {historyLoading ? (
           <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-10 text-center">
-            <p className="text-sm text-text-3">Cargando…</p>
+            <p className="text-[13px] text-text-3">Cargando…</p>
           </div>
         ) : history.length === 0 ? (
           <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-14 flex flex-col items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
               <FileText className="h-5 w-5 text-text-3" />
             </div>
-            <p className="text-sm text-text-3">Todavía no hay transcripciones. Enviá una URL arriba para empezar.</p>
+            <p className="text-[13px] text-text-3">Todavía no hay transcripciones. Enviá una URL arriba para empezar.</p>
           </div>
         ) : (
           <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
@@ -839,7 +839,7 @@ export function TranscriptView() {
                       <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-foreground/[0.07] bg-card">
                         {isYT ? <Youtube className="h-3.5 w-3.5 text-[#dafc69]" /> : <Instagram className="h-3.5 w-3.5 text-[#dafc69]" />}
                       </div>
-                      <span className="text-sm font-semibold text-foreground">{isYT ? "YouTube" : "Instagram"}</span>
+                      <span className="text-[13px] font-semibold text-foreground">{isYT ? "YouTube" : "Instagram"}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       {status === "complete" ? (

@@ -121,7 +121,7 @@ function DetailDrawer({
         {/* Header */}
         <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
           <div className="min-w-0">
-            <h2 className="text-lg font-bold text-foreground truncate">{fullName(app)}</h2>
+            <h2 className="text-[18px] font-bold text-foreground truncate">{fullName(app)}</h2>
             <p className="text-[13px] text-text-2 mt-0.5">{fmtDate(app.created_at)}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -389,15 +389,15 @@ export function AdminApplicationsView() {
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">Aplicaciones</h1>
-            <p className="text-sm text-text-2 mt-0.5">{apps.length} aplicaciones</p>
+            <h1 className="text-[24px] font-bold text-foreground tracking-tight">Aplicaciones</h1>
+            <p className="text-[13px] text-text-2 mt-0.5">{apps.length} aplicaciones</p>
           </div>
           <div className="flex items-center gap-2">
             <a
               href="/apply"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all"
+              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               Ver formulario
@@ -407,7 +407,7 @@ export function AdminApplicationsView() {
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
             <button onClick={exportCsv} disabled={!filtered.length}
-              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-sm font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
@@ -419,7 +419,7 @@ export function AdminApplicationsView() {
           {(["nueva","revisada","aceptada","rechazada"] as const).map(s => (
             <div key={s} className="rounded-[14px] border border-foreground/[0.07] bg-card px-4 py-3.5">
               <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 capitalize">{s}</p>
-              <p className={`mt-1 text-2xl font-bold ${STATUS_NUMBER_COLOR[s]}`}>
+              <p className={`mt-1 text-[24px] font-bold ${STATUS_NUMBER_COLOR[s]}`}>
                 {apps.filter(a => a.status === s).length}
               </p>
             </div>
@@ -433,7 +433,7 @@ export function AdminApplicationsView() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre, email o canal..."
-            className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-sm text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none w-64"
+            className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none w-64"
           />
           <div className="flex items-center gap-2 flex-wrap">
             {["todas","nueva","revisada","aceptada","rechazada"].map(s => (
@@ -468,7 +468,7 @@ export function AdminApplicationsView() {
                 </thead>
                 <tbody>
                   {!filtered.length ? (
-                    <tr><td colSpan={10} className="py-16 text-center text-sm text-text-3">
+                    <tr><td colSpan={10} className="py-16 text-center text-[13px] text-text-3">
                       {apps.length ? "No hay aplicaciones con ese filtro." : "Todavía no hay aplicaciones. Compartí el formulario (/apply) para recibirlas."}
                     </td></tr>
                   ) : filtered.map(app => (

@@ -25,7 +25,7 @@ export function PipelineColumn({ id, title, accentColor, leads, onSelect, onPatc
     <div className="flex flex-col min-h-0" style={{ minWidth: 0 }}>
       <div className="flex items-center gap-2 mb-3 px-1">
         <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: accentColor }} />
-        <span className="text-sm font-semibold text-foreground">{title}</span>
+        <span className="text-[13px] font-semibold text-foreground">{title}</span>
         <span className="text-[13px] font-medium px-1.5 py-0.5 rounded-full tabular-nums bg-foreground/[0.06] text-text-2">
           {leads.length}
         </span>

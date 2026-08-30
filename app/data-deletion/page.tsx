@@ -26,7 +26,7 @@ export default function DataDeletionPage() {
 
       <div className="mx-auto max-w-2xl px-4 sm:px-5 pb-24 pt-10 space-y-8 text-foreground">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Instrucciones de Eliminación de Datos</h1>
+          <h1 className="text-[24px] font-bold tracking-tight text-foreground">Instrucciones de Eliminación de Datos</h1>
           <p className="mt-1.5 text-[13px] text-text-2">Última actualización: {LAST_UPDATED}</p>
         </div>
 

@@ -100,7 +100,7 @@ export function PushOptIn({ banner = false, prompt }: { banner?: boolean; prompt
   if (state === "subscribed") {
     if (banner) return null
     return (
-      <div className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold"
+      <div className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-semibold"
         style={{ backgroundColor: "color-mix(in srgb, #22C55E 12%, transparent)", color: "#16A34A" }}>
         <Check size={14} /> Notificaciones activadas
       </div>
@@ -110,7 +110,7 @@ export function PushOptIn({ banner = false, prompt }: { banner?: boolean; prompt
   const btn = (
     <button
       onClick={enable} disabled={state === "working"}
-      className="btn-accent inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold active:scale-95 disabled:opacity-50 shrink-0"
+      className="btn-accent inline-flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-bold active:scale-95 disabled:opacity-50 shrink-0"
     >
       {state === "working" ? <Loader2 size={14} className="animate-spin" /> : <BellRing size={14} />}
       Activar notificaciones

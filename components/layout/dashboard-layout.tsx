@@ -598,7 +598,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 </Button>
               )}
               <div>
-                <h1 className="text-base sm:text-lg font-bold text-foreground leading-tight tracking-tight flex items-center gap-2">
+                <h1 className="text-[15px] sm:text-[18px] font-bold text-foreground leading-tight tracking-tight flex items-center gap-2">
                   {pageTitle}
                   {isAdminMode && (
                     <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.15em] text-[#dafc69]">
@@ -704,7 +704,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       />
                       <div className="min-w-0 flex-1">
                         {clientDisplayName && !isAdmin && (
-                          <p className="truncate text-sm font-semibold text-foreground">{clientDisplayName}</p>
+                          <p className="truncate text-[13px] font-semibold text-foreground">{clientDisplayName}</p>
                         )}
                         <p className="truncate text-[13px] text-text-2">{userEmail ?? "—"}</p>
                       </div>
@@ -720,7 +720,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             key={p.id}
                             type="button"
                             role="menuitem"
-                            className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
+                            className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] transition-colors ${
                               isActive
                                 ? "bg-secondary text-foreground"
                                 : "text-foreground hover:bg-foreground/[0.06]"
@@ -781,7 +781,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                 )}
                               </>
                             ) : (
-                              <div className="px-3 py-3 text-sm text-text-2">No hay perfiles para mostrar.</div>
+                              <div className="px-3 py-3 text-[13px] text-text-2">No hay perfiles para mostrar.</div>
                             )}
                           </div>
                         </>
@@ -813,7 +813,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                   }
                                   setProfileMenuOpen(false)
                                 }}
-                                className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
+                                className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] transition-colors ${
                                   active
                                     ? "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200"
                                     : "text-foreground hover:bg-foreground/[0.06]"
@@ -859,7 +859,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     <button
                       type="button"
                       role="menuitem"
-                      className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm font-medium text-foreground hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-500/10 dark:hover:text-red-300 transition-colors"
+                      className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13px] font-medium text-foreground hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-500/10 dark:hover:text-red-300 transition-colors"
                       onClick={async () => {
                         await supabase.auth.signOut()
                         setProfileMenuOpen(false)

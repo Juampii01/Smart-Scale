@@ -53,7 +53,7 @@ function fmtMoney(n: number | null): string {
   return `$${n.toLocaleString("es-AR")}`
 }
 
-const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3 text-sm text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
 const labelCls = "block text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1.5"
 
 export function AdminFounderCheckinsView() {
@@ -188,7 +188,7 @@ export function AdminFounderCheckinsView() {
             <button
               type="submit"
               disabled={saveState === "saving" || !clientId}
-              className="flex items-center gap-2 rounded-xl btn-accent px-5 py-2 text-sm font-bold transition disabled:opacity-50"
+              className="flex items-center gap-2 rounded-xl btn-accent px-5 py-2 text-[13px] font-bold transition disabled:opacity-50"
             >
               {saveState === "saving" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               {saveState === "saved" && <Check className="h-3.5 w-3.5" />}
@@ -205,7 +205,7 @@ export function AdminFounderCheckinsView() {
         {loading ? (
           <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-[#dafc69]/40" /></div>
         ) : checkins.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-10 text-center text-sm text-text-3">
+          <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-10 text-center text-[13px] text-text-3">
             Todavía no hay check-ins cargados.
           </div>
         ) : (
@@ -221,12 +221,12 @@ export function AdminFounderCheckinsView() {
               <tbody>
                 {checkins.map(c => (
                   <tr key={c.id} className="border-b border-foreground/[0.04] last:border-b-0">
-                    <td className="px-4 py-3 text-sm font-semibold text-foreground">{c.client_name}</td>
-                    <td className="px-4 py-3 text-sm text-text-2">{c.quarter_label}</td>
-                    <td className="px-4 py-3 text-sm tabular-nums text-foreground">{fmtMoney(c.best_month_cash)}</td>
-                    <td className="px-4 py-3 text-sm tabular-nums text-foreground">{fmtMoney(c.revenue_bracket)}</td>
-                    <td className="px-4 py-3 text-sm tabular-nums text-foreground">{fmtMoney(c.next_quarter_goal_cash)}</td>
-                    <td className="px-4 py-3 text-sm tabular-nums text-foreground">{c.new_clients_needed ?? "—"}</td>
+                    <td className="px-4 py-3 text-[13px] font-semibold text-foreground">{c.client_name}</td>
+                    <td className="px-4 py-3 text-[13px] text-text-2">{c.quarter_label}</td>
+                    <td className="px-4 py-3 text-[13px] tabular-nums text-foreground">{fmtMoney(c.best_month_cash)}</td>
+                    <td className="px-4 py-3 text-[13px] tabular-nums text-foreground">{fmtMoney(c.revenue_bracket)}</td>
+                    <td className="px-4 py-3 text-[13px] tabular-nums text-foreground">{fmtMoney(c.next_quarter_goal_cash)}</td>
+                    <td className="px-4 py-3 text-[13px] tabular-nums text-foreground">{c.new_clients_needed ?? "—"}</td>
                     <td className="px-4 py-3 text-[13px] text-text-2 max-w-[220px] truncate">{c.notes || "—"}</td>
                   </tr>
                 ))}

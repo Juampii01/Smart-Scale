@@ -81,7 +81,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
       <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[440px] flex-col border-l border-foreground/[0.08] shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
         <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
           <div className="min-w-0">
-            <h2 className="text-lg font-bold text-foreground truncate">{prospect.name ?? "Prospecto"}</h2>
+            <h2 className="text-[18px] font-bold text-foreground truncate">{prospect.name ?? "Prospecto"}</h2>
             <p className="text-[13px] text-text-3 mt-0.5">{fmtDate(prospect.created_at)}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -201,7 +201,7 @@ function NewProspectModal({ onClose, onCreate, creating }: {
           className="w-full max-w-sm rounded-[14px] border border-foreground/[0.10] shadow-2xl p-6 space-y-4"
           style={{ backgroundColor: "var(--card)" }}>
           <div className="flex items-center justify-between mb-1">
-            <h3 className="text-base font-bold text-foreground">Nuevo prospecto</h3>
+            <h3 className="text-[15px] font-bold text-foreground">Nuevo prospecto</h3>
             <button type="button" onClick={onClose}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
               <X className="h-4 w-4" />
@@ -327,14 +327,14 @@ export function PipelineView({ clientId: activeClientId, readOnly = false }: { c
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center py-24 text-text-2 text-sm">Cargando pipeline...</div>
+    return <div className="flex items-center justify-center py-24 text-text-2 text-[13px]">Cargando pipeline...</div>
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Pipeline</h1>
+          <h1 className="text-[24px] font-bold text-foreground">Pipeline</h1>
           <p className="text-[13px] text-text-2 mt-0.5">Tu cartera de prospectos, de punta a punta.</p>
         </div>
         {!readOnly && (

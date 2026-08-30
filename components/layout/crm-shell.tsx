@@ -127,7 +127,7 @@ export function CrmShell({
           <button onClick={() => setOpen(true)} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:bg-foreground/[0.05]" aria-label="Abrir menú">
             <Menu className="h-5 w-5" />
           </button>
-          <span className="text-sm font-semibold text-foreground">CRM interno</span>
+          <span className="text-[13px] font-semibold text-foreground">CRM interno</span>
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-background">{children}</main>

@@ -51,7 +51,7 @@ export function KanbanColumn({
             className="w-2 h-2 rounded-full flex-shrink-0"
             style={{ backgroundColor: accentColor }}
           />
-          <span className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+          <span className="text-[13px] font-semibold" style={{ color: "var(--foreground)" }}>
             {title}
           </span>
           <span
@@ -108,7 +108,7 @@ export function KanbanColumn({
                 if (e.key === "Escape") { e.preventDefault(); setQuickAddOpen(false); setQuickAddValue("") }
               }}
               placeholder="Nombre de la tarea…"
-              className="w-full bg-transparent text-sm outline-none placeholder:opacity-40"
+              className="w-full bg-transparent text-[13px] outline-none placeholder:opacity-40"
               style={{ color: "var(--foreground)" }}
             />
             <div className="flex items-center justify-between mt-2.5 gap-2">
@@ -137,7 +137,7 @@ export function KanbanColumn({
         ) : tasks.length === 0 ? (
           <button
             onClick={() => setQuickAddOpen(true)}
-            className="flex-1 flex flex-col items-center justify-center gap-1.5 text-xs rounded-lg transition-all duration-200 py-6 group cursor-pointer"
+            className="flex-1 flex flex-col items-center justify-center gap-1.5 text-[13px] rounded-lg transition-all duration-200 py-6 group cursor-pointer"
             style={{ color: "var(--muted-foreground)" }}
           >
             <Plus
@@ -152,7 +152,7 @@ export function KanbanColumn({
         ) : (
           <button
             onClick={() => setQuickAddOpen(true)}
-            className="flex items-center gap-1.5 w-full px-2 py-2 rounded-lg text-xs transition-all cursor-pointer opacity-50 hover:opacity-100"
+            className="flex items-center gap-1.5 w-full px-2 py-2 rounded-lg text-[13px] transition-all cursor-pointer opacity-50 hover:opacity-100"
             style={{ color: "var(--muted-foreground)" }}
             onMouseEnter={e => { e.currentTarget.style.backgroundColor = "color-mix(in srgb, var(--foreground) 5%, transparent)" }}
             onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent" }}

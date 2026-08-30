@@ -61,7 +61,7 @@ export function AdminCentroOperativoView() {
           isAdmin(effectiveRole) && (
             <button
               onClick={() => setNewUserOpen(true)}
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl btn-accent px-4 py-2 text-sm font-bold transition-colors"
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-bold transition-colors"
               title="Crear cuenta de usuario interna"
             >
               <UserPlus className="h-4 w-4" />

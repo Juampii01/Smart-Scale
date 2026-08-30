@@ -52,11 +52,11 @@ function fmt(n: number): string {
 
 function CopyBtn({ text }: { text: string | null }) {
   const [copied, setCopied] = useState(false)
-  if (!text) return <span className="text-text-3 text-xs">—</span>
+  if (!text) return <span className="text-text-3 text-[13px]">—</span>
   return (
     <button
       onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500) }}
-      className="inline-flex items-center gap-1.5 text-xs text-text-2 hover:text-[#dafc69] transition-colors"
+      className="inline-flex items-center gap-1.5 text-[13px] text-text-2 hover:text-[#dafc69] transition-colors"
     >
       <span className="max-w-[140px] truncate text-text-2">{text.slice(0, 60)}{text.length > 60 ? "…" : ""}</span>
       {copied ? <Check className="h-3 w-3 text-emerald-700 dark:text-emerald-400 flex-shrink-0" /> : <Copy className="h-3 w-3 flex-shrink-0" />}
@@ -77,7 +77,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
       >
         {/* Rank */}
         <td className="px-4 py-3 whitespace-nowrap w-8">
-          <span className="text-xs font-bold text-text-3 tabular-nums">#{rank}</span>
+          <span className="text-[13px] font-bold text-text-3 tabular-nums">#{rank}</span>
         </td>
 
         {/* Thumbnail */}
@@ -97,7 +97,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
 
         {/* Title */}
         <td className="px-4 py-3 max-w-[220px]">
-          <p className="text-sm font-medium text-foreground leading-snug line-clamp-2">{video.title}</p>
+          <p className="text-[13px] font-medium text-foreground leading-snug line-clamp-2">{video.title}</p>
           {video.published_at && (
             <p className="text-[13px] text-text-3 mt-0.5 tabular-nums">
               {new Date(video.published_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}
@@ -107,22 +107,22 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
 
         {/* Views */}
         <td className="px-4 py-3 whitespace-nowrap text-right">
-          <span className="text-sm font-bold text-foreground tabular-nums">{fmt(video.views)}</span>
+          <span className="text-[13px] font-bold text-foreground tabular-nums">{fmt(video.views)}</span>
         </td>
 
         {/* Duration */}
         <td className="px-4 py-3 whitespace-nowrap text-center">
-          <span className="text-xs text-text-2 tabular-nums">{video.duration}</span>
+          <span className="text-[13px] text-text-2 tabular-nums">{video.duration}</span>
         </td>
 
         {/* Likes */}
         <td className="px-4 py-3 whitespace-nowrap text-right">
-          <span className="text-sm text-text-2 tabular-nums">{fmt(video.likes)}</span>
+          <span className="text-[13px] text-text-2 tabular-nums">{fmt(video.likes)}</span>
         </td>
 
         {/* Comments */}
         <td className="px-4 py-3 whitespace-nowrap text-right">
-          <span className="text-sm text-text-2 tabular-nums">{fmt(video.comments)}</span>
+          <span className="text-[13px] text-text-2 tabular-nums">{fmt(video.comments)}</span>
         </td>
 
         {/* Analysis preview */}
@@ -160,19 +160,19 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
                     </a>
                   )}
                   <div>
-                    <p className="text-sm font-semibold text-foreground leading-snug">{video.title}</p>
+                    <p className="text-[13px] font-semibold text-foreground leading-snug">{video.title}</p>
                     <div className="flex items-center gap-3 mt-2 flex-wrap">
-                      <span className="flex items-center gap-1 text-xs text-text-2"><Eye className="h-3 w-3" />{fmt(video.views)}</span>
-                      <span className="flex items-center gap-1 text-xs text-text-2"><ThumbsUp className="h-3 w-3" />{fmt(video.likes)}</span>
-                      <span className="flex items-center gap-1 text-xs text-text-2"><MessageCircle className="h-3 w-3" />{fmt(video.comments)}</span>
-                      <span className="flex items-center gap-1 text-xs text-text-2"><Clock className="h-3 w-3" />{video.duration}</span>
+                      <span className="flex items-center gap-1 text-[13px] text-text-2"><Eye className="h-3 w-3" />{fmt(video.views)}</span>
+                      <span className="flex items-center gap-1 text-[13px] text-text-2"><ThumbsUp className="h-3 w-3" />{fmt(video.likes)}</span>
+                      <span className="flex items-center gap-1 text-[13px] text-text-2"><MessageCircle className="h-3 w-3" />{fmt(video.comments)}</span>
+                      <span className="flex items-center gap-1 text-[13px] text-text-2"><Clock className="h-3 w-3" />{video.duration}</span>
                     </div>
                   </div>
                 </div>
                 {video.description && (
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-2">Descripción</p>
-                    <p className="text-xs text-text-2 leading-relaxed">{video.description}</p>
+                    <p className="text-[13px] text-text-2 leading-relaxed">{video.description}</p>
                   </div>
                 )}
               </div>
@@ -191,7 +191,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
                     </button>
                   </div>
                   <div className="rounded-xl border border-border bg-secondary/20 px-4 py-3">
-                    <p className="text-xs text-text-2 leading-relaxed whitespace-pre-wrap">{video.analysis}</p>
+                    <p className="text-[13px] text-text-2 leading-relaxed whitespace-pre-wrap">{video.analysis}</p>
                   </div>
                 </div>
               )}
@@ -221,13 +221,13 @@ function ResultsTable({ result }: { result: ResearchResult }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-foreground truncate">{result.channelName}</p>
+            <p className="text-[13px] font-semibold text-foreground truncate">{result.channelName}</p>
             <a href={result.channelUrl} target="_blank" rel="noopener noreferrer"
               className="text-text-3 hover:text-[#dafc69] transition-colors flex-shrink-0">
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
-          <p className="text-xs text-text-3 mt-0.5">Top {result.videos.length} videos · Últimos {result.timeframe_days} días</p>
+          <p className="text-[13px] text-text-3 mt-0.5">Top {result.videos.length} videos · Últimos {result.timeframe_days} días</p>
         </div>
         {/* Summary stats */}
         <div className="hidden sm:flex items-center gap-4">
@@ -238,7 +238,7 @@ function ResultsTable({ result }: { result: ResearchResult }) {
           ].map(({ icon: Icon, label, value }) => (
             <div key={label} className="text-center">
               <p className="text-[11px] text-text-3 uppercase tracking-widest flex items-center gap-1"><Icon className="h-2.5 w-2.5" />{label}</p>
-              <p className="text-sm font-bold text-foreground tabular-nums">{value}</p>
+              <p className="text-[13px] font-bold text-foreground tabular-nums">{value}</p>
             </div>
           ))}
         </div>
@@ -301,7 +301,7 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
       <div className="flex items-center justify-between border-b border-foreground/[0.06] px-6 py-4">
         <div className="flex items-center gap-2.5">
           <span className="h-3 w-[2px] rounded-full bg-accent" />
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-text-2">Investigaciones anteriores</h2>
+          <h2 className="text-[11px] font-semibold uppercase tracking-widest text-text-2">Investigaciones anteriores</h2>
         </div>
         <span className="text-[13px] text-text-3 tabular-nums">{items.length} registros</span>
       </div>
@@ -312,7 +312,7 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
               <Youtube className="h-3.5 w-3.5 text-red-700 dark:text-red-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">{item.channel_name}</p>
+              <p className="text-[13px] font-medium text-foreground truncate">{item.channel_name}</p>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-[13px] text-text-3">Últimos {item.timeframe_days} días</span>
                 <span className="text-text-3">·</span>
@@ -326,7 +326,7 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
             <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={() => onSelect(item)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-xs font-medium text-text-2 hover:border-border hover:text-[#dafc69] transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-[13px] font-medium text-text-2 hover:border-border hover:text-[#dafc69] transition-colors"
               >
                 Ver análisis
               </button>
@@ -423,8 +423,8 @@ function ContentResearchContent() {
           <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
           <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">Smart Scale · IA 1.0</span>
         </div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight mb-1">Content Research</h1>
-        <p className="text-sm text-text-2">Analizá los top 5 videos de cualquier canal de YouTube por métricas reales.</p>
+        <h1 className="text-[24px] font-bold text-foreground tracking-tight mb-1">Content Research</h1>
+        <p className="text-[13px] text-text-2">Analizá los top 5 videos de cualquier canal de YouTube por métricas reales.</p>
       </div>
 
       {/* Banner si admin está viendo otro cliente */}
@@ -456,7 +456,7 @@ function ContentResearchContent() {
                   value={channelUrl}
                   onChange={e => { setChannelUrl(e.target.value); setError(null) }}
                   placeholder="https://youtube.com/@canal"
-                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] pl-10 pr-4 text-sm text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
+                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] pl-10 pr-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
                   disabled={loading}
                 />
               </div>
@@ -468,7 +468,7 @@ function ContentResearchContent() {
                     key={t}
                     type="button"
                     onClick={() => setTimeframe(t)}
-                    className={`px-4 py-2 text-sm font-medium transition-colors ${timeframe === t ? "bg-secondary text-foreground" : "text-text-2 hover:text-foreground"}`}
+                    className={`px-4 py-2 text-[13px] font-medium transition-colors ${timeframe === t ? "bg-secondary text-foreground" : "text-text-2 hover:text-foreground"}`}
                   >
                     {t}d
                   </button>
@@ -478,14 +478,14 @@ function ContentResearchContent() {
               <button
                 type="submit"
                 disabled={!channelUrl.trim() || loading}
-                className="h-11 rounded-xl btn-accent px-6 text-sm font-bold disabled:opacity-40 transition shrink-0"
+                className="h-11 rounded-xl btn-accent px-6 text-[13px] font-bold disabled:opacity-40 transition shrink-0"
               >
                 {loading ? "Investigando…" : "Investigar"}
               </button>
             </div>
 
             {error && (
-              <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">{error}</div>
+              <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-[13px] text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">{error}</div>
             )}
           </form>
         </div>

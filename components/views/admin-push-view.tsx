@@ -60,7 +60,7 @@ export function AdminPushView() {
     } catch { setState("error"); setMsg("Error de red.") }
   }
 
-  const inputCls = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-text-2 outline-none focus:border-accent transition-colors"
+  const inputCls = "w-full rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-text-2 outline-none focus:border-accent transition-colors"
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
@@ -69,8 +69,8 @@ export function AdminPushView() {
           <Bell className="h-6 w-6 text-[#dafc69]" />
         </span>
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-foreground leading-none">Notificaciones</h1>
-          <p className="text-sm text-text-2 mt-1">Lanzá una notificación push a clientes o equipo.</p>
+          <h1 className="text-[24px] font-extrabold tracking-tight text-foreground leading-none">Notificaciones</h1>
+          <p className="text-[13px] text-text-2 mt-1">Lanzá una notificación push a clientes o equipo.</p>
         </div>
       </div>
 
@@ -93,7 +93,7 @@ export function AdminPushView() {
 
       {/* Audiencia */}
       <section className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="text-sm font-semibold text-foreground mb-3">¿A quién?</h2>
+        <h2 className="text-[13px] font-semibold text-foreground mb-3">¿A quién?</h2>
         <div className="grid grid-cols-2 gap-3">
           {AUDIENCES.map((a) => {
             const n = reachFor(a.key)
@@ -114,7 +114,7 @@ export function AdminPushView() {
       </section>
 
       {msg && (
-        <div className={`flex items-center gap-2 rounded-xl border px-4 py-3 text-sm ${
+        <div className={`flex items-center gap-2 rounded-xl border px-4 py-3 text-[13px] ${
           state === "error"
             ? "border-red-200 bg-red-50 text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300"
             : "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300"
@@ -125,7 +125,7 @@ export function AdminPushView() {
       )}
 
       <button onClick={send} disabled={state === "sending"}
-      className="inline-flex items-center gap-2 rounded-xl btn-accent px-5 py-2.5 text-sm font-bold transition active:scale-[0.98] disabled:opacity-50">
+      className="inline-flex items-center gap-2 rounded-xl btn-accent px-5 py-2.5 text-[13px] font-bold transition active:scale-[0.98] disabled:opacity-50">
         {state === "sending" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         Enviar notificación
       </button>

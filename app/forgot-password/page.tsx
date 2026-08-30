@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
         onSubmit={onSubmit}
         className="w-full max-w-sm space-y-4 p-6 border border-foreground/10 rounded-xl"
       >
-        <h1 className="text-foreground text-xl font-semibold">Forgot password</h1>
+        <h1 className="text-foreground text-[24px] font-semibold">Forgot password</h1>
 
         <input
           className="w-full rounded-md border border-foreground/10 bg-black/30 px-3 py-2 text-foreground outline-none"
@@ -60,8 +60,8 @@ export default function ForgotPasswordPage() {
           required
         />
 
-        {err ? <p className="text-sm text-red-700 dark:text-red-400 whitespace-pre-wrap">{err}</p> : null}
-        {msg ? <p className="text-sm text-emerald-700 dark:text-emerald-400 whitespace-pre-wrap">{msg}</p> : null}
+        {err ? <p className="text-[13px] text-red-700 dark:text-red-400 whitespace-pre-wrap">{err}</p> : null}
+        {msg ? <p className="text-[13px] text-emerald-700 dark:text-emerald-400 whitespace-pre-wrap">{msg}</p> : null}
 
         <button
           type="submit"
@@ -71,7 +71,7 @@ export default function ForgotPasswordPage() {
           {loading ? "Enviando..." : "Enviar email"}
         </button>
 
-        <Link href="/login" className="block text-sm text-text-2 hover:text-foreground">
+        <Link href="/login" className="block text-[13px] text-text-2 hover:text-foreground">
           Volver al login
         </Link>
       </form>

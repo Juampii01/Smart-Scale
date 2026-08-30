@@ -57,8 +57,8 @@ export function AdminSocialView() {
           <Link2 className="h-6 w-6 text-[#dafc69]" />
         </span>
         <div className="flex-1">
-          <h1 className="text-2xl font-extrabold tracking-tight text-foreground leading-none">Conexiones sociales</h1>
-          <p className="text-sm text-text-2 mt-1">Quién conectó su Instagram / YouTube.</p>
+          <h1 className="text-[24px] font-extrabold tracking-tight text-foreground leading-none">Conexiones sociales</h1>
+          <p className="text-[13px] text-text-2 mt-1">Quién conectó su Instagram / YouTube.</p>
         </div>
         <button onClick={load} disabled={loading} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-foreground/[0.05] transition disabled:opacity-50">
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Actualizar
@@ -70,15 +70,15 @@ export function AdminSocialView() {
         <div className="grid grid-cols-3 gap-3">
           <div className="rounded-2xl border border-border bg-card p-4">
             <p className="text-[11px] uppercase tracking-wide text-text-2">Clientes conectados</p>
-            <p className="mt-1 text-2xl font-bold text-foreground">{summary.totalClients}</p>
+            <p className="mt-1 text-[24px] font-bold text-foreground">{summary.totalClients}</p>
           </div>
           <div className="rounded-2xl border border-border bg-card p-4">
             <p className="text-[11px] uppercase tracking-wide text-text-2 flex items-center gap-1"><Instagram className="h-3 w-3" style={{ color: "#E1306C" }} /> Instagram</p>
-            <p className="mt-1 text-2xl font-bold text-foreground">{summary.instagram}</p>
+            <p className="mt-1 text-[24px] font-bold text-foreground">{summary.instagram}</p>
           </div>
           <div className="rounded-2xl border border-border bg-card p-4">
             <p className="text-[11px] uppercase tracking-wide text-text-2 flex items-center gap-1"><Youtube className="h-3 w-3" style={{ color: "#FF0000" }} /> YouTube</p>
-            <p className="mt-1 text-2xl font-bold text-foreground">{summary.youtube}</p>
+            <p className="mt-1 text-[24px] font-bold text-foreground">{summary.youtube}</p>
           </div>
         </div>
       )}
@@ -99,7 +99,7 @@ export function AdminSocialView() {
           <Loader2 className="h-4 w-4 animate-spin" /> Cargando…
         </div>
       ) : visible.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-card py-14 text-center text-sm text-text-2">
+        <div className="rounded-2xl border border-border bg-card py-14 text-center text-[13px] text-text-2">
           Todavía no hay cuentas conectadas{platform !== "all" ? ` de ${platform}` : ""}.
         </div>
       ) : (
@@ -115,7 +115,7 @@ export function AdminSocialView() {
                 <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-card"><Brand p={c.platform} /></span>
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-foreground">{c.clientName}</p>
+                <p className="truncate text-[13px] font-semibold text-foreground">{c.clientName}</p>
                 <p className="truncate text-[13px] text-text-2">@{c.accountName}</p>
               </div>
               <div className="text-right">

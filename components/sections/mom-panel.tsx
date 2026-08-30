@@ -82,7 +82,7 @@ export function MoMPanel() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-xl font-bold text-foreground">Month vs Month</h2>
+          <h2 className="text-[24px] font-bold text-foreground">Month vs Month</h2>
           <p className="text-[13px] text-text-2 mt-0.5">
             {fmtMonthLong(current.month)} vs {fmtMonthLong(previous.month)} — ¿qué cambió?
           </p>
@@ -96,10 +96,10 @@ export function MoMPanel() {
           {scorePositive
             ? <TrendingUp   className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             : <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />}
-          <span className={`text-sm font-bold ${scorePositive ? "text-emerald-700 dark:text-emerald-300" : "text-red-700 dark:text-red-300"}`}>
+          <span className={`text-[13px] font-bold ${scorePositive ? "text-emerald-700 dark:text-emerald-300" : "text-red-700 dark:text-red-300"}`}>
             {scorePositive ? "Mes positivo" : "Mes para revisar"}
           </span>
-          <span className="text-text-3 text-xs ml-1">
+          <span className="text-text-3 text-[13px] ml-1">
             {totalUp}↑ · {totalDown}↓
           </span>
         </div>

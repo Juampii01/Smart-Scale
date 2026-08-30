@@ -131,16 +131,16 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
       {/* Section header */}
       <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-xl font-bold text-foreground">Performance</h2>
+          <h2 className="text-[24px] font-bold text-foreground">Performance</h2>
           <p className="text-[13px] text-text-2 mt-0.5">Key metrics for the selected month</p>
         </div>
         {current && previous && (
           <div className="flex items-center gap-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-2">
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+            <span className="flex items-center gap-1.5 text-[13px] font-semibold text-emerald-700 dark:text-emerald-400">
               <TrendingUp className="h-3.5 w-3.5" />{upCount} up
             </span>
             <span className="h-3 w-px bg-foreground/15" />
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-red-700 dark:text-red-400">
+            <span className="flex items-center gap-1.5 text-[13px] font-semibold text-red-700 dark:text-red-400">
               <TrendingDown className="h-3.5 w-3.5" />{downCount} down
             </span>
           </div>
@@ -152,11 +152,11 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
           <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
             <BarChart3 className="h-5 w-5 text-text-3" />
           </div>
-          <p className="text-sm text-text-2">
+          <p className="text-[13px] text-text-2">
             {isOwn ? "No hay reporte cargado para este mes." : "Este cliente no tiene reporte para este mes."}
           </p>
           {isOwn && (
-            <Link href="/report-input" className="text-sm font-medium text-[#dafc69] transition-colors hover:text-[#f2ffc0]">
+            <Link href="/report-input" className="text-[13px] font-medium text-[#dafc69] transition-colors hover:text-[#f2ffc0]">
               Cargar reporte mensual →
             </Link>
           )}
@@ -188,7 +188,7 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
                   </div>
 
                   {current && previous && delta.diff !== null && (
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[13px] font-bold ${
                       isUp   ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/20"
                       : isDown ? "bg-red-100 text-red-800 ring-1 ring-red-400 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/20"
                       :           "bg-foreground/5 text-text-2 ring-1 ring-foreground/10"

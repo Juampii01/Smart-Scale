@@ -88,7 +88,7 @@ function EventModal({
         <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-4">
           <div className="flex items-center gap-2.5">
             <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground">
+            <h2 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">
               {isEdit ? "Editar llamada" : "Nueva llamada"}
             </h2>
           </div>
@@ -181,13 +181,13 @@ function EventModal({
 
         {/* Actions */}
         <div className="flex items-center justify-end gap-3 border-t border-foreground/[0.06] px-5 py-4">
-          <button onClick={onClose} className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 py-2 text-sm font-medium text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-colors">
+          <button onClick={onClose} className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 py-2 text-[13px] font-medium text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-colors">
             Cancelar
           </button>
           <button
             onClick={handleSave}
             disabled={saving || saved || !form.title.trim()}
-            className="flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-sm font-bold disabled:opacity-60 transition-colors"
+            className="flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-bold disabled:opacity-60 transition-colors"
           >
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : saved ? <Check className="h-3.5 w-3.5" /> : <Save className="h-3.5 w-3.5" />}
             {saving ? "Guardando…" : saved ? "Guardado ✓" : "Guardar"}
@@ -277,8 +277,8 @@ export function AdminCalendarView() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Agenda</h1>
-          <p className="text-sm text-text-2 mt-0.5">Llamadas semanales del programa · se actualiza en tiempo real para los clientes</p>
+          <h1 className="text-[24px] font-bold text-foreground tracking-tight">Agenda</h1>
+          <p className="text-[13px] text-text-2 mt-0.5">Llamadas semanales del programa · se actualiza en tiempo real para los clientes</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={fetchEvents} disabled={loading}
@@ -286,7 +286,7 @@ export function AdminCalendarView() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button onClick={() => setModal({})}
-          className="flex items-center gap-2 h-9 rounded-xl btn-accent px-4 text-sm font-bold transition-colors">
+          className="flex items-center gap-2 h-9 rounded-xl btn-accent px-4 text-[13px] font-bold transition-colors">
             <Plus className="h-4 w-4" />
             Nueva llamada
           </button>
@@ -300,7 +300,7 @@ export function AdminCalendarView() {
             <Loader2 className="h-5 w-5 animate-spin text-[#dafc69]/40" />
           </div>
         ) : sorted.length === 0 ? (
-          <div className="py-16 text-center text-sm text-text-3">
+          <div className="py-16 text-center text-[13px] text-text-3">
             No hay llamadas. Agregá la primera con el botón amarillo.
           </div>
         ) : (

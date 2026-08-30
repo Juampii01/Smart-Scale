@@ -101,7 +101,7 @@ export function ChaChingHistoryView() {
         <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
           <DollarSign className="h-5 w-5 text-text-3" />
         </div>
-        <p className="text-sm text-text-2">Todavía no hay ventas (Cha-Ching) registradas.</p>
+        <p className="text-[13px] text-text-2">Todavía no hay ventas (Cha-Ching) registradas.</p>
       </div>
     )
   }
@@ -112,21 +112,21 @@ export function ChaChingHistoryView() {
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
           <div className="flex items-center gap-1.5 text-text-3 mb-1.5"><TrendingUp className="h-3 w-3" /><span className="text-[11px] font-semibold uppercase tracking-widest">Total cerrado</span></div>
-          <p className="text-xl font-bold text-foreground tabular-nums">{fmtMoney(totals.totalDeals)}</p>
+          <p className="text-[24px] font-bold text-foreground tabular-nums">{fmtMoney(totals.totalDeals)}</p>
         </div>
         <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
           <div className="flex items-center gap-1.5 text-text-3 mb-1.5"><Wallet className="h-3 w-3" /><span className="text-[11px] font-semibold uppercase tracking-widest">Cash total</span></div>
-          <p className="text-xl font-bold text-[#dafc69] tabular-nums">{fmtMoney(totals.totalCash)}</p>
+          <p className="text-[24px] font-bold text-[#dafc69] tabular-nums">{fmtMoney(totals.totalCash)}</p>
         </div>
         <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
           <div className="flex items-center gap-1.5 text-text-3 mb-1.5"><DollarSign className="h-3 w-3" /><span className="text-[11px] font-semibold uppercase tracking-widest">Cash este mes</span></div>
-          <p className="text-xl font-bold text-foreground tabular-nums">{fmtMoney(totals.mesCash)}</p>
+          <p className="text-[24px] font-bold text-foreground tabular-nums">{fmtMoney(totals.mesCash)}</p>
         </div>
       </div>
 
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-sm font-bold text-foreground">Historial de ventas</h3>
-        <span className="text-xs text-text-3 tabular-nums">{totals.count} venta{totals.count !== 1 ? "s" : ""}</span>
+        <h3 className="text-[13px] font-bold text-foreground">Historial de ventas</h3>
+        <span className="text-[13px] text-text-3 tabular-nums">{totals.count} venta{totals.count !== 1 ? "s" : ""}</span>
       </div>
 
       <div className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card divide-y divide-foreground/[0.05]">

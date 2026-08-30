@@ -71,11 +71,11 @@ function CellModal({ label, content, onClose }: { label: string; content: string
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
       <div className="relative flex flex-col w-full max-w-2xl max-h-[85vh] rounded-2xl border border-foreground/[0.1] bg-card shadow-2xl overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-foreground/[0.07] flex-shrink-0">
-          <p className="text-xs font-semibold uppercase tracking-widest text-text-2">{label}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-text-2">{label}</p>
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigator.clipboard.writeText(content)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] px-3 py-1.5 text-xs text-text-2 hover:text-foreground hover:border-foreground/20 transition-all"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] px-3 py-1.5 text-[13px] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all"
             >
               <Copy className="h-3 w-3" /> Copiar
             </button>
@@ -85,7 +85,7 @@ function CellModal({ label, content, onClose }: { label: string; content: string
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-5">
-          <p className="text-base text-foreground leading-relaxed whitespace-pre-wrap">{content}</p>
+          <p className="text-[15px] text-foreground leading-relaxed whitespace-pre-wrap">{content}</p>
         </div>
       </div>
     </div>,
@@ -97,12 +97,12 @@ function CellModal({ label, content, onClose }: { label: string; content: string
 
 function ExpandCell({ label, content, preview, yellow }: { label: string; content: string | null; preview?: string; yellow?: boolean }) {
   const [open, setOpen] = useState(false)
-  if (!content) return <span className="text-sm text-text-3">—</span>
+  if (!content) return <span className="text-[13px] text-text-3">—</span>
   return (
     <>
       <button
         onClick={e => { e.stopPropagation(); setOpen(true) }}
-        className={`block w-full text-left text-sm leading-snug line-clamp-2 overflow-hidden hover:opacity-80 transition-opacity ${yellow ? "text-[#dafc69]/80 font-medium" : "text-text-2"}`}
+        className={`block w-full text-left text-[13px] leading-snug line-clamp-2 overflow-hidden hover:opacity-80 transition-opacity ${yellow ? "text-[#dafc69]/80 font-medium" : "text-text-2"}`}
       >
         {preview ?? content.slice(0, 90)}{content.length > 90 ? "…" : ""}
       </button>
@@ -123,12 +123,12 @@ function VideoRow({ video, channelName, platform }: { video: VideoResult; channe
     <tr className="border-b border-foreground/[0.04] hover:bg-foreground/[0.02] transition-colors">
       {/* CREATOR */}
       <td className="px-4 py-4 whitespace-nowrap">
-        <span className="text-sm font-semibold text-foreground">{channelName || "—"}</span>
+        <span className="text-[13px] font-semibold text-foreground">{channelName || "—"}</span>
       </td>
       {/* URL */}
       <td className="px-4 py-4" onClick={e => e.stopPropagation()}>
         <a href={video.video_url} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-sm text-[#dafc69] hover:text-[#f2ffc0] transition-colors">
+          className="inline-flex items-center gap-1 text-[13px] text-[#dafc69] hover:text-[#f2ffc0] transition-colors">
           Ver <ExternalLink className="h-3.5 w-3.5" />
         </a>
       </td>
@@ -142,11 +142,11 @@ function VideoRow({ video, channelName, platform }: { video: VideoResult; channe
       </td>
       {/* VIEWS */}
       <td className="px-4 py-4 text-right whitespace-nowrap">
-        <span className="text-sm font-bold text-[#dafc69] tabular-nums">{fmt(video.views)}</span>
+        <span className="text-[13px] font-bold text-[#dafc69] tabular-nums">{fmt(video.views)}</span>
       </td>
       {/* DURATION */}
       <td className="px-4 py-4 text-center whitespace-nowrap">
-        <span className="text-sm text-text-2 tabular-nums">{video.duration || "—"}</span>
+        <span className="text-[13px] text-text-2 tabular-nums">{video.duration || "—"}</span>
       </td>
       {/* TRANSCRIPT */}
       <td className="px-4 py-4 max-w-[180px] overflow-hidden">
@@ -192,7 +192,7 @@ function ResultsTable({ videos, channelName, platform }: { videos: VideoResult[]
         </tbody>
       </table>
       <div className="border-t border-foreground/[0.04] px-6 py-2.5">
-        <span className="text-xs text-text-3">{videos.length} video{videos.length !== 1 ? "s" : ""}</span>
+        <span className="text-[13px] text-text-3">{videos.length} video{videos.length !== 1 ? "s" : ""}</span>
       </div>
     </div>
   )
@@ -284,7 +284,7 @@ function AnalysisCard({ item, onDelete, deletingId }: {
         <div className="border-t border-foreground/[0.05] bg-card">
           {item.videos?.length > 0
             ? <ResultsTable videos={item.videos} channelName={item.channel_name} platform={item.platform ?? "youtube"} />
-            : <div className="px-6 py-8 text-center text-sm text-text-3">No hay videos en este análisis.</div>
+            : <div className="px-6 py-8 text-center text-[13px] text-text-3">No hay videos en este análisis.</div>
           }
         </div>
       )}
@@ -427,7 +427,7 @@ function CompetitorResearchContent() {
                   value={platform}
                   onChange={e => { setPlatform(e.target.value as any); setChannelUrl(""); setError(null) }}
                   disabled={loading}
-                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-card px-4 pr-10 text-sm text-foreground focus:border-foreground/20 focus:outline-none appearance-none cursor-pointer disabled:opacity-60"
+                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-card px-4 pr-10 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none appearance-none cursor-pointer disabled:opacity-60"
                 >
                   <option value="youtube">YouTube</option>
                   <option value="instagram">Instagram</option>
@@ -443,7 +443,7 @@ function CompetitorResearchContent() {
                   value={timeframe}
                   onChange={e => setTimeframe(Number(e.target.value) as any)}
                   disabled={loading}
-                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-card px-4 pr-10 text-sm text-foreground focus:border-foreground/20 focus:outline-none appearance-none cursor-pointer disabled:opacity-60"
+                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-card px-4 pr-10 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none appearance-none cursor-pointer disabled:opacity-60"
                 >
                   <option value={30}>Últimos 30 días</option>
                   <option value={60}>Últimos 60 días</option>
@@ -463,7 +463,7 @@ function CompetitorResearchContent() {
                 value={channelUrl}
                 onChange={e => { setChannelUrl(e.target.value); setError(null) }}
                 placeholder={platform === "youtube" ? "Ingresá la URL del canal de YouTube..." : "Ingresá la URL del perfil de Instagram..."}
-                className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-card px-4 text-sm text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none transition-all"
+                className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-card px-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none transition-all"
                 disabled={loading}
               />
               <p className="text-[13px] text-text-3">Un perfil de competidor por envío</p>
@@ -472,7 +472,7 @@ function CompetitorResearchContent() {
             <button
               type="submit"
               disabled={!channelUrl.trim() || loading}
-              className="inline-flex items-center gap-2 h-10 rounded-xl btn-accent px-5 text-sm font-bold disabled:opacity-40 transition"
+              className="inline-flex items-center gap-2 h-10 rounded-xl btn-accent px-5 text-[13px] font-bold disabled:opacity-40 transition"
             >
               {loading ? (
                 <>
@@ -492,7 +492,7 @@ function CompetitorResearchContent() {
           {weekUsage && !limitReached && (
             <div className="flex items-center gap-2 rounded-xl border border-foreground/[0.06] bg-foreground/[0.03] px-4 py-2.5">
               <Zap className="h-3.5 w-3.5 text-[#dafc69]/60 shrink-0" />
-              <span className="text-xs text-text-2">
+              <span className="text-[13px] text-text-2">
                 Análisis esta semana:{" "}
                 <span className={`font-semibold ${weekUsage.used >= weekUsage.limit ? "text-red-700 dark:text-red-400" : "text-foreground"}`}>
                   {weekUsage.used} de {weekUsage.limit}
@@ -510,7 +510,7 @@ function CompetitorResearchContent() {
           {cachedNotice && (
             <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-100 dark:bg-emerald-500/10 px-4 py-2.5">
               <Zap className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span className="text-xs text-emerald-700 dark:text-emerald-300">Resultado del caché — ya analizaste este canal esta semana. No se usaron tokens.</span>
+              <span className="text-[13px] text-emerald-700 dark:text-emerald-300">Resultado del caché — ya analizaste este canal esta semana. No se usaron tokens.</span>
             </div>
           )}
 
@@ -519,13 +519,13 @@ function CompetitorResearchContent() {
             <div className="flex items-start gap-3 rounded-xl border border-amber-500/25 bg-amber-100 dark:bg-amber-500/10 px-4 py-3">
               <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">Límite semanal alcanzado</p>
-                <p className="text-xs text-amber-700/70 dark:text-amber-200/60 mt-0.5">
+                <p className="text-[13px] font-semibold text-amber-800 dark:text-amber-300">Límite semanal alcanzado</p>
+                <p className="text-[13px] text-amber-700/70 dark:text-amber-200/60 mt-0.5">
                   Usaste {limitReached.used} de {limitReached.limit} análisis disponibles esta semana.
                   Los análisis se renuevan el{" "}
                   {new Date(limitReached.resets_at).toLocaleDateString("es-AR", { day: "numeric", month: "long" })}.
                 </p>
-                <p className="text-xs text-amber-700/50 dark:text-amber-200/40 mt-1">Tus análisis anteriores siguen disponibles en el historial.</p>
+                <p className="text-[13px] text-amber-700/50 dark:text-amber-200/40 mt-1">Tus análisis anteriores siguen disponibles en el historial.</p>
               </div>
             </div>
           )}
@@ -533,7 +533,7 @@ function CompetitorResearchContent() {
           {/* Generic error */}
           {error && (
             <div className="flex items-start gap-3 rounded-xl border border-red-500/20 bg-red-50 dark:bg-red-500/10 px-4 py-3">
-              <p className="flex-1 text-sm text-red-700 dark:text-red-300">{error}</p>
+              <p className="flex-1 text-[13px] text-red-700 dark:text-red-300">{error}</p>
               {channelUrl.trim() && (
                 <button
                   type="button"
@@ -578,7 +578,7 @@ function CompetitorResearchContent() {
             <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
               <Search className="h-5 w-5 text-text-3" />
             </div>
-            <p className="text-sm text-text-3">Todavía no hay análisis. Iniciá un análisis de competidor arriba para empezar.</p>
+            <p className="text-[13px] text-text-3">Todavía no hay análisis. Iniciá un análisis de competidor arriba para empezar.</p>
           </div>
         ) : (
           <div className="space-y-3">

@@ -648,7 +648,7 @@ export function AdminExecutiveDashboardView() {
             <ChevronLeft className="h-4 w-4" />
           </button>
           <div className="px-4 py-2 rounded-lg border border-foreground/10 min-w-[200px] text-center">
-            <span className="text-sm font-bold text-foreground">{monthLabel(month)}</span>
+            <span className="text-[13px] font-bold text-foreground">{monthLabel(month)}</span>
           </div>
           <button onClick={() => changeMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
             <ChevronRight className="h-4 w-4" />

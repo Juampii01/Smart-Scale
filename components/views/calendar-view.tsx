@@ -384,7 +384,7 @@ export function CalendarView() {
       {loading ? (
         <div className="flex items-center justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-[#dafc69]/40" /></div>
       ) : error ? (
-        <div className="rounded-[14px] border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-700 dark:text-red-400">{error}</div>
+        <div className="rounded-[14px] border border-red-500/20 bg-red-500/5 px-4 py-3 text-[13px] text-red-700 dark:text-red-400">{error}</div>
       ) : tab === "recordings" ? (
         recordings.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
@@ -397,7 +397,7 @@ export function CalendarView() {
             </div>
           </div>
         ) : recordingGroups.length === 0 ? (
-          <div className="rounded-[14px] border border-foreground/[0.07] py-16 text-center text-sm text-text-3">
+          <div className="rounded-[14px] border border-foreground/[0.07] py-16 text-center text-[13px] text-text-3">
             No hay grabaciones para esa búsqueda.
           </div>
         ) : (
@@ -447,7 +447,7 @@ export function CalendarView() {
 
           {/* Lista agrupada por mes */}
           {occurrences.length === 0 ? (
-            <div className="rounded-[14px] border border-foreground/[0.07] py-16 text-center text-sm text-text-3">
+            <div className="rounded-[14px] border border-foreground/[0.07] py-16 text-center text-[13px] text-text-3">
               No hay sesiones próximas{query ? " para esa búsqueda" : ""}.
             </div>
           ) : (

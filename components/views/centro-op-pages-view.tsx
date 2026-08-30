@@ -286,7 +286,7 @@ function PageEditor({
             onChange={e => setIcon(e.target.value)}
             placeholder="📄"
             maxLength={4}
-            className="h-9 w-9 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] text-center text-base focus:border-foreground/20 focus:outline-none"
+            className="h-9 w-9 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] text-center text-[15px] focus:border-foreground/20 focus:outline-none"
             aria-label="Icono"
           />
           <input
@@ -294,7 +294,7 @@ function PageEditor({
             value={title}
             onChange={e => setTitle(e.target.value)}
             placeholder="Sin título"
-            className="flex-1 bg-transparent text-2xl font-bold text-foreground placeholder:text-text-3 focus:outline-none"
+            className="flex-1 bg-transparent text-[24px] font-bold text-foreground placeholder:text-text-3 focus:outline-none"
             aria-label="Título"
           />
         </div>

@@ -435,7 +435,7 @@ export function KanbanBoard() {
 
   if (loading) return <KanbanSkeleton />
   if (loadError && tasks.length === 0) return (
-    <div className="flex items-center justify-center py-16 text-sm" style={{ color: "var(--muted-foreground)" }}>
+    <div className="flex items-center justify-center py-16 text-[13px]" style={{ color: "var(--muted-foreground)" }}>
       Error al cargar las tareas. Recargá la página.
     </div>
   )
@@ -445,15 +445,15 @@ export function KanbanBoard() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+          <h1 className="text-[24px] font-extrabold tracking-tight text-foreground flex items-center gap-2">
             <CheckSquare className="h-6 w-6 text-[#dafc69]" />
             Tareas
           </h1>
-          <p className="text-sm text-text-2 mt-1">Tablero compartido · Ann · Steffano · Juan</p>
+          <p className="text-[13px] text-text-2 mt-1">Tablero compartido · Ann · Steffano · Juan</p>
         </div>
         <button
           onClick={() => openCreateModal()}
-          className="inline-flex items-center gap-2 rounded-xl btn-accent px-4 py-2.5 text-sm font-bold transition active:scale-95"
+          className="inline-flex items-center gap-2 rounded-xl btn-accent px-4 py-2.5 text-[13px] font-bold transition active:scale-95"
         >
           <Plus className="h-4 w-4" />
           Nueva tarea
@@ -465,7 +465,7 @@ export function KanbanBoard() {
         {/* Chips de métricas (actúan como filtros rápidos) */}
         <button
           onClick={clearFilters}
-          className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
+          className={`rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-all ${
             !anyFilter ? "bg-foreground/10 text-foreground" : "text-text-2 hover:bg-foreground/[0.05]"
           }`}
         >
@@ -475,7 +475,7 @@ export function KanbanBoard() {
         <button
           onClick={() => setFilterDue(d => d === "overdue" ? null : "overdue")}
           disabled={metrics.overdue === 0}
-          className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all disabled:opacity-30 ${
+          className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-all disabled:opacity-30 ${
             filterDue === "overdue"
               ? "bg-red-100 dark:bg-red-500/15 text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-500/30"
               : "text-red-700/70 dark:text-red-400/70 hover:bg-red-500/[0.08]"
@@ -487,7 +487,7 @@ export function KanbanBoard() {
         <button
           onClick={() => setFilterDue(d => d === "today" ? null : "today")}
           disabled={metrics.today === 0}
-          className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all disabled:opacity-30 ${
+          className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-all disabled:opacity-30 ${
             filterDue === "today"
               ? "bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 ring-1 ring-inset ring-amber-500/30"
               : "text-amber-700/70 dark:text-amber-400/70 hover:bg-amber-500/[0.08]"
@@ -499,7 +499,7 @@ export function KanbanBoard() {
         <button
           onClick={() => setFilterAssignee(a => a === "__none__" ? null : "__none__")}
           disabled={metrics.unassigned === 0}
-          className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all disabled:opacity-30 ${
+          className={`rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-all disabled:opacity-30 ${
             filterAssignee === "__none__" ? "bg-foreground/10 text-foreground" : "text-text-2 hover:bg-foreground/[0.05]"
           }`}
         >
@@ -530,7 +530,7 @@ export function KanbanBoard() {
         {anyFilter && (
           <button
             onClick={clearFilters}
-            className="ml-1 text-xs text-text-2 hover:text-foreground transition-colors"
+            className="ml-1 text-[13px] text-text-2 hover:text-foreground transition-colors"
           >
             Limpiar filtros
           </button>

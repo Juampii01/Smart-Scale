@@ -179,8 +179,8 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
               <UserPlus className="h-4 w-4 text-[#dafc69]" />
             </span>
             <div>
-              <h2 className="text-base font-bold text-foreground">Nuevo usuario</h2>
-              <p className="mt-0.5 text-xs text-text-2">
+              <h2 className="text-[15px] font-bold text-foreground">Nuevo usuario</h2>
+              <p className="mt-0.5 text-[13px] text-text-2">
                 Crear cuenta — admin / team / setter / cliente
               </p>
             </div>
@@ -199,13 +199,13 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
         {result ? (
           <div className="px-6 py-5 space-y-4">
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/[0.06] px-4 py-3">
-              <p className="text-sm font-semibold text-foreground">✓ Usuario creado</p>
-              <p className="mt-1 text-xs text-text-2">
+              <p className="text-[13px] font-semibold text-foreground">✓ Usuario creado</p>
+              <p className="mt-1 text-[13px] text-text-2">
                 Compartile estas credenciales al usuario. La contraseña no se va a poder recuperar después.
               </p>
             </div>
 
-            <div className="space-y-2 rounded-xl border border-border bg-foreground/[0.03] p-4 font-mono text-xs">
+            <div className="space-y-2 rounded-xl border border-border bg-foreground/[0.03] p-4 font-mono text-[13px]">
               <div className="flex justify-between">
                 <span className="text-text-2">Email:</span>
                 <span className="text-foreground">{result.email}</span>
@@ -221,14 +221,14 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
             <div className="flex gap-2">
               <button
                 onClick={copyCredentials}
-                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-foreground/[0.04] px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-foreground/[0.08] transition-colors"
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-foreground/[0.04] px-4 py-2.5 text-[13px] font-semibold text-foreground hover:bg-foreground/[0.08] transition-colors"
               >
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 {copied ? "Copiado" : "Copiar credenciales"}
               </button>
               <button
                 onClick={handleClose}
-                className="flex-1 rounded-xl btn-accent px-4 py-2.5 text-sm font-bold transition-colors"
+                className="flex-1 rounded-xl btn-accent px-4 py-2.5 text-[13px] font-bold transition-colors"
               >
                 Listo
               </button>
@@ -237,7 +237,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
         ) : (
           <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
             {error && (
-              <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/[0.06] px-4 py-3 text-xs text-foreground">
+              <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/[0.06] px-4 py-3 text-[13px] text-foreground">
                 <AlertCircle className="h-4 w-4 shrink-0 text-red-500 mt-0.5" />
                 <span>{error}</span>
               </div>
@@ -253,7 +253,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="usuario@email.com"
-                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-text-3 focus:border-accent focus:ring-2 focus:ring-accent/20"
+                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-[13px] text-foreground outline-none placeholder:text-text-3 focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
             </div>
 
@@ -266,7 +266,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Nombre del usuario"
-                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-text-3 focus:border-accent focus:ring-2 focus:ring-accent/20"
+                className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-[13px] text-foreground outline-none placeholder:text-text-3 focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
             </div>
 
@@ -286,7 +286,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                         : "border-border bg-foreground/[0.02] text-foreground hover:border-foreground/20 hover:text-foreground"
                     }`}
                   >
-                    <span className="block text-sm font-bold">{opt.label}</span>
+                    <span className="block text-[13px] font-bold">{opt.label}</span>
                     <span className="block mt-0.5 text-[13px] leading-tight text-text-2">
                       {opt.description}
                     </span>
@@ -305,7 +305,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                   value={clientId}
                   onChange={e => setClientId(e.target.value)}
                   disabled={loadingClients}
-                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:opacity-50"
+                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:opacity-50"
                 >
                   <option value="">— Sin cliente asociado —</option>
                   {clients.map(c => (
@@ -331,7 +331,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                   onChange={e => setInternalTenantId(e.target.value)}
                   disabled={loadingTenants}
                   required
-                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:opacity-50"
+                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-[13px] text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:opacity-50"
                 >
                   <option value="">— Elegí un sector —</option>
                   {internalTenants.map(t => (
@@ -364,7 +364,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                   placeholder="Contraseña (mín 8 caracteres)"
                   minLength={8}
                   required
-                  className="mt-2 h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-sm text-foreground outline-none placeholder:text-text-3 focus:border-accent focus:ring-2 focus:ring-accent/20"
+                  className="mt-2 h-11 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-[13px] text-foreground outline-none placeholder:text-text-3 focus:border-accent focus:ring-2 focus:ring-accent/20"
                 />
               )}
             </div>
@@ -374,14 +374,14 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                 type="button"
                 onClick={handleClose}
                 disabled={loading}
-                className="flex-1 rounded-xl border border-border bg-foreground/[0.04] px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-foreground/[0.08] transition-colors disabled:opacity-50"
+                className="flex-1 rounded-xl border border-border bg-foreground/[0.04] px-4 py-2.5 text-[13px] font-semibold text-foreground hover:bg-foreground/[0.08] transition-colors disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={loading || !email || !role || (showTenantSelector && !internalTenantId)}
-                className="flex-1 rounded-xl btn-accent px-4 py-2.5 text-sm font-bold disabled:opacity-50 transition-colors"
+                className="flex-1 rounded-xl btn-accent px-4 py-2.5 text-[13px] font-bold disabled:opacity-50 transition-colors"
               >
                 {loading ? "Creando…" : "Crear usuario"}
               </button>

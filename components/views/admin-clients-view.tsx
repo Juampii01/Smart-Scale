@@ -480,7 +480,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
         <div className="flex gap-1.5 overflow-x-auto pb-1">
           {monthList.map(m => (
             <button key={m} onClick={() => setSelMonth(m)}
-              className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+              className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all ${
                 selMonth === m
                   ? "bg-secondary text-foreground"
                   : "border border-foreground/[0.08] bg-foreground/[0.04] text-text-2 hover:text-foreground hover:border-foreground/20"
@@ -512,7 +512,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                         onChange={e => setValue(field.key, e.target.value)}
                         rows={2}
                         placeholder="—"
-                        className="w-full resize-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
+                        className="w-full resize-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
                       />
                     </div>
                   )
@@ -524,7 +524,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                       <div className="flex gap-1 flex-wrap">
                         {[1,2,3,4,5,6,7,8,9,10].map(n => (
                           <button key={n} type="button" onClick={() => setValue(field.key, String(n))}
-                            className={`h-8 w-8 rounded-lg text-xs font-bold transition-all ${
+                            className={`h-8 w-8 rounded-lg text-[13px] font-bold transition-all ${
                               values[field.key] === String(n)
                                 ? "bg-secondary text-foreground"
                                 : "border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:border-border"
@@ -534,7 +534,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                         ))}
                         {values[field.key] && (
                           <button type="button" onClick={() => setValue(field.key, "")}
-                            className="ml-1 text-xs text-text-3 hover:text-text-2">limpiar</button>
+                            className="ml-1 text-[13px] text-text-3 hover:text-text-2">limpiar</button>
                         )}
                       </div>
                     </div>
@@ -555,7 +555,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                       placeholder="0"
                       min={0}
                       step="any"
-                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
+                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-[13px] font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
                     />
                   </div>
                 )
@@ -568,16 +568,16 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
       {/* Save bar (sticky) */}
       <div className="shrink-0 border-t border-foreground/[0.06] bg-card px-6 py-3 flex items-center gap-3">
         <button onClick={save} disabled={saving}
-        className="inline-flex items-center gap-2 rounded-xl btn-accent px-5 py-2.5 text-sm font-bold transition active:scale-95 disabled:opacity-50">
+        className="inline-flex items-center gap-2 rounded-xl btn-accent px-5 py-2.5 text-[13px] font-bold transition active:scale-95 disabled:opacity-50">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
           {saving ? "Guardando…" : "Guardar reporte"}
         </button>
         {saved && (
-          <span className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+          <span className="flex items-center gap-1.5 text-[13px] font-medium text-emerald-600 dark:text-emerald-400">
             <CheckCircle2 className="h-4 w-4" /> Guardado
           </span>
         )}
-        {saveErr && <span className="text-xs text-red-700 dark:text-red-400">{saveErr}</span>}
+        {saveErr && <span className="text-[13px] text-red-700 dark:text-red-400">{saveErr}</span>}
       </div>
     </div>
   )
@@ -629,8 +629,8 @@ function ClientCallsPanel({ clientId }: { clientId: string }) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-16 text-center px-6">
         <PhoneCall className="h-6 w-6 text-text-3" />
-        <p className="text-sm text-text-2">Todavía no hay llamadas registradas para este cliente.</p>
-        <p className="text-xs text-text-3">Llegan automáticamente desde Zoom vía Zapier apenas termina una llamada.</p>
+        <p className="text-[13px] text-text-2">Todavía no hay llamadas registradas para este cliente.</p>
+        <p className="text-[13px] text-text-3">Llegan automáticamente desde Zoom vía Zapier apenas termina una llamada.</p>
       </div>
     )
   }
@@ -646,10 +646,10 @@ function ClientCallsPanel({ clientId }: { clientId: string }) {
               className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-foreground/[0.03] transition-colors"
             >
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground truncate">
+                <p className="text-[13px] font-semibold text-foreground truncate">
                   {call.meeting_topic ?? "Llamada"}
                 </p>
-                <p className="text-xs text-text-2 mt-0.5">
+                <p className="text-[13px] text-text-2 mt-0.5">
                   {fmtDateTime(call.occurred_at)}
                   {call.duration_minutes ? ` · ${Math.round(call.duration_minutes)} min` : ""}
                 </p>
@@ -668,7 +668,7 @@ function ClientCallsPanel({ clientId }: { clientId: string }) {
                 {call.transcript ? (
                   <p className="text-[13px] leading-relaxed text-foreground whitespace-pre-wrap">{call.transcript}</p>
                 ) : (
-                  <p className="text-xs text-text-3">Sin transcript disponible para esta llamada.</p>
+                  <p className="text-[13px] text-text-3">Sin transcript disponible para esta llamada.</p>
                 )}
               </div>
             )}
@@ -737,7 +737,7 @@ function ReactivateModal({
           style={{ backgroundColor: "var(--card)" }}>
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h3 className="text-base font-bold text-foreground">Reactivar cliente</h3>
+              <h3 className="text-[15px] font-bold text-foreground">Reactivar cliente</h3>
               <p className="text-[13px] text-text-2 mt-0.5">{clientName} — nuevo ciclo</p>
             </div>
             <button type="button" onClick={onClose}
@@ -912,7 +912,7 @@ function DetailDrawer({
         <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5" style={{ backgroundColor: "var(--card)" }}>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-foreground truncate">{client.name}</h2>
+              <h2 className="text-[18px] font-bold text-foreground truncate">{client.name}</h2>
               {client.is_monthly_subscription && (
                 <span className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest text-[#dafc69] shrink-0">
                   Mensual
@@ -981,7 +981,7 @@ function DetailDrawer({
         {/* Tab nav */}
         <div className="flex gap-1 border-b border-foreground/[0.06] px-6 py-2.5" style={{ backgroundColor: "var(--card)" }}>
           <button onClick={() => setDrawerTab("crm")}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all ${
               drawerTab === "crm"
                 ? "bg-foreground/[0.08] text-foreground"
                 : "text-text-2 hover:text-foreground"
@@ -990,7 +990,7 @@ function DetailDrawer({
             CRM
           </button>
           <button onClick={() => setDrawerTab("reports")}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all ${
               drawerTab === "reports"
                 ? "bg-foreground/[0.08] text-foreground"
                 : "text-text-2 hover:text-foreground"
@@ -999,7 +999,7 @@ function DetailDrawer({
             Reportes
           </button>
           <button onClick={() => setDrawerTab("calls")}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all ${
               drawerTab === "calls"
                 ? "bg-foreground/[0.08] text-foreground"
                 : "text-text-2 hover:text-foreground"
@@ -1468,7 +1468,7 @@ function SummaryCards({ clients, viewMonth }: { clients: Client[], viewMonth: st
             <span className="text-text-3">{card.icon}</span>
             <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{card.label}</p>
           </div>
-          <p className={`text-2xl font-bold tabular-nums ${card.color}`}>{card.value}</p>
+          <p className={`text-[24px] font-bold tabular-nums ${card.color}`}>{card.value}</p>
         </div>
       ))}
     </div>
@@ -1590,7 +1590,7 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
         {/* New Cash */}
         <div>
           <p className="text-[11px] text-text-3 mb-1 font-semibold uppercase tracking-wider">New Cash</p>
-          <p className="text-3xl font-bold text-[#dafc69] tabular-nums">{fmtMoney(newCash)}</p>
+          <p className="text-[32px] font-bold text-[#dafc69] tabular-nums">{fmtMoney(newCash)}</p>
           <p className="text-[13px] text-text-3 mt-1.5">
             {newClients.length > 0
               ? `${newClients.length} cliente${newClients.length !== 1 ? "s" : ""} nuevo${newClients.length !== 1 ? "s" : ""} este mes`
@@ -1615,7 +1615,7 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
         <div className="space-y-3">
           <div>
             <p className="text-[11px] text-text-3 mb-1 font-semibold uppercase tracking-wider">Old Cash</p>
-            <p className="text-3xl font-bold text-foreground tabular-nums">{fmtMoney(oldCashCobrado)}</p>
+            <p className="text-[32px] font-bold text-foreground tabular-nums">{fmtMoney(oldCashCobrado)}</p>
             <p className="text-[13px] text-text-3 mt-0.5">recibido de clientes anteriores</p>
           </div>
 
@@ -2136,8 +2136,8 @@ export function AdminClientsView() {
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">Clientes</h1>
-            <p className="text-sm text-text-2 mt-0.5">{clients.length} clientes</p>
+            <h1 className="text-[24px] font-bold text-foreground tracking-tight">Clientes</h1>
+            <p className="text-[13px] text-text-2 mt-0.5">{clients.length} clientes</p>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={fetchClients} disabled={loading}
@@ -2157,7 +2157,7 @@ export function AdminClientsView() {
             className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all">
             <ChevronDown className="h-4 w-4 rotate-90" />
           </button>
-          <span className="min-w-[130px] text-center text-sm font-semibold capitalize text-foreground">
+          <span className="min-w-[130px] text-center text-[13px] font-semibold capitalize text-foreground">
             {viewMonthLabel}
           </span>
           <button
@@ -2169,7 +2169,7 @@ export function AdminClientsView() {
           {viewMonth !== currentMonthStr && (
             <button
               onClick={() => setViewMonth(currentMonthStr)}
-              className="rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-xs font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all">
+              className="rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all">
               Hoy
             </button>
           )}
@@ -2267,7 +2267,7 @@ export function AdminClientsView() {
                 <tbody>
                   {!sorted.length ? (
                     <tr>
-                      <td colSpan={9} className="py-16 text-center text-sm text-text-3">
+                      <td colSpan={9} className="py-16 text-center text-[13px] text-text-3">
                         {clients.length ? "No hay clientes con ese filtro." : "Todavía no hay clientes registrados."}
                       </td>
                     </tr>

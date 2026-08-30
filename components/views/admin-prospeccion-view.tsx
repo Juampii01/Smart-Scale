@@ -84,7 +84,7 @@ function DetailDrawer({
                 {item.status}
               </span>
             </div>
-            <h2 className="text-lg font-bold text-foreground">{item.title}</h2>
+            <h2 className="text-[18px] font-bold text-foreground">{item.title}</h2>
             {item.tags.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 mt-2">
                 {item.tags.map(t => (
@@ -206,7 +206,7 @@ function CreateEditModal({
         <div className="relative flex h-full max-h-[85vh] w-full max-w-2xl flex-col rounded-[14px] border border-foreground/[0.08] bg-card shadow-2xl overflow-hidden">
 
           <div className="flex items-center justify-between gap-4 border-b border-foreground/[0.06] px-6 py-4 shrink-0">
-            <h2 className="text-lg font-bold text-foreground">{isEdit ? "Editar item" : "Nuevo item"}</h2>
+            <h2 className="text-[18px] font-bold text-foreground">{isEdit ? "Editar item" : "Nuevo item"}</h2>
             <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
               <X className="h-4 w-4" />
             </button>
@@ -379,7 +379,7 @@ export function AdminProspeccionView() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">Prospección</h1>
+            <h1 className="text-[24px] font-bold text-foreground tracking-tight">Prospección</h1>
             <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[13px] font-bold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
               <Lock className="h-2.5 w-2.5" /> Privado
             </span>

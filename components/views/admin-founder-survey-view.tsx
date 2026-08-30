@@ -217,8 +217,8 @@ export function AdminFounderSurveyView() {
   return (
     <div className="max-w-[820px] mx-auto space-y-6 pb-10">
       <div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">Actualizar Sistema Operativo</h1>
-        <p className="text-sm text-text-2 mt-0.5">
+        <h1 className="text-[24px] font-bold text-foreground tracking-tight">Actualizar Sistema Operativo</h1>
+        <p className="text-[13px] text-text-2 mt-0.5">
           Respondé estas preguntas para que todo el sistema de IA (Ann, los asistentes, y lo que se construya después) tenga el contexto real del negocio — sin tener que escribir markdown.
         </p>
         {sections && (

@@ -200,11 +200,11 @@ export default function SignupPage() {
           {/* Brand */}
           <div className="mb-6 text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-foreground/10 bg-foreground/5 backdrop-blur">
-              <span className="text-sm font-semibold tracking-widest text-foreground">SS</span>
+              <span className="text-[13px] font-semibold tracking-widest text-foreground">SS</span>
             </div>
-            <div className="text-xs font-semibold tracking-[0.35em] text-foreground">SMART SCALE</div>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight">Crear cuenta</h1>
-            <p className="mt-1 text-sm text-text-2">Creá tu acceso al portal y confirmá el email para continuar.</p>
+            <div className="text-[13px] font-semibold tracking-[0.35em] text-foreground">SMART SCALE</div>
+            <h1 className="mt-2 text-[24px] font-semibold tracking-tight">Crear cuenta</h1>
+            <p className="mt-1 text-[13px] text-text-2">Creá tu acceso al portal y confirmá el email para continuar.</p>
           </div>
 
           {/* Card */}
@@ -214,7 +214,7 @@ export default function SignupPage() {
           >
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="block text-sm text-foreground">Email</label>
+                <label className="block text-[13px] text-foreground">Email</label>
                 <input
                   className="h-11 w-full rounded-xl border border-foreground/10 bg-foreground/[0.04] px-3 text-foreground outline-none placeholder:text-text-3 focus:border-foreground/20 focus:ring-2 focus:ring-white/10"
                   placeholder="you@domain.com"
@@ -227,7 +227,7 @@ export default function SignupPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm text-foreground">Contraseña</label>
+                <label className="block text-[13px] text-foreground">Contraseña</label>
                 <input
                   className="h-11 w-full rounded-xl border border-foreground/10 bg-foreground/[0.04] px-3 text-foreground outline-none placeholder:text-text-3 focus:border-foreground/20 focus:ring-2 focus:ring-white/10"
                   placeholder="Mínimo 6 caracteres"
@@ -241,13 +241,13 @@ export default function SignupPage() {
               </div>
 
               {err ? (
-                <div className="rounded-xl border border-foreground/10 bg-foreground/[0.06] p-3 text-sm text-foreground">
+                <div className="rounded-xl border border-foreground/10 bg-foreground/[0.06] p-3 text-[13px] text-foreground">
                   {err}
                 </div>
               ) : null}
 
               {msg ? (
-                <div className="rounded-xl border border-foreground/10 bg-foreground/[0.04] p-3 text-sm text-foreground">
+                <div className="rounded-xl border border-foreground/10 bg-foreground/[0.04] p-3 text-[13px] text-foreground">
                   {msg}
                 </div>
               ) : null}
@@ -257,7 +257,7 @@ export default function SignupPage() {
                   type="button"
                   onClick={onResendConfirmation}
                   disabled={resendLoading}
-                  className="h-11 w-full rounded-xl border border-foreground/10 bg-foreground/5 text-sm font-semibold text-foreground transition hover:bg-foreground/10 disabled:opacity-60"
+                  className="h-11 w-full rounded-xl border border-foreground/10 bg-foreground/5 text-[13px] font-semibold text-foreground transition hover:bg-foreground/10 disabled:opacity-60"
                 >
                   {resendLoading ? "Reenviando…" : "Reenviar email de confirmación"}
                 </button>
@@ -266,18 +266,18 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="h-11 w-full rounded-xl bg-foreground text-sm font-semibold text-background transition hover:bg-foreground/90 disabled:opacity-60"
+                className="h-11 w-full rounded-xl bg-foreground text-[13px] font-semibold text-background transition hover:bg-foreground/90 disabled:opacity-60"
               >
                 {loading ? "Creando…" : "Crear cuenta"}
               </button>
 
               <div className="flex items-center justify-between pt-1">
-                <a href="/login" className="text-sm text-text-2 underline-offset-4 hover:text-foreground hover:underline">
+                <a href="/login" className="text-[13px] text-text-2 underline-offset-4 hover:text-foreground hover:underline">
                   Ya tengo cuenta → Login
                 </a>
                 <a
                   href="/forgot-password"
-                  className="text-sm text-text-2 underline-offset-4 hover:text-foreground hover:underline"
+                  className="text-[13px] text-text-2 underline-offset-4 hover:text-foreground hover:underline"
                 >
                   ¿Olvidaste tu contraseña?
                 </a>
@@ -285,7 +285,7 @@ export default function SignupPage() {
 
               {/* Debug panel — development only, never shows in production */}
               {process.env.NODE_ENV === "development" && debug ? (
-                <details className="rounded-xl border border-foreground/10 bg-foreground/[0.03] p-3 text-xs text-foreground">
+                <details className="rounded-xl border border-foreground/10 bg-foreground/[0.03] p-3 text-[13px] text-foreground">
                   <summary className="cursor-pointer select-none text-foreground">Debug</summary>
                   <pre className="mt-2 overflow-auto whitespace-pre-wrap break-words">
                     {JSON.stringify(debug, null, 2)}
@@ -295,7 +295,7 @@ export default function SignupPage() {
             </div>
           </form>
 
-          <p className="mt-6 text-center text-xs text-text-3">© {new Date().getFullYear()} SMART SCALE</p>
+          <p className="mt-6 text-center text-[13px] text-text-3">© {new Date().getFullYear()} SMART SCALE</p>
         </div>
       </div>
     </div>

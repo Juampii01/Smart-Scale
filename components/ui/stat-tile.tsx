@@ -25,7 +25,7 @@ export function StatTile({ label, value, displayValue, format = "count", hint, c
     )}>
       <p className={cn("text-[11px] font-bold uppercase tracking-wider mb-1", highlight ? "text-[#dafc69]/70" : "text-text-2")}>{label}</p>
       {displayValue != null ? (
-        <p className={cn("text-lg font-bold tabular-nums", highlight ? "text-[#dafc69]" : "text-foreground")}>{displayValue}</p>
+        <p className={cn("text-[18px] font-bold tabular-nums", highlight ? "text-[#dafc69]" : "text-foreground")}>{displayValue}</p>
       ) : (
         <Stat value={value ?? 0} format={format} size="card" colorClass={colorClass ?? (highlight ? "text-[#dafc69]" : undefined)} className="text-left" />
       )}

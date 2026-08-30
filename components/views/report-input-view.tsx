@@ -146,15 +146,15 @@ function CelebrationOverlay({
 
           {/* Message */}
           <div className="space-y-2">
-            <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
+            <h2 className="text-[24px] font-extrabold tracking-tight text-foreground">
               {firstName ? `¡Felicitaciones, ${firstName}!` : "¡Reporte completado!"}
             </h2>
-            <p className="text-sm leading-relaxed text-text-2">
+            <p className="text-[13px] leading-relaxed text-text-2">
               Tu reporte de{" "}
               <span className="font-semibold capitalize text-foreground">{monthLabel}</span>{" "}
               está guardado.
             </p>
-            <p className="text-xs text-text-3">
+            <p className="text-[13px] text-text-3">
               Seguís construyendo tu Ecosistema Circular. 🔥
             </p>
           </div>
@@ -162,10 +162,10 @@ function CelebrationOverlay({
           {/* CTA with countdown */}
           <button
             onClick={onClose}
-            className="inline-flex items-center gap-2 rounded-xl btn-accent px-7 py-2.5 text-sm font-bold transition active:scale-95"
+            className="inline-flex items-center gap-2 rounded-xl btn-accent px-7 py-2.5 text-[13px] font-bold transition active:scale-95"
           >
             Continuar
-            <span className="text-xs font-normal text-black/40">({secs}s)</span>
+            <span className="text-[13px] font-normal text-black/40">({secs}s)</span>
           </button>
         </div>
       </div>
@@ -194,8 +194,8 @@ function ConfirmOverwriteDialog({
             </div>
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">Reporte existente</p>
-              <h3 className="text-base font-semibold text-foreground">¿Reemplazar los datos?</h3>
-              <p className="mt-1.5 text-sm text-text-2">
+              <h3 className="text-[15px] font-semibold text-foreground">¿Reemplazar los datos?</h3>
+              <p className="mt-1.5 text-[13px] text-text-2">
                 Ya existe un reporte para <span className="font-semibold text-foreground">{month}</span>. Los datos actuales serán reemplazados por los que estás por guardar.
               </p>
             </div>
@@ -204,14 +204,14 @@ function ConfirmOverwriteDialog({
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-sm font-medium text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground"
+              className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-[13px] font-medium text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground"
             >
               Cancelar
             </button>
             <button
               type="button"
               onClick={onConfirm}
-              className="rounded-xl bg-amber-500 px-5 py-2 text-sm font-bold text-black transition hover:bg-amber-400"
+              className="rounded-xl bg-amber-500 px-5 py-2 text-[13px] font-bold text-black transition hover:bg-amber-400"
             >
               Sí, reemplazar
             </button>
@@ -406,7 +406,7 @@ export function ReportInputView() {
         <button
           type="button"
           onClick={() => setTab("form")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium transition-all ${
             tab === "form"
               ? "bg-secondary text-foreground"
               : "text-text-2 hover:text-foreground"
@@ -418,7 +418,7 @@ export function ReportInputView() {
         <button
           type="button"
           onClick={() => setTab("history")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium transition-all ${
             tab === "history"
               ? "bg-secondary text-foreground"
               : "text-text-2 hover:text-foreground"
@@ -445,11 +445,11 @@ export function ReportInputView() {
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-            <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground">
+            <h1 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">
               Cargar Reporte Mensual
             </h1>
           </div>
-          <p className="text-xs text-text-3 ml-[18px]">
+          <p className="text-[13px] text-text-3 ml-[18px]">
             {isUpdate ? "Actualizando reporte existente" : "Nuevo reporte"} · Supabase → Slack
           </p>
         </div>
@@ -477,7 +477,7 @@ export function ReportInputView() {
                 type="month"
                 value={month}
                 onChange={(e) => setMonth(e.target.value)}
-                className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2 text-sm font-semibold text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 [color-scheme:dark]"
+                className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 [color-scheme:dark]"
               />
             </div>
             <div className="flex items-center gap-2 flex-wrap">
@@ -511,7 +511,7 @@ export function ReportInputView() {
             <div className="flex items-center justify-between border-b border-foreground/[0.05] px-5 py-3">
               <div className="flex items-center gap-2">
                 <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
-                <span className="text-sm font-semibold uppercase tracking-widest text-foreground">{group.label}</span>
+                <span className="text-[13px] font-semibold uppercase tracking-widest text-foreground">{group.label}</span>
               </div>
               <span className="text-[13px] text-text-3">{group.fields.length} campos</span>
             </div>
@@ -524,7 +524,7 @@ export function ReportInputView() {
                 if (isNps) {
                   return (
                     <div key={field.key} className="sm:col-span-2 lg:col-span-3 flex flex-col gap-2 rounded-[14px] border border-border bg-secondary/20 p-5">
-                      <label className="text-xs font-semibold uppercase tracking-widest text-text-2">
+                      <label className="text-[11px] font-semibold uppercase tracking-widest text-text-2">
                         {field.label}
                         <span className="ml-1.5 text-text-3 normal-case tracking-normal font-normal">— del 1 al 10</span>
                       </label>
@@ -534,7 +534,7 @@ export function ReportInputView() {
                             key={n}
                             type="button"
                             onClick={() => setValue(field.key, String(n))}
-                            className={`h-10 w-10 rounded-xl text-sm font-bold transition-all ${
+                            className={`h-10 w-10 rounded-xl text-[13px] font-bold transition-all ${
                               values[field.key] === String(n)
                                 ? "bg-secondary text-foreground"
                                 : "border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:border-border hover:text-foreground"
@@ -547,7 +547,7 @@ export function ReportInputView() {
                           <button
                             type="button"
                             onClick={() => setValue(field.key, "")}
-                            className="ml-2 text-xs text-text-3 hover:text-text-2 transition-colors"
+                            className="ml-2 text-[13px] text-text-3 hover:text-text-2 transition-colors"
                           >
                             limpiar
                           </button>
@@ -559,10 +559,10 @@ export function ReportInputView() {
 
                 return (
                   <div key={field.key} className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold uppercase tracking-widest text-text-2">
+                    <label className="text-[11px] font-semibold uppercase tracking-widest text-text-2">
                       {field.label}
                       {"hint" in field && field.hint && (
-                        <span className="ml-1 text-text-2 normal-case tracking-normal font-normal text-xs">({field.hint})</span>
+                        <span className="ml-1 text-text-2 normal-case tracking-normal font-normal text-[13px]">({field.hint})</span>
                       )}
                     </label>
                     {field.type === "text" ? (
@@ -571,7 +571,7 @@ export function ReportInputView() {
                         onChange={(e) => setValue(field.key, e.target.value)}
                         rows={2}
                         placeholder="—"
-                        className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-base text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+                        className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
                       />
                     ) : (
                       <input
@@ -581,7 +581,7 @@ export function ReportInputView() {
                         placeholder="0"
                         min={"min" in field ? field.min : 0}
                         step="any"
-                        className={`w-full rounded-xl border px-3 py-2 text-base font-semibold text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 ${
+                        className={`w-full rounded-xl border px-3 py-2 text-[15px] font-semibold text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 ${
                           isHighlight
                             ? "border-accent bg-secondary focus:border-accent focus:ring-accent/20"
                             : "border-foreground/[0.08] bg-foreground/[0.04] focus:border-accent focus:ring-accent/20"
@@ -619,7 +619,7 @@ export function ReportInputView() {
 
         {/* Status banner */}
         {status !== "idle" && status !== "loading" && (
-          <div className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${
+          <div className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-[13px] ${
             status === "success"
               ? "border-emerald-400 bg-emerald-100 text-emerald-900 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200"
               : "border-red-400 bg-red-100 text-red-900 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-200"
@@ -637,7 +637,7 @@ export function ReportInputView() {
           <button
             type="submit"
             disabled={status === "loading" || !ownClientId}
-            className="flex items-center gap-2 rounded-xl btn-accent px-6 py-2.5 text-sm font-bold transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded-xl btn-accent px-6 py-2.5 text-[13px] font-bold transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
             {status === "loading" ? "Guardando…" : isUpdate ? "Actualizar reporte" : "Guardar reporte"}
@@ -648,13 +648,13 @@ export function ReportInputView() {
               onClick={handleTest}
               disabled={status === "loading" || !ownClientId}
               title="Solo developer: guarda un reporte con datos ficticios"
-              className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/[0.04] px-5 py-2.5 text-sm font-bold text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/[0.04] px-5 py-2.5 text-[13px] font-bold text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FlaskConical className="h-4 w-4" />
               Testear
             </button>
           )}
-          <p className="text-xs text-text-3">
+          <p className="text-[13px] text-text-3">
             Los datos se guardan primero en Supabase. Las notificaciones van en segundo plano.
           </p>
         </div>

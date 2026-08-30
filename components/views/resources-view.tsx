@@ -68,7 +68,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
   return (
     <div className="rounded-[14px] border border-border bg-card p-5 mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-foreground">Agregar recurso</h3>
+        <h3 className="text-[13px] font-semibold text-foreground">Agregar recurso</h3>
         <button onClick={onClose} aria-label="Cerrar" className="text-text-3 hover:text-text-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 rounded">
           <X className="h-4 w-4" />
         </button>
@@ -81,14 +81,14 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
             placeholder="Título *"
             value={form.title}
             onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-            className="rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] px-3 py-2.5 text-sm text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
+            className="rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
           />
           <input
             type="text"
             placeholder="Categoría (ej: Marketing, Ventas…)"
             value={form.category}
             onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-            className="rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] px-3 py-2.5 text-sm text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
+            className="rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
           />
         </div>
 
@@ -97,7 +97,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
           placeholder="URL *"
           value={form.url}
           onChange={e => handleUrlChange(e.target.value)}
-          className="rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] px-3 py-2.5 text-sm text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
+          className="rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
         />
 
         <input
@@ -105,7 +105,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
           placeholder="Descripción (opcional)"
           value={form.description}
           onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-          className="rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] px-3 py-2.5 text-sm text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
+          className="rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
         />
 
         {/* Type selector */}
@@ -117,7 +117,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
                 key={t}
                 type="button"
                 onClick={() => setForm(f => ({ ...f, type: t }))}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium border transition-all ${
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium border transition-all ${
                   form.type === t
                     ? "border-accent bg-secondary text-[#dafc69]"
                     : "border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground"
@@ -130,13 +130,13 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
           })}
         </div>
 
-        {error && <p className="text-xs text-red-700 dark:text-red-400">{error}</p>}
+        {error && <p className="text-[13px] text-red-700 dark:text-red-400">{error}</p>}
 
         <div className="flex justify-end">
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-sm font-semibold hover:bg-secondary transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-semibold hover:bg-secondary transition-colors disabled:opacity-50"
           >
             {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
             Guardar
@@ -171,7 +171,7 @@ function ResourceCard({ resource, onDelete }: { resource: Resource; onDelete: (i
             <Icon className={`h-4 w-4 ${cfg.color}`} />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground truncate">{resource.title}</p>
+            <p className="text-[13px] font-semibold text-foreground truncate">{resource.title}</p>
             <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">
               {resource.category}
             </span>
@@ -187,14 +187,14 @@ function ResourceCard({ resource, onDelete }: { resource: Resource; onDelete: (i
       </div>
 
       {resource.description && (
-        <p className="text-xs text-text-2 leading-relaxed line-clamp-2">{resource.description}</p>
+        <p className="text-[13px] text-text-2 leading-relaxed line-clamp-2">{resource.description}</p>
       )}
 
       <a
         href={resource.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-auto flex items-center gap-1.5 text-xs font-medium text-[#dafc69]/70 hover:text-[#dafc69] transition-colors"
+        className="mt-auto flex items-center gap-1.5 text-[13px] font-medium text-[#dafc69]/70 hover:text-[#dafc69] transition-colors"
       >
         <ExternalLink className="h-3 w-3" />
         Abrir
@@ -237,13 +237,13 @@ export function ResourcesView() {
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-            <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground">Biblioteca</h1>
+            <h1 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Biblioteca</h1>
           </div>
-          <p className="text-xs text-text-3 ml-[18px]">Links, docs y recursos guardados</p>
+          <p className="text-[13px] text-text-3 ml-[18px]">Links, docs y recursos guardados</p>
         </div>
         <button
           onClick={() => setShowForm(v => !v)}
-          className="flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-sm font-semibold hover:bg-secondary transition-colors"
+          className="flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-semibold hover:bg-secondary transition-colors"
         >
           <Plus className="h-4 w-4" />
           Agregar
@@ -267,7 +267,7 @@ export function ResourcesView() {
             placeholder="Buscar…"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] pl-9 pr-4 py-2.5 text-sm text-foreground placeholder-white/30 focus:outline-none focus:border-accent"
+            className="w-full rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] pl-9 pr-4 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -275,7 +275,7 @@ export function ResourcesView() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`rounded-lg px-3 py-2 text-xs font-medium border transition-all ${
+              className={`rounded-lg px-3 py-2 text-[13px] font-medium border transition-all ${
                 activeCategory === cat
                   ? "border-accent bg-secondary text-[#dafc69]"
                   : "border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground"
@@ -295,13 +295,13 @@ export function ResourcesView() {
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
           <FolderOpen className="h-10 w-10 text-text-3" />
-          <p className="text-sm text-text-3">
+          <p className="text-[13px] text-text-3">
             {search || activeCategory !== "Todos" ? "Sin resultados" : "Todavía no hay recursos guardados"}
           </p>
           {!showForm && (
             <button
               onClick={() => setShowForm(true)}
-              className="text-xs text-[#dafc69]/50 hover:text-[#dafc69] transition-colors"
+              className="text-[13px] text-[#dafc69]/50 hover:text-[#dafc69] transition-colors"
             >
               + Agregar el primero
             </button>

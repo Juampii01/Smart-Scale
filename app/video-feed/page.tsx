@@ -117,7 +117,7 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
 
       {/* Info */}
       <div className="flex flex-col flex-1 p-3">
-        <p className="text-xs font-medium text-foreground leading-snug line-clamp-2 mb-2">{post.title}</p>
+        <p className="text-[13px] font-medium text-foreground leading-snug line-clamp-2 mb-2">{post.title}</p>
 
         <div className="flex items-center gap-2.5 text-text-3 mb-2">
           <span className="flex items-center gap-0.5 text-[13px]"><ThumbsUp className="h-2.5 w-2.5" />{fmt(post.likes)}</span>
@@ -194,8 +194,8 @@ function ConnectForm({ onConnect, clientId }: { onConnect: (account: Account) =>
             <Instagram className="h-7 w-7 text-pink-400" />
           </div>
         </div>
-        <h2 className="text-xl font-bold text-foreground text-center mb-1">Conectá tu Instagram</h2>
-        <p className="text-sm text-text-2 text-center mb-8">
+        <h2 className="text-[24px] font-bold text-foreground text-center mb-1">Conectá tu Instagram</h2>
+        <p className="text-[13px] text-text-2 text-center mb-8">
           Ingresá la URL de tu perfil para ver tus mejores posts de los últimos 30 días con análisis IA.
         </p>
 
@@ -212,20 +212,20 @@ function ConnectForm({ onConnect, clientId }: { onConnect: (account: Account) =>
                   value={url}
                   onChange={e => { setUrl(e.target.value); setError(null) }}
                   placeholder="https://instagram.com/tuperfil/"
-                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-background pl-10 pr-4 text-sm text-foreground placeholder:text-text-3 focus:border-pink-500/40 focus:outline-none focus:ring-1 focus:ring-pink-500/15 transition-all"
+                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-background pl-10 pr-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-pink-500/40 focus:outline-none focus:ring-1 focus:ring-pink-500/15 transition-all"
                   disabled={loading}
                 />
               </div>
               <button
                 type="submit"
                 disabled={!url.trim() || loading}
-                className="h-11 w-full rounded-xl btn-accent text-sm font-bold disabled:opacity-40 transition"
+                className="h-11 w-full rounded-xl btn-accent text-[13px] font-bold disabled:opacity-40 transition"
               >
                 {loading ? "Cargando tu perfil…" : "Conectar Instagram"}
               </button>
             </form>
             {error && (
-              <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">{error}</div>
+              <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-[13px] text-red-700 dark:text-red-300">{error}</div>
             )}
           </div>
           {loading && (
@@ -278,7 +278,7 @@ function FeedView({ account, onRefresh }: {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-foreground">@{account.channel_name}</span>
+            <span className="text-[13px] font-semibold text-foreground">@{account.channel_name}</span>
             <a href={account.channel_url} target="_blank" rel="noopener noreferrer"
               className="text-text-3 hover:text-[#dafc69] transition-colors">
               <ExternalLink className="h-3.5 w-3.5" />
@@ -309,7 +309,7 @@ function FeedView({ account, onRefresh }: {
       <div className="flex items-center gap-2">
         {(["all", "top"] as Filter[]).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`h-8 rounded-lg px-4 text-xs font-semibold transition-all ${
+            className={`h-8 rounded-lg px-4 text-[13px] font-semibold transition-all ${
               filter === f
                 ? "bg-secondary text-foreground"
                 : "border border-foreground/[0.07] bg-foreground/[0.03] text-text-2 hover:text-foreground"
@@ -327,8 +327,8 @@ function FeedView({ account, onRefresh }: {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
-          <p className="text-sm text-text-3">No hay publicaciones que superen el umbral.</p>
-          <button onClick={() => setFilter("all")} className="text-xs text-[#dafc69]/60 hover:text-[#dafc69] transition-colors">
+          <p className="text-[13px] text-text-3">No hay publicaciones que superen el umbral.</p>
+          <button onClick={() => setFilter("all")} className="text-[13px] text-[#dafc69]/60 hover:text-[#dafc69] transition-colors">
             Ver todas →
           </button>
         </div>

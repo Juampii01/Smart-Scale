@@ -164,7 +164,7 @@ export function MetricsSection({
   return (
     <section className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <span className="inline-flex items-center rounded-full border border-foreground/8 bg-foreground/[0.03] px-3 py-1 text-xs font-medium text-text-2">
+        <span className="inline-flex items-center rounded-full border border-foreground/8 bg-foreground/[0.03] px-3 py-1 text-[13px] font-medium text-text-2">
           {totalCount} campos · {monthLabel}
         </span>
         <Input
@@ -172,18 +172,18 @@ export function MetricsSection({
           onChange={(e) => setQ(e.target.value)}
           placeholder="Buscar métricas…"
           className={cn(
-            "w-full sm:w-[260px] h-8 rounded-xl text-xs",
+            "w-full sm:w-[260px] h-8 rounded-xl text-[13px]",
             "bg-foreground/[0.04] text-foreground placeholder:text-text-3 border-foreground/8",
             "focus-visible:ring-1 focus-visible:ring-accent/20 focus-visible:border-accent"
           )}
         />
       </div>
 
-      {loading && <p className="text-text-2 text-sm">Cargando métricas…</p>}
-      {error && <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>}
+      {loading && <p className="text-text-2 text-[13px]">Cargando métricas…</p>}
+      {error && <p className="text-red-700 dark:text-red-400 text-[13px]">{error}</p>}
 
       {!loading && !error && !metrics && (
-        <p className="text-text-2 text-sm">No hay métricas cargadas para este mes.</p>
+        <p className="text-text-2 text-[13px]">No hay métricas cargadas para este mes.</p>
       )}
 
       {!loading && !error && metrics && (
@@ -197,7 +197,7 @@ export function MetricsSection({
               <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-3">
                 <div className="flex items-center gap-2">
                   <span className="h-3 w-[2px] rounded-full bg-accent" />
-                  <span className="text-xs font-semibold uppercase tracking-widest text-text-2">{category}</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-widest text-text-2">{category}</span>
                 </div>
                 <span className="text-[13px] text-text-3 tabular-nums">{items.length} campos</span>
               </div>
@@ -219,17 +219,17 @@ export function MetricsSection({
                         className={`border-b border-foreground/[0.04] last:border-b-0 transition-colors hover:bg-foreground/[0.02] ${i % 2 === 0 ? "" : "bg-foreground/[0.01]"}`}
                       >
                         <td className="px-5 py-2.5">
-                          <span className="text-xs font-medium text-text-2">
+                          <span className="text-[13px] font-medium text-text-2">
                             {getFieldLabel(item.key)}
                           </span>
                         </td>
                         <td className="px-5 py-2.5 text-right">
-                          <span className="font-mono text-sm font-semibold text-foreground">
+                          <span className="font-mono text-[13px] font-semibold text-foreground">
                             {item.valueText}
                           </span>
                         </td>
                         <td className="px-5 py-2.5 text-right">
-                          <span className="font-mono text-xs text-text-3">{item.annualValueText}</span>
+                          <span className="font-mono text-[13px] text-text-3">{item.annualValueText}</span>
                         </td>
                       </tr>
                     ))}

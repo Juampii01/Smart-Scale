@@ -79,11 +79,11 @@ export function RenovacionView() {
     <div className="mx-auto max-w-5xl pb-16">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+        <h1 className="text-[24px] font-extrabold tracking-tight text-foreground flex items-center gap-2">
           <Sparkles className="h-6 w-6 text-[#dafc69]" />
           Próximo nivel
         </h1>
-        <p className="text-sm text-text-2 mt-1.5 max-w-2xl">
+        <p className="text-[13px] text-text-2 mt-1.5 max-w-2xl">
           Tu programa puede seguir creciendo. Estas son las formas de continuar el acompañamiento
           y llevar tu negocio al siguiente nivel.
         </p>
@@ -118,13 +118,13 @@ export function RenovacionView() {
                 <span className="text-[11px] font-bold uppercase tracking-wider text-text-2">{o.badge}</span>
               </div>
 
-              <h2 className="text-lg font-bold text-foreground leading-tight">{o.title}</h2>
+              <h2 className="text-[18px] font-bold text-foreground leading-tight">{o.title}</h2>
               <p className="text-[13px] text-text-2 mt-1.5 leading-relaxed">{o.tagline}</p>
 
               {/* Precio */}
               <div className="mt-4 mb-4 border-y border-foreground/[0.06] py-3">
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl font-extrabold text-foreground">{o.priceTotal}</span>
+                  <span className="text-[24px] font-extrabold text-foreground">{o.priceTotal}</span>
                   <span className="text-[13px] font-medium text-text-2">pago único</span>
                 </div>
                 {o.priceMonthly && (
