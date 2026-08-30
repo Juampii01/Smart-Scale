@@ -10,7 +10,7 @@ const NIVEL_OPTIONS = [
   { value: "$5K", label: "$5K", color: "#ef4444", dot: "bg-red-500" },
   { value: "$10K", label: "$10K", color: "#3b82f6", dot: "bg-blue-500" },
   { value: "$20K", label: "$20K", color: "#8b5cf6", dot: "bg-violet-500" },
-  { value: "$50K", label: "$50K", color: "#dafc69", dot: "bg-yellow-400" },
+  { value: "$50K", label: "$50K", color: "var(--accent-ink)", dot: "bg-yellow-400" },
   { value: "$100K", label: "$100K", color: "#22c55e", dot: "bg-green-500" },
 ]
 
@@ -222,11 +222,11 @@ export function ChiChangView() {
                         ? "border-foreground/20 bg-foreground/[0.08]"
                         : "border-foreground/[0.07] bg-foreground/[0.03] hover:bg-foreground/[0.06] hover:border-foreground/[0.12]"
                     }`}
-                    style={isActive ? { boxShadow: `0 0 0 1px ${opt.color}40, 0 0 12px ${opt.color}18` } : {}}
+                    style={isActive ? { boxShadow: `0 0 0 1px color-mix(in srgb, ${opt.color} 25%, transparent), 0 0 12px color-mix(in srgb, ${opt.color} 10%, transparent)` } : {}}
                   >
                     <span
                       className="h-3 w-3 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: opt.color, boxShadow: `0 0 6px ${opt.color}80` }}
+                      style={{ backgroundColor: opt.color, boxShadow: `0 0 6px color-mix(in srgb, ${opt.color} 50%, transparent)` }}
                     />
                     <span className={`text-xs font-bold tabular-nums ${isActive ? "text-foreground" : "text-foreground/55"}`}>
                       {opt.label}

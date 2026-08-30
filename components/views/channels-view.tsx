@@ -281,8 +281,8 @@ function ContentVsAudience({ reports }: { reports: any[] }) {
             tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}K` : String(v)}
             domain={[0, 'auto']} />
           {avgPosts > 0 && (
-            <ReferenceLine yAxisId="posts" y={avgPosts} stroke="#dafc6940" strokeDasharray="4 3"
-              label={{ value: "avg", position: "insideTopLeft", fill: "#dafc6950", fontSize: 9 }} />
+            <ReferenceLine yAxisId="posts" y={avgPosts} stroke="color-mix(in srgb, var(--accent-ink) 25%, transparent)" strokeDasharray="4 3"
+              label={{ value: "avg", position: "insideTopLeft", fill: "color-mix(in srgb, var(--accent-ink) 30%, transparent)", fontSize: 9 }} />
           )}
           <Tooltip {...tooltipBase}
             formatter={(v: number, name: string) => [
@@ -290,7 +290,7 @@ function ContentVsAudience({ reports }: { reports: any[] }) {
             ]}
           />
           <Bar yAxisId="posts" dataKey="posts" name="Posts publicados"
-            fill="#dafc69" fillOpacity={0.75} radius={[4,4,0,0]} maxBarSize={36} />
+            fill="var(--accent-ink)" fillOpacity={0.75} radius={[4,4,0,0]} maxBarSize={36} />
           <Line yAxisId="followers" type="monotone" dataKey="followers" name="Seguidores IG"
             stroke="#818cf8" strokeWidth={2.5}
             dot={{ fill: "#818cf8", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />

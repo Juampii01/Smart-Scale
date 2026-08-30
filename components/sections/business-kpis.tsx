@@ -56,7 +56,7 @@ function fmtNumber(v: any) {
 // ─── KPI definitions ──────────────────────────────────────────────────────────
 
 const KPI_DEFS = [
-  { key: "cash_collected",  label: "Cash Collected",      money: true,  icon: Wallet,     color: "#dafc69" },
+  { key: "cash_collected",  label: "Cash Collected",      money: true,  icon: Wallet,     color: "var(--accent-ink)" },
   { key: "total_revenue",   label: "Total Revenue",        money: true,  icon: DollarSign, color: "#fb923c" },
   { key: "mrr",             label: "MRR",                  money: true,  icon: Repeat,     color: "#60a5fa" },
   { key: "ad_spend",        label: "Gasto Publicitario",   money: true,  icon: Megaphone,  color: "#ef4444" },
@@ -182,7 +182,7 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
                 <div className="mb-5 flex items-start justify-between">
                   <div
                     className="flex h-10 w-10 items-center justify-center rounded-xl ring-1"
-                    style={{ backgroundColor: `${kpi.color}15`, boxShadow: `0 0 0 1px ${kpi.color}25` }}
+                    style={{ backgroundColor: `color-mix(in srgb, ${kpi.color} 15%, transparent)`, boxShadow: `0 0 0 1px color-mix(in srgb, ${kpi.color} 25%, transparent)` }}
                   >
                     <kpi.icon className="h-5 w-5" style={{ color: kpi.color }} />
                   </div>

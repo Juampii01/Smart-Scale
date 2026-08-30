@@ -196,9 +196,9 @@ function PostsVsFollowers({ reports, className }: { reports: MonthlyReport[]; cl
           <YAxis yAxisId="followers" orientation="right" stroke="transparent" width={44}
             tick={{ fill: "var(--text-3)", fontSize: 10 }} tickLine={false} axisLine={false}
             tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)} />
-          {avg > 0 && <ReferenceLine yAxisId="posts" y={avg} stroke="#dafc6930" strokeDasharray="4 3" />}
+          {avg > 0 && <ReferenceLine yAxisId="posts" y={avg} stroke="color-mix(in srgb, var(--accent-ink) 19%, transparent)" strokeDasharray="4 3" />}
           <Tooltip {...tooltipStyle} formatter={(v: number, name: string) => [name === "Seguidores" ? fmtK(v) : String(v), name]} />
-          <Bar yAxisId="posts" dataKey="posts" name="Posts" fill="#dafc69" fillOpacity={0.8} radius={[4,4,0,0]} maxBarSize={32} />
+          <Bar yAxisId="posts" dataKey="posts" name="Posts" fill="var(--accent-ink)" fillOpacity={0.8} radius={[4,4,0,0]} maxBarSize={32} />
           <Line yAxisId="followers" type="monotone" dataKey="followers" name="Seguidores"
             stroke="#818cf8" strokeWidth={2} dot={{ fill: "#818cf8", r: 2.5, strokeWidth: 0 }} activeDot={{ r: 4 }} />
         </ComposedChart>
@@ -315,7 +315,7 @@ function InviteTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Monthl
           <MetricCard label="MRR"             value={fmtMoney(cur?.mrr)}            pct={d.mrr}     noData={!cur?.mrr} />
           <MetricCard label="Revenue total"   value={fmtMoney(cur?.total_revenue)}  pct={d.rev}     noData={!cur?.total_revenue} />
         </div>
-        <MiniChart data={all} dataKey="cash_collected" color="#dafc69" label="Cash collected — últimos 8 meses" className="min-h-[220px]" />
+        <MiniChart data={all} dataKey="cash_collected" color="var(--accent-ink)" label="Cash collected — últimos 8 meses" className="min-h-[220px]" />
       </div>
 
       {/* Sales: el embudo de conversión vive dentro de Invite */}

@@ -29,7 +29,7 @@ function pct(num: number, den: number) {
 
 function convColor(p: number) {
   if (p >= 60) return { bar: "#4ade80", text: "text-emerald-700 dark:text-emerald-300", bg: "bg-emerald-100 dark:bg-emerald-500/10", ring: "ring-emerald-400 dark:ring-emerald-500/20" }
-  if (p >= 30) return { bar: "#dafc69", text: "text-yellow-700 dark:text-yellow-300",  bg: "bg-yellow-100 dark:bg-yellow-500/10",  ring: "ring-yellow-400 dark:ring-yellow-500/20"  }
+  if (p >= 30) return { bar: "var(--accent-ink)", text: "text-yellow-700 dark:text-yellow-300",  bg: "bg-yellow-100 dark:bg-yellow-500/10",  ring: "ring-yellow-400 dark:ring-yellow-500/20"  }
   return         { bar: "#f87171",  text: "text-red-700 dark:text-red-300",     bg: "bg-red-100 dark:bg-red-500/10",     ring: "ring-red-400 dark:ring-red-500/20"     }
 }
 
@@ -89,10 +89,10 @@ function FunnelStep({
 
 // ─── Mini stat card ───────────────────────────────────────────────────────────
 
-function MiniStat({ label, value, sub, color = "#dafc69" }: { label: string; value: string | number; sub?: string; color?: string }) {
+function MiniStat({ label, value, sub, color = "var(--accent-ink)" }: { label: string; value: string | number; sub?: string; color?: string }) {
   return (
     <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card p-5 hover:border-foreground/[0.12] transition-colors">
-      <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: `${color}99` }}>{label}</p>
+      <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: `color-mix(in srgb, ${color} 60%, transparent)` }}>{label}</p>
       <p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground leading-none">{value}</p>
       {sub && <p className="mt-2 text-xs text-foreground/30">{sub}</p>}
     </div>
@@ -292,7 +292,7 @@ export function SalesView() {
               label="Cierres por Offer Doc"
               value={odCierres || "—"}
               sub={`Tasa: ${odCloseRate}${odCloseRate !== "—" ? "%" : ""}`}
-              color="#dafc69"
+              color="var(--accent-ink)"
             />
           </div>
 
@@ -303,7 +303,7 @@ export function SalesView() {
               {[
                 { label: "Enviados", value: odSent,    pctW: 100,                         color: "#60a5fa" },
                 { label: "Respondidos", value: odResp, pctW: pct(odResp, odSent),         color: "#4ade80" },
-                { label: "Cerrados",  value: odCierres,pctW: pct(odCierres, odSent),      color: "#dafc69" },
+                { label: "Cerrados",  value: odCierres,pctW: pct(odCierres, odSent),      color: "var(--accent-ink)" },
               ].map(row => (
                 <div key={row.label} className="space-y-1">
                   <div className="flex justify-between text-xs">
@@ -372,7 +372,7 @@ export function SalesView() {
               {[
                 { label: "OD Enviados",    color: "#60a5fa" },
                 { label: "OD Respondidos", color: "#4ade80" },
-                { label: "Cierres x OD",   color: "#dafc69" },
+                { label: "Cierres x OD",   color: "var(--accent-ink)" },
               ].map(l => (
                 <div key={l.label} className="flex items-center gap-1.5">
                   <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: l.color }} />
@@ -392,7 +392,7 @@ export function SalesView() {
                 />
                 <Bar dataKey="odEnviados"    name="OD Enviados"    fill="#60a5fa" fillOpacity={0.7} radius={[3,3,0,0]} maxBarSize={32} />
                 <Line dataKey="odRespondidos" name="OD Respondidos" stroke="#4ade80" strokeWidth={2.5} dot={{ fill: "#4ade80", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
-                <Line dataKey="odCierres"     name="Cierres x OD"  stroke="#dafc69" strokeWidth={2.5} dot={{ fill: "#dafc69", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+                <Line dataKey="odCierres"     name="Cierres x OD"  stroke="var(--accent-ink)" strokeWidth={2.5} dot={{ fill: "var(--accent-ink)", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>

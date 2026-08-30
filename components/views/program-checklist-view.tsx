@@ -206,7 +206,7 @@ export function ProgramChecklistView() {
                       className="h-1.5 rounded-full transition-all duration-500"
                       style={{
                         width: `${monthPct}%`,
-                        backgroundColor: monthPct === 100 ? "#34d399" : "#dafc69",
+                        backgroundColor: monthPct === 100 ? "#34d399" : "var(--accent-ink)",
                       }}
                     />
                   </div>

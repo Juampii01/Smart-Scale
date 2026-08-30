@@ -413,8 +413,7 @@ export default function ApplyPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 h-14 rounded-2xl text-[16px] font-black text-black hover:opacity-90 active:scale-[0.98] disabled:opacity-50 transition-all"
-            style={{ backgroundColor: "#dafc69" }}
+            className="w-full flex items-center justify-center gap-3 h-14 rounded-2xl text-[16px] font-black text-black hover:opacity-90 active:scale-[0.98] disabled:opacity-50 transition-all bg-[#dafc69]"
           >
             {loading ? (
               <><Loader2 className="h-5 w-5 animate-spin" /> Enviando...</>

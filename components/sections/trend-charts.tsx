@@ -41,7 +41,7 @@ const CHARTS = [
     subtitle: "Total cash collected over time",
     type:     "bar"  as const,
     format:   "money" as const,
-    color:    "#dafc69",
+    color:    "var(--accent-ink)",
     gradId:   "grad_cash",
   },
   {
@@ -198,7 +198,7 @@ function ChartCard({
                   width={52}
                 />
                 <Tooltip
-                  cursor={{ stroke: `${cfg.color}40`, strokeWidth: 1 }}
+                  cursor={{ stroke: `color-mix(in srgb, ${cfg.color} 25%, transparent)`, strokeWidth: 1 }}
                   contentStyle={tooltipStyle.contentStyle}
                   labelStyle={tooltipStyle.labelStyle}
                   itemStyle={tooltipStyle.itemStyle}

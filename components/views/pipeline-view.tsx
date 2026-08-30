@@ -33,7 +33,7 @@ function StarRating({ value, onChange }: { value: number | null; onChange: (n: n
         >
           <Star
             className={`h-5 w-5 transition-colors ${
-              (value ?? 0) >= n ? "fill-[#dafc69] text-[#dafc69]" : "text-foreground/15"
+              (value ?? 0) >= n ? "fill-[var(--accent-ink)] text-[#dafc69]" : "text-foreground/15"
             }`}
           />
         </button>

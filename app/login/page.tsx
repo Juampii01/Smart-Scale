@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { getDefaultLandingForRole } from "@/lib/auth/permissions";
+import { APP_VERSION } from "@/lib/utils";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -97,7 +98,7 @@ export default function LoginPage() {
         <div className="relative space-y-6">
           <div className="flex items-center gap-2.5">
             <span className="h-[3px] w-8 rounded-full bg-[#dafc69]" />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#dafc69]/70">Portal 2.0</span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#dafc69]/70">Portal {APP_VERSION}</span>
           </div>
 
           <h2 className="text-4xl font-bold leading-[1.15] tracking-tight text-foreground">
@@ -131,7 +132,7 @@ export default function LoginPage() {
         {/* Bottom: Version */}
         <div className="relative">
           <p className="text-[10px] uppercase tracking-widest text-foreground/15">
-            © {new Date().getFullYear()} Smart Scale · v2.0
+            © {new Date().getFullYear()} Smart Scale · v{APP_VERSION}
           </p>
         </div>
       </div>

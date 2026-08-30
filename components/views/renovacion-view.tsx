@@ -98,8 +98,8 @@ export function RenovacionView() {
               key={o.id}
               className="relative flex flex-col rounded-[14px] border bg-card p-6 transition-all"
               style={{
-                borderColor: o.highlight ? "#dafc69" : "var(--border)",
-                boxShadow: o.highlight ? "0 0 0 1px #dafc69, 0 8px 32px -8px rgba(255,222,33,0.25)" : undefined,
+                borderColor: o.highlight ? "var(--accent-ink)" : "var(--border)",
+                boxShadow: o.highlight ? "0 0 0 1px var(--accent-ink), 0 8px 32px -8px rgba(255,222,33,0.25)" : undefined,
               }}
             >
               {o.highlight && (
@@ -111,7 +111,7 @@ export function RenovacionView() {
               <div className="flex items-center gap-2 mb-3">
                 <div
                   className="flex h-9 w-9 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: o.highlight ? "#dafc69" : "var(--muted)" }}
+                  style={{ backgroundColor: o.highlight ? "var(--accent)" : "var(--muted)" }}
                 >
                   <Icon className="h-4.5 w-4.5" style={{ color: o.highlight ? "#000" : "var(--muted-foreground)" }} />
                 </div>
@@ -140,7 +140,7 @@ export function RenovacionView() {
                   <li key={i} className="flex items-start gap-2.5 text-[13px] text-foreground/80 leading-snug">
                     <span
                       className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full"
-                      style={{ backgroundColor: o.highlight ? "color-mix(in srgb, #dafc69 25%, transparent)" : "var(--muted)" }}
+                      style={{ backgroundColor: o.highlight ? "var(--accent-soft)" : "var(--muted)" }}
                     >
                       <Check className="h-2.5 w-2.5" style={{ color: o.highlight ? "#9a7d00" : "var(--foreground)" }} />
                     </span>
