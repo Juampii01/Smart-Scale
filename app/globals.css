@@ -59,6 +59,16 @@
   --success:       #0f8a6b;  --success-soft: #d9f2ea;
   --danger:        #c0492b;  --danger-soft:  #fbe6df;
 
+  /* ── CONGELADO: "Tu Performance Status" ───────────────────────────────────
+     Decision de Juampi (25 ago 2026): el bloque "Tu Performance Status" queda
+     EXCLUIDO del rediseno y NO hereda los tokens nuevos. Ann lo aprobo como
+     esta hoy ("lo que tenemos ahora me gusta mas", call del 24 ago).
+     Este token conserva el valor que --card tenia ANTES del rediseno.
+     NO lo apuntes a --card ni a --surface: es un punto fijo a proposito.
+     Unico consumidor: components/sections/performance-status.tsx
+     ─────────────────────────────────────────────────────────────────────── */
+  --ps-surface:    #ffffff;
+
   /* Radios (theme-independent) */
   --r-card:        14px;
   --r-ctrl:        8px;
@@ -217,6 +227,9 @@
   --on-accent:     #0a0a0a;
   --success:       #5dcaa5;  --success-soft: #13332a;
   --danger:        #f0997b;  --danger-soft:  #3a1e16;
+
+  /* CONGELADO — ver la nota en :root. Valor de --card previo al rediseno. */
+  --ps-surface:    #131313;
 }
 
 @theme inline {
@@ -277,6 +290,7 @@
   --color-success-soft: var(--success-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-ps-surface: var(--ps-surface);
   --radius-card: var(--r-card);
   --radius-ctrl: var(--r-ctrl);
 }

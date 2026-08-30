@@ -8,6 +8,16 @@ import { useSelectedMonth } from "@/components/layout/dashboard-layout"
 import { Sk } from "@/components/ui/skeleton"
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ⚠️  BLOQUE CONGELADO — NO aplicar acá los tokens del rediseño 2026-09.
+//
+// Ann aprobó este bloque tal como está ("lo que tenemos ahora me gusta más",
+// call del 24 ago 2026) y Juampi decidió el 25 ago excluirlo del rediseño.
+// Se queda con la superficie y el borde previos mientras el resto de la app
+// pasa a --surface #171718 con borde opaco: se va a leer distinto, es adrede.
+//
+// Por eso usa `bg-ps-surface` (token fijo en globals.css) y NO `bg-card`.
+// Si algún día se reabre la decisión, alcanza con volver a `bg-card`.
+// ─────────────────────────────────────────────────────────────────────────────
 // "Tu Performance Status" — adaptación del flywheel status de Scale20.
 //
 // Cada card describe una ETAPA del Ecosistema Circular (no el estado puntual del
@@ -209,7 +219,7 @@ export function PerformanceStatus() {
     : "Las tres señales encendidas — estás en Efecto Compuesto. 🚀"
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.08] bg-card p-5 sm:p-6">
+    <div className="rounded-2xl border border-foreground/[0.08] bg-ps-surface p-5 sm:p-6">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
