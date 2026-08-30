@@ -7,7 +7,7 @@ import {
   User, Pencil, Trophy, Coins, FileBarChart, TrendingUp,
   Brain, Bot, Wrench, Rocket,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, APP_VERSION } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
@@ -142,7 +142,7 @@ export function Sidebar({
         <div className="flex h-16 flex-shrink-0 items-center justify-between pl-5 pr-3">
           <a href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
             <BrandLogo />
-            <span className="self-start rounded-full bg-[#dafc69] px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-[#0a0a0a] leading-none">3.0</span>
+            <span className="self-start rounded-full bg-secondary px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-foreground/60 leading-none">{APP_VERSION}</span>
           </a>
           <button
             className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-foreground/50 hover:text-foreground hover:bg-foreground/10 transition-all"

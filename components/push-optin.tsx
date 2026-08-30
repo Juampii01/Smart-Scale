@@ -120,9 +120,8 @@ export function PushOptIn({ banner = false, prompt }: { banner?: boolean; prompt
 
   if (banner) {
     return (
-      <div className="flex items-center gap-3 rounded-xl border px-4 py-3 mb-4"
-        style={{ borderColor: "color-mix(in srgb, #dafc69 35%, var(--border))", backgroundColor: "color-mix(in srgb, #dafc69 8%, transparent)" }}>
-        <Bell size={18} className="shrink-0" style={{ color: "#dafc69" }} />
+      <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary/40 px-4 py-3 mb-4">
+        <Bell size={18} className="shrink-0 text-foreground/45" />
         <div className="flex-1 min-w-0">
           <p className="text-[13px] font-semibold text-foreground">{prompt ?? "Activá las notificaciones"}</p>
           {msg && <p className="text-[11px] mt-0.5" style={{ color: "var(--muted-foreground)" }}>{msg}</p>}

@@ -18,6 +18,7 @@ import { HelpChat } from "@/components/ui/help-chat"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import { isSetter, isTeam, isAdmin as isAdminRole, SETTER_DEFAULT_LANDING, TEAM_DEFAULT_LANDING } from "@/lib/auth/permissions"
 import { useViewAsRole, setViewAsRole, type ViewAsRole, useViewAsTenant, setViewAsTenant } from "@/lib/auth/view-as"
+import { APP_VERSION } from "@/lib/utils"
 
 declare global {
   interface Window {
@@ -640,7 +641,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   )}
                 </h1>
                 <p className="hidden sm:block text-[10px] text-foreground/35 leading-none mt-0.5 tracking-wide">
-                  {isAdminMode ? "Smart Scale Internal · Dashboard de Admin" : "Smart Scale Portal 2.0"}
+                  {isAdminMode ? "Smart Scale Internal · Dashboard de Admin" : `Smart Scale Portal ${APP_VERSION}`}
                 </p>
               </div>
             </div>

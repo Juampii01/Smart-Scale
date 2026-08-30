@@ -114,11 +114,11 @@ function RevenueTooltip({ active, payload }: any) {
 // ─── KPI secundarios ──────────────────────────────────────────────────────────
 
 const SECONDARY: { key: keyof MonthlyReport; label: string; money: boolean; color: string }[] = [
-  { key: "cash_collected",  label: "Cash Collected",      money: true,  color: "#dafc69" },
-  { key: "mrr",             label: "MRR",                  money: true,  color: "#60a5fa" },
-  { key: "ad_spend",        label: "Gasto Publicitario",   money: true,  color: "#ef4444" },
-  { key: "new_clients",     label: "Nuevos Clientes",      money: false, color: "#4ade80" },
-  { key: "short_followers", label: "Seguidores Instagram", money: false, color: "#818cf8" },
+  { key: "cash_collected",  label: "Cash Collected",      money: true,  color: "var(--accent)" },
+  { key: "mrr",             label: "MRR",                  money: true,  color: "var(--text-3)" },
+  { key: "ad_spend",        label: "Gasto Publicitario",   money: true,  color: "var(--text-3)" },
+  { key: "new_clients",     label: "Nuevos Clientes",      money: false, color: "var(--text-3)" },
+  { key: "short_followers", label: "Seguidores Instagram", money: false, color: "var(--text-3)" },
 ]
 
 // Métricas de audiencia / canales — franja integrada full-width.
@@ -178,7 +178,7 @@ export function OverviewHero() {
       {/* Saludo */}
       <div>
         <h1 className="text-[28px] sm:text-[34px] font-bold tracking-tight text-foreground leading-tight" suppressHydrationWarning>
-          {greeting}{firstName ? <>, {firstName}</> : ""} <span className="text-foreground/25">.</span>
+          {greeting}{firstName ? <>, {firstName}</> : ""}<span className="text-foreground/25">.</span>
         </h1>
         <p className="text-[13px] text-foreground/45 mt-1">
           {current ? `Tu resumen de ${monthLong(current.month)}` : "Cargá tu reporte mensual para ver tu resumen"}
@@ -201,7 +201,7 @@ export function OverviewHero() {
                     onClick={() => setRange(r.id)}
                     className={cn(
                       "rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors",
-                      range === r.id ? "bg-[#dafc69] text-black" : "text-foreground/45 hover:text-foreground/70"
+                      range === r.id ? "bg-secondary text-foreground" : "text-foreground/45 hover:text-foreground/70"
                     )}
                   >
                     {r.label}
@@ -234,8 +234,8 @@ export function OverviewHero() {
                 <AreaChart data={chartData} margin={{ top: 8, right: 6, left: 6, bottom: 0 }}>
                   <defs>
                     <linearGradient id="ovh_rev" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%"   stopColor="#dafc69" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#dafc69" stopOpacity={0} />
+                      <stop offset="0%"   stopColor="var(--accent-ink)" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="var(--accent-ink)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis
@@ -243,11 +243,11 @@ export function OverviewHero() {
                     tick={{ fontSize: 11, fill: "currentColor" }} minTickGap={20} dy={6}
                   />
                   <YAxis hide domain={[0, "dataMax"]} />
-                  <Tooltip content={<RevenueTooltip />} cursor={{ stroke: "#dafc69", strokeOpacity: 0.3, strokeWidth: 1 }} />
+                  <Tooltip content={<RevenueTooltip />} cursor={{ stroke: "var(--accent-ink)", strokeOpacity: 0.3, strokeWidth: 1 }} />
                   <Area
-                    type="monotone" dataKey="v" stroke="#dafc69" strokeWidth={2.5}
+                    type="monotone" dataKey="v" stroke="var(--accent-ink)" strokeWidth={2.5}
                     fill="url(#ovh_rev)" dot={false}
-                    activeDot={{ r: 4, fill: "#dafc69", stroke: "var(--card)", strokeWidth: 2 }}
+                    activeDot={{ r: 4, fill: "var(--accent-ink)", stroke: "var(--card)", strokeWidth: 2 }}
                     isAnimationActive={false}
                   />
                 </AreaChart>

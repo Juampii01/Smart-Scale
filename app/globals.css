@@ -56,6 +56,10 @@
   --accent-hover:  #a4cc3d;
   --accent-soft:   #eaf0da;
   --on-accent:     #0a0a0a;   /* texto SIEMPRE tinta oscura sobre el relleno */
+  /* Tinta de acento para LÍNEAS/TEXTO fuera de clases Tailwind (props de SVG,
+     Recharts stroke/fill inline) — el lima puro no cumple contraste sobre
+     "Papel". En dark coincide con --accent. Ver nota de globals.css §LIGHT MODE. */
+  --accent-ink:    #4c6606;
   --success:       #0f8a6b;  --success-soft: #d9f2ea;
   --danger:        #c0492b;  --danger-soft:  #fbe6df;
   --warn:          #9a6407;  --warn-soft:    #fbeed6;
@@ -231,6 +235,7 @@
   --accent-hover:  #f2ffc0;
   --accent-soft:   #1c2410;
   --on-accent:     #0a0a0a;
+  --accent-ink:    #dafc69;
   --success:       #00cf8c;  --success-soft: #0d2a22;
   --danger:        #ff6679;  --danger-soft:  #2e1620;
   --warn:          #ffae2e;  --warn-soft:    #2e2413;
@@ -293,6 +298,7 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
   --color-on-accent: var(--on-accent);
+  --color-accent-ink: var(--accent-ink);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-danger: var(--danger);
