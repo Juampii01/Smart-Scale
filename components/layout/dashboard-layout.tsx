@@ -545,9 +545,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           />}
 
       <div className={`flex-1 flex flex-col h-full overflow-hidden bg-background pt-[env(safe-area-inset-top)] ${
-        isAdminMode
-          ? 'lg:ml-[240px]'         // admin: sidebar pegado
-          : 'lg:ml-[272px] lg:pt-4' // cliente: alineado al sidebar flotante (240 + 16 offset + 16 gap)
+        'lg:ml-[240px]' // sidebar pegado (admin y cliente)
       }`}>
 
         {/* "View as" banner — solo admin impersonando otro rol */}
