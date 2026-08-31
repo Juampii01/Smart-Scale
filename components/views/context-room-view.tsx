@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase"
 import { useMonthlyReports } from "@/hooks/use-monthly-reports"
 import { useActiveClient } from "@/components/layout/dashboard-layout"
 import { cn } from "@/lib/utils"
-import { User, Camera, Loader2, Check, Lock, Plus, X, Trash2 } from "lucide-react"
+import { User, Camera, Loader2, Check, Lock, Plus, X, Trash2, AlertTriangle } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -570,7 +570,10 @@ export function ContextRoomView() {
   const [ctx, setCtx]  = useState<Ctx>({})
   const [ctxLoaded, setCtxLoaded] = useState(false)
   const saveTimer      = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const [saved, setSaved] = useState(false)
+  const ctxRef          = useRef(ctx)
+  const [ctxSaveState, setCtxSaveState] = useState<SaveState>("idle")
+
+  useEffect(() => { ctxRef.current = ctx }, [ctx])
 
   const { reports } = useMonthlyReports()
 
@@ -615,20 +618,61 @@ export function ContextRoomView() {
     return () => { alive = false }
   }, [clientId])
 
+  // Guarda ya (sin esperar el debounce) el último ctx conocido — usado tanto
+  // por el timer normal como por los flushes de "el usuario se va".
+  const persistCtx = useCallback(async () => {
+    if (!clientId) return
+    setCtxSaveState("saving")
+    const { error } = await supabase
+      .from("client_context")
+      .upsert({ client_id: clientId, context: ctxRef.current }, { onConflict: "client_id" })
+    if (error) {
+      setCtxSaveState("error")
+    } else {
+      setCtxSaveState("ok")
+      setTimeout(() => setCtxSaveState(prev => prev === "ok" ? "idle" : prev), 2000)
+    }
+  }, [clientId])
+
   // Auto-save del contexto (upsert debounced) — solo después de cargar
   useEffect(() => {
     if (!clientId || !ctxLoaded) return
     clearTimeout(saveTimer.current)
-    saveTimer.current = setTimeout(async () => {
-      const { error } = await supabase
-        .from("client_context")
-        .upsert({ client_id: clientId, context: ctx }, { onConflict: "client_id" })
-      if (!error) {
-        setSaved(true)
-        setTimeout(() => setSaved(false), 2000)
-      }
+    saveTimer.current = setTimeout(() => {
+      saveTimer.current = undefined
+      persistCtx()
     }, 600)
-  }, [ctx, clientId, ctxLoaded])
+    return () => clearTimeout(saveTimer.current)
+  }, [ctx, clientId, ctxLoaded, persistCtx])
+
+  // Si hay un guardado pendiente (el debounce de 600ms no llegó a disparar)
+  // y el usuario cambia de pestaña, minimiza o navega fuera de esta vista, lo
+  // flusheamos ya — sin esto el último cambio se perdía en silencio (caso
+  // real: Pato Lamarca completó "Contenido y audiencia" y "Cómo llegaste
+  // acá" y salió antes de que el debounce corriera, ago 2026).
+  useEffect(() => {
+    if (!clientId || !ctxLoaded) return
+    const flushPending = () => {
+      if (document.visibilityState !== "hidden") return
+      if (saveTimer.current == null) return
+      clearTimeout(saveTimer.current)
+      saveTimer.current = undefined
+      persistCtx()
+    }
+    const flushPendingUnconditional = () => {
+      if (saveTimer.current == null) return
+      clearTimeout(saveTimer.current)
+      saveTimer.current = undefined
+      persistCtx()
+    }
+    document.addEventListener("visibilitychange", flushPending)
+    window.addEventListener("pagehide", flushPendingUnconditional)
+    return () => {
+      document.removeEventListener("visibilitychange", flushPending)
+      window.removeEventListener("pagehide", flushPendingUnconditional)
+      flushPendingUnconditional()
+    }
+  }, [clientId, ctxLoaded, persistCtx])
 
   const set    = useCallback((k: string, v: string) => setCtx(prev => ({ ...prev, [k]: v })), [])
   const getArr = useCallback((k: string): string[] => { try { return JSON.parse(ctx[k] || "[]") } catch { return [] } }, [ctx])
@@ -703,9 +747,22 @@ export function ContextRoomView() {
             Tu contexto le da forma a todo lo que Smart Scale construye con vos. Los cambios se guardan automáticamente.
           </p>
         </div>
-        {saved && (
+        {ctxSaveState === "saving" && (
+          <div className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-[13px] font-medium text-text-2">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" /> Guardando…
+          </div>
+        )}
+        {ctxSaveState === "ok" && (
           <div className="flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1.5 text-[13px] font-semibold text-success">
             <Check className="h-3.5 w-3.5" /> Guardado
+          </div>
+        )}
+        {ctxSaveState === "error" && (
+          <div className="flex items-center gap-2 rounded-full bg-danger-soft px-3 py-1.5 text-[13px] font-semibold text-danger">
+            <AlertTriangle className="h-3.5 w-3.5" /> No se pudo guardar
+            <button type="button" onClick={persistCtx} className="underline underline-offset-2 hover:opacity-80">
+              Reintentar
+            </button>
           </div>
         )}
       </div>
