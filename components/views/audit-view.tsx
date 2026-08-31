@@ -122,7 +122,7 @@ function renderInline(text: string, key: string) {
       // [label](url)
       nodes.push(
         <a key={`ml-${key}-${m.index}`} href={m[3]} target="_blank" rel="noreferrer"
-          className="inline-flex items-center gap-1 font-medium text-[#dafc69] hover:text-[#f2ffc0] underline underline-offset-2 transition-colors">
+          className="inline-flex items-center gap-1 font-medium text-accent-ink hover:text-accent-hover underline underline-offset-2 transition-colors">
           {m[2]}
         </a>
       )
@@ -137,7 +137,7 @@ function renderInline(text: string, key: string) {
         <Fragment key={`arr-${key}-${m.index}`}>
           {" → "}
           <a href={url} target="_blank" rel="noreferrer"
-            className="inline-flex items-center gap-1 font-medium text-[#dafc69] hover:text-[#f2ffc0] underline underline-offset-2 transition-colors">
+            className="inline-flex items-center gap-1 font-medium text-accent-ink hover:text-accent-hover underline underline-offset-2 transition-colors">
             {label}
           </a>
         </Fragment>
@@ -147,7 +147,7 @@ function renderInline(text: string, key: string) {
       const url = m[8]
       nodes.push(
         <a key={`url-${key}-${m.index}`} href={url} target="_blank" rel="noreferrer"
-          className="font-medium text-[#dafc69] hover:text-[#f2ffc0] underline underline-offset-2 transition-colors break-all">
+          className="font-medium text-accent-ink hover:text-accent-hover underline underline-offset-2 transition-colors break-all">
           {url.replace(/^https?:\/\//, "")}
         </a>
       )
@@ -167,28 +167,28 @@ function renderDiagnosisContent(content: string) {
     const k = String(index)
 
     if (!line) return <div key={`spacer-${k}`} className="h-3" />
-    if (line === "---") return <div key={`divider-${k}`} className="my-5 h-px w-full bg-foreground/10" />
+    if (line === "---") return <div key={`divider-${k}`} className="my-5 h-px w-full bg-secondary" />
 
     if (line.startsWith("# ")) {
-      return <h2 key={`h1-${k}`} className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">{renderInline(line.replace(/^#\s+/, ""), k)}</h2>
+      return <h2 key={`h1-${k}`} className="text-[24px] font-semibold tracking-tight text-foreground md:text-[32px]">{renderInline(line.replace(/^#\s+/, ""), k)}</h2>
     }
 
     if (line.startsWith("## ")) {
       return (
         <div key={`h2-${k}`} className="pt-3">
-          <h3 className="text-lg font-semibold uppercase tracking-[0.14em] text-foreground/80">{renderInline(line.replace(/^##\s+/, ""), k)}</h3>
-          <div className="mt-2 h-px w-full bg-foreground/10" />
+          <h3 className="text-[18px] font-semibold uppercase tracking-[0.14em] text-foreground">{renderInline(line.replace(/^##\s+/, ""), k)}</h3>
+          <div className="mt-2 h-px w-full bg-elevated" />
         </div>
       )
     }
 
     if (line.startsWith("### ")) {
-      return <h4 key={`h3-${k}`} className="pt-2 text-base font-semibold text-foreground">{renderInline(line.replace(/^###\s+/, ""), k)}</h4>
+      return <h4 key={`h3-${k}`} className="pt-2 text-[15px] font-semibold text-foreground">{renderInline(line.replace(/^###\s+/, ""), k)}</h4>
     }
 
     if (line.startsWith("> ")) {
       return (
-        <div key={`quote-${k}`} className="rounded-xl border border-foreground/10 bg-foreground/[0.03] px-4 py-3 text-sm text-foreground/70">
+        <div key={`quote-${k}`} className="rounded-xl border border-border bg-secondary px-4 py-3 text-[13px] text-foreground">
           {renderInline(line.replace(/^>\s+/, ""), k)}
         </div>
       )
@@ -196,15 +196,15 @@ function renderDiagnosisContent(content: string) {
 
     if (line.startsWith("- ")) {
       return (
-        <div key={`bullet-${k}`} className="flex items-start gap-3 text-sm leading-7 text-foreground/60">
-          <span className="mt-2.5 h-1 w-1 rounded-full bg-[#dafc69]/60 flex-shrink-0" />
+        <div key={`bullet-${k}`} className="flex items-start gap-3 text-[13px] leading-7 text-text-2">
+          <span className="mt-2.5 h-1 w-1 rounded-full bg-accent flex-shrink-0" />
           <span>{renderInline(line.replace(/^-\s+/, ""), k)}</span>
         </div>
       )
     }
 
     return (
-      <p key={`p-${k}`} className="text-sm leading-7 text-foreground/60 md:text-[15px]">
+      <p key={`p-${k}`} className="text-[13px] leading-7 text-text-2 md:text-[15px]">
         {renderInline(line, k)}
       </p>
     )
@@ -260,7 +260,7 @@ function ScorePillButton({
       className={`rounded-lg border px-4 py-1.5 text-[13px] font-medium transition-all duration-150 ${
         active
           ? `${bgActive} ${ringColor} border-transparent text-foreground`
-          : "border-foreground/[0.12] bg-foreground/[0.04] text-foreground/50 hover:border-foreground/20 hover:text-foreground/70"
+          : "border-border bg-secondary text-text-2 hover:border-border-hover hover:text-foreground"
       }`}
     >
       {label}
@@ -281,7 +281,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
     c === "green"  ? "bg-emerald-500" :
     c === "yellow" ? "bg-amber-500"   :
     c === "red"    ? "bg-red-500"     :
-    "bg-foreground/15"
+    "bg-secondary"
 
   const priorityPill = (idx: number) =>
     idx === 0
@@ -292,7 +292,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
     <div className="space-y-8">
       {/* RESULTADO POR MÓDULO */}
       <div className="space-y-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/45">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-2">
           Resultado por módulo
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -301,18 +301,18 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
             if (!s) return null
             const style = stateStyles[s.estado]
             return (
-              <div key={key} className="rounded-[14px] border border-foreground/[0.07] bg-card p-5">
-                <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-foreground/55 mb-2">
+              <div key={key} className="rounded-[14px] border border-border bg-card p-5">
+                <p className="text-[13px] font-semibold uppercase tracking-[0.16em] text-text-2 mb-2">
                   {s.name}
                 </p>
-                <p className={`text-3xl font-bold tracking-tight ${style.score}`}>
-                  {s.puntos}<span className="text-foreground/30 text-2xl font-medium">/6</span>
+                <p className={`text-[32px] font-bold tracking-tight ${style.score}`}>
+                  {s.puntos}<span className="text-text-3 text-[24px] font-medium">/6</span>
                 </p>
-                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-foreground/[0.06]">
+                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-elevated">
                   <div className={`h-full rounded-full ${style.bar}`} style={{ width: `${(s.puntos / 6) * 100}%` }} />
                 </div>
                 <div className="mt-3">
-                  <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${style.pill}`}>
+                  <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[13px] font-semibold ${style.pill}`}>
                     {s.estado}
                   </span>
                 </div>
@@ -327,29 +327,29 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
         </div>
       </div>
 
-      <div className="h-px w-full bg-foreground/[0.06]" />
+      <div className="h-px w-full bg-secondary" />
 
       {/* TU FOCO ESTE TRIMESTRE */}
       <div className="space-y-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/45">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-2">
           Tu foco este trimestre
         </p>
         <div className="space-y-4">
           {data.focos.map((f, idx) => (
-            <div key={idx} className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
-              <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${priorityPill(idx)}`}>
+            <div key={idx} className="rounded-[14px] border border-border bg-card p-6">
+              <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[13px] font-semibold ${priorityPill(idx)}`}>
                 {f.etiqueta}
               </span>
-              <h3 className="mt-3 text-xl font-bold tracking-tight text-foreground md:text-2xl">
+              <h3 className="mt-3 text-[24px] font-bold tracking-tight text-foreground md:text-[24px]">
                 {f.titulo}
               </h3>
-              <p className="mt-2 text-[14px] leading-7 text-foreground/65 md:text-[15px]">
+              <p className="mt-2 text-[15px] leading-7 text-text-2 md:text-[15px]">
                 {f.diagnostico}
               </p>
               {f.skool_modulo && (
                 <button
                   type="button"
-                  className="mt-4 inline-flex items-start gap-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.04] px-4 py-2.5 text-left text-[13px] font-medium text-foreground/85 transition hover:border-foreground/20 hover:bg-foreground/[0.08]"
+                  className="mt-4 inline-flex items-start gap-2 rounded-xl border border-border bg-secondary px-4 py-2.5 text-left text-[13px] font-medium text-foreground transition hover:border-border-hover hover:bg-secondary"
                 >
                   <span>
                     Dirigite al módulo <span className="font-semibold text-foreground">{f.skool_modulo}</span>
@@ -668,22 +668,22 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
       {/* Header */}
       <div>
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-          <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Auditoría Estratégica</h1>
+          <span className="h-4 w-[3px] rounded-full bg-accent" />
+          <h1 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Auditoría Estratégica</h1>
         </div>
-        <p className="text-xs text-foreground/30 ml-[18px]">Evaluación del Ecosistema Circular · {selectedMonth}</p>
+        <p className="text-[13px] text-text-3 ml-[18px]">Evaluación del Ecosistema Circular · {selectedMonth}</p>
       </div>
 
       {/* Revenue card */}
-      <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+      <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
         <div className={`h-[2px] w-full ${annualRevenue >= 20000 ? "bg-emerald-500/60" : "bg-amber-500/60"}`} />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
         <div className="relative flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
           <div className="space-y-1">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3">
               Revenue total rolling 12 meses
             </p>
-            <div className="text-3xl font-bold tracking-tight text-foreground">
+            <div className="text-[32px] font-bold tracking-tight text-foreground">
               {annualMetrics && typeof annualMetrics.total_revenue === 'number'
                 ? annualMetrics.total_revenue.toLocaleString('en-US', {
                     style: 'currency',
@@ -695,11 +695,11 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
           </div>
 
           <div className="flex flex-col items-start gap-2 md:items-end">
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">
               Audit activo
             </span>
             <span
-              className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-semibold ${
+              className={`inline-flex items-center rounded-full px-4 py-1.5 text-[13px] font-semibold ${
                 auditType === 'mas20k'
                   ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-400/20'
                   : 'bg-amber-100 text-amber-900 ring-1 ring-amber-400 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-400/20'
@@ -712,15 +712,15 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
       </div>
 
       {loadingAudit ? (
-        <p className="text-foreground/40 text-sm">Cargando tipo de auditoría…</p>
+        <p className="text-text-2 text-[13px]">Cargando tipo de auditoría…</p>
       ) : (
-        <div className="relative overflow-hidden rounded-[28px] border border-foreground/[0.07] bg-card shadow-[0_0_0_1px_rgba(0,0,0,0.02)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+        <div className="relative overflow-hidden rounded-[28px] border border-border bg-card shadow-[0_0_0_1px_rgba(0,0,0,0.02)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(0,0,0,0.015),transparent_55%)] dark:bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.015),transparent_55%)]" />
 
           {/* Modal-style header */}
-          <div className="relative flex items-center justify-between border-b border-foreground/[0.05] px-6 py-5">
+          <div className="relative flex items-center justify-between border-b border-border px-6 py-5">
             <h2 className="text-[18px] font-semibold tracking-tight text-foreground">Mi Ecosistema</h2>
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">
               {selectedAnswersCount}/12 respondidas
             </span>
           </div>
@@ -731,7 +731,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
               {flywheelSectionItems.map((group) => (
                 <section key={group.prefix} className="space-y-4">
                   <div className="px-1">
-                    <h3 className="text-[15px] font-bold uppercase tracking-[0.16em] text-foreground/88">
+                    <h3 className="text-[15px] font-bold uppercase tracking-[0.16em] text-foreground">
                       {group.title.toUpperCase()}
                     </h3>
                   </div>
@@ -740,14 +740,14 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                     {group.items.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-[14px] border border-foreground/[0.07] bg-foreground/[0.02] dark:bg-foreground/[0.04] px-5 py-4 space-y-3"
+                        className="rounded-[14px] border border-border bg-secondary dark:bg-secondary px-5 py-4 space-y-3"
                       >
                         {/* ID + statement */}
                         <div className="flex items-start gap-3">
-                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-foreground/[0.08] bg-foreground/[0.05] px-2 text-[12px] font-bold text-[#dafc69] flex-shrink-0">
+                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-border bg-elevated px-2 text-[13px] font-bold text-accent-ink flex-shrink-0">
                             {item.id}
                           </span>
-                          <p className="text-[14px] leading-snug text-foreground/80 pt-0.5">
+                          <p className="text-[15px] leading-snug text-foreground pt-0.5">
                             {item.label}
                           </p>
                         </div>
@@ -770,25 +770,25 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
       {/* Controls */}
       <div className="space-y-4">
-        <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+        <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
 
-          <div className="relative border-b border-foreground/[0.05] px-6 py-5">
+          <div className="relative border-b border-border px-6 py-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">
                   Audit Controls
                 </p>
-                <h3 className="text-base font-semibold text-foreground">
+                <h3 className="text-[15px] font-semibold text-foreground">
                   Generar diagnóstico estratégico
                 </h3>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-foreground/40">
+                <span className="rounded-full border border-border bg-secondary px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
                   {selectedAnswersCount} respuestas
                 </span>
-                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-foreground/40">
+                <span className="rounded-full border border-border bg-elevated px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
                   {auditType === 'mas20k' ? "Audit +$20k" : "Audit -$20k"}
                 </span>
               </div>
@@ -799,20 +799,20 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
             <button
               onClick={generateAIResponse}
               disabled={loading || selectedAnswersCount === 0}
-              className="rounded-xl bg-[#dafc69] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-xl btn-accent px-6 py-2.5 text-[13px] font-bold transition disabled:opacity-50 disabled:cursor-not-allowed"
               title={selectedAnswersCount === 0 ? "Respondé al menos una pregunta para generar el diagnóstico" : undefined}
             >
               {loading ? "Generando…" : "Generar Diagnóstico Estratégico"}
             </button>
             {selectedAnswersCount === 0 && !loading && (
-              <p className="text-[12px] text-foreground/35">Respondé al menos una pregunta arriba para activar.</p>
+              <p className="text-[13px] text-text-3">Respondé al menos una pregunta arriba para activar.</p>
             )}
           </div>
         </div>
 
         {/* AI Loading */}
         {loading && !aiResponse && (
-          <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+          <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
             <AiLoading
               title="Generando diagnóstico estratégico"
               steps={[
@@ -828,23 +828,23 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
         {/* AI Response */}
         {aiResponse && (
-          <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+          <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
 
-            <div className="relative border-b border-foreground/[0.05] px-6 py-5">
+            <div className="relative border-b border-border px-6 py-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">
                     Strategic Output
                   </p>
-                  <h3 className="text-base font-semibold text-foreground">
+                  <h3 className="text-[15px] font-semibold text-foreground">
                     Diagnóstico Estratégico
                   </h3>
-                  <p className="mt-1.5 text-xs text-foreground/35 max-w-lg">
+                  <p className="mt-1.5 text-[13px] text-text-3 max-w-lg">
                     Una lectura ejecutiva del cuello de botella, las debilidades y la prioridad estratégica del negocio.
                   </p>
                 </div>
-                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-foreground/40">
+                <span className="rounded-full border border-border bg-secondary px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
                   {loading ? "Procesando" : "Listo"}
                 </span>
               </div>
@@ -852,11 +852,11 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
             <div className="relative px-6 py-6">
               {aiResponse.startsWith("Diagnóstico en proceso") || aiResponse.startsWith("El diagnóstico está tardando") ? (
-                <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 px-4 py-4 text-sm leading-7 text-amber-200">
+                <div className="rounded-xl border border-amber-400/20 bg-amber-500/10 px-4 py-4 text-[13px] leading-7 text-amber-200">
                   {aiResponse}
                 </div>
               ) : aiResponse.startsWith("No se pudo") || aiResponse.startsWith("Error") ? (
-                <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-sm leading-7 text-red-200">
+                <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-4 text-[13px] leading-7 text-red-200">
                   {aiResponse}
                 </div>
               ) : structuredDiagnosis ? (
@@ -871,25 +871,25 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
         )}
 
         {/* History */}
-        <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+        <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,222,33,0.03),transparent_55%)]" />
 
-          <div className="relative border-b border-foreground/[0.05] px-6 py-6">
+          <div className="relative border-b border-border px-6 py-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">
                   Audit Archive
                 </p>
-                <h3 className="text-base font-semibold text-foreground">
+                <h3 className="text-[15px] font-semibold text-foreground">
                   Historial de diagnósticos
                 </h3>
-                <p className="mt-1 text-xs text-foreground/35 max-w-lg">
+                <p className="mt-1 text-[13px] text-text-3 max-w-lg">
                   Revisá auditorías anteriores, compará estados y abrí cualquier diagnóstico guardado en un clic.
                 </p>
               </div>
-              <div className="rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-4 py-3 text-right">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30">Registros</p>
-                <p className="mt-0.5 text-lg font-bold text-foreground">
+              <div className="rounded-xl border border-border bg-secondary px-4 py-3 text-right">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3">Registros</p>
+                <p className="mt-0.5 text-[18px] font-bold text-foreground">
                   {loadingHistory ? "…" : diagnosisHistory.length}
                 </p>
               </div>
@@ -898,11 +898,11 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
           <div className="relative px-6 py-6">
             {loadingHistory ? (
-              <div className="rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-5 py-5 text-sm text-foreground/40">
+              <div className="rounded-xl border border-border bg-elevated px-5 py-5 text-[13px] text-text-2">
                 Cargando diagnósticos guardados…
               </div>
             ) : diagnosisHistory.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-5 text-sm text-foreground/35">
+              <div className="rounded-xl border border-dashed border-border bg-secondary px-5 py-5 text-[13px] text-text-3">
                 {isOwnClient
                   ? "Todavía no tenés diagnósticos guardados."
                   : "Todavía no hay diagnósticos guardados para este cliente."}
@@ -917,47 +917,47 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                       key={item.request_id}
                       className={`flex flex-col h-full justify-between rounded-[14px] border p-5 transition-all duration-200 ${
                         isActiveDiagnosis
-                          ? "border-[#dafc69]/30 bg-[#dafc69]/[0.04]"
-                          : "border-foreground/[0.07] bg-foreground/[0.02] hover:border-foreground/15"
+                          ? "border-accent bg-secondary"
+                          : "border-border bg-elevated hover:border-border-hover"
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-4 flex-wrap">
-                        <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-foreground/35">
+                        <span className="rounded-full border border-border bg-elevated px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">
                           #{String(diagnosisHistory.length - index).padStart(2, "0")}
                         </span>
-                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${statusMeta.className}`}>
+                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-widest ${statusMeta.className}`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${statusMeta.dotClassName}`} />
                           {statusMeta.label}
                         </span>
-                        <span className="ml-auto text-[10px] text-foreground/25 font-mono">
+                        <span className="ml-auto text-[13px] text-text-3 font-mono">
                           {formatDiagnosisDate(item.created_at)}
                         </span>
                         <button
                           type="button"
                           onClick={() => handleDelete(item.request_id)}
                           disabled={deletingId === item.request_id}
-                          className="flex h-6 w-6 items-center justify-center rounded-lg text-foreground/25 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
+                          className="flex h-6 w-6 items-center justify-center rounded-lg text-text-3 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
                           title="Eliminar auditoría"
                         >
                           {deletingId === item.request_id
-                            ? <span className="h-3 w-3 rounded-full border border-foreground/20 border-t-white/60 animate-spin" />
+                            ? <span className="h-3 w-3 rounded-full border border-border border-t-white/60 animate-spin" />
                             : <Trash2 className="h-3 w-3" />}
                         </button>
                       </div>
 
                       <details className="mb-3 group/id">
-                        <summary className="text-[10px] text-foreground/20 hover:text-foreground/40 cursor-pointer select-none transition-colors list-none">
+                        <summary className="text-[13px] text-text-3 hover:text-text-2 cursor-pointer select-none transition-colors list-none">
                           <span className="group-open/id:hidden">Mostrar ID técnico</span>
                           <span className="hidden group-open/id:inline">Ocultar ID</span>
                         </summary>
-                        <div className="mt-1 text-[10px] text-foreground/25 font-mono break-all">
+                        <div className="mt-1 text-[13px] text-text-3 font-mono break-all">
                           {item.request_id}
                         </div>
                       </details>
 
                       <div className="flex-1 flex flex-col justify-between">
-                        <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-4 py-3 min-h-[100px] mb-4">
-                          <div className="text-xs leading-6 text-foreground/50 whitespace-pre-line max-h-40 overflow-y-auto">
+                        <div className="rounded-xl border border-border bg-secondary px-4 py-3 min-h-[100px] mb-4">
+                          <div className="text-[13px] leading-6 text-text-2 whitespace-pre-line max-h-40 overflow-y-auto">
                             {item.result
                               ? previewDiagnosis(item.result)
                               : item.status === "pending"
@@ -973,10 +973,10 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                             }
                           }}
                           disabled={!item.result}
-                          className={`rounded-xl px-4 py-2 text-xs font-bold transition-all duration-150 ${
+                          className={`rounded-xl px-4 py-2 text-[13px] font-bold transition-all duration-150 ${
                             isActiveDiagnosis
-                              ? "bg-[#dafc69] text-black"
-                              : "border border-foreground/[0.08] bg-foreground/[0.04] text-foreground/70 hover:bg-foreground/[0.08] hover:text-foreground"
+                              ? "bg-secondary text-foreground"
+                              : "border border-border bg-elevated text-foreground hover:bg-secondary hover:text-foreground"
                           } disabled:cursor-not-allowed disabled:opacity-40`}
                         >
                           {isActiveDiagnosis ? "Diagnóstico abierto" : "Ver diagnóstico completo"}

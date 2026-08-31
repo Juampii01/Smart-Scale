@@ -88,23 +88,23 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
 
   if (!open) return null
 
-  const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 focus:border-[#dafc69]/40 focus:outline-none transition-all"
-  const labelCls = "text-[10px] font-bold uppercase tracking-widest text-foreground/30 mb-1.5 block"
+  const inputCls = "w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none transition-all"
+  const labelCls = "text-[11px] font-bold uppercase tracking-widest text-text-3 mb-1.5 block"
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-      <div className="w-full max-w-md rounded-2xl border border-foreground/[0.08] bg-card shadow-2xl">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card shadow-2xl">
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-4">
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">
+            <span className="h-4 w-[3px] rounded-full bg-accent" />
+            <h2 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">
               Crear link de pago
             </h2>
           </div>
           <button onClick={handleClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:bg-foreground/[0.06] hover:text-foreground transition-colors">
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:bg-secondary hover:text-foreground transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -119,17 +119,17 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                   Link creado ✓
                 </p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 truncate rounded-lg bg-foreground/[0.05] px-3 py-2 text-[12px] font-mono text-[#dafc69]/80">
+                  <code className="flex-1 truncate rounded-lg bg-secondary px-3 py-2 text-[13px] font-mono text-accent-ink/80">
                     {result.paymentUrl}
                   </code>
                   <button onClick={copyLink}
-                    className="shrink-0 flex items-center gap-1.5 h-8 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] transition-all">
+                  className="shrink-0 flex items-center gap-1.5 h-8 rounded-lg btn-accent px-3 text-[13px] font-bold transition-all">
                     {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                     {copied ? "Copiado" : "Copiar"}
                   </button>
                 </div>
                 <a href={result.paymentUrl} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-[12px] text-foreground/40 hover:text-foreground transition-colors">
+                  className="flex items-center gap-1.5 text-[13px] text-text-2 hover:text-foreground transition-colors">
                   <ExternalLink className="h-3.5 w-3.5" />
                   Abrir en Stripe
                 </a>
@@ -139,32 +139,32 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                 <div className="rounded-xl border border-blue-400/20 bg-blue-500/[0.05] p-3 flex items-start gap-2.5">
                   <CalendarDays className="h-4 w-4 text-blue-700/70 dark:text-blue-400/70 shrink-0 mt-0.5" />
                   <div className="space-y-1">
-                    <p className="text-[11px] font-semibold text-blue-700/80 dark:text-blue-400/80">
+                    <p className="text-[13px] font-semibold text-blue-700/80 dark:text-blue-400/80">
                       Después del pago → Calendly embebido
                     </p>
-                    <p className="text-[11px] text-foreground/35 break-all">{result.raw_calendly}</p>
-                    <p className="text-[10px] text-foreground/20">
-                      El cliente es redirigido a <code className="text-foreground/35">/booking/confirmed</code> donde ve el calendario inline
+                    <p className="text-[13px] text-text-3 break-all">{result.raw_calendly}</p>
+                    <p className="text-[13px] text-text-3">
+                      El cliente es redirigido a <code className="text-text-3">/booking/confirmed</code> donde ve el calendario inline
                     </p>
                   </div>
                 </div>
               )}
 
               <button onClick={reset}
-                className="w-full h-9 rounded-xl border border-foreground/[0.08] text-[13px] text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all">
+                className="w-full h-9 rounded-xl border border-border text-[13px] text-text-2 hover:text-foreground hover:border-border-hover transition-all">
                 Crear otro link
               </button>
             </div>
           ) : (
             <>
               {/* Type toggle */}
-              <div className="flex rounded-xl border border-foreground/[0.08] overflow-hidden">
+              <div className="flex rounded-xl border border-border overflow-hidden">
                 {(["once", "recurring"] as const).map(t => (
                   <button key={t} onClick={() => setType(t)}
-                    className={`flex-1 py-2 text-[12px] font-semibold transition-all ${
+                    className={`flex-1 py-2 text-[13px] font-semibold transition-all ${
                       type === t
-                        ? "bg-[#dafc69]/10 text-[#dafc69]"
-                        : "text-foreground/40 hover:text-foreground"
+                        ? "bg-secondary text-accent-ink"
+                        : "text-text-2 hover:text-foreground"
                     }`}>
                     {t === "once" ? "Pago único" : "Cuotas mensuales"}
                   </button>
@@ -177,7 +177,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                   {type === "once" ? "Monto *" : "Monto por cuota *"}
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-foreground/40">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-text-2">$</span>
                   <input
                     type="number"
                     value={amount}
@@ -193,7 +193,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                 <div>
                   <label className={labelCls}>Cantidad de cuotas *</label>
                   <select value={installments} onChange={e => setInstallments(e.target.value)}
-                    className="w-full appearance-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-[#dafc69]/40 focus:outline-none">
+                    className="w-full appearance-none rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground focus:border-accent focus:outline-none">
                     {[1,2,3,4,5,6,8,10,12].map(n => (
                       <option key={n} value={n}>{n} {n === 1 ? "cuota" : "cuotas"}{amount ? ` — Total $${Number(amount) * n}` : ""}</option>
                     ))}
@@ -227,7 +227,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                   className={inputCls}
                 />
                 {calendlyUrl && (
-                  <p className="mt-1.5 text-[11px] text-foreground/30">
+                  <p className="mt-1.5 text-[13px] text-text-3">
                     ✓ Al pagar, el cliente es redirigido automáticamente a agendar su llamada
                   </p>
                 )}
@@ -235,14 +235,14 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
 
               {/* Error */}
               {error && (
-                <p className="rounded-xl border border-red-400/25 bg-red-500/[0.07] px-3 py-2.5 text-[12px] text-red-700 dark:text-red-400">
+                <p className="rounded-xl border border-red-400/25 bg-red-500/[0.07] px-3 py-2.5 text-[13px] text-red-700 dark:text-red-400">
                   {error}
                 </p>
               )}
 
               {/* CTA */}
               <button onClick={handleCreate} disabled={loading || !amount}
-                className="w-full h-10 rounded-xl bg-[#dafc69] text-[13px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition-all flex items-center justify-center gap-2">
+              className="w-full h-10 rounded-xl btn-accent text-[13px] font-bold disabled:opacity-40 transition-all flex items-center justify-center gap-2">
                 {loading
                   ? <><Loader2 className="h-4 w-4 animate-spin" /> Creando...</>
                   : <><Link2 className="h-4 w-4" /> Crear link de Stripe</>

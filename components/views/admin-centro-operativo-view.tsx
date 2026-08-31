@@ -61,7 +61,7 @@ export function AdminCentroOperativoView() {
           isAdmin(effectiveRole) && (
             <button
               onClick={() => setNewUserOpen(true)}
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2 text-sm font-bold text-black hover:bg-[#f2ffc0] transition-colors"
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-bold transition-colors"
               title="Crear cuenta de usuario interna"
             >
               <UserPlus className="h-4 w-4" />
@@ -74,7 +74,7 @@ export function AdminCentroOperativoView() {
       <NewUserDialog open={newUserOpen} onClose={() => setNewUserOpen(false)} />
 
       {/* Tabs nav */}
-      <div className="flex items-center gap-1 border-b border-foreground/[0.08]">
+      <div className="flex items-center gap-1 border-b border-border">
         {CENTRO_OP_TABS.map(t => {
           const Icon = t.icon
           const active = tab === t.id
@@ -85,13 +85,13 @@ export function AdminCentroOperativoView() {
               className={`relative inline-flex items-center gap-1.5 px-3 py-2 text-[13px] font-semibold transition-colors -mb-px ${
                 active
                   ? "text-foreground"
-                  : "text-foreground/45 hover:text-foreground/70"
+                  : "text-text-2 hover:text-foreground"
               }`}
             >
               <Icon className="h-3.5 w-3.5" />
               {t.label}
               {active && (
-                <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#dafc69] rounded-full" />
+                <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-accent rounded-full" />
               )}
             </button>
           )

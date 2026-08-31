@@ -51,11 +51,11 @@ export function WhatsNew3() {
               <button onClick={close} className="absolute right-3 top-3 p-1 rounded-lg hover:opacity-70" aria-label="Cerrar">
                 <X className="h-4 w-4" style={{ color: "var(--muted-foreground)" }} />
               </button>
-              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#dafc69] shadow-[0_0_28px_rgba(255,222,33,0.4)]">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent shadow-[0_0_28px_rgba(255,222,33,0.4)]">
                 <Rocket className="h-6 w-6 text-black" />
               </div>
-              <h2 className="text-xl font-extrabold tracking-tight text-foreground">Llegó Smart Scale 3.0</h2>
-              <p className="text-[13px] text-foreground/50 mt-1">Esto es lo nuevo que tenemos para vos</p>
+              <h2 className="text-[24px] font-extrabold tracking-tight text-foreground">Llegó Smart Scale 3.0</h2>
+              <p className="text-[13px] text-text-2 mt-1">Esto es lo nuevo que tenemos para vos</p>
             </div>
 
             {/* Lista de novedades */}
@@ -64,12 +64,12 @@ export function WhatsNew3() {
                 const Icon = n.icon
                 return (
                   <div key={i} className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "color-mix(in srgb, #dafc69 14%, transparent)" }}>
-                      <Icon className="h-4 w-4 text-[#dafc69]" />
+                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: "color-mix(in srgb, var(--accent-ink) 14%, transparent)" }}>
+                      <Icon className="h-4 w-4 text-accent-ink" />
                     </span>
                     <div>
-                      <p className="text-[13.5px] font-semibold text-foreground leading-tight">{n.title}</p>
-                      <p className="text-[12px] text-foreground/50 mt-0.5 leading-snug">{n.desc}</p>
+                      <p className="text-[13px] font-semibold text-foreground leading-tight">{n.title}</p>
+                      <p className="text-[13px] text-text-2 mt-0.5 leading-snug">{n.desc}</p>
                     </div>
                   </div>
                 )
@@ -80,7 +80,7 @@ export function WhatsNew3() {
             <div className="px-5 pb-5 pt-1">
               <button
                 onClick={close}
-                className="w-full rounded-xl bg-[#dafc69] py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-[0.98]"
+                className="w-full rounded-xl btn-accent py-2.5 text-[13px] font-bold transition active:scale-[0.98]"
               >
                 ¡Vamos! 🚀
               </button>

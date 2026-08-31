@@ -41,7 +41,7 @@ const CHARTS = [
     subtitle: "Total cash collected over time",
     type:     "bar"  as const,
     format:   "money" as const,
-    color:    "#dafc69",
+    color:    "var(--accent-ink)",
     gradId:   "grad_cash",
   },
   {
@@ -105,20 +105,20 @@ function ChartCard({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors duration-200">
+    <div className="relative overflow-hidden rounded-[14px] border border-border bg-card hover:border-border transition-colors duration-200">
       <div className="p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-1">
           <div>
-            <h3 className="text-[19px] font-bold text-foreground leading-tight tracking-tight">{cfg.label}</h3>
-            <p className="text-[13px] text-foreground/45 mt-0.5">{cfg.subtitle}</p>
+            <h3 className="text-[18px] font-bold text-foreground leading-tight tracking-tight">{cfg.label}</h3>
+            <p className="text-[13px] text-text-2 mt-0.5">{cfg.subtitle}</p>
           </div>
           {diff !== null && (
             <span
-              className={`mt-0.5 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold shrink-0 ml-3 ${
+              className={`mt-0.5 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[13px] font-bold shrink-0 ml-3 ${
                 isUp   ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20"
                 : isDown ? "bg-red-100 text-red-800 ring-1 ring-red-300 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20"
-                :          "bg-foreground/5 text-foreground/40 ring-1 ring-foreground/10 dark:ring-white/10"
+                :          "bg-secondary text-text-2 ring-1 ring-border dark:ring-white/10"
               }`}
             >
               {isUp && <TrendingUp className="h-3 w-3" />}
@@ -132,7 +132,7 @@ function ChartCard({
 
         {/* Latest value as big number */}
         {data.length > 0 && (
-          <p className="mt-3 mb-5 text-3xl font-bold tracking-tight" style={{ color: cfg.color }}>
+          <p className="mt-3 mb-5 text-[32px] font-bold tracking-tight" style={{ color: cfg.color }}>
             {fmtVal(latest)}
           </p>
         )}
@@ -198,7 +198,7 @@ function ChartCard({
                   width={52}
                 />
                 <Tooltip
-                  cursor={{ stroke: `${cfg.color}40`, strokeWidth: 1 }}
+                  cursor={{ stroke: `color-mix(in srgb, ${cfg.color} 25%, transparent)`, strokeWidth: 1 }}
                   contentStyle={tooltipStyle.contentStyle}
                   labelStyle={tooltipStyle.labelStyle}
                   itemStyle={tooltipStyle.itemStyle}
@@ -218,7 +218,7 @@ function ChartCard({
           </ResponsiveContainer>
         ) : (
           <div className="h-[220px] flex items-center justify-center">
-            <p className="text-sm text-foreground/25">Sin datos</p>
+            <p className="text-[13px] text-text-3">Sin datos</p>
           </div>
         )}
       </div>
@@ -285,7 +285,7 @@ export function TrendCharts() {
       <section>
         <div className="grid gap-5 md:grid-cols-2">
           {CHARTS.map(cfg => (
-            <div key={cfg.key} className="rounded-[14px] border border-foreground/[0.07] bg-card h-[380px] animate-pulse" />
+            <div key={cfg.key} className="rounded-[14px] border border-border bg-card h-[380px] animate-pulse" />
           ))}
         </div>
       </section>
@@ -293,20 +293,20 @@ export function TrendCharts() {
   }
 
   if (error) {
-    return <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+    return <p className="text-red-700 dark:text-red-400 text-[13px]">{error}</p>
   }
 
   if (!rows.length) {
     return (
-      <section className="flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-14 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
-          <BarChart3 className="h-5 w-5 text-foreground/20" />
+      <section className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card py-14 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-elevated">
+          <BarChart3 className="h-5 w-5 text-text-3" />
         </div>
-        <p className="text-sm text-foreground/40">
+        <p className="text-[13px] text-text-2">
           {isOwn ? "Todavía no tenés reportes cargados." : "Este cliente todavía no tiene reportes cargados."}
         </p>
         {isOwn && (
-          <Link href="/report-input" className="text-sm font-medium text-[#dafc69] transition-colors hover:text-[#f2ffc0]">
+          <Link href="/report-input" className="text-[13px] font-medium text-accent-ink transition-colors hover:text-accent-hover">
             Cargar primer reporte →
           </Link>
         )}
@@ -317,9 +317,9 @@ export function TrendCharts() {
   return (
     <section className="space-y-5">
       <div className="flex items-center gap-2.5">
-        <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-        <h2 className="text-sm font-bold uppercase tracking-widest text-foreground/80">Analytics</h2>
-        <span className="ml-auto text-xs text-foreground/30 tabular-nums">{rows.length} meses</span>
+        <span className="h-4 w-[3px] rounded-full bg-accent" />
+        <h2 className="text-[13px] font-bold uppercase tracking-widest text-foreground">Analytics</h2>
+        <span className="ml-auto text-[13px] text-text-3 tabular-nums">{rows.length} meses</span>
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">

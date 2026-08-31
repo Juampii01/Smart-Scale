@@ -41,9 +41,9 @@ function pctDelta(cur: number, prev: number) {
 }
 
 function stageStatus(pct: number | null): { label: string; className: string } {
-  if (pct === null) return { label: "Sin datos",  className: "bg-foreground/[0.06] text-foreground/40" }
+  if (pct === null) return { label: "Sin datos",  className: "bg-secondary text-text-2" }
   if (pct >= 5)     return { label: "Saludable",  className: "bg-success-soft text-success" }
-  if (pct >= -5)    return { label: "Estable",    className: "bg-foreground/[0.06] text-foreground/60" }
+  if (pct >= -5)    return { label: "Estable",    className: "bg-elevated text-text-2" }
   return               { label: "Atención",    className: "bg-danger-soft text-danger" }
 }
 
@@ -64,13 +64,13 @@ function MetricCard({ label, value, pct, noData }: {
   const up = (pct ?? 0) > 0
   const showDelta = pct !== null && !noData
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-4 py-3.5 flex flex-col gap-1.5">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.10em] text-foreground/40">{label}</p>
-      <p className={cn("text-[26px] font-bold tabular-nums leading-none", noData ? "text-foreground/25" : "text-foreground")}>
+    <div className="rounded-[14px] border border-border bg-card px-4 py-3.5 flex flex-col gap-1.5">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.10em] text-text-2">{label}</p>
+      <p className={cn("text-[24px] font-bold tabular-nums leading-none", noData ? "text-text-3" : "text-foreground")}>
         {value}
       </p>
       {showDelta && (
-        <p className={cn("text-[12px] font-semibold", up ? "text-success" : "text-danger")}>
+        <p className={cn("text-[13px] font-semibold", up ? "text-success" : "text-danger")}>
           {up ? "+" : ""}{pct!.toFixed(1)}%
         </p>
       )}
@@ -86,8 +86,8 @@ function MiniChart({ data, dataKey, color, label, className }: {
   const points = data.slice(-8).map(r => ({ month: fmtMonthLabel(r.month), value: Number(r[dataKey]) || 0 }))
   if (points.every(p => p.value === 0)) return null
   return (
-    <div className={cn("rounded-[14px] border border-foreground/[0.07] bg-card p-5 flex flex-col", className)}>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.10em] text-foreground/40 mb-4">{label}</p>
+    <div className={cn("rounded-[14px] border border-border bg-card p-5 flex flex-col", className)}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.10em] text-text-2 mb-4">{label}</p>
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={points} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
@@ -137,19 +137,19 @@ function GrowthIndexChart({ reports }: { reports: MonthlyReport[] }) {
   const active = channels.filter(ch => bases[ch.key] > 0)
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-5">
+    <div className="rounded-[14px] border border-border bg-card p-5">
       <div className="flex items-start justify-between mb-1">
         <div>
           <p className="text-[15px] font-bold text-foreground">Índice de crecimiento</p>
-          <p className="text-[11px] text-foreground/40 mt-0.5">Base 100 = primer mes con datos — quién crece más rápido</p>
+          <p className="text-[13px] text-text-2 mt-0.5">Base 100 = primer mes con datos — quién crece más rápido</p>
         </div>
-        <span className="text-[10px] text-foreground/30 bg-foreground/[0.04] border border-foreground/[0.06] rounded-lg px-2 py-1 ml-4 whitespace-nowrap">200 = duplicó</span>
+        <span className="text-[13px] text-text-3 bg-elevated border border-border rounded-lg px-2 py-1 ml-4 whitespace-nowrap">200 = duplicó</span>
       </div>
       <div className="flex flex-wrap gap-5 mt-4 mb-4">
         {active.map(ch => (
           <div key={ch.key} className="flex items-center gap-1.5">
             <span className="h-[3px] w-5 rounded-full" style={{ backgroundColor: ch.color }} />
-            <span className="text-[11px] text-foreground/55">{ch.label}</span>
+            <span className="text-[13px] text-text-2">{ch.label}</span>
           </div>
         ))}
       </div>
@@ -177,15 +177,15 @@ function PostsVsFollowers({ reports, className }: { reports: MonthlyReport[]; cl
   const data = reports.map(r => ({ month: fmtMonthLabel(r.month), posts: r.short_posts || 0, followers: r.short_followers || 0 }))
   const avg = data.reduce((s, d) => s + d.posts, 0) / data.length
   return (
-    <div className={cn("rounded-[14px] border border-foreground/[0.07] bg-card p-5", className)}>
+    <div className={cn("rounded-[14px] border border-border bg-card p-5", className)}>
       <div className="flex items-center justify-between mb-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.10em] text-foreground/40">Contenido vs Audiencia</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.10em] text-text-2">Contenido vs Audiencia</p>
           <p className="text-[15px] font-bold text-foreground mt-0.5">Posts vs Seguidores IG</p>
         </div>
         <div className="flex gap-4">
-          <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#dafc69]" /><span className="text-[11px] text-foreground/50">Posts</span></div>
-          <div className="flex items-center gap-1.5"><span className="h-[3px] w-5 rounded-full bg-[#818cf8]" /><span className="text-[11px] text-foreground/50">Seguidores</span></div>
+          <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-accent" /><span className="text-[13px] text-text-2">Posts</span></div>
+          <div className="flex items-center gap-1.5"><span className="h-[3px] w-5 rounded-full bg-[#818cf8]" /><span className="text-[13px] text-text-2">Seguidores</span></div>
         </div>
       </div>
       <ResponsiveContainer width="100%" height={220}>
@@ -196,9 +196,9 @@ function PostsVsFollowers({ reports, className }: { reports: MonthlyReport[]; cl
           <YAxis yAxisId="followers" orientation="right" stroke="transparent" width={44}
             tick={{ fill: "var(--text-3)", fontSize: 10 }} tickLine={false} axisLine={false}
             tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)} />
-          {avg > 0 && <ReferenceLine yAxisId="posts" y={avg} stroke="#dafc6930" strokeDasharray="4 3" />}
+          {avg > 0 && <ReferenceLine yAxisId="posts" y={avg} stroke="color-mix(in srgb, var(--accent-ink) 19%, transparent)" strokeDasharray="4 3" />}
           <Tooltip {...tooltipStyle} formatter={(v: number, name: string) => [name === "Seguidores" ? fmtK(v) : String(v), name]} />
-          <Bar yAxisId="posts" dataKey="posts" name="Posts" fill="#dafc69" fillOpacity={0.8} radius={[4,4,0,0]} maxBarSize={32} />
+          <Bar yAxisId="posts" dataKey="posts" name="Posts" fill="var(--accent-ink)" fillOpacity={0.8} radius={[4,4,0,0]} maxBarSize={32} />
           <Line yAxisId="followers" type="monotone" dataKey="followers" name="Seguidores"
             stroke="#818cf8" strokeWidth={2} dot={{ fill: "#818cf8", r: 2.5, strokeWidth: 0 }} activeDot={{ r: 4 }} />
         </ComposedChart>
@@ -211,12 +211,12 @@ function YouTubeTrend({ reports }: { reports: MonthlyReport[] }) {
   if (reports.length < 2 || !reports.some(r => r.yt_subscribers > 0)) return null
   const data = reports.map(r => ({ month: fmtMonthLabel(r.month), subs: r.yt_subscribers || 0, views: r.yt_views || 0 }))
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-5">
+    <div className="rounded-[14px] border border-border bg-card p-5">
       <p className="text-[15px] font-bold text-foreground mb-0.5">YouTube — Suscriptores vs Vistas</p>
-      <p className="text-[11px] text-foreground/40 mb-4">¿Las vistas generan suscriptores o son independientes?</p>
+      <p className="text-[13px] text-text-2 mb-4">¿Las vistas generan suscriptores o son independientes?</p>
       <div className="flex flex-wrap gap-5 mb-4">
-        <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#f87171]" /><span className="text-[11px] text-foreground/50">Vistas</span></div>
-        <div className="flex items-center gap-1.5"><span className="h-[3px] w-5 rounded-full bg-[#fbbf24]" /><span className="text-[11px] text-foreground/50">Suscriptores</span></div>
+        <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#f87171]" /><span className="text-[13px] text-text-2">Vistas</span></div>
+        <div className="flex items-center gap-1.5"><span className="h-[3px] w-5 rounded-full bg-[#fbbf24]" /><span className="text-[13px] text-text-2">Suscriptores</span></div>
       </div>
       <ResponsiveContainer width="100%" height={200}>
         <ComposedChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
@@ -245,12 +245,12 @@ function FascinateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
   const status = stageStatus(d.ig)
   return (
     <div className="space-y-5">
-      <div className="pb-4 border-b border-foreground/[0.07]">
+      <div className="pb-4 border-b border-border">
         <div className="flex items-center gap-3 mb-1">
-          <h2 className="text-[22px] font-bold text-foreground">Fascinate</h2>
-          <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span>
+          <h2 className="text-[24px] font-bold text-foreground">Fascinate</h2>
+          <span className={cn("rounded-full px-2.5 py-0.5 text-[13px] font-semibold", status.className)}>{status.label}</span>
         </div>
-        <p className="text-[13px] text-foreground/50">Captar atención — crecer la audiencia que alimenta el motor.</p>
+        <p className="text-[13px] text-text-2">Captar atención — crecer la audiencia que alimenta el motor.</p>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <MetricCard label="Seguidores IG"   value={fmtK(cur?.short_followers)} pct={d.ig}    noData={!cur?.short_followers} />
@@ -273,12 +273,12 @@ function EducateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Month
   const status = stageStatus(d.posts)
   return (
     <div className="space-y-5">
-      <div className="pb-4 border-b border-foreground/[0.07]">
+      <div className="pb-4 border-b border-border">
         <div className="flex items-center gap-3 mb-1">
-          <h2 className="text-[22px] font-bold text-foreground">Educate</h2>
-          <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span>
+          <h2 className="text-[24px] font-bold text-foreground">Educate</h2>
+          <span className={cn("rounded-full px-2.5 py-0.5 text-[13px] font-semibold", status.className)}>{status.label}</span>
         </div>
-        <p className="text-[13px] text-foreground/50">Construir autoridad — convertir atención en audiencia comprometida.</p>
+        <p className="text-[13px] text-text-2">Construir autoridad — convertir atención en audiencia comprometida.</p>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <MetricCard label="Posts IG"    value={fmtK(cur?.short_posts)}           pct={d.posts} noData={!cur?.short_posts} />
@@ -301,12 +301,12 @@ function InviteTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Monthl
   const status = stageStatus(d.cash)
   return (
     <div className="space-y-4">
-      <div className="pb-4 border-b border-foreground/[0.07]">
+      <div className="pb-4 border-b border-border">
         <div className="flex items-center gap-3 mb-1">
-          <h2 className="text-[22px] font-bold text-foreground">Invite</h2>
-          <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span>
+          <h2 className="text-[24px] font-bold text-foreground">Invite</h2>
+          <span className={cn("rounded-full px-2.5 py-0.5 text-[13px] font-semibold", status.className)}>{status.label}</span>
         </div>
-        <p className="text-[13px] text-foreground/50">Conversión eficiente — convertir audiencia pre-calentada en clientes.</p>
+        <p className="text-[13px] text-text-2">Conversión eficiente — convertir audiencia pre-calentada en clientes.</p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4 items-stretch">
         <div className="grid grid-cols-2 gap-3">
@@ -315,11 +315,11 @@ function InviteTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Monthl
           <MetricCard label="MRR"             value={fmtMoney(cur?.mrr)}            pct={d.mrr}     noData={!cur?.mrr} />
           <MetricCard label="Revenue total"   value={fmtMoney(cur?.total_revenue)}  pct={d.rev}     noData={!cur?.total_revenue} />
         </div>
-        <MiniChart data={all} dataKey="cash_collected" color="#dafc69" label="Cash collected — últimos 8 meses" className="min-h-[220px]" />
+        <MiniChart data={all} dataKey="cash_collected" color="var(--accent-ink)" label="Cash collected — últimos 8 meses" className="min-h-[220px]" />
       </div>
 
       {/* Sales: el embudo de conversión vive dentro de Invite */}
-      <div className="pt-4 mt-2 border-t border-foreground/[0.07]">
+      <div className="pt-4 mt-2 border-t border-border">
         <SalesView />
       </div>
     </div>
@@ -336,12 +336,12 @@ function TransformTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
   const status = stageStatus(d.mrr)
   return (
     <div className="space-y-4">
-      <div className="pb-4 border-b border-foreground/[0.07]">
+      <div className="pb-4 border-b border-border">
         <div className="flex items-center gap-3 mb-1">
-          <h2 className="text-[22px] font-bold text-foreground">Transform</h2>
-          <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span>
+          <h2 className="text-[24px] font-bold text-foreground">Transform</h2>
+          <span className={cn("rounded-full px-2.5 py-0.5 text-[13px] font-semibold", status.className)}>{status.label}</span>
         </div>
-        <p className="text-[13px] text-foreground/50">Retención y eficiencia — sostener y escalar lo que funciona.</p>
+        <p className="text-[13px] text-text-2">Retención y eficiencia — sostener y escalar lo que funciona.</p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4 items-stretch">
         <div className="grid grid-cols-2 gap-3">
@@ -385,22 +385,22 @@ export function PerformanceView() {
   return (
     <div className="space-y-6 pb-10">
       <div>
-        <h1 className="text-[22px] font-bold text-foreground leading-tight">Performance</h1>
-        <p className="text-[13px] text-foreground/50 mt-0.5">Tu pulso a través de las 4 etapas del modelo</p>
+        <h1 className="text-[24px] font-bold text-foreground leading-tight">Performance</h1>
+        <p className="text-[13px] text-text-2 mt-0.5">Tu pulso a través de las 4 etapas del modelo</p>
       </div>
 
       {/* Tab bar — underline style */}
-      <div className="border-b border-foreground/[0.07]">
+      <div className="border-b border-border">
         <div className="flex gap-0">
           {TABS.map(t => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
               className={cn(
-                "relative pb-3 px-4 text-[14px] font-semibold transition-colors",
+                "relative pb-3 px-4 text-[15px] font-semibold transition-colors",
                 tab === t.id
-                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#dafc69] after:rounded-full"
-                  : "text-foreground/40 hover:text-foreground/70"
+                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-accent after:rounded-full"
+                  : "text-text-2 hover:text-foreground"
               )}
             >
               {t.label}

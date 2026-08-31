@@ -55,17 +55,17 @@ function BookingContent() {
     <div className="min-h-screen bg-background flex flex-col">
 
       {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-40 border-b border-foreground/[0.06] bg-background/80 backdrop-blur-md">
+      <nav className="fixed top-0 left-0 right-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
         <div className="mx-auto max-w-4xl px-5 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-foreground text-[17px] font-bold tracking-tight">Smart</span>
-            <span className="rounded-md bg-foreground px-2 py-0.5 text-[14px] font-bold tracking-tight text-background shadow-sm">
+            <span className="text-foreground text-[18px] font-bold tracking-tight">Smart</span>
+            <span className="rounded-md bg-foreground px-2 py-0.5 text-[15px] font-bold tracking-tight text-background shadow-sm">
               Scale
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Shield className="h-3.5 w-3.5 text-foreground/30" />
-            <span className="text-[11px] text-foreground/30 font-medium">Pago seguro con Stripe</span>
+            <Shield className="h-3.5 w-3.5 text-text-3" />
+            <span className="text-[13px] text-text-3 font-medium">Pago seguro con Stripe</span>
           </div>
         </div>
       </nav>
@@ -77,19 +77,19 @@ function BookingContent() {
           {/* Left: copy */}
           <div className="space-y-8">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#dafc69]/25 bg-[#dafc69]/[0.07] px-4 py-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69]/70 shrink-0" />
-              <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent-soft px-4 py-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
+              <span className="text-[11px] font-bold text-accent-ink uppercase tracking-[0.18em]">
                 Smart Scale · Opción Sync
               </span>
             </div>
 
             {/* Title */}
             <div className="space-y-4">
-              <h1 className="text-[36px] sm:text-[48px] font-black text-foreground leading-[1.05] tracking-tight">
+              <h1 className="text-[32px] sm:text-[32px] font-black text-foreground leading-[1.05] tracking-tight">
                 {title}
               </h1>
-              <p className="text-[16px] text-foreground/50 leading-relaxed">
+              <p className="text-[18px] text-text-2 leading-relaxed">
                 {subtitle}
               </p>
             </div>
@@ -98,10 +98,10 @@ function BookingContent() {
             <ul className="space-y-3">
               {features.map((f, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#dafc69]/15 shrink-0">
-                    <Check className="h-3 w-3 text-[#dafc69]" />
+                  <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent-soft shrink-0">
+                    <Check className="h-3 w-3 text-accent-ink" />
                   </span>
-                  <span className="text-[14px] text-foreground/70">{f}</span>
+                  <span className="text-[15px] text-foreground">{f}</span>
                 </li>
               ))}
             </ul>
@@ -113,7 +113,7 @@ function BookingContent() {
                 { icon: Clock,  text: "Confirmación inmediata" },
                 { icon: Star,   text: "Smart Scale™" },
               ].map(({ icon: Icon, text }) => (
-                <div key={text} className="flex items-center gap-1.5 text-[12px] text-foreground/35">
+                <div key={text} className="flex items-center gap-1.5 text-[13px] text-text-3">
                   <Icon className="h-3.5 w-3.5" />
                   {text}
                 </div>
@@ -123,31 +123,31 @@ function BookingContent() {
 
           {/* Right: payment card */}
           <div className="lg:sticky lg:top-24">
-            <div className="relative overflow-hidden rounded-3xl border border-foreground/[0.08] bg-card shadow-2xl shadow-black/20">
+            <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-2xl shadow-black/20">
               {/* Gradient top */}
-              <div className="h-[3px] w-full bg-gradient-to-r from-[#dafc69]/80 via-[#dafc69] to-[#dafc69]/80" />
+              <div className="h-[3px] w-full bg-gradient-to-r from-accent-ink/80 via-accent-ink to-accent-ink/80" />
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.06),transparent_60%)]" />
 
               <div className="relative p-8 space-y-7">
                 {/* Price */}
                 <div>
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-2">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 mb-2">
                     Inversión
                   </p>
                   <div className="flex items-end gap-2">
-                    <span className="text-[52px] font-black text-foreground leading-none tabular-nums">
+                    <span className="text-[32px] font-black text-foreground leading-none tabular-nums">
                       ${price}
                     </span>
-                    <span className="text-[16px] text-foreground/40 font-semibold mb-1.5">USD</span>
+                    <span className="text-[18px] text-text-2 font-semibold mb-1.5">USD</span>
                   </div>
-                  <p className="text-[12px] text-foreground/30 mt-1">Sesión Sync · 45 minutos</p>
+                  <p className="text-[13px] text-text-3 mt-1">Sesión Sync · 45 minutos</p>
                 </div>
 
                 {/* What's included mini-list */}
-                <div className="rounded-2xl border border-foreground/[0.06] bg-foreground/[0.02] p-4 space-y-2.5">
+                <div className="rounded-2xl border border-border bg-secondary p-4 space-y-2.5">
                   {features.slice(0, 3).map((f, i) => (
-                    <div key={i} className="flex items-center gap-2.5 text-[12px] text-foreground/55">
-                      <Zap className="h-3 w-3 text-[#dafc69]/70 shrink-0" />
+                    <div key={i} className="flex items-center gap-2.5 text-[13px] text-text-2">
+                      <Zap className="h-3 w-3 text-accent-ink/70 shrink-0" />
                       {f}
                     </div>
                   ))}
@@ -159,21 +159,21 @@ function BookingContent() {
                     href={stripeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl bg-[#dafc69] py-4 text-[15px] font-black text-black hover:bg-[#f2ffc0] transition-all duration-200 shadow-lg shadow-[#dafc69]/20 hover:shadow-[#dafc69]/30 hover:scale-[1.01]"
+                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl btn-accent py-4 text-[15px] font-black hover:scale-[1.01]"
                   >
                     {cta}
                     <ArrowRight className="h-4 w-4" />
                   </a>
                 ) : (
                   <div className="rounded-2xl border border-amber-400/25 bg-amber-500/[0.07] p-4 text-center">
-                    <p className="text-[12px] text-amber-700/80 dark:text-amber-400/80">Link de pago no configurado.</p>
+                    <p className="text-[13px] text-amber-700/80 dark:text-amber-400/80">Link de pago no configurado.</p>
                   </div>
                 )}
 
                 {/* Stripe badge */}
                 <div className="flex items-center justify-center gap-2 pt-1">
-                  <Shield className="h-3.5 w-3.5 text-foreground/20" />
-                  <span className="text-[10px] text-foreground/20 font-medium tracking-wide">
+                  <Shield className="h-3.5 w-3.5 text-text-3" />
+                  <span className="text-[13px] text-text-3 font-medium tracking-wide">
                     Procesado de forma segura por Stripe
                   </span>
                 </div>
@@ -185,10 +185,10 @@ function BookingContent() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-foreground/[0.06] py-6">
+      <footer className="border-t border-border py-6">
         <div className="mx-auto max-w-4xl px-5 flex items-center justify-between">
-          <span className="text-[11px] text-foreground/25">© Smart Scale™</span>
-          <span className="text-[11px] text-foreground/25">Todos los derechos reservados</span>
+          <span className="text-[13px] text-text-3">© Smart Scale™</span>
+          <span className="text-[13px] text-text-3">Todos los derechos reservados</span>
         </div>
       </footer>
     </div>
@@ -199,7 +199,7 @@ export default function BookingPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="h-6 w-6 rounded-full border-2 border-[#dafc69]/40 border-t-[#dafc69] animate-spin" />
+        <div className="h-6 w-6 rounded-full border-2 border-accent/25 border-t-accent-ink animate-spin" />
       </div>
     }>
       <BookingContent />

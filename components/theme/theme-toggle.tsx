@@ -19,13 +19,13 @@ export function ThemeToggle() {
       size="icon"
       aria-label={isDark ? "Activar modo claro" : "Activar modo oscuro"}
       title={isDark ? "Modo claro" : "Modo oscuro"}
-      className="border-border/50 hover:bg-foreground/[0.06]"
+      className="border-border/50 hover:bg-secondary"
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
       {isDark ? (
-        <Sun className="h-4 w-4 text-[#dafc69]" />
+        <Sun className="h-4 w-4 text-accent-ink" />
       ) : (
-        <Moon className="h-4 w-4 text-[#dafc69]" />
+        <Moon className="h-4 w-4 text-accent-ink" />
       )}
     </Button>
   )

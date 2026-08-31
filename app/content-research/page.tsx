@@ -52,13 +52,13 @@ function fmt(n: number): string {
 
 function CopyBtn({ text }: { text: string | null }) {
   const [copied, setCopied] = useState(false)
-  if (!text) return <span className="text-foreground/20 text-xs">—</span>
+  if (!text) return <span className="text-text-3 text-[13px]">—</span>
   return (
     <button
       onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500) }}
-      className="inline-flex items-center gap-1.5 text-xs text-foreground/40 hover:text-[#dafc69] transition-colors"
+      className="inline-flex items-center gap-1.5 text-[13px] text-text-2 hover:text-accent-ink transition-colors"
     >
-      <span className="max-w-[140px] truncate text-foreground/50">{text.slice(0, 60)}{text.length > 60 ? "…" : ""}</span>
+      <span className="max-w-[140px] truncate text-text-2">{text.slice(0, 60)}{text.length > 60 ? "…" : ""}</span>
       {copied ? <Check className="h-3 w-3 text-emerald-700 dark:text-emerald-400 flex-shrink-0" /> : <Copy className="h-3 w-3 flex-shrink-0" />}
     </button>
   )
@@ -72,21 +72,21 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
   return (
     <>
       <tr
-        className={`border-b border-foreground/[0.04] hover:bg-foreground/[0.02] transition-colors cursor-pointer ${expanded ? "bg-foreground/[0.02]" : ""}`}
+        className={`border-b border-border hover:bg-secondary transition-colors cursor-pointer ${expanded ? "bg-secondary" : ""}`}
         onClick={() => setExpanded(v => !v)}
       >
         {/* Rank */}
         <td className="px-4 py-3 whitespace-nowrap w-8">
-          <span className="text-xs font-bold text-foreground/20 tabular-nums">#{rank}</span>
+          <span className="text-[13px] font-bold text-text-3 tabular-nums">#{rank}</span>
         </td>
 
         {/* Thumbnail */}
         <td className="px-4 py-3 w-24" onClick={e => e.stopPropagation()}>
           <a href={video.video_url} target="_blank" rel="noopener noreferrer" className="block group">
-            <div className="relative w-20 h-[45px] rounded-lg overflow-hidden border border-foreground/[0.07] bg-foreground/[0.03] flex-shrink-0">
+            <div className="relative w-20 h-[45px] rounded-lg overflow-hidden border border-border bg-elevated flex-shrink-0">
               {video.thumbnail
                 ? <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
-                : <div className="flex h-full items-center justify-center"><Youtube className="h-4 w-4 text-foreground/20" /></div>
+                : <div className="flex h-full items-center justify-center"><Youtube className="h-4 w-4 text-text-3" /></div>
               }
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
                 <ExternalLink className="h-3 w-3 text-foreground" />
@@ -97,9 +97,9 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
 
         {/* Title */}
         <td className="px-4 py-3 max-w-[220px]">
-          <p className="text-sm font-medium text-foreground/80 leading-snug line-clamp-2">{video.title}</p>
+          <p className="text-[13px] font-medium text-foreground leading-snug line-clamp-2">{video.title}</p>
           {video.published_at && (
-            <p className="text-[10px] text-foreground/25 mt-0.5 tabular-nums">
+            <p className="text-[13px] text-text-3 mt-0.5 tabular-nums">
               {new Date(video.published_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}
             </p>
           )}
@@ -107,22 +107,22 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
 
         {/* Views */}
         <td className="px-4 py-3 whitespace-nowrap text-right">
-          <span className="text-sm font-bold text-foreground tabular-nums">{fmt(video.views)}</span>
+          <span className="text-[13px] font-bold text-foreground tabular-nums">{fmt(video.views)}</span>
         </td>
 
         {/* Duration */}
         <td className="px-4 py-3 whitespace-nowrap text-center">
-          <span className="text-xs text-foreground/40 tabular-nums">{video.duration}</span>
+          <span className="text-[13px] text-text-2 tabular-nums">{video.duration}</span>
         </td>
 
         {/* Likes */}
         <td className="px-4 py-3 whitespace-nowrap text-right">
-          <span className="text-sm text-foreground/60 tabular-nums">{fmt(video.likes)}</span>
+          <span className="text-[13px] text-text-2 tabular-nums">{fmt(video.likes)}</span>
         </td>
 
         {/* Comments */}
         <td className="px-4 py-3 whitespace-nowrap text-right">
-          <span className="text-sm text-foreground/60 tabular-nums">{fmt(video.comments)}</span>
+          <span className="text-[13px] text-text-2 tabular-nums">{fmt(video.comments)}</span>
         </td>
 
         {/* Analysis preview */}
@@ -134,7 +134,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
         <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
           <button
             onClick={() => setExpanded(v => !v)}
-            className="rounded-lg p-1.5 text-foreground/30 hover:bg-foreground/[0.06] hover:text-foreground/60 transition-all"
+            className="rounded-lg p-1.5 text-text-3 hover:bg-secondary hover:text-text-2 transition-all"
           >
             {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
@@ -143,7 +143,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
 
       {/* Expanded panel */}
       {expanded && (
-        <tr className="border-b border-foreground/[0.06] bg-background/60">
+        <tr className="border-b border-border bg-background/60">
           <td colSpan={9} className="px-5 py-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Left: thumbnail big + description */}
@@ -151,7 +151,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
                 <div className="flex gap-4">
                   {video.thumbnail && (
                     <a href={video.video_url} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 group">
-                      <div className="relative w-32 h-[72px] rounded-xl overflow-hidden border border-foreground/[0.07]">
+                      <div className="relative w-32 h-[72px] rounded-xl overflow-hidden border border-border">
                         <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/40 transition-opacity">
                           <ExternalLink className="h-4 w-4 text-foreground" />
@@ -160,19 +160,19 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
                     </a>
                   )}
                   <div>
-                    <p className="text-sm font-semibold text-foreground leading-snug">{video.title}</p>
+                    <p className="text-[13px] font-semibold text-foreground leading-snug">{video.title}</p>
                     <div className="flex items-center gap-3 mt-2 flex-wrap">
-                      <span className="flex items-center gap-1 text-xs text-foreground/40"><Eye className="h-3 w-3" />{fmt(video.views)}</span>
-                      <span className="flex items-center gap-1 text-xs text-foreground/40"><ThumbsUp className="h-3 w-3" />{fmt(video.likes)}</span>
-                      <span className="flex items-center gap-1 text-xs text-foreground/40"><MessageCircle className="h-3 w-3" />{fmt(video.comments)}</span>
-                      <span className="flex items-center gap-1 text-xs text-foreground/40"><Clock className="h-3 w-3" />{video.duration}</span>
+                      <span className="flex items-center gap-1 text-[13px] text-text-2"><Eye className="h-3 w-3" />{fmt(video.views)}</span>
+                      <span className="flex items-center gap-1 text-[13px] text-text-2"><ThumbsUp className="h-3 w-3" />{fmt(video.likes)}</span>
+                      <span className="flex items-center gap-1 text-[13px] text-text-2"><MessageCircle className="h-3 w-3" />{fmt(video.comments)}</span>
+                      <span className="flex items-center gap-1 text-[13px] text-text-2"><Clock className="h-3 w-3" />{video.duration}</span>
                     </div>
                   </div>
                 </div>
                 {video.description && (
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30 mb-2">Descripción</p>
-                    <p className="text-xs text-foreground/55 leading-relaxed">{video.description}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-2">Descripción</p>
+                    <p className="text-[13px] text-text-2 leading-relaxed">{video.description}</p>
                   </div>
                 )}
               </div>
@@ -181,17 +181,17 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
               {video.analysis && (
                 <div>
                   <div className="flex items-center gap-1.5 mb-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[#dafc69]/50">Análisis IA</p>
-                    <Sparkles className="h-3 w-3 text-[#dafc69]/30" />
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-accent-ink/50">Análisis IA</p>
+                    <Sparkles className="h-3 w-3 text-accent-ink/30" />
                     <button
                       onClick={() => navigator.clipboard.writeText(video.analysis)}
-                      className="ml-auto inline-flex items-center gap-1 text-[10px] text-foreground/25 hover:text-foreground/50 transition-colors"
+                      className="ml-auto inline-flex items-center gap-1 text-[13px] text-text-3 hover:text-text-2 transition-colors"
                     >
                       <Copy className="h-3 w-3" /> Copiar
                     </button>
                   </div>
-                  <div className="rounded-xl border border-[#dafc69]/10 bg-[#dafc69]/[0.03] px-4 py-3">
-                    <p className="text-xs text-foreground/60 leading-relaxed whitespace-pre-wrap">{video.analysis}</p>
+                  <div className="rounded-xl border border-border bg-secondary/20 px-4 py-3">
+                    <p className="text-[13px] text-text-2 leading-relaxed whitespace-pre-wrap">{video.analysis}</p>
                   </div>
                 </div>
               )}
@@ -211,9 +211,9 @@ function ResultsTable({ result }: { result: ResearchResult }) {
   const totalComments = result.videos.reduce((s, v) => s + v.comments, 0)
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card">
       {/* Channel header */}
-      <div className="flex items-center gap-4 border-b border-foreground/[0.06] px-6 py-4">
+      <div className="flex items-center gap-4 border-b border-border px-6 py-4">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500/10 border border-red-500/20 overflow-hidden">
           {result.channelAvatar
             ? <img src={result.channelAvatar} alt={result.channelName} className="w-full h-full object-cover" />
@@ -221,13 +221,13 @@ function ResultsTable({ result }: { result: ResearchResult }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-foreground truncate">{result.channelName}</p>
+            <p className="text-[13px] font-semibold text-foreground truncate">{result.channelName}</p>
             <a href={result.channelUrl} target="_blank" rel="noopener noreferrer"
-              className="text-foreground/30 hover:text-[#dafc69] transition-colors flex-shrink-0">
+              className="text-text-3 hover:text-accent-ink transition-colors flex-shrink-0">
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
-          <p className="text-xs text-foreground/35 mt-0.5">Top {result.videos.length} videos · Últimos {result.timeframe_days} días</p>
+          <p className="text-[13px] text-text-3 mt-0.5">Top {result.videos.length} videos · Últimos {result.timeframe_days} días</p>
         </div>
         {/* Summary stats */}
         <div className="hidden sm:flex items-center gap-4">
@@ -237,8 +237,8 @@ function ResultsTable({ result }: { result: ResearchResult }) {
             { icon: MessageCircle, label: "Comentarios", value: fmt(totalComments) },
           ].map(({ icon: Icon, label, value }) => (
             <div key={label} className="text-center">
-              <p className="text-[10px] text-foreground/25 uppercase tracking-widest flex items-center gap-1"><Icon className="h-2.5 w-2.5" />{label}</p>
-              <p className="text-sm font-bold text-foreground tabular-nums">{value}</p>
+              <p className="text-[11px] text-text-3 uppercase tracking-widest flex items-center gap-1"><Icon className="h-2.5 w-2.5" />{label}</p>
+              <p className="text-[13px] font-bold text-foreground tabular-nums">{value}</p>
             </div>
           ))}
         </div>
@@ -248,9 +248,9 @@ function ResultsTable({ result }: { result: ResearchResult }) {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[860px]">
           <thead>
-            <tr className="border-b border-foreground/[0.06]">
+            <tr className="border-b border-border">
               {["#", "THUMB", "TÍTULO", "VIEWS", "DURACIÓN", "LIKES", "COMENT.", "ANÁLISIS", ""].map((h, i) => (
-                <th key={i} className={`px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-foreground/30 ${i >= 3 && i <= 6 ? "text-right" : "text-left"}`}>
+                <th key={i} className={`px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-text-3 ${i >= 3 && i <= 6 ? "text-right" : "text-left"}`}>
                   {h}
                 </th>
               ))}
@@ -297,28 +297,28 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
   if (!items.length) return null
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
-      <div className="flex items-center justify-between border-b border-foreground/[0.06] px-6 py-4">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="flex items-center justify-between border-b border-border px-6 py-4">
         <div className="flex items-center gap-2.5">
-          <span className="h-3 w-[2px] rounded-full bg-[#dafc69]/60" />
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-foreground/50">Investigaciones anteriores</h2>
+          <span className="h-3 w-[2px] rounded-full bg-accent" />
+          <h2 className="text-[11px] font-semibold uppercase tracking-widest text-text-2">Investigaciones anteriores</h2>
         </div>
-        <span className="text-[10px] text-foreground/25 tabular-nums">{items.length} registros</span>
+        <span className="text-[13px] text-text-3 tabular-nums">{items.length} registros</span>
       </div>
       <div className="divide-y divide-white/[0.04]">
         {items.map(item => (
-          <div key={item.id} className="flex items-center gap-3 px-6 py-3.5 hover:bg-foreground/[0.015] transition-colors group">
+          <div key={item.id} className="flex items-center gap-3 px-6 py-3.5 hover:bg-secondary transition-colors group">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-500/10 border border-red-500/15">
               <Youtube className="h-3.5 w-3.5 text-red-700 dark:text-red-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground/80 truncate">{item.channel_name}</p>
+              <p className="text-[13px] font-medium text-foreground truncate">{item.channel_name}</p>
               <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-[11px] text-foreground/30">Últimos {item.timeframe_days} días</span>
-                <span className="text-foreground/15">·</span>
-                <span className="text-[11px] text-foreground/25">{item.videos?.length ?? 0} videos</span>
-                <span className="text-foreground/15">·</span>
-                <span className="text-[11px] text-foreground/20 tabular-nums">
+                <span className="text-[13px] text-text-3">Últimos {item.timeframe_days} días</span>
+                <span className="text-text-3">·</span>
+                <span className="text-[13px] text-text-3">{item.videos?.length ?? 0} videos</span>
+                <span className="text-text-3">·</span>
+                <span className="text-[13px] text-text-3 tabular-nums">
                   {new Date(item.created_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}
                 </span>
               </div>
@@ -326,14 +326,14 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
             <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={() => onSelect(item)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-xs font-medium text-foreground/50 hover:border-[#dafc69]/30 hover:text-[#dafc69] transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary px-3 py-1.5 text-[13px] font-medium text-text-2 hover:border-border hover:text-accent-ink transition-colors"
               >
                 Ver análisis
               </button>
               <button
                 onClick={() => handleDelete(item.id)}
                 disabled={deletingId === item.id}
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.07] text-foreground/25 hover:border-red-500/30 hover:bg-red-500/[0.08] hover:text-red-700 dark:hover:text-red-400 transition-all disabled:opacity-40"
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-text-3 hover:border-red-500/30 hover:bg-red-500/[0.08] hover:text-red-700 dark:hover:text-red-400 transition-all disabled:opacity-40"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
@@ -420,20 +420,20 @@ function ContentResearchContent() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35">Smart Scale · IA 1.0</span>
+          <span className="h-4 w-[3px] rounded-full bg-accent" />
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">Smart Scale · IA 1.0</span>
         </div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight mb-1">Content Research</h1>
-        <p className="text-sm text-foreground/40">Analizá los top 5 videos de cualquier canal de YouTube por métricas reales.</p>
+        <h1 className="text-[24px] font-bold text-foreground tracking-tight mb-1">Content Research</h1>
+        <p className="text-[13px] text-text-2">Analizá los top 5 videos de cualquier canal de YouTube por métricas reales.</p>
       </div>
 
       {/* Banner si admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-start gap-3 rounded-2xl border border-[#dafc69]/25 bg-[#dafc69]/[0.05] px-4 py-3">
-          <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 rounded-2xl border border-accent/20 bg-accent-soft px-4 py-3">
+          <Eye className="h-4 w-4 text-accent-ink flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>
-            <p className="text-[13px] text-foreground/75 mt-0.5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent-ink/80">Viendo otro cliente</p>
+            <p className="text-[13px] text-foreground mt-0.5">
               Estás viendo las investigaciones de <span className="font-semibold text-foreground">{activeName ?? "(sin nombre)"}</span>. Cualquier nueva investigación se guarda en su cuenta.
             </p>
           </div>
@@ -441,8 +441,8 @@ function ContentResearchContent() {
       )}
 
       {/* Form */}
-      <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
-        <div className="h-[2px] w-full bg-gradient-to-r from-[#dafc69]/0 via-[#dafc69]/50 to-[#dafc69]/0" />
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        <div className="h-[2px] w-full bg-gradient-to-r from-accent-ink/0 via-accent-ink/50 to-accent-ink/0" />
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex flex-col sm:flex-row gap-3">
@@ -456,19 +456,19 @@ function ContentResearchContent() {
                   value={channelUrl}
                   onChange={e => { setChannelUrl(e.target.value); setError(null) }}
                   placeholder="https://youtube.com/@canal"
-                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] pl-10 pr-4 text-sm text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/15 transition-all"
+                  className="h-11 w-full rounded-xl border border-border bg-secondary pl-10 pr-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
                   disabled={loading}
                 />
               </div>
 
               {/* Timeframe */}
-              <div className="flex rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] overflow-hidden shrink-0">
+              <div className="flex rounded-xl border border-border bg-elevated overflow-hidden shrink-0">
                 {([30, 60, 90] as const).map(t => (
                   <button
                     key={t}
                     type="button"
                     onClick={() => setTimeframe(t)}
-                    className={`px-4 py-2 text-sm font-medium transition-colors ${timeframe === t ? "bg-[#dafc69] text-black" : "text-foreground/40 hover:text-foreground/70"}`}
+                    className={`px-4 py-2 text-[13px] font-medium transition-colors ${timeframe === t ? "bg-secondary text-foreground" : "text-text-2 hover:text-foreground"}`}
                   >
                     {t}d
                   </button>
@@ -478,20 +478,20 @@ function ContentResearchContent() {
               <button
                 type="submit"
                 disabled={!channelUrl.trim() || loading}
-                className="h-11 rounded-xl bg-[#dafc69] px-6 text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition shrink-0"
+                className="h-11 rounded-xl btn-accent px-6 text-[13px] font-bold disabled:opacity-40 transition shrink-0"
               >
                 {loading ? "Investigando…" : "Investigar"}
               </button>
             </div>
 
             {error && (
-              <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">{error}</div>
+              <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-[13px] text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">{error}</div>
             )}
           </form>
         </div>
 
         {loading && (
-          <div className="border-t border-foreground/[0.05]">
+          <div className="border-t border-border">
             <AiLoading
               title="Investigando canal de YouTube"
               steps={[

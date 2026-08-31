@@ -31,7 +31,7 @@ function QuestionField({
         onChange={e => onChange(e.target.value)}
         rows={3}
         placeholder={question.placeholder ?? "Escribí tu respuesta..."}
-        className="mt-2 w-full rounded-lg border border-foreground/[0.10] bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/40"
+        className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
       />
     )
   }
@@ -49,11 +49,11 @@ function QuestionField({
               className={cn(
                 "flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-[13px] transition-all",
                 selected
-                  ? "border-[#dafc69]/50 bg-[#dafc69]/[0.08] text-foreground font-semibold"
-                  : "border-foreground/[0.08] text-foreground/70 hover:border-foreground/20",
+                  ? "border-accent bg-secondary text-foreground font-semibold"
+                  : "border-border text-foreground hover:border-border-hover",
               )}
             >
-              {selected ? <CheckCircle2 className="h-4 w-4 text-[#dafc69] shrink-0" /> : <Circle className="h-4 w-4 text-foreground/25 shrink-0" />}
+              {selected ? <CheckCircle2 className="h-4 w-4 text-accent-ink shrink-0" /> : <Circle className="h-4 w-4 text-text-3 shrink-0" />}
               {opt}
             </button>
           )
@@ -79,11 +79,11 @@ function QuestionField({
             className={cn(
               "flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-[13px] transition-all",
               selected
-                ? "border-[#dafc69]/50 bg-[#dafc69]/[0.08] text-foreground font-semibold"
-                : "border-foreground/[0.08] text-foreground/70 hover:border-foreground/20",
+                ? "border-accent bg-secondary text-foreground font-semibold"
+                : "border-border text-foreground hover:border-border-hover",
             )}
           >
-            {selected ? <CheckCircle2 className="h-4 w-4 text-[#dafc69] shrink-0" /> : <Circle className="h-4 w-4 text-foreground/25 shrink-0" />}
+            {selected ? <CheckCircle2 className="h-4 w-4 text-accent-ink shrink-0" /> : <Circle className="h-4 w-4 text-text-3 shrink-0" />}
             {opt}
           </button>
         )
@@ -123,7 +123,7 @@ function SectionCard({
   }
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-5">
+    <div className="rounded-2xl border border-border bg-card p-5">
       <SectionHeader
         icon={Sparkles}
         title={section.title}
@@ -140,7 +140,7 @@ function SectionCard({
       <div className="mt-5 space-y-5">
         {section.questions.map(q => (
           <div key={q.key}>
-            <p className="text-[13px] font-semibold text-foreground/85">{q.label}</p>
+            <p className="text-[13px] font-semibold text-foreground">{q.label}</p>
             <QuestionField
               question={q}
               value={answers[q.key]}
@@ -154,7 +154,7 @@ function SectionCard({
         <button
           onClick={() => handleSave(false)}
           disabled={saving}
-          className="flex h-9 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[12.5px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+          className="flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40"
         >
           {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           Guardar borrador
@@ -162,12 +162,12 @@ function SectionCard({
         <button
           onClick={() => handleSave(true)}
           disabled={saving || !isComplete}
-          className="flex h-9 items-center gap-1.5 rounded-lg bg-[#dafc69] px-3 text-[12.5px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
+          className="flex h-9 items-center gap-1.5 rounded-lg btn-accent px-3 text-[13px] font-bold transition-all disabled:opacity-40"
           title={!isComplete ? "Respondé todas las preguntas para marcar como completo" : undefined}
         >
           Marcar sección como completa
         </button>
-        {savedMsg && <span className="text-[12px] text-emerald-700 dark:text-emerald-400">✓ Guardado</span>}
+        {savedMsg && <span className="text-[13px] text-emerald-700 dark:text-emerald-400">✓ Guardado</span>}
       </div>
     </div>
   )
@@ -217,12 +217,12 @@ export function AdminFounderSurveyView() {
   return (
     <div className="max-w-[820px] mx-auto space-y-6 pb-10">
       <div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">Actualizar Sistema Operativo</h1>
-        <p className="text-sm text-foreground/40 mt-0.5">
+        <h1 className="text-[24px] font-bold text-foreground tracking-tight">Actualizar Sistema Operativo</h1>
+        <p className="text-[13px] text-text-2 mt-0.5">
           Respondé estas preguntas para que todo el sistema de IA (Ann, los asistentes, y lo que se construya después) tenga el contexto real del negocio — sin tener que escribir markdown.
         </p>
         {sections && (
-          <p className="text-[12px] text-foreground/35 mt-2">{completedSections}/{totalSections} secciones completas</p>
+          <p className="text-[13px] text-text-3 mt-2">{completedSections}/{totalSections} secciones completas</p>
         )}
       </div>
 
@@ -230,7 +230,7 @@ export function AdminFounderSurveyView() {
 
       {!sections ? (
         <div className="flex items-center justify-center py-24">
-          <Loader2 className="h-6 w-6 animate-spin text-[#dafc69]/40" />
+          <Loader2 className="h-6 w-6 animate-spin text-accent-ink/40" />
         </div>
       ) : (
         SURVEY_SECTIONS.map(s => (

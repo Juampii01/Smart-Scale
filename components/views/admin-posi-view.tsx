@@ -40,7 +40,7 @@ interface Submission {
   wrong_question_ids?: string[]
 }
 
-const inputCls = "w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none"
+const inputCls = "w-full rounded-lg border border-border bg-secondary px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
 
 const QUESTION_TYPE_OPTIONS: { value: Question["type"]; label: string }[] = [
   { value: "text", label: "Texto libre" },
@@ -258,27 +258,27 @@ export function AdminPosiView() {
   }, {})
 
   if (loading) {
-    return <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-[#dafc69]/40" /></div>
+    return <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-accent-ink/40" /></div>
   }
 
   return (
     <div className="space-y-8 pb-10">
       <div>
         {editingHeader ? (
-          <div className="space-y-2.5 rounded-xl border border-[#dafc69]/25 bg-[#dafc69]/[0.04] p-4 max-w-xl">
+          <div className="space-y-2.5 rounded-xl border border-accent/20 bg-accent-soft p-4 max-w-xl">
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Título</label>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1">Título</label>
               <input className={inputCls} value={headerDraft.title} onChange={(e) => setHeaderDraft((d) => ({ ...d, title: e.target.value }))} />
             </div>
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Subtítulo</label>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1">Subtítulo</label>
               <textarea className={inputCls} rows={2} value={headerDraft.subtitle} onChange={(e) => setHeaderDraft((d) => ({ ...d, subtitle: e.target.value }))} />
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={saveHeader} disabled={headerSaving} className="rounded-lg bg-[#dafc69] px-4 py-1.5 text-[12px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors">
+            <button onClick={saveHeader} disabled={headerSaving} className="rounded-lg btn-accent px-4 py-1.5 text-[13px] font-bold disabled:opacity-50 transition-colors">
                 {headerSaving ? "Guardando…" : "Guardar"}
               </button>
-              <button onClick={() => setEditingHeader(false)} className="rounded-lg px-3 py-1.5 text-[12px] font-semibold text-foreground/50 hover:text-foreground transition-colors">
+              <button onClick={() => setEditingHeader(false)} className="rounded-lg px-3 py-1.5 text-[13px] font-semibold text-text-2 hover:text-foreground transition-colors">
                 Cancelar
               </button>
             </div>
@@ -286,12 +286,12 @@ export function AdminPosiView() {
         ) : (
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h1 className="text-[22px] font-bold text-foreground leading-tight">{pageSettings.title}</h1>
-              <p className="text-[13px] text-foreground/50 mt-0.5 max-w-xl">{pageSettings.subtitle}</p>
+              <h1 className="text-[24px] font-bold text-foreground leading-tight">{pageSettings.title}</h1>
+              <p className="text-[13px] text-text-2 mt-0.5 max-w-xl">{pageSettings.subtitle}</p>
             </div>
             <button
               onClick={startEditHeader}
-              className="flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] px-2.5 py-1 text-[11px] font-semibold text-foreground/50 hover:text-foreground hover:bg-foreground/[0.05] transition-colors shrink-0"
+              className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-[13px] font-semibold text-text-2 hover:text-foreground hover:bg-secondary transition-colors shrink-0"
             >
               <Pencil className="h-3 w-3" /> Editar
             </button>
@@ -301,48 +301,48 @@ export function AdminPosiView() {
 
       <div className="space-y-3">
         {levels.map((level) => (
-          <div key={level.id} className="rounded-2xl border border-foreground/[0.08] bg-card p-5">
+          <div key={level.id} className="rounded-2xl border border-border bg-card p-5">
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-2.5">
-                <ClipboardList className="h-4 w-4 text-foreground/30" />
-                <h3 className="text-[14px] font-bold text-foreground">{level.title}</h3>
-                <span className="text-[11px] text-foreground/35">
+                <ClipboardList className="h-4 w-4 text-text-3" />
+                <h3 className="text-[15px] font-bold text-foreground">{level.title}</h3>
+                <span className="text-[13px] text-text-3">
                   {(submissionsByLevel[level.id] ?? []).length} respuesta{(submissionsByLevel[level.id] ?? []).length !== 1 ? "s" : ""}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => copyLink(level.level_number)}
-                  className="flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] px-2.5 py-1 text-[11px] font-semibold text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-colors"
+                  className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-[13px] font-semibold text-text-2 hover:text-foreground hover:bg-secondary transition-colors"
                 >
                   {copiedLevel === level.level_number ? <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" /> : <Copy className="h-3 w-3" />}
                   {copiedLevel === level.level_number ? "Copiado" : "Copiar link"}
                 </button>
                 <button
                   onClick={() => (editingLevel === level.id ? setEditingLevel(null) : startEdit(level))}
-                  className="flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] px-2.5 py-1 text-[11px] font-semibold text-foreground/50 hover:text-foreground hover:bg-foreground/[0.05] transition-colors"
+                  className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-[13px] font-semibold text-text-2 hover:text-foreground hover:bg-secondary transition-colors"
                 >
                   <Pencil className="h-3 w-3" /> {editingLevel === level.id ? "Cerrar" : "Editar"}
                 </button>
               </div>
             </div>
-            <p className="text-[12px] text-foreground/35 mt-1.5 font-mono">{siteOrigin}/posi/{level.level_number}</p>
+            <p className="text-[13px] text-text-3 mt-1.5 font-mono">{siteOrigin}/posi/{level.level_number}</p>
 
             {editingLevel === level.id && (
-              <div className="mt-4 rounded-2xl border border-[#dafc69]/25 bg-[#dafc69]/[0.035] p-5 space-y-5">
+              <div className="mt-4 rounded-2xl border border-border bg-secondary/20 p-5 space-y-5">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-foreground/45 mb-1.5">Título del nivel</label>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1.5">Título del nivel</label>
                     <input
-                      className="w-full rounded-lg border border-foreground/[0.1] bg-card px-3.5 py-2.5 text-[14px] font-semibold text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:outline-none"
+                      className="w-full rounded-lg border border-border bg-card px-3.5 py-2.5 text-[15px] font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
                       value={editDraft.title}
                       onChange={(e) => setEditDraft((d) => ({ ...d, title: e.target.value }))}
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-foreground/45 mb-1.5">Intro (arriba de las preguntas)</label>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1.5">Intro (arriba de las preguntas)</label>
                     <textarea
-                      className="w-full rounded-lg border border-foreground/[0.1] bg-card px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/50 focus:outline-none resize-y leading-relaxed"
+                      className="w-full rounded-lg border border-border bg-card px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none resize-y leading-relaxed"
                       rows={2}
                       value={editDraft.intro}
                       onChange={(e) => setEditDraft((d) => ({ ...d, intro: e.target.value }))}
@@ -352,23 +352,23 @@ export function AdminPosiView() {
 
                 <div>
                   <div className="flex items-center justify-between mb-2.5">
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-foreground/45">
-                      Preguntas <span className="font-normal normal-case text-foreground/35">({editDraft.questions.length})</span>
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-text-2">
+                      Preguntas <span className="font-normal normal-case text-text-3">({editDraft.questions.length})</span>
                     </label>
                   </div>
 
                   <div className="space-y-2.5">
                     {editDraft.questions.map((q, idx) => (
-                      <div key={q.id} className="rounded-xl border border-foreground/[0.08] bg-card p-3.5">
+                      <div key={q.id} className="rounded-xl border border-border bg-card p-3.5">
                         <div className="flex items-start gap-2.5">
                           <div className="flex flex-col items-center gap-0.5 pt-1.5 shrink-0">
-                            <GripVertical className="h-3.5 w-3.5 text-foreground/20" />
-                            <span className="text-[10px] font-bold text-foreground/30 tabular-nums">{idx + 1}</span>
+                            <GripVertical className="h-3.5 w-3.5 text-text-3" />
+                            <span className="text-[13px] font-bold text-text-3 tabular-nums">{idx + 1}</span>
                           </div>
 
                           <div className="flex-1 min-w-0 space-y-2.5">
                             <input
-                              className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13.5px] font-medium text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none"
+                              className="w-full rounded-lg border border-border bg-elevated px-3 py-2 text-[13px] font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
                               placeholder="Texto de la pregunta…"
                               value={q.label}
                               onChange={(e) => updateQuestion(idx, { label: e.target.value })}
@@ -380,10 +380,10 @@ export function AdminPosiView() {
                                   key={opt.value}
                                   type="button"
                                   onClick={() => setQuestionType(idx, opt.value)}
-                                  className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                                  className={`rounded-full border px-2.5 py-1 text-[13px] font-semibold transition-colors ${
                                     q.type === opt.value
-                                      ? "border-[#dafc69]/60 bg-[#dafc69]/15 text-foreground"
-                                      : "border-foreground/[0.1] text-foreground/50 hover:text-foreground hover:border-foreground/20"
+                                      ? "border-accent bg-secondary text-foreground"
+                                      : "border-border text-text-2 hover:text-foreground hover:border-border-hover"
                                   }`}
                                 >
                                   {opt.label}
@@ -395,7 +395,7 @@ export function AdminPosiView() {
                               <div className="space-y-1.5 pl-1">
                                 {(q.options ?? []).map((opt, oIdx) => (
                                   <div key={oIdx} className="flex items-center gap-1.5">
-                                    <span className="text-[11px] text-foreground/25 w-4 shrink-0 tabular-nums">{oIdx + 1}.</span>
+                                    <span className="text-[13px] text-text-3 w-4 shrink-0 tabular-nums">{oIdx + 1}.</span>
                                     <button
                                       type="button"
                                       onClick={() => setCorrectOption(idx, oIdx)}
@@ -404,13 +404,13 @@ export function AdminPosiView() {
                                       className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors ${
                                         q.correct_index === oIdx
                                           ? "border-emerald-500 bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"
-                                          : "border-foreground/[0.15] text-transparent hover:border-emerald-500/60 hover:text-emerald-600/60 dark:hover:text-emerald-400/50"
+                                          : "border-border text-transparent hover:border-emerald-500/60 hover:text-emerald-600/60 dark:hover:text-emerald-400/50"
                                       }`}
                                     >
                                       <Check className="h-3 w-3" />
                                     </button>
                                     <input
-                                      className="flex-1 rounded-md border border-foreground/[0.08] bg-foreground/[0.02] px-2.5 py-1.5 text-[12.5px] text-foreground placeholder:text-foreground/25 focus:border-[#dafc69]/40 focus:outline-none"
+                                      className="flex-1 rounded-md border border-border bg-secondary px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
                                       placeholder={`Opción ${oIdx + 1}`}
                                       value={opt}
                                       onChange={(e) => updateOption(idx, oIdx, e.target.value)}
@@ -419,7 +419,7 @@ export function AdminPosiView() {
                                       type="button"
                                       onClick={() => removeOption(idx, oIdx)}
                                       disabled={(q.options ?? []).length <= 1}
-                                      className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/30 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 disabled:opacity-30 disabled:pointer-events-none transition-colors shrink-0"
+                                      className="flex h-6 w-6 items-center justify-center rounded-md text-text-3 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 disabled:opacity-30 disabled:pointer-events-none transition-colors shrink-0"
                                       aria-label="Sacar opción"
                                     >
                                       <X className="h-3 w-3" />
@@ -429,11 +429,11 @@ export function AdminPosiView() {
                                 <button
                                   type="button"
                                   onClick={() => addOption(idx)}
-                                  className="inline-flex items-center gap-1 pl-5 text-[11.5px] font-semibold text-foreground/45 hover:text-foreground transition-colors"
+                                  className="inline-flex items-center gap-1 pl-5 text-[13px] font-semibold text-text-2 hover:text-foreground transition-colors"
                                 >
                                   <Plus className="h-3 w-3" /> Agregar opción
                                 </button>
-                                <p className="pl-5 text-[10.5px] text-foreground/30">
+                                <p className="pl-5 text-[13px] text-text-3">
                                   Tocá el círculo para marcar la respuesta correcta (opcional — sin marcar, esta pregunta no cuenta para aprobar el nivel).
                                 </p>
                               </div>
@@ -445,7 +445,7 @@ export function AdminPosiView() {
                               type="button"
                               onClick={() => moveQuestion(idx, -1)}
                               disabled={idx === 0}
-                              className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] disabled:opacity-20 disabled:pointer-events-none transition-colors"
+                              className="flex h-6 w-6 items-center justify-center rounded-md text-text-3 hover:text-foreground hover:bg-secondary disabled:opacity-20 disabled:pointer-events-none transition-colors"
                               aria-label="Subir pregunta"
                             >
                               <ChevronUp className="h-3.5 w-3.5" />
@@ -454,7 +454,7 @@ export function AdminPosiView() {
                               type="button"
                               onClick={() => moveQuestion(idx, 1)}
                               disabled={idx === editDraft.questions.length - 1}
-                              className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] disabled:opacity-20 disabled:pointer-events-none transition-colors"
+                              className="flex h-6 w-6 items-center justify-center rounded-md text-text-3 hover:text-foreground hover:bg-secondary disabled:opacity-20 disabled:pointer-events-none transition-colors"
                               aria-label="Bajar pregunta"
                             >
                               <ChevronDown className="h-3.5 w-3.5" />
@@ -462,7 +462,7 @@ export function AdminPosiView() {
                             <button
                               type="button"
                               onClick={() => removeQuestion(idx)}
-                              className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/30 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-colors mt-1"
+                              className="flex h-6 w-6 items-center justify-center rounded-md text-text-3 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-colors mt-1"
                               aria-label="Borrar pregunta"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
@@ -476,26 +476,26 @@ export function AdminPosiView() {
                   <button
                     type="button"
                     onClick={addQuestion}
-                    className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-foreground/[0.15] py-2.5 text-[12.5px] font-semibold text-foreground/50 hover:text-foreground hover:border-foreground/30 hover:bg-foreground/[0.02] transition-colors"
+                    className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border py-2.5 text-[13px] font-semibold text-text-2 hover:text-foreground hover:border-border-hover hover:bg-secondary transition-colors"
                   >
                     <Plus className="h-3.5 w-3.5" /> Agregar pregunta
                   </button>
                 </div>
 
-                {editError && <p className="text-[12.5px] text-red-700 dark:text-red-400">{editError}</p>}
+                {editError && <p className="text-[13px] text-red-700 dark:text-red-400">{editError}</p>}
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => saveEdit(level)}
                     disabled={savingLevel}
-                    className="flex items-center gap-2 rounded-lg bg-[#dafc69] px-4 py-2 text-[12.5px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors"
+                    className="flex items-center gap-2 rounded-lg btn-accent px-4 py-2 text-[13px] font-bold disabled:opacity-50 transition-colors"
                   >
                     {savingLevel && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                     {savingLevel ? "Guardando…" : "Guardar"}
                   </button>
                   <button
                     onClick={() => setEditingLevel(null)}
-                    className="rounded-lg px-3 py-2 text-[12.5px] font-semibold text-foreground/50 hover:text-foreground transition-colors"
+                    className="rounded-lg px-3 py-2 text-[13px] font-semibold text-text-2 hover:text-foreground transition-colors"
                   >
                     Cancelar
                   </button>
@@ -509,7 +509,7 @@ export function AdminPosiView() {
       <div>
         <SectionHeader icon={ClipboardList} title="Respuestas recibidas" subtitle={`${submissions.length} en total`} className="mb-4" />
         {submissions.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-10 text-center text-sm text-foreground/35">
+          <div className="rounded-2xl border border-dashed border-border bg-secondary px-6 py-10 text-center text-[13px] text-text-3">
             Todavía no llegó ninguna respuesta.
           </div>
         ) : (
@@ -519,42 +519,42 @@ export function AdminPosiView() {
               const isExpanded = expandedSubmission === s.id
               const score = computeScore(level, s.answers)
               return (
-                <div key={s.id} className="rounded-xl border border-foreground/[0.08] bg-card overflow-hidden">
+                <div key={s.id} className="rounded-xl border border-border bg-card overflow-hidden">
                   <button
                     onClick={() => setExpandedSubmission(isExpanded ? null : s.id)}
-                    className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-foreground/[0.02] transition-colors"
+                    className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-secondary transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-[13px] font-semibold text-foreground/85">{s.client_name}</span>
-                      <span className="text-[12px] text-foreground/45">{level?.title ?? "—"}</span>
+                      <span className="text-[13px] font-semibold text-foreground">{s.client_name}</span>
+                      <span className="text-[13px] text-text-2">{level?.title ?? "—"}</span>
                       {s.passed === true && (
-                        <span className="rounded-full bg-emerald-100 dark:bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700 dark:text-emerald-400">Aprobado</span>
+                        <span className="rounded-full bg-emerald-100 dark:bg-emerald-500/10 px-2 py-0.5 text-[13px] font-bold text-emerald-700 dark:text-emerald-400">Aprobado</span>
                       )}
                       {s.passed === false && (
-                        <span className="rounded-full bg-red-100 dark:bg-red-500/10 px-2 py-0.5 text-[10.5px] font-bold text-red-700 dark:text-red-400">No aprobado</span>
+                        <span className="rounded-full bg-red-100 dark:bg-red-500/10 px-2 py-0.5 text-[13px] font-bold text-red-700 dark:text-red-400">No aprobado</span>
                       )}
                     </div>
                     <div className="flex items-center gap-3">
                       {score && (
-                        <span className={`text-[11px] font-semibold ${score.correct === score.total ? "text-emerald-700 dark:text-emerald-400" : "text-foreground/45"}`}>
+                        <span className={`text-[13px] font-semibold ${score.correct === score.total ? "text-emerald-700 dark:text-emerald-400" : "text-text-2"}`}>
                           {score.correct}/{score.total} correctas
                         </span>
                       )}
-                      <span className="text-[11px] text-foreground/35">{new Date(s.submitted_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}</span>
-                      {isExpanded ? <ChevronUp className="h-3.5 w-3.5 text-foreground/30" /> : <ChevronDown className="h-3.5 w-3.5 text-foreground/30" />}
+                      <span className="text-[13px] text-text-3">{new Date(s.submitted_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}</span>
+                      {isExpanded ? <ChevronUp className="h-3.5 w-3.5 text-text-3" /> : <ChevronDown className="h-3.5 w-3.5 text-text-3" />}
                     </div>
                   </button>
                   {isExpanded && level && (
-                    <div className="px-4 pb-4 space-y-3 border-t border-foreground/[0.06] pt-3">
+                    <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
                       {level.questions.map((q) => {
                         const isWrong = (s.wrong_question_ids ?? []).includes(q.id)
                         return (
                           <div key={q.id}>
-                            <p className="flex items-center gap-1.5 text-[12px] font-semibold text-foreground/60">
+                            <p className="flex items-center gap-1.5 text-[13px] font-semibold text-text-2">
                               {q.label}
                               {isWrong && <span className="text-red-700 dark:text-red-400">✕ incorrecta</span>}
                             </p>
-                            <p className={`text-[13px] mt-0.5 ${isWrong ? "text-red-700 dark:text-red-400" : "text-foreground/85"}`}>
+                            <p className={`text-[13px] mt-0.5 ${isWrong ? "text-red-700 dark:text-red-400" : "text-foreground"}`}>
                               {formatAnswer(q, s.answers[q.id])}
                             </p>
                           </div>

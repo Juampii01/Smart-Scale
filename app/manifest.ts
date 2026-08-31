@@ -9,6 +9,8 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     orientation: "portrait",
     background_color: "#0a0a0b",
+    // Excluido a propósito del grep de #dafc69 del rediseño: el manifest de
+    // PWA no acepta var(), tiene que ser un hex literal.
     theme_color: "#dafc69",
     icons: [
       { src: "/smartscale-icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },

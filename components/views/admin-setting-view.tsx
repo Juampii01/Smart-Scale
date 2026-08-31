@@ -134,7 +134,7 @@ function EditableCell({
   if (saving) {
     return (
       <td className="whitespace-nowrap px-3 py-2.5 text-center">
-        <Loader2 className="inline h-3 w-3 animate-spin text-[#dafc69]/40" />
+        <Loader2 className="inline h-3 w-3 animate-spin text-accent-ink/40" />
       </td>
     )
   }
@@ -152,7 +152,7 @@ function EditableCell({
             if (e.key === "Enter") save()
             if (e.key === "Escape") cancel()
           }}
-          className="w-16 rounded-lg border border-[#dafc69]/40 bg-[#dafc69]/[0.07] px-2 py-1.5 text-center text-[12px] text-foreground focus:outline-none focus:ring-1 focus:ring-[#dafc69]/60"
+          className="w-16 rounded-lg border border-border bg-secondary px-2 py-1.5 text-center text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
         />
       </td>
     )
@@ -162,9 +162,9 @@ function EditableCell({
     <td
       onClick={e => { e.stopPropagation(); startEdit() }}
       title="Click para editar"
-      className="group cursor-pointer whitespace-nowrap px-3 py-2.5 text-center transition-colors hover:bg-foreground/[0.04]"
+      className="group cursor-pointer whitespace-nowrap px-3 py-2.5 text-center transition-colors hover:bg-secondary"
     >
-      <span className={`text-[13px] tabular-nums group-hover:text-foreground transition-colors font-medium ${value != null ? "text-foreground/80" : "text-foreground/20"}`}>
+      <span className={`text-[13px] tabular-nums group-hover:text-foreground transition-colors font-medium ${value != null ? "text-foreground" : "text-text-3"}`}>
         {value != null ? String(value) : "—"}
       </span>
     </td>
@@ -326,40 +326,40 @@ export function AdminSettingView() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Setting CRM</h1>
-          <p className="text-sm text-foreground/40 mt-0.5">Métricas diarias de setter · click en celdas para editar</p>
+          <h1 className="text-[24px] font-bold text-foreground tracking-tight">Setting CRM</h1>
+          <p className="text-[13px] text-text-2 mt-0.5">Métricas diarias de setter · click en celdas para editar</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Selector de mes — ocupa toda la fila en mobile */}
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            <button onClick={() => changMonth(-1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes anterior">
+            <button onClick={() => changMonth(-1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-border hover:bg-secondary transition-colors" title="Mes anterior">
               <ChevronLeft className="h-4 w-4" />
             </button>
 
-            <div className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-foreground/10 min-w-0 sm:min-w-[220px] text-center">
-              <span className="text-sm font-bold text-foreground">{monthLabel(month)}</span>
+            <div className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-border min-w-0 sm:min-w-[220px] text-center">
+              <span className="text-[13px] font-bold text-foreground">{monthLabel(month)}</span>
             </div>
 
-            <button onClick={() => changMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
+            <button onClick={() => changMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-border hover:bg-secondary transition-colors" title="Mes siguiente">
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
 
           {/* Acciones */}
           <div className="flex items-center gap-2">
-            <button onClick={() => loadLogs(month)} disabled={loading} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors disabled:opacity-40" title="Recargar">
+            <button onClick={() => loadLogs(month)} disabled={loading} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-border hover:bg-secondary transition-colors disabled:opacity-40" title="Recargar">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
 
-            <button onClick={exportCsv} className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg border border-foreground/10 hover:bg-foreground/5 text-sm font-medium transition-colors" title="Descargar CSV">
+            <button onClick={exportCsv} className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg border border-border hover:bg-secondary text-[13px] font-medium transition-colors" title="Descargar CSV">
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
 
             <button
               onClick={() => setEodOpen(true)}
-              className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg bg-[#dafc69] hover:bg-[#f2ffc0] text-black text-sm font-bold transition-colors"
+              className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg btn-accent text-[13px] font-bold transition-colors"
               title="Cargar datos diarios"
             >
               <PlusCircle className="h-3.5 w-3.5" />
@@ -394,7 +394,7 @@ export function AdminSettingView() {
 
       {loading ? (
         <div className="flex items-center justify-center py-24">
-          <Loader2 className="h-6 w-6 animate-spin text-[#dafc69]/40" />
+          <Loader2 className="h-6 w-6 animate-spin text-accent-ink/40" />
         </div>
       ) : (
         <>
@@ -438,7 +438,7 @@ export function AdminSettingView() {
               icon={Table2}
               title="CRM Diario"
               action={
-                <span className="text-[10px] text-foreground/40">
+                <span className="text-[13px] text-text-2">
                   {logs.length} {logs.length === 1 ? "registro" : "registros"}
                 </span>
               }
@@ -446,8 +446,8 @@ export function AdminSettingView() {
             />
 
             {logs.length === 0 ? (
-              <div className="rounded-[14px] border border-foreground/10 py-12 text-center">
-                <p className="text-sm text-foreground/40">Sin registros cargados para este mes</p>
+              <div className="rounded-[14px] border border-border py-12 text-center">
+                <p className="text-[13px] text-text-2">Sin registros cargados para este mes</p>
               </div>
             ) : (
               <>
@@ -458,17 +458,17 @@ export function AdminSettingView() {
                     key={log.id}
                     type="button"
                     onClick={() => setEditingLog(log)}
-                    className="w-full text-left rounded-[14px] border border-foreground/10 bg-card p-4 transition-colors hover:bg-foreground/[0.03] active:scale-[0.99]"
+                    className="w-full text-left rounded-[14px] border border-border bg-card p-4 transition-colors hover:bg-secondary active:scale-[0.99]"
                   >
                     <div className="mb-3 flex items-center justify-between gap-2">
                       <span className="text-[13px] font-semibold text-foreground">{dateLabel(log.date)}</span>
-                      <span className="truncate text-[12px] text-foreground/55">{log.setter_name || "—"}</span>
+                      <span className="truncate text-[13px] text-text-2">{log.setter_name || "—"}</span>
                     </div>
                     <div className="grid grid-cols-3 gap-2">
                       {COLUMNS.map(col => (
-                        <div key={col.key} className="rounded-lg border border-foreground/[0.06] bg-foreground/[0.02] px-2.5 py-2">
-                          <p className="truncate text-[9px] font-bold uppercase tracking-wider text-foreground/35" title={col.label}>{col.short}</p>
-                          <p className="mt-0.5 text-[15px] font-bold tabular-nums text-foreground/85">
+                        <div key={col.key} className="rounded-lg border border-border bg-elevated px-2.5 py-2">
+                          <p className="truncate text-[11px] font-bold uppercase tracking-wider text-text-3" title={col.label}>{col.short}</p>
+                          <p className="mt-0.5 text-[15px] font-bold tabular-nums text-foreground">
                             {log[col.key] != null ? log[col.key] : "—"}
                           </p>
                         </div>
@@ -478,12 +478,12 @@ export function AdminSettingView() {
                 ))}
 
                 {/* Total del mes */}
-                <div className="rounded-[14px] border-2 border-[#dafc69]/30 bg-foreground/[0.04] p-4">
-                  <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-foreground/60">Total del mes</p>
+                <div className="rounded-[14px] border-2 border-accent/40 bg-secondary p-4">
+                  <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-text-2">Total del mes</p>
                   <div className="grid grid-cols-3 gap-2">
                     {COLUMNS.map(col => (
-                      <div key={`m-total-${col.key}`} className="rounded-lg bg-foreground/[0.03] px-2.5 py-2">
-                        <p className="truncate text-[9px] font-bold uppercase tracking-wider text-foreground/35" title={col.label}>{col.short}</p>
+                      <div key={`m-total-${col.key}`} className="rounded-lg bg-elevated px-2.5 py-2">
+                        <p className="truncate text-[11px] font-bold uppercase tracking-wider text-text-3" title={col.label}>{col.short}</p>
                         <p className="mt-0.5 text-[15px] font-bold tabular-nums text-foreground">{monthTotals[col.key]}</p>
                       </div>
                     ))}
@@ -492,21 +492,21 @@ export function AdminSettingView() {
               </div>
 
               {/* Desktop: tabla completa */}
-              <div className="hidden md:block overflow-hidden rounded-[14px] border border-foreground/10 bg-card">
+              <div className="hidden md:block overflow-hidden rounded-[14px] border border-border bg-card">
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead>
-                      <tr className="border-b border-foreground/10 bg-foreground/[0.02]">
-                        <th className="sticky left-0 z-10 bg-foreground/[0.02] px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/50 min-w-[140px]">
+                      <tr className="border-b border-border bg-elevated">
+                        <th className="sticky left-0 z-10 bg-elevated px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-text-2 min-w-[140px]">
                           Fecha
                         </th>
-                        <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/50 min-w-[100px]">
+                        <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-text-2 min-w-[100px]">
                           Setter
                         </th>
                         {COLUMNS.map(col => (
                           <th
                             key={col.key}
-                            className="px-3 py-3 text-center text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/50 min-w-[80px]"
+                            className="px-3 py-3 text-center text-[11px] font-bold uppercase tracking-[0.12em] text-text-2 min-w-[80px]"
                             title={col.label}
                           >
                             {col.short}
@@ -516,11 +516,11 @@ export function AdminSettingView() {
                     </thead>
                     <tbody>
                       {logs.map(log => (
-                        <tr key={log.id} onClick={() => setEditingLog(log)} className="border-b border-foreground/[0.04] hover:bg-foreground/[0.04] cursor-pointer transition-colors group">
-                          <td className="sticky left-0 z-10 bg-card group-hover:bg-foreground/[0.04] px-4 py-2.5 font-medium text-[12px] text-foreground/80">
+                        <tr key={log.id} onClick={() => setEditingLog(log)} className="border-b border-border hover:bg-secondary cursor-pointer transition-colors group">
+                          <td className="sticky left-0 z-10 bg-card group-hover:bg-secondary px-4 py-2.5 font-medium text-[13px] text-foreground">
                             {dateLabel(log.date)}
                           </td>
-                          <td className="px-4 py-2.5 text-[12px] text-foreground/70">
+                          <td className="px-4 py-2.5 text-[13px] text-foreground">
                             {log.setter_name || "—"}
                           </td>
                           {COLUMNS.map(col => (
@@ -536,8 +536,8 @@ export function AdminSettingView() {
                       ))}
 
                       {/* Fila de totales */}
-                      <tr className="border-t-2 border-[#dafc69]/30 bg-foreground/[0.05] font-bold">
-                        <td className="sticky left-0 z-10 bg-foreground/[0.05] px-4 py-3 text-[12px] uppercase tracking-wide text-foreground/70">
+                      <tr className="border-t-2 border-accent/40 bg-secondary font-bold">
+                        <td className="sticky left-0 z-10 bg-elevated px-4 py-3 text-[13px] uppercase tracking-wide text-foreground">
                           Total
                         </td>
                         <td className="px-4 py-3" />

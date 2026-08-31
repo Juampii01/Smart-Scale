@@ -76,22 +76,22 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
 
   return (
     <div className={`group relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-200 ${
-      isTop ? "border-[#dafc69]/30 shadow-[0_0_20px_rgba(255,222,33,0.05)]" : "border-foreground/[0.07]"
+      isTop ? "border-accent shadow-[0_0_20px_rgba(255,222,33,0.05)]" : "border-border"
     } bg-card`}>
 
       {isTop && (
-        <div className="absolute top-2.5 left-2.5 z-10 rounded-lg bg-[#dafc69] px-2 py-0.5 text-[10px] font-bold text-black shadow-sm">
+        <div className="absolute top-2.5 left-2.5 z-10 rounded-lg bg-accent px-2 py-0.5 text-[13px] font-bold text-black shadow-sm">
           {mult.toFixed(1)}x
         </div>
       )}
 
       <div className="absolute top-2.5 right-2.5 z-10 rounded-lg bg-black/50 p-1 backdrop-blur-sm">
-        {isVideo ? <Play className="h-3 w-3 text-foreground/70" /> : <ImageIcon className="h-3 w-3 text-foreground/50" />}
+        {isVideo ? <Play className="h-3 w-3 text-foreground" /> : <ImageIcon className="h-3 w-3 text-text-2" />}
       </div>
 
       {/* Thumbnail — portrait 9:16 */}
       <a href={post.post_url} target="_blank" rel="noopener noreferrer"
-        className="block relative overflow-hidden bg-foreground/[0.04]" style={{ aspectRatio: "9/16" }}>
+        className="block relative overflow-hidden bg-secondary" style={{ aspectRatio: "9/16" }}>
         {post.thumbnail && !thumbError
           ? <img
               src={`/api/proxy-image?url=${encodeURIComponent(post.thumbnail)}`}
@@ -100,15 +100,15 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           : <div className="flex h-full items-center justify-center">
-              <Film className="h-8 w-8 text-foreground/10" />
+              <Film className="h-8 w-8 text-text-3" />
             </div>}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between px-2.5 pb-2">
-          <span className="flex items-center gap-1 text-[11px] font-semibold text-foreground">
+          <span className="flex items-center gap-1 text-[13px] font-semibold text-foreground">
             <Eye className="h-3 w-3 opacity-70" />{post.views > 0 ? fmt(post.views) : "—"}
           </span>
           {post.duration && (
-            <span className="rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-foreground tabular-nums">
+            <span className="rounded-md bg-black/60 px-1.5 py-0.5 text-[13px] font-semibold text-foreground tabular-nums">
               {post.duration}
             </span>
           )}
@@ -117,27 +117,27 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
 
       {/* Info */}
       <div className="flex flex-col flex-1 p-3">
-        <p className="text-xs font-medium text-foreground/80 leading-snug line-clamp-2 mb-2">{post.title}</p>
+        <p className="text-[13px] font-medium text-foreground leading-snug line-clamp-2 mb-2">{post.title}</p>
 
-        <div className="flex items-center gap-2.5 text-foreground/35 mb-2">
-          <span className="flex items-center gap-0.5 text-[10px]"><ThumbsUp className="h-2.5 w-2.5" />{fmt(post.likes)}</span>
-          <span className="flex items-center gap-0.5 text-[10px]"><MessageCircle className="h-2.5 w-2.5" />{fmt(post.comments)}</span>
-          {post.published_at && <span className="text-[10px] ml-auto">{timeAgo(post.published_at)}</span>}
+        <div className="flex items-center gap-2.5 text-text-3 mb-2">
+          <span className="flex items-center gap-0.5 text-[13px]"><ThumbsUp className="h-2.5 w-2.5" />{fmt(post.likes)}</span>
+          <span className="flex items-center gap-0.5 text-[13px]"><MessageCircle className="h-2.5 w-2.5" />{fmt(post.comments)}</span>
+          {post.published_at && <span className="text-[13px] ml-auto">{timeAgo(post.published_at)}</span>}
         </div>
 
         {post.analysis && (
-          <div className="border-t border-foreground/[0.05] pt-2 mt-auto">
+          <div className="border-t border-border pt-2 mt-auto">
             <button onClick={() => setExpanded(v => !v)} className="flex w-full items-center gap-1.5 text-left">
-              <Sparkles className="h-2.5 w-2.5 text-[#dafc69]/50" />
-              <span className="text-[9px] font-semibold uppercase tracking-widest text-[#dafc69]/50 flex-1">Análisis IA</span>
-              {expanded ? <ChevronUp className="h-3 w-3 text-foreground/20" /> : <ChevronDown className="h-3 w-3 text-foreground/20" />}
+              <Sparkles className="h-2.5 w-2.5 text-accent-ink/50" />
+              <span className="text-[11px] font-semibold uppercase tracking-widest text-accent-ink/50 flex-1">Análisis IA</span>
+              {expanded ? <ChevronUp className="h-3 w-3 text-text-3" /> : <ChevronDown className="h-3 w-3 text-text-3" />}
             </button>
             {expanded && (
               <div className="mt-2 space-y-2">
-                <p className="text-[10px] text-foreground/55 leading-relaxed">{post.analysis}</p>
+                <p className="text-[13px] text-text-2 leading-relaxed">{post.analysis}</p>
                 <button
                   onClick={() => { navigator.clipboard.writeText(post.analysis!); setCopied(true); setTimeout(() => setCopied(false), 1500) }}
-                  className="inline-flex items-center gap-1 text-[9px] text-foreground/25 hover:text-foreground/50 transition-colors"
+                  className="inline-flex items-center gap-1 text-[11px] text-text-3 hover:text-text-2 transition-colors"
                 >
                   {copied ? <Check className="h-2.5 w-2.5 text-emerald-700 dark:text-emerald-400" /> : <Copy className="h-2.5 w-2.5" />}
                   Copiar análisis
@@ -194,12 +194,12 @@ function ConnectForm({ onConnect, clientId }: { onConnect: (account: Account) =>
             <Instagram className="h-7 w-7 text-pink-400" />
           </div>
         </div>
-        <h2 className="text-xl font-bold text-foreground text-center mb-1">Conectá tu Instagram</h2>
-        <p className="text-sm text-foreground/40 text-center mb-8">
+        <h2 className="text-[24px] font-bold text-foreground text-center mb-1">Conectá tu Instagram</h2>
+        <p className="text-[13px] text-text-2 text-center mb-8">
           Ingresá la URL de tu perfil para ver tus mejores posts de los últimos 30 días con análisis IA.
         </p>
 
-        <div className="rounded-2xl border border-foreground/[0.08] bg-card overflow-hidden">
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
           <div className="h-[2px] w-full bg-gradient-to-r from-pink-500/0 via-pink-500/40 to-pink-500/0" />
           <div className="p-6 space-y-4">
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -212,24 +212,24 @@ function ConnectForm({ onConnect, clientId }: { onConnect: (account: Account) =>
                   value={url}
                   onChange={e => { setUrl(e.target.value); setError(null) }}
                   placeholder="https://instagram.com/tuperfil/"
-                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-background pl-10 pr-4 text-sm text-foreground placeholder:text-foreground/20 focus:border-pink-500/40 focus:outline-none focus:ring-1 focus:ring-pink-500/15 transition-all"
+                  className="h-11 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-pink-500/40 focus:outline-none focus:ring-1 focus:ring-pink-500/15 transition-all"
                   disabled={loading}
                 />
               </div>
               <button
                 type="submit"
                 disabled={!url.trim() || loading}
-                className="h-11 w-full rounded-xl bg-[#dafc69] text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition"
+                className="h-11 w-full rounded-xl btn-accent text-[13px] font-bold disabled:opacity-40 transition"
               >
                 {loading ? "Cargando tu perfil…" : "Conectar Instagram"}
               </button>
             </form>
             {error && (
-              <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">{error}</div>
+              <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-[13px] text-red-700 dark:text-red-300">{error}</div>
             )}
           </div>
           {loading && (
-            <div className="border-t border-foreground/[0.05]">
+            <div className="border-t border-border">
               <AiLoading
                 title="Obteniendo tus publicaciones"
                 steps={["Conectando con Instagram…", "Obteniendo publicaciones…", "Calculando métricas…", "Generando análisis IA…", "Casi listo…"]}
@@ -278,16 +278,16 @@ function FeedView({ account, onRefresh }: {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-foreground">@{account.channel_name}</span>
+            <span className="text-[13px] font-semibold text-foreground">@{account.channel_name}</span>
             <a href={account.channel_url} target="_blank" rel="noopener noreferrer"
-              className="text-foreground/25 hover:text-[#dafc69] transition-colors">
+              className="text-text-3 hover:text-accent-ink transition-colors">
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
-          <p className="text-[11px] text-foreground/30 mt-0.5">
+          <p className="text-[13px] text-text-3 mt-0.5">
             {account.posts.length} posts · últimos 30 días · Actualizado {timeAgo(account.updated_at)}
             {lastNew !== null && (
-              <span className={`ml-2 font-medium ${lastNew > 0 ? "text-emerald-700 dark:text-emerald-400" : "text-foreground/25"}`}>
+              <span className={`ml-2 font-medium ${lastNew > 0 ? "text-emerald-700 dark:text-emerald-400" : "text-text-3"}`}>
                 {lastNew > 0 ? `+${lastNew} nuevo${lastNew > 1 ? "s" : ""}` : "Sin posts nuevos"}
               </span>
             )}
@@ -298,7 +298,7 @@ function FeedView({ account, onRefresh }: {
             onClick={handleRefresh}
             disabled={refreshing}
             title="Actualizar — solo procesa posts nuevos"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.07] text-foreground/30 hover:border-foreground/20 hover:text-foreground/60 transition-all disabled:opacity-40"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-text-3 hover:border-border-hover hover:text-text-2 transition-all disabled:opacity-40"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
           </button>
@@ -309,15 +309,15 @@ function FeedView({ account, onRefresh }: {
       <div className="flex items-center gap-2">
         {(["all", "top"] as Filter[]).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`h-8 rounded-lg px-4 text-xs font-semibold transition-all ${
+            className={`h-8 rounded-lg px-4 text-[13px] font-semibold transition-all ${
               filter === f
-                ? "bg-[#dafc69] text-black"
-                : "border border-foreground/[0.07] bg-foreground/[0.03] text-foreground/40 hover:text-foreground/70"
+                ? "bg-secondary text-foreground"
+                : "border border-border bg-elevated text-text-2 hover:text-foreground"
             }`}>
             {f === "all" ? "Todos" : "Top Performing"}
           </button>
         ))}
-        <span className="ml-auto text-[11px] text-foreground/25">{filtered.length} publicaciones</span>
+        <span className="ml-auto text-[13px] text-text-3">{filtered.length} publicaciones</span>
       </div>
 
       {/* Grid — portrait 9:16 */}
@@ -327,8 +327,8 @@ function FeedView({ account, onRefresh }: {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
-          <p className="text-sm text-foreground/30">No hay publicaciones que superen el umbral.</p>
-          <button onClick={() => setFilter("all")} className="text-xs text-[#dafc69]/60 hover:text-[#dafc69] transition-colors">
+          <p className="text-[13px] text-text-3">No hay publicaciones que superen el umbral.</p>
+          <button onClick={() => setFilter("all")} className="text-[13px] text-accent-ink/60 hover:text-accent-ink transition-colors">
             Ver todas →
           </button>
         </div>
@@ -387,7 +387,7 @@ function VideoFeedContent() {
   if (loadingAccount) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-foreground/10 border-t-white/50" />
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-white/50" />
       </div>
     )
   }
@@ -396,11 +396,11 @@ function VideoFeedContent() {
     <div className="px-4 py-10 max-w-7xl mx-auto space-y-6">
       {/* Banner si admin está viendo otro cliente */}
       {isViewingOther && (
-        <div className="flex items-start gap-3 rounded-2xl border border-[#dafc69]/25 bg-[#dafc69]/[0.05] px-4 py-3">
-          <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 rounded-2xl border border-accent/20 bg-accent-soft px-4 py-3">
+          <Eye className="h-4 w-4 text-accent-ink flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Viendo otro cliente</p>
-            <p className="text-[13px] text-foreground/75 mt-0.5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent-ink/80">Viendo otro cliente</p>
+            <p className="text-[13px] text-foreground mt-0.5">
               Estás viendo el video feed de <span className="font-semibold text-foreground">{activeName ?? "(sin nombre)"}</span>. Cualquier conexión o refresh se guarda en su cuenta.
             </p>
           </div>

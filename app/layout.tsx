@@ -1,16 +1,10 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono, Instrument_Serif, Inter, Inter_Tight } from "next/font/google"
+import { Geist_Mono, Inter, Inter_Tight } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import { PwaRegister } from "@/components/pwa-register"
 import "./globals.css"
-
-const geistSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist-sans",
-  display: "swap",
-})
 
 // Fuente principal del UI — manual de marca Smart Scale (Inter / Inter Tight).
 const inter = Inter({
@@ -31,14 +25,6 @@ const interTight = Inter_Tight({
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
-  display: "swap",
-})
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: ["400"],
-  style: ["normal", "italic"],
-  variable: "--font-instrument-serif",
   display: "swap",
 })
 
@@ -76,7 +62,13 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#dafc69",
+  // Excluido a propósito del grep de #dafc69 del rediseño: es el color de
+  // la barra del navegador (meta tag), no acepta var(). El split por media
+  // query ya resuelve dark/light — no hace falta un token acá.
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)",  color: "#dafc69" },
+    { media: "(prefers-color-scheme: light)", color: "#4c6606" },
+  ],
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -91,7 +83,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${interTight.variable} ${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable}`}
+      className={`${inter.variable} ${interTight.variable} ${geistMono.variable}`}
     >
       <body className={`font-sans antialiased`}>
         <ThemeProvider>

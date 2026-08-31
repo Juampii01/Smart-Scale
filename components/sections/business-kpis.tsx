@@ -56,12 +56,12 @@ function fmtNumber(v: any) {
 // ─── KPI definitions ──────────────────────────────────────────────────────────
 
 const KPI_DEFS = [
-  { key: "cash_collected",  label: "Cash Collected",      money: true,  icon: Wallet,     color: "#dafc69" },
-  { key: "total_revenue",   label: "Total Revenue",        money: true,  icon: DollarSign, color: "#fb923c" },
-  { key: "mrr",             label: "MRR",                  money: true,  icon: Repeat,     color: "#60a5fa" },
-  { key: "ad_spend",        label: "Gasto Publicitario",   money: true,  icon: Megaphone,  color: "#ef4444" },
-  { key: "short_followers", label: "Seguidores Instagram", money: false, icon: Users,      color: "#818cf8" },
-  { key: "new_clients",     label: "Nuevos Clientes",      money: false, icon: UserPlus,   color: "#4ade80" },
+  { key: "cash_collected",  label: "Cash Collected",      money: true,  icon: Wallet,     color: "var(--accent-ink)" },
+  { key: "total_revenue",   label: "Total Revenue",        money: true,  icon: DollarSign, color: "var(--series-1)" },
+  { key: "mrr",             label: "MRR",                  money: true,  icon: Repeat,     color: "var(--series-2)" },
+  { key: "ad_spend",        label: "Gasto Publicitario",   money: true,  icon: Megaphone,  color: "var(--series-3)" },
+  { key: "short_followers", label: "Seguidores Instagram", money: false, icon: Users,      color: "var(--series-4)" },
+  { key: "new_clients",     label: "Nuevos Clientes",      money: false, icon: UserPlus,   color: "var(--series-5)" },
 ]
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -131,16 +131,16 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
       {/* Section header */}
       <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-xl font-bold text-foreground">Performance</h2>
-          <p className="text-[13px] text-foreground/40 mt-0.5">Key metrics for the selected month</p>
+          <h2 className="text-[24px] font-bold text-foreground">Performance</h2>
+          <p className="text-[13px] text-text-2 mt-0.5">Key metrics for the selected month</p>
         </div>
         {current && previous && (
-          <div className="flex items-center gap-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-2">
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+          <div className="flex items-center gap-2 rounded-xl border border-border bg-secondary px-3.5 py-2">
+            <span className="flex items-center gap-1.5 text-[13px] font-semibold text-emerald-700 dark:text-emerald-400">
               <TrendingUp className="h-3.5 w-3.5" />{upCount} up
             </span>
-            <span className="h-3 w-px bg-foreground/15" />
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-red-700 dark:text-red-400">
+            <span className="h-3 w-px bg-elevated" />
+            <span className="flex items-center gap-1.5 text-[13px] font-semibold text-red-700 dark:text-red-400">
               <TrendingDown className="h-3.5 w-3.5" />{downCount} down
             </span>
           </div>
@@ -148,15 +148,15 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
       </div>
 
       {!current && !showSkeleton && (
-        <div className="mb-6 flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-12 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
-            <BarChart3 className="h-5 w-5 text-foreground/20" />
+        <div className="mb-6 flex flex-col items-center gap-3 rounded-2xl border border-border bg-card py-12 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-elevated">
+            <BarChart3 className="h-5 w-5 text-text-3" />
           </div>
-          <p className="text-sm text-foreground/40">
+          <p className="text-[13px] text-text-2">
             {isOwn ? "No hay reporte cargado para este mes." : "Este cliente no tiene reporte para este mes."}
           </p>
           {isOwn && (
-            <Link href="/report-input" className="text-sm font-medium text-[#dafc69] transition-colors hover:text-[#f2ffc0]">
+            <Link href="/report-input" className="text-[13px] font-medium text-accent-ink transition-colors hover:text-accent-hover">
               Cargar reporte mensual →
             </Link>
           )}
@@ -175,23 +175,23 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
           return (
             <div
               key={kpi.key}
-              className="group relative flex flex-col overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card transition-all duration-200 hover:border-foreground/[0.12] hover:bg-card"
+              className="group relative flex flex-col overflow-hidden rounded-[14px] border border-border bg-card transition-all duration-200 hover:border-border hover:bg-card"
             >
               <div className="flex-1 p-6 pb-3">
                 {/* Icon + delta */}
                 <div className="mb-5 flex items-start justify-between">
                   <div
                     className="flex h-10 w-10 items-center justify-center rounded-xl ring-1"
-                    style={{ backgroundColor: `${kpi.color}15`, boxShadow: `0 0 0 1px ${kpi.color}25` }}
+                    style={{ backgroundColor: `color-mix(in srgb, ${kpi.color} 15%, transparent)`, boxShadow: `0 0 0 1px color-mix(in srgb, ${kpi.color} 25%, transparent)` }}
                   >
                     <kpi.icon className="h-5 w-5" style={{ color: kpi.color }} />
                   </div>
 
                   {current && previous && delta.diff !== null && (
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[13px] font-bold ${
                       isUp   ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/20"
                       : isDown ? "bg-red-100 text-red-800 ring-1 ring-red-400 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/20"
-                      :           "bg-foreground/5 text-foreground/40 ring-1 ring-foreground/10"
+                      :           "bg-secondary text-text-2 ring-1 ring-border"
                     }`}>
                       {isUp   && <TrendingUp   className="h-3 w-3" />}
                       {isDown && <TrendingDown className="h-3 w-3" />}
@@ -208,7 +208,7 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
                 </p>
 
                 {/* Label */}
-                <p className="mt-2 text-[13px] text-foreground/50">{kpi.label}</p>
+                <p className="mt-2 text-[13px] text-text-2">{kpi.label}</p>
 
                 {/* Previous */}
                 {previous && rawVal !== null && (() => {
@@ -216,7 +216,7 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
                   if (prev == null) return null
                   const fmted = kpi.money ? fmtMoney(prev) : fmtNumber(prev)
                   return (
-                    <p className="mt-1 text-[11px] text-foreground/25">
+                    <p className="mt-1 text-[13px] text-text-3">
                       vs {fmted} mes anterior
                     </p>
                   )

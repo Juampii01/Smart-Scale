@@ -51,13 +51,44 @@
   --surface:       #ffffff;
   --elevated:      #fafaf6;
   --text-2:        rgba(23, 28, 16, 0.62);
-  --text-3:        rgba(23, 28, 16, 0.42);
+  /* Subido de 0.42 a 0.60 (decisión de Juampi, paso 2-verificación):
+     0.42 daba ~2.6:1 sobre blanco, muy por debajo de AA. 0.60 llega a
+     ~4.5:1 — cálculo manual, conviene chequear con un medidor real
+     sobre el deploy antes de darlo por cerrado. */
+  --text-3:        rgba(23, 28, 16, 0.60);
   --border-hover:  rgba(23, 28, 16, 0.16);
+  --elev-card:     0 1px 2px rgba(15, 18, 25, 0.05), 0 6px 20px -10px rgba(15, 18, 25, 0.10);
   --accent-hover:  #a4cc3d;
   --accent-soft:   #eaf0da;
   --on-accent:     #0a0a0a;   /* texto SIEMPRE tinta oscura sobre el relleno */
+  /* Tinta de acento para LÍNEAS/TEXTO fuera de clases Tailwind (props de SVG,
+     Recharts stroke/fill inline) — el lima puro no cumple contraste sobre
+     "Papel". En dark coincide con --accent. Ver nota de globals.css §LIGHT MODE. */
+  --accent-ink:    #4c6606;
   --success:       #0f8a6b;  --success-soft: #d9f2ea;
   --danger:        #c0492b;  --danger-soft:  #fbe6df;
+  --warn:          #9a6407;  --warn-soft:    #fbeed6;
+
+  /* Paleta de series para KPIs/charts comparativos (Total Revenue, MRR, Ad
+     Spend, Seguidores, Nuevos Clientes — business-kpis.tsx y el chart de
+     evolución financiera de metrics-view.tsx). Mismo hue que dark, pero un
+     tono -700 en vez de -400: los pasteles de dark quedan ilegibles sobre
+     "Papel" (mismo problema que ya resolvimos con --accent-ink). */
+  --series-1:      #c2410c;  /* Total Revenue (naranja) */
+  --series-2:      #1d4ed8;  /* MRR (azul) */
+  --series-3:      #b91c1c;  /* Ad Spend (rojo) */
+  --series-4:      #4338ca;  /* Seguidores (indigo) */
+  --series-5:      #15803d;  /* Nuevos Clientes (verde) */
+
+  /* ── CONGELADO: "Tu Performance Status" ───────────────────────────────────
+     Decision de Juampi (25 ago 2026): el bloque "Tu Performance Status" queda
+     EXCLUIDO del rediseno y NO hereda los tokens nuevos. Ann lo aprobo como
+     esta hoy ("lo que tenemos ahora me gusta mas", call del 24 ago).
+     Este token conserva el valor que --card tenia ANTES del rediseno.
+     NO lo apuntes a --card ni a --surface: es un punto fijo a proposito.
+     Unico consumidor: components/sections/performance-status.tsx
+     ─────────────────────────────────────────────────────────────────────── */
+  --ps-surface:    #ffffff;
 
   /* Radios (theme-independent) */
   --r-card:        14px;
@@ -66,45 +97,17 @@
 
 /* ─────────────────────────────────────────────────────────────────────────
    LIGHT MODE polish — solo aplica fuera de .dark
-   - Botones de acento: el relleno pasa a oliva (#93bc1e), nunca lima puro
-     (regla del manual: el lima brillante no se lee sobre el fondo "Papel")
    - Cards/popovers: shadow más visible para depth
    - Sidebar: separador y bg diferenciado del background principal
    ───────────────────────────────────────────────────────────────────────── */
-:root:not(.dark) button[class*="bg-[#dafc69]"],
-:root:not(.dark) a[class*="bg-[#dafc69]"],
-:root:not(.dark) [class*="bg-[#dafc69]"][role="button"],
-:root:not(.dark) button[class*="bg-[#f2ffc0]"],
-:root:not(.dark) a[class*="bg-[#f2ffc0]"] {
-  background-color: #93bc1e !important;
-  border: 1px solid rgba(76, 102, 6, 0.30) !important;
-  box-shadow: 0 1px 2px rgba(76, 102, 6, 0.10), 0 4px 12px rgba(147, 188, 30, 0.22);
-}
 
-:root:not(.dark) button[class*="bg-[#dafc69]"]:hover,
-:root:not(.dark) a[class*="bg-[#dafc69]"]:hover {
-  background-color: #a4cc3d !important;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(76, 102, 6, 0.12), 0 8px 20px rgba(147, 188, 30, 0.28);
-}
-
-:root:not(.dark) button[class*="bg-[#dafc69]"]:active,
-:root:not(.dark) a[class*="bg-[#dafc69]"]:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 2px rgba(76, 102, 6, 0.10);
-}
-
-/* Badges/dots/isotipo (spans) con bg-[#dafc69]: solo el relleno oliva,
-   sin borde/sombra de "botón" — son elementos decorativos, no CTAs. */
-:root:not(.dark) span[class*="bg-[#dafc69]"] {
-  background-color: #93bc1e !important;
-}
-
-/* Cards (rounded-2xl/xl con bg-card) en light: sombra suave y clara para depth */
-:root:not(.dark) [class*="bg-card"][class*="rounded-2xl"],
-:root:not(.dark) [class*="bg-card"][class*="rounded-xl"],
-:root:not(.dark) [class*="bg-card"][class*="rounded-[24px]"] {
-  box-shadow: 0 1px 2px rgba(15, 18, 25, 0.04), 0 3px 10px rgba(15, 18, 25, 0.035);
+/* Cards (rounded-2xl/xl con bg-card) — sombra de depth vía --elev-card.
+   Solo el contenedor de primer nivel usa bg-card; los bloques anidados usan
+   bg-elevated/bg-secondary (Paso 6b), así que este selector no duplica sombras. */
+[class*="bg-card"][class*="rounded-2xl"],
+[class*="bg-card"][class*="rounded-xl"],
+[class*="bg-card"][class*="rounded-[24px]"] {
+  box-shadow: var(--elev-card);
 }
 
 /* Sidebar flotante en light: sombra muy suave y difusa (no oscura) */
@@ -136,93 +139,110 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   LIGHT MODE: lima accents legibles ("Papel")
-   ─────────────────────────────────────────────────────────────────────────
-   El lima brand (#dafc69) sobre el fondo "Papel" es ilegible cuando se usa
-   como TEXTO, LÍNEA o bg translúcido — no llega a 3:1 de contraste.
-   Regla del manual: ahí va la tinta oscura (#4c6606), nunca el lima pleno.
-   El bg-[#dafc69] SÓLIDO (botones/badges) pasa a relleno oliva (#93bc1e)
-   más arriba en "LIGHT MODE polish".
+   .btn-accent — botón de acento como UTILIDAD, no como parche.
+   Reemplaza el patrón "hex hardcodeado (bg-[#dafc69]) + parche que matchea
+   el string de la clase" — ese patrón es la deuda que este rediseño está
+   pagando, no la herramienta para escribir código nuevo. --accent y
+   --accent-hover ya resuelven distinto por tema, así que no hace falta
+   duplicar reglas para dark/light salvo el borde+sombra, que en dark no
+   existe (el botón queda plano, a propósito).
+   Primer consumidor: components/push-optin.tsx.
    ───────────────────────────────────────────────────────────────────────── */
-
-/* Texto lima → tinta oscura (acc-ink) para máxima legibilidad */
-:root:not(.dark) [class*="text-[#dafc69]"],
-:root:not(.dark) [class*="text-[#f2ffc0]"] {
-  color: #4c6606 !important;
+.btn-accent {
+  background-color: var(--accent);
+  color: var(--on-accent);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 }
-
-/* Backgrounds lima TRANSLÚCIDOS (badges, hover states) → wash oliva sutil */
-:root:not(.dark) [class*="bg-[#dafc69]/["],
-:root:not(.dark) [class*="bg-[#dafc69]/0"],
-:root:not(.dark) [class*="bg-[#dafc69]/1"] {
-  background-color: rgba(76, 102, 6, 0.08) !important;
+.btn-accent:hover {
+  background-color: var(--accent-hover);
 }
-
-/* Borders lima → tinta oscura translúcida/sólida */
-:root:not(.dark) [class*="border-[#dafc69]/"] {
-  border-color: rgba(76, 102, 6, 0.30) !important;
+:root:not(.dark) .btn-accent {
+  border: 1px solid color-mix(in srgb, var(--accent-ink) 30%, transparent);
+  box-shadow: 0 1px 2px rgba(76, 102, 6, 0.10), 0 4px 12px rgba(147, 188, 30, 0.22);
 }
-:root:not(.dark) [class*="border-[#dafc69]"]:not([class*="/"]) {
-  border-color: #4c6606 !important;
+:root:not(.dark) .btn-accent:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(76, 102, 6, 0.12), 0 8px 20px rgba(147, 188, 30, 0.28);
 }
-/* Cubre también los puntos del isotipo (orbit mark), que usan border-[#dafc69]
-   sin opacidad en el atributo de color (la opacidad la da una clase aparte). */
+:root:not(.dark) .btn-accent:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(76, 102, 6, 0.10);
+}
 
 /* ─────────────────────────────────────────────────────────────────────────
-   DARK MODE — preserva exactamente el look actual del dashboard
-   (#0a0a0b base, #111113 elevated, etc.)
+   DARK MODE — sistema de tokens del rediseno (spec del 24 ago 2026).
+   La tarjeta SUBE de tono y el fondo BAJA, para que el texto se despegue:
+     #0b0b0c fondo · #171718 tarjeta · #1f1f21 item activo/input
+     #28282b linea OPACA (antes blanco al 8%: los bordes no se veian)
+     #ffffff / #9b9e97 / #6c6f69 los tres unicos colores de texto
+   El lima #dafc69 sigue siendo la marca, pero como ACENTO: nunca como
+   relleno de superficie (eso es lo que Ann leia como "fondo verde").
    ───────────────────────────────────────────────────────────────────────── */
 .dark {
-  --background: #0a0a0a;
+  --background: #0b0b0c;
   --foreground: #ffffff;
-  --card: #131313;
+  --card: #171718;
   --card-foreground: #ffffff;
-  --popover: #131313;
+  --popover: #171718;
   --popover-foreground: #ffffff;
   --primary: #ffffff;
   --primary-foreground: #0a0a0b;
-  --secondary: rgba(255, 255, 255, 0.06);
+  --secondary: #1f1f21;
   --secondary-foreground: #ffffff;
-  --muted: rgba(255, 255, 255, 0.06);
-  --muted-foreground: rgba(255, 255, 255, 0.6);
+  --muted: #1f1f21;
+  --muted-foreground: #9b9e97;
   --accent: #dafc69;
   --accent-foreground: #0a0a0b;
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.08);
+  --border: #28282b;
+  --input: #28282b;
   --ring: rgba(255, 255, 255, 0.3);
   --chart-1: oklch(0.6 0.25 264.376);
   --chart-2: oklch(0.75 0.2 162.48);
   --chart-3: oklch(0.82 0.22 70.08);
   --chart-4: oklch(0.7 0.28 303.9);
   --chart-5: oklch(0.72 0.26 16.439);
-  --sidebar: #0a0a0a;
+  --sidebar: #0b0b0c;
   --sidebar-foreground: #ffffff;
   --sidebar-primary: #dafc69;
   --sidebar-primary-foreground: #0a0a0b;
-  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent: #1f1f21;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.07);
+  --sidebar-border: #28282b;
   --sidebar-ring: rgba(255, 255, 255, 0.3);
 
   /* ── Design system tokens (dark — hex exacto del spec) ───────────────────── */
-  --surface:       #131313;
-  --elevated:      #161616;
-  --text-2:        #9a9a96;
-  --text-3:        #6a6a66;
+  --surface:       #171718;
+  --elevated:      #1f1f21;
+  --text-2:        #9b9e97;
+  /* Subido de #6c6f69 (3.51:1 sobre #171718, falla AA) a #82857b
+     (4.5:1) — decisión de Juampi, paso 2-verificación. */
+  --text-3:        #82857b;
   --border-hover:  #34343a;
+  --elev-card:     0 1px 2px rgba(0, 0, 0, 0.30), 0 8px 24px -12px rgba(0, 0, 0, 0.45);
   --accent-hover:  #f2ffc0;
   --accent-soft:   #1c2410;
   --on-accent:     #0a0a0a;
-  --success:       #5dcaa5;  --success-soft: #13332a;
-  --danger:        #f0997b;  --danger-soft:  #3a1e16;
+  --accent-ink:    #dafc69;
+  --success:       #00cf8c;  --success-soft: #0d2a22;
+  --danger:        #ff6679;  --danger-soft:  #2e1620;
+  --warn:          #ffae2e;  --warn-soft:    #2e2413;
+
+  /* Paleta de series — ver nota en :root. Valores originales del rediseno. */
+  --series-1:      #fb923c;  /* Total Revenue (naranja) */
+  --series-2:      #60a5fa;  /* MRR (azul) */
+  --series-3:      #ef4444;  /* Ad Spend (rojo) */
+  --series-4:      #818cf8;  /* Seguidores (indigo) */
+  --series-5:      #4ade80;  /* Nuevos Clientes (verde) */
+
+  /* CONGELADO — ver la nota en :root. Valor de --card previo al rediseno. */
+  --ps-surface:    #131313;
 }
 
 @theme inline {
-  --font-sans: var(--font-inter), var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: var(--font-inter-tight), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, "Times New Roman", serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -273,10 +293,19 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
   --color-on-accent: var(--on-accent);
+  --color-accent-ink: var(--accent-ink);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --color-series-4: var(--series-4);
+  --color-series-5: var(--series-5);
+  --color-ps-surface: var(--ps-surface);
   --radius-card: var(--r-card);
   --radius-ctrl: var(--r-ctrl);
 }
@@ -329,10 +358,10 @@
 .progress-shimmer {
   background: linear-gradient(
     90deg,
-    #dafc69 0%,
-    #f2ffc0 40%,
-    #dafc69 60%,
-    #a9d42f 100%
+    var(--accent) 0%,
+    var(--accent-hover) 40%,
+    var(--accent) 60%,
+    var(--accent) 100%
   );
   background-size: 200% auto;
   animation: progress-shimmer 1.2s linear infinite;
