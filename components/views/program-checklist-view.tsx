@@ -17,7 +17,7 @@ const levelColors: Record<string, string> = {
   "Nivel 4 — Comunidad Email":               "bg-blue-600/15 text-blue-600 dark:text-blue-400 border-blue-600/40", // 🔵
   "Nivel 5 — Conexión & Fascinación":        "bg-violet-500/15 text-violet-500 border-violet-500/40", // 🟤
   "Nivel 6 — Invitación & Conversión":       "bg-purple-500/15 text-purple-500 border-purple-500/40", // 🟣
-  "Nivel 7 — Educando":                      "bg-foreground/[0.06] text-text-2 border-foreground/20", // ⚫
+  "Nivel 7 — Educando":                      "bg-foreground/[0.06] text-text-2 border-border", // ⚫
   "Nivel 8 — IA & Sistemas":                 "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/40", // 🤖
 }
 
@@ -161,16 +161,16 @@ export function ProgramChecklistView() {
 
       {/* Estado vacío si no hay cliente activo */}
       {!activeClientId && !loading && (
-        <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-[13px] text-text-2">
+        <div className="rounded-[14px] border border-dashed border-border bg-foreground/[0.02] px-5 py-10 text-center text-[13px] text-text-2">
           No hay un cliente activo seleccionado. Cambiá de perfil desde el menú superior para ver un checklist.
         </div>
       )}
 
       {/* Table */}
-      <div className="rounded-[14px] border border-foreground/[0.08] bg-card overflow-hidden">
+      <div className="rounded-[14px] border border-border bg-card overflow-hidden">
 
         {/* Column headers */}
-        <div className="grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-b border-foreground/[0.07] bg-foreground/[0.03]">
+        <div className="grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-b border-border bg-foreground/[0.03]">
           {["STATUS","IMPLEMENTATION MILESTONE","LEVEL","OUTCOME","ROADMAP","URL"].map((col) => (
             <div key={col} className="px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-text-2">
               {col}
@@ -187,7 +187,7 @@ export function ProgramChecklistView() {
           const isMonthOpen = openMonths[month.month]
 
           return (
-            <div key={month.month} className="border-t border-foreground/[0.07] first:border-t-0">
+            <div key={month.month} className="border-t border-border first:border-t-0">
 
               {/* Month row */}
               <div
@@ -221,7 +221,7 @@ export function ProgramChecklistView() {
                 const isWeekOpen = openWeeks[weekKey]
 
                 return (
-                  <div key={week.title} className="border-t border-foreground/[0.05]">
+                  <div key={week.title} className="border-t border-border">
 
                     {/* Week row */}
                     <div
@@ -250,13 +250,13 @@ export function ProgramChecklistView() {
                     {isWeekOpen && week.tasks.map((task) => {
                       const taskKey = month.month + task.label
                       const isDone  = completed[taskKey]
-                      const lc      = levelColors[task.level] ?? "bg-foreground/[0.04] text-text-2 border-foreground/10"
+                      const lc      = levelColors[task.level] ?? "bg-foreground/[0.04] text-text-2 border-border"
                       const oc      = outcomeColors[task.outcome]
 
                       return (
                         <div
                           key={task.label}
-                          className={`grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-t border-foreground/[0.04] transition-colors duration-150 ${
+                          className={`grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-t border-border transition-colors duration-150 ${
                             isDone ? "bg-secondary/40" : "hover:bg-foreground/[0.015]"
                           }`}
                         >
@@ -269,7 +269,7 @@ export function ProgramChecklistView() {
                               className={`h-5 w-5 rounded-full flex-shrink-0 border-2 flex items-center justify-center transition-all duration-200 ${
                                 isDone
                                   ? "border-emerald-500 bg-emerald-500"
-                                  : "border-foreground/20 bg-transparent"
+                                  : "border-border bg-transparent"
                               }`}
                             >
                               {isDone && (

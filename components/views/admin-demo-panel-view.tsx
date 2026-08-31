@@ -16,7 +16,7 @@ import { StatTile } from "@/components/ui/stat-tile"
 
 function EmptyState({ label }: { label: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-foreground/10 bg-foreground/[0.02] px-6 py-8 text-center">
+    <div className="rounded-xl border border-dashed border-border bg-foreground/[0.02] px-6 py-8 text-center">
       <p className="text-[13px] text-text-3">{label}</p>
     </div>
   )

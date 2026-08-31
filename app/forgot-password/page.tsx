@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-black">
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-sm space-y-4 p-6 border border-foreground/10 rounded-xl"
+        className="w-full max-w-sm space-y-4 p-6 border border-border rounded-xl"
       >
         <div className="mb-2 flex flex-col items-center gap-3 text-center">
           <AuthMark size={48} />
@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         <input
-          className="w-full rounded-md border border-foreground/10 bg-black/30 px-3 py-2 text-foreground outline-none"
+          className="w-full rounded-md border border-border bg-black/30 px-3 py-2 text-foreground outline-none"
           placeholder="Email"
           type="email"
           value={email}
@@ -71,7 +71,7 @@ export default function ForgotPasswordPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md border border-foreground/10 py-2 text-foreground hover:bg-foreground/5 disabled:opacity-60"
+          className="w-full rounded-md border border-border py-2 text-foreground hover:bg-foreground/5 disabled:opacity-60"
         >
           {loading ? "Enviando..." : "Enviar email"}
         </button>

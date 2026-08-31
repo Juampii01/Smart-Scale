@@ -177,7 +177,7 @@ export function AdminImportView() {
         </div>
         <div className="flex items-center gap-3">
           {/* Year selector */}
-          <div className="flex items-center gap-1 rounded-xl border border-foreground/[0.08] bg-card p-1">
+          <div className="flex items-center gap-1 rounded-xl border border-border bg-card p-1">
             {AVAILABLE_YEARS.map(y => (
               <button
                 key={y}
@@ -238,11 +238,11 @@ export function AdminImportView() {
       )}
 
       {/* Spreadsheet grid */}
-      <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse" style={{ minWidth: "900px" }}>
             <thead>
-              <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+              <tr className="border-b border-border bg-foreground/[0.02]">
                 <th className="sticky left-0 z-10 bg-card px-4 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-text-3 whitespace-nowrap w-[140px]">
                   Mes
                 </th>
@@ -264,7 +264,7 @@ export function AdminImportView() {
                 return (
                   <tr
                     key={row.month}
-                    className="border-b border-foreground/[0.04] group"
+                    className="border-b border-border group"
                     style={{ backgroundColor: isSaved ? "rgba(16,185,129,0.04)" : "#111113" }}
                   >
                     {/* Month label */}
@@ -288,7 +288,7 @@ export function AdminImportView() {
                               ? "border-emerald-500/20 bg-emerald-500/[0.03]"
                               : hasError
                                 ? "border-red-500/30 bg-red-500/[0.03]"
-                                : "border-transparent hover:border-foreground/[0.08] focus:border-foreground/20 focus:bg-foreground/[0.03]"
+                                : "border-transparent hover:border-border focus:border-border-hover focus:bg-foreground/[0.03]"
                           }`}
                           style={{ minWidth: col.fmt === "money" ? "90px" : "70px" }}
                         />
@@ -314,7 +314,7 @@ export function AdminImportView() {
       </div>
 
       {/* Field reference */}
-      <div className="rounded-2xl border border-foreground/[0.05] bg-card px-5 py-4">
+      <div className="rounded-2xl border border-border bg-card px-5 py-4">
         <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 mb-3">
           Referencia de campos (Google Sheets → Dashboard)
         </p>

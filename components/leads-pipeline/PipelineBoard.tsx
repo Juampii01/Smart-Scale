@@ -195,7 +195,7 @@ export function PipelineBoard({ leads, onSelect, onPatch, readOnly = false }: Pi
           className={`inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[13px] font-semibold transition-all ${
             filterUnrated
               ? "bg-foreground text-background"
-              : "border border-foreground/[0.12] text-text-2 hover:text-foreground hover:border-foreground/25"
+              : "border border-border text-text-2 hover:text-foreground hover:border-border-hover"
           }`}
         >
           <Filter className="h-3.5 w-3.5" />

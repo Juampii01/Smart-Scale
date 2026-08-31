@@ -26,7 +26,7 @@ function fmtDate(iso: string) {
 }
 
 function loginBadgeCls(days: number | null) {
-  if (days == null) return "text-text-2 bg-foreground/[0.06] border-foreground/[0.1]"
+  if (days == null) return "text-text-2 bg-foreground/[0.06] border-border"
   if (days <= 2)  return "text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20"
   if (days <= 6)  return "text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20"
   return "text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-500/10 border-red-200 dark:border-red-500/20"
@@ -131,7 +131,7 @@ export function AdminClientActivityView() {
       </div>
 
       {/* Vistas rápidas */}
-      <div className="flex flex-wrap items-center gap-1.5 border-b border-foreground/[0.06] pb-3">
+      <div className="flex flex-wrap items-center gap-1.5 border-b border-border pb-3">
         {VIEWS.map(v => (
           <button
             key={v.id}
@@ -154,16 +154,16 @@ export function AdminClientActivityView() {
           <Loader2 className="h-6 w-6 animate-spin text-text-3" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-foreground/[0.08] py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-border py-16 text-center">
           <Activity className="mb-3 h-8 w-8 text-text-3" />
           <p className="font-semibold text-text-2">Nada en esta vista</p>
           <p className="mt-1 text-[13px] text-text-3">Probá con otro filtro.</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+        <div className="overflow-hidden rounded-[14px] border border-border bg-card">
           <div className="overflow-x-auto">
             <div className="min-w-[640px]">
-              <div className="grid grid-cols-[minmax(180px,1fr)_150px_140px_140px] border-b border-foreground/[0.06] bg-foreground/[0.01] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-text-3">
+              <div className="grid grid-cols-[minmax(180px,1fr)_150px_140px_140px] border-b border-border bg-foreground/[0.01] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-text-3">
                 <div>Cliente</div>
                 <div>Último login</div>
                 <div>Monday Win</div>
@@ -173,7 +173,7 @@ export function AdminClientActivityView() {
               {filtered.map(c => (
                 <div
                   key={c.clientId}
-                  className="grid grid-cols-[minmax(180px,1fr)_150px_140px_140px] items-center border-b border-foreground/[0.05] px-6 py-4 hover:bg-foreground/[0.02] transition-colors"
+                  className="grid grid-cols-[minmax(180px,1fr)_150px_140px_140px] items-center border-b border-border px-6 py-4 hover:bg-foreground/[0.02] transition-colors"
                 >
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-[15px] text-foreground">{c.name}</p>

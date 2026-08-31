@@ -283,7 +283,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                     className={`rounded-xl border px-3 py-2.5 text-left transition-colors ${
                       role === opt.value
                         ? "border-accent bg-secondary text-foreground"
-                        : "border-border bg-foreground/[0.02] text-foreground hover:border-foreground/20 hover:text-foreground"
+                        : "border-border bg-foreground/[0.02] text-foreground hover:border-border-hover hover:text-foreground"
                     }`}
                   >
                     <span className="block text-[13px] font-bold">{opt.label}</span>

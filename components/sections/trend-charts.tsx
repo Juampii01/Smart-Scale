@@ -105,7 +105,7 @@ function ChartCard({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors duration-200">
+    <div className="relative overflow-hidden rounded-[14px] border border-border bg-card hover:border-border transition-colors duration-200">
       <div className="p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-1">
@@ -118,7 +118,7 @@ function ChartCard({
               className={`mt-0.5 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[13px] font-bold shrink-0 ml-3 ${
                 isUp   ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20"
                 : isDown ? "bg-red-100 text-red-800 ring-1 ring-red-300 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20"
-                :          "bg-foreground/5 text-text-2 ring-1 ring-foreground/10 dark:ring-white/10"
+                :          "bg-foreground/5 text-text-2 ring-1 ring-border dark:ring-white/10"
               }`}
             >
               {isUp && <TrendingUp className="h-3 w-3" />}
@@ -285,7 +285,7 @@ export function TrendCharts() {
       <section>
         <div className="grid gap-5 md:grid-cols-2">
           {CHARTS.map(cfg => (
-            <div key={cfg.key} className="rounded-[14px] border border-foreground/[0.07] bg-card h-[380px] animate-pulse" />
+            <div key={cfg.key} className="rounded-[14px] border border-border bg-card h-[380px] animate-pulse" />
           ))}
         </div>
       </section>
@@ -298,8 +298,8 @@ export function TrendCharts() {
 
   if (!rows.length) {
     return (
-      <section className="flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-14 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
+      <section className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card py-14 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-foreground/[0.03]">
           <BarChart3 className="h-5 w-5 text-text-3" />
         </div>
         <p className="text-[13px] text-text-2">

@@ -122,7 +122,7 @@ export function RenovacionView() {
               <p className="text-[13px] text-text-2 mt-1.5 leading-relaxed">{o.tagline}</p>
 
               {/* Precio */}
-              <div className="mt-4 mb-4 border-y border-foreground/[0.06] py-3">
+              <div className="mt-4 mb-4 border-y border-border py-3">
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-[24px] font-extrabold text-foreground">{o.priceTotal}</span>
                   <span className="text-[13px] font-medium text-text-2">pago único</span>
@@ -150,7 +150,7 @@ export function RenovacionView() {
               </ul>
 
               {o.footnote && (
-                <p className="mt-4 pt-4 border-t border-foreground/[0.06] text-[13px] italic text-text-2">
+                <p className="mt-4 pt-4 border-t border-border text-[13px] italic text-text-2">
                   {o.footnote}
                 </p>
               )}

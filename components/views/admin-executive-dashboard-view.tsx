@@ -118,7 +118,7 @@ const fmtDate = (s: string) => {
 
 function BlockSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn("rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden", className)}>
+    <div className={cn("rounded-[14px] border border-border bg-card overflow-hidden", className)}>
       <div className="p-5 space-y-4">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
@@ -200,7 +200,7 @@ function StatPill({
 
 function NewCashBlock({ data }: { data: DashboardData["new_cash"] }) {
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="rounded-[14px] border border-border bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={TrendingUp}
@@ -222,14 +222,14 @@ function NewCashBlock({ data }: { data: DashboardData["new_cash"] }) {
           <div className="overflow-x-auto -mx-1">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-foreground/[0.06]">
+                <tr className="border-b border-border">
                   <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
                   <th className="pb-2 text-right font-semibold text-text-2 pr-3">Contratado</th>
                   <th className="pb-2 text-right font-semibold text-text-2 pr-3">Cobrado</th>
                   <th className="pb-2 text-right font-semibold text-text-2">Pendiente</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-foreground/[0.04]">
+              <tbody className="divide-y divide-border">
                 {data.clients.map(c => (
                   <tr key={c.id} className="group hover:bg-foreground/[0.02] transition-colors">
                     <td className="py-2 pr-3">
@@ -297,7 +297,7 @@ function groupOldCashInstallments(installments: OldCashInstallment[]) {
 function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
   const grouped = groupOldCashInstallments(data.installments)
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="rounded-[14px] border border-border bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={RefreshCw}
@@ -314,14 +314,14 @@ function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
           <div className="overflow-x-auto -mx-1">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-foreground/[0.06]">
+                <tr className="border-b border-border">
                   <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
                   <th className="pb-2 text-center font-semibold text-text-2 pr-3">Cuota</th>
                   <th className="pb-2 text-right font-semibold text-text-2 pr-3">Monto</th>
                   <th className="pb-2 text-right font-semibold text-text-2">Cobrado</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-foreground/[0.04]">
+              <tbody className="divide-y divide-border">
                 {grouped.map(g => (
                   <tr key={g.key} className="group hover:bg-foreground/[0.02] transition-colors">
                     <td className="py-2 pr-3 font-medium text-foreground">{g.client_name}</td>
@@ -361,7 +361,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
   ]
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="rounded-[14px] border border-border bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={MessageSquareText}
@@ -384,7 +384,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
           <div className="overflow-x-auto -mx-1">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-foreground/[0.06]">
+                <tr className="border-b border-border">
                   <th className="pb-2 text-left font-semibold text-text-2 pr-4 min-w-[120px]">Setter</th>
                   {cols.map(c => (
                     <th
@@ -399,7 +399,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-foreground/[0.04]">
+              <tbody className="divide-y divide-border">
                 {data.by_setter.map(s => (
                   <tr key={s.setter_id} className="group hover:bg-foreground/[0.02] transition-colors">
                     <td className="py-2.5 pr-4 font-medium text-foreground">{s.setter_name}</td>
@@ -423,7 +423,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
               {/* Totals row — solo si hay más de un setter */}
               {data.by_setter.length > 1 && (
                 <tfoot>
-                  <tr className="border-t-2 border-foreground/[0.1] bg-foreground/[0.02]">
+                  <tr className="border-t-2 border-border bg-foreground/[0.02]">
                     <td className="py-2.5 pr-4 text-[11px] font-bold uppercase tracking-wider text-text-2">Total</td>
                     {cols.map(c => (
                       <td
@@ -453,7 +453,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
 
 function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] }) {
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="rounded-[14px] border border-border bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={CalendarClock}
@@ -490,7 +490,7 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                 <div className="overflow-x-auto -mx-1">
                   <table className="w-full text-[13px]">
                     <thead>
-                      <tr className="border-b border-foreground/[0.06]">
+                      <tr className="border-b border-border">
                         <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
                         <th className="pb-2 text-center font-semibold text-text-2 pr-3">Cuota</th>
                         <th className="pb-2 text-right font-semibold text-text-2 pr-3">Monto</th>
@@ -498,7 +498,7 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                         <th className="pb-2 text-right font-semibold text-text-2">Atraso</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-foreground/[0.04]">
+                    <tbody className="divide-y divide-border">
                       {data.overdue.map(q => (
                         <tr key={q.id} className="group hover:bg-red-50 dark:hover:bg-red-500/[0.04] transition-colors">
                           <td className="py-2 pr-3 font-medium text-foreground">{q.client_name}</td>
@@ -530,7 +530,7 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                 <div className="overflow-x-auto -mx-1">
                   <table className="w-full text-[13px]">
                     <thead>
-                      <tr className="border-b border-foreground/[0.06]">
+                      <tr className="border-b border-border">
                         <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
                         <th className="pb-2 text-center font-semibold text-text-2 pr-3">Cuota</th>
                         <th className="pb-2 text-right font-semibold text-text-2 pr-3">Monto</th>
@@ -538,7 +538,7 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                         <th className="pb-2 text-right font-semibold text-text-2">En</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-foreground/[0.04]">
+                    <tbody className="divide-y divide-border">
                       {data.upcoming.map(q => (
                         <tr key={q.id} className="group hover:bg-foreground/[0.02] transition-colors">
                           <td className="py-2 pr-3 font-medium text-foreground">{q.client_name}</td>
@@ -644,13 +644,13 @@ export function AdminExecutiveDashboardView() {
 
         {/* Month pager */}
         <div className="flex items-center gap-2">
-          <button onClick={() => changeMonth(-1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes anterior">
+          <button onClick={() => changeMonth(-1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-border hover:bg-foreground/5 transition-colors" title="Mes anterior">
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <div className="px-4 py-2 rounded-lg border border-foreground/10 min-w-[200px] text-center">
+          <div className="px-4 py-2 rounded-lg border border-border min-w-[200px] text-center">
             <span className="text-[13px] font-bold text-foreground">{monthLabel(month)}</span>
           </div>
-          <button onClick={() => changeMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
+          <button onClick={() => changeMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-border hover:bg-foreground/5 transition-colors" title="Mes siguiente">
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>

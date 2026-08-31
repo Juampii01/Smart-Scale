@@ -64,7 +64,7 @@ function MetricCard({ label, value, pct, noData }: {
   const up = (pct ?? 0) > 0
   const showDelta = pct !== null && !noData
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-4 py-3.5 flex flex-col gap-1.5">
+    <div className="rounded-[14px] border border-border bg-card px-4 py-3.5 flex flex-col gap-1.5">
       <p className="text-[11px] font-semibold uppercase tracking-[0.10em] text-text-2">{label}</p>
       <p className={cn("text-[24px] font-bold tabular-nums leading-none", noData ? "text-text-3" : "text-foreground")}>
         {value}
@@ -86,7 +86,7 @@ function MiniChart({ data, dataKey, color, label, className }: {
   const points = data.slice(-8).map(r => ({ month: fmtMonthLabel(r.month), value: Number(r[dataKey]) || 0 }))
   if (points.every(p => p.value === 0)) return null
   return (
-    <div className={cn("rounded-[14px] border border-foreground/[0.07] bg-card p-5 flex flex-col", className)}>
+    <div className={cn("rounded-[14px] border border-border bg-card p-5 flex flex-col", className)}>
       <p className="text-[11px] font-semibold uppercase tracking-[0.10em] text-text-2 mb-4">{label}</p>
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
@@ -137,13 +137,13 @@ function GrowthIndexChart({ reports }: { reports: MonthlyReport[] }) {
   const active = channels.filter(ch => bases[ch.key] > 0)
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-5">
+    <div className="rounded-[14px] border border-border bg-card p-5">
       <div className="flex items-start justify-between mb-1">
         <div>
           <p className="text-[15px] font-bold text-foreground">Índice de crecimiento</p>
           <p className="text-[13px] text-text-2 mt-0.5">Base 100 = primer mes con datos — quién crece más rápido</p>
         </div>
-        <span className="text-[13px] text-text-3 bg-foreground/[0.04] border border-foreground/[0.06] rounded-lg px-2 py-1 ml-4 whitespace-nowrap">200 = duplicó</span>
+        <span className="text-[13px] text-text-3 bg-foreground/[0.04] border border-border rounded-lg px-2 py-1 ml-4 whitespace-nowrap">200 = duplicó</span>
       </div>
       <div className="flex flex-wrap gap-5 mt-4 mb-4">
         {active.map(ch => (
@@ -177,7 +177,7 @@ function PostsVsFollowers({ reports, className }: { reports: MonthlyReport[]; cl
   const data = reports.map(r => ({ month: fmtMonthLabel(r.month), posts: r.short_posts || 0, followers: r.short_followers || 0 }))
   const avg = data.reduce((s, d) => s + d.posts, 0) / data.length
   return (
-    <div className={cn("rounded-[14px] border border-foreground/[0.07] bg-card p-5", className)}>
+    <div className={cn("rounded-[14px] border border-border bg-card p-5", className)}>
       <div className="flex items-center justify-between mb-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.10em] text-text-2">Contenido vs Audiencia</p>
@@ -211,7 +211,7 @@ function YouTubeTrend({ reports }: { reports: MonthlyReport[] }) {
   if (reports.length < 2 || !reports.some(r => r.yt_subscribers > 0)) return null
   const data = reports.map(r => ({ month: fmtMonthLabel(r.month), subs: r.yt_subscribers || 0, views: r.yt_views || 0 }))
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-5">
+    <div className="rounded-[14px] border border-border bg-card p-5">
       <p className="text-[15px] font-bold text-foreground mb-0.5">YouTube — Suscriptores vs Vistas</p>
       <p className="text-[13px] text-text-2 mb-4">¿Las vistas generan suscriptores o son independientes?</p>
       <div className="flex flex-wrap gap-5 mb-4">
@@ -245,7 +245,7 @@ function FascinateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
   const status = stageStatus(d.ig)
   return (
     <div className="space-y-5">
-      <div className="pb-4 border-b border-foreground/[0.07]">
+      <div className="pb-4 border-b border-border">
         <div className="flex items-center gap-3 mb-1">
           <h2 className="text-[24px] font-bold text-foreground">Fascinate</h2>
           <span className={cn("rounded-full px-2.5 py-0.5 text-[13px] font-semibold", status.className)}>{status.label}</span>
@@ -273,7 +273,7 @@ function EducateTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Month
   const status = stageStatus(d.posts)
   return (
     <div className="space-y-5">
-      <div className="pb-4 border-b border-foreground/[0.07]">
+      <div className="pb-4 border-b border-border">
         <div className="flex items-center gap-3 mb-1">
           <h2 className="text-[24px] font-bold text-foreground">Educate</h2>
           <span className={cn("rounded-full px-2.5 py-0.5 text-[13px] font-semibold", status.className)}>{status.label}</span>
@@ -301,7 +301,7 @@ function InviteTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Monthl
   const status = stageStatus(d.cash)
   return (
     <div className="space-y-4">
-      <div className="pb-4 border-b border-foreground/[0.07]">
+      <div className="pb-4 border-b border-border">
         <div className="flex items-center gap-3 mb-1">
           <h2 className="text-[24px] font-bold text-foreground">Invite</h2>
           <span className={cn("rounded-full px-2.5 py-0.5 text-[13px] font-semibold", status.className)}>{status.label}</span>
@@ -319,7 +319,7 @@ function InviteTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Monthl
       </div>
 
       {/* Sales: el embudo de conversión vive dentro de Invite */}
-      <div className="pt-4 mt-2 border-t border-foreground/[0.07]">
+      <div className="pt-4 mt-2 border-t border-border">
         <SalesView />
       </div>
     </div>
@@ -336,7 +336,7 @@ function TransformTab({ cur, prev, all }: { cur: MonthlyReport | null; prev: Mon
   const status = stageStatus(d.mrr)
   return (
     <div className="space-y-4">
-      <div className="pb-4 border-b border-foreground/[0.07]">
+      <div className="pb-4 border-b border-border">
         <div className="flex items-center gap-3 mb-1">
           <h2 className="text-[24px] font-bold text-foreground">Transform</h2>
           <span className={cn("rounded-full px-2.5 py-0.5 text-[13px] font-semibold", status.className)}>{status.label}</span>
@@ -390,7 +390,7 @@ export function PerformanceView() {
       </div>
 
       {/* Tab bar — underline style */}
-      <div className="border-b border-foreground/[0.07]">
+      <div className="border-b border-border">
         <div className="flex gap-0">
           {TABS.map(t => (
             <button

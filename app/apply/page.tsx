@@ -22,7 +22,7 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
 function SectionCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-2xl border border-foreground/[0.07] p-5 sm:p-7 space-y-5 sm:space-y-6"
+      className="rounded-2xl border border-border p-5 sm:p-7 space-y-5 sm:space-y-6"
       style={{ backgroundColor: "var(--card)" }}
     >
       {children}
@@ -92,7 +92,7 @@ function RadioGroup({ options, value, onChange }: {
       {options.map(opt => (
         <label key={opt} className="flex items-center gap-3 cursor-pointer group" onClick={() => onChange(opt)}>
           <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-            value === opt ? "border-accent bg-accent" : "border-foreground/20 group-hover:border-foreground/40"
+            value === opt ? "border-accent bg-accent" : "border-border group-hover:border-border-hover"
           }`}>
             {value === opt && <span className="h-2 w-2 rounded-full bg-black" />}
           </span>
@@ -199,7 +199,7 @@ export default function ApplyPage() {
     <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }} ref={topRef}>
       {/* ── Top bar (same style as portal header) */}
       <div
-        className="sticky top-0 z-10 border-b border-foreground/[0.07] backdrop-blur-md"
+        className="sticky top-0 z-10 border-b border-border backdrop-blur-md"
         style={{ backgroundColor: "color-mix(in srgb, var(--background) 96%, transparent)" }}
       >
         <div className="mx-auto max-w-2xl px-5 py-3.5 flex items-center justify-between">
@@ -380,7 +380,7 @@ export default function ApplyPage() {
               <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all ${
                 form.terms_accepted
                   ? "border-accent bg-accent"
-                  : "border-foreground/20 group-hover:border-foreground/40"
+                  : "border-border group-hover:border-border-hover"
               }`}>
                 {form.terms_accepted && <Check className="h-3 w-3 text-black" strokeWidth={3} />}
               </span>
@@ -392,7 +392,7 @@ export default function ApplyPage() {
             </label>
           </SectionCard>
           {/* Notice */}
-          <div className="rounded-xl border border-foreground/[0.06] px-5 py-4 space-y-2" style={{ backgroundColor: "var(--card)" }}>
+          <div className="rounded-xl border border-border px-5 py-4 space-y-2" style={{ backgroundColor: "var(--card)" }}>
             <p className="text-[11px] font-black text-text-3 uppercase tracking-[0.18em]">Antes de enviar</p>
             <ul className="space-y-1.5 text-[13px] text-text-2">
               <li className="flex items-start gap-2">

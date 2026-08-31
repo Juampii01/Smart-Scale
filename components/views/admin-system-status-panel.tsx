@@ -63,7 +63,7 @@ function StatusCard({ item }: { item: StatusItem }) {
   const hasDetail = item.status === "error" && !!item.detail
 
   return (
-    <div className="rounded-xl border border-foreground/[0.07] bg-card p-3.5">
+    <div className="rounded-xl border border-border bg-card p-3.5">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-[13px] font-semibold text-foreground truncate">{item.name}</p>
@@ -118,7 +118,7 @@ export function AdminSystemStatusPanel() {
   const errorCount = allItems.filter(i => i.status === "error").length
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-5">
+    <div className="rounded-2xl border border-border bg-card p-5">
       <button type="button" onClick={() => setOpen(v => !v)} className="w-full text-left">
         <SectionHeader
           icon={Bot}
@@ -145,7 +145,7 @@ export function AdminSystemStatusPanel() {
         ) : !data ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-24 rounded-xl border border-foreground/[0.07] bg-card animate-pulse" />
+              <div key={i} className="h-24 rounded-xl border border-border bg-card animate-pulse" />
             ))}
           </div>
         ) : (

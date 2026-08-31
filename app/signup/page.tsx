@@ -213,13 +213,13 @@ export default function SignupPage() {
           {/* Card */}
           <form
             onSubmit={onSubmit}
-            className="rounded-2xl border border-foreground/10 bg-foreground/5 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl"
+            className="rounded-2xl border border-border bg-foreground/5 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl"
           >
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="block text-[13px] text-foreground">Email</label>
                 <input
-                  className="h-11 w-full rounded-xl border border-foreground/10 bg-foreground/[0.04] px-3 text-foreground outline-none placeholder:text-text-3 focus:border-foreground/20 focus:ring-2 focus:ring-white/10"
+                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.04] px-3 text-foreground outline-none placeholder:text-text-3 focus:border-border-hover focus:ring-2 focus:ring-white/10"
                   placeholder="you@domain.com"
                   type="email"
                   value={email}
@@ -233,7 +233,7 @@ export default function SignupPage() {
                 <label className="block text-[13px] text-foreground">Contraseña</label>
                 <div className="relative">
                   <input
-                    className="h-11 w-full rounded-xl border border-foreground/10 bg-foreground/[0.04] pl-3 pr-10 text-foreground outline-none placeholder:text-text-3 focus:border-foreground/20 focus:ring-2 focus:ring-white/10"
+                    className="h-11 w-full rounded-xl border border-border bg-foreground/[0.04] pl-3 pr-10 text-foreground outline-none placeholder:text-text-3 focus:border-border-hover focus:ring-2 focus:ring-white/10"
                     placeholder="Mínimo 6 caracteres"
                     type={showPassword ? "text" : "password"}
                     value={password}
@@ -254,13 +254,13 @@ export default function SignupPage() {
               </div>
 
               {err ? (
-                <div className="rounded-xl border border-foreground/10 bg-foreground/[0.06] p-3 text-[13px] text-foreground">
+                <div className="rounded-xl border border-border bg-foreground/[0.06] p-3 text-[13px] text-foreground">
                   {err}
                 </div>
               ) : null}
 
               {msg ? (
-                <div className="rounded-xl border border-foreground/10 bg-foreground/[0.04] p-3 text-[13px] text-foreground">
+                <div className="rounded-xl border border-border bg-foreground/[0.04] p-3 text-[13px] text-foreground">
                   {msg}
                 </div>
               ) : null}
@@ -270,7 +270,7 @@ export default function SignupPage() {
                   type="button"
                   onClick={onResendConfirmation}
                   disabled={resendLoading}
-                  className="h-11 w-full rounded-xl border border-foreground/10 bg-foreground/5 text-[13px] font-semibold text-foreground transition hover:bg-foreground/10 disabled:opacity-60"
+                  className="h-11 w-full rounded-xl border border-border bg-foreground/5 text-[13px] font-semibold text-foreground transition hover:bg-foreground/10 disabled:opacity-60"
                 >
                   {resendLoading ? "Reenviando…" : "Reenviar email de confirmación"}
                 </button>
@@ -298,7 +298,7 @@ export default function SignupPage() {
 
               {/* Debug panel — development only, never shows in production */}
               {process.env.NODE_ENV === "development" && debug ? (
-                <details className="rounded-xl border border-foreground/10 bg-foreground/[0.03] p-3 text-[13px] text-foreground">
+                <details className="rounded-xl border border-border bg-foreground/[0.03] p-3 text-[13px] text-foreground">
                   <summary className="cursor-pointer select-none text-foreground">Debug</summary>
                   <pre className="mt-2 overflow-auto whitespace-pre-wrap break-words">
                     {JSON.stringify(debug, null, 2)}

@@ -36,7 +36,7 @@ const RECURR_LABEL: Record<string, string> = {
 const STATUS_STYLE: Record<string, string> = {
   active:    "bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/25",
   cancelled: "bg-red-100 text-red-800 border-red-300 dark:bg-red-500/10 dark:text-red-300 dark:border-red-500/25",
-  tbd:       "bg-foreground/5 text-text-2 border-foreground/10",
+  tbd:       "bg-foreground/5 text-text-2 border-border",
 }
 
 const EMPTY: Omit<CalendarEvent, "id"> = {
@@ -78,14 +78,14 @@ function EventModal({
     }
   }
 
-  const inputCls = "h-9 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+  const inputCls = "h-9 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
   const selectCls = `${inputCls} appearance-none cursor-pointer`
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-      <div className="w-full max-w-lg rounded-[14px] border border-foreground/[0.08] bg-card shadow-2xl">
+      <div className="w-full max-w-lg rounded-[14px] border border-border bg-card shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-4">
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-2.5">
             <span className="h-4 w-[3px] rounded-full bg-accent" />
             <h2 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">
@@ -180,8 +180,8 @@ function EventModal({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-3 border-t border-foreground/[0.06] px-5 py-4">
-          <button onClick={onClose} className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 py-2 text-[13px] font-medium text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-colors">
+        <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-4">
+          <button onClick={onClose} className="rounded-xl border border-border bg-foreground/[0.03] px-4 py-2 text-[13px] font-medium text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-colors">
             Cancelar
           </button>
           <button
@@ -282,7 +282,7 @@ export function AdminCalendarView() {
         </div>
         <div className="flex items-center gap-2">
           <button onClick={fetchEvents} disabled={loading}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground transition-colors disabled:opacity-40">
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground transition-colors disabled:opacity-40">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button onClick={() => setModal({})}
@@ -294,7 +294,7 @@ export function AdminCalendarView() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
+      <div className="overflow-hidden rounded-[14px] border border-border bg-card">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-5 w-5 animate-spin text-accent-ink/40" />
@@ -307,7 +307,7 @@ export function AdminCalendarView() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                <tr className="border-b border-border bg-foreground/[0.02]">
                   {["Día", "Título", "Hora", "Recurrencia", "Estado", ""].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.18em] text-text-3 whitespace-nowrap">{h}</th>
                   ))}
@@ -315,7 +315,7 @@ export function AdminCalendarView() {
               </thead>
               <tbody>
                 {sorted.map(ev => (
-                  <tr key={ev.id} className="border-b border-foreground/[0.04] hover:bg-foreground/[0.02] transition-colors group">
+                  <tr key={ev.id} className="border-b border-border hover:bg-foreground/[0.02] transition-colors group">
                     <td className="px-4 py-3 text-[13px] font-semibold text-foreground whitespace-nowrap">
                       {ev.day_of_week ?? "—"}
                     </td>

@@ -131,8 +131,8 @@ export function Sidebar({
         className={cn(
           "fixed left-0 top-0 z-50 h-full w-[240px] transition-transform duration-200 ease-in-out lg:translate-x-0",
           "bg-card flex flex-col pt-[env(safe-area-inset-top)] overflow-hidden",
-          "border-r border-foreground/[0.07]",
-          "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-foreground/[0.08] lg:shadow-[0_10px_36px_-18px_rgba(0,0,0,0.30)]",
+          "border-r border-border",
+          "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-border lg:shadow-[0_10px_36px_-18px_rgba(0,0,0,0.30)]",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
@@ -266,7 +266,7 @@ export function Sidebar({
                 "group/profile flex w-full items-center gap-2.5 rounded-lg border px-2.5 py-2 transition-all duration-150",
                 pathname === "/perfil"
                   ? "border-accent bg-secondary"
-                  : "border-foreground/[0.06] bg-foreground/[0.02] hover:bg-foreground/[0.05]"
+                  : "border-border bg-foreground/[0.02] hover:bg-foreground/[0.05]"
               )}
             >
               <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-accent/30 bg-accent-soft text-[13px] font-bold text-accent-ink">

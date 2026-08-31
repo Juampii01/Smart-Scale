@@ -91,7 +91,7 @@ function ChannelCard({
   const hasDelta = delta.pct !== null
 
   return (
-    <div className="relative flex flex-col overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors duration-200">
+    <div className="relative flex flex-col overflow-hidden rounded-[14px] border border-border bg-card hover:border-border transition-colors duration-200">
       <div className="h-[2px] w-full" style={{ backgroundColor: color, opacity: noData ? 0.2 : 0.7 }} />
 
       <div className="flex-1 p-5 pb-2">
@@ -127,7 +127,7 @@ function ChannelCard({
             <p className="text-[13px] text-text-3 mt-1 mb-4">{audienceLabel}</p>
             <div className="space-y-0">
               {rows.map((row, i) => (
-                <div key={i} className={`flex items-center justify-between py-2 ${i < rows.length - 1 ? "border-b border-foreground/[0.05]" : ""}`}>
+                <div key={i} className={`flex items-center justify-between py-2 ${i < rows.length - 1 ? "border-b border-border" : ""}`}>
                   <div className="flex items-center gap-1.5 text-[13px] text-text-2">
                     <row.icon className="h-3.5 w-3.5" />{row.label}
                   </div>
@@ -185,7 +185,7 @@ function GrowthIndexChart({ reports }: { reports: any[] }) {
   const activeChannels = channels.filter(ch => bases[ch.key] > 0)
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
+    <div className="rounded-[14px] border border-border bg-card p-6">
       <div className="flex items-start justify-between mb-1">
         <div>
           <h4 className="text-[18px] font-bold text-foreground">Índice de Crecimiento</h4>
@@ -194,7 +194,7 @@ function GrowthIndexChart({ reports }: { reports: any[] }) {
           </p>
         </div>
         {/* Tip */}
-        <span className="text-[13px] text-text-3 bg-foreground/[0.04] border border-foreground/[0.06] rounded-lg px-2 py-1 ml-4 mt-0.5 whitespace-nowrap">
+        <span className="text-[13px] text-text-3 bg-foreground/[0.04] border border-border rounded-lg px-2 py-1 ml-4 mt-0.5 whitespace-nowrap">
           200 = duplicó su audiencia
         </span>
       </div>
@@ -253,7 +253,7 @@ function ContentVsAudience({ reports }: { reports: any[] }) {
   const avgPosts = data.reduce((s, d) => s + d.posts, 0) / data.length
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
+    <div className="rounded-[14px] border border-border bg-card p-6">
       <h4 className="text-[18px] font-bold text-foreground mb-1">Posts vs Seguidores Instagram</h4>
       <p className="text-[13px] text-text-3 mb-5">
         ¿Cuándo publicás más, la audiencia crece? Buscá el patrón entre las barras y la línea.
@@ -314,7 +314,7 @@ function YouTubeTrend({ reports }: { reports: any[] }) {
   }))
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
+    <div className="rounded-[14px] border border-border bg-card p-6">
       <h4 className="text-[18px] font-bold text-foreground mb-1">YouTube — Suscriptores vs Vistas</h4>
       <p className="text-[13px] text-text-3 mb-5">¿Las vistas generan suscriptores o son independientes?</p>
       <div className="flex flex-wrap gap-5 mb-4">
@@ -442,8 +442,8 @@ export function ChannelsView() {
 
       {error && <p className="text-red-700 dark:text-red-400 text-[13px]">{error}</p>}
       {!showSkeleton && !error && !current && (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-14 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card py-14 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-foreground/[0.03]">
             <BarChart3 className="h-5 w-5 text-text-3" />
           </div>
           <p className="text-[13px] text-text-2">

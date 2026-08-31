@@ -278,7 +278,7 @@ function PageEditor({
   return (
     <div className="flex h-full flex-col">
       {/* Header: icon + title + visibility + save indicator */}
-      <div className="flex items-center justify-between gap-3 border-b border-foreground/[0.06] px-8 py-4">
+      <div className="flex items-center justify-between gap-3 border-b border-border px-8 py-4">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <input
             type="text"
@@ -286,7 +286,7 @@ function PageEditor({
             onChange={e => setIcon(e.target.value)}
             placeholder="📄"
             maxLength={4}
-            className="h-9 w-9 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] text-center text-[15px] focus:border-foreground/20 focus:outline-none"
+            className="h-9 w-9 rounded-lg border border-border bg-foreground/[0.03] text-center text-[15px] focus:border-border-hover focus:outline-none"
             aria-label="Icono"
           />
           <input
@@ -307,7 +307,7 @@ function PageEditor({
               className={`inline-flex items-center gap-1.5 h-8 rounded-lg border px-3 text-[13px] font-semibold transition-all ${
                 page.scope === "prospeccion"
                   ? "border-cyan-400 bg-cyan-100 text-cyan-800 hover:bg-cyan-200 dark:border-cyan-400/40 dark:bg-cyan-500/15 dark:text-cyan-300 dark:hover:bg-cyan-500/25"
-                  : "border-foreground/[0.12] bg-foreground/[0.04] text-foreground hover:bg-foreground/[0.08]"
+                  : "border-border bg-foreground/[0.04] text-foreground hover:bg-foreground/[0.08]"
               }`}
               title="Click para cambiar quién ve esta página y todas sus subpáginas"
             >
@@ -316,7 +316,7 @@ function PageEditor({
                 : <><Lock className="h-3 w-3" /> Solo admin/team</>}
             </button>
           ) : !isRoot && parentScope ? (
-            <span className="inline-flex items-center gap-1.5 h-8 rounded-lg border border-foreground/[0.08] bg-foreground/[0.02] px-3 text-[13px] font-medium text-text-2" title="La visibilidad se hereda de la página raíz">
+            <span className="inline-flex items-center gap-1.5 h-8 rounded-lg border border-border bg-foreground/[0.02] px-3 text-[13px] font-medium text-text-2" title="La visibilidad se hereda de la página raíz">
               {parentScope === "prospeccion"
                 ? <><Target className="h-3 w-3" /> Heredado · Setter también</>
                 : <><Lock className="h-3 w-3" /> Heredado · Solo admin/team</>}
@@ -483,11 +483,11 @@ export function CentroOpPagesView({ userRole }: { userRole: string | null }) {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex h-[calc(100vh-180px)] min-h-[520px] gap-3 rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="flex h-[calc(100vh-180px)] min-h-[520px] gap-3 rounded-[14px] border border-border bg-card overflow-hidden">
 
       {/* Sidebar */}
-      <aside className="flex w-[240px] shrink-0 flex-col border-r border-foreground/[0.06] bg-foreground/[0.015]">
-        <div className="border-b border-foreground/[0.06] px-3 py-3 space-y-2">
+      <aside className="flex w-[240px] shrink-0 flex-col border-r border-border bg-foreground/[0.015]">
+        <div className="border-b border-border px-3 py-3 space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-text-2">Páginas</h3>
             <button
@@ -505,7 +505,7 @@ export function CentroOpPagesView({ userRole }: { userRole: string | null }) {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Buscar"
-              className="w-full h-7 rounded-md border border-foreground/[0.08] bg-card pl-7 pr-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none"
+              className="w-full h-7 rounded-md border border-border bg-card pl-7 pr-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
             />
           </div>
         </div>
@@ -523,7 +523,7 @@ export function CentroOpPagesView({ userRole }: { userRole: string | null }) {
               {!search && (
                 <button
                   onClick={() => createPage(null)}
-                  className="inline-flex items-center gap-1 rounded-md border border-foreground/[0.08] bg-card px-2.5 py-1 text-[13px] font-semibold text-text-2 hover:border-foreground/20 hover:text-foreground transition-all"
+                  className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2.5 py-1 text-[13px] font-semibold text-text-2 hover:border-border-hover hover:text-foreground transition-all"
                 >
                   <Plus className="h-3 w-3" /> Crear primera
                 </button>
@@ -553,7 +553,7 @@ export function CentroOpPagesView({ userRole }: { userRole: string | null }) {
           <>
             {/* Breadcrumb */}
             {breadcrumb.length > 1 && (
-              <div className="flex items-center gap-1 px-8 py-2 text-[13px] text-text-2 border-b border-foreground/[0.04]">
+              <div className="flex items-center gap-1 px-8 py-2 text-[13px] text-text-2 border-b border-border">
                 {breadcrumb.map((p, i) => (
                   <span key={p.id} className="flex items-center gap-1">
                     {i > 0 && <ChevronRight className="h-3 w-3 text-text-3" />}

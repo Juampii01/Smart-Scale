@@ -96,7 +96,7 @@ function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; icon: any; cls: string }> = {
     activo:     { label: "Activo",     icon: CheckCircle2,  cls: "text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20" },
     inactivo:   { label: "Inactivo",   icon: AlertCircle,   cls: "text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-500/10 border-red-200 dark:border-red-500/20" },
-    completado: { label: "Completado", icon: CheckCircle2,  cls: "text-text-2 bg-foreground/[0.04] border-foreground/[0.08]" },
+    completado: { label: "Completado", icon: CheckCircle2,  cls: "text-text-2 bg-foreground/[0.04] border-border" },
     pendiente:  { label: "Pendiente",  icon: Clock,         cls: "text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20" },
   }
   const cfg = map[status] ?? map["pendiente"]
@@ -324,7 +324,7 @@ function OnboardingForm({
     }
   }
 
-  const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 text-[13px] text-foreground placeholder:text-text-3 outline-none transition-all focus:border-accent focus:bg-foreground/[0.05] focus:ring-2 focus:ring-accent/20"
+  const inputCls = "h-10 w-full rounded-xl border border-border bg-foreground/[0.03] px-3.5 text-[13px] text-foreground placeholder:text-text-3 outline-none transition-all focus:border-accent focus:bg-foreground/[0.05] focus:ring-2 focus:ring-accent/20"
   const labelCls = "block text-[11px] font-semibold uppercase tracking-widest text-text-2 mb-1.5"
 
   return (
@@ -541,11 +541,11 @@ function ClientCard({ client, onClick }: { client: OnboardingClient; onClick: ()
   return (
     <button
       onClick={onClick}
-      className="w-full rounded-[14px] border border-border bg-card p-4 text-left transition hover:border-foreground/[0.12] hover:bg-foreground/[0.015]"
+      className="w-full rounded-[14px] border border-border bg-card p-4 text-left transition hover:border-border hover:bg-foreground/[0.015]"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-foreground/[0.07] border border-foreground/[0.08]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-foreground/[0.07] border border-border">
             <User className="h-4 w-4 text-text-2" />
           </div>
           <div className="min-w-0">
@@ -612,7 +612,7 @@ function TimelineStep({
   const iconCls =
     state === "done"  ? "border-emerald-200 dark:border-emerald-500/20 bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" :
     state === "error" ? "border-red-200 dark:border-red-500/20 bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400" :
-    "border-foreground/[0.1] bg-foreground/[0.04] text-text-3"
+    "border-border bg-foreground/[0.04] text-text-3"
 
   return (
     <div className="flex gap-3">
@@ -630,7 +630,7 @@ function TimelineStep({
           <button
             onClick={onAction}
             disabled={actionLoading}
-            className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] px-2.5 py-1 text-[13px] font-semibold text-foreground transition-colors hover:bg-foreground/[0.05] disabled:opacity-50"
+            className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-[13px] font-semibold text-foreground transition-colors hover:bg-foreground/[0.05] disabled:opacity-50"
           >
             {actionLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
             {actionLabel}
@@ -665,9 +665,9 @@ function OnboardingDetailDrawer({
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[440px] flex-col border-l border-foreground/[0.08] shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
+      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[440px] flex-col border-l border-border shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
 
-        <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
+        <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5">
           <div className="min-w-0">
             <h2 className="truncate text-[18px] font-bold text-foreground">{client.name}</h2>
             <p className="mt-0.5 truncate text-[13px] text-text-3">{client.email}</p>
@@ -897,7 +897,7 @@ export function AdminOnboardingView() {
         <>
           {/* Vistas rápidas por etapa */}
           {clients.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5 border-b border-foreground/[0.06] pb-3">
+            <div className="flex flex-wrap items-center gap-1.5 border-b border-border pb-3">
               {ONBOARDING_VIEWS.map(v => (
                 <button
                   key={v.id}
@@ -920,7 +920,7 @@ export function AdminOnboardingView() {
               <Loader2 className="h-6 w-6 animate-spin text-text-3" />
             </div>
           ) : clients.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-foreground/[0.08] py-16 text-center">
+            <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-border py-16 text-center">
               <UserPlus className="mb-3 h-8 w-8 text-text-3" />
               <p className="font-semibold text-text-2">Sin onboardings aún</p>
               <p className="mt-1 text-[13px] text-text-3">Creá el primero con el botón de arriba.</p>
@@ -933,7 +933,7 @@ export function AdminOnboardingView() {
               </button>
             </div>
           ) : filteredClients.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-foreground/[0.08] py-16 text-center">
+            <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-border py-16 text-center">
               <p className="font-semibold text-text-2">Nada en esta vista</p>
               <p className="mt-1 text-[13px] text-text-3">Probá con otro filtro.</p>
             </div>

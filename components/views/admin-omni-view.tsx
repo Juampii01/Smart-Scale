@@ -176,13 +176,13 @@ function FindingsSection({ title, subtitle, findings }: { title: string; subtitl
         {title}{subtitle && <span className="ml-2 normal-case font-normal tracking-normal text-text-3">{subtitle}</span>}
       </p>
       {findings.length === 0 ? (
-        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+        <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
           No se encontraron patrones relevantes en los mensajes analizados.
         </div>
       ) : (
         <div className="space-y-3">
           {findings.map((f, i) => (
-            <div key={i} className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+            <div key={i} className="rounded-2xl border border-border bg-card p-4">
               <div className="flex items-start justify-between gap-3">
                 <h3 className="text-[15px] font-semibold text-foreground">{f.titulo}</h3>
                 <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider", SEVERITY_STYLES[f.severidad])}>
@@ -197,7 +197,7 @@ function FindingsSection({ title, subtitle, findings }: { title: string; subtitl
               {f.canales.length > 0 && (
                 <div className="mt-2.5 flex flex-wrap gap-1.5">
                   {f.canales.map(c => (
-                    <span key={c} className="rounded-md border border-foreground/[0.10] bg-foreground/[0.03] px-2 py-0.5 text-[13px] text-text-2">
+                    <span key={c} className="rounded-md border border-border bg-foreground/[0.03] px-2 py-0.5 text-[13px] text-text-2">
                       #{c}
                     </span>
                   ))}
@@ -219,7 +219,7 @@ function StatCard({ icon: Icon, label, value, sublabel, tone }: {
   tone?: "warn"
 }) {
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+    <div className="rounded-2xl border border-border bg-card p-4">
       <div className="flex items-center gap-2">
         <span className={cn(
           "flex h-7 w-7 items-center justify-center rounded-lg",
@@ -240,7 +240,7 @@ function ProspectingMetricsSection({ metrics }: { metrics: ProspectingMetrics | 
     return (
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[0, 1, 2, 3].map(i => (
-          <div key={i} className="h-[92px] animate-pulse rounded-2xl border border-foreground/[0.07] bg-foreground/[0.03]" />
+          <div key={i} className="h-[92px] animate-pulse rounded-2xl border border-border bg-foreground/[0.03]" />
         ))}
       </div>
     )
@@ -296,7 +296,7 @@ function RatingBreakdown({ title, subtitle, distribution, ratings }: {
 }) {
   const maxRating = Math.max(1, ...ratings.map(r => distribution[String(r)] ?? 0))
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+    <div className="rounded-2xl border border-border bg-card p-4">
       <div className="mb-3 flex items-center gap-2">
         <Star className="h-3.5 w-3.5 text-text-2" />
         <p className="text-[11px] font-semibold uppercase tracking-wide text-text-2">{title}</p>
@@ -341,7 +341,7 @@ function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
         <button
           onClick={onRefresh}
           disabled={analyzing}
-          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-border px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40"
         >
           <RefreshCw className={cn("h-3 w-3", analyzing && "animate-spin")} />
           Actualizar
@@ -351,17 +351,17 @@ function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
         <p className="mb-2 text-[13px] text-red-700 dark:text-red-400">{error}</p>
       )}
       {!briefing ? (
-        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+        <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
           Todavía no corrió el análisis de riesgo de prospección — corré "Actualizar" o esperá al briefing diario.
         </div>
       ) : briefing.findings.length === 0 ? (
-        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+        <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
           Ningún prospecto activo en riesgo hoy, según los principios de Ann.
         </div>
       ) : (
         <div className="space-y-3">
           {briefing.findings.map((f, i) => (
-            <div key={i} className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+            <div key={i} className="rounded-2xl border border-border bg-card p-4">
               <div className="flex items-start justify-between gap-3">
                 <h3 className="text-[15px] font-semibold text-foreground">@{f.prospecto}</h3>
                 <span className={cn(
@@ -379,7 +379,7 @@ function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
               </div>
               <div className={cn(
                 "mt-2.5 rounded-lg border px-2.5 py-2",
-                f.estado === "irremontable" ? "border-foreground/[0.10] bg-foreground/[0.03]" : "border-border bg-secondary/30",
+                f.estado === "irremontable" ? "border-border bg-foreground/[0.03]" : "border-border bg-secondary/30",
               )}>
                 <p className="text-[13px] font-semibold text-foreground">{f.estado === "irremontable" ? "Aprendizaje: " : ""}{f.accion}</p>
               </div>
@@ -418,7 +418,7 @@ function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
         <button
           onClick={onRefresh}
           disabled={analyzing}
-          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+          className="flex h-7 shrink-0 items-center gap-1.5 rounded-lg border border-border px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40"
         >
           {analyzing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
           Hacer resumen
@@ -430,12 +430,12 @@ function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
       )}
 
       {!briefing ? (
-        <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+        <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
           Todavía no corrió el resumen — corré "Hacer resumen" o esperá al de las 19hs (hora Miami).
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
             <div className="mb-2 flex items-center gap-2">
               <Instagram className="h-3.5 w-3.5 text-text-2" />
               <p className="text-[11px] font-semibold uppercase tracking-wide text-text-2">Instagram</p>
@@ -455,7 +455,7 @@ function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
             )}
           </div>
 
-          <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
             <div className="mb-2 flex items-center gap-2">
               <Slack className="h-3.5 w-3.5 text-text-2" />
               <p className="text-[11px] font-semibold uppercase tracking-wide text-text-2">Slack</p>
@@ -521,7 +521,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
   }
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+    <div className="rounded-2xl border border-border bg-card p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">
@@ -546,7 +546,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
           {a && (
             <button
               onClick={() => (correcting ? setCorrecting(false) : openCorrecting())}
-              className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all"
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover transition-all"
             >
               Corregir
             </button>
@@ -563,7 +563,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
       </div>
 
       {a && (
-        <div className="mt-3 border-t border-foreground/[0.07] pt-3">
+        <div className="mt-3 border-t border-border pt-3">
           <div className="flex items-center gap-2">
             <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider", badgeStyle)}>
               {a.estado === "en_riesgo" ? a.severidad : a.estado}
@@ -588,7 +588,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
       )}
 
       {correcting && (
-        <div className="mt-3 space-y-2.5 rounded-xl border border-foreground/[0.10] bg-foreground/[0.02] p-3">
+        <div className="mt-3 space-y-2.5 rounded-xl border border-border bg-foreground/[0.02] p-3">
           <p className="text-[11px] font-bold uppercase tracking-widest text-text-2">Registrar patrón de prospección</p>
           <div>
             <label className="text-[13px] font-semibold text-text-2">Situación</label>
@@ -596,7 +596,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               value={situacion}
               onChange={e => setSituacion(e.target.value)}
               rows={2}
-              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
             />
           </div>
           <div>
@@ -606,7 +606,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               onChange={e => setEnfoque(e.target.value)}
               rows={2}
               placeholder="Ej: le mandé el offer doc directo sin agendar llamada"
-              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
             />
           </div>
           <div>
@@ -634,7 +634,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               onChange={e => setCorreccion(e.target.value)}
               rows={2}
               placeholder="Ej: acá la IA sugirió esperar 4 semanas, pero este tipo de lead se enfría en días"
-              className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
             />
           </div>
           <div className="flex items-center justify-end gap-2">
@@ -670,7 +670,7 @@ function ChannelListCard({ channel, analyzing, onAnalyze }: {
   const badgeStyle = a ? (a.estado === "sano" ? SANO_STYLE : SEVERITY_STYLES[a.severidad]) : ""
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+    <div className="rounded-2xl border border-border bg-card p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">
@@ -694,7 +694,7 @@ function ChannelListCard({ channel, analyzing, onAnalyze }: {
       </div>
 
       {a && (
-        <div className="mt-3 border-t border-foreground/[0.07] pt-3">
+        <div className="mt-3 border-t border-border pt-3">
           <div className="flex items-center gap-2">
             <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider", badgeStyle)}>
               {a.estado === "en_riesgo" ? a.severidad : a.estado}
@@ -736,14 +736,14 @@ function NewPatternForm({ onSubmit, onDone }: {
   }
 
   return (
-    <div className="mb-3 space-y-2.5 rounded-xl border border-foreground/[0.10] bg-foreground/[0.02] p-3">
+    <div className="mb-3 space-y-2.5 rounded-xl border border-border bg-foreground/[0.02] p-3">
       <div>
         <label className="text-[13px] font-semibold text-text-2">Situación</label>
         <textarea
           value={situacion}
           onChange={e => setSituacion(e.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
+          className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
         />
       </div>
       <div>
@@ -752,7 +752,7 @@ function NewPatternForm({ onSubmit, onDone }: {
           value={enfoque}
           onChange={e => setEnfoque(e.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
+          className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
         />
       </div>
       <div>
@@ -779,7 +779,7 @@ function NewPatternForm({ onSubmit, onDone }: {
           value={correccion}
           onChange={e => setCorreccion(e.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
+          className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
         />
       </div>
       <div className="flex justify-end">
@@ -1228,7 +1228,7 @@ export function AdminOmniView() {
       <AdminSystemStatusPanel />
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-foreground/[0.07]">
+      <div className="flex gap-1 border-b border-border">
         <button
           onClick={() => setActiveTab("resumen")}
           className={cn(
@@ -1304,7 +1304,7 @@ export function AdminOmniView() {
         <div className="space-y-8">
 
           {/* Instagram */}
-          <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center gap-2.5">
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.05] text-text-2">
                 <Instagram className="h-4 w-4" />
@@ -1334,7 +1334,7 @@ export function AdminOmniView() {
                 <button
                   onClick={syncInstagram}
                   disabled={igSyncing}
-                  className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40"
                 >
                   <RefreshCw className={cn("h-3.5 w-3.5", igSyncing && "animate-spin")} />
                   Sincronizar
@@ -1359,11 +1359,11 @@ export function AdminOmniView() {
             {conversations === null ? (
               <div className="space-y-3">
                 {[0, 1, 2].map(i => (
-                  <div key={i} className="h-[84px] animate-pulse rounded-2xl border border-foreground/[0.07] bg-foreground/[0.03]" />
+                  <div key={i} className="h-[84px] animate-pulse rounded-2xl border border-border bg-foreground/[0.03]" />
                 ))}
               </div>
             ) : conversations.length === 0 ? (
-              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+              <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
                 No hay conversaciones sincronizadas todavía.
               </div>
             ) : (
@@ -1392,7 +1392,7 @@ export function AdminOmniView() {
         <div className="space-y-8">
 
           {/* Slack */}
-          <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center gap-2.5">
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.05] text-text-2">
                 <Slack className="h-4 w-4" />
@@ -1424,7 +1424,7 @@ export function AdminOmniView() {
                 <button
                   onClick={syncSlack}
                   disabled={slackSyncing}
-                  className="flex h-8 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40"
                 >
                   <RefreshCw className={cn("h-3.5 w-3.5", slackSyncing && "animate-spin")} />
                   Sincronizar
@@ -1460,11 +1460,11 @@ export function AdminOmniView() {
             {channels === null ? (
               <div className="space-y-3">
                 {[0, 1, 2].map(i => (
-                  <div key={i} className="h-[70px] animate-pulse rounded-2xl border border-foreground/[0.07] bg-foreground/[0.03]" />
+                  <div key={i} className="h-[70px] animate-pulse rounded-2xl border border-border bg-foreground/[0.03]" />
                 ))}
               </div>
             ) : channels.length === 0 ? (
-              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+              <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
                 No hay canales sincronizados todavía.
               </div>
             ) : (
@@ -1502,7 +1502,7 @@ export function AdminOmniView() {
         <div className="space-y-8">
 
           {/* Contexto de prospección — workflow propio, separado del Cerebro de Ann */}
-          <div className="rounded-2xl border border-foreground/[0.07] bg-card p-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
             <SectionHeader icon={Compass} title="Tu contexto de prospección" />
             <p className="mt-2 text-[13px] text-text-2">
               Separado del Cerebro de Ann — esto ajusta cómo se redacta el feedback de cada análisis de conversación (traducido a lenguaje simple, con foco en pasar de conversación a offer doc), sin tocar el criterio base de Ann.
@@ -1521,7 +1521,7 @@ export function AdminOmniView() {
                     onChange={e => setProspectingContext({ ...prospectingContext, workflow_inbound: e.target.value })}
                     rows={3}
                     placeholder="Cómo trabajás los leads que llegan solos (DMs, formularios, etc.)"
-                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
+                    className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
                   />
                 </div>
                 <div>
@@ -1531,7 +1531,7 @@ export function AdminOmniView() {
                     onChange={e => setProspectingContext({ ...prospectingContext, workflow_outbound: e.target.value })}
                     rows={3}
                     placeholder="Cómo contactás vos a los leads (prospección activa)"
-                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
+                    className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
                   />
                 </div>
                 <div>
@@ -1540,7 +1540,7 @@ export function AdminOmniView() {
                     value={prospectingContext.notas_generales}
                     onChange={e => setProspectingContext({ ...prospectingContext, notas_generales: e.target.value })}
                     rows={2}
-                    className="mt-1 w-full rounded-lg border border-foreground/[0.10] bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
+                    className="mt-1 w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-accent/20"
                   />
                 </div>
                 <div className="flex items-center gap-3">
@@ -1567,7 +1567,7 @@ export function AdminOmniView() {
               action={
                 <button
                   onClick={() => setNewPatternOpen(v => !v)}
-                  className="flex h-7 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all"
+                  className="flex h-7 items-center gap-1.5 rounded-lg border border-border px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover transition-all"
                 >
                   {newPatternOpen ? "Cancelar" : "+ Nuevo patrón"}
                 </button>
@@ -1584,16 +1584,16 @@ export function AdminOmniView() {
             )}
             {patterns === null ? (
               <div className="space-y-2">
-                {[0, 1].map(i => <div key={i} className="h-16 animate-pulse rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]" />)}
+                {[0, 1].map(i => <div key={i} className="h-16 animate-pulse rounded-xl border border-border bg-foreground/[0.03]" />)}
               </div>
             ) : patterns.length === 0 ? (
-              <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+              <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
                 Todavía no hay patrones registrados — se van sumando desde el botón "Corregir" en cada análisis, o sueltos con "+ Nuevo patrón".
               </div>
             ) : (
               <div className="space-y-2.5">
                 {patterns.map(p => (
-                  <div key={p.id} className="rounded-xl border border-foreground/[0.07] bg-card p-3">
+                  <div key={p.id} className="rounded-xl border border-border bg-card p-3">
                     <div className="flex items-center justify-between gap-2">
                       <StatusPill variant={RESULTADO_VARIANT[p.resultado]}>{RESULTADO_LABELS[p.resultado]}</StatusPill>
                       <span className="text-[13px] text-text-3">{fmtDateTime(p.created_at)}</span>

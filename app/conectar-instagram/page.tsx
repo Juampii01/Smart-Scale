@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Check, AlertCircle, Loader2, Instagram, ShieldCheck } from "lucide-react"
 
 const inputCls =
-  "w-full rounded-xl border border-foreground/[0.10] bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
+  "w-full rounded-xl border border-border bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
 
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -88,7 +88,7 @@ export default function ConectarInstagramPage() {
     <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }}>
       {/* Top bar */}
       <div
-        className="sticky top-0 z-10 border-b border-foreground/[0.07] backdrop-blur-md"
+        className="sticky top-0 z-10 border-b border-border backdrop-blur-md"
         style={{ backgroundColor: "color-mix(in srgb, var(--background) 96%, transparent)" }}
       >
         <div className="mx-auto max-w-xl px-5 py-3.5 flex items-center justify-between">
@@ -117,7 +117,7 @@ export default function ConectarInstagramPage() {
         </div>
 
         {/* Requisito: cuenta profesional */}
-        <div className="flex items-start gap-3 rounded-xl border border-foreground/[0.08] px-4 py-3.5" style={{ backgroundColor: "var(--card)" }}>
+        <div className="flex items-start gap-3 rounded-xl border border-border px-4 py-3.5" style={{ backgroundColor: "var(--card)" }}>
           <ShieldCheck className="h-4 w-4 text-accent-ink shrink-0 mt-0.5" />
           <p className="text-[13px] text-text-2 leading-relaxed">
             <span className="font-semibold text-foreground">Tu cuenta tiene que ser Profesional</span> (Business o Creator).
@@ -126,7 +126,7 @@ export default function ConectarInstagramPage() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="rounded-2xl border border-foreground/[0.07] p-5 sm:p-7 space-y-5" style={{ backgroundColor: "var(--card)" }}>
+        <form onSubmit={handleSubmit} className="rounded-2xl border border-border p-5 sm:p-7 space-y-5" style={{ backgroundColor: "var(--card)" }}>
           {error && (
             <div className="flex items-start gap-2.5 rounded-xl border border-red-400 bg-red-100 px-4 py-3 text-[13px] text-red-900 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-200">
               <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />

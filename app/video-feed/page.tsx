@@ -76,7 +76,7 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
 
   return (
     <div className={`group relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-200 ${
-      isTop ? "border-accent shadow-[0_0_20px_rgba(255,222,33,0.05)]" : "border-foreground/[0.07]"
+      isTop ? "border-accent shadow-[0_0_20px_rgba(255,222,33,0.05)]" : "border-border"
     } bg-card`}>
 
       {isTop && (
@@ -126,7 +126,7 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
         </div>
 
         {post.analysis && (
-          <div className="border-t border-foreground/[0.05] pt-2 mt-auto">
+          <div className="border-t border-border pt-2 mt-auto">
             <button onClick={() => setExpanded(v => !v)} className="flex w-full items-center gap-1.5 text-left">
               <Sparkles className="h-2.5 w-2.5 text-accent-ink/50" />
               <span className="text-[11px] font-semibold uppercase tracking-widest text-accent-ink/50 flex-1">Análisis IA</span>
@@ -199,7 +199,7 @@ function ConnectForm({ onConnect, clientId }: { onConnect: (account: Account) =>
           Ingresá la URL de tu perfil para ver tus mejores posts de los últimos 30 días con análisis IA.
         </p>
 
-        <div className="rounded-2xl border border-foreground/[0.08] bg-card overflow-hidden">
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
           <div className="h-[2px] w-full bg-gradient-to-r from-pink-500/0 via-pink-500/40 to-pink-500/0" />
           <div className="p-6 space-y-4">
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -212,7 +212,7 @@ function ConnectForm({ onConnect, clientId }: { onConnect: (account: Account) =>
                   value={url}
                   onChange={e => { setUrl(e.target.value); setError(null) }}
                   placeholder="https://instagram.com/tuperfil/"
-                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-background pl-10 pr-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-pink-500/40 focus:outline-none focus:ring-1 focus:ring-pink-500/15 transition-all"
+                  className="h-11 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-pink-500/40 focus:outline-none focus:ring-1 focus:ring-pink-500/15 transition-all"
                   disabled={loading}
                 />
               </div>
@@ -229,7 +229,7 @@ function ConnectForm({ onConnect, clientId }: { onConnect: (account: Account) =>
             )}
           </div>
           {loading && (
-            <div className="border-t border-foreground/[0.05]">
+            <div className="border-t border-border">
               <AiLoading
                 title="Obteniendo tus publicaciones"
                 steps={["Conectando con Instagram…", "Obteniendo publicaciones…", "Calculando métricas…", "Generando análisis IA…", "Casi listo…"]}
@@ -298,7 +298,7 @@ function FeedView({ account, onRefresh }: {
             onClick={handleRefresh}
             disabled={refreshing}
             title="Actualizar — solo procesa posts nuevos"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.07] text-text-3 hover:border-foreground/20 hover:text-text-2 transition-all disabled:opacity-40"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-text-3 hover:border-border-hover hover:text-text-2 transition-all disabled:opacity-40"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
           </button>
@@ -312,7 +312,7 @@ function FeedView({ account, onRefresh }: {
             className={`h-8 rounded-lg px-4 text-[13px] font-semibold transition-all ${
               filter === f
                 ? "bg-secondary text-foreground"
-                : "border border-foreground/[0.07] bg-foreground/[0.03] text-text-2 hover:text-foreground"
+                : "border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground"
             }`}>
             {f === "all" ? "Todos" : "Top Performing"}
           </button>
@@ -387,7 +387,7 @@ function VideoFeedContent() {
   if (loadingAccount) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-foreground/10 border-t-white/50" />
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-white/50" />
       </div>
     )
   }

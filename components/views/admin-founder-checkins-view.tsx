@@ -53,7 +53,7 @@ function fmtMoney(n: number | null): string {
   return `$${n.toLocaleString("es-AR")}`
 }
 
-const inputCls = "h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+const inputCls = "h-10 w-full rounded-xl border border-border bg-foreground/[0.04] px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
 const labelCls = "block text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1.5"
 
 export function AdminFounderCheckinsView() {
@@ -136,7 +136,7 @@ export function AdminFounderCheckinsView() {
       </div>
 
       {/* Form */}
-      <div className="rounded-2xl border border-foreground/[0.08] bg-card p-5">
+      <div className="rounded-2xl border border-border bg-card p-5">
         <SectionHeader icon={DollarSign} title="Nuevo registro" className="mb-4" />
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -205,14 +205,14 @@ export function AdminFounderCheckinsView() {
         {loading ? (
           <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-accent-ink/40" /></div>
         ) : checkins.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-10 text-center text-[13px] text-text-3">
+          <div className="rounded-2xl border border-dashed border-border bg-foreground/[0.02] px-6 py-10 text-center text-[13px] text-text-3">
             Todavía no hay check-ins cargados.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-foreground/[0.08] bg-card">
+          <div className="overflow-x-auto rounded-2xl border border-border bg-card">
             <table className="w-full min-w-[820px]">
               <thead>
-                <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                <tr className="border-b border-border bg-foreground/[0.02]">
                   {["Cliente", "Trimestre", "Cash collected top", "Escalón", "Meta próx.", "Nuevos clientes", "Notas"].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-widest text-text-2">{h}</th>
                   ))}
@@ -220,7 +220,7 @@ export function AdminFounderCheckinsView() {
               </thead>
               <tbody>
                 {checkins.map(c => (
-                  <tr key={c.id} className="border-b border-foreground/[0.04] last:border-b-0">
+                  <tr key={c.id} className="border-b border-border last:border-b-0">
                     <td className="px-4 py-3 text-[13px] font-semibold text-foreground">{c.client_name}</td>
                     <td className="px-4 py-3 text-[13px] text-text-2">{c.quarter_label}</td>
                     <td className="px-4 py-3 text-[13px] tabular-nums text-foreground">{fmtMoney(c.best_month_cash)}</td>

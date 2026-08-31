@@ -40,7 +40,7 @@ interface Submission {
   wrong_question_ids?: string[]
 }
 
-const inputCls = "w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
+const inputCls = "w-full rounded-lg border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
 
 const QUESTION_TYPE_OPTIONS: { value: Question["type"]; label: string }[] = [
   { value: "text", label: "Texto libre" },
@@ -291,7 +291,7 @@ export function AdminPosiView() {
             </div>
             <button
               onClick={startEditHeader}
-              className="flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] px-2.5 py-1 text-[13px] font-semibold text-text-2 hover:text-foreground hover:bg-foreground/[0.05] transition-colors shrink-0"
+              className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-[13px] font-semibold text-text-2 hover:text-foreground hover:bg-foreground/[0.05] transition-colors shrink-0"
             >
               <Pencil className="h-3 w-3" /> Editar
             </button>
@@ -301,7 +301,7 @@ export function AdminPosiView() {
 
       <div className="space-y-3">
         {levels.map((level) => (
-          <div key={level.id} className="rounded-2xl border border-foreground/[0.08] bg-card p-5">
+          <div key={level.id} className="rounded-2xl border border-border bg-card p-5">
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-2.5">
                 <ClipboardList className="h-4 w-4 text-text-3" />
@@ -313,14 +313,14 @@ export function AdminPosiView() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => copyLink(level.level_number)}
-                  className="flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] px-2.5 py-1 text-[13px] font-semibold text-text-2 hover:text-foreground hover:bg-foreground/[0.05] transition-colors"
+                  className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-[13px] font-semibold text-text-2 hover:text-foreground hover:bg-foreground/[0.05] transition-colors"
                 >
                   {copiedLevel === level.level_number ? <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" /> : <Copy className="h-3 w-3" />}
                   {copiedLevel === level.level_number ? "Copiado" : "Copiar link"}
                 </button>
                 <button
                   onClick={() => (editingLevel === level.id ? setEditingLevel(null) : startEdit(level))}
-                  className="flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] px-2.5 py-1 text-[13px] font-semibold text-text-2 hover:text-foreground hover:bg-foreground/[0.05] transition-colors"
+                  className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-[13px] font-semibold text-text-2 hover:text-foreground hover:bg-foreground/[0.05] transition-colors"
                 >
                   <Pencil className="h-3 w-3" /> {editingLevel === level.id ? "Cerrar" : "Editar"}
                 </button>
@@ -334,7 +334,7 @@ export function AdminPosiView() {
                   <div>
                     <label className="block text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1.5">Título del nivel</label>
                     <input
-                      className="w-full rounded-lg border border-foreground/[0.1] bg-card px-3.5 py-2.5 text-[15px] font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
+                      className="w-full rounded-lg border border-border bg-card px-3.5 py-2.5 text-[15px] font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
                       value={editDraft.title}
                       onChange={(e) => setEditDraft((d) => ({ ...d, title: e.target.value }))}
                     />
@@ -342,7 +342,7 @@ export function AdminPosiView() {
                   <div>
                     <label className="block text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1.5">Intro (arriba de las preguntas)</label>
                     <textarea
-                      className="w-full rounded-lg border border-foreground/[0.1] bg-card px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none resize-y leading-relaxed"
+                      className="w-full rounded-lg border border-border bg-card px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none resize-y leading-relaxed"
                       rows={2}
                       value={editDraft.intro}
                       onChange={(e) => setEditDraft((d) => ({ ...d, intro: e.target.value }))}
@@ -359,7 +359,7 @@ export function AdminPosiView() {
 
                   <div className="space-y-2.5">
                     {editDraft.questions.map((q, idx) => (
-                      <div key={q.id} className="rounded-xl border border-foreground/[0.08] bg-card p-3.5">
+                      <div key={q.id} className="rounded-xl border border-border bg-card p-3.5">
                         <div className="flex items-start gap-2.5">
                           <div className="flex flex-col items-center gap-0.5 pt-1.5 shrink-0">
                             <GripVertical className="h-3.5 w-3.5 text-text-3" />
@@ -368,7 +368,7 @@ export function AdminPosiView() {
 
                           <div className="flex-1 min-w-0 space-y-2.5">
                             <input
-                              className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13px] font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
+                              className="w-full rounded-lg border border-border bg-foreground/[0.03] px-3 py-2 text-[13px] font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
                               placeholder="Texto de la pregunta…"
                               value={q.label}
                               onChange={(e) => updateQuestion(idx, { label: e.target.value })}
@@ -383,7 +383,7 @@ export function AdminPosiView() {
                                   className={`rounded-full border px-2.5 py-1 text-[13px] font-semibold transition-colors ${
                                     q.type === opt.value
                                       ? "border-accent bg-secondary text-foreground"
-                                      : "border-foreground/[0.1] text-text-2 hover:text-foreground hover:border-foreground/20"
+                                      : "border-border text-text-2 hover:text-foreground hover:border-border-hover"
                                   }`}
                                 >
                                   {opt.label}
@@ -404,13 +404,13 @@ export function AdminPosiView() {
                                       className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-colors ${
                                         q.correct_index === oIdx
                                           ? "border-emerald-500 bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"
-                                          : "border-foreground/[0.15] text-transparent hover:border-emerald-500/60 hover:text-emerald-600/60 dark:hover:text-emerald-400/50"
+                                          : "border-border text-transparent hover:border-emerald-500/60 hover:text-emerald-600/60 dark:hover:text-emerald-400/50"
                                       }`}
                                     >
                                       <Check className="h-3 w-3" />
                                     </button>
                                     <input
-                                      className="flex-1 rounded-md border border-foreground/[0.08] bg-foreground/[0.02] px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
+                                      className="flex-1 rounded-md border border-border bg-foreground/[0.02] px-2.5 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
                                       placeholder={`Opción ${oIdx + 1}`}
                                       value={opt}
                                       onChange={(e) => updateOption(idx, oIdx, e.target.value)}
@@ -476,7 +476,7 @@ export function AdminPosiView() {
                   <button
                     type="button"
                     onClick={addQuestion}
-                    className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-foreground/[0.15] py-2.5 text-[13px] font-semibold text-text-2 hover:text-foreground hover:border-foreground/30 hover:bg-foreground/[0.02] transition-colors"
+                    className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border py-2.5 text-[13px] font-semibold text-text-2 hover:text-foreground hover:border-border-hover hover:bg-foreground/[0.02] transition-colors"
                   >
                     <Plus className="h-3.5 w-3.5" /> Agregar pregunta
                   </button>
@@ -509,7 +509,7 @@ export function AdminPosiView() {
       <div>
         <SectionHeader icon={ClipboardList} title="Respuestas recibidas" subtitle={`${submissions.length} en total`} className="mb-4" />
         {submissions.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-10 text-center text-[13px] text-text-3">
+          <div className="rounded-2xl border border-dashed border-border bg-foreground/[0.02] px-6 py-10 text-center text-[13px] text-text-3">
             Todavía no llegó ninguna respuesta.
           </div>
         ) : (
@@ -519,7 +519,7 @@ export function AdminPosiView() {
               const isExpanded = expandedSubmission === s.id
               const score = computeScore(level, s.answers)
               return (
-                <div key={s.id} className="rounded-xl border border-foreground/[0.08] bg-card overflow-hidden">
+                <div key={s.id} className="rounded-xl border border-border bg-card overflow-hidden">
                   <button
                     onClick={() => setExpandedSubmission(isExpanded ? null : s.id)}
                     className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-foreground/[0.02] transition-colors"
@@ -545,7 +545,7 @@ export function AdminPosiView() {
                     </div>
                   </button>
                   {isExpanded && level && (
-                    <div className="px-4 pb-4 space-y-3 border-t border-foreground/[0.06] pt-3">
+                    <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
                       {level.questions.map((q) => {
                         const isWrong = (s.wrong_question_ids ?? []).includes(q.id)
                         return (

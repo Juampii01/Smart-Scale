@@ -101,7 +101,7 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
       {!loading && items.length > 0 && (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {items.map(c => (
-            <div key={c.id} className="group relative rounded-[14px] border border-foreground/[0.07] bg-card p-4 hover:border-foreground/[0.12] transition-colors">
+            <div key={c.id} className="group relative rounded-[14px] border border-border bg-card p-4 hover:border-border transition-colors">
               <button onClick={() => handleRemove(c.id)}
                 className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center rounded-md text-text-3 hover:text-foreground hover:bg-foreground/[0.06]">
                 <X className="h-3.5 w-3.5" />
@@ -129,8 +129,8 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-[460px] rounded-[14px] border border-foreground/[0.10] bg-card shadow-2xl">
-            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-foreground/[0.07]">
+          <div className="w-full max-w-[460px] rounded-[14px] border border-border bg-card shadow-2xl">
+            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-border">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ backgroundColor: `${iconColor}18` }}>
                   <Icon className="h-4 w-4" style={{ color: iconColor }} />
@@ -145,26 +145,26 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
               <div className="space-y-1.5">
                 <label className="text-[13px] font-semibold text-text-2">Nombre <span className="text-danger">*</span></label>
                 <input autoFocus value={name} onChange={e => setName(e.target.value)} placeholder={isIG ? "Nombre del perfil" : "Nombre del canal"}
-                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors" />
+                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[13px] font-semibold text-text-2">{isIG ? "@handle" : "Handle / @"}</label>
                 <input value={handle} onChange={e => setHandle(e.target.value)} placeholder={isIG ? "@usuario" : "@canal"}
-                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors" />
+                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[13px] font-semibold text-text-2">Link</label>
                 <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..."
-                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors" />
+                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[13px] font-semibold text-text-2">Notas</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Por qué seguirlo, qué hace bien…" rows={2}
-                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors resize-none" />
+                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors resize-none" />
               </div>
             </div>
             <div className="flex items-center justify-end gap-3 px-6 pb-5">
-              <button onClick={() => setOpen(false)} className="rounded-[8px] border border-foreground/[0.10] px-4 py-2 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/[0.20] transition-colors">Cancelar</button>
+              <button onClick={() => setOpen(false)} className="rounded-[8px] border border-border px-4 py-2 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover transition-colors">Cancelar</button>
               <button onClick={handleAdd} disabled={!name.trim() || saving}
                 className="flex items-center gap-1.5 rounded-[8px] px-4 py-2 text-[13px] font-semibold text-black transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90"
                 style={{ backgroundColor: iconColor }}>

@@ -589,7 +589,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        <header className="shrink-0 z-10 border-b border-foreground/[0.08] bg-background/95 backdrop-blur-md">
+        <header className="shrink-0 z-10 border-b border-border bg-background/95 backdrop-blur-md">
           <div className="flex h-16 items-center justify-between px-4 lg:px-8">
             <div className="flex items-center gap-3">
               {!sidebarOpen && (
@@ -623,7 +623,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       onClick={() => router.push(href)}
                       title={label}
                       aria-label={label}
-                      className="inline-flex h-9 items-center gap-1.5 rounded-md border border-foreground/[0.10] bg-card px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/[0.18] hover:bg-foreground/[0.04] transition-colors"
+                      className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover hover:bg-foreground/[0.04] transition-colors"
                     >
                       <Icon className="h-4 w-4 text-accent-ink" />
                       <span className="hidden xl:inline">{label}</span>
@@ -647,7 +647,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <div className="relative" ref={profileMenuRef}>
                 <Button
                   variant="outline"
-                  className="gap-2 text-foreground hover:text-foreground border-foreground/[0.10] hover:border-foreground/[0.18] bg-card hover:bg-foreground/[0.04]"
+                  className="gap-2 text-foreground hover:text-foreground border-border hover:border-border-hover bg-card hover:bg-foreground/[0.04]"
                   onClick={() => setProfileMenuOpen((v) => !v)}
                   aria-haspopup="menu"
                   aria-expanded={profileMenuOpen}
@@ -883,7 +883,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   key={href}
                   type="button"
                   onClick={() => router.push(href)}
-                  className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-foreground/[0.10] bg-card px-3 text-[13px] font-semibold text-foreground hover:text-foreground active:scale-[0.98] transition-all"
+                  className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[13px] font-semibold text-foreground hover:text-foreground active:scale-[0.98] transition-all"
                 >
                   <Icon className="h-3.5 w-3.5 text-accent-ink" />
                   {short}

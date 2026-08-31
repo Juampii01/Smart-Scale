@@ -72,7 +72,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
   return (
     <>
       <tr
-        className={`border-b border-foreground/[0.04] hover:bg-foreground/[0.02] transition-colors cursor-pointer ${expanded ? "bg-foreground/[0.02]" : ""}`}
+        className={`border-b border-border hover:bg-foreground/[0.02] transition-colors cursor-pointer ${expanded ? "bg-foreground/[0.02]" : ""}`}
         onClick={() => setExpanded(v => !v)}
       >
         {/* Rank */}
@@ -83,7 +83,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
         {/* Thumbnail */}
         <td className="px-4 py-3 w-24" onClick={e => e.stopPropagation()}>
           <a href={video.video_url} target="_blank" rel="noopener noreferrer" className="block group">
-            <div className="relative w-20 h-[45px] rounded-lg overflow-hidden border border-foreground/[0.07] bg-foreground/[0.03] flex-shrink-0">
+            <div className="relative w-20 h-[45px] rounded-lg overflow-hidden border border-border bg-foreground/[0.03] flex-shrink-0">
               {video.thumbnail
                 ? <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
                 : <div className="flex h-full items-center justify-center"><Youtube className="h-4 w-4 text-text-3" /></div>
@@ -143,7 +143,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
 
       {/* Expanded panel */}
       {expanded && (
-        <tr className="border-b border-foreground/[0.06] bg-background/60">
+        <tr className="border-b border-border bg-background/60">
           <td colSpan={9} className="px-5 py-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Left: thumbnail big + description */}
@@ -151,7 +151,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
                 <div className="flex gap-4">
                   {video.thumbnail && (
                     <a href={video.video_url} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 group">
-                      <div className="relative w-32 h-[72px] rounded-xl overflow-hidden border border-foreground/[0.07]">
+                      <div className="relative w-32 h-[72px] rounded-xl overflow-hidden border border-border">
                         <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/40 transition-opacity">
                           <ExternalLink className="h-4 w-4 text-foreground" />
@@ -211,9 +211,9 @@ function ResultsTable({ result }: { result: ResearchResult }) {
   const totalComments = result.videos.reduce((s, v) => s + v.comments, 0)
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card">
       {/* Channel header */}
-      <div className="flex items-center gap-4 border-b border-foreground/[0.06] px-6 py-4">
+      <div className="flex items-center gap-4 border-b border-border px-6 py-4">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500/10 border border-red-500/20 overflow-hidden">
           {result.channelAvatar
             ? <img src={result.channelAvatar} alt={result.channelName} className="w-full h-full object-cover" />
@@ -248,7 +248,7 @@ function ResultsTable({ result }: { result: ResearchResult }) {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[860px]">
           <thead>
-            <tr className="border-b border-foreground/[0.06]">
+            <tr className="border-b border-border">
               {["#", "THUMB", "TÍTULO", "VIEWS", "DURACIÓN", "LIKES", "COMENT.", "ANÁLISIS", ""].map((h, i) => (
                 <th key={i} className={`px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-text-3 ${i >= 3 && i <= 6 ? "text-right" : "text-left"}`}>
                   {h}
@@ -297,8 +297,8 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
   if (!items.length) return null
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
-      <div className="flex items-center justify-between border-b border-foreground/[0.06] px-6 py-4">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="flex items-center justify-between border-b border-border px-6 py-4">
         <div className="flex items-center gap-2.5">
           <span className="h-3 w-[2px] rounded-full bg-accent" />
           <h2 className="text-[11px] font-semibold uppercase tracking-widest text-text-2">Investigaciones anteriores</h2>
@@ -326,14 +326,14 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
             <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={() => onSelect(item)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-[13px] font-medium text-text-2 hover:border-border hover:text-accent-ink transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-foreground/[0.04] px-3 py-1.5 text-[13px] font-medium text-text-2 hover:border-border hover:text-accent-ink transition-colors"
               >
                 Ver análisis
               </button>
               <button
                 onClick={() => handleDelete(item.id)}
                 disabled={deletingId === item.id}
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.07] text-text-3 hover:border-red-500/30 hover:bg-red-500/[0.08] hover:text-red-700 dark:hover:text-red-400 transition-all disabled:opacity-40"
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-text-3 hover:border-red-500/30 hover:bg-red-500/[0.08] hover:text-red-700 dark:hover:text-red-400 transition-all disabled:opacity-40"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
@@ -441,7 +441,7 @@ function ContentResearchContent() {
       )}
 
       {/* Form */}
-      <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <div className="h-[2px] w-full bg-gradient-to-r from-accent-ink/0 via-accent-ink/50 to-accent-ink/0" />
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -456,13 +456,13 @@ function ContentResearchContent() {
                   value={channelUrl}
                   onChange={e => { setChannelUrl(e.target.value); setError(null) }}
                   placeholder="https://youtube.com/@canal"
-                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] pl-10 pr-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
+                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] pl-10 pr-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
                   disabled={loading}
                 />
               </div>
 
               {/* Timeframe */}
-              <div className="flex rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] overflow-hidden shrink-0">
+              <div className="flex rounded-xl border border-border bg-foreground/[0.03] overflow-hidden shrink-0">
                 {([30, 60, 90] as const).map(t => (
                   <button
                     key={t}
@@ -491,7 +491,7 @@ function ContentResearchContent() {
         </div>
 
         {loading && (
-          <div className="border-t border-foreground/[0.05]">
+          <div className="border-t border-border">
             <AiLoading
               title="Investigando canal de YouTube"
               steps={[

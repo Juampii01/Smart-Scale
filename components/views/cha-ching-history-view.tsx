@@ -97,8 +97,8 @@ export function ChaChingHistoryView() {
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-[14px] border border-foreground/[0.07] bg-card py-16 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
+      <div className="flex flex-col items-center gap-3 rounded-[14px] border border-border bg-card py-16 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-foreground/[0.03]">
           <DollarSign className="h-5 w-5 text-text-3" />
         </div>
         <p className="text-[13px] text-text-2">Todavía no hay ventas (Cha-Ching) registradas.</p>
@@ -110,15 +110,15 @@ export function ChaChingHistoryView() {
     <div className="space-y-4">
       {/* Resumen */}
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
+        <div className="rounded-[14px] border border-border bg-card p-4">
           <div className="flex items-center gap-1.5 text-text-3 mb-1.5"><TrendingUp className="h-3 w-3" /><span className="text-[11px] font-semibold uppercase tracking-widest">Total cerrado</span></div>
           <p className="text-[24px] font-bold text-foreground tabular-nums">{fmtMoney(totals.totalDeals)}</p>
         </div>
-        <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
+        <div className="rounded-[14px] border border-border bg-card p-4">
           <div className="flex items-center gap-1.5 text-text-3 mb-1.5"><Wallet className="h-3 w-3" /><span className="text-[11px] font-semibold uppercase tracking-widest">Cash total</span></div>
           <p className="text-[24px] font-bold text-accent-ink tabular-nums">{fmtMoney(totals.totalCash)}</p>
         </div>
-        <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-4">
+        <div className="rounded-[14px] border border-border bg-card p-4">
           <div className="flex items-center gap-1.5 text-text-3 mb-1.5"><DollarSign className="h-3 w-3" /><span className="text-[11px] font-semibold uppercase tracking-widest">Cash este mes</span></div>
           <p className="text-[24px] font-bold text-foreground tabular-nums">{fmtMoney(totals.mesCash)}</p>
         </div>
@@ -129,7 +129,7 @@ export function ChaChingHistoryView() {
         <span className="text-[13px] text-text-3 tabular-nums">{totals.count} venta{totals.count !== 1 ? "s" : ""}</span>
       </div>
 
-      <div className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card divide-y divide-foreground/[0.05]">
+      <div className="overflow-hidden rounded-[14px] border border-border bg-card divide-y divide-border">
         {items.map((d) => (
           <div key={d.id} className="px-5 py-3.5">
             <div className="flex items-center gap-4">
@@ -146,7 +146,7 @@ export function ChaChingHistoryView() {
               </div>
             </div>
             {d.notas && editingId !== d.id && (
-              <div className="mt-3 flex items-start gap-2 rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3.5 py-2.5">
+              <div className="mt-3 flex items-start gap-2 rounded-xl border border-border bg-foreground/[0.02] px-3.5 py-2.5">
                 <Quote className="h-3.5 w-3.5 shrink-0 text-accent-ink/60 mt-0.5" />
                 <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-wrap">{d.notas}</p>
               </div>
@@ -170,7 +170,7 @@ export function ChaChingHistoryView() {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   placeholder="Ej: Este cliente me dijo 3 veces que no… y entendí que el seguimiento gana más tratos que el pitch."
-                  className="w-full rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none resize-y leading-relaxed"
+                  className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none resize-y leading-relaxed"
                 />
                 <div className="flex items-center gap-2">
                   <button

@@ -102,13 +102,13 @@ export function AdminInstagramAccessView() {
           <p className="text-[13px] text-text-2 mt-0.5">{items.length} solicitud{items.length !== 1 ? "es" : ""} desde el form público</p>
         </div>
         <button onClick={fetchItems} disabled={loading}
-          className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
         </button>
       </div>
 
       {/* Link del form */}
-      <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
+      <div className="rounded-[14px] border border-border bg-card px-5 py-4">
         <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 mb-2">Link del formulario (compartilo con los clientes)</p>
         <code className="rounded-lg bg-foreground/[0.04] px-3 py-2 text-[13px] text-text-2 font-mono">/conectar-instagram</code>
       </div>
@@ -128,15 +128,15 @@ export function AdminInstagramAccessView() {
         value={search}
         onChange={e => setSearch(e.target.value)}
         placeholder="Buscar por nombre, instagram, email..."
-        className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none w-full max-w-sm"
+        className="h-9 rounded-xl border border-border bg-card px-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none w-full max-w-sm"
       />
 
       {/* Table */}
-      <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
+      <div className="overflow-hidden rounded-[14px] border border-border bg-card">
         <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+              <tr className="border-b border-border bg-foreground/[0.02]">
                 {["Nombre","Instagram","Email","Profesional","Estado","Fecha",""].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-text-2 whitespace-nowrap">{h}</th>
                 ))}
@@ -150,7 +150,7 @@ export function AdminInstagramAccessView() {
                   {items.length ? "No hay solicitudes con esa búsqueda." : "Todavía no llegó ninguna solicitud."}
                 </td></tr>
               ) : filtered.map(item => (
-                <tr key={item.id} className="border-b border-foreground/[0.04] hover:bg-muted transition-colors">
+                <tr key={item.id} className="border-b border-border hover:bg-muted transition-colors">
                   <td className="px-4 py-3 whitespace-nowrap">
                     <span className="text-[15px] font-semibold text-foreground">{item.name}</span>
                   </td>
@@ -177,7 +177,7 @@ export function AdminInstagramAccessView() {
                     <select
                       value={item.status}
                       onChange={e => updateStatus(item.id, e.target.value)}
-                      className="h-8 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2 text-[13px] font-medium text-foreground capitalize focus:border-foreground/20 focus:outline-none"
+                      className="h-8 rounded-lg border border-border bg-foreground/[0.03] px-2 text-[13px] font-medium text-foreground capitalize focus:border-border-hover focus:outline-none"
                     >
                       {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>

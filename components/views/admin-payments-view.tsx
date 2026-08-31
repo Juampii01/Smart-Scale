@@ -101,7 +101,7 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
     setSaving(false)
   }
 
-  const inputCls = "h-8 rounded-lg border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none w-full"
+  const inputCls = "h-8 rounded-lg border border-border bg-card px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none w-full"
 
   return (
     <tr className="border-b border-border bg-secondary/30">
@@ -113,7 +113,7 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
       </td>
       <td className="px-4 py-2.5">
         <select value={status} onChange={e => setStatus(e.target.value as Payment["status"])}
-          className="h-8 w-full appearance-none rounded-lg border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40 focus-visible:ring-offset-1">
+          className="h-8 w-full appearance-none rounded-lg border border-border bg-card px-3 text-[13px] text-foreground capitalize focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40 focus-visible:ring-offset-1">
           <option value="aceptado">Aceptado</option>
           <option value="rechazado">Rechazado</option>
           <option value="pendiente">Pendiente</option>
@@ -125,7 +125,7 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
           type="date"
           value={date}
           onChange={e => setDate(e.target.value)}
-          className="h-8 rounded-lg border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none w-full [color-scheme:dark]"
+          className="h-8 rounded-lg border border-border bg-card px-3 text-[13px] text-foreground focus:border-border-hover focus:outline-none w-full [color-scheme:dark]"
         />
       </td>
       <td className="px-4 py-2.5 whitespace-nowrap">
@@ -134,7 +134,7 @@ function NewPaymentRow({ onSave, onCancel }: { onSave: (p: Omit<Payment, "id" | 
           className="flex h-8 w-8 items-center justify-center rounded-lg btn-accent disabled:opacity-40 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40 focus-visible:ring-offset-1">
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
           </button>
-          <button onClick={onCancel} aria-label="Cancelar" className="flex h-8 w-8 items-center justify-center rounded-lg border border-foreground/[0.08] text-text-2 hover:text-foreground transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
+          <button onClick={onCancel} aria-label="Cancelar" className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-text-2 hover:text-foreground transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -267,7 +267,7 @@ export function AdminPaymentsView() {
 
   // Shared payment row renderer
   const PaymentRow = (p: Payment) => (
-    <tr key={p.id} className="border-b border-foreground/[0.04] hover:bg-foreground/[0.02] transition-colors group">
+    <tr key={p.id} className="border-b border-border hover:bg-foreground/[0.02] transition-colors group">
       <td className="px-4 py-3 text-[13px] font-semibold text-foreground whitespace-nowrap">{p.name}</td>
       <td className="px-4 py-3 text-[13px] text-text-2 whitespace-nowrap">
         {p.email ?? <span className="text-text-3">—</span>}
@@ -321,7 +321,7 @@ export function AdminPaymentsView() {
 
   const TableHead = () => (
     <thead>
-      <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+      <tr className="border-b border-border bg-foreground/[0.02]">
         {["Nombre","Email","Cliente","Monto","Estado","Descripción","Fecha",""].map(h => (
           <th key={h} className={`px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-text-3 whitespace-nowrap ${h === "Monto" ? "text-right" : "text-left"}`}>{h}</th>
         ))}
@@ -342,7 +342,7 @@ export function AdminPaymentsView() {
         </div>
         <div className="flex items-center gap-2">
           {/* View toggle */}
-          <div className="flex items-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] p-1 gap-1">
+          <div className="flex items-center rounded-xl border border-border bg-foreground/[0.03] p-1 gap-1">
             <button
               onClick={() => setViewMode("mes")}
               title="Vista por mes"
@@ -358,11 +358,11 @@ export function AdminPaymentsView() {
           </div>
 
           <button onClick={() => fetchPayments()} disabled={loading}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button onClick={exportCsv} disabled={!filtered.length}
-            className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+            className="flex items-center gap-2 h-9 rounded-xl border border-border bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
             <Download className="h-3.5 w-3.5" />
             CSV
           </button>
@@ -386,7 +386,7 @@ export function AdminPaymentsView() {
           { label: "Pagos aceptados",  value: String(payments.filter(p => p.status === "aceptado").length),         color: "text-emerald-700 dark:text-emerald-300" },
           { label: "Pagos rechazados", value: String(payments.filter(p => p.status === "rechazado").length),        color: "text-red-700 dark:text-red-300" },
         ].map(card => (
-          <div key={card.label} className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
+          <div key={card.label} className="rounded-[14px] border border-border bg-card px-5 py-4">
             <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{card.label}</p>
             <p className={`mt-1.5 text-[24px] font-bold tabular-nums ${card.color}`}>{card.value}</p>
           </div>
@@ -400,7 +400,7 @@ export function AdminPaymentsView() {
             className={`h-8 rounded-xl border px-3.5 text-[13px] font-medium capitalize transition-all ${
               filterStatus === s
                 ? "border-accent bg-secondary text-accent-ink"
-                : "border-foreground/[0.07] text-text-2 hover:text-foreground hover:border-foreground/20"
+                : "border-border text-text-2 hover:text-foreground hover:border-border-hover"
             }`}>
             {s}
             {s !== "todos" && <span className="ml-1.5 text-[13px] opacity-60">{payments.filter(p => p.status === s).length}</span>}
@@ -411,7 +411,7 @@ export function AdminPaymentsView() {
             className={`h-8 rounded-xl border px-3.5 text-[13px] font-medium transition-all ${
               filterUnassigned
                 ? "border-amber-400/50 bg-amber-100 dark:bg-amber-500/10 text-amber-900 dark:text-amber-300"
-                : "border-foreground/[0.07] text-text-2 hover:text-foreground hover:border-foreground/20"
+                : "border-border text-text-2 hover:text-foreground hover:border-border-hover"
             }`}>
             Sin asignar
             <span className="ml-1.5 text-[13px] opacity-60">{unassignedCount}</span>
@@ -427,8 +427,8 @@ export function AdminPaymentsView() {
             onClick={() => setFilterMonth("todos")}
             className={`h-7 rounded-lg border px-3 text-[13px] font-medium transition-all ${
               filterMonth === "todos"
-                ? "border-foreground/20 bg-foreground/[0.06] text-foreground"
-                : "border-foreground/[0.07] text-text-3 hover:text-text-2 hover:border-foreground/15"
+                ? "border-border bg-foreground/[0.06] text-foreground"
+                : "border-border text-text-3 hover:text-text-2 hover:border-border-hover"
             }`}>
             Todos
           </button>
@@ -436,8 +436,8 @@ export function AdminPaymentsView() {
             <button key={m} onClick={() => setFilterMonth(m)}
               className={`h-7 rounded-lg border px-3 text-[13px] font-medium capitalize transition-all ${
                 filterMonth === m
-                  ? "border-foreground/20 bg-foreground/[0.06] text-foreground"
-                  : "border-foreground/[0.07] text-text-3 hover:text-text-2 hover:border-foreground/15"
+                  ? "border-border bg-foreground/[0.06] text-foreground"
+                  : "border-border text-text-3 hover:text-text-2 hover:border-border-hover"
               }`}>
               {fmtMonthLabel(m)}
             </button>
@@ -452,7 +452,7 @@ export function AdminPaymentsView() {
         /* ── Vista por mes ─────────────────────────────────────────────── */
         <div className="space-y-8">
           {adding && (
-            <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
+            <div className="overflow-hidden rounded-[14px] border border-border bg-card">
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <TableHead />
@@ -482,18 +482,18 @@ export function AdminPaymentsView() {
 
                   {/* Two stat cards per month */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-xl border border-foreground/[0.07] bg-card px-4 py-3">
+                    <div className="rounded-xl border border-border bg-card px-4 py-3">
                       <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Cobrado</p>
                       <p className="mt-1 text-[24px] font-bold tabular-nums text-emerald-700 dark:text-emerald-300">{fmtMoney(monthAceptado)}</p>
                     </div>
-                    <div className="rounded-xl border border-foreground/[0.07] bg-card px-4 py-3">
+                    <div className="rounded-xl border border-border bg-card px-4 py-3">
                       <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Pagos</p>
                       <p className="mt-1 text-[24px] font-bold tabular-nums text-foreground">{monthCount}</p>
                     </div>
                   </div>
 
                   {/* Payment rows */}
-                  <div className="overflow-hidden rounded-xl border border-foreground/[0.08] bg-card">
+                  <div className="overflow-hidden rounded-xl border border-border bg-card">
                     <div className="overflow-x-auto">
                       <table className="w-full border-collapse">
                         <TableHead />
@@ -512,7 +512,7 @@ export function AdminPaymentsView() {
       ) : (
 
         /* ── Vista tabla plana ─────────────────────────────────────────── */
-        <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
+        <div className="overflow-hidden rounded-[14px] border border-border bg-card">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <TableHead />

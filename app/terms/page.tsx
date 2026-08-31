@@ -10,7 +10,7 @@ export default function TermsPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }}>
       <div
-        className="sticky top-0 z-10 border-b border-foreground/[0.07] backdrop-blur-md"
+        className="sticky top-0 z-10 border-b border-border backdrop-blur-md"
         style={{ backgroundColor: "color-mix(in srgb, var(--background) 96%, transparent)" }}
       >
         <div className="mx-auto max-w-2xl px-5 py-3.5 flex items-center justify-between">

@@ -72,7 +72,7 @@ export default function LoginPage() {
       </div>
 
       {/* ── Left panel ── */}
-      <div className="hidden lg:flex lg:w-[52%] flex-col justify-between p-12 relative overflow-hidden border-r border-foreground/[0.05]">
+      <div className="hidden lg:flex lg:w-[52%] flex-col justify-between p-12 relative overflow-hidden border-r border-border">
 
         {/* Glow de fondo — neutro, sin lima */}
         <div className="pointer-events-none absolute inset-0">
@@ -122,7 +122,7 @@ export default function LoginPage() {
             ].map((s) => (
               <div
                 key={s.label}
-                className="rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-4 py-2.5"
+                className="rounded-lg border border-border bg-foreground/[0.03] px-4 py-2.5"
               >
                 <p className="text-[11px] text-text-3 uppercase tracking-widest">{s.label}</p>
                 <p className="mt-0.5 text-[13px] font-bold text-foreground">{s.value}</p>
@@ -166,7 +166,7 @@ export default function LoginPage() {
                 Email
               </label>
               <input
-                className="h-12 w-full rounded-lg border border-foreground/[0.10] bg-foreground/[0.04] px-4 text-[13px] text-foreground outline-none placeholder:text-text-3 transition-all focus:border-foreground/30 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-foreground/10"
+                className="h-12 w-full rounded-lg border border-border bg-foreground/[0.04] px-4 text-[13px] text-foreground outline-none placeholder:text-text-3 transition-all focus:border-border-hover focus:bg-foreground/[0.06] focus:ring-2 focus:ring-border"
                 placeholder="tu@email.com"
                 type="email"
                 value={email}
@@ -190,7 +190,7 @@ export default function LoginPage() {
               </div>
               <div className="relative">
                 <input
-                  className="h-12 w-full rounded-lg border border-foreground/[0.10] bg-foreground/[0.04] pl-4 pr-11 text-[13px] text-foreground outline-none placeholder:text-text-3 transition-all focus:border-foreground/30 focus:bg-foreground/[0.06] focus:ring-2 focus:ring-foreground/10"
+                  className="h-12 w-full rounded-lg border border-border bg-foreground/[0.04] pl-4 pr-11 text-[13px] text-foreground outline-none placeholder:text-text-3 transition-all focus:border-border-hover focus:bg-foreground/[0.06] focus:ring-2 focus:ring-border"
                   placeholder="••••••••"
                   type={showPassword ? "text" : "password"}
                   value={password}

@@ -63,7 +63,7 @@ export function ProgramTabsView() {
   return (
     <div className="space-y-5">
       {/* Tabs nav */}
-      <div className="flex items-center gap-1 border-b border-foreground/[0.08]">
+      <div className="flex items-center gap-1 border-b border-border">
         {TABS.map(t => {
           const Icon = t.icon
           const active = tab === t.id

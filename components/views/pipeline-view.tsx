@@ -59,7 +59,7 @@ function fieldInput(
         disabled={disabled}
         onBlur={e => onBlur(e.target.value)}
         onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-        className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
       />
     </div>
   )
@@ -78,8 +78,8 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[440px] flex-col border-l border-foreground/[0.08] shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
-        <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
+      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[440px] flex-col border-l border-border shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
+        <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5">
           <div className="min-w-0">
             <h2 className="text-[18px] font-bold text-foreground truncate">{prospect.name ?? "Prospecto"}</h2>
             <p className="text-[13px] text-text-3 mt-0.5">{fmtDate(prospect.created_at)}</p>
@@ -98,7 +98,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
           </div>
         </div>
 
-        <div className="border-b border-foreground/[0.06] px-6 py-4 space-y-3">
+        <div className="border-b border-border px-6 py-4 space-y-3">
           <StarRating value={prospect.rating} onChange={n => !readOnly && onPatch(prospect.id, { rating: n || null })} />
           {ig && (
             <a href={igHref(ig)} target="_blank" rel="noopener noreferrer"
@@ -121,7 +121,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
                 if (val === "__none__") { onPatch(prospect.id, { status: "nuevo", purchased: false }); return }
                 onPatch(prospect.id, { status: val, purchased: val === "compraron" })
               }}
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <option value="__none__">Sin calificar (no aparece en el pipeline)</option>
               {PIPELINE_COLUMNS.map(col => (
@@ -138,7 +138,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
                 defaultValue={prospect.next_follow_up_at ?? ""}
                 disabled={readOnly}
                 onChange={e => onPatch(prospect.id, { next_follow_up_at: e.target.value || null })}
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               />
             </div>
             <div className="space-y-1.5">
@@ -147,7 +147,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
                 type="button"
                 disabled={!prospect.next_follow_up_at || readOnly}
                 onClick={() => onPatch(prospect.id, { next_follow_up_at: null })}
-                className="w-full h-[42px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-[13px] font-semibold text-text-2 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all disabled:opacity-40"
+                className="w-full h-[42px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-foreground/[0.03] text-[13px] font-semibold text-text-2 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all disabled:opacity-40"
               >
                 <CheckCircle2 className="h-4 w-4" />
                 Marcar hecho
@@ -168,7 +168,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
               rows={4}
               disabled={readOnly}
               onBlur={e => onPatch(prospect.id, { notes: e.target.value || null })}
-              className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full resize-none rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
         </div>
@@ -198,7 +198,7 @@ function NewProspectModal({ onClose, onCreate, creating }: {
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <form onSubmit={handleSubmit}
-          className="w-full max-w-sm rounded-[14px] border border-foreground/[0.10] shadow-2xl p-6 space-y-4"
+          className="w-full max-w-sm rounded-[14px] border border-border shadow-2xl p-6 space-y-4"
           style={{ backgroundColor: "var(--card)" }}>
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-[15px] font-bold text-foreground">Nuevo prospecto</h3>
@@ -212,21 +212,21 @@ function NewProspectModal({ onClose, onCreate, creating }: {
             <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Nombre *</p>
             <input autoFocus type="text" value={name} onChange={e => setName(e.target.value)}
               placeholder="Nombre completo"
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all" />
+              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">
             <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Instagram</p>
             <input type="text" value={instagram} onChange={e => setInstagram(e.target.value)}
               placeholder="@usuario"
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all" />
+              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">
             <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Desde dónde llegó</p>
             <input type="text" value={source} onChange={e => setSource(e.target.value)}
               placeholder="ej: Instagram, referido, evento..."
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all" />
+              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">

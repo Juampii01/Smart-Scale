@@ -333,26 +333,26 @@ export function AdminSettingView() {
         <div className="flex flex-wrap items-center gap-2">
           {/* Selector de mes — ocupa toda la fila en mobile */}
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            <button onClick={() => changMonth(-1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes anterior">
+            <button onClick={() => changMonth(-1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-border hover:bg-foreground/5 transition-colors" title="Mes anterior">
               <ChevronLeft className="h-4 w-4" />
             </button>
 
-            <div className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-foreground/10 min-w-0 sm:min-w-[220px] text-center">
+            <div className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-border min-w-0 sm:min-w-[220px] text-center">
               <span className="text-[13px] font-bold text-foreground">{monthLabel(month)}</span>
             </div>
 
-            <button onClick={() => changMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
+            <button onClick={() => changMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-border hover:bg-foreground/5 transition-colors" title="Mes siguiente">
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
 
           {/* Acciones */}
           <div className="flex items-center gap-2">
-            <button onClick={() => loadLogs(month)} disabled={loading} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors disabled:opacity-40" title="Recargar">
+            <button onClick={() => loadLogs(month)} disabled={loading} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-border hover:bg-foreground/5 transition-colors disabled:opacity-40" title="Recargar">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
 
-            <button onClick={exportCsv} className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg border border-foreground/10 hover:bg-foreground/5 text-[13px] font-medium transition-colors" title="Descargar CSV">
+            <button onClick={exportCsv} className="h-9 px-3 shrink-0 flex items-center gap-1.5 rounded-lg border border-border hover:bg-foreground/5 text-[13px] font-medium transition-colors" title="Descargar CSV">
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
@@ -446,7 +446,7 @@ export function AdminSettingView() {
             />
 
             {logs.length === 0 ? (
-              <div className="rounded-[14px] border border-foreground/10 py-12 text-center">
+              <div className="rounded-[14px] border border-border py-12 text-center">
                 <p className="text-[13px] text-text-2">Sin registros cargados para este mes</p>
               </div>
             ) : (
@@ -458,7 +458,7 @@ export function AdminSettingView() {
                     key={log.id}
                     type="button"
                     onClick={() => setEditingLog(log)}
-                    className="w-full text-left rounded-[14px] border border-foreground/10 bg-card p-4 transition-colors hover:bg-foreground/[0.03] active:scale-[0.99]"
+                    className="w-full text-left rounded-[14px] border border-border bg-card p-4 transition-colors hover:bg-foreground/[0.03] active:scale-[0.99]"
                   >
                     <div className="mb-3 flex items-center justify-between gap-2">
                       <span className="text-[13px] font-semibold text-foreground">{dateLabel(log.date)}</span>
@@ -466,7 +466,7 @@ export function AdminSettingView() {
                     </div>
                     <div className="grid grid-cols-3 gap-2">
                       {COLUMNS.map(col => (
-                        <div key={col.key} className="rounded-lg border border-foreground/[0.06] bg-foreground/[0.02] px-2.5 py-2">
+                        <div key={col.key} className="rounded-lg border border-border bg-foreground/[0.02] px-2.5 py-2">
                           <p className="truncate text-[11px] font-bold uppercase tracking-wider text-text-3" title={col.label}>{col.short}</p>
                           <p className="mt-0.5 text-[15px] font-bold tabular-nums text-foreground">
                             {log[col.key] != null ? log[col.key] : "—"}
@@ -492,11 +492,11 @@ export function AdminSettingView() {
               </div>
 
               {/* Desktop: tabla completa */}
-              <div className="hidden md:block overflow-hidden rounded-[14px] border border-foreground/10 bg-card">
+              <div className="hidden md:block overflow-hidden rounded-[14px] border border-border bg-card">
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead>
-                      <tr className="border-b border-foreground/10 bg-foreground/[0.02]">
+                      <tr className="border-b border-border bg-foreground/[0.02]">
                         <th className="sticky left-0 z-10 bg-foreground/[0.02] px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-text-2 min-w-[140px]">
                           Fecha
                         </th>
@@ -516,7 +516,7 @@ export function AdminSettingView() {
                     </thead>
                     <tbody>
                       {logs.map(log => (
-                        <tr key={log.id} onClick={() => setEditingLog(log)} className="border-b border-foreground/[0.04] hover:bg-foreground/[0.04] cursor-pointer transition-colors group">
+                        <tr key={log.id} onClick={() => setEditingLog(log)} className="border-b border-border hover:bg-foreground/[0.04] cursor-pointer transition-colors group">
                           <td className="sticky left-0 z-10 bg-card group-hover:bg-foreground/[0.04] px-4 py-2.5 font-medium text-[13px] text-foreground">
                             {dateLabel(log.date)}
                           </td>

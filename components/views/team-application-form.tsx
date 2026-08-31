@@ -37,7 +37,7 @@ function HelpText({ children }: { children: React.ReactNode }) {
 function SectionCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-2xl border border-foreground/[0.07] p-5 sm:p-7 space-y-5 sm:space-y-6"
+      className="rounded-2xl border border-border p-5 sm:p-7 space-y-5 sm:space-y-6"
       style={{ backgroundColor: "var(--card)" }}
     >
       {children}
@@ -91,7 +91,7 @@ function RadioGroup({
       {options.map(opt => (
         <label key={opt} className="flex items-center gap-3 cursor-pointer group" onClick={() => onChange(opt)}>
           <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-            value === opt ? "border-accent bg-accent" : "border-foreground/20 group-hover:border-foreground/40"
+            value === opt ? "border-accent bg-accent" : "border-border group-hover:border-border-hover"
           }`}>
             {value === opt && <span className="h-2 w-2 rounded-full bg-black" />}
           </span>
@@ -220,7 +220,7 @@ export function TeamApplicationForm({ rol }: { rol: string }) {
     <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }} ref={topRef}>
 
       {/* Top bar */}
-      <div className="sticky top-0 z-10 border-b border-foreground/[0.07] backdrop-blur-md" style={{ backgroundColor: "color-mix(in srgb, var(--background) 96%, transparent)" }}>
+      <div className="sticky top-0 z-10 border-b border-border backdrop-blur-md" style={{ backgroundColor: "color-mix(in srgb, var(--background) 96%, transparent)" }}>
         <div className="mx-auto max-w-2xl px-5 py-3.5 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
             <span className="text-foreground text-[18px] font-bold tracking-tight">Smart</span>

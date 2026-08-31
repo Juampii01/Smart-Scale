@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
  *  mono = versión monocromo (blanco/negro según tema) para la sección Leads. */
 export function PurchasedToggle({ value, onChange, mono = false }: { value: boolean; onChange: (v: boolean) => void; mono?: boolean }) {
   const onStyle = mono
-    ? "border-foreground/30 bg-foreground/[0.10] text-foreground"
+    ? "border-border bg-foreground/[0.10] text-foreground"
     : "border-emerald-400/30 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300"
   return (
     <button
@@ -17,7 +17,7 @@ export function PurchasedToggle({ value, onChange, mono = false }: { value: bool
         "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[13px] font-semibold transition-colors",
         value
           ? onStyle
-          : "border-foreground/10 bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20"
+          : "border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover"
       )}
     >
       {value ? <><Check className="h-3 w-3" /> Compró</> : "No"}

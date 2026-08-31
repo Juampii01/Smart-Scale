@@ -130,7 +130,7 @@ function CelebrationOverlay({
       onClick={onClose}
     >
       <div
-        className="relative mx-4 w-full max-w-sm overflow-hidden rounded-[14px] border border-foreground/[0.10] bg-card shadow-2xl"
+        className="relative mx-4 w-full max-w-sm overflow-hidden rounded-[14px] border border-border bg-card shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
 
@@ -204,7 +204,7 @@ function ConfirmOverwriteDialog({
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-[13px] font-medium text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground"
+              className="rounded-xl border border-border bg-foreground/[0.04] px-5 py-2 text-[13px] font-medium text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground"
             >
               Cancelar
             </button>
@@ -402,7 +402,7 @@ export function ReportInputView() {
         />
       )}
       {/* Tab switcher */}
-      <div className="flex gap-1 mb-8 rounded-xl border border-foreground/[0.06] bg-card p-1 w-fit">
+      <div className="flex gap-1 mb-8 rounded-xl border border-border bg-card p-1 w-fit">
         <button
           type="button"
           onClick={() => setTab("form")}
@@ -468,7 +468,7 @@ export function ReportInputView() {
         )}
 
         {/* Month + client selector */}
-        <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card p-5">
+        <div className="relative overflow-hidden rounded-[14px] border border-border bg-card p-5">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
           <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -477,12 +477,12 @@ export function ReportInputView() {
                 type="month"
                 value={month}
                 onChange={(e) => setMonth(e.target.value)}
-                className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 [color-scheme:dark]"
+                className="rounded-xl border border-border bg-foreground/[0.04] px-4 py-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 [color-scheme:dark]"
               />
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               {loadingExisting && (
-                <span className="flex items-center gap-1.5 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[13px] text-text-2">
+                <span className="flex items-center gap-1.5 rounded-full border border-border bg-foreground/[0.04] px-3 py-1 text-[13px] text-text-2">
                   <Loader2 className="h-3 w-3 animate-spin" />Cargando…
                 </span>
               )}
@@ -507,8 +507,8 @@ export function ReportInputView() {
 
         {/* Field groups */}
         {FIELD_GROUPS.map((group) => (
-          <div key={group.key} className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
-            <div className="flex items-center justify-between border-b border-foreground/[0.05] px-5 py-3">
+          <div key={group.key} className="relative overflow-hidden rounded-[14px] border border-border bg-card">
+            <div className="flex items-center justify-between border-b border-border px-5 py-3">
               <div className="flex items-center gap-2">
                 <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
                 <span className="text-[13px] font-semibold uppercase tracking-widest text-foreground">{group.label}</span>
@@ -537,7 +537,7 @@ export function ReportInputView() {
                             className={`h-10 w-10 rounded-xl text-[13px] font-bold transition-all ${
                               values[field.key] === String(n)
                                 ? "bg-secondary text-foreground"
-                                : "border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:border-border hover:text-foreground"
+                                : "border border-border bg-foreground/[0.03] text-text-2 hover:border-border hover:text-foreground"
                             }`}
                           >
                             {n}
@@ -571,7 +571,7 @@ export function ReportInputView() {
                         onChange={(e) => setValue(field.key, e.target.value)}
                         rows={2}
                         placeholder="—"
-                        className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+                        className="w-full resize-none rounded-xl border border-border bg-foreground/[0.04] px-3 py-2 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
                       />
                     ) : (
                       <input
@@ -584,7 +584,7 @@ export function ReportInputView() {
                         className={`w-full rounded-xl border px-3 py-2 text-[15px] font-semibold text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 ${
                           isHighlight
                             ? "border-accent bg-secondary focus:border-accent focus:ring-accent/20"
-                            : "border-foreground/[0.08] bg-foreground/[0.04] focus:border-accent focus:ring-accent/20"
+                            : "border-border bg-foreground/[0.04] focus:border-accent focus:ring-accent/20"
                         }`}
                       />
                     )}
@@ -648,7 +648,7 @@ export function ReportInputView() {
               onClick={handleTest}
               disabled={status === "loading" || !ownClientId}
               title="Solo developer: guarda un reporte con datos ficticios"
-              className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/[0.04] px-5 py-2.5 text-[13px] font-bold text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 rounded-xl border border-border bg-foreground/[0.04] px-5 py-2.5 text-[13px] font-bold text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FlaskConical className="h-4 w-4" />
               Testear

@@ -205,7 +205,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
 
   if (!activeClientId) {
     return (
-      <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-[13px] text-text-2">
+      <div className="rounded-[14px] border border-dashed border-border bg-foreground/[0.02] px-5 py-10 text-center text-[13px] text-text-2">
         No hay un cliente activo seleccionado.
       </div>
     )
@@ -214,7 +214,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   // loading, o playbook cargado que aún pertenece a otro cliente (transición).
   if (loading || (playbook && playbook.client_id !== activeClientId)) {
     return (
-      <div className="flex h-[400px] items-center justify-center rounded-[14px] border border-foreground/[0.07] bg-card">
+      <div className="flex h-[400px] items-center justify-center rounded-[14px] border border-border bg-card">
         <Loader2 className="h-5 w-5 animate-spin text-text-2" />
       </div>
     )
@@ -224,7 +224,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   if (!playbook) {
     if (canManage) {
       return (
-        <div className="flex flex-col items-center justify-center gap-4 rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-16 text-center">
+        <div className="flex flex-col items-center justify-center gap-4 rounded-[14px] border border-border bg-card px-6 py-16 text-center">
           <Sparkles className="h-10 w-10 text-text-3" />
           <div>
             <h3 className="text-[15px] font-bold text-foreground">Playbook aún no creado</h3>
@@ -244,7 +244,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
       )
     }
     return (
-      <div className="flex flex-col items-center justify-center gap-3 rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-16 text-center">
+      <div className="flex flex-col items-center justify-center gap-3 rounded-[14px] border border-dashed border-border bg-foreground/[0.02] px-6 py-16 text-center">
         <FileText className="h-10 w-10 text-text-3" />
         <div>
           <h3 className="text-[15px] font-bold text-foreground">Tu playbook aún no fue creado</h3>
@@ -259,7 +259,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   // Client playbook reveal button (hidden until clicked)
   if (!canManage && !playbook.visible_to_client) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-16 text-center">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-[14px] border border-border bg-card px-6 py-16 text-center">
         <FileText className="h-10 w-10 text-text-3" />
         <div>
           <h3 className="text-[15px] font-bold text-foreground">Tu playbook está listo</h3>
@@ -280,12 +280,12 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   }
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="rounded-[14px] border border-border bg-card overflow-hidden">
       {/* Save indicator bar */}
-      <div className="flex items-center justify-between gap-3 border-b border-foreground/[0.06] px-6 py-2.5">
+      <div className="flex items-center justify-between gap-3 border-b border-border px-6 py-2.5">
         <div className="flex items-center gap-2 text-[13px]">
           {!canManage && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-text-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-foreground/[0.04] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-text-2">
               Solo checkboxes editables
             </span>
           )}

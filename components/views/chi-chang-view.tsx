@@ -27,7 +27,7 @@ function Field({ label, required, hint, children }: { label: string; required?: 
   )
 }
 
-const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2.5 text-[13px] font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
+const inputCls = "w-full rounded-xl border border-border bg-foreground/[0.04] px-4 py-2.5 text-[13px] font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
 
 // Reflexión obligatoria detrás del cierre (gamificación). Sin al menos
 // NOTAS_MIN caracteres el submit queda bloqueado.
@@ -120,7 +120,7 @@ export function ChiChangView() {
   return (
     <>
       {/* Tab switcher */}
-      <div className="flex gap-1 mb-6 rounded-xl border border-foreground/[0.06] bg-card p-1 w-fit">
+      <div className="flex gap-1 mb-6 rounded-xl border border-border bg-card p-1 w-fit">
         <button type="button" onClick={() => setTab("form")}
           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium transition-all ${tab === "form" ? "bg-secondary text-foreground" : "text-text-2 hover:text-foreground"}`}>
           <FileText className="h-3.5 w-3.5" /> Registrar
@@ -136,7 +136,7 @@ export function ChiChangView() {
       {tab === "form" && (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Header card */}
-      <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-5">
+      <div className="rounded-[14px] border border-border bg-card px-6 py-5">
         <div className="flex items-center gap-4">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft ring-1 ring-accent/20">
             <Trophy className="h-5 w-5 text-accent-ink" />
@@ -163,8 +163,8 @@ export function ChiChangView() {
       )}
 
       {/* Form fields */}
-      <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card">
-        <div className="flex items-center gap-2 border-b border-foreground/[0.05] px-5 py-3">
+      <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
+        <div className="flex items-center gap-2 border-b border-border px-5 py-3">
           <span className="h-3 w-[2px] rounded-full bg-accent" />
           <span className="text-[11px] font-semibold uppercase tracking-widest text-text-2">Detalles del Trato</span>
         </div>
@@ -219,8 +219,8 @@ export function ChiChangView() {
                     onClick={() => setProximoNivel(isActive ? "" : opt.value)}
                     className={`relative flex flex-col items-center gap-1.5 rounded-xl border py-3 px-2 transition-all duration-150 ${
                       isActive
-                        ? "border-foreground/20 bg-foreground/[0.08]"
-                        : "border-foreground/[0.07] bg-foreground/[0.03] hover:bg-foreground/[0.06] hover:border-foreground/[0.12]"
+                        ? "border-border-hover bg-foreground/[0.08]"
+                        : "border-border bg-foreground/[0.03] hover:bg-foreground/[0.06] hover:border-border"
                     }`}
                     style={isActive ? { boxShadow: `0 0 0 1px color-mix(in srgb, ${opt.color} 25%, transparent), 0 0 12px color-mix(in srgb, ${opt.color} 10%, transparent)` } : {}}
                   >
@@ -242,9 +242,9 @@ export function ChiChangView() {
 
       {/* La historia detrás del cierre — reflexión obligatoria (gamificación) */}
       <div className={`relative overflow-hidden rounded-[14px] border bg-card transition-colors ${
-        notasOk ? "border-accent" : "border-foreground/[0.06]"
+        notasOk ? "border-accent" : "border-border"
       }`}>
-        <div className="flex items-center justify-between gap-2 border-b border-foreground/[0.05] px-5 py-3">
+        <div className="flex items-center justify-between gap-2 border-b border-border px-5 py-3">
           <div className="flex items-center gap-2">
             <Quote className="h-3.5 w-3.5 text-accent-ink" />
             <span className="text-[11px] font-semibold uppercase tracking-widest text-text-2">

@@ -164,7 +164,7 @@ export function MetricsSection({
   return (
     <section className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <span className="inline-flex items-center rounded-full border border-foreground/8 bg-foreground/[0.03] px-3 py-1 text-[13px] font-medium text-text-2">
+        <span className="inline-flex items-center rounded-full border border-border bg-foreground/[0.03] px-3 py-1 text-[13px] font-medium text-text-2">
           {totalCount} campos · {monthLabel}
         </span>
         <Input
@@ -173,7 +173,7 @@ export function MetricsSection({
           placeholder="Buscar métricas…"
           className={cn(
             "w-full sm:w-[260px] h-8 rounded-xl text-[13px]",
-            "bg-foreground/[0.04] text-foreground placeholder:text-text-3 border-foreground/8",
+            "bg-foreground/[0.04] text-foreground placeholder:text-text-3 border-border",
             "focus-visible:ring-1 focus-visible:ring-accent/20 focus-visible:border-accent"
           )}
         />
@@ -191,10 +191,10 @@ export function MetricsSection({
           {Object.entries(grouped).map(([category, items]) => (
             <div
               key={category}
-              className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card"
+              className="overflow-hidden rounded-[14px] border border-border bg-card"
             >
               {/* Category header */}
-              <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-3">
+              <div className="flex items-center justify-between border-b border-border px-5 py-3">
                 <div className="flex items-center gap-2">
                   <span className="h-3 w-[2px] rounded-full bg-accent" />
                   <span className="text-[11px] font-semibold uppercase tracking-widest text-text-2">{category}</span>
@@ -206,7 +206,7 @@ export function MetricsSection({
               <div className="max-h-[320px] overflow-auto">
                 <table className="w-full">
                   <thead className="sticky top-0 bg-card/95 backdrop-blur-sm">
-                    <tr className="border-b border-foreground/[0.05]">
+                    <tr className="border-b border-border">
                       <th className="px-5 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-3">Campo</th>
                       <th className="px-5 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-3">Mensual</th>
                       <th className="px-5 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-3">Últ. 12 meses</th>
@@ -216,7 +216,7 @@ export function MetricsSection({
                     {items.map((item, i) => (
                       <tr
                         key={item.key}
-                        className={`border-b border-foreground/[0.04] last:border-b-0 transition-colors hover:bg-foreground/[0.02] ${i % 2 === 0 ? "" : "bg-foreground/[0.01]"}`}
+                        className={`border-b border-border last:border-b-0 transition-colors hover:bg-foreground/[0.02] ${i % 2 === 0 ? "" : "bg-foreground/[0.01]"}`}
                       >
                         <td className="px-5 py-2.5">
                           <span className="text-[13px] font-medium text-text-2">

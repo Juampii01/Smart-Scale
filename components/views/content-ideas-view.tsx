@@ -131,7 +131,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
           {ideas.map(idea => (
             <div
               key={idea.id}
-              className="group relative rounded-[14px] border border-foreground/[0.07] bg-card p-4 hover:border-foreground/[0.12] transition-colors"
+              className="group relative rounded-[14px] border border-border bg-card p-4 hover:border-border transition-colors"
             >
               <button
                 onClick={() => handleRemove(idea.id)}
@@ -163,9 +163,9 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
       {/* Modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-[460px] rounded-[14px] border border-foreground/[0.10] bg-card shadow-2xl">
+          <div className="w-full max-w-[460px] rounded-[14px] border border-border bg-card shadow-2xl">
             {/* Modal header */}
-            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-foreground/[0.07]">
+            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-border">
               <div className="flex items-center gap-2.5">
                 <div
                   className="flex h-8 w-8 items-center justify-center rounded-lg"
@@ -195,7 +195,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                   placeholder="Your content idea"
-                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors"
+                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors"
                 />
               </div>
 
@@ -211,7 +211,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
                         "rounded-full px-3 py-1 text-[13px] font-semibold border transition-all",
                         format === f
                           ? "border-transparent text-black"
-                          : "border-foreground/[0.10] text-text-2 hover:border-foreground/[0.20] hover:text-foreground bg-transparent"
+                          : "border-border text-text-2 hover:border-border-hover hover:text-foreground bg-transparent"
                       )}
                       style={format === f ? { backgroundColor: iconColor } : {}}
                     >
@@ -229,7 +229,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
                   onChange={e => setHook(e.target.value)}
                   placeholder="Describe the opening hook"
                   rows={3}
-                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors resize-none"
+                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors resize-none"
                 />
               </div>
 
@@ -241,7 +241,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
                   onChange={e => setNotes(e.target.value)}
                   placeholder="Any additional notes"
                   rows={2}
-                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-foreground/[0.25] transition-colors resize-none"
+                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors resize-none"
                 />
               </div>
             </div>
@@ -250,7 +250,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
             <div className="flex items-center justify-end gap-3 px-6 pb-5">
               <button
                 onClick={() => setOpen(false)}
-                className="rounded-[8px] border border-foreground/[0.10] px-4 py-2 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/[0.20] transition-colors"
+                className="rounded-[8px] border border-border px-4 py-2 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover transition-colors"
               >
                 Cancel
               </button>

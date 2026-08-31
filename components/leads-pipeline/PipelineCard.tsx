@@ -58,7 +58,7 @@ export function PipelineCard({ lead, onClick, onPatch, isOverlay = false, readOn
       className={`rounded-xl border p-3 space-y-2 transition-all touch-none ${readOnly ? "cursor-default" : "cursor-pointer"} ${
         isOverdue
           ? "border-red-300 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 hover:border-red-400 dark:hover:border-red-500/60"
-          : "border-foreground/[0.08] bg-card hover:border-foreground/20"
+          : "border-border bg-card hover:border-border-hover"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
@@ -93,7 +93,7 @@ export function PipelineCard({ lead, onClick, onPatch, isOverlay = false, readOn
           <button
             onClick={markFollowUpDone}
             title="Marcar seguimiento como hecho"
-            className="inline-flex items-center gap-1 rounded-full border border-foreground/[0.1] px-2 py-0.5 text-[13px] font-semibold text-text-2 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+            className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-[13px] font-semibold text-text-2 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
           >
             <CheckCircle2 className="h-3 w-3" />
             Hecho

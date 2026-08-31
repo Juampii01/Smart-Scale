@@ -198,11 +198,11 @@ export function HelpChat() {
 
       {/* Panel slide-over */}
       <div
-        className={`fixed right-0 top-0 z-50 h-full w-full max-w-md flex flex-col border-l border-foreground/[0.08] bg-background shadow-2xl transition-transform duration-300 ease-out ${open ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed right-0 top-0 z-50 h-full w-full max-w-md flex flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out ${open ? "translate-x-0" : "translate-x-full"}`}
         style={{ boxShadow: "rgba(0,0,0,0.5) -8px 0 32px" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 border-b border-foreground/[0.07] px-5 py-4 bg-card">
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4 bg-card">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft ring-1 ring-accent/20">
               <Sparkles className="h-4 w-4 text-accent-ink" />
@@ -243,7 +243,7 @@ export function HelpChat() {
                 className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[13px] ${
                   m.role === "user"
                     ? "bg-accent text-black font-medium"
-                    : "bg-foreground/[0.04] border border-foreground/[0.06] text-foreground"
+                    : "bg-foreground/[0.04] border border-border text-foreground"
                 }`}
               >
                 <div className="space-y-1">
@@ -255,7 +255,7 @@ export function HelpChat() {
 
           {loading && (
             <div className="flex justify-start">
-              <div className="rounded-2xl bg-foreground/[0.04] border border-foreground/[0.06] px-4 py-2.5">
+              <div className="rounded-2xl bg-foreground/[0.04] border border-border px-4 py-2.5">
                 <div className="flex items-center gap-2 text-[13px] text-text-2">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   Pensando…
@@ -274,7 +274,7 @@ export function HelpChat() {
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
-                  className="block w-full text-left rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2 text-[13px] text-text-2 hover:text-foreground hover:border-border hover:bg-secondary transition-all"
+                  className="block w-full text-left rounded-xl border border-border bg-foreground/[0.02] px-3 py-2 text-[13px] text-text-2 hover:text-foreground hover:border-border hover:bg-secondary transition-all"
                 >
                   {q}
                 </button>
@@ -290,7 +290,7 @@ export function HelpChat() {
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSubmit} className="border-t border-foreground/[0.07] px-4 py-3 bg-card">
+        <form onSubmit={handleSubmit} className="border-t border-border px-4 py-3 bg-card">
           <div className="flex items-end gap-2">
             <textarea
               ref={inputRef}
@@ -299,7 +299,7 @@ export function HelpChat() {
               onKeyDown={handleKeyDown}
               placeholder="Preguntá cualquier cosa sobre el dashboard…"
               rows={1}
-              className="flex-1 resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-accent focus:bg-foreground/[0.05] transition-all max-h-32"
+              className="flex-1 resize-none rounded-xl border border-border bg-foreground/[0.03] px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-accent focus:bg-foreground/[0.05] transition-all max-h-32"
               style={{ minHeight: "42px" }}
               disabled={loading}
             />

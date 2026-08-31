@@ -17,7 +17,7 @@ interface Entry {
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const PILLAR_CONFIG: Record<string, { label: string; border: string; badge: string; ring: string }> = {
-  general: { label: "General",   border: "border-l-foreground/20",  badge: "bg-foreground/[0.07] text-text-2",                                       ring: "ring-foreground/20" },
+  general: { label: "General",   border: "border-l-foreground/20",  badge: "bg-foreground/[0.07] text-text-2",                                       ring: "ring-border" },
   F:       { label: "Fascinate", border: "border-l-violet-500",     badge: "bg-violet-100 dark:bg-violet-500/10 text-violet-700 dark:text-violet-400",      ring: "ring-violet-500/30" },
   E:       { label: "Educate",   border: "border-l-blue-500",       badge: "bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400",              ring: "ring-blue-500/30" },
   T:       { label: "Transform", border: "border-l-emerald-500",    badge: "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",  ring: "ring-emerald-500/30" },
@@ -400,7 +400,7 @@ export function AnnKnowledgeView() {
           <button
             onClick={handleExportDrive}
             disabled={exportingDrive}
-            className="inline-flex items-center gap-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.02] px-4 py-2.5 text-[13px] font-semibold text-foreground hover:border-foreground/20 hover:text-foreground disabled:opacity-50 transition-all"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-foreground/[0.02] px-4 py-2.5 text-[13px] font-semibold text-foreground hover:border-border-hover hover:text-foreground disabled:opacity-50 transition-all"
           >
             {exportingDrive ? <Loader2 className="h-4 w-4 animate-spin" /> : <FolderUp className="h-4 w-4" />}
             {exportingDrive ? "Exportando…" : "Exportar a Drive"}
@@ -438,7 +438,7 @@ export function AnnKnowledgeView() {
           <input
             value={title} onChange={e => setTitle(e.target.value)}
             placeholder="Título de la entrada…"
-            className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-[13px] font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
+            className="w-full rounded-xl border border-border bg-foreground/[0.04] px-4 py-3 text-[13px] font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
           />
 
           {/* Pillar + Source type */}
@@ -484,7 +484,7 @@ export function AnnKnowledgeView() {
               type="button"
               onClick={handleSlackExtract}
               disabled={slackExtracting}
-              className="inline-flex items-center gap-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.02] px-4 py-2.5 text-[13px] font-semibold text-foreground hover:border-border hover:bg-secondary hover:text-foreground disabled:opacity-50 transition-all"
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-foreground/[0.02] px-4 py-2.5 text-[13px] font-semibold text-foreground hover:border-border hover:bg-secondary hover:text-foreground disabled:opacity-50 transition-all"
             >
               {slackExtracting ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
               {slackExtracting ? "Analizando #preguntas-feedback…" : "Extraer método de Ann desde #preguntas-feedback"}
@@ -513,7 +513,7 @@ export function AnnKnowledgeView() {
                 className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-8 text-center transition-all ${
                   isDragging
                     ? "border-accent bg-secondary"
-                    : "border-foreground/[0.10] bg-foreground/[0.02] hover:border-border hover:bg-secondary"
+                    : "border-border bg-foreground/[0.02] hover:border-border hover:bg-secondary"
                 }`}>
                 <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
                   isDragging ? "bg-secondary" : "bg-foreground/[0.05]"
@@ -534,7 +534,7 @@ export function AnnKnowledgeView() {
                   <div key={item.id} className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-all ${
                     item.status === "ready"      ? "border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06]"
                     : item.status === "error"    ? "border-red-500/20 bg-red-50 dark:bg-red-500/[0.06]"
-                    : "border-foreground/[0.08] bg-foreground/[0.04]"
+                    : "border-border bg-foreground/[0.04]"
                   }`}>
                     <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
                       item.status === "ready"   ? "bg-emerald-500/10"
@@ -571,7 +571,7 @@ export function AnnKnowledgeView() {
                 ))}
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full rounded-xl border border-dashed border-foreground/[0.10] py-2 text-[13px] text-text-2 hover:border-foreground/20 hover:text-text-2 transition-all">
+                  className="w-full rounded-xl border border-dashed border-border py-2 text-[13px] text-text-2 hover:border-border-hover hover:text-text-2 transition-all">
                   + Agregar más archivos
                 </button>
               </div>
@@ -580,7 +580,7 @@ export function AnnKnowledgeView() {
               <div className={`flex items-center gap-4 rounded-xl border px-4 py-3.5 transition-all ${
                 extractDone
                   ? "border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/[0.06]"
-                  : "border-foreground/[0.08] bg-foreground/[0.04]"
+                  : "border-border bg-foreground/[0.04]"
               }`}>
                 <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
                   extractDone ? "bg-emerald-500/10" : "bg-accent-soft"
@@ -617,7 +617,7 @@ export function AnnKnowledgeView() {
               <textarea
                 value={content} onChange={e => setContent(e.target.value)} rows={8}
                 placeholder="Pegá o escribí el contenido… o subí un archivo arriba para extraerlo automáticamente."
-                className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
+                className="w-full resize-none rounded-xl border border-border bg-foreground/[0.04] px-4 py-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
               />
               {content.length > 0 && (
                 <span className="pointer-events-none absolute bottom-3 right-3 text-[13px] text-text-3">
@@ -688,7 +688,7 @@ export function AnnKnowledgeView() {
             <input
               value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Buscar…"
-              className="w-36 rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] pl-8 pr-7 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-foreground/20 focus:w-48 transition-all"
+              className="w-36 rounded-xl border border-border bg-foreground/[0.04] pl-8 pr-7 py-1.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-border-hover focus:w-48 transition-all"
             />
             {search && (
               <button onClick={() => setSearch("")}
@@ -706,7 +706,7 @@ export function AnnKnowledgeView() {
           <Loader2 className="h-5 w-5 animate-spin text-text-3" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-[14px] border border-foreground/[0.07] bg-card py-20 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-[14px] border border-border bg-card py-20 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-foreground/[0.04]">
             <Sparkles className="h-5 w-5 text-text-3" />
           </div>
@@ -731,7 +731,7 @@ export function AnnKnowledgeView() {
 
             return (
               <div key={e.id}
-                className={`overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card border-l-[3px] ${cfg.border} transition-opacity ${!e.is_active ? "opacity-45" : ""}`}>
+                className={`overflow-hidden rounded-[14px] border border-border bg-card border-l-[3px] ${cfg.border} transition-opacity ${!e.is_active ? "opacity-45" : ""}`}>
 
                 {/* ── Card row ── */}
                 <div className="flex items-center gap-3 px-5 py-4">
@@ -770,12 +770,12 @@ export function AnnKnowledgeView() {
 
                 {/* ── Inline edit ── */}
                 {isExp && (
-                  <div className="border-t border-foreground/[0.06] bg-foreground/[0.015] p-5 space-y-3">
+                  <div className="border-t border-border bg-foreground/[0.015] p-5 space-y-3">
                     <input value={editTitle} onChange={ev => setEditTitle(ev.target.value)}
-                      className="w-full rounded-xl border border-foreground/[0.08] bg-card px-4 py-2.5 text-[13px] font-medium text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition" />
+                      className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-[13px] font-medium text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition" />
                     <div className="relative">
                       <textarea value={editContent} onChange={ev => setEditContent(ev.target.value)} rows={10}
-                        className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-card px-4 py-3 text-[13px] text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition" />
+                        className="w-full resize-none rounded-xl border border-border bg-card px-4 py-3 text-[13px] text-foreground focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition" />
                       <span className="pointer-events-none absolute bottom-3 right-3 text-[13px] text-text-3">
                         {editContent.length.toLocaleString()} chars
                       </span>

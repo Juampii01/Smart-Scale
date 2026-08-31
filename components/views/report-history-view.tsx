@@ -97,7 +97,7 @@ function ConfirmDeleteDialog({
           <button
             onClick={onCancel}
             disabled={loading}
-            className="flex-1 rounded-lg border border-foreground/10 bg-foreground/[0.04] px-4 py-2 text-[13px] text-text-2 hover:bg-foreground/[0.08] hover:text-foreground transition-all disabled:opacity-50"
+            className="flex-1 rounded-lg border border-border bg-foreground/[0.04] px-4 py-2 text-[13px] text-text-2 hover:bg-foreground/[0.08] hover:text-foreground transition-all disabled:opacity-50"
           >
             Cancelar
           </button>
@@ -170,7 +170,7 @@ function ReportRow({
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <div className="rounded-xl border border-foreground/[0.06] bg-card overflow-hidden transition-all">
+    <div className="rounded-xl border border-border bg-card overflow-hidden transition-all">
       {/* Main row */}
       <div className="flex items-center gap-3 px-4 py-3.5">
         <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-accent-soft border border-accent/25">
@@ -202,7 +202,7 @@ function ReportRow({
         <div className="flex items-center gap-2 ml-2">
           <button
             onClick={() => setExpanded((v) => !v)}
-            className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.06] bg-foreground/[0.04] text-text-2 hover:text-foreground hover:bg-foreground/[0.08] transition-all"
+            className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-foreground/[0.04] text-text-2 hover:text-foreground hover:bg-foreground/[0.08] transition-all"
           >
             {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
@@ -220,7 +220,7 @@ function ReportRow({
 
       {/* Expanded detail */}
       {expanded && (
-        <div className="border-t border-foreground/[0.06] px-4 py-5 space-y-5">
+        <div className="border-t border-border px-4 py-5 space-y-5">
 
           {/* Financiero */}
           <DetailSection icon={DollarSign} label="Financiero">
@@ -389,7 +389,7 @@ export function ReportHistoryView() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card px-6 py-5">
+      <div className="relative overflow-hidden rounded-[14px] border border-border bg-card px-6 py-5">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-accent-ink/70 mb-1">Datos</p>
           <h2 className="text-[24px] font-bold text-foreground">Historial de Reportes</h2>

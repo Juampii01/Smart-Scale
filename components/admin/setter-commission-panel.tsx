@@ -98,7 +98,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
 
   if (commissions.length === 0) {
     return (
-      <div className="rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+      <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
         Sin comisiones registradas
       </div>
     )
@@ -142,10 +142,10 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
       </div>
 
       {/* Per-setter table */}
-      <div className="overflow-x-auto rounded-2xl border border-foreground/[0.07]">
+      <div className="overflow-x-auto rounded-2xl border border-border">
         <table className="w-full text-[13px]">
           <thead>
-            <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+            <tr className="border-b border-border bg-foreground/[0.02]">
               <th className="px-4 py-2.5 text-left font-semibold text-foreground">Setter</th>
               <th className="px-4 py-2.5 text-right font-semibold text-foreground">Nuevos</th>
               <th className="px-4 py-2.5 text-right font-semibold text-foreground">Cuotas</th>
@@ -157,7 +157,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
           </thead>
           <tbody>
             {commissions.map((c) => (
-              <tr key={c.setter_id} className="border-b border-foreground/[0.04] hover:bg-foreground/[0.02] transition-colors">
+              <tr key={c.setter_id} className="border-b border-border hover:bg-foreground/[0.02] transition-colors">
                 <td className="px-4 py-2.5 font-medium text-foreground">
                   {c.setter_name ?? "—"}
                 </td>
@@ -193,7 +193,7 @@ function CommissionCard({ label, value, highlight, small }: { label: string; val
     <div className={`rounded-xl border px-3 py-3 text-center ${
       highlight
         ? "border-accent bg-secondary"
-        : "border-foreground/[0.07] bg-card"
+        : "border-border bg-card"
     }`}>
       <div className="text-[11px] font-semibold uppercase tracking-wider text-text-2">
         {label}

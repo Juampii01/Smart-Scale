@@ -59,7 +59,7 @@ export function MoMPanel() {
   if (loading) {
     return (
       <section>
-        <div className="h-72 animate-pulse rounded-[14px] border border-foreground/[0.07] bg-card" />
+        <div className="h-72 animate-pulse rounded-[14px] border border-border bg-card" />
       </section>
     )
   }
@@ -106,9 +106,9 @@ export function MoMPanel() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+      <div className="overflow-hidden rounded-[14px] border border-border bg-card">
         {/* Column headers */}
-        <div className="grid grid-cols-[1.4fr_1fr_1.6fr_1fr] border-b border-foreground/[0.06] px-6 py-3">
+        <div className="grid grid-cols-[1.4fr_1fr_1.6fr_1fr] border-b border-border px-6 py-3">
           <span className="text-[11px] font-bold uppercase tracking-widest text-text-3">Métrica</span>
           <span className="text-[11px] font-bold uppercase tracking-widest text-text-3 text-right">{fmtMonthLong(previous.month)}</span>
           <span className="text-[11px] font-bold uppercase tracking-widest text-text-3 text-center">Cambio</span>
@@ -128,7 +128,7 @@ export function MoMPanel() {
           return (
             <div
               key={metric.key}
-              className={`grid grid-cols-[1.4fr_1fr_1.6fr_1fr] items-center border-b border-foreground/[0.04] last:border-0 px-6 py-4 transition-colors ${
+              className={`grid grid-cols-[1.4fr_1fr_1.6fr_1fr] items-center border-b border-border last:border-0 px-6 py-4 transition-colors ${
                 isUp   ? "hover:bg-emerald-500/[0.03]"
                 : isDown ? "hover:bg-red-500/[0.03]"
                 :           "hover:bg-foreground/[0.02]"

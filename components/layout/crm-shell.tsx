@@ -77,8 +77,8 @@ export function CrmShell({
       <aside
         className={cn(
           "fixed left-0 top-0 z-50 h-full w-[240px] transition-transform duration-200 ease-in-out lg:translate-x-0",
-          "bg-card flex flex-col overflow-hidden border-r border-foreground/[0.07]",
-          "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-foreground/[0.08] lg:shadow-[0_10px_36px_-18px_rgba(0,0,0,0.30)]",
+          "bg-card flex flex-col overflow-hidden border-r border-border",
+          "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-border lg:shadow-[0_10px_36px_-18px_rgba(0,0,0,0.30)]",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
@@ -123,7 +123,7 @@ export function CrmShell({
           </div>
         )}
 
-        <header className="flex h-14 shrink-0 items-center gap-3 px-5 border-b border-foreground/[0.07] lg:hidden">
+        <header className="flex h-14 shrink-0 items-center gap-3 px-5 border-b border-border lg:hidden">
           <button onClick={() => setOpen(true)} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:bg-foreground/[0.05]" aria-label="Abrir menú">
             <Menu className="h-5 w-5" />
           </button>

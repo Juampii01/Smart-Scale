@@ -133,7 +133,7 @@ function EditableCell({
     } finally { setSaving(false); setEditing(false) }
   }
 
-  const groupBorder = firstInGroup ? "border-l border-foreground/[0.04]" : ""
+  const groupBorder = firstInGroup ? "border-l border-border" : ""
 
   if (saving) return (
     <td className={`whitespace-nowrap px-4 py-2.5 text-right ${groupBorder}`}>
@@ -241,14 +241,14 @@ export function AdminDataView() {
           <button
             onClick={() => loadReports(clientId)}
             disabled={loading || !clientId}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button
             onClick={exportCsv}
             disabled={!months.length}
-            className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40"
+            className="flex items-center gap-2 h-9 rounded-xl border border-border bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40"
           >
             <Download className="h-3.5 w-3.5" />
             CSV
@@ -257,7 +257,7 @@ export function AdminDataView() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
+      <div className="overflow-hidden rounded-[14px] border border-border bg-card">
         {loading ? (
           <div className="flex items-center justify-center py-24">
             <Loader2 className="h-6 w-6 animate-spin text-accent-ink/40" />
@@ -273,7 +273,7 @@ export function AdminDataView() {
             <table className="w-full border-collapse">
               <thead>
                 {/* Fila 1: secciones agrupadas con colspan */}
-                <tr className="border-b border-foreground/[0.04]">
+                <tr className="border-b border-border">
                   <th
                     rowSpan={2}
                     className="sticky left-0 z-20 border-r-2 border-border bg-card px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-[0.18em] text-accent-ink/70 align-bottom min-w-[140px]"
@@ -284,19 +284,19 @@ export function AdminDataView() {
                     <th
                       key={group.label}
                       colSpan={group.metrics.length}
-                      className="bg-foreground/[0.02] px-4 py-2.5 text-center text-[11px] font-bold uppercase tracking-[0.18em] text-text-2 border-l border-foreground/[0.06]"
+                      className="bg-foreground/[0.02] px-4 py-2.5 text-center text-[11px] font-bold uppercase tracking-[0.18em] text-text-2 border-l border-border"
                     >
                       {group.label}
                     </th>
                   ))}
                 </tr>
                 {/* Fila 2: labels de cada métrica */}
-                <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                <tr className="border-b border-border bg-foreground/[0.02]">
                   {SECTION_GROUPS.map(group =>
                     group.metrics.map((metric, idx) => (
                       <th
                         key={metric.key}
-                        className={`px-4 py-3 text-right text-[13px] font-semibold text-text-2 whitespace-nowrap min-w-[120px] ${idx === 0 ? "border-l border-foreground/[0.06]" : ""}`}
+                        className={`px-4 py-3 text-right text-[13px] font-semibold text-text-2 whitespace-nowrap min-w-[120px] ${idx === 0 ? "border-l border-border" : ""}`}
                       >
                         {metric.label}
                       </th>
@@ -306,7 +306,7 @@ export function AdminDataView() {
               </thead>
               <tbody>
                 {months.map(m => (
-                  <tr key={m} className="border-b border-foreground/[0.03] hover:bg-foreground/[0.02] transition-colors group">
+                  <tr key={m} className="border-b border-border hover:bg-foreground/[0.02] transition-colors group">
                     <td className="sticky left-0 z-10 border-r-2 border-border bg-card px-5 py-2.5 text-[13px] font-bold text-accent-ink whitespace-nowrap group-hover:bg-muted transition-colors">
                       {fmtMonthLabel(m)}
                     </td>

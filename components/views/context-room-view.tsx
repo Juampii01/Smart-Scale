@@ -30,14 +30,14 @@ const labelCls = "block text-[11px] font-bold uppercase tracking-[0.10em] text-t
 const hintCls  = "text-[13px] text-text-3 mt-2 leading-relaxed"
 
 const areaCls = cn(
-  "w-full rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.03]",
+  "w-full rounded-[8px] border border-border bg-foreground/[0.03]",
   "px-4 py-3 text-[15px] text-foreground placeholder:text-text-3",
-  "outline-none focus:border-foreground/[0.22] transition-colors resize-none"
+  "outline-none focus:border-border-hover transition-colors resize-none"
 )
 const inputCls = cn(
-  "w-full rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.03]",
+  "w-full rounded-[8px] border border-border bg-foreground/[0.03]",
   "px-3 py-2 text-[15px] text-foreground placeholder:text-text-3",
-  "outline-none focus:border-foreground/[0.22] transition-colors"
+  "outline-none focus:border-border-hover transition-colors"
 )
 
 // ─── Field components ─────────────────────────────────────────────────────────
@@ -68,12 +68,12 @@ function MultiEntry({
         {values.map((v, i) => (
           <div key={i} className="flex gap-2">
             <input className={cn(inputCls, "flex-1")} value={v} onChange={e => upd(i, e.target.value)} placeholder={placeholder} />
-            <button onClick={() => del(i)} className="h-9 w-9 flex items-center justify-center rounded-[8px] border border-foreground/[0.08] text-text-2 hover:text-danger hover:border-danger/30 transition-colors">
+            <button onClick={() => del(i)} className="h-9 w-9 flex items-center justify-center rounded-[8px] border border-border text-text-2 hover:text-danger hover:border-danger/30 transition-colors">
               <X className="h-3.5 w-3.5" />
             </button>
           </div>
         ))}
-        <button onClick={add} className="flex items-center gap-2 rounded-[8px] border border-foreground/[0.10] px-3 py-2 text-[13px] font-semibold text-text-2 hover:text-foreground hover:border-foreground/[0.20] transition-colors">
+        <button onClick={add} className="flex items-center gap-2 rounded-[8px] border border-border px-3 py-2 text-[13px] font-semibold text-text-2 hover:text-foreground hover:border-border-hover transition-colors">
           <Plus className="h-3.5 w-3.5" /> Agregar
         </button>
       </div>
@@ -131,12 +131,12 @@ function LocationTab({
         <div className="space-y-1.5">
           <div className="flex gap-2">
             <button onClick={() => fileRef.current?.click()} disabled={account.photoBusy}
-              className="inline-flex items-center gap-1.5 rounded-[8px] border border-foreground/[0.10] px-3 py-1.5 text-[13px] font-semibold text-foreground hover:bg-foreground/[0.05] transition disabled:opacity-50">
+              className="inline-flex items-center gap-1.5 rounded-[8px] border border-border px-3 py-1.5 text-[13px] font-semibold text-foreground hover:bg-foreground/[0.05] transition disabled:opacity-50">
               <Camera className="h-3.5 w-3.5" /> {account.avatarUrl ? "Cambiar foto" : "Subir foto"}
             </button>
             {account.avatarUrl && (
               <button onClick={account.onRemovePhoto} disabled={account.photoBusy}
-                className="inline-flex items-center gap-1.5 rounded-[8px] border border-foreground/[0.10] px-3 py-1.5 text-[13px] font-semibold text-danger hover:bg-foreground/[0.05] transition disabled:opacity-50">
+                className="inline-flex items-center gap-1.5 rounded-[8px] border border-border px-3 py-1.5 text-[13px] font-semibold text-danger hover:bg-foreground/[0.05] transition disabled:opacity-50">
                 <Trash2 className="h-3.5 w-3.5" /> Quitar
               </button>
             )}
@@ -163,7 +163,7 @@ function LocationTab({
           <div className="flex gap-2">
             <input className={cn(inputCls, "flex-1")} type="email" value={email} onChange={e => setEmail(e.target.value)} />
             <button onClick={onSaveEmail} disabled={emailState === "saving"}
-              className="px-3 py-2 rounded-[8px] bg-foreground/[0.06] border border-foreground/[0.10] text-foreground text-[13px] font-semibold hover:bg-foreground/[0.10] disabled:opacity-50 transition-colors">
+              className="px-3 py-2 rounded-[8px] bg-foreground/[0.06] border border-border text-foreground text-[13px] font-semibold hover:bg-foreground/[0.10] disabled:opacity-50 transition-colors">
               {emailState === "saving" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : emailState === "ok" ? <Check className="h-3.5 w-3.5" /> : "Guardar"}
             </button>
           </div>
@@ -193,7 +193,7 @@ function LocationTab({
       </div>
 
       {/* Contraseña */}
-      <div className="pt-6 border-t border-foreground/[0.07]">
+      <div className="pt-6 border-t border-border">
         <div className="flex items-center gap-2 mb-4">
           <Lock className="h-4 w-4 text-text-2" />
           <h3 className="text-[13px] font-bold text-foreground">Contraseña</h3>
@@ -361,22 +361,22 @@ function TheNumbersTab({ ctx, set, reports }: { ctx: Ctx; set: (k: string, v: st
         <label className={labelCls}>Revenue de los últimos 12 meses, mes a mes (USD)</label>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-3">
           {months.length > 0 ? months.map(r => (
-            <div key={r.month} className="rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.02] p-3">
+            <div key={r.month} className="rounded-[8px] border border-border bg-foreground/[0.02] p-3">
               <p className="text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1.5">{fmtMonthLabel(r.month)}</p>
               <div className="flex items-center gap-1">
                 <span className="text-text-2 text-[13px]">$</span>
                 <input
-                  className="flex-1 bg-transparent text-[15px] font-bold tabular-nums text-foreground outline-none border-0 border-b border-foreground/[0.10] pb-0.5 focus:border-accent transition-colors"
+                  className="flex-1 bg-transparent text-[15px] font-bold tabular-nums text-foreground outline-none border-0 border-b border-border pb-0.5 focus:border-accent transition-colors"
                   defaultValue={Math.round(r.total_revenue) || ""} placeholder="0" type="number"
                   onChange={e => set(`rev_${r.month}`, e.target.value)}
                 />
               </div>
             </div>
           )) : Array.from({ length: 12 }, (_, i) => (
-            <div key={i} className="rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.02] p-3">
+            <div key={i} className="rounded-[8px] border border-border bg-foreground/[0.02] p-3">
               <div className="flex items-center gap-1">
                 <span className="text-text-2 text-[13px]">$</span>
-                <input className="flex-1 bg-transparent text-[15px] font-bold tabular-nums text-foreground outline-none border-0 border-b border-foreground/[0.10] pb-0.5" placeholder="0" type="number" />
+                <input className="flex-1 bg-transparent text-[15px] font-bold tabular-nums text-foreground outline-none border-0 border-b border-border pb-0.5" placeholder="0" type="number" />
               </div>
             </div>
           ))}
@@ -711,7 +711,7 @@ export function ContextRoomView() {
       </div>
 
       {/* Tab bar */}
-      <div className="border-b border-foreground/[0.07] mt-5 mb-8 overflow-x-auto">
+      <div className="border-b border-border mt-5 mb-8 overflow-x-auto">
         <div className="flex gap-0 min-w-max">
           {TABS.map(t => (
             <button

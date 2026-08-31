@@ -104,7 +104,7 @@ function RevenueTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null
   const p = payload[0].payload
   return (
-    <div className="rounded-lg border border-foreground/10 bg-popover px-3 py-2 shadow-xl">
+    <div className="rounded-lg border border-border bg-popover px-3 py-2 shadow-xl">
       <p className="text-[11px] font-semibold uppercase tracking-wider text-text-2">{monthLong(p.ym)}</p>
       <p className="text-[15px] font-bold text-foreground tabular-nums">{fmtMoney(p.v)}</p>
     </div>
@@ -187,13 +187,13 @@ export function OverviewHero() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         {/* Revenue feature */}
-        <div className="lg:col-span-2 rounded-2xl border border-foreground/[0.08] bg-card p-5 sm:p-6">
+        <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-5 sm:p-6">
           <div className="flex items-start justify-between gap-3">
             <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-2">
               Revenue {current ? <span className="text-text-3">· {monthShort(current.month)}</span> : null}
             </p>
             {chartData.length > 1 && (
-              <div className="flex items-center gap-0.5 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] p-0.5">
+              <div className="flex items-center gap-0.5 rounded-lg border border-border bg-foreground/[0.03] p-0.5">
                 {RANGES.map(r => (
                   <button
                     key={r.id}
@@ -254,18 +254,18 @@ export function OverviewHero() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="mt-5 flex h-[200px] items-center justify-center rounded-xl border border-dashed border-foreground/[0.08] text-[13px] text-text-3">
+            <div className="mt-5 flex h-[200px] items-center justify-center rounded-xl border border-dashed border-border text-[13px] text-text-3">
               Necesitás al menos 2 meses de datos para ver la tendencia.
             </div>
           )}
         </div>
 
         {/* Métricas clave — panel integrado */}
-        <div className="rounded-2xl border border-foreground/[0.08] bg-card overflow-hidden flex flex-col">
-          <div className="border-b border-foreground/[0.06] px-5 py-3.5">
+        <div className="rounded-2xl border border-border bg-card overflow-hidden flex flex-col">
+          <div className="border-b border-border px-5 py-3.5">
             <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-2">Métricas clave</p>
           </div>
-          <div className="flex-1 divide-y divide-foreground/[0.06]">
+          <div className="flex-1 divide-y divide-border">
             {SECONDARY.map(kpi => {
               const cur = current ? Number((current as any)[kpi.key]) : null
               const prev = previous ? Number((previous as any)[kpi.key]) : null
@@ -290,8 +290,8 @@ export function OverviewHero() {
 
       {/* Audiencia & canales — toda la data visible, panel integrado */}
       {current && (
-        <div className="rounded-2xl border border-foreground/[0.08] bg-card overflow-hidden">
-          <div className="border-b border-foreground/[0.06] px-5 py-3.5">
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="border-b border-border px-5 py-3.5">
             <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-2">Audiencia & canales</p>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-foreground/[0.06]">

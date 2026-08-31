@@ -116,10 +116,10 @@ function DetailDrawer({
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Panel */}
-      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[520px] flex-col border-l border-foreground/[0.08] bg-card shadow-2xl">
+      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[520px] flex-col border-l border-border bg-card shadow-2xl">
 
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
+        <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5">
           <div className="min-w-0">
             <h2 className="text-[18px] font-bold text-foreground truncate">{fullName(app)}</h2>
             <p className="text-[13px] text-text-2 mt-0.5">{fmtDate(app.created_at)}</p>
@@ -137,7 +137,7 @@ function DetailDrawer({
         </div>
 
         {/* Status + Notes */}
-        <div className="border-b border-foreground/[0.06] px-6 py-4 space-y-3">
+        <div className="border-b border-border px-6 py-4 space-y-3">
           <div className="flex items-center gap-3">
             <select
               value={app.status}
@@ -150,7 +150,7 @@ function DetailDrawer({
               <option value="rechazada">Rechazada</option>
             </select>
             {app.primary_channel && (
-              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[13px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-foreground/5 text-text-2 border-foreground/10"}`}>
+              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[13px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-foreground/5 text-text-2 border-border"}`}>
                 {app.primary_channel}
               </span>
             )}
@@ -161,7 +161,7 @@ function DetailDrawer({
             placeholder="Agregar nota interna..."
             onBlur={e => onNotesChange(app.id, e.target.value)}
             onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-            className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13px] text-text-2 placeholder:text-text-3 focus:border-foreground/20 focus:text-foreground focus:outline-none transition-all"
+            className="w-full rounded-lg border border-border bg-foreground/[0.03] px-3 py-2 text-[13px] text-text-2 placeholder:text-text-3 focus:border-border-hover focus:text-foreground focus:outline-none transition-all"
           />
         </div>
 
@@ -218,7 +218,7 @@ function DetailDrawer({
                 { label: "Clientes pagos",    value: app.paying_clients },
                 { label: "Modelo de trabajo", value: app.client_work_style },
               ].map(({ label, value }) => value ? (
-                <div key={label} className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2.5 space-y-0.5">
+                <div key={label} className="rounded-xl border border-border bg-foreground/[0.02] px-3 py-2.5 space-y-0.5">
                   <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{label}</p>
                   <p className="text-[13px] font-semibold text-foreground">{value}</p>
                 </div>
@@ -397,17 +397,17 @@ export function AdminApplicationsView() {
               href="/apply"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all"
+              className="flex items-center gap-2 h-9 rounded-xl border border-border bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               Ver formulario
             </a>
             <button onClick={fetchApps} disabled={loading}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
             <button onClick={exportCsv} disabled={!filtered.length}
-              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+              className="flex items-center gap-2 h-9 rounded-xl border border-border bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
@@ -417,7 +417,7 @@ export function AdminApplicationsView() {
         {/* Summary cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {(["nueva","revisada","aceptada","rechazada"] as const).map(s => (
-            <div key={s} className="rounded-[14px] border border-foreground/[0.07] bg-card px-4 py-3.5">
+            <div key={s} className="rounded-[14px] border border-border bg-card px-4 py-3.5">
               <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 capitalize">{s}</p>
               <p className={`mt-1 text-[24px] font-bold ${STATUS_NUMBER_COLOR[s]}`}>
                 {apps.filter(a => a.status === s).length}
@@ -433,7 +433,7 @@ export function AdminApplicationsView() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre, email o canal..."
-            className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none w-64"
+            className="h-9 rounded-xl border border-border bg-card px-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none w-64"
           />
           <div className="flex items-center gap-2 flex-wrap">
             {["todas","nueva","revisada","aceptada","rechazada"].map(s => (
@@ -441,7 +441,7 @@ export function AdminApplicationsView() {
                 className={`h-8 rounded-xl border px-3 text-[13px] font-medium capitalize transition-all ${
                   filterStatus === s
                     ? "border-accent bg-secondary text-accent-ink"
-                    : "border-foreground/[0.07] text-text-2 hover:text-foreground hover:border-foreground/20"
+                    : "border-border text-text-2 hover:text-foreground hover:border-border-hover"
                 }`}>
                 {s}
                 {s !== "todas" && <span className="ml-1 text-[13px] opacity-60">{apps.filter(a => a.status === s).length}</span>}
@@ -451,7 +451,7 @@ export function AdminApplicationsView() {
         </div>
 
         {/* Table */}
-        <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
+        <div className="overflow-hidden rounded-[14px] border border-border bg-card">
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-6 w-6 animate-spin text-accent-ink/40" />
@@ -460,7 +460,7 @@ export function AdminApplicationsView() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                  <tr className="border-b border-border bg-foreground/[0.02]">
                     {["Nombre","Email","Instagram","Canal","Facturación","Estado","Compró","Fecha",""].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.18em] text-text-3 whitespace-nowrap">{h}</th>
                     ))}
@@ -475,7 +475,7 @@ export function AdminApplicationsView() {
                     <tr
                       key={app.id}
                       onClick={() => setSelectedApp(app)}
-                      className="border-b border-foreground/[0.04] hover:bg-foreground/[0.02] cursor-pointer transition-colors group"
+                      className="border-b border-border hover:bg-foreground/[0.02] cursor-pointer transition-colors group"
                     >
                       {/* Nombre */}
                       <td className="px-4 py-3 whitespace-nowrap">
@@ -495,7 +495,7 @@ export function AdminApplicationsView() {
                       {/* Canal */}
                       <td className="px-4 py-3 whitespace-nowrap">
                         {app.primary_channel
-                          ? <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[13px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-foreground/5 text-text-2 border-foreground/10"}`}>
+                          ? <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[13px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-foreground/5 text-text-2 border-border"}`}>
                               {app.primary_channel}
                             </span>
                           : <span className="text-text-3 text-[13px]">—</span>}

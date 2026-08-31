@@ -67,7 +67,7 @@ function HealthRadar({ reports }: { reports: any[] }) {
   ]
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
+    <div className="rounded-[14px] border border-border bg-card p-6">
       <h3 className="text-[18px] font-bold text-foreground mb-1">Health Score</h3>
       <p className="text-[13px] text-text-3 mb-4">
         Cada eje muestra qué tan cerca estás de tu mejor mes histórico (100 = tu máximo)
@@ -117,7 +117,7 @@ function SummaryStrip({ current, previous }: { current: any; previous: any }) {
 
         return (
           <div key={kpi.key}
-            className="rounded-xl border border-foreground/[0.07] bg-card p-4 flex flex-col gap-2 hover:border-foreground/[0.12] transition-colors">
+            className="rounded-xl border border-border bg-card p-4 flex flex-col gap-2 hover:border-border transition-colors">
             <div className="flex items-center justify-between">
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: kpi.color }} />
               {pct !== null && (
@@ -156,7 +156,7 @@ function RollingTrend({ reports }: { reports: any[] }) {
   }
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
+    <div className="rounded-[14px] border border-border bg-card p-6">
       <h3 className="text-[18px] font-bold text-foreground mb-1">Evolución financiera — 12 meses</h3>
       <p className="text-[13px] text-text-3 mb-5">Cash Collected, Total Revenue y MRR en el tiempo</p>
       <div className="flex flex-wrap gap-5 mb-4">
@@ -338,7 +338,7 @@ export function MetricsView() {
         <section className="grid gap-5 md:grid-cols-2">
           <HealthRadar reports={reports} />
           {/* Texto explicativo */}
-          <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6 flex flex-col justify-center gap-4">
+          <div className="rounded-[14px] border border-border bg-card p-6 flex flex-col justify-center gap-4">
             <h3 className="text-[18px] font-bold text-foreground">¿Cómo leer el radar?</h3>
             <div className="space-y-3 text-[13px] text-text-2 leading-relaxed">
               <p>Cada eje representa una métrica clave. <span className="text-foreground font-medium">100 = tu mejor mes histórico</span> en esa categoría.</p>

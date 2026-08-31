@@ -147,7 +147,7 @@ const FOLLOWUP_TYPE_STYLE: Record<string, string> = {
   whatsapp: "bg-pink-100   text-pink-800   border-pink-300   dark:bg-pink-500/10   dark:text-pink-300   dark:border-pink-500/25",
   llamada:  "bg-blue-100   text-blue-800   border-blue-300   dark:bg-blue-500/10   dark:text-blue-300   dark:border-blue-500/25",
   email:    "bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-500/10 dark:text-purple-300 dark:border-purple-500/25",
-  otro:     "bg-foreground/[0.05] text-text-2 border-foreground/[0.10] dark:text-text-2",
+  otro:     "bg-foreground/[0.05] text-text-2 border-border dark:text-text-2",
 }
 
 const FOLLOWUP_TYPE_ICON: Record<string, React.ReactNode> = {
@@ -157,7 +157,7 @@ const FOLLOWUP_TYPE_ICON: Record<string, React.ReactNode> = {
   otro:     <MoreHorizontal className="h-3 w-3" />,
 }
 
-const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all"
+const inputCls = "w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
 const labelCls = "text-[11px] font-bold uppercase tracking-widest text-text-3"
 
 // ─── Webhook Card ─────────────────────────────────────────────────────────────
@@ -177,7 +177,7 @@ function WebhookCard() {
   }
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
+    <div className="rounded-[14px] border border-border bg-card px-5 py-4">
       <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 mb-2">
         Webhook URL — Zapier / Formulario de onboarding
       </p>
@@ -186,7 +186,7 @@ function WebhookCard() {
           {url ?? "Cargando…"}
         </code>
         <button onClick={copy} disabled={!url}
-          className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[13px] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+          className="shrink-0 h-8 rounded-lg border border-border px-3 text-[13px] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
           {copied ? "✓ Copiado" : "Copiar"}
         </button>
       </div>
@@ -237,7 +237,7 @@ function InstallmentRow({
   }
 
   return (
-    <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] p-3 space-y-2">
+    <div className="rounded-xl border border-border bg-foreground/[0.02] p-3 space-y-2">
       <div className="flex items-center gap-3">
         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground/[0.06] text-[13px] font-bold text-text-2 shrink-0">
           {inst.installment_number}
@@ -475,7 +475,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
   return (
     <div className="flex flex-col" style={{ height: "calc(100% - 1px)" }}>
       {/* Month selector */}
-      <div className="border-b border-foreground/[0.06] px-6 py-4 shrink-0">
+      <div className="border-b border-border px-6 py-4 shrink-0">
         <p className="mb-2.5 text-[11px] font-bold uppercase tracking-widest text-text-3">Mes del reporte</p>
         <div className="flex gap-1.5 overflow-x-auto pb-1">
           {monthList.map(m => (
@@ -483,7 +483,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
               className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all ${
                 selMonth === m
                   ? "bg-secondary text-foreground"
-                  : "border border-foreground/[0.08] bg-foreground/[0.04] text-text-2 hover:text-foreground hover:border-foreground/20"
+                  : "border border-border bg-foreground/[0.04] text-text-2 hover:text-foreground hover:border-border-hover"
               }`}>
               {fmtMonth(m)}
               <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${hasData(m) ? "bg-emerald-500" : "bg-foreground/20"}`} />
@@ -497,7 +497,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
       </div>
 
       {/* Scrollable form */}
-      <div className="flex-1 overflow-y-auto divide-y divide-foreground/[0.05]">
+      <div className="flex-1 overflow-y-auto divide-y divide-border">
         {REPORT_GROUPS.map(group => (
           <div key={group.key} className="px-6 py-4 space-y-3">
             <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{group.label}</p>
@@ -512,7 +512,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                         onChange={e => setValue(field.key, e.target.value)}
                         rows={2}
                         placeholder="—"
-                        className="w-full resize-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
+                        className="w-full resize-none rounded-lg border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
                       />
                     </div>
                   )
@@ -527,7 +527,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                             className={`h-8 w-8 rounded-lg text-[13px] font-bold transition-all ${
                               values[field.key] === String(n)
                                 ? "bg-secondary text-foreground"
-                                : "border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:border-border"
+                                : "border border-border bg-foreground/[0.03] text-text-2 hover:border-border"
                             }`}>
                             {n}
                           </button>
@@ -555,7 +555,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                       placeholder="0"
                       min={0}
                       step="any"
-                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-[13px] font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
+                      className="w-full rounded-lg border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
                     />
                   </div>
                 )
@@ -566,7 +566,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
       </div>
 
       {/* Save bar (sticky) */}
-      <div className="shrink-0 border-t border-foreground/[0.06] bg-card px-6 py-3 flex items-center gap-3">
+      <div className="shrink-0 border-t border-border bg-card px-6 py-3 flex items-center gap-3">
         <button onClick={save} disabled={saving}
         className="inline-flex items-center gap-2 rounded-xl btn-accent px-5 py-2.5 text-[13px] font-bold transition active:scale-95 disabled:opacity-50">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
@@ -640,7 +640,7 @@ function ClientCallsPanel({ clientId }: { clientId: string }) {
       {calls.map(call => {
         const isExpanded = expandedId === call.id
         return (
-          <div key={call.id} className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] overflow-hidden">
+          <div key={call.id} className="rounded-xl border border-border bg-foreground/[0.02] overflow-hidden">
             <button
               onClick={() => setExpandedId(isExpanded ? null : call.id)}
               className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-foreground/[0.03] transition-colors"
@@ -657,7 +657,7 @@ function ClientCallsPanel({ clientId }: { clientId: string }) {
               <ChevronRight className={`h-4 w-4 shrink-0 text-text-3 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
             </button>
             {isExpanded && (
-              <div className="border-t border-foreground/[0.06] px-4 py-3 space-y-3">
+              <div className="border-t border-border px-4 py-3 space-y-3">
                 {call.recording_url && (
                   <a href={call.recording_url} target="_blank" rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-[13px] font-medium text-accent-ink hover:text-accent-hover transition-colors">
@@ -733,7 +733,7 @@ function ReactivateModal({
       <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="fixed inset-0 z-[61] flex items-center justify-center p-4">
         <form onSubmit={handleSubmit}
-          className="w-full max-w-sm rounded-[14px] border border-foreground/[0.10] shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+          className="w-full max-w-sm rounded-[14px] border border-border shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto"
           style={{ backgroundColor: "var(--card)" }}>
           <div className="flex items-center justify-between mb-1">
             <div>
@@ -750,7 +750,7 @@ function ReactivateModal({
             <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Programa</p>
             <input type="text" value={program} onChange={e => setProgram(e.target.value)}
               placeholder="ej: Smart Scale, Mastermind..."
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all" />
+              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -758,12 +758,12 @@ function ReactivateModal({
               <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Monto total *</p>
               <input type="number" min={0} step="any" required value={totalAmount} onChange={e => setTotalAmount(e.target.value)}
                 placeholder="USD"
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all" />
+                className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
             </div>
             <div className="space-y-1.5">
               <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Cant. cuotas</p>
               <input type="number" min={1} max={24} value={numInstallments} onChange={e => setNumInstallments(e.target.value)}
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
+                className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all" />
             </div>
           </div>
           {perInstallment && (
@@ -776,18 +776,18 @@ function ReactivateModal({
             <div className="space-y-1.5">
               <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Inicio del ciclo</p>
               <input type="date" value={programStart} onChange={e => setProgramStart(e.target.value)}
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
+                className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all" />
             </div>
             <div className="space-y-1.5">
               <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Duración (meses)</p>
               <input type="number" min={1} max={24} value={programDuration} onChange={e => setProgramDuration(e.target.value)}
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
+                className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all" />
             </div>
           </div>
 
           <label className="flex items-center gap-2 text-[13px] text-text-2">
             <input type="checkbox" checked={isMonthly} onChange={e => setIsMonthly(e.target.checked)}
-              className="h-4 w-4 rounded border-foreground/20" />
+              className="h-4 w-4 rounded border-border" />
             Suscripción mensual (genera la próxima cuota sola cada mes)
           </label>
 
@@ -906,10 +906,10 @@ function DetailDrawer({
         />
       )}
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[480px] flex-col border-l border-foreground/[0.08] shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
+      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[480px] flex-col border-l border-border shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
 
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5" style={{ backgroundColor: "var(--card)" }}>
+        <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5" style={{ backgroundColor: "var(--card)" }}>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h2 className="text-[18px] font-bold text-foreground truncate">{client.name}</h2>
@@ -979,7 +979,7 @@ function DetailDrawer({
         </div>
 
         {/* Tab nav */}
-        <div className="flex gap-1 border-b border-foreground/[0.06] px-6 py-2.5" style={{ backgroundColor: "var(--card)" }}>
+        <div className="flex gap-1 border-b border-border px-6 py-2.5" style={{ backgroundColor: "var(--card)" }}>
           <button onClick={() => setDrawerTab("crm")}
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all ${
               drawerTab === "crm"
@@ -1028,7 +1028,7 @@ function DetailDrawer({
         <div className="flex-1 overflow-y-auto" style={{ backgroundColor: "var(--card)" }}>
 
           {/* Section 1: Info fields */}
-          <div className="px-6 py-5 space-y-4 border-b border-foreground/[0.06]">
+          <div className="px-6 py-5 space-y-4 border-b border-border">
             <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Información</p>
 
             <div className="space-y-1.5">
@@ -1084,7 +1084,7 @@ function DetailDrawer({
                 <select
                   defaultValue={client.status}
                   onChange={e => onPatchClient(client.id, { status: e.target.value as Client["status"] })}
-                  className="w-full appearance-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all">
+                  className="w-full appearance-none rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all">
                   <option value="activo">Activo</option>
                   <option value="offboarding">Offboarding</option>
                 </select>
@@ -1117,13 +1117,13 @@ function DetailDrawer({
             </div>
 
             {/* Plan mensual toggle */}
-            <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-4 py-3 flex items-start gap-3">
+            <div className="rounded-xl border border-border bg-foreground/[0.02] px-4 py-3 flex items-start gap-3">
               <input
                 type="checkbox"
                 id={`monthly-${client.id}`}
                 defaultChecked={!!client.is_monthly_subscription}
                 onChange={e => onPatchClient(client.id, { is_monthly_subscription: e.target.checked } as any)}
-                className="mt-0.5 h-4 w-4 rounded border-foreground/20 bg-foreground/[0.05] accent-accent cursor-pointer"
+                className="mt-0.5 h-4 w-4 rounded border-border bg-foreground/[0.05] accent-accent cursor-pointer"
               />
               <label htmlFor={`monthly-${client.id}`} className="flex-1 cursor-pointer">
                 <p className="text-[13px] font-semibold text-foreground">Plan mensual auto-renovable</p>
@@ -1153,7 +1153,7 @@ function DetailDrawer({
                 rows={3}
                 onBlur={e    => onPatchClient(client.id, { notes: e.target.value || null })}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) (e.target as HTMLTextAreaElement).blur() }}
-                className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all"
+                className="w-full resize-none rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
               />
             </div>
 
@@ -1166,14 +1166,14 @@ function DetailDrawer({
                 rows={4}
                 onBlur={e => onPatchClient(client.id, { business_profile: e.target.value || null } as any)}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) (e.target as HTMLTextAreaElement).blur() }}
-                className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-foreground/20 focus:outline-none transition-all"
+                className="w-full resize-none rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
               />
               <p className="text-[13px] text-text-2">Ann AI usa esto para hablar del negocio específico del cliente desde el primer mensaje.</p>
             </div>
           </div>
 
           {/* Section: Credenciales del dashboard */}
-          <div className="px-6 py-5 space-y-4 border-b border-foreground/[0.06]">
+          <div className="px-6 py-5 space-y-4 border-b border-border">
             <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Credenciales del Dashboard</p>
             <div className="space-y-1.5">
               <p className={labelCls}>Email de acceso</p>
@@ -1200,7 +1200,7 @@ function DetailDrawer({
           </div>
 
           {/* Section 2: Installments */}
-          <div className="px-6 py-5 space-y-3 border-b border-foreground/[0.06]">
+          <div className="px-6 py-5 space-y-3 border-b border-border">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Cuotas de pago</p>
@@ -1210,7 +1210,7 @@ function DetailDrawer({
                   <select
                     value={client.program_duration ?? client.num_installments}
                     onChange={e => onPatchClient(client.id, { program_duration: Number(e.target.value) } as any)}
-                    className="h-6 rounded-lg border border-foreground/[0.1] bg-foreground/[0.04] px-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none"
+                    className="h-6 rounded-lg border border-border bg-foreground/[0.04] px-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none"
                   >
                     {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => (
                       <option key={m} value={m}>{m} {m === 1 ? "mes" : "meses"}</option>
@@ -1261,7 +1261,7 @@ function DetailDrawer({
               <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Seguimientos</p>
               <button
                 onClick={() => setShowFollowupForm(v => !v)}
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.08] text-text-2 hover:text-accent-ink hover:border-border transition-all">
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-text-2 hover:text-accent-ink hover:border-border transition-all">
                 <Plus className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -1273,12 +1273,12 @@ function DetailDrawer({
                   <div className="space-y-1">
                     <p className={labelCls}>Fecha</p>
                     <input type="date" value={fuDate} onChange={e => setFuDate(e.target.value)}
-                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none [color-scheme:dark]" />
+                      className="w-full rounded-lg border border-border bg-foreground/[0.03] px-2.5 py-2 text-[13px] text-foreground focus:border-border-hover focus:outline-none [color-scheme:dark]" />
                   </div>
                   <div className="space-y-1">
                     <p className={labelCls}>Tipo</p>
                     <select value={fuType} onChange={e => setFuType(e.target.value as Followup["type"])}
-                      className="w-full appearance-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none">
+                      className="w-full appearance-none rounded-lg border border-border bg-foreground/[0.03] px-2.5 py-2 text-[13px] text-foreground focus:border-border-hover focus:outline-none">
                       <option value="whatsapp">WhatsApp</option>
                       <option value="llamada">Llamada</option>
                       <option value="email">Email</option>
@@ -1288,7 +1288,7 @@ function DetailDrawer({
                 </div>
                 <input value={fuNotes} onChange={e => setFuNotes(e.target.value)}
                   placeholder="Notas del seguimiento..."
-                  className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none" />
+                  className="w-full rounded-lg border border-border bg-foreground/[0.03] px-2.5 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none" />
                 <div className="flex items-center gap-2">
                   <button onClick={handleSaveFollowup} disabled={savingFu || !fuDate}
                   className="flex items-center gap-1.5 h-7 rounded-lg btn-accent px-3 text-[13px] font-bold disabled:opacity-40 transition-all">
@@ -1296,7 +1296,7 @@ function DetailDrawer({
                     Guardar
                   </button>
                   <button onClick={() => setShowFollowupForm(false)}
-                    className="h-7 rounded-lg border border-foreground/[0.08] px-3 text-[13px] text-text-2 hover:text-foreground transition-all">
+                    className="h-7 rounded-lg border border-border px-3 text-[13px] text-text-2 hover:text-foreground transition-all">
                     Cancelar
                   </button>
                 </div>
@@ -1313,7 +1313,7 @@ function DetailDrawer({
                 })
                 .map(fu => (
                   <div key={fu.id} className={`rounded-xl border p-3 flex items-start gap-3 group transition-all ${
-                    fu.completed ? "border-foreground/[0.04] bg-foreground/[0.01] opacity-50" : "border-foreground/[0.07] bg-foreground/[0.02]"
+                    fu.completed ? "border-border bg-foreground/[0.01] opacity-50" : "border-border bg-foreground/[0.02]"
                   }`}>
                     <button
                       onClick={() => handleToggleFu(fu)}
@@ -1360,7 +1360,7 @@ function DetailDrawer({
 
         {/* Footer with summary (CRM tab only) */}
         {drawerTab === "crm" && (
-        <div className="border-t border-foreground/[0.06] px-6 py-3" style={{ backgroundColor: "var(--card)" }}>
+        <div className="border-t border-border px-6 py-3" style={{ backgroundColor: "var(--card)" }}>
           <div className="flex items-center gap-4 text-[13px] text-text-3">
             <span>
               Fin estimado:{" "}
@@ -1463,7 +1463,7 @@ function SummaryCards({ clients, viewMonth }: { clients: Client[], viewMonth: st
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {cards.map(card => (
-        <div key={card.label} className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
+        <div key={card.label} className="rounded-[14px] border border-border bg-card px-5 py-4">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-text-3">{card.icon}</span>
             <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{card.label}</p>
@@ -1581,7 +1581,7 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
   const shortMonthName = monthName.split(" ")[0]
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-5">
+    <div className="rounded-[14px] border border-border bg-card px-5 py-5">
       <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 mb-4">
         Cash — {monthName}
       </p>
@@ -2141,7 +2141,7 @@ export function AdminClientsView() {
           </div>
           <div className="flex items-center gap-2">
             <button onClick={fetchClients} disabled={loading}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
           </div>
@@ -2154,7 +2154,7 @@ export function AdminClientsView() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setViewMonth(m => shiftMonth(m, -1))}
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all">
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover transition-all">
             <ChevronDown className="h-4 w-4 rotate-90" />
           </button>
           <span className="min-w-[130px] text-center text-[13px] font-semibold capitalize text-foreground">
@@ -2163,13 +2163,13 @@ export function AdminClientsView() {
           <button
             onClick={() => setViewMonth(m => shiftMonth(m, 1))}
             disabled={viewMonth >= currentMonthStr}
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-30 disabled:cursor-not-allowed">
             <ChevronDown className="h-4 w-4 -rotate-90" />
           </button>
           {viewMonth !== currentMonthStr && (
             <button
               onClick={() => setViewMonth(currentMonthStr)}
-              className="rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all">
+              className="rounded-lg border border-border bg-foreground/[0.04] px-3 py-1 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all">
               Hoy
             </button>
           )}
@@ -2201,7 +2201,7 @@ export function AdminClientsView() {
                 className={`h-8 rounded-xl border px-3.5 text-[13px] font-medium transition-all ${
                   filterStatus === key
                     ? "border-accent bg-secondary text-accent-ink"
-                    : "border-foreground/[0.07] text-text-2 hover:text-foreground hover:border-foreground/20"
+                    : "border-border text-text-2 hover:text-foreground hover:border-border-hover"
                 }`}>
                 {label}
                 {key !== "todos" && (
@@ -2217,17 +2217,17 @@ export function AdminClientsView() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre, email, instagram..."
-            className="h-8 rounded-xl border border-foreground/[0.08] bg-card px-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none flex-1 min-w-[200px] max-w-xs"
+            className="h-8 rounded-xl border border-border bg-card px-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none flex-1 min-w-[200px] max-w-xs"
           />
         </div>
 
         {/* Table */}
-        <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
+        <div className="overflow-hidden rounded-[14px] border border-border bg-card">
           {loading ? (
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                  <tr className="border-b border-border bg-foreground/[0.02]">
                     {["Cliente", "Inicio", "Fin", "Cuotas", "Próx. cuota", "Estado", "Alertas", "Próx. follow-up", ""].map(h => (
                       <th key={h} className="px-2 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-text-3 whitespace-nowrap">{h}</th>
                     ))}
@@ -2235,7 +2235,7 @@ export function AdminClientsView() {
                 </thead>
                 <tbody>
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <tr key={i} className="border-b border-foreground/[0.04]">
+                    <tr key={i} className="border-b border-border">
                       {Array.from({ length: 9 }).map((_, j) => (
                         <td key={j} className="px-2 py-3">
                           <div className="h-3 skeleton rounded" style={{ width: `${50 + (i * 7 + j * 11) % 40}%` }} />
@@ -2250,7 +2250,7 @@ export function AdminClientsView() {
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                  <tr className="border-b border-border bg-foreground/[0.02]">
                     <SortableTh label="Cliente"      sortKey="name"      currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("name")} />
                     <SortableTh label="Inicio"       sortKey="start"     currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("start")} />
                     <SortableTh label="Fin"          sortKey="end"       currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("end")} />
@@ -2288,7 +2288,7 @@ export function AdminClientsView() {
                         <tr
                           key={client.id}
                           onClick={() => setSelected(client)}
-                          className={`border-b border-foreground/[0.04] cursor-pointer transition-colors group bg-card hover:bg-muted ${rowBorder}`}
+                          className={`border-b border-border cursor-pointer transition-colors group bg-card hover:bg-muted ${rowBorder}`}
                         >
                           {/* Cliente */}
                           <td className="px-3 py-2.5 whitespace-nowrap">

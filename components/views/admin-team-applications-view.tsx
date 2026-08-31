@@ -86,12 +86,12 @@ function DetailDrawer({
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed right-0 top-0 z-50 h-full w-full max-w-[640px] overflow-y-auto border-l border-foreground/[0.08] bg-background">
+      <div className="fixed right-0 top-0 z-50 h-full w-full max-w-[640px] overflow-y-auto border-l border-border bg-background">
         {/* Header */}
-        <div className="sticky top-0 z-10 border-b border-foreground/[0.08] bg-background/95 backdrop-blur px-6 py-4 flex items-start justify-between gap-4">
+        <div className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur px-6 py-4 flex items-start justify-between gap-4">
           <div className="space-y-2 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-foreground/[0.06] text-text-2 border-foreground/10"}`}>
+              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-foreground/[0.06] text-text-2 border-border"}`}>
                 {roleLabel(app.role)}
               </span>
               <span className="text-[13px] text-text-3">{fmtDate(app.created_at)}</span>
@@ -116,7 +116,7 @@ function DetailDrawer({
                   className={`rounded-lg border px-3 py-1.5 text-[13px] font-semibold capitalize transition ${
                     app.status === s
                       ? STATUS_STYLE[s]
-                      : "border-foreground/10 bg-foreground/[0.02] text-text-2 hover:text-foreground hover:border-foreground/20"
+                      : "border-border bg-foreground/[0.02] text-text-2 hover:text-foreground hover:border-border-hover"
                   }`}
                 >
                   {s}
@@ -185,7 +185,7 @@ function DetailDrawer({
               onChange={e => onNotesChange(app.id, e.target.value)}
               placeholder="Notas privadas sobre este candidato…"
               rows={4}
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-accent transition-all resize-none"
+              className="w-full rounded-xl border border-border bg-foreground/[0.02] px-4 py-3 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-accent transition-all resize-none"
             />
           </section>
         </div>
@@ -318,17 +318,17 @@ export function AdminTeamApplicationsView() {
               href={`/aplicar-equipo/${TEAM_APPLICATION_FORMS[0]?.role ?? ""}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all"
+              className="flex items-center gap-2 h-9 rounded-xl border border-border bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               Ver formulario
             </a>
             <button onClick={fetchApps} disabled={loading}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
             <button onClick={exportCsv} disabled={!filtered.length}
-              className="flex items-center gap-2 h-9 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+              className="flex items-center gap-2 h-9 rounded-xl border border-border bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
@@ -338,7 +338,7 @@ export function AdminTeamApplicationsView() {
         {/* Summary cards (estado) */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {STATUS_LIST.map(s => (
-            <div key={s} className="rounded-[14px] border border-foreground/[0.07] bg-card px-4 py-3.5">
+            <div key={s} className="rounded-[14px] border border-border bg-card px-4 py-3.5">
               <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 capitalize">{s}</p>
               <p className={`mt-1 text-[24px] font-bold ${STATUS_STYLE[s].split(" ")[1]}`}>
                 {apps.filter(a => a.status === s).length}
@@ -352,7 +352,7 @@ export function AdminTeamApplicationsView() {
           <select
             value={filterRole}
             onChange={e => setFilterRole(e.target.value)}
-            className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-foreground/20"
+            className="h-9 rounded-xl border border-border bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-border-hover"
           >
             <option value="todos">Todos los roles</option>
             {TEAM_APPLICATION_FORMS.map(f => (
@@ -362,7 +362,7 @@ export function AdminTeamApplicationsView() {
           <select
             value={filterStatus}
             onChange={e => setFilterStatus(e.target.value)}
-            className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-foreground/20"
+            className="h-9 rounded-xl border border-border bg-card px-3 text-[13px] text-foreground focus:outline-none focus:border-border-hover"
           >
             <option value="todas">Todos los estados</option>
             {STATUS_LIST.map(s => (
@@ -373,7 +373,7 @@ export function AdminTeamApplicationsView() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre, email, IG…"
-            className="h-9 flex-1 min-w-[200px] rounded-xl border border-foreground/[0.08] bg-card px-3 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-foreground/20"
+            className="h-9 flex-1 min-w-[200px] rounded-xl border border-border bg-card px-3 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-border-hover"
           />
         </div>
 
@@ -383,7 +383,7 @@ export function AdminTeamApplicationsView() {
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-20 text-center text-[13px] text-text-2">
+          <div className="rounded-[14px] border border-dashed border-border bg-foreground/[0.02] px-6 py-20 text-center text-[13px] text-text-2">
             {apps.length === 0
               ? "Todavía no hay candidatos. Compartí el link del formulario para empezar a recibir aplicaciones."
               : "Ningún candidato matchea los filtros actuales."}
@@ -394,11 +394,11 @@ export function AdminTeamApplicationsView() {
               <button
                 key={app.id}
                 onClick={() => setSelected(app)}
-                className="group flex w-full items-center gap-4 rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4 text-left transition hover:border-foreground/20"
+                className="group flex w-full items-center gap-4 rounded-[14px] border border-border bg-card px-5 py-4 text-left transition hover:border-border-hover"
               >
                 <div className="flex-1 min-w-0 space-y-1.5">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-foreground/[0.06] text-text-2 border-foreground/10"}`}>
+                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-foreground/[0.06] text-text-2 border-border"}`}>
                       {roleLabel(app.role)}
                     </span>
                     <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest ${STATUS_STYLE[app.status]}`}>

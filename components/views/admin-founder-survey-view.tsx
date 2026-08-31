@@ -31,7 +31,7 @@ function QuestionField({
         onChange={e => onChange(e.target.value)}
         rows={3}
         placeholder={question.placeholder ?? "Escribí tu respuesta..."}
-        className="mt-2 w-full rounded-lg border border-foreground/[0.10] bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
+        className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 focus:ring-accent/20"
       />
     )
   }
@@ -50,7 +50,7 @@ function QuestionField({
                 "flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-[13px] transition-all",
                 selected
                   ? "border-accent bg-secondary text-foreground font-semibold"
-                  : "border-foreground/[0.08] text-foreground hover:border-foreground/20",
+                  : "border-border text-foreground hover:border-border-hover",
               )}
             >
               {selected ? <CheckCircle2 className="h-4 w-4 text-accent-ink shrink-0" /> : <Circle className="h-4 w-4 text-text-3 shrink-0" />}
@@ -80,7 +80,7 @@ function QuestionField({
               "flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-[13px] transition-all",
               selected
                 ? "border-accent bg-secondary text-foreground font-semibold"
-                : "border-foreground/[0.08] text-foreground hover:border-foreground/20",
+                : "border-border text-foreground hover:border-border-hover",
             )}
           >
             {selected ? <CheckCircle2 className="h-4 w-4 text-accent-ink shrink-0" /> : <Circle className="h-4 w-4 text-text-3 shrink-0" />}
@@ -123,7 +123,7 @@ function SectionCard({
   }
 
   return (
-    <div className="rounded-2xl border border-foreground/[0.07] bg-card p-5">
+    <div className="rounded-2xl border border-border bg-card p-5">
       <SectionHeader
         icon={Sparkles}
         title={section.title}
@@ -154,7 +154,7 @@ function SectionCard({
         <button
           onClick={() => handleSave(false)}
           disabled={saving}
-          className="flex h-9 items-center gap-1.5 rounded-lg border border-foreground/[0.10] px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-foreground/25 transition-all disabled:opacity-40"
+          className="flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40"
         >
           {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           Guardar borrador

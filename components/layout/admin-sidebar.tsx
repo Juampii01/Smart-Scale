@@ -117,7 +117,7 @@ function VerClientesPicker({ ownTenant }: { ownTenant: TenantEntry | null }) {
           "flex w-full items-center gap-2.5 rounded-lg border px-3 py-2 transition-all",
           viewAsTenant
             ? "border-amber-400/50 bg-amber-400/[0.12] text-amber-700 dark:text-amber-300"
-            : "border-foreground/[0.07] bg-foreground/[0.02] text-text-2 hover:text-foreground hover:border-foreground/[0.15]"
+            : "border-border bg-foreground/[0.02] text-text-2 hover:text-foreground hover:border-border-hover"
         )}
       >
         <Building2 className="h-3.5 w-3.5 flex-shrink-0" />
@@ -129,7 +129,7 @@ function VerClientesPicker({ ownTenant }: { ownTenant: TenantEntry | null }) {
       {openMenu && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpenMenu(false)} />
-          <div className="absolute left-0 right-0 z-50 mt-1 max-h-64 overflow-y-auto rounded-lg border border-foreground/[0.1] bg-popover shadow-xl">
+          <div className="absolute left-0 right-0 z-50 mt-1 max-h-64 overflow-y-auto rounded-lg border border-border bg-popover shadow-xl">
             {loading ? (
               <div className="flex items-center justify-center py-4">
                 <Loader2 className="h-4 w-4 animate-spin text-text-2" />
@@ -139,7 +139,7 @@ function VerClientesPicker({ ownTenant }: { ownTenant: TenantEntry | null }) {
                 {viewAsTenant && (
                   <button
                     onClick={() => { setViewAsTenant(null); setOpenMenu(false) }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] font-semibold text-foreground hover:bg-foreground/[0.06] hover:text-foreground transition-colors border-b border-foreground/[0.06]"
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] font-semibold text-foreground hover:bg-foreground/[0.06] hover:text-foreground transition-colors border-b border-border"
                   >
                     <ArrowLeft className="h-3 w-3" /> Volver a mi sector
                   </button>
@@ -222,8 +222,8 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
         className={cn(
           "fixed left-0 top-0 z-50 h-full w-[240px] transition-transform duration-200 ease-in-out lg:translate-x-0",
           "bg-card flex flex-col pt-[env(safe-area-inset-top)] overflow-hidden",
-          "border-r border-foreground/[0.07]",
-          "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-foreground/[0.08] lg:shadow-[0_10px_36px_-18px_rgba(0,0,0,0.30)]",
+          "border-r border-border",
+          "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-border lg:shadow-[0_10px_36px_-18px_rgba(0,0,0,0.30)]",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
@@ -258,7 +258,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
         {isAdmin(effectiveRole) && (
           <div className="pt-1 px-3">
             <Link href="/dashboard" onClick={onClose} title="Volver al portal">
-              <div className="group flex items-center gap-2 rounded-lg border border-foreground/[0.07] bg-foreground/[0.02] px-3 py-2 text-[15px] font-semibold text-text-2 hover:text-foreground hover:border-foreground/[0.15] transition-all">
+              <div className="group flex items-center gap-2 rounded-lg border border-border bg-foreground/[0.02] px-3 py-2 text-[15px] font-semibold text-text-2 hover:text-foreground hover:border-border-hover transition-all">
                 <ArrowLeft className="h-3.5 w-3.5 flex-shrink-0" />
                 <span>Volver al portal</span>
               </div>

@@ -65,13 +65,13 @@ function greeting() {
 function WorkRow({ p, signal }: { p: Prospect; signal: "" | "att" | "risk" }) {
   const dotClass = signal === "risk" ? "bg-red-600 dark:bg-red-400" : signal === "att" ? "bg-amber-500 dark:bg-amber-400" : "bg-foreground/15"
   return (
-    <div className="flex items-center gap-3 border-b border-foreground/[0.06] py-3 last:border-b-0">
+    <div className="flex items-center gap-3 border-b border-border py-3 last:border-b-0">
       <span className={`h-2 w-2 shrink-0 rounded-[2px] ${dotClass}`} />
       <span className="w-[130px] shrink-0">
         <span className="block truncate text-[13px] font-semibold text-foreground">{p.name}</span>
         {p.handle && <span className="block truncate text-[13px] text-text-2">@{p.handle}</span>}
       </span>
-      <span className="hidden shrink-0 rounded-md border border-foreground/[0.1] px-2 py-0.5 text-[13px] text-text-2 sm:inline-block">
+      <span className="hidden shrink-0 rounded-md border border-border px-2 py-0.5 text-[13px] text-text-2 sm:inline-block">
         {STAGE_LABEL[p.stage]}
       </span>
       <span className="min-w-0 flex-1 truncate text-[13px] text-text-2">{STAGE_MOTIVO[p.stage]}</span>
@@ -99,7 +99,7 @@ function WorkSection({ title, items }: { title: string; items: { p: Prospect; si
 
 function StatRow({ label, stat }: { label: string; stat: Stat }) {
   return (
-    <div className="flex items-baseline gap-3 border-b border-foreground/[0.05] py-2.5 last:border-b-0">
+    <div className="flex items-baseline gap-3 border-b border-border py-2.5 last:border-b-0">
       <span className="flex-1 text-[13px] text-text-2">{label}</span>
       <span className="text-[18px] font-extrabold tabular-nums text-foreground">{stat.month}</span>
       <span className="w-14 shrink-0 text-right text-[13px] tabular-nums text-text-3">de {stat.trailing12mo}</span>
@@ -172,14 +172,14 @@ export function CrmHoyView({ clientId, clientName, readOnly }: { clientId: strin
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
-        <div className="space-y-7 lg:border-r lg:border-foreground/[0.07] lg:pr-8">
+        <div className="space-y-7 lg:border-r lg:border-border lg:pr-8">
           <WorkSection title="Se están atrasando" items={buckets.atrasados} />
           <WorkSection title="Para hoy" items={buckets.paraHoy} />
           <WorkSection title="Esta semana" items={buckets.semana} />
         </div>
 
         <div className="space-y-5">
-          <div className="rounded-2xl border border-foreground/[0.08] bg-card p-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-accent-ink" />
               <span className="text-[13px] font-semibold text-foreground">Ann AI</span>
@@ -194,7 +194,7 @@ export function CrmHoyView({ clientId, clientName, readOnly }: { clientId: strin
             ) : (
               <p className="mt-2.5 text-[13px] leading-relaxed text-text-2">Sin nada urgente pendiente hoy.</p>
             )}
-            <a href="/ann-ai" className="mt-3 flex items-center gap-2 rounded-lg border border-foreground/[0.08] px-3 py-2 text-[13px] text-text-2 hover:text-foreground hover:border-foreground/20 transition-colors">
+            <a href="/ann-ai" className="mt-3 flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-[13px] text-text-2 hover:text-foreground hover:border-border-hover transition-colors">
               <Kanban className="h-3.5 w-3.5" /> Preguntale algo sobre tu pipeline…
             </a>
           </div>
@@ -202,7 +202,7 @@ export function CrmHoyView({ clientId, clientName, readOnly }: { clientId: strin
           {stats && (
             <div>
               <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-text-2">Tu mes, hasta ahora</p>
-              <div className="rounded-2xl border border-foreground/[0.08] bg-card px-4">
+              <div className="rounded-2xl border border-border bg-card px-4">
                 <StatRow label="Llamadas agendadas" stat={stats.llamadas_agendadas} />
                 <StatRow label="OfferDocs enviados" stat={stats.offerdocs_enviados} />
                 <StatRow label="OfferDocs respondidos" stat={stats.offerdocs_respondidos} />

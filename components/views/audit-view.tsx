@@ -188,7 +188,7 @@ function renderDiagnosisContent(content: string) {
 
     if (line.startsWith("> ")) {
       return (
-        <div key={`quote-${k}`} className="rounded-xl border border-foreground/10 bg-foreground/[0.03] px-4 py-3 text-[13px] text-foreground">
+        <div key={`quote-${k}`} className="rounded-xl border border-border bg-foreground/[0.03] px-4 py-3 text-[13px] text-foreground">
           {renderInline(line.replace(/^>\s+/, ""), k)}
         </div>
       )
@@ -260,7 +260,7 @@ function ScorePillButton({
       className={`rounded-lg border px-4 py-1.5 text-[13px] font-medium transition-all duration-150 ${
         active
           ? `${bgActive} ${ringColor} border-transparent text-foreground`
-          : "border-foreground/[0.12] bg-foreground/[0.04] text-text-2 hover:border-foreground/20 hover:text-foreground"
+          : "border-border bg-foreground/[0.04] text-text-2 hover:border-border-hover hover:text-foreground"
       }`}
     >
       {label}
@@ -301,7 +301,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
             if (!s) return null
             const style = stateStyles[s.estado]
             return (
-              <div key={key} className="rounded-[14px] border border-foreground/[0.07] bg-card p-5">
+              <div key={key} className="rounded-[14px] border border-border bg-card p-5">
                 <p className="text-[13px] font-semibold uppercase tracking-[0.16em] text-text-2 mb-2">
                   {s.name}
                 </p>
@@ -336,7 +336,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
         </p>
         <div className="space-y-4">
           {data.focos.map((f, idx) => (
-            <div key={idx} className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
+            <div key={idx} className="rounded-[14px] border border-border bg-card p-6">
               <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[13px] font-semibold ${priorityPill(idx)}`}>
                 {f.etiqueta}
               </span>
@@ -349,7 +349,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
               {f.skool_modulo && (
                 <button
                   type="button"
-                  className="mt-4 inline-flex items-start gap-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.04] px-4 py-2.5 text-left text-[13px] font-medium text-foreground transition hover:border-foreground/20 hover:bg-foreground/[0.08]"
+                  className="mt-4 inline-flex items-start gap-2 rounded-xl border border-border bg-foreground/[0.04] px-4 py-2.5 text-left text-[13px] font-medium text-foreground transition hover:border-border-hover hover:bg-foreground/[0.08]"
                 >
                   <span>
                     Dirigite al módulo <span className="font-semibold text-foreground">{f.skool_modulo}</span>
@@ -675,7 +675,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
       </div>
 
       {/* Revenue card */}
-      <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+      <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
         <div className={`h-[2px] w-full ${annualRevenue >= 20000 ? "bg-emerald-500/60" : "bg-amber-500/60"}`} />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
         <div className="relative flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
@@ -714,11 +714,11 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
       {loadingAudit ? (
         <p className="text-text-2 text-[13px]">Cargando tipo de auditoría…</p>
       ) : (
-        <div className="relative overflow-hidden rounded-[28px] border border-foreground/[0.07] bg-card shadow-[0_0_0_1px_rgba(0,0,0,0.02)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+        <div className="relative overflow-hidden rounded-[28px] border border-border bg-card shadow-[0_0_0_1px_rgba(0,0,0,0.02)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(0,0,0,0.015),transparent_55%)] dark:bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.015),transparent_55%)]" />
 
           {/* Modal-style header */}
-          <div className="relative flex items-center justify-between border-b border-foreground/[0.05] px-6 py-5">
+          <div className="relative flex items-center justify-between border-b border-border px-6 py-5">
             <h2 className="text-[18px] font-semibold tracking-tight text-foreground">Mi Ecosistema</h2>
             <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">
               {selectedAnswersCount}/12 respondidas
@@ -740,11 +740,11 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                     {group.items.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-[14px] border border-foreground/[0.07] bg-foreground/[0.02] dark:bg-foreground/[0.04] px-5 py-4 space-y-3"
+                        className="rounded-[14px] border border-border bg-foreground/[0.02] dark:bg-foreground/[0.04] px-5 py-4 space-y-3"
                       >
                         {/* ID + statement */}
                         <div className="flex items-start gap-3">
-                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-foreground/[0.08] bg-foreground/[0.05] px-2 text-[13px] font-bold text-accent-ink flex-shrink-0">
+                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-border bg-foreground/[0.05] px-2 text-[13px] font-bold text-accent-ink flex-shrink-0">
                             {item.id}
                           </span>
                           <p className="text-[15px] leading-snug text-foreground pt-0.5">
@@ -770,10 +770,10 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
       {/* Controls */}
       <div className="space-y-4">
-        <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+        <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
 
-          <div className="relative border-b border-foreground/[0.05] px-6 py-5">
+          <div className="relative border-b border-border px-6 py-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">
@@ -785,10 +785,10 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
+                <span className="rounded-full border border-border bg-foreground/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
                   {selectedAnswersCount} respuestas
                 </span>
-                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
+                <span className="rounded-full border border-border bg-foreground/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
                   {auditType === 'mas20k' ? "Audit +$20k" : "Audit -$20k"}
                 </span>
               </div>
@@ -812,7 +812,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
         {/* AI Loading */}
         {loading && !aiResponse && (
-          <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+          <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
             <AiLoading
               title="Generando diagnóstico estratégico"
               steps={[
@@ -828,10 +828,10 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
         {/* AI Response */}
         {aiResponse && (
-          <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+          <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
 
-            <div className="relative border-b border-foreground/[0.05] px-6 py-5">
+            <div className="relative border-b border-border px-6 py-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">
@@ -844,7 +844,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                     Una lectura ejecutiva del cuello de botella, las debilidades y la prioridad estratégica del negocio.
                   </p>
                 </div>
-                <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
+                <span className="rounded-full border border-border bg-foreground/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
                   {loading ? "Procesando" : "Listo"}
                 </span>
               </div>
@@ -871,10 +871,10 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
         )}
 
         {/* History */}
-        <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+        <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,222,33,0.03),transparent_55%)]" />
 
-          <div className="relative border-b border-foreground/[0.05] px-6 py-6">
+          <div className="relative border-b border-border px-6 py-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">
@@ -887,7 +887,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                   Revisá auditorías anteriores, compará estados y abrí cualquier diagnóstico guardado en un clic.
                 </p>
               </div>
-              <div className="rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-4 py-3 text-right">
+              <div className="rounded-xl border border-border bg-foreground/[0.03] px-4 py-3 text-right">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3">Registros</p>
                 <p className="mt-0.5 text-[18px] font-bold text-foreground">
                   {loadingHistory ? "…" : diagnosisHistory.length}
@@ -898,11 +898,11 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
           <div className="relative px-6 py-6">
             {loadingHistory ? (
-              <div className="rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-5 py-5 text-[13px] text-text-2">
+              <div className="rounded-xl border border-border bg-foreground/[0.03] px-5 py-5 text-[13px] text-text-2">
                 Cargando diagnósticos guardados…
               </div>
             ) : diagnosisHistory.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-5 text-[13px] text-text-3">
+              <div className="rounded-xl border border-dashed border-border bg-foreground/[0.02] px-5 py-5 text-[13px] text-text-3">
                 {isOwnClient
                   ? "Todavía no tenés diagnósticos guardados."
                   : "Todavía no hay diagnósticos guardados para este cliente."}
@@ -918,11 +918,11 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                       className={`flex flex-col h-full justify-between rounded-[14px] border p-5 transition-all duration-200 ${
                         isActiveDiagnosis
                           ? "border-accent bg-secondary"
-                          : "border-foreground/[0.07] bg-foreground/[0.02] hover:border-foreground/15"
+                          : "border-border bg-foreground/[0.02] hover:border-border-hover"
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-4 flex-wrap">
-                        <span className="rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">
+                        <span className="rounded-full border border-border bg-foreground/[0.04] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">
                           #{String(diagnosisHistory.length - index).padStart(2, "0")}
                         </span>
                         <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-widest ${statusMeta.className}`}>
@@ -940,7 +940,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                           title="Eliminar auditoría"
                         >
                           {deletingId === item.request_id
-                            ? <span className="h-3 w-3 rounded-full border border-foreground/20 border-t-white/60 animate-spin" />
+                            ? <span className="h-3 w-3 rounded-full border border-border border-t-white/60 animate-spin" />
                             : <Trash2 className="h-3 w-3" />}
                         </button>
                       </div>
@@ -956,7 +956,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                       </details>
 
                       <div className="flex-1 flex flex-col justify-between">
-                        <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-4 py-3 min-h-[100px] mb-4">
+                        <div className="rounded-xl border border-border bg-foreground/[0.02] px-4 py-3 min-h-[100px] mb-4">
                           <div className="text-[13px] leading-6 text-text-2 whitespace-pre-line max-h-40 overflow-y-auto">
                             {item.result
                               ? previewDiagnosis(item.result)
@@ -976,7 +976,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                           className={`rounded-xl px-4 py-2 text-[13px] font-bold transition-all duration-150 ${
                             isActiveDiagnosis
                               ? "bg-secondary text-foreground"
-                              : "border border-foreground/[0.08] bg-foreground/[0.04] text-foreground hover:bg-foreground/[0.08] hover:text-foreground"
+                              : "border border-border bg-foreground/[0.04] text-foreground hover:bg-foreground/[0.08] hover:text-foreground"
                           } disabled:cursor-not-allowed disabled:opacity-40`}
                         >
                           {isActiveDiagnosis ? "Diagnóstico abierto" : "Ver diagnóstico completo"}

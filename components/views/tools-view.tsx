@@ -45,7 +45,7 @@ export function ToolsSection({
         {tools.map((t) => (
           <div
             key={t.href}
-            className="group relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card transition-colors duration-200 hover:border-foreground/[0.12]"
+            className="group relative overflow-hidden rounded-[14px] border border-border bg-card transition-colors duration-200 hover:border-border"
           >
 
             <div className="relative p-5 space-y-4">

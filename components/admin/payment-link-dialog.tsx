@@ -88,15 +88,15 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
 
   if (!open) return null
 
-  const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none transition-all"
+  const inputCls = "w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none transition-all"
   const labelCls = "text-[11px] font-bold uppercase tracking-widest text-text-3 mb-1.5 block"
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-      <div className="w-full max-w-md rounded-2xl border border-foreground/[0.08] bg-card shadow-2xl">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card shadow-2xl">
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-4">
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-2.5">
             <span className="h-4 w-[3px] rounded-full bg-accent" />
             <h2 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">
@@ -151,14 +151,14 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
               )}
 
               <button onClick={reset}
-                className="w-full h-9 rounded-xl border border-foreground/[0.08] text-[13px] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all">
+                className="w-full h-9 rounded-xl border border-border text-[13px] text-text-2 hover:text-foreground hover:border-border-hover transition-all">
                 Crear otro link
               </button>
             </div>
           ) : (
             <>
               {/* Type toggle */}
-              <div className="flex rounded-xl border border-foreground/[0.08] overflow-hidden">
+              <div className="flex rounded-xl border border-border overflow-hidden">
                 {(["once", "recurring"] as const).map(t => (
                   <button key={t} onClick={() => setType(t)}
                     className={`flex-1 py-2 text-[13px] font-semibold transition-all ${
@@ -193,7 +193,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                 <div>
                   <label className={labelCls}>Cantidad de cuotas *</label>
                   <select value={installments} onChange={e => setInstallments(e.target.value)}
-                    className="w-full appearance-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-accent focus:outline-none">
+                    className="w-full appearance-none rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-accent focus:outline-none">
                     {[1,2,3,4,5,6,8,10,12].map(n => (
                       <option key={n} value={n}>{n} {n === 1 ? "cuota" : "cuotas"}{amount ? ` — Total $${Number(amount) * n}` : ""}</option>
                     ))}

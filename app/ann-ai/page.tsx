@@ -306,7 +306,7 @@ function AnaiContent() {
         <div ref={historialRef} className="relative flex-1 min-w-0">
           <button
             onClick={() => setHistorialOpen(v => !v)}
-            className="flex w-full items-center gap-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-3 py-1.5 text-left transition hover:bg-foreground/[0.05]"
+            className="flex w-full items-center gap-2 rounded-xl border border-border bg-foreground/[0.02] px-3 py-1.5 text-left transition hover:bg-foreground/[0.05]"
           >
             <MessageSquare className="h-3.5 w-3.5 shrink-0 text-text-3" />
             <span className="flex-1 truncate text-[13px] text-foreground">
@@ -317,7 +317,7 @@ function AnaiContent() {
 
           {/* Dropdown historial */}
           {historialOpen && (
-            <div className="absolute left-0 right-0 top-full z-50 mt-1.5 rounded-[14px] border border-foreground/[0.08] bg-card shadow-xl overflow-hidden">
+            <div className="absolute left-0 right-0 top-full z-50 mt-1.5 rounded-[14px] border border-border bg-card shadow-xl overflow-hidden">
               <div className="max-h-72 overflow-y-auto">
                 {loadingConvs ? (
                   <div className="flex items-center justify-center py-6">
@@ -373,7 +373,7 @@ function AnaiContent() {
       </div>
 
       {/* ── Mensajes ──────────────────────────────────────────────────────── */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto rounded-[14px] border border-foreground/[0.07] bg-card p-5 space-y-5">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto rounded-[14px] border border-border bg-card p-5 space-y-5">
         {empty ? (
           <div className="flex h-full flex-col items-center justify-center text-center px-6">
             <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-accent-soft border border-accent/25 mb-4">
@@ -389,7 +389,7 @@ function AnaiContent() {
               <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">
                 {suggestions.map(s => (
                   <button key={s} onClick={() => send(s)}
-                    className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-left text-[13px] text-foreground transition-all hover:border-border hover:bg-secondary hover:text-foreground">
+                    className="rounded-xl border border-border bg-foreground/[0.02] px-4 py-3 text-left text-[13px] text-foreground transition-all hover:border-border hover:bg-secondary hover:text-foreground">
                     {s}
                   </button>
                 ))}
@@ -425,17 +425,17 @@ function AnaiContent() {
                         h1:         ({ children }) => <h1 className="mb-2 text-[15px] font-bold text-foreground">{children}</h1>,
                         h2:         ({ children }) => <h2 className="mb-1.5 text-[13px] font-bold text-foreground">{children}</h2>,
                         h3:         ({ children }) => <h3 className="mb-1 text-[13px] font-semibold text-foreground">{children}</h3>,
-                        hr:         () => <hr className="my-3 border-foreground/[0.08]" />,
+                        hr:         () => <hr className="my-3 border-border" />,
                         blockquote: ({ children }) => <blockquote className="border-l-2 border-accent/40 pl-3 text-text-2 italic">{children}</blockquote>,
                         code:       ({ children }) => <code className="rounded bg-foreground/[0.07] px-1 py-0.5 text-[13px] font-mono">{children}</code>,
                         table:      ({ children }) => (
-                          <div className="my-2 overflow-x-auto rounded-xl border border-foreground/[0.08]">
+                          <div className="my-2 overflow-x-auto rounded-xl border border-border">
                             <table className="w-full text-[13px]">{children}</table>
                           </div>
                         ),
                         thead: ({ children }) => <thead className="bg-foreground/[0.05]">{children}</thead>,
                         th:    ({ children }) => <th className="px-3 py-2 text-left font-semibold text-foreground">{children}</th>,
-                        td:    ({ children }) => <td className="px-3 py-2 border-t border-foreground/[0.06] text-foreground">{children}</td>,
+                        td:    ({ children }) => <td className="px-3 py-2 border-t border-border text-foreground">{children}</td>,
                       }}
                     >
                       {m.content}
@@ -498,7 +498,7 @@ function AnaiContent() {
       {/* ── Input ─────────────────────────────────────────────────────────── */}
       <form
         onSubmit={(e) => { e.preventDefault(); send(input) }}
-        className="mt-3 flex items-end gap-2 rounded-[14px] border border-foreground/[0.08] bg-card p-2"
+        className="mt-3 flex items-end gap-2 rounded-[14px] border border-border bg-card p-2"
       >
         <textarea
           value={input}

@@ -55,7 +55,7 @@ function BookingContent() {
     <div className="min-h-screen bg-background flex flex-col">
 
       {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-40 border-b border-foreground/[0.06] bg-background/80 backdrop-blur-md">
+      <nav className="fixed top-0 left-0 right-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
         <div className="mx-auto max-w-4xl px-5 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-foreground text-[18px] font-bold tracking-tight">Smart</span>
@@ -123,7 +123,7 @@ function BookingContent() {
 
           {/* Right: payment card */}
           <div className="lg:sticky lg:top-24">
-            <div className="relative overflow-hidden rounded-3xl border border-foreground/[0.08] bg-card shadow-2xl shadow-black/20">
+            <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-2xl shadow-black/20">
               {/* Gradient top */}
               <div className="h-[3px] w-full bg-gradient-to-r from-accent-ink/80 via-accent-ink to-accent-ink/80" />
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.06),transparent_60%)]" />
@@ -144,7 +144,7 @@ function BookingContent() {
                 </div>
 
                 {/* What's included mini-list */}
-                <div className="rounded-2xl border border-foreground/[0.06] bg-foreground/[0.02] p-4 space-y-2.5">
+                <div className="rounded-2xl border border-border bg-foreground/[0.02] p-4 space-y-2.5">
                   {features.slice(0, 3).map((f, i) => (
                     <div key={i} className="flex items-center gap-2.5 text-[13px] text-text-2">
                       <Zap className="h-3 w-3 text-accent-ink/70 shrink-0" />
@@ -185,7 +185,7 @@ function BookingContent() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-foreground/[0.06] py-6">
+      <footer className="border-t border-border py-6">
         <div className="mx-auto max-w-4xl px-5 flex items-center justify-between">
           <span className="text-[13px] text-text-3">© Smart Scale™</span>
           <span className="text-[13px] text-text-3">Todos los derechos reservados</span>

@@ -69,13 +69,13 @@ function CellModal({ label, content, onClose }: { label: string; content: string
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative flex flex-col w-full max-w-2xl max-h-[85vh] rounded-2xl border border-foreground/[0.1] bg-card shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-foreground/[0.07] flex-shrink-0">
+      <div className="relative flex flex-col w-full max-w-2xl max-h-[85vh] rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-text-2">{label}</p>
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigator.clipboard.writeText(content)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.08] px-3 py-1.5 text-[13px] text-text-2 hover:text-foreground hover:border-foreground/20 transition-all"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-[13px] text-text-2 hover:text-foreground hover:border-border-hover transition-all"
             >
               <Copy className="h-3 w-3" /> Copiar
             </button>
@@ -120,7 +120,7 @@ function VideoRow({ video, channelName, platform }: { video: VideoResult; channe
   const descContent  = isIG ? null : (video.description || null)
 
   return (
-    <tr className="border-b border-foreground/[0.04] hover:bg-foreground/[0.02] transition-colors">
+    <tr className="border-b border-border hover:bg-foreground/[0.02] transition-colors">
       {/* CREATOR */}
       <td className="px-4 py-4 whitespace-nowrap">
         <span className="text-[13px] font-semibold text-foreground">{channelName || "—"}</span>
@@ -159,7 +159,7 @@ function VideoRow({ video, channelName, platform }: { video: VideoResult; channe
       {/* THUMBNAIL — solo YouTube */}
       {!isIG && (
         <td className="px-4 py-4">
-          <div className="w-20 h-[45px] rounded-lg overflow-hidden border border-foreground/[0.07] bg-foreground/[0.03]">
+          <div className="w-20 h-[45px] rounded-lg overflow-hidden border border-border bg-foreground/[0.03]">
             {video.thumbnail
               ? <img src={video.thumbnail} alt="" className="w-full h-full object-cover" />
               : <div className="flex h-full items-center justify-center"><Youtube className="h-4 w-4 text-text-3" /></div>}
@@ -179,7 +179,7 @@ function ResultsTable({ videos, channelName, platform }: { videos: VideoResult[]
     <div className="overflow-x-auto">
       <table className="w-full min-w-[960px]">
         <thead>
-          <tr className="border-b border-foreground/[0.06] bg-background/40">
+          <tr className="border-b border-border bg-background/40">
             {headers.map((h, i) => (
               <th key={i} className={`px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-text-3 ${h === "VIEWS" ? "text-right" : h === "DURACIÓN" ? "text-center" : "text-left"} ${h === "—" ? "opacity-0" : ""}`}>
                 {h}
@@ -191,7 +191,7 @@ function ResultsTable({ videos, channelName, platform }: { videos: VideoResult[]
           {videos.map(v => <VideoRow key={v.video_id} video={v} channelName={channelName} platform={platform} />)}
         </tbody>
       </table>
-      <div className="border-t border-foreground/[0.04] px-6 py-2.5">
+      <div className="border-t border-border px-6 py-2.5">
         <span className="text-[13px] text-text-3">{videos.length} video{videos.length !== 1 ? "s" : ""}</span>
       </div>
     </div>
@@ -220,11 +220,11 @@ function AnalysisCard({ item, onDelete, deletingId }: {
   const isThisWeek = new Date(item.created_at) >= startOfCurrentWeekUTC()
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card">
       {/* Header row */}
       <div className="flex items-center gap-4 px-5 py-4">
         {/* Platform icon */}
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-foreground/[0.07] bg-card">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-card">
           {isInstagram
             ? <Instagram className="h-[18px] w-[18px] text-accent-ink" />
             : <Youtube className="h-[18px] w-[18px] text-accent-ink" />}
@@ -271,7 +271,7 @@ function AnalysisCard({ item, onDelete, deletingId }: {
           </button>
           <button
             onClick={() => setExpanded(v => !v)}
-            className="flex items-center gap-1.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3.5 py-2 text-[13px] font-medium text-foreground hover:bg-foreground/[0.07] hover:text-foreground transition-all"
+            className="flex items-center gap-1.5 rounded-xl border border-border bg-foreground/[0.04] px-3.5 py-2 text-[13px] font-medium text-foreground hover:bg-foreground/[0.07] hover:text-foreground transition-all"
           >
             Ver Resultados
             {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
@@ -281,7 +281,7 @@ function AnalysisCard({ item, onDelete, deletingId }: {
 
       {/* Expanded: videos table */}
       {expanded && (
-        <div className="border-t border-foreground/[0.05] bg-card">
+        <div className="border-t border-border bg-card">
           {item.videos?.length > 0
             ? <ResultsTable videos={item.videos} channelName={item.channel_name} platform={item.platform ?? "youtube"} />
             : <div className="px-6 py-8 text-center text-[13px] text-text-3">No hay videos en este análisis.</div>
@@ -411,13 +411,13 @@ function CompetitorResearchContent() {
       )}
 
       {/* ── New Analysis form ── */}
-      <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <div className="flex items-center gap-3 px-6 py-5">
           <Search className="h-4 w-4 text-text-2 shrink-0" />
           <h2 className="text-[15px] font-bold text-foreground">Nuevo Análisis</h2>
         </div>
 
-        <div className="border-t border-foreground/[0.06] px-6 py-6 space-y-5">
+        <div className="border-t border-border px-6 py-6 space-y-5">
           {/* Platform + Timeframe */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -427,7 +427,7 @@ function CompetitorResearchContent() {
                   value={platform}
                   onChange={e => { setPlatform(e.target.value as any); setChannelUrl(""); setError(null) }}
                   disabled={loading}
-                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-card px-4 pr-10 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none appearance-none cursor-pointer disabled:opacity-60"
+                  className="h-11 w-full rounded-xl border border-border bg-card px-4 pr-10 text-[13px] text-foreground focus:border-border-hover focus:outline-none appearance-none cursor-pointer disabled:opacity-60"
                 >
                   <option value="youtube">YouTube</option>
                   <option value="instagram">Instagram</option>
@@ -443,7 +443,7 @@ function CompetitorResearchContent() {
                   value={timeframe}
                   onChange={e => setTimeframe(Number(e.target.value) as any)}
                   disabled={loading}
-                  className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-card px-4 pr-10 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none appearance-none cursor-pointer disabled:opacity-60"
+                  className="h-11 w-full rounded-xl border border-border bg-card px-4 pr-10 text-[13px] text-foreground focus:border-border-hover focus:outline-none appearance-none cursor-pointer disabled:opacity-60"
                 >
                   <option value={30}>Últimos 30 días</option>
                   <option value={60}>Últimos 60 días</option>
@@ -463,7 +463,7 @@ function CompetitorResearchContent() {
                 value={channelUrl}
                 onChange={e => { setChannelUrl(e.target.value); setError(null) }}
                 placeholder={platform === "youtube" ? "Ingresá la URL del canal de YouTube..." : "Ingresá la URL del perfil de Instagram..."}
-                className="h-11 w-full rounded-xl border border-foreground/[0.08] bg-card px-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-foreground/20 focus:outline-none transition-all"
+                className="h-11 w-full rounded-xl border border-border bg-card px-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none transition-all"
                 disabled={loading}
               />
               <p className="text-[13px] text-text-3">Un perfil de competidor por envío</p>
@@ -490,7 +490,7 @@ function CompetitorResearchContent() {
 
           {/* Usage counter — visible as soon as history loads */}
           {weekUsage && !limitReached && (
-            <div className="flex items-center gap-2 rounded-xl border border-foreground/[0.06] bg-foreground/[0.03] px-4 py-2.5">
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-foreground/[0.03] px-4 py-2.5">
               <Zap className="h-3.5 w-3.5 text-accent-ink/60 shrink-0" />
               <span className="text-[13px] text-text-2">
                 Análisis esta semana:{" "}
@@ -550,7 +550,7 @@ function CompetitorResearchContent() {
         </div>
 
         {loading && (
-          <div className="border-t border-foreground/[0.05]">
+          <div className="border-t border-border">
             <AiLoading
               title="Investigando competidor"
               steps={[
@@ -571,11 +571,11 @@ function CompetitorResearchContent() {
 
         {historyLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-foreground/10 border-t-white/40" />
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-border border-t-white/40" />
           </div>
         ) : history.length === 0 ? (
-          <div className="rounded-[24px] border border-foreground/[0.07] bg-card px-6 py-16 flex flex-col items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
+          <div className="rounded-[24px] border border-border bg-card px-6 py-16 flex flex-col items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-foreground/[0.03]">
               <Search className="h-5 w-5 text-text-3" />
             </div>
             <p className="text-[13px] text-text-3">Todavía no hay análisis. Iniciá un análisis de competidor arriba para empezar.</p>

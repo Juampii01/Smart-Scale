@@ -44,7 +44,7 @@ function FunnelStep({
   const col = convColor(pctOfTop)
   return (
     <div>
-      <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card p-5 hover:border-foreground/[0.12] transition-colors">
+      <div className="relative overflow-hidden rounded-[14px] border border-border bg-card p-5 hover:border-border transition-colors">
         {/* Proportional fill bar as background */}
         <div
           className="absolute inset-y-0 left-0 rounded-[14px] opacity-[0.07] transition-all duration-700"
@@ -91,7 +91,7 @@ function FunnelStep({
 
 function MiniStat({ label, value, sub, color = "var(--accent-ink)" }: { label: string; value: string | number; sub?: string; color?: string }) {
   return (
-    <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card p-5 hover:border-foreground/[0.12] transition-colors">
+    <div className="relative overflow-hidden rounded-[14px] border border-border bg-card p-5 hover:border-border transition-colors">
       <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: `color-mix(in srgb, ${color} 60%, transparent)` }}>{label}</p>
       <p className="text-[24px] sm:text-[32px] font-bold tracking-tight text-foreground leading-none">{value}</p>
       {sub && <p className="mt-2 text-[13px] text-text-3">{sub}</p>}
@@ -206,8 +206,8 @@ export function SalesView() {
 
       {error && <p className="text-red-700 dark:text-red-400 text-[13px]">{error}</p>}
       {!showSkeleton && !error && !data && (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-14 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card py-14 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-foreground/[0.03]">
             <TrendingUp className="h-5 w-5 text-text-3" />
           </div>
           <p className="text-[13px] text-text-2">
@@ -298,7 +298,7 @@ export function SalesView() {
 
           {/* Offer Doc funnel */}
           {odSent > 0 && (
-            <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-5 space-y-3">
+            <div className="rounded-[14px] border border-border bg-card p-5 space-y-3">
               <p className="text-[11px] font-bold uppercase tracking-widest text-text-2">Funnel Offer Doc</p>
               {[
                 { label: "Enviados", value: odSent,    pctW: 100,                         color: "#60a5fa" },
@@ -328,7 +328,7 @@ export function SalesView() {
             <h3 className="text-[15px] font-bold text-foreground">Tendencia del Embudo</h3>
             <p className="text-[13px] text-text-3 mt-0.5">¿El pipeline está creciendo o deteriorándose?</p>
           </div>
-          <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
+          <div className="rounded-[14px] border border-border bg-card p-6">
             <div className="flex flex-wrap gap-5 mb-5">
               {[
                 { label: "Agendadas", color: "#818cf8" },
@@ -367,7 +367,7 @@ export function SalesView() {
             <h3 className="text-[15px] font-bold text-foreground">Tendencia de Offer Docs</h3>
             <p className="text-[13px] text-text-3 mt-0.5">Evolución mensual del pipeline de Offer Docs</p>
           </div>
-          <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
+          <div className="rounded-[14px] border border-border bg-card p-6">
             <div className="flex flex-wrap gap-5 mb-5">
               {[
                 { label: "OD Enviados",    color: "#60a5fa" },

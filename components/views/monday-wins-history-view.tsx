@@ -54,8 +54,8 @@ export function MondayWinsHistoryView() {
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-[14px] border border-foreground/[0.07] bg-card py-16 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
+      <div className="flex flex-col items-center gap-3 rounded-[14px] border border-border bg-card py-16 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-foreground/[0.03]">
           <Trophy className="h-5 w-5 text-text-3" />
         </div>
         <p className="text-[13px] text-text-2">Todavía no hay Monday Wins registrados.</p>
@@ -71,8 +71,8 @@ export function MondayWinsHistoryView() {
       </div>
 
       {items.map((w) => (
-        <div key={w.id} className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
-          <div className="flex items-center gap-2.5 border-b border-foreground/[0.05] px-5 py-3">
+        <div key={w.id} className="overflow-hidden rounded-[14px] border border-border bg-card">
+          <div className="flex items-center gap-2.5 border-b border-border px-5 py-3">
             <Star className="h-3.5 w-3.5 text-accent-ink" />
             <span className="text-[13px] font-semibold text-foreground">{fmtDate(w.fecha)}</span>
           </div>

@@ -22,7 +22,7 @@ function ConfirmedContent() {
     <div className="min-h-screen bg-background">
 
       {/* Nav */}
-      <nav className="border-b border-foreground/[0.06] bg-background/90 backdrop-blur-md sticky top-0 z-10">
+      <nav className="border-b border-border bg-background/90 backdrop-blur-md sticky top-0 z-10">
         <div className="mx-auto max-w-5xl px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-foreground text-[18px] font-bold tracking-tight">Smart</span>
@@ -88,7 +88,7 @@ function ConfirmedContent() {
           }`}
         >
           {calendlyUrl ? (
-            <div className="overflow-hidden rounded-3xl border border-foreground/[0.08] shadow-2xl shadow-black/20">
+            <div className="overflow-hidden rounded-3xl border border-border shadow-2xl shadow-black/20">
               <div className="h-[3px] w-full bg-gradient-to-r from-accent-ink/40 via-accent-ink to-accent-ink/40" />
               <iframe
                 src={`${calendlyUrl}?hide_gdpr_banner=1&background_color=111111&text_color=ffffff&primary_color=dafc69`}
@@ -100,7 +100,7 @@ function ConfirmedContent() {
               />
             </div>
           ) : (
-            <div className="rounded-3xl border border-foreground/[0.08] bg-card p-12 text-center space-y-3">
+            <div className="rounded-3xl border border-border bg-card p-12 text-center space-y-3">
               <p className="text-[15px] text-text-2">
                 En breve vas a recibir un email con el link para agendar tu sesión.
               </p>

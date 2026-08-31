@@ -21,7 +21,7 @@ function Field({ label, required, hint, children }: { label: string; required?: 
   )
 }
 
-const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2.5 text-[13px] font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
+const inputCls = "w-full rounded-xl border border-border bg-foreground/[0.04] px-4 py-2.5 text-[13px] font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
 const textareaCls = inputCls + " resize-none"
 
 export function MondayWinView() {
@@ -135,7 +135,7 @@ export function MondayWinView() {
   return (
     <>
       {/* Tab switcher */}
-      <div className="flex gap-1 mb-6 rounded-xl border border-foreground/[0.06] bg-card p-1 w-fit">
+      <div className="flex gap-1 mb-6 rounded-xl border border-border bg-card p-1 w-fit">
         <button type="button" onClick={() => setTab("form")}
           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium transition-all ${tab === "form" ? "bg-secondary text-foreground" : "text-text-2 hover:text-foreground"}`}>
           <FileText className="h-3.5 w-3.5" /> Cargar
@@ -151,7 +151,7 @@ export function MondayWinView() {
       {tab === "form" && (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Header */}
-      <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-5">
+      <div className="rounded-[14px] border border-border bg-card px-6 py-5">
         <div className="flex items-center gap-4">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft ring-1 ring-accent/20">
             <Star className="h-5 w-5 text-accent-ink" />
@@ -178,8 +178,8 @@ export function MondayWinView() {
       )}
 
       {/* Fields */}
-      <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card">
-        <div className="flex items-center gap-2 border-b border-foreground/[0.05] px-5 py-3">
+      <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
+        <div className="flex items-center gap-2 border-b border-border px-5 py-3">
           <span className="h-3 w-[2px] rounded-full bg-accent" />
           <span className="text-[11px] font-semibold uppercase tracking-widest text-text-2">Semana en revisión</span>
         </div>
@@ -229,8 +229,8 @@ export function MondayWinView() {
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card">
-        <div className="flex items-center gap-2 border-b border-foreground/[0.05] px-5 py-3">
+      <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
+        <div className="flex items-center gap-2 border-b border-border px-5 py-3">
           <span className="h-3 w-[2px] rounded-full bg-accent" />
           <span className="text-[11px] font-semibold uppercase tracking-widest text-text-2">Esta semana</span>
         </div>
@@ -291,7 +291,7 @@ export function MondayWinView() {
             onClick={handleTest}
             disabled={status === "loading" || !ownClientId}
             title="Solo developer: envía un Monday Win con datos ficticios"
-            className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/[0.04] px-5 py-2.5 text-[13px] font-bold text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded-xl border border-border bg-foreground/[0.04] px-5 py-2.5 text-[13px] font-bold text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <FlaskConical className="h-4 w-4" />
             Testear

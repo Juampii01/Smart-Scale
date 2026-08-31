@@ -11,14 +11,14 @@ const labelCls = "block text-[11px] font-bold uppercase tracking-[0.10em] text-t
 const hintCls  = "text-[13px] text-text-3 mt-2 leading-relaxed"
 
 const areaCls = cn(
-  "w-full rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.03]",
+  "w-full rounded-[8px] border border-border bg-foreground/[0.03]",
   "px-4 py-3 text-[15px] text-foreground placeholder:text-text-3",
-  "outline-none focus:border-foreground/[0.22] transition-colors resize-none"
+  "outline-none focus:border-border-hover transition-colors resize-none"
 )
 const inputCls = cn(
-  "w-full rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.03]",
+  "w-full rounded-[8px] border border-border bg-foreground/[0.03]",
   "px-3 py-2 text-[15px] text-foreground placeholder:text-text-3",
-  "outline-none focus:border-foreground/[0.22] transition-colors"
+  "outline-none focus:border-border-hover transition-colors"
 )
 
 type Ctx = Record<string, string>

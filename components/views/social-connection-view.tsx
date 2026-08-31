@@ -278,7 +278,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                   <h2 className="mb-3 text-[13px] font-semibold text-foreground">{platform === "youtube" ? "Videos" : "Publicaciones"} · {bucket.label}</h2>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                     {bucket.media.slice(0, 12).map((m) => (
-                      <a key={m.id} href={m.permalink} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-xl border border-border bg-card transition hover:border-foreground/20">
+                      <a key={m.id} href={m.permalink} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-xl border border-border bg-card transition hover:border-border-hover">
                         <div className="relative aspect-square w-full overflow-hidden bg-foreground/[0.04]">
                           {m.thumbnail ? (
                             <img src={px(m.thumbnail)} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />

@@ -109,7 +109,7 @@ function SummaryBlock({ text }: { text: string }) {
       {sections.map((s, i) => {
         const cfg = s.header ? SECTIONS[s.header] : null
         return (
-          <div key={i} className={`rounded-[14px] border overflow-hidden ${cfg ? cfg.border : "border-foreground/[0.07]"}`}>
+          <div key={i} className={`rounded-[14px] border overflow-hidden ${cfg ? cfg.border : "border-border"}`}>
             {s.header && cfg && (
               <div className={`flex items-center gap-2.5 px-4 py-3 ${cfg.bg} border-b ${cfg.border}`}>
                 <span className="text-[15px] leading-none">{cfg.icon}</span>
@@ -131,7 +131,7 @@ function CopyBtn({ text }: { text: string }) {
   return (
     <button
       onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
-      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-text-3 hover:text-foreground hover:border-foreground/20 hover:bg-foreground/[0.06] transition-all shrink-0"
+      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-3 hover:text-foreground hover:border-border-hover hover:bg-foreground/[0.06] transition-all shrink-0"
     >
       {copied ? <Check className="h-4 w-4 text-accent-ink" /> : <Copy className="h-4 w-4" />}
     </button>
@@ -172,12 +172,12 @@ function TranscriptModal({
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-5xl h-[90vh] overflow-hidden rounded-[28px] border border-foreground/[0.08] bg-background/95 shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
+      <div className="relative w-full max-w-5xl h-[90vh] overflow-hidden rounded-[28px] border border-border bg-background/95 shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.06] to-transparent" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
         <div className="relative flex h-full flex-col">
-          <div className="border-b border-foreground/[0.06] bg-card/90 px-5 py-4 sm:px-7 sm:py-5 backdrop-blur-xl">
+          <div className="border-b border-border bg-card/90 px-5 py-4 sm:px-7 sm:py-5 backdrop-blur-xl">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
                 <div className="mb-3 flex items-center gap-2">
@@ -195,11 +195,11 @@ function TranscriptModal({
                 </h3>
 
                 <div className="mt-3 flex flex-wrap items-center gap-2.5 text-[13px] text-text-3">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-1.5">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-foreground/[0.03] px-3 py-1.5">
                     <FileText className="h-3 w-3" />
                     {data.wordCount.toLocaleString()} palabras
                   </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-1.5">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-foreground/[0.03] px-3 py-1.5">
                     <Maximize2 className="h-3 w-3" />
                     Vista expandida
                   </span>
@@ -209,14 +209,14 @@ function TranscriptModal({
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={handleCopy}
-                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-[13px] font-medium text-text-2 hover:border-foreground/[0.16] hover:bg-foreground/[0.07] hover:text-foreground transition-all"
+                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-foreground/[0.04] px-4 text-[13px] font-medium text-text-2 hover:border-border-hover hover:bg-foreground/[0.07] hover:text-foreground transition-all"
                 >
                   {copied ? <Check className="h-4 w-4 text-accent-ink" /> : <Copy className="h-4 w-4" />}
                   {copied ? "Copiado" : "Copiar"}
                 </button>
                 <button
                   onClick={onClose}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] text-text-2 hover:border-foreground/[0.16] hover:bg-foreground/[0.07] hover:text-foreground transition-all"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-foreground/[0.04] text-text-2 hover:border-border-hover hover:bg-foreground/[0.07] hover:text-foreground transition-all"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -225,8 +225,8 @@ function TranscriptModal({
           </div>
 
           <div className="min-h-0 flex-1 bg-[linear-gradient(180deg,rgba(0,0,0,0.02)_0%,rgba(0,0,0,0.01)_100%)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0.01)_100%)] px-4 py-4 sm:px-6 sm:py-6">
-            <div className="h-full overflow-hidden rounded-[24px] border border-foreground/[0.07] bg-card shadow-inner">
-              <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-3">
+            <div className="h-full overflow-hidden rounded-[24px] border border-border bg-card shadow-inner">
+              <div className="flex items-center justify-between border-b border-border px-5 py-3">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.22em] text-text-3">
                   <span className="h-2 w-2 rounded-full bg-accent" />
                   Transcripción completa
@@ -273,8 +273,8 @@ function DetailModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
 
-      <div className="relative w-full max-w-3xl max-h-[85vh] overflow-hidden rounded-[24px] border border-foreground/[0.08] bg-background shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
-        <div className="flex items-center justify-between border-b border-foreground/[0.06] px-6 py-4">
+      <div className="relative w-full max-w-3xl max-h-[85vh] overflow-hidden rounded-[24px] border border-border bg-background shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-accent/25 bg-accent-soft">
               {data.kind === "transcript" ? <FileText className="h-4 w-4 text-accent-ink" /> : <Sparkles className="h-4 w-4 text-accent-ink" />}
@@ -291,7 +291,7 @@ function DetailModal({
             <CopyBtn text={data.content} />
             <button
               onClick={onClose}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] text-text-2 hover:border-foreground/[0.16] hover:bg-foreground/[0.07] hover:text-foreground transition-all"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-foreground/[0.04] text-text-2 hover:border-border-hover hover:bg-foreground/[0.07] hover:text-foreground transition-all"
             >
               <X className="h-4 w-4" />
             </button>
@@ -299,7 +299,7 @@ function DetailModal({
         </div>
 
         <div className="max-h-[calc(85vh-76px)] overflow-y-auto px-6 py-5">
-          <div className="rounded-[14px] border border-foreground/[0.07] bg-foreground/[0.02] px-5 py-5">
+          <div className="rounded-[14px] border border-border bg-foreground/[0.02] px-5 py-5">
             <p className="whitespace-pre-wrap text-[15px] leading-8 text-foreground font-light">
               {data.content}
             </p>
@@ -450,13 +450,13 @@ export function TranscriptView() {
       )}
 
       {/* ── New Transcription form ── */}
-      <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
+      <div className="overflow-hidden rounded-[14px] border border-border bg-card">
         <div className="flex items-center gap-3 px-6 py-5">
           <FileVideo className="h-4 w-4 text-text-2 shrink-0" />
           <h2 className="text-[15px] font-bold text-foreground">Nueva Transcripción</h2>
         </div>
 
-        <div className="border-t border-foreground/[0.06] px-6 py-6 space-y-5">
+        <div className="border-t border-border px-6 py-6 space-y-5">
           {/* Platform + Output type */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -469,7 +469,7 @@ export function TranscriptView() {
                     setUrl("")
                     setFormError(null)
                   }}
-                  className="h-11 w-full appearance-none cursor-pointer rounded-xl border border-foreground/[0.08] bg-card px-4 pr-10 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none disabled:opacity-60"
+                  className="h-11 w-full appearance-none cursor-pointer rounded-xl border border-border bg-card px-4 pr-10 text-[13px] text-foreground focus:border-border-hover focus:outline-none disabled:opacity-60"
                 >
                   <option value="youtube">YouTube</option>
                   <option value="instagram">Instagram</option>
@@ -484,7 +484,7 @@ export function TranscriptView() {
                 <select
                   value={outputType}
                   onChange={e => setOutputType(e.target.value as any)}
-                  className="h-11 w-full appearance-none cursor-pointer rounded-xl border border-foreground/[0.08] bg-card px-4 pr-10 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none disabled:opacity-60"
+                  className="h-11 w-full appearance-none cursor-pointer rounded-xl border border-border bg-card px-4 pr-10 text-[13px] text-foreground focus:border-border-hover focus:outline-none disabled:opacity-60"
                 >
                   <option value="both">Transcripción + Resumen IA</option>
                   <option value="transcript">Solo transcripción</option>
@@ -507,7 +507,7 @@ export function TranscriptView() {
                 className={`h-11 w-full rounded-xl border px-4 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none transition-all bg-card ${
                   platform === "instagram" && isIGNonReel
                     ? "border-orange-500/40 focus:border-orange-500/60"
-                    : "border-foreground/[0.08] focus:border-foreground/20"
+                    : "border-border focus:border-border-hover"
                 }`}
               />
               <p className="text-[13px] text-text-3">
@@ -562,7 +562,7 @@ export function TranscriptView() {
 
         {/* Jobs procesándose — indicador minimizado, no bloquea el formulario */}
         {processingJobs.length > 0 && (
-          <div className="border-t border-foreground/[0.05] px-6 py-4 space-y-2">
+          <div className="border-t border-border px-6 py-4 space-y-2">
             {processingJobs.map(job => (
               <div key={job.id} className="flex items-center gap-3 rounded-xl border border-accent/20 bg-accent-soft px-4 py-2.5">
                 <span className="h-3.5 w-3.5 shrink-0 rounded-full border-2 border-accent/25 border-t-accent-ink animate-spin" />
@@ -591,17 +591,17 @@ export function TranscriptView() {
             )}
 
             {/* Meta card */}
-            <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+            <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
               <div className="px-6 py-5 flex flex-wrap items-center gap-5 justify-between">
                 <button
                   onClick={() => dismissJob(job.id)}
-                  className="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-lg border border-foreground/[0.07] bg-foreground/[0.03] text-text-3 hover:text-text-2 hover:border-foreground/20 transition-all"
+                  className="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-lg border border-border bg-foreground/[0.03] text-text-3 hover:text-text-2 hover:border-border-hover transition-all"
                   title="Cerrar"
                 >
                   <X className="h-3 w-3" />
                 </button>
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className="flex-shrink-0 w-28 h-16 rounded-xl overflow-hidden border border-foreground/[0.07] bg-foreground/[0.03]">
+                  <div className="flex-shrink-0 w-28 h-16 rounded-xl overflow-hidden border border-border bg-foreground/[0.03]">
                     {jobResult.thumbnail
                       ? <img src={jobResult.thumbnail} alt={jobResult.title ?? ""} className="w-full h-full object-cover" />
                       : <div className="flex h-full items-center justify-center"><Youtube className="h-5 w-5 text-red-500/40" /></div>}
@@ -618,12 +618,12 @@ export function TranscriptView() {
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   {jobResult.duration && (
-                    <div className="flex items-center gap-1.5 rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-3 py-2">
+                    <div className="flex items-center gap-1.5 rounded-xl border border-border bg-foreground/[0.03] px-3 py-2">
                       <Clock className="h-3 w-3 text-text-3" />
                       <span className="text-[13px] font-bold text-foreground tabular-nums">{jobResult.duration}</span>
                     </div>
                   )}
-                  <div className="flex items-center gap-1.5 rounded-xl border border-foreground/[0.07] bg-foreground/[0.03] px-3 py-2">
+                  <div className="flex items-center gap-1.5 rounded-xl border border-border bg-foreground/[0.03] px-3 py-2">
                     <FileText className="h-3 w-3 text-text-3" />
                     <span className="text-[13px] font-bold text-foreground tabular-nums">{jobWordCount.toLocaleString()}</span>
                     <span className="text-[13px] text-text-3">palabras</span>
@@ -634,9 +634,9 @@ export function TranscriptView() {
 
             {/* ── Transcript (primary) ── */}
             {(job.outputType === "transcript" || job.outputType === "both") && (
-              <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.10] bg-card">
+              <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
                 {/* yellow top accent — this is the main product */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-foreground/[0.06]">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent-soft border border-accent/25">
                       <FileText className="h-4 w-4 text-accent-ink" />
@@ -654,7 +654,7 @@ export function TranscriptView() {
                         transcript: jobResult.transcript,
                         wordCount: jobWordCount,
                       })}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-foreground/20 hover:bg-foreground/[0.06] transition-all"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-foreground/[0.03] px-3 py-2 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover hover:bg-foreground/[0.06] transition-all"
                     >
                       <Maximize2 className="h-3 w-3" />
                       Ver completa
@@ -664,7 +664,7 @@ export function TranscriptView() {
 
                 {/* Full transcript body — scrollable, no preview truncation */}
                 <div className="px-6 py-5">
-                  <div className="max-h-[520px] overflow-y-auto rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-5 scrollbar-thin">
+                  <div className="max-h-[520px] overflow-y-auto rounded-[14px] border border-border bg-card px-5 py-5 scrollbar-thin">
                     <p className="text-[15px] text-foreground leading-[1.9] whitespace-pre-wrap font-light tracking-[0.01em]">
                       {jobResult.transcript}
                     </p>
@@ -675,8 +675,8 @@ export function TranscriptView() {
 
             {/* ── AI Analysis (secondary) ── */}
             {(job.outputType === "summary" || job.outputType === "both") && jobResult.summary && (
-              <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.06] bg-card">
-                <div className="flex items-center gap-3 border-b border-foreground/[0.05] px-6 py-3.5">
+              <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
+                <div className="flex items-center gap-3 border-b border-border px-6 py-3.5">
                   <Sparkles className="h-3.5 w-3.5 text-text-3 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Análisis IA</p>
@@ -696,22 +696,22 @@ export function TranscriptView() {
         <h2 className="text-[15px] font-bold text-foreground px-1">Tus Transcripciones</h2>
 
         {historyLoading ? (
-          <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-10 text-center">
+          <div className="rounded-[14px] border border-border bg-card px-6 py-10 text-center">
             <p className="text-[13px] text-text-3">Cargando…</p>
           </div>
         ) : history.length === 0 ? (
-          <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-14 flex flex-col items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
+          <div className="rounded-[14px] border border-border bg-card px-6 py-14 flex flex-col items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-foreground/[0.03]">
               <FileText className="h-5 w-5 text-text-3" />
             </div>
             <p className="text-[13px] text-text-3">Todavía no hay transcripciones. Enviá una URL arriba para empezar.</p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card">
           {/* Desktop table — hidden on mobile */}
           <div className="hidden md:block overflow-x-auto">
             <div className="min-w-[800px]">
-              <div className="grid grid-cols-[140px_160px_90px_130px_minmax(180px,1fr)_minmax(180px,1fr)] border-b border-foreground/[0.06] bg-foreground/[0.01] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-text-3">
+              <div className="grid grid-cols-[140px_160px_90px_130px_minmax(180px,1fr)_minmax(180px,1fr)] border-b border-border bg-foreground/[0.01] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-text-3">
                 <div>Plataforma</div>
                 <div>Fecha</div>
                 <div>URL</div>
@@ -729,11 +729,11 @@ export function TranscriptView() {
                 return (
                   <div
                     key={item.id}
-                    className="grid grid-cols-[140px_160px_90px_130px_minmax(180px,1fr)_minmax(180px,1fr)] items-center border-b border-foreground/[0.05] px-6 py-4 hover:bg-foreground/[0.02] transition-colors"
+                    className="grid grid-cols-[140px_160px_90px_130px_minmax(180px,1fr)_minmax(180px,1fr)] items-center border-b border-border px-6 py-4 hover:bg-foreground/[0.02] transition-colors"
                   >
                     {/* Platform */}
                     <div className="flex items-center gap-2.5 pr-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-foreground/[0.07] bg-card">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card">
                         {isYT ? <Youtube className="h-[15px] w-[15px] text-accent-ink" /> : <Instagram className="h-[15px] w-[15px] text-accent-ink" />}
                       </div>
                       <span className="text-[13px] font-semibold text-foreground">{isYT ? "YouTube" : "Instagram"}</span>
@@ -790,7 +790,7 @@ export function TranscriptView() {
                       {item.transcript && (
                         <button
                           onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(item.transcript!) }}
-                          className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md border border-foreground/[0.07] bg-foreground/[0.03] text-text-3 hover:text-text-2 hover:border-foreground/20 transition-all"
+                          className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md border border-border bg-foreground/[0.03] text-text-3 hover:text-text-2 hover:border-border-hover transition-all"
                         >
                           <Copy className="h-3 w-3" />
                         </button>
@@ -815,7 +815,7 @@ export function TranscriptView() {
                       {item.summary && (
                         <button
                           onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(item.summary!) }}
-                          className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md border border-foreground/[0.07] bg-foreground/[0.03] text-text-3 hover:text-text-2 hover:border-foreground/20 transition-all"
+                          className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md border border-border bg-foreground/[0.03] text-text-3 hover:text-text-2 hover:border-border-hover transition-all"
                         >
                           <Copy className="h-3 w-3" />
                         </button>
@@ -828,7 +828,7 @@ export function TranscriptView() {
           </div>
 
           {/* Mobile card list — shown only on small screens */}
-          <div className="md:hidden divide-y divide-foreground/[0.05]">
+          <div className="md:hidden divide-y divide-border">
             {history.map(item => {
               const isYT = isYouTubeUrl(item.url)
               const status = getHistoryStatus(item)
@@ -836,7 +836,7 @@ export function TranscriptView() {
                 <div key={item.id} className="px-4 py-4 space-y-2">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-foreground/[0.07] bg-card">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border bg-card">
                         {isYT ? <Youtube className="h-3.5 w-3.5 text-accent-ink" /> : <Instagram className="h-3.5 w-3.5 text-accent-ink" />}
                       </div>
                       <span className="text-[13px] font-semibold text-foreground">{isYT ? "YouTube" : "Instagram"}</span>
@@ -858,7 +858,7 @@ export function TranscriptView() {
                     {item.transcript && (
                       <button
                         onClick={() => setDetailModal({ title: item.title ?? "Transcripción", content: item.transcript!, kind: "transcript" })}
-                        className="flex-1 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-[13px] font-medium text-text-2 hover:text-foreground transition-colors text-center"
+                        className="flex-1 rounded-lg border border-border bg-foreground/[0.04] px-3 py-1.5 text-[13px] font-medium text-text-2 hover:text-foreground transition-colors text-center"
                       >
                         Ver transcript
                       </button>
@@ -866,7 +866,7 @@ export function TranscriptView() {
                     {item.summary && (
                       <button
                         onClick={() => setDetailModal({ title: item.title ?? "Análisis", content: item.summary!, kind: "summary" })}
-                        className="flex-1 rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1.5 text-[13px] font-medium text-text-2 hover:text-foreground transition-colors text-center"
+                        className="flex-1 rounded-lg border border-border bg-foreground/[0.04] px-3 py-1.5 text-[13px] font-medium text-text-2 hover:text-foreground transition-colors text-center"
                       >
                         Ver análisis
                       </button>

@@ -278,7 +278,7 @@ export default function ResetPasswordPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/70 to-black" />
         </div>
         <div className="relative flex min-h-screen items-center justify-center px-6 py-12">
-          <div className="rounded-2xl border border-foreground/10 bg-foreground/5 p-6 text-[13px] text-foreground backdrop-blur-xl">
+          <div className="rounded-2xl border border-border bg-foreground/5 p-6 text-[13px] text-foreground backdrop-blur-xl">
             Cargando…
           </div>
         </div>
@@ -319,17 +319,17 @@ export default function ResetPasswordPage() {
           {/* Card */}
           <form
             onSubmit={onSubmit}
-            className="rounded-2xl border border-foreground/10 bg-foreground/5 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl"
+            className="rounded-2xl border border-border bg-foreground/5 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl"
           >
             <div className="space-y-4">
               {err ? (
-                <div className="rounded-xl border border-foreground/10 bg-black/40 p-3 text-[13px] text-foreground whitespace-pre-wrap">
+                <div className="rounded-xl border border-border bg-black/40 p-3 text-[13px] text-foreground whitespace-pre-wrap">
                   {err}
                 </div>
               ) : null}
 
               {info ? (
-                <div className="rounded-xl border border-foreground/10 bg-black/30 p-3 text-[13px] text-foreground whitespace-pre-wrap">
+                <div className="rounded-xl border border-border bg-black/30 p-3 text-[13px] text-foreground whitespace-pre-wrap">
                   {info}
                 </div>
               ) : null}
@@ -338,7 +338,7 @@ export default function ResetPasswordPage() {
                 <label className="block text-[13px] text-foreground">Nueva contraseña</label>
                 <div className="relative">
                   <input
-                    className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 pl-3 pr-10 text-foreground outline-none placeholder:text-text-3 focus:border-foreground/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
+                    className="h-11 w-full rounded-xl border border-border bg-black/30 pl-3 pr-10 text-foreground outline-none placeholder:text-text-3 focus:border-border-hover focus:ring-2 focus:ring-white/10 disabled:opacity-60"
                     placeholder="Mínimo 6 caracteres"
                     type={showPassword ? "text" : "password"}
                     value={password}
@@ -363,7 +363,7 @@ export default function ResetPasswordPage() {
                 <label className="block text-[13px] text-foreground">Repetir contraseña</label>
                 <div className="relative">
                   <input
-                    className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 pl-3 pr-10 text-foreground outline-none placeholder:text-text-3 focus:border-foreground/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
+                    className="h-11 w-full rounded-xl border border-border bg-black/30 pl-3 pr-10 text-foreground outline-none placeholder:text-text-3 focus:border-border-hover focus:ring-2 focus:ring-white/10 disabled:opacity-60"
                     placeholder="Repetí la contraseña"
                     type={showPassword2 ? "text" : "password"}
                     value={password2}

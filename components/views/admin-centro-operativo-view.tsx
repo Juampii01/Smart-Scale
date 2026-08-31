@@ -74,7 +74,7 @@ export function AdminCentroOperativoView() {
       <NewUserDialog open={newUserOpen} onClose={() => setNewUserOpen(false)} />
 
       {/* Tabs nav */}
-      <div className="flex items-center gap-1 border-b border-foreground/[0.08]">
+      <div className="flex items-center gap-1 border-b border-border">
         {CENTRO_OP_TABS.map(t => {
           const Icon = t.icon
           const active = tab === t.id
