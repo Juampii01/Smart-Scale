@@ -55,12 +55,20 @@ const OPERACIONES_NAV_ITEMS = [
 
 const DESARROLLADOR_NAV_ITEMS = [
   { name: "Cerebro de Ann", href: "/admin/ann-knowledge",       icon: Brain },
+  { name: "Ann AI",         href: "/admin/omni",                icon: Sparkles },
   { name: "Agenda",         href: "/admin/agenda",              icon: CalendarDays },
   { name: "Conexiones",     href: "/admin/conexiones",          icon: Share2 },
   { name: "Actividad",      href: "/admin/actividad-clientes",  icon: Activity },
   { name: "Dev Logs",       href: "/admin/dev-logs",            icon: Terminal },
   { name: "Instagram",      href: "/admin/instagram-access",    icon: Instagram },
 ]
+
+// "Ann AI" (/admin/omni) es un piloto restringido a un allowlist de emails
+// (isOmniOwnerEmail) — no depende de rol, así que ni admin ni nadie más lo
+// ve salvo que esté en esa lista. Sacado del filtro genérico de
+// canAccessAdminPath (que solo mira rol) para no tener que meter el
+// allowlist ahí adentro.
+const OMNI_ONLY_HREF = "/admin/omni"
 
 const NAV_SECTIONS = [
   { title: "Founder",       items: FOUNDER_NAV_ITEMS },
@@ -116,15 +124,15 @@ function VerClientesPicker({ collapsed, ownTenant }: { collapsed: boolean; ownTe
         onClick={() => setOpenMenu(v => !v)}
         title="Ver Clientes — navegar el sector interno de cualquier cliente"
         className={cn(
-          "flex w-full items-center gap-2.5 rounded-lg border py-2 transition-all",
+          "flex w-full items-center gap-2.5 rounded-lg py-[7px] transition-all duration-150",
           collapsed ? "px-3 lg:px-0 lg:justify-center" : "px-3",
           viewAsTenant
-            ? "border-amber-400/50 bg-amber-400/[0.12] text-amber-700 dark:text-amber-300"
-            : "border-foreground/[0.07] bg-foreground/[0.02] text-foreground/60 hover:text-foreground hover:border-foreground/[0.15]"
+            ? "bg-amber-400/[0.12] text-amber-700 dark:text-amber-300"
+            : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
         )}
       >
-        <Building2 className="h-3.5 w-3.5 flex-shrink-0" />
-        <span className={cn("min-w-0 flex-1 truncate text-left text-[12px] font-semibold", collapsed && "lg:hidden")}>
+        <Building2 className="h-[14px] w-[14px] flex-shrink-0" />
+        <span className={cn("min-w-0 flex-1 truncate text-left text-[13px] leading-none font-medium", collapsed && "lg:hidden")}>
           {viewAsTenant ? activeLabel : "Ver Clientes"}
         </span>
       </button>
@@ -213,6 +221,7 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
     : NAV_SECTIONS
         .map(section => ({ ...section, items: section.items.filter(item => canAccessAdminPath(effectiveRole, item.href)) }))
         .map(section => isOwnSectorInternal ? section : { ...section, items: section.items.filter(item => CLIENT_SECTOR_HREFS.has(item.href)) })
+        .map(section => isOmniOwner ? section : { ...section, items: section.items.filter(item => item.href !== OMNI_ONLY_HREF) })
         .filter(section => section.items.length > 0)
 
   return (
@@ -282,13 +291,6 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
           </div>
         )}
 
-        {/* "Ver Clientes" — exclusivo del platform owner */}
-        {isPlatformOwner && (
-          <div className={cn("pt-1", collapsed ? "px-3 lg:px-2" : "px-3")}>
-            <VerClientesPicker collapsed={collapsed} ownTenant={ownTenant} />
-          </div>
-        )}
-
         {/* Volver al portal (solo admin) */}
         {isAdmin(effectiveRole) && (
           <div className={cn("pt-1", collapsed ? "px-3 lg:px-2" : "px-3")}>
@@ -304,31 +306,26 @@ export function AdminSidebar({ open, onClose, collapsed = false, onToggleCollaps
           </div>
         )}
 
-        {/* Ann AI (ex Omni) — sistema de IA (destacado, acceso restringido) */}
-        {isOmniOwner && (
-          <div className={cn("pt-1", collapsed ? "px-3 lg:px-2" : "px-3")}>
-            <Link href="/admin/omni" onClick={onClose} title="Ann AI — Sistema IA">
-              <div className={cn(
-                "flex items-center gap-2.5 rounded-lg border py-2 transition-all",
-                collapsed ? "px-3 lg:px-0 lg:justify-center" : "px-3",
-                pathname === "/admin/omni"
-                  ? "border-[#dafc69]/45 bg-[#dafc69]/[0.14] text-[#dafc69]"
-                  : "border-[#dafc69]/20 bg-[#dafc69]/[0.06] text-[#dafc69]/90 hover:bg-[#dafc69]/[0.12] hover:border-[#dafc69]/40"
-              )}>
-                <Sparkles className="h-4 w-4 flex-shrink-0" />
-                <div className={cn("min-w-0 leading-none", collapsed && "lg:hidden")}>
-                  <p className="text-[13px] font-bold">Ann AI</p>
-                  <p className="mt-1 text-[10px] text-foreground/40">Sistema IA</p>
-                </div>
-              </div>
-            </Link>
-          </div>
-        )}
-
         {/* Navigation */}
         <nav className={cn("flex-1 overflow-y-auto py-4", collapsed ? "px-3 lg:px-2" : "px-3")}>
+          {/* "Ver Clientes" — exclusivo del platform owner. Ya no es un bloque
+              flotante propio: es la primera sección del nav, mismo trato
+              visual que el resto (Founder, Prospección, etc). */}
+          {isPlatformOwner && (
+            <div>
+              <p className={cn(
+                "px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/35",
+                collapsed && "lg:hidden"
+              )}>
+                Plataforma
+              </p>
+              <div className="space-y-0.5">
+                <VerClientesPicker collapsed={collapsed} ownTenant={ownTenant} />
+              </div>
+            </div>
+          )}
           {visibleSections.map((section, i) => (
-            <div key={section.title} className={i > 0 ? "mt-5" : undefined}>
+            <div key={section.title} className={i > 0 || isPlatformOwner ? "mt-5" : undefined}>
               <p className={cn(
                 "px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/35",
                 collapsed && "lg:hidden"
