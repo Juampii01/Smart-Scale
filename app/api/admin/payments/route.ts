@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { isAdmin } from "@/lib/auth/permissions"
+import { requireSmartScaleInternal } from "@/lib/auth/api-guards"
+import { getSmartScaleTenantId } from "@/lib/auth/internal-scope"
 import { resolveClientAndSuggestion } from "@/lib/payments"
 
 export const runtime = "nodejs"
@@ -27,27 +28,21 @@ export const dynamic = "force-dynamic"
   create policy "service_role_all" on payments for all to service_role using (true) with check (true);
 */
 
-async function requireAdmin(jwt: string | null) {
-  if (!jwt) return null
-  const supabase = createServiceClient()
-  const { data: { user }, error } = await supabase.auth.getUser(jwt)
-  if (error || !user) return null
-  const { data: profile } = await supabase
-    .from("profiles").select("role").eq("id", user.id).maybeSingle()
-  if (!isAdmin(profile?.role)) return null
-  return user
-}
-
 /** GET — all payments ordered by created_at desc, con el cliente resuelto
  *  (si el webhook lo pudo matchear por email) y la cuota sugerida para
  *  conciliar, cuando hay una. */
 export async function GET(req: NextRequest) {
   try {
     const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
+    const user = await requireSmartScaleInternal(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     const supabase = createServiceClient()
+    const smartScaleTenantId = await getSmartScaleTenantId(supabase)
+    if (!smartScaleTenantId) {
+      return NextResponse.json({ error: "No se encontró el tenant interno de Smart Scale" }, { status: 500 })
+    }
+
     const { data, error } = await supabase
       .from("payments")
       .select("id, name, email, amount, status, description, created_at, client_id, suggested_installment_id")
@@ -60,12 +55,15 @@ export async function GET(req: NextRequest) {
     const clientIds = Array.from(new Set(payments.map((p: any) => p.client_id).filter(Boolean)))
     const installmentIds = Array.from(new Set(payments.map((p: any) => p.suggested_installment_id).filter(Boolean)))
 
+    // Acotado al tenant de Smart Scale: si un payment.client_id apuntara (por
+    // coincidencia de email en resolveClientAndSuggestion) a un crm_clients de
+    // otro tenant, no queremos resolverle el nombre acá — mejor mostrar "—".
     const [{ data: clients }, { data: installments }] = await Promise.all([
       clientIds.length
-        ? supabase.from("crm_clients").select("id, name, nombre").in("id", clientIds)
+        ? supabase.from("crm_clients").select("id, name, nombre").in("id", clientIds).eq("client_id", smartScaleTenantId)
         : Promise.resolve({ data: [] as any[] }),
       installmentIds.length
-        ? supabase.from("crm_installments").select("id, installment_number, amount, due_date, paid_at").in("id", installmentIds)
+        ? supabase.from("crm_installments").select("id, installment_number, amount, due_date, paid_at, crm_clients!inner(client_id)").in("id", installmentIds).eq("crm_clients.client_id", smartScaleTenantId)
         : Promise.resolve({ data: [] as any[] }),
     ])
 
@@ -122,7 +120,7 @@ async function confirmSuggestedInstallment(supabase: ReturnType<typeof createSer
 export async function POST(req: NextRequest) {
   try {
     const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
+    const user = await requireSmartScaleInternal(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     let body: any
@@ -132,8 +130,12 @@ export async function POST(req: NextRequest) {
     if (!name || amount == null) return NextResponse.json({ error: "name and amount are required" }, { status: 400 })
 
     const supabase = createServiceClient()
+    const smartScaleTenantId = await getSmartScaleTenantId(supabase)
+    if (!smartScaleTenantId) {
+      return NextResponse.json({ error: "No se encontró el tenant interno de Smart Scale" }, { status: 500 })
+    }
     const finalStatus = status ?? "pendiente"
-    const { clientId, suggestedInstallmentId } = await resolveClientAndSuggestion(supabase, email || null, Number(amount), finalStatus)
+    const { clientId, suggestedInstallmentId } = await resolveClientAndSuggestion(supabase, email || null, Number(amount), finalStatus, smartScaleTenantId)
 
     // Validate custom date if provided (YYYY-MM-DD or ISO)
     const insertRow: Record<string, any> = {
@@ -167,7 +169,7 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
+    const user = await requireSmartScaleInternal(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     let body: any
@@ -201,7 +203,7 @@ export async function PATCH(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
+    const user = await requireSmartScaleInternal(jwt)
     if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     let body: any

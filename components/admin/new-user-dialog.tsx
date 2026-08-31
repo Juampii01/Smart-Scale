@@ -10,13 +10,19 @@ interface NewUserDialogProps {
   open: boolean
   onClose: () => void
   onCreated?: (user: { id: string; email: string; role: string }) => void
+  /** Provisionamiento del sector interno de UN cliente puntual (botón "Sector
+   * interno" en /admin/clients) — fija el tenant y oculta el selector, en vez
+   * de dejar que el platform owner elija de la lista completa. Restringe los
+   * roles disponibles a los internos (no tiene sentido crear un 'cliente'
+   * portal desde acá). */
+  fixedTenant?: { id: string; name: string } | null
 }
 
 interface ClientOption { id: string; name: string }
 
 const INTERNAL_ROLES = new Set(["admin", "developer", "team", "setter"])
 
-export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) {
+export function NewUserDialog({ open, onClose, onCreated, fixedTenant }: NewUserDialogProps) {
   const [email, setEmail] = useState("")
   const [name, setName] = useState("")
   const [role, setRole] = useState<string>("setter")
@@ -42,12 +48,22 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
   const [loadingTenants, setLoadingTenants] = useState(false)
 
   const isOwner = isPlatformOwnerEmail(currentUserEmail)
-  const showTenantSelector = INTERNAL_ROLES.has(role) && isOwner
+  const showTenantSelector = !fixedTenant && INTERNAL_ROLES.has(role) && isOwner
+  const roleOptions = fixedTenant ? ROLE_OPTIONS.filter(o => INTERNAL_ROLES.has(o.value)) : ROLE_OPTIONS
 
   useEffect(() => {
     if (!open || currentUserEmail) return
     createClient().auth.getUser().then(({ data }) => setCurrentUserEmail(data?.user?.email ?? null))
   }, [open, currentUserEmail])
+
+  // Provisionamiento de sector interno: tenant y rol por defecto ya resueltos,
+  // sin esperar a que el usuario elija nada en el selector (que ni se muestra).
+  useEffect(() => {
+    if (open && fixedTenant) {
+      setRole("admin")
+      setInternalTenantId(fixedTenant.id)
+    }
+  }, [open, fixedTenant])
 
   useEffect(() => {
     if (!open || role !== "client" || clients.length > 0) return
@@ -137,13 +153,21 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
           role,
           password: autoPassword ? null : password,
           ...(role === "client" && clientId ? { client_id: clientId } : {}),
-          ...(showTenantSelector && internalTenantId ? { internal_tenant_id: internalTenantId } : {}),
+          ...(INTERNAL_ROLES.has(role) && internalTenantId ? { internal_tenant_id: internalTenantId } : {}),
         }),
       })
 
       const json = await res.json()
       if (!res.ok) {
-        setError(json?.error ?? "Error al crear usuario")
+        // Caso conocido: este cliente tiene UUIDs distintos entre crm_clients
+        // y clients (ver MIGRATION_PENDING.md, 4 clientes afectados) — el id
+        // que le pasamos como internal_tenant_id no existe en `clients`.
+        const isTenantMismatch = fixedTenant && /internal_tenant_id inválido/i.test(json?.error ?? "")
+        setError(
+          isTenantMismatch
+            ? `${fixedTenant!.name} tiene un UUID distinto entre el CRM y el portal (caso conocido, ver MIGRATION_PENDING.md). No se puede provisionar su sector interno hasta resolver esa migración — avisale a Juampi.`
+            : (json?.error ?? "Error al crear usuario")
+        )
         setLoading(false)
         return
       }
@@ -179,9 +203,11 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
               <UserPlus className="h-4 w-4 text-accent-ink" />
             </span>
             <div>
-              <h2 className="text-[15px] font-bold text-foreground">Nuevo usuario</h2>
+              <h2 className="text-[15px] font-bold text-foreground">
+                {fixedTenant ? "Usuario del sector interno" : "Nuevo usuario"}
+              </h2>
               <p className="mt-0.5 text-[13px] text-text-2">
-                Crear cuenta — admin / team / setter / cliente
+                {fixedTenant ? `Sector interno de ${fixedTenant.name} — Leads / Setting / Prospección` : "Crear cuenta — admin / team / setter / cliente"}
               </p>
             </div>
           </div>
@@ -275,7 +301,7 @@ export function NewUserDialog({ open, onClose, onCreated }: NewUserDialogProps) 
                 Tipo de usuario
               </label>
               <div className="grid grid-cols-2 gap-2">
-                {ROLE_OPTIONS.map(opt => (
+                {roleOptions.map(opt => (
                   <button
                     key={opt.value}
                     type="button"

@@ -8,10 +8,14 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireAdmin, requireInternal } from "@/lib/auth/api-guards"
+import { resolveInternalScope } from "@/lib/auth/internal-scope"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
+
+function requestedTenantId(req: NextRequest, body?: any): string | null {
+  return req.nextUrl.searchParams.get("client_id") ?? body?.client_id ?? null
+}
 
 const SELECT_FIELDS = "id, title, description, frequency, tags, steps, templates, ai_generated, created_by, created_at, updated_at"
 
@@ -40,17 +44,17 @@ function isValidTemplatesArray(v: unknown): v is Template[] {
   )
 }
 
-/** GET /api/admin/sops — list all SOPs */
+/** GET /api/admin/sops — list SOPs of the caller's tenant */
 export async function GET(req: NextRequest) {
   try {
-    const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireInternal(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    const scope = await resolveInternalScope(req, requestedTenantId(req))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     const supabase = createServiceClient()
     const { data, error } = await supabase
       .from("sops")
       .select(SELECT_FIELDS)
+      .eq("client_id", scope.tenantId)
       .order("created_at", { ascending: false })
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -63,12 +67,11 @@ export async function GET(req: NextRequest) {
 /** POST /api/admin/sops — create a new SOP */
 export async function POST(req: NextRequest) {
   try {
-    const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
+
+    const scope = await resolveInternalScope(req, requestedTenantId(req, body))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     const { title, description, frequency, tags, steps, templates, ai_generated } = body
     if (!title?.trim()) return NextResponse.json({ error: "title is required" }, { status: 400 })
@@ -81,6 +84,7 @@ export async function POST(req: NextRequest) {
     const { data, error } = await supabase
       .from("sops")
       .insert({
+        client_id:    scope.tenantId,
         title:        title.trim(),
         description:  description?.trim() || null,
         frequency:    frequency?.trim()   || null,
@@ -88,7 +92,7 @@ export async function POST(req: NextRequest) {
         steps:        stepsArr,
         templates:    templatesArr,
         ai_generated: Boolean(ai_generated),
-        created_by:   user.id,
+        created_by:   scope.userId,
       })
       .select(SELECT_FIELDS)
       .single()
@@ -103,12 +107,11 @@ export async function POST(req: NextRequest) {
 /** PATCH /api/admin/sops — partial update */
 export async function PATCH(req: NextRequest) {
   try {
-    const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
+
+    const scope = await resolveInternalScope(req, requestedTenantId(req, body))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     const { id, ...rest } = body
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
@@ -130,6 +133,7 @@ export async function PATCH(req: NextRequest) {
       .from("sops")
       .update(allowed)
       .eq("id", id)
+      .eq("client_id", scope.tenantId)
       .select(SELECT_FIELDS)
       .single()
 
@@ -143,16 +147,15 @@ export async function PATCH(req: NextRequest) {
 /** DELETE /api/admin/sops — by id */
 export async function DELETE(req: NextRequest) {
   try {
-    const jwt  = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireAdmin(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
     if (!body.id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
+    const scope = await resolveInternalScope(req, requestedTenantId(req, body))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
+
     const supabase = createServiceClient()
-    const { error } = await supabase.from("sops").delete().eq("id", body.id)
+    const { error } = await supabase.from("sops").delete().eq("id", body.id).eq("client_id", scope.tenantId)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ ok: true })
