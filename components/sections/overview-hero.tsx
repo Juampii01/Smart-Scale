@@ -261,18 +261,16 @@ export function OverviewHero() {
         </div>
 
         {/* Métricas clave — panel integrado */}
-        <div className="rounded-2xl border border-border bg-card overflow-hidden flex flex-col">
-          <div className="border-b border-border px-5 py-3.5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-2">Métricas clave</p>
-          </div>
-          <div className="flex-1 divide-y divide-border">
+        <div className="rounded-2xl border border-border bg-card p-5 flex flex-col">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-2 mb-3">Métricas clave</p>
+          <div className="flex-1 flex flex-col gap-2">
             {SECONDARY.map(kpi => {
               const cur = current ? Number((current as any)[kpi.key]) : null
               const prev = previous ? Number((previous as any)[kpi.key]) : null
               const d = cur != null ? delta(cur, prev) : { pct: null, diff: null }
               const val = kpi.money ? fmtMoney(cur) : fmtNumber(cur)
               return (
-                <div key={String(kpi.key)} className="flex items-center justify-between gap-3 px-5 py-[14px]">
+                <div key={String(kpi.key)} className="flex items-center justify-between gap-3 rounded-[10px] bg-elevated px-4 py-3">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: kpi.color }} />
                     <span className="truncate text-[13px] text-text-2">{kpi.label}</span>
@@ -290,17 +288,15 @@ export function OverviewHero() {
 
       {/* Audiencia & canales — toda la data visible, panel integrado */}
       {current && (
-        <div className="rounded-2xl border border-border bg-card overflow-hidden">
-          <div className="border-b border-border px-5 py-3.5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-2">Audiencia & canales</p>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-elevated">
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-2 mb-3">Audiencia & canales</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
             {CHANNELS.map(ch => {
               const cur = Number((current as any)[ch.key])
               const prev = previous ? Number((previous as any)[ch.key]) : null
               const d = delta(cur, prev)
               return (
-                <div key={String(ch.key)} className="bg-card px-5 py-4">
+                <div key={String(ch.key)} className="rounded-[10px] bg-elevated px-4 py-3">
                   <p className="text-[13px] text-text-2">{ch.label}</p>
                   <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="text-[24px] font-bold text-foreground tabular-nums leading-none">{fmtNumber(cur)}</span>
