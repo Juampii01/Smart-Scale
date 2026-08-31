@@ -234,7 +234,7 @@ export function OverviewHero() {
                 <AreaChart data={chartData} margin={{ top: 8, right: 6, left: 6, bottom: 0 }}>
                   <defs>
                     <linearGradient id="ovh_rev" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%"   stopColor="var(--accent-ink)" stopOpacity={0.35} />
+                      <stop offset="0%"   stopColor="var(--accent-ink)" stopOpacity={0.12} />
                       <stop offset="100%" stopColor="var(--accent-ink)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
@@ -242,10 +242,14 @@ export function OverviewHero() {
                     dataKey="label" tickLine={false} axisLine={false}
                     tick={{ fontSize: 11, fill: "currentColor" }} minTickGap={20} dy={6}
                   />
-                  <YAxis hide domain={[0, "dataMax"]} />
+                  <YAxis
+                    domain={[0, "dataMax"]} tickCount={3} tickLine={false} axisLine={false}
+                    tick={{ fontSize: 11, fill: "currentColor" }} tickFormatter={fmtMoneyShort}
+                    width={44}
+                  />
                   <Tooltip content={<RevenueTooltip />} cursor={{ stroke: "var(--accent-ink)", strokeOpacity: 0.3, strokeWidth: 1 }} />
                   <Area
-                    type="monotone" dataKey="v" stroke="var(--accent-ink)" strokeWidth={2.5}
+                    type="monotone" dataKey="v" stroke="var(--accent-ink)" strokeWidth={2}
                     fill="url(#ovh_rev)" dot={false}
                     activeDot={{ r: 4, fill: "var(--accent-ink)", stroke: "var(--card)", strokeWidth: 2 }}
                     isAnimationActive={false}
