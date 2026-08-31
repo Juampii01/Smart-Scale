@@ -211,19 +211,19 @@ export function OverviewHero() {
             )}
           </div>
 
-          <div className="mt-3 flex flex-wrap items-end gap-3">
-            <p className="text-[32px] sm:text-[32px] font-bold tracking-tight text-foreground leading-none tabular-nums">
+          <div className="mt-3">
+            <p className="text-[40px] font-bold tracking-tight text-foreground leading-none tabular-nums">
               {current ? fmtMoney(current.total_revenue) : "—"}
             </p>
             {revDelta.diff != null && (
-              <span className="mb-1 flex items-center gap-2">
+              <div className="mt-2 flex items-center gap-2">
                 <DeltaPill pct={revDelta.pct} diff={revDelta.diff} money size="lg" />
                 {previous && (
                   <span className="text-[13px] text-text-3">
                     vs {monthShort(previous.month)} · {fmtMoney(previous.total_revenue)}
                   </span>
                 )}
-              </span>
+              </div>
             )}
           </div>
 

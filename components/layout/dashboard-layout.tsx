@@ -18,7 +18,7 @@ import { HelpChat } from "@/components/ui/help-chat"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import { isSetter, isTeam, isAdmin as isAdminRole, SETTER_DEFAULT_LANDING, TEAM_DEFAULT_LANDING } from "@/lib/auth/permissions"
 import { useViewAsRole, setViewAsRole, type ViewAsRole, useViewAsTenant, setViewAsTenant } from "@/lib/auth/view-as"
-import { APP_VERSION } from "@/lib/utils"
+import { APP_VERSION, cn } from "@/lib/utils"
 
 declare global {
   interface Window {
@@ -63,10 +63,10 @@ const PAGE_TITLES: Record<string, string> = {
 }
 
 // Accesos rápidos del cliente: llevan directo a cargar cada form.
-const QUICK_ACTIONS: { label: string; short: string; href: string; Icon: typeof Coins }[] = [
+const QUICK_ACTIONS: { label: string; short: string; href: string; Icon: typeof Coins; primary?: boolean }[] = [
   { label: "Cha-Ching",       short: "Cha-Ching", href: "/chi-chang",    Icon: Coins        },
   { label: "Monday Win",      short: "Monday Win",   href: "/monday-win",   Icon: Trophy       },
-  { label: "Reporte Mensual", short: "Reporte Mensual", href: "/report-input", Icon: FileBarChart },
+  { label: "Reporte Mensual", short: "Reporte Mensual", href: "/report-input", Icon: FileBarChart, primary: true },
 ]
 
 const SelectedMonthContext = createContext<string | null>(null)
@@ -616,16 +616,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-2">
               {!isAdminMode && (
                 <div className="hidden lg:flex items-center gap-1.5 mr-1">
-                  {QUICK_ACTIONS.filter(a => a.href !== pathname).map(({ label, href, Icon }) => (
+                  {QUICK_ACTIONS.filter(a => a.href !== pathname).map(({ label, href, Icon, primary }) => (
                     <button
                       key={href}
                       type="button"
                       onClick={() => router.push(href)}
                       title={label}
                       aria-label={label}
-                      className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover hover:bg-secondary transition-colors"
+                      className={cn(
+                        "inline-flex h-9 items-center gap-1.5 rounded-md px-2.5 text-[13px] font-semibold transition-colors",
+                        primary
+                          ? "btn-accent"
+                          : "border border-border bg-card text-foreground hover:text-foreground hover:border-border-hover hover:bg-secondary"
+                      )}
                     >
-                      <Icon className="h-4 w-4 text-accent-ink" />
+                      <Icon className={cn("h-4 w-4", primary ? "text-on-accent" : "text-accent-ink")} />
                       <span className="hidden xl:inline">{label}</span>
                     </button>
                   ))}
@@ -878,14 +883,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           {/* Accesos rápidos — fila scrollable solo en mobile/tablet */}
           {!isAdminMode && (
             <div className="lg:hidden flex items-center gap-2 overflow-x-auto px-4 pb-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {QUICK_ACTIONS.filter(a => a.href !== pathname).map(({ short, href, Icon }) => (
+              {QUICK_ACTIONS.filter(a => a.href !== pathname).map(({ short, href, Icon, primary }) => (
                 <button
                   key={href}
                   type="button"
                   onClick={() => router.push(href)}
-                  className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[13px] font-semibold text-foreground hover:text-foreground active:scale-[0.98] transition-all"
+                  className={cn(
+                    "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] font-semibold active:scale-[0.98] transition-all",
+                    primary
+                      ? "btn-accent"
+                      : "border border-border bg-card text-foreground hover:text-foreground"
+                  )}
                 >
-                  <Icon className="h-3.5 w-3.5 text-accent-ink" />
+                  <Icon className={cn("h-3.5 w-3.5", primary ? "text-on-accent" : "text-accent-ink")} />
                   {short}
                 </button>
               ))}
