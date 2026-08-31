@@ -623,7 +623,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       onClick={() => router.push(href)}
                       title={label}
                       aria-label={label}
-                      className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover hover:bg-foreground/[0.04] transition-colors"
+                      className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover hover:bg-secondary transition-colors"
                     >
                       <Icon className="h-4 w-4 text-accent-ink" />
                       <span className="hidden xl:inline">{label}</span>
@@ -647,7 +647,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <div className="relative" ref={profileMenuRef}>
                 <Button
                   variant="outline"
-                  className="gap-2 text-foreground hover:text-foreground border-border hover:border-border-hover bg-card hover:bg-foreground/[0.04]"
+                  className="gap-2 text-foreground hover:text-foreground border-border hover:border-border-hover bg-card hover:bg-secondary"
                   onClick={() => setProfileMenuOpen((v) => !v)}
                   aria-haspopup="menu"
                   aria-expanded={profileMenuOpen}
@@ -682,7 +682,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     className="absolute right-0 mt-2 w-72 overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl backdrop-blur"
                   >
                     {/* Header — current user */}
-                    <div className="flex items-center gap-3 px-4 py-3 bg-foreground/[0.02]">
+                    <div className="flex items-center gap-3 px-4 py-3 bg-secondary">
                       <button
                         type="button"
                         onClick={() => avatarInputRef.current?.click()}
@@ -723,7 +723,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] transition-colors ${
                               isActive
                                 ? "bg-secondary text-foreground"
-                                : "text-foreground hover:bg-foreground/[0.06]"
+                                : "text-foreground hover:bg-secondary"
                             } ${!isSelectable ? "opacity-40 cursor-not-allowed hover:bg-transparent" : ""} ${!p.active ? "opacity-60" : ""}`}
                             disabled={!isSelectable}
                             onClick={() => {
@@ -737,7 +737,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[13px] font-bold ${
                               isActive
                                 ? "bg-accent text-black"
-                                : "bg-foreground/[0.08] text-foreground"
+                                : "bg-secondary text-foreground"
                             }`}>
                               {initial}
                             </span>
@@ -791,7 +791,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     {/* "Ver como" — solo admin */}
                     {isAdmin && (
                       <>
-                        <div className="h-px bg-foreground/[0.07]" />
+                        <div className="h-px bg-secondary" />
                         <div className="px-4 pt-3 pb-1.5">
                           <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-text-2">Ver como</p>
                         </div>
@@ -816,10 +816,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                 className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] transition-colors ${
                                   active
                                     ? "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200"
-                                    : "text-foreground hover:bg-foreground/[0.06]"
+                                    : "text-foreground hover:bg-secondary"
                                 }`}
                               >
-                                <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground/[0.08] text-[13px] font-bold text-foreground">
+                                <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-elevated text-[13px] font-bold text-foreground">
                                   {r === "setter" ? "S" : "C"}
                                 </span>
                                 <span className="truncate flex-1 font-medium capitalize">{r === "client" ? "Cliente" : r}</span>
@@ -836,7 +836,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             <button
                               type="button"
                               onClick={() => { setViewAsRole(null); setProfileMenuOpen(false) }}
-                              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] text-text-2 hover:bg-foreground/[0.06] transition-colors"
+                              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] text-text-2 hover:bg-secondary transition-colors"
                             >
                               <EyeOff className="h-3.5 w-3.5" />
                               Volver a vista admin
@@ -846,7 +846,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       </>
                     )}
 
-                    <div className="h-px bg-foreground/[0.07]" />
+                    <div className="h-px bg-elevated" />
 
                     {/* Notificaciones — un solo lugar para todos (equipo y clientes) */}
                     <div className="px-4 py-3">
@@ -854,7 +854,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       <PushOptIn />
                     </div>
 
-                    <div className="h-px bg-foreground/[0.07]" />
+                    <div className="h-px bg-secondary" />
 
                     <button
                       type="button"

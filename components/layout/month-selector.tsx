@@ -125,7 +125,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
       <Popover.Trigger asChild>
         <button
           type="button"
-          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-foreground/5 px-2.5 text-[13px] sm:text-[13px] font-semibold text-foreground hover:bg-foreground/10 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors w-[120px] sm:w-[140px]"
+          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-secondary px-2.5 text-[13px] sm:text-[13px] font-semibold text-foreground hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors w-[120px] sm:w-[140px]"
         >
           <Calendar className="h-3.5 w-3.5 text-text-2 shrink-0" />
           <span className="flex-1 text-left">{formatShort(selected)}</span>
@@ -145,7 +145,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
               type="button"
               onClick={() => canGoPrev && setViewYear(y => y - 1)}
               disabled={!canGoPrev}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:bg-secondary hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               aria-label="Año anterior"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -162,7 +162,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
               type="button"
               onClick={() => canGoNext && setViewYear(y => y + 1)}
               disabled={!canGoNext}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:bg-secondary hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               aria-label="Año siguiente"
             >
               <ChevronRight className="h-4 w-4" />
@@ -187,7 +187,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
                     isSelected
                       ? "bg-secondary text-foreground shadow-sm"
                       : has
-                        ? `text-foreground hover:bg-foreground/[0.08] ${isCurrentMonth ? "ring-1 ring-accent-ink/50" : ""}`
+                        ? `text-foreground hover:bg-secondary ${isCurrentMonth ? "ring-1 ring-accent-ink/50" : ""}`
                         : "text-text-3 cursor-not-allowed"
                   }`}
                 >

@@ -165,7 +165,7 @@ export function ReflectionView() {
 
       {loading && <p className="text-text-2 text-[13px]">Cargando reflexión…</p>}
       {!loading && !error && !data && (
-        <div className="rounded-[14px] border border-dashed border-border bg-foreground/[0.02] px-6 py-10 text-center">
+        <div className="rounded-[14px] border border-dashed border-border bg-secondary px-6 py-10 text-center">
           <p className="text-[13px] text-text-2 mb-3">No hay reflexión cargada para este mes.</p>
           <a
             href="/report-input"

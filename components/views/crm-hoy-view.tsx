@@ -63,7 +63,7 @@ function greeting() {
 }
 
 function WorkRow({ p, signal }: { p: Prospect; signal: "" | "att" | "risk" }) {
-  const dotClass = signal === "risk" ? "bg-red-600 dark:bg-red-400" : signal === "att" ? "bg-amber-500 dark:bg-amber-400" : "bg-foreground/15"
+  const dotClass = signal === "risk" ? "bg-red-600 dark:bg-red-400" : signal === "att" ? "bg-amber-500 dark:bg-amber-400" : "bg-secondary"
   return (
     <div className="flex items-center gap-3 border-b border-border py-3 last:border-b-0">
       <span className={`h-2 w-2 shrink-0 rounded-[2px] ${dotClass}`} />

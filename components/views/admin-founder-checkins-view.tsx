@@ -53,7 +53,7 @@ function fmtMoney(n: number | null): string {
   return `$${n.toLocaleString("es-AR")}`
 }
 
-const inputCls = "h-10 w-full rounded-xl border border-border bg-foreground/[0.04] px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+const inputCls = "h-10 w-full rounded-xl border border-border bg-secondary px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
 const labelCls = "block text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1.5"
 
 export function AdminFounderCheckinsView() {
@@ -205,14 +205,14 @@ export function AdminFounderCheckinsView() {
         {loading ? (
           <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-accent-ink/40" /></div>
         ) : checkins.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-foreground/[0.02] px-6 py-10 text-center text-[13px] text-text-3">
+          <div className="rounded-2xl border border-dashed border-border bg-secondary px-6 py-10 text-center text-[13px] text-text-3">
             Todavía no hay check-ins cargados.
           </div>
         ) : (
           <div className="overflow-x-auto rounded-2xl border border-border bg-card">
             <table className="w-full min-w-[820px]">
               <thead>
-                <tr className="border-b border-border bg-foreground/[0.02]">
+                <tr className="border-b border-border bg-elevated">
                   {["Cliente", "Trimestre", "Cash collected top", "Escalón", "Meta próx.", "Nuevos clientes", "Notas"].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-widest text-text-2">{h}</th>
                   ))}

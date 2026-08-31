@@ -267,7 +267,7 @@ export function AdminPaymentsView() {
 
   // Shared payment row renderer
   const PaymentRow = (p: Payment) => (
-    <tr key={p.id} className="border-b border-border hover:bg-foreground/[0.02] transition-colors group">
+    <tr key={p.id} className="border-b border-border hover:bg-secondary transition-colors group">
       <td className="px-4 py-3 text-[13px] font-semibold text-foreground whitespace-nowrap">{p.name}</td>
       <td className="px-4 py-3 text-[13px] text-text-2 whitespace-nowrap">
         {p.email ?? <span className="text-text-3">—</span>}
@@ -321,7 +321,7 @@ export function AdminPaymentsView() {
 
   const TableHead = () => (
     <thead>
-      <tr className="border-b border-border bg-foreground/[0.02]">
+      <tr className="border-b border-border bg-secondary">
         {["Nombre","Email","Cliente","Monto","Estado","Descripción","Fecha",""].map(h => (
           <th key={h} className={`px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-text-3 whitespace-nowrap ${h === "Monto" ? "text-right" : "text-left"}`}>{h}</th>
         ))}
@@ -342,7 +342,7 @@ export function AdminPaymentsView() {
         </div>
         <div className="flex items-center gap-2">
           {/* View toggle */}
-          <div className="flex items-center rounded-xl border border-border bg-foreground/[0.03] p-1 gap-1">
+          <div className="flex items-center rounded-xl border border-border bg-secondary p-1 gap-1">
             <button
               onClick={() => setViewMode("mes")}
               title="Vista por mes"
@@ -358,11 +358,11 @@ export function AdminPaymentsView() {
           </div>
 
           <button onClick={() => fetchPayments()} disabled={loading}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-elevated text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button onClick={exportCsv} disabled={!filtered.length}
-            className="flex items-center gap-2 h-9 rounded-xl border border-border bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
+            className="flex items-center gap-2 h-9 rounded-xl border border-border bg-elevated px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
             <Download className="h-3.5 w-3.5" />
             CSV
           </button>
@@ -427,7 +427,7 @@ export function AdminPaymentsView() {
             onClick={() => setFilterMonth("todos")}
             className={`h-7 rounded-lg border px-3 text-[13px] font-medium transition-all ${
               filterMonth === "todos"
-                ? "border-border bg-foreground/[0.06] text-foreground"
+                ? "border-border bg-secondary text-foreground"
                 : "border-border text-text-3 hover:text-text-2 hover:border-border-hover"
             }`}>
             Todos
@@ -436,7 +436,7 @@ export function AdminPaymentsView() {
             <button key={m} onClick={() => setFilterMonth(m)}
               className={`h-7 rounded-lg border px-3 text-[13px] font-medium capitalize transition-all ${
                 filterMonth === m
-                  ? "border-border bg-foreground/[0.06] text-foreground"
+                  ? "border-border bg-elevated text-foreground"
                   : "border-border text-text-3 hover:text-text-2 hover:border-border-hover"
               }`}>
               {fmtMonthLabel(m)}
@@ -477,7 +477,7 @@ export function AdminPaymentsView() {
                   {/* Month header */}
                   <div className="flex items-center gap-3">
                     <h2 className="text-[13px] font-bold uppercase tracking-[0.14em] text-text-2">{label}</h2>
-                    <div className="flex-1 h-px bg-foreground/[0.06]" />
+                    <div className="flex-1 h-px bg-secondary" />
                   </div>
 
                   {/* Two stat cards per month */}

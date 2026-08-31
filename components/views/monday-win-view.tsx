@@ -21,7 +21,7 @@ function Field({ label, required, hint, children }: { label: string; required?: 
   )
 }
 
-const inputCls = "w-full rounded-xl border border-border bg-foreground/[0.04] px-4 py-2.5 text-[13px] font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
+const inputCls = "w-full rounded-xl border border-border bg-secondary px-4 py-2.5 text-[13px] font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
 const textareaCls = inputCls + " resize-none"
 
 export function MondayWinView() {
@@ -291,7 +291,7 @@ export function MondayWinView() {
             onClick={handleTest}
             disabled={status === "loading" || !ownClientId}
             title="Solo developer: envía un Monday Win con datos ficticios"
-            className="flex items-center gap-2 rounded-xl border border-border bg-foreground/[0.04] px-5 py-2.5 text-[13px] font-bold text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded-xl border border-border bg-secondary px-5 py-2.5 text-[13px] font-bold text-foreground transition hover:bg-secondary hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <FlaskConical className="h-4 w-4" />
             Testear

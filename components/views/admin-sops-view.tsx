@@ -74,7 +74,7 @@ function CopyButton({ text, className = "" }: { text: string; className?: string
     <button
       type="button"
       onClick={click}
-      className={`inline-flex items-center gap-1.5 h-8 rounded-lg border border-border bg-foreground/[0.03] px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover transition-all ${className}`}
+      className={`inline-flex items-center gap-1.5 h-8 rounded-lg border border-border bg-secondary px-3 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover transition-all ${className}`}
     >
       {copied
         ? <><Check className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" /> Copiado</>
@@ -110,7 +110,7 @@ function DetailDrawer({
                 </span>
               )}
               {sop.frequency && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-foreground/[0.05] px-2 py-0.5 text-[13px] font-semibold text-text-2">
+                <span className="inline-flex items-center gap-1 rounded-full bg-elevated px-2 py-0.5 text-[13px] font-semibold text-text-2">
                   <Clock className="h-2.5 w-2.5" /> {sop.frequency}
                 </span>
               )}
@@ -122,7 +122,7 @@ function DetailDrawer({
             {sop.tags.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
                 {sop.tags.map(t => (
-                  <span key={t} className="inline-flex items-center rounded-full border border-border bg-foreground/[0.03] px-2 py-0.5 text-[13px] font-medium text-text-2">
+                  <span key={t} className="inline-flex items-center rounded-full border border-border bg-secondary px-2 py-0.5 text-[13px] font-medium text-text-2">
                     {t}
                   </span>
                 ))}
@@ -134,7 +134,7 @@ function DetailDrawer({
               <>
                 <button
                   onClick={() => onEdit(sop)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition-all"
                   title="Editar"
                 >
                   <Edit3 className="h-4 w-4" />
@@ -151,7 +151,7 @@ function DetailDrawer({
             )}
             <button
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition-all"
             >
               <X className="h-4 w-4" />
             </button>
@@ -169,7 +169,7 @@ function DetailDrawer({
             ) : (
               <ol className="space-y-2.5">
                 {sop.steps.map((s, idx) => (
-                  <li key={idx} className="flex items-start gap-3 rounded-xl border border-border bg-foreground/[0.02] px-3 py-2.5">
+                  <li key={idx} className="flex items-start gap-3 rounded-xl border border-border bg-secondary px-3 py-2.5">
                     <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[13px] font-bold text-accent-ink border border-accent/30">
                       {idx + 1}
                     </span>
@@ -188,7 +188,7 @@ function DetailDrawer({
             ) : (
               <div className="space-y-3">
                 {sop.templates.map((t, idx) => (
-                  <div key={idx} className="rounded-xl border border-border bg-foreground/[0.02] overflow-hidden">
+                  <div key={idx} className="rounded-xl border border-border bg-secondary overflow-hidden">
                     <div className="flex items-center justify-between gap-2 border-b border-border px-3.5 py-2.5">
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="inline-flex items-center rounded-md bg-blue-100 dark:bg-blue-500/15 px-2 py-0.5 text-[13px] font-bold text-blue-800 dark:text-blue-300 capitalize shrink-0">
@@ -198,7 +198,7 @@ function DetailDrawer({
                       </div>
                       <CopyButton text={t.body} />
                     </div>
-                    <pre className="px-3.5 py-3 text-[13px] text-foreground whitespace-pre-wrap font-mono leading-relaxed bg-foreground/[0.01] max-h-[400px] overflow-y-auto">{t.body}</pre>
+                    <pre className="px-3.5 py-3 text-[13px] text-foreground whitespace-pre-wrap font-mono leading-relaxed bg-elevated max-h-[400px] overflow-y-auto">{t.body}</pre>
                   </div>
                 ))}
               </div>
@@ -356,7 +356,7 @@ function CreateEditModal({
           {/* Header */}
           <div className="flex items-center justify-between gap-4 border-b border-border px-6 py-4 shrink-0">
             <h2 className="text-[18px] font-bold text-foreground">{isEdit ? "Editar SOP" : "Nuevo SOP"}</h2>
-            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
+            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -394,7 +394,7 @@ function CreateEditModal({
                     value={aiPrompt}
                     onChange={e => setAiPrompt(e.target.value)}
                     placeholder="Ejemplo: Los jueves se hace una llamada que se graba en la nube. Después se sube el video a Skool en las dos comunidades, se avisa con un post en Skool y se manda mensaje al equipo en Slack con el link..."
-                    className="w-full min-h-[180px] rounded-xl border border-border bg-foreground/[0.03] px-3.5 py-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none resize-y"
+                    className="w-full min-h-[180px] rounded-xl border border-border bg-secondary px-3.5 py-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none resize-y"
                   />
                   <p className="mt-1.5 text-[13px] text-text-2">Lo describís en lenguaje natural y la IA te lo estructura. Después lo podés editar manualmente.</p>
                 </div>
@@ -417,7 +417,7 @@ function CreateEditModal({
                       value={form.title}
                       onChange={e => updateField("title")(e.target.value)}
                       placeholder="Llamada del Jueves"
-                      className="w-full h-10 rounded-lg border border-border bg-foreground/[0.03] px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
+                      className="w-full h-10 rounded-lg border border-border bg-secondary px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -427,7 +427,7 @@ function CreateEditModal({
                       onChange={e => updateField("description")(e.target.value)}
                       rows={2}
                       placeholder="Workflow post-grabación del workshop semanal"
-                      className="w-full rounded-lg border border-border bg-foreground/[0.03] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none resize-y"
+                      className="w-full rounded-lg border border-border bg-elevated px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none resize-y"
                     />
                   </div>
                   <div>
@@ -436,7 +436,7 @@ function CreateEditModal({
                       value={form.frequency}
                       onChange={e => updateField("frequency")(e.target.value)}
                       placeholder="Semanal - Jueves"
-                      className="w-full h-10 rounded-lg border border-border bg-foreground/[0.03] px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
+                      className="w-full h-10 rounded-lg border border-border bg-secondary px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
                     />
                   </div>
                   <div>
@@ -445,7 +445,7 @@ function CreateEditModal({
                       value={form.tags}
                       onChange={e => updateField("tags")(e.target.value)}
                       placeholder="live, skool, workshop"
-                      className="w-full h-10 rounded-lg border border-border bg-foreground/[0.03] px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
+                      className="w-full h-10 rounded-lg border border-border bg-elevated px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
                     />
                   </div>
                 </div>
@@ -457,7 +457,7 @@ function CreateEditModal({
                     onChange={e => updateField("steps")(e.target.value)}
                     rows={6}
                     placeholder={"Empieza la llamada y se graba en la nube\nSubir grabación a Skool en ambas comunidades\nAvisar en Skool con el post\nAvisar en Slack con el link"}
-                    className="w-full rounded-lg border border-border bg-foreground/[0.03] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none resize-y font-mono"
+                    className="w-full rounded-lg border border-border bg-secondary px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none resize-y font-mono"
                   />
                 </div>
 
@@ -476,12 +476,12 @@ function CreateEditModal({
                     {form.templates.length === 0 ? (
                       <p className="text-[13px] text-text-2 italic py-2">Sin templates. Agregá uno por canal (Skool, Slack, etc.).</p>
                     ) : form.templates.map((t, idx) => (
-                      <div key={idx} className="rounded-xl border border-border bg-foreground/[0.02] p-3 space-y-2">
+                      <div key={idx} className="rounded-xl border border-border bg-secondary p-3 space-y-2">
                         <div className="flex items-center gap-2">
                           <select
                             value={t.channel}
                             onChange={e => updateTemplate(idx, { channel: e.target.value })}
-                            className="h-8 rounded-md border border-border bg-foreground/[0.03] px-2 text-[13px] font-semibold text-foreground focus:outline-none focus:border-border-hover"
+                            className="h-8 rounded-md border border-border bg-elevated px-2 text-[13px] font-semibold text-foreground focus:outline-none focus:border-border-hover"
                           >
                             {Object.entries(CHANNEL_LABELS).map(([v, lbl]) => (
                               <option key={v} value={v}>{lbl}</option>
@@ -491,7 +491,7 @@ function CreateEditModal({
                             value={t.label}
                             onChange={e => updateTemplate(idx, { label: e.target.value })}
                             placeholder="Aviso post-grabación"
-                            className="flex-1 h-8 rounded-md border border-border bg-foreground/[0.03] px-2 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-border-hover"
+                            className="flex-1 h-8 rounded-md border border-border bg-secondary px-2 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-border-hover"
                           />
                           <button
                             onClick={() => removeTemplate(idx)}
@@ -506,7 +506,7 @@ function CreateEditModal({
                           onChange={e => updateTemplate(idx, { body: e.target.value })}
                           rows={5}
                           placeholder="Contenido del mensaje. Para Skool, usá ➡️ al inicio de cada bullet."
-                          className="w-full rounded-md border border-border bg-foreground/[0.03] px-2.5 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-border-hover resize-y font-mono"
+                          className="w-full rounded-md border border-border bg-secondary px-2.5 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-border-hover resize-y font-mono"
                         />
                       </div>
                     ))}
@@ -700,7 +700,7 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
             <button
               key={sop.id}
               onClick={() => setSelected(sop)}
-              className="group flex flex-col gap-2 rounded-[14px] border border-border bg-card p-4 text-left hover:border-border-hover hover:bg-foreground/[0.02] transition-all"
+              className="group flex flex-col gap-2 rounded-[14px] border border-border bg-card p-4 text-left hover:border-border-hover hover:bg-secondary transition-all"
             >
               <div className="flex items-start gap-2">
                 <div className="min-w-0 flex-1">
@@ -711,7 +711,7 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
                       </span>
                     )}
                     {sop.frequency && (
-                      <span className="inline-flex items-center gap-0.5 rounded-full bg-foreground/[0.05] px-1.5 py-0.5 text-[11px] font-semibold text-text-2">
+                      <span className="inline-flex items-center gap-0.5 rounded-full bg-elevated px-1.5 py-0.5 text-[11px] font-semibold text-text-2">
                         <Clock className="h-2 w-2" /> {sop.frequency}
                       </span>
                     )}
@@ -726,7 +726,7 @@ export function AdminSOPsView({ userRole }: { userRole: string | null }) {
 
               <div className="flex flex-wrap items-center gap-1 mt-1">
                 {sop.tags.slice(0, 4).map(t => (
-                  <span key={t} className="inline-flex items-center rounded-full border border-border bg-foreground/[0.02] px-1.5 py-0.5 text-[13px] font-medium text-text-2">
+                  <span key={t} className="inline-flex items-center rounded-full border border-border bg-secondary px-1.5 py-0.5 text-[13px] font-medium text-text-2">
                     {t}
                   </span>
                 ))}

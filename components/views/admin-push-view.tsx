@@ -100,7 +100,7 @@ export function AdminPushView() {
             const active = audience === a.key
             return (
               <button key={a.key} onClick={() => setAudience(a.key)}
-                className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${active ? "border-accent bg-secondary" : "border-border bg-background/40 hover:bg-foreground/[0.04]"}`}>
+                className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${active ? "border-accent bg-secondary" : "border-border bg-background/40 hover:bg-secondary"}`}>
                 <a.Icon className={`h-4 w-4 mt-0.5 shrink-0 ${active ? "text-accent-ink" : "text-text-2"}`} />
                 <div className="min-w-0">
                   <p className="text-[13px] font-semibold text-foreground">{a.label}</p>

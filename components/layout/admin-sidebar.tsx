@@ -117,7 +117,7 @@ function VerClientesPicker({ ownTenant }: { ownTenant: TenantEntry | null }) {
           "flex w-full items-center gap-2.5 rounded-lg border px-3 py-2 transition-all",
           viewAsTenant
             ? "border-amber-400/50 bg-amber-400/[0.12] text-amber-700 dark:text-amber-300"
-            : "border-border bg-foreground/[0.02] text-text-2 hover:text-foreground hover:border-border-hover"
+            : "border-border bg-secondary text-text-2 hover:text-foreground hover:border-border-hover"
         )}
       >
         <Building2 className="h-3.5 w-3.5 flex-shrink-0" />
@@ -139,7 +139,7 @@ function VerClientesPicker({ ownTenant }: { ownTenant: TenantEntry | null }) {
                 {viewAsTenant && (
                   <button
                     onClick={() => { setViewAsTenant(null); setOpenMenu(false) }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] font-semibold text-foreground hover:bg-foreground/[0.06] hover:text-foreground transition-colors border-b border-border"
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] font-semibold text-foreground hover:bg-secondary hover:text-foreground transition-colors border-b border-border"
                   >
                     <ArrowLeft className="h-3 w-3" /> Volver a mi sector
                   </button>
@@ -148,7 +148,7 @@ function VerClientesPicker({ ownTenant }: { ownTenant: TenantEntry | null }) {
                   <button
                     key={t.id}
                     onClick={() => pick(t)}
-                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[13px] text-foreground hover:bg-foreground/[0.06] hover:text-foreground transition-colors"
+                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[13px] text-foreground hover:bg-secondary hover:text-foreground transition-colors"
                   >
                     <span className="truncate">{t.is_internal_workspace ? `${t.name} (interno)` : t.name}</span>
                     {viewAsTenant?.id === t.id && <Check className="h-3 w-3 shrink-0 text-amber-500" />}
@@ -234,7 +234,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
               <BrandLogo />
             </a>
             <button
-              className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-foreground/10 transition-all"
+              className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-secondary transition-all"
               onClick={onClose}
               aria-label="Cerrar menú"
             >
@@ -258,7 +258,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
         {isAdmin(effectiveRole) && (
           <div className="pt-1 px-3">
             <Link href="/dashboard" onClick={onClose} title="Volver al portal">
-              <div className="group flex items-center gap-2 rounded-lg border border-border bg-foreground/[0.02] px-3 py-2 text-[15px] font-semibold text-text-2 hover:text-foreground hover:border-border-hover transition-all">
+              <div className="group flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-[15px] font-semibold text-text-2 hover:text-foreground hover:border-border-hover transition-all">
                 <ArrowLeft className="h-3.5 w-3.5 flex-shrink-0" />
                 <span>Volver al portal</span>
               </div>
@@ -302,7 +302,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
                         "flex h-[34px] items-center gap-2.5 rounded-lg px-3 transition-all duration-150",
                         isActive
                           ? "bg-secondary text-accent-ink"
-                          : "text-foreground hover:bg-foreground/[0.05] hover:text-foreground"
+                          : "text-foreground hover:bg-secondary hover:text-foreground"
                       )}>
                         <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
                         <span className={cn("text-[15px] leading-none", isActive ? "font-semibold" : "font-medium")}>

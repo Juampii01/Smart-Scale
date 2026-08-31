@@ -131,7 +131,7 @@ export function MoMPanel() {
               className={`grid grid-cols-[1.4fr_1fr_1.6fr_1fr] items-center border-b border-border last:border-0 px-6 py-4 transition-colors ${
                 isUp   ? "hover:bg-emerald-500/[0.03]"
                 : isDown ? "hover:bg-red-500/[0.03]"
-                :           "hover:bg-foreground/[0.02]"
+                :           "hover:bg-secondary"
               }`}
             >
               {/* Metric name */}
@@ -151,7 +151,7 @@ export function MoMPanel() {
                 <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-bold ${
                   isUp   ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
                   : isDown ? "bg-red-500/15 text-red-700 dark:text-red-300"
-                  :           "bg-foreground/[0.06] text-text-2"
+                  :           "bg-secondary text-text-2"
                 }`}>
                   {isUp   && <TrendingUp   className="h-3 w-3 flex-shrink-0" />}
                   {isDown && <TrendingDown className="h-3 w-3 flex-shrink-0" />}
@@ -161,9 +161,9 @@ export function MoMPanel() {
                     : "Sin cambio"}
                 </span>
                 {/* Progress bar showing magnitude */}
-                <div className="w-full h-1 rounded-full bg-foreground/[0.05] overflow-hidden">
+                <div className="w-full h-1 rounded-full bg-elevated overflow-hidden">
                   <div
-                    className={`h-full rounded-full ${isUp ? "bg-emerald-500" : isDown ? "bg-red-500" : "bg-foreground/20"}`}
+                    className={`h-full rounded-full ${isUp ? "bg-emerald-500" : isDown ? "bg-red-500" : "bg-elevated"}`}
                     style={{ width: `${absPct}%` }}
                   />
                 </div>

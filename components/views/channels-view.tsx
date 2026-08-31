@@ -194,7 +194,7 @@ function GrowthIndexChart({ reports }: { reports: any[] }) {
           </p>
         </div>
         {/* Tip */}
-        <span className="text-[13px] text-text-3 bg-foreground/[0.04] border border-border rounded-lg px-2 py-1 ml-4 mt-0.5 whitespace-nowrap">
+        <span className="text-[13px] text-text-3 bg-elevated border border-border rounded-lg px-2 py-1 ml-4 mt-0.5 whitespace-nowrap">
           200 = duplicó su audiencia
         </span>
       </div>
@@ -443,7 +443,7 @@ export function ChannelsView() {
       {error && <p className="text-red-700 dark:text-red-400 text-[13px]">{error}</p>}
       {!showSkeleton && !error && !current && (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card py-14 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-foreground/[0.03]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-elevated">
             <BarChart3 className="h-5 w-5 text-text-3" />
           </div>
           <p className="text-[13px] text-text-2">

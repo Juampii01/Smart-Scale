@@ -88,7 +88,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
 
   if (!open) return null
 
-  const inputCls = "w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none transition-all"
+  const inputCls = "w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none transition-all"
   const labelCls = "text-[11px] font-bold uppercase tracking-widest text-text-3 mb-1.5 block"
 
   return (
@@ -104,7 +104,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
             </h2>
           </div>
           <button onClick={handleClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:bg-foreground/[0.06] hover:text-foreground transition-colors">
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:bg-secondary hover:text-foreground transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -119,7 +119,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                   Link creado ✓
                 </p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 truncate rounded-lg bg-foreground/[0.05] px-3 py-2 text-[13px] font-mono text-accent-ink/80">
+                  <code className="flex-1 truncate rounded-lg bg-secondary px-3 py-2 text-[13px] font-mono text-accent-ink/80">
                     {result.paymentUrl}
                   </code>
                   <button onClick={copyLink}
@@ -193,7 +193,7 @@ export function PaymentLinkDialog({ open, onClose }: PaymentLinkDialogProps) {
                 <div>
                   <label className={labelCls}>Cantidad de cuotas *</label>
                   <select value={installments} onChange={e => setInstallments(e.target.value)}
-                    className="w-full appearance-none rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-accent focus:outline-none">
+                    className="w-full appearance-none rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground focus:border-accent focus:outline-none">
                     {[1,2,3,4,5,6,8,10,12].map(n => (
                       <option key={n} value={n}>{n} {n === 1 ? "cuota" : "cuotas"}{amount ? ` — Total $${Number(amount) * n}` : ""}</option>
                     ))}

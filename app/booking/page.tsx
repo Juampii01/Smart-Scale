@@ -144,7 +144,7 @@ function BookingContent() {
                 </div>
 
                 {/* What's included mini-list */}
-                <div className="rounded-2xl border border-border bg-foreground/[0.02] p-4 space-y-2.5">
+                <div className="rounded-2xl border border-border bg-secondary p-4 space-y-2.5">
                   {features.slice(0, 3).map((f, i) => (
                     <div key={i} className="flex items-center gap-2.5 text-[13px] text-text-2">
                       <Zap className="h-3 w-3 text-accent-ink/70 shrink-0" />

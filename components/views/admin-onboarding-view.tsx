@@ -64,7 +64,7 @@ function getOnboardingStage(flow: OnboardingFlowStatus | null): OnboardingStage 
 }
 
 const STAGE_META: Record<OnboardingStage, { label: string; dot: string }> = {
-  esperando:  { label: "Esperando contrato",  dot: "bg-foreground/25" },
+  esperando:  { label: "Esperando contrato",  dot: "bg-secondary" },
   procesando: { label: "Procesando accesos",  dot: "bg-amber-500" },
   completo:   { label: "Onboarding completo", dot: "bg-emerald-500" },
   error:      { label: "Con errores",         dot: "bg-red-500" },
@@ -96,7 +96,7 @@ function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; icon: any; cls: string }> = {
     activo:     { label: "Activo",     icon: CheckCircle2,  cls: "text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20" },
     inactivo:   { label: "Inactivo",   icon: AlertCircle,   cls: "text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-500/10 border-red-200 dark:border-red-500/20" },
-    completado: { label: "Completado", icon: CheckCircle2,  cls: "text-text-2 bg-foreground/[0.04] border-border" },
+    completado: { label: "Completado", icon: CheckCircle2,  cls: "text-text-2 bg-secondary border-border" },
     pendiente:  { label: "Pendiente",  icon: Clock,         cls: "text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20" },
   }
   const cfg = map[status] ?? map["pendiente"]
@@ -149,7 +149,7 @@ function SuccessModal({
           </div>
         </div>
 
-        <div className="space-y-3 rounded-xl border border-border bg-foreground/[0.02] p-4">
+        <div className="space-y-3 rounded-xl border border-border bg-elevated p-4">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-widest text-text-2">Cliente</p>
             <p className="mt-0.5 font-semibold text-foreground">{name}</p>
@@ -324,7 +324,7 @@ function OnboardingForm({
     }
   }
 
-  const inputCls = "h-10 w-full rounded-xl border border-border bg-foreground/[0.03] px-3.5 text-[13px] text-foreground placeholder:text-text-3 outline-none transition-all focus:border-accent focus:bg-foreground/[0.05] focus:ring-2 focus:ring-accent/20"
+  const inputCls = "h-10 w-full rounded-xl border border-border bg-secondary px-3.5 text-[13px] text-foreground placeholder:text-text-3 outline-none transition-all focus:border-accent focus:bg-secondary focus:ring-2 focus:ring-accent/20"
   const labelCls = "block text-[11px] font-semibold uppercase tracking-widest text-text-2 mb-1.5"
 
   return (
@@ -401,7 +401,7 @@ function OnboardingForm({
                         key={l.id}
                         type="button"
                         onMouseDown={() => { setFields(prev => ({ ...prev, lead_id: l.id })); setLeadQuery(""); setLeadPickerOpen(false) }}
-                        className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[13px] text-foreground hover:bg-foreground/[0.05]"
+                        className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[13px] text-foreground hover:bg-secondary"
                       >
                         <span className="truncate">{l.name}</span>
                         {l.instagram && <span className="shrink-0 text-[13px] text-text-2">{l.instagram}</span>}
@@ -454,7 +454,7 @@ function OnboardingForm({
             <div>
               <label className={labelCls}>Setter que cerró</label>
               {userRole === "setter" ? (
-                <div className="h-10 flex items-center rounded-xl border border-border bg-foreground/[0.03] px-3.5 text-[13px] text-text-2">
+                <div className="h-10 flex items-center rounded-xl border border-border bg-secondary px-3.5 text-[13px] text-text-2">
                   Se asignará automáticamente a ti
                 </div>
               ) : (
@@ -510,7 +510,7 @@ function OnboardingForm({
             type="button"
             onClick={onCancel}
             disabled={saving}
-            className="rounded-xl border border-border px-4 py-2 text-[13px] font-medium text-foreground hover:bg-foreground/[0.04] transition-colors"
+            className="rounded-xl border border-border px-4 py-2 text-[13px] font-medium text-foreground hover:bg-secondary transition-colors"
           >
             Cancelar
           </button>
@@ -541,11 +541,11 @@ function ClientCard({ client, onClick }: { client: OnboardingClient; onClick: ()
   return (
     <button
       onClick={onClick}
-      className="w-full rounded-[14px] border border-border bg-card p-4 text-left transition hover:border-border hover:bg-foreground/[0.015]"
+      className="w-full rounded-[14px] border border-border bg-card p-4 text-left transition hover:border-border hover:bg-secondary"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-foreground/[0.07] border border-border">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-elevated border border-border">
             <User className="h-4 w-4 text-text-2" />
           </div>
           <div className="min-w-0">
@@ -612,7 +612,7 @@ function TimelineStep({
   const iconCls =
     state === "done"  ? "border-emerald-200 dark:border-emerald-500/20 bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" :
     state === "error" ? "border-red-200 dark:border-red-500/20 bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400" :
-    "border-border bg-foreground/[0.04] text-text-3"
+    "border-border bg-secondary text-text-3"
 
   return (
     <div className="flex gap-3">
@@ -630,7 +630,7 @@ function TimelineStep({
           <button
             onClick={onAction}
             disabled={actionLoading}
-            className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-[13px] font-semibold text-foreground transition-colors hover:bg-foreground/[0.05] disabled:opacity-50"
+            className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-[13px] font-semibold text-foreground transition-colors hover:bg-secondary disabled:opacity-50"
           >
             {actionLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
             {actionLabel}
@@ -675,7 +675,7 @@ function OnboardingDetailDrawer({
           <button
             onClick={onClose}
             aria-label="Cerrar"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-3 transition-all hover:bg-foreground/[0.06] hover:text-foreground"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-3 transition-all hover:bg-secondary hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>
@@ -857,7 +857,7 @@ export function AdminOnboardingView() {
           <button
             onClick={loadClients}
             disabled={loading}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-text-2 hover:text-foreground hover:bg-foreground/[0.04] transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-text-2 hover:text-foreground hover:bg-secondary transition-colors"
             title="Recargar"
           >
             <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
@@ -873,7 +873,7 @@ export function AdminOnboardingView() {
           ) : (
             <button
               onClick={() => setView("list")}
-              className="flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-[13px] font-medium text-foreground hover:bg-foreground/[0.04] transition-colors"
+              className="flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-[13px] font-medium text-foreground hover:bg-secondary transition-colors"
             >
               <X className="h-3.5 w-3.5" />
               Cancelar
@@ -906,7 +906,7 @@ export function AdminOnboardingView() {
                     "inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[13px] font-semibold transition-all",
                     activeView === v.id
                       ? "bg-foreground text-background"
-                      : "text-text-2 hover:text-foreground hover:bg-foreground/[0.05]"
+                      : "text-text-2 hover:text-foreground hover:bg-secondary"
                   )}
                 >
                   {v.label}

@@ -19,7 +19,7 @@ export function ThemeToggle() {
       size="icon"
       aria-label={isDark ? "Activar modo claro" : "Activar modo oscuro"}
       title={isDark ? "Modo claro" : "Modo oscuro"}
-      className="border-border/50 hover:bg-foreground/[0.06]"
+      className="border-border/50 hover:bg-secondary"
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
       {isDark ? (

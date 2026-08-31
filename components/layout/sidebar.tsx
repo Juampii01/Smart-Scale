@@ -143,7 +143,7 @@ export function Sidebar({
             <span className="self-start rounded-full bg-secondary px-1.5 py-0.5 text-[11px] font-bold tracking-wider text-text-2 leading-none">{APP_VERSION}</span>
           </a>
           <button
-            className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-foreground/10 transition-all"
+            className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-secondary transition-all"
             onClick={onClose}
             aria-label="Cerrar menú"
           >
@@ -179,7 +179,7 @@ export function Sidebar({
                             "w-full flex h-[34px] items-center gap-2.5 rounded-lg px-3 transition-all duration-150",
                             (isItemExpanded || hasActiveChild)
                               ? "text-foreground"
-                              : "text-foreground hover:bg-foreground/[0.05] hover:text-foreground"
+                              : "text-foreground hover:bg-secondary hover:text-foreground"
                           )}
                         >
                           <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
@@ -198,7 +198,7 @@ export function Sidebar({
                                   "py-1.5 px-2 rounded-md text-[15px] transition-colors duration-150",
                                   pathname === child.href
                                     ? "text-accent-ink font-semibold"
-                                    : "text-text-2 hover:text-foreground hover:bg-foreground/[0.04]"
+                                    : "text-text-2 hover:text-foreground hover:bg-secondary"
                                 )}>
                                   {child.name}
                                 </div>
@@ -217,7 +217,7 @@ export function Sidebar({
                         "flex h-[34px] items-center gap-2.5 rounded-lg px-3 transition-all duration-150",
                         isActive
                           ? "bg-secondary text-accent-ink"
-                          : "text-foreground hover:bg-foreground/[0.05] hover:text-foreground"
+                          : "text-foreground hover:bg-secondary hover:text-foreground"
                       )}>
                         <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
                         <span className={cn("text-[15px] leading-none", isActive ? "font-semibold" : "font-medium")}>
@@ -236,7 +236,7 @@ export function Sidebar({
         <div className="flex-shrink-0 p-3 space-y-1.5">
           {isAdmin && (
             <Link href="/admin/clients" onClick={onClose}>
-              <div className="group flex items-center gap-2.5 rounded-lg px-3 py-2 text-foreground hover:bg-foreground/[0.05] hover:text-foreground transition-all duration-150">
+              <div className="group flex items-center gap-2.5 rounded-lg px-3 py-2 text-foreground hover:bg-secondary hover:text-foreground transition-all duration-150">
                 <ShieldCheck className="h-4 w-4 shrink-0" />
                 <span className="flex-1 text-[13px] font-medium">Panel interno</span>
                 <ArrowRight className="h-3.5 w-3.5 text-text-3 group-hover:translate-x-0.5 transition-transform" />
@@ -266,7 +266,7 @@ export function Sidebar({
                 "group/profile flex w-full items-center gap-2.5 rounded-lg border px-2.5 py-2 transition-all duration-150",
                 pathname === "/perfil"
                   ? "border-accent bg-secondary"
-                  : "border-border bg-foreground/[0.02] hover:bg-foreground/[0.05]"
+                  : "border-border bg-elevated hover:bg-secondary"
               )}
             >
               <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-accent/30 bg-accent-soft text-[13px] font-bold text-accent-ink">

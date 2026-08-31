@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Check, AlertCircle, Loader2, Instagram, ShieldCheck } from "lucide-react"
 
 const inputCls =
-  "w-full rounded-xl border border-border bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
+  "w-full rounded-xl border border-border bg-secondary px-4 py-3 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
 
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (

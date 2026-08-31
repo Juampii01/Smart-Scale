@@ -183,10 +183,10 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                 <Check className="h-3 w-3" /> Conectado{status.connectedAt ? ` · ${new Date(status.connectedAt).toLocaleDateString("es-AR")}` : ""}
               </p>
             </div>
-            <button onClick={() => loadMetrics()} disabled={metricsLoading} title="Actualizar" className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-foreground/[0.05] transition disabled:opacity-50">
+            <button onClick={() => loadMetrics()} disabled={metricsLoading} title="Actualizar" className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-secondary transition disabled:opacity-50">
               <RefreshCw className={`h-3.5 w-3.5 ${metricsLoading ? "animate-spin" : ""}`} /> Actualizar
             </button>
-            <button onClick={handleDisconnect} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-[13px] font-medium text-red-600 dark:text-red-400 hover:bg-foreground/[0.05] transition disabled:opacity-50">
+            <button onClick={handleDisconnect} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-[13px] font-medium text-red-600 dark:text-red-400 hover:bg-secondary transition disabled:opacity-50">
               {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Unlink className="h-3.5 w-3.5" />} Desconectar
             </button>
           </div>
@@ -231,7 +231,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                       className={`rounded-lg border px-3 py-1.5 text-[13px] font-medium transition ${
                         b.key === bucketKey
                           ? "border-accent bg-secondary text-foreground"
-                          : "border-border bg-card text-text-2 hover:bg-foreground/[0.05]"
+                          : "border-border bg-card text-text-2 hover:bg-secondary"
                       }`}
                     >
                       {b.label} <span className="text-text-3">· {b.count}</span>
@@ -279,7 +279,7 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                     {bucket.media.slice(0, 12).map((m) => (
                       <a key={m.id} href={m.permalink} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-xl border border-border bg-card transition hover:border-border-hover">
-                        <div className="relative aspect-square w-full overflow-hidden bg-foreground/[0.04]">
+                        <div className="relative aspect-square w-full overflow-hidden bg-elevated">
                           {m.thumbnail ? (
                             <img src={px(m.thumbnail)} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
                           ) : (

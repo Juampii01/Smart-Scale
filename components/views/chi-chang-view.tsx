@@ -27,7 +27,7 @@ function Field({ label, required, hint, children }: { label: string; required?: 
   )
 }
 
-const inputCls = "w-full rounded-xl border border-border bg-foreground/[0.04] px-4 py-2.5 text-[13px] font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
+const inputCls = "w-full rounded-xl border border-border bg-secondary px-4 py-2.5 text-[13px] font-medium text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
 
 // Reflexión obligatoria detrás del cierre (gamificación). Sin al menos
 // NOTAS_MIN caracteres el submit queda bloqueado.
@@ -219,8 +219,8 @@ export function ChiChangView() {
                     onClick={() => setProximoNivel(isActive ? "" : opt.value)}
                     className={`relative flex flex-col items-center gap-1.5 rounded-xl border py-3 px-2 transition-all duration-150 ${
                       isActive
-                        ? "border-border-hover bg-foreground/[0.08]"
-                        : "border-border bg-foreground/[0.03] hover:bg-foreground/[0.06] hover:border-border"
+                        ? "border-border-hover bg-secondary"
+                        : "border-border bg-elevated hover:bg-secondary hover:border-border"
                     }`}
                     style={isActive ? { boxShadow: `0 0 0 1px color-mix(in srgb, ${opt.color} 25%, transparent), 0 0 12px color-mix(in srgb, ${opt.color} 10%, transparent)` } : {}}
                   >
@@ -254,7 +254,7 @@ export function ChiChangView() {
           <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider transition-all ${
             notasOk
               ? "bg-secondary text-accent-ink"
-              : "bg-foreground/[0.05] text-text-3"
+              : "bg-elevated text-text-3"
           }`}>
             <Sparkles className="h-3 w-3" />
             {notasOk ? "Reflexión +1" : "Sumá tu reflexión"}

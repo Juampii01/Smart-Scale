@@ -119,15 +119,15 @@ function TreeRow({
         onClick={() => onSelect(node.page.id)}
         className={`group flex items-center gap-1 rounded-md px-1 py-1 text-[13px] cursor-pointer transition-colors ${
           isSelected
-            ? "bg-foreground/[0.08] text-foreground"
-            : "text-foreground hover:bg-foreground/[0.05] hover:text-foreground"
+            ? "bg-secondary text-foreground"
+            : "text-foreground hover:bg-secondary hover:text-foreground"
         }`}
         style={{ paddingLeft: `${4 + depth * 14}px` }}
       >
         <button
           onClick={(e) => { e.stopPropagation(); onToggle(node.page.id) }}
           className={`flex h-4 w-4 shrink-0 items-center justify-center rounded transition-colors ${
-            hasChildren ? "text-text-2 hover:bg-foreground/10 hover:text-foreground" : "opacity-0 pointer-events-none"
+            hasChildren ? "text-text-2 hover:bg-secondary hover:text-foreground" : "opacity-0 pointer-events-none"
           }`}
           aria-label={isExpanded ? "Colapsar" : "Expandir"}
         >
@@ -141,7 +141,7 @@ function TreeRow({
         </span>
         <button
           onClick={(e) => { e.stopPropagation(); onAddChild(node.page.id) }}
-          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-text-2 hover:bg-foreground/10 hover:text-foreground transition-all ${hovered ? "opacity-100" : "opacity-0"}`}
+          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-text-2 hover:bg-secondary hover:text-foreground transition-all ${hovered ? "opacity-100" : "opacity-0"}`}
           aria-label="Nueva subpágina"
           title="Nueva subpágina"
         >
@@ -286,7 +286,7 @@ function PageEditor({
             onChange={e => setIcon(e.target.value)}
             placeholder="📄"
             maxLength={4}
-            className="h-9 w-9 rounded-lg border border-border bg-foreground/[0.03] text-center text-[15px] focus:border-border-hover focus:outline-none"
+            className="h-9 w-9 rounded-lg border border-border bg-secondary text-center text-[15px] focus:border-border-hover focus:outline-none"
             aria-label="Icono"
           />
           <input
@@ -307,7 +307,7 @@ function PageEditor({
               className={`inline-flex items-center gap-1.5 h-8 rounded-lg border px-3 text-[13px] font-semibold transition-all ${
                 page.scope === "prospeccion"
                   ? "border-cyan-400 bg-cyan-100 text-cyan-800 hover:bg-cyan-200 dark:border-cyan-400/40 dark:bg-cyan-500/15 dark:text-cyan-300 dark:hover:bg-cyan-500/25"
-                  : "border-border bg-foreground/[0.04] text-foreground hover:bg-foreground/[0.08]"
+                  : "border-border bg-secondary text-foreground hover:bg-secondary"
               }`}
               title="Click para cambiar quién ve esta página y todas sus subpáginas"
             >
@@ -316,7 +316,7 @@ function PageEditor({
                 : <><Lock className="h-3 w-3" /> Solo admin/team</>}
             </button>
           ) : !isRoot && parentScope ? (
-            <span className="inline-flex items-center gap-1.5 h-8 rounded-lg border border-border bg-foreground/[0.02] px-3 text-[13px] font-medium text-text-2" title="La visibilidad se hereda de la página raíz">
+            <span className="inline-flex items-center gap-1.5 h-8 rounded-lg border border-border bg-elevated px-3 text-[13px] font-medium text-text-2" title="La visibilidad se hereda de la página raíz">
               {parentScope === "prospeccion"
                 ? <><Target className="h-3 w-3" /> Heredado · Setter también</>
                 : <><Lock className="h-3 w-3" /> Heredado · Solo admin/team</>}
@@ -486,14 +486,14 @@ export function CentroOpPagesView({ userRole }: { userRole: string | null }) {
     <div className="flex h-[calc(100vh-180px)] min-h-[520px] gap-3 rounded-[14px] border border-border bg-card overflow-hidden">
 
       {/* Sidebar */}
-      <aside className="flex w-[240px] shrink-0 flex-col border-r border-border bg-foreground/[0.015]">
+      <aside className="flex w-[240px] shrink-0 flex-col border-r border-border bg-elevated">
         <div className="border-b border-border px-3 py-3 space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-text-2">Páginas</h3>
             <button
               onClick={() => createPage(null)}
               disabled={creating}
-              className="flex h-6 w-6 items-center justify-center rounded text-text-2 hover:bg-foreground/[0.06] hover:text-foreground transition-all disabled:opacity-50"
+              className="flex h-6 w-6 items-center justify-center rounded text-text-2 hover:bg-secondary hover:text-foreground transition-all disabled:opacity-50"
               title="Nueva página"
             >
               {creating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}

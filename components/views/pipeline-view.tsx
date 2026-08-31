@@ -59,7 +59,7 @@ function fieldInput(
         disabled={disabled}
         onBlur={e => onBlur(e.target.value)}
         onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-        className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
       />
     </div>
   )
@@ -87,12 +87,12 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
           <div className="flex items-center gap-2 shrink-0">
             {!readOnly && (
               <button onClick={() => onDelete(prospect.id)} disabled={deleting} aria-label="Eliminar prospecto"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.08] transition-all disabled:opacity-40">
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all disabled:opacity-40">
                 {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
               </button>
             )}
             <button onClick={onClose} aria-label="Cerrar"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -121,7 +121,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
                 if (val === "__none__") { onPatch(prospect.id, { status: "nuevo", purchased: false }); return }
                 onPatch(prospect.id, { status: val, purchased: val === "compraron" })
               }}
-              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <option value="__none__">Sin calificar (no aparece en el pipeline)</option>
               {PIPELINE_COLUMNS.map(col => (
@@ -138,7 +138,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
                 defaultValue={prospect.next_follow_up_at ?? ""}
                 disabled={readOnly}
                 onChange={e => onPatch(prospect.id, { next_follow_up_at: e.target.value || null })}
-                className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               />
             </div>
             <div className="space-y-1.5">
@@ -147,7 +147,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
                 type="button"
                 disabled={!prospect.next_follow_up_at || readOnly}
                 onClick={() => onPatch(prospect.id, { next_follow_up_at: null })}
-                className="w-full h-[42px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-foreground/[0.03] text-[13px] font-semibold text-text-2 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all disabled:opacity-40"
+                className="w-full h-[42px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-elevated text-[13px] font-semibold text-text-2 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all disabled:opacity-40"
               >
                 <CheckCircle2 className="h-4 w-4" />
                 Marcar hecho
@@ -168,7 +168,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
               rows={4}
               disabled={readOnly}
               onBlur={e => onPatch(prospect.id, { notes: e.target.value || null })}
-              className="w-full resize-none rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full resize-none rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
         </div>
@@ -203,7 +203,7 @@ function NewProspectModal({ onClose, onCreate, creating }: {
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-[15px] font-bold text-foreground">Nuevo prospecto</h3>
             <button type="button" onClick={onClose}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -212,21 +212,21 @@ function NewProspectModal({ onClose, onCreate, creating }: {
             <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Nombre *</p>
             <input autoFocus type="text" value={name} onChange={e => setName(e.target.value)}
               placeholder="Nombre completo"
-              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
+              className="w-full rounded-xl border border-border bg-elevated px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">
             <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Instagram</p>
             <input type="text" value={instagram} onChange={e => setInstagram(e.target.value)}
               placeholder="@usuario"
-              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
+              className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">
             <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Desde dónde llegó</p>
             <input type="text" value={source} onChange={e => setSource(e.target.value)}
               placeholder="ej: Instagram, referido, evento..."
-              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
+              className="w-full rounded-xl border border-border bg-elevated px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">
@@ -235,7 +235,7 @@ function NewProspectModal({ onClose, onCreate, creating }: {
           </div>
 
           <button type="submit" disabled={!name.trim() || creating}
-            className="w-full h-10 rounded-xl bg-foreground text-background text-[13px] font-bold hover:bg-foreground/90 transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+            className="w-full h-10 rounded-xl bg-foreground text-background text-[13px] font-bold hover:bg-secondary transition-all disabled:opacity-40 flex items-center justify-center gap-2">
             {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Crear prospecto
           </button>
@@ -340,7 +340,7 @@ export function PipelineView({ clientId: activeClientId, readOnly = false }: { c
         {!readOnly && (
           <button
             onClick={() => setShowNewForm(true)}
-            className="inline-flex items-center gap-1.5 h-9 rounded-xl bg-foreground px-3.5 text-[13px] font-bold text-background hover:bg-foreground/90 transition-all"
+            className="inline-flex items-center gap-1.5 h-9 rounded-xl bg-foreground px-3.5 text-[13px] font-bold text-background hover:bg-secondary transition-all"
           >
             <Plus className="h-4 w-4" />
             Nuevo prospecto

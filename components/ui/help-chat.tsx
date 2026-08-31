@@ -65,7 +65,7 @@ function renderInline(text: string): React.ReactNode[] {
     if (m[1]) {
       parts.push(<strong key={`b${key++}`} className="font-semibold text-foreground">{m[2]}</strong>)
     } else if (m[3]) {
-      parts.push(<code key={`c${key++}`} className="rounded bg-foreground/[0.08] px-1 py-0.5 text-[13px] font-mono text-accent-ink/90">{m[4]}</code>)
+      parts.push(<code key={`c${key++}`} className="rounded bg-secondary px-1 py-0.5 text-[13px] font-mono text-accent-ink/90">{m[4]}</code>)
     }
     lastIdx = m.index + m[0].length
   }
@@ -217,7 +217,7 @@ export function HelpChat() {
               <button
                 onClick={reset}
                 title="Reiniciar conversación"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/5 transition"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition"
               >
                 <RotateCcw className="h-4 w-4" />
               </button>
@@ -225,7 +225,7 @@ export function HelpChat() {
             <button
               onClick={() => setOpen(false)}
               title="Cerrar (Esc)"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/5 transition"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition"
             >
               <X className="h-4 w-4" />
             </button>
@@ -243,7 +243,7 @@ export function HelpChat() {
                 className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[13px] ${
                   m.role === "user"
                     ? "bg-accent text-black font-medium"
-                    : "bg-foreground/[0.04] border border-border text-foreground"
+                    : "bg-secondary border border-border text-foreground"
                 }`}
               >
                 <div className="space-y-1">
@@ -255,7 +255,7 @@ export function HelpChat() {
 
           {loading && (
             <div className="flex justify-start">
-              <div className="rounded-2xl bg-foreground/[0.04] border border-border px-4 py-2.5">
+              <div className="rounded-2xl bg-elevated border border-border px-4 py-2.5">
                 <div className="flex items-center gap-2 text-[13px] text-text-2">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   Pensando…
@@ -274,7 +274,7 @@ export function HelpChat() {
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
-                  className="block w-full text-left rounded-xl border border-border bg-foreground/[0.02] px-3 py-2 text-[13px] text-text-2 hover:text-foreground hover:border-border hover:bg-secondary transition-all"
+                  className="block w-full text-left rounded-xl border border-border bg-secondary px-3 py-2 text-[13px] text-text-2 hover:text-foreground hover:border-border hover:bg-secondary transition-all"
                 >
                   {q}
                 </button>
@@ -299,7 +299,7 @@ export function HelpChat() {
               onKeyDown={handleKeyDown}
               placeholder="Preguntá cualquier cosa sobre el dashboard…"
               rows={1}
-              className="flex-1 resize-none rounded-xl border border-border bg-foreground/[0.03] px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-accent focus:bg-foreground/[0.05] transition-all max-h-32"
+              className="flex-1 resize-none rounded-xl border border-border bg-elevated px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-accent focus:bg-elevated transition-all max-h-32"
               style={{ minHeight: "42px" }}
               disabled={loading}
             />

@@ -135,11 +135,11 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
           <p className="text-[13px] text-text-2 mt-0.5">Key metrics for the selected month</p>
         </div>
         {current && previous && (
-          <div className="flex items-center gap-2 rounded-xl border border-border bg-foreground/[0.03] px-3.5 py-2">
+          <div className="flex items-center gap-2 rounded-xl border border-border bg-secondary px-3.5 py-2">
             <span className="flex items-center gap-1.5 text-[13px] font-semibold text-emerald-700 dark:text-emerald-400">
               <TrendingUp className="h-3.5 w-3.5" />{upCount} up
             </span>
-            <span className="h-3 w-px bg-foreground/15" />
+            <span className="h-3 w-px bg-elevated" />
             <span className="flex items-center gap-1.5 text-[13px] font-semibold text-red-700 dark:text-red-400">
               <TrendingDown className="h-3.5 w-3.5" />{downCount} down
             </span>
@@ -149,7 +149,7 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
 
       {!current && !showSkeleton && (
         <div className="mb-6 flex flex-col items-center gap-3 rounded-2xl border border-border bg-card py-12 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-foreground/[0.03]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-elevated">
             <BarChart3 className="h-5 w-5 text-text-3" />
           </div>
           <p className="text-[13px] text-text-2">
@@ -191,7 +191,7 @@ export function BusinessKPIs({ selectedMonth: propMonth }: { selectedMonth?: str
                     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[13px] font-bold ${
                       isUp   ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/20"
                       : isDown ? "bg-red-100 text-red-800 ring-1 ring-red-400 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/20"
-                      :           "bg-foreground/5 text-text-2 ring-1 ring-border"
+                      :           "bg-secondary text-text-2 ring-1 ring-border"
                     }`}>
                       {isUp   && <TrendingUp   className="h-3 w-3" />}
                       {isDown && <TrendingDown className="h-3 w-3" />}

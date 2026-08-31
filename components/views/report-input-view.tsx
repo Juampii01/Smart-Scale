@@ -79,7 +79,7 @@ const FIELD_GROUPS = [
   {
     key: "reflection",
     label: "Reflection",
-    color: "bg-foreground/30",
+    color: "bg-secondary",
     fields: [
       { key: "biggest_win",    label: "Mayor Logro del Mes",                                    type: "text" },
       { key: "next_focus",     label: "Próximo Enfoque",                                        type: "text" },
@@ -204,7 +204,7 @@ function ConfirmOverwriteDialog({
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-xl border border-border bg-foreground/[0.04] px-5 py-2 text-[13px] font-medium text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground"
+              className="rounded-xl border border-border bg-secondary px-5 py-2 text-[13px] font-medium text-foreground transition hover:bg-secondary hover:text-foreground"
             >
               Cancelar
             </button>
@@ -477,12 +477,12 @@ export function ReportInputView() {
                 type="month"
                 value={month}
                 onChange={(e) => setMonth(e.target.value)}
-                className="rounded-xl border border-border bg-foreground/[0.04] px-4 py-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 [color-scheme:dark]"
+                className="rounded-xl border border-border bg-elevated px-4 py-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 [color-scheme:dark]"
               />
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               {loadingExisting && (
-                <span className="flex items-center gap-1.5 rounded-full border border-border bg-foreground/[0.04] px-3 py-1 text-[13px] text-text-2">
+                <span className="flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1 text-[13px] text-text-2">
                   <Loader2 className="h-3 w-3 animate-spin" />Cargando…
                 </span>
               )}
@@ -537,7 +537,7 @@ export function ReportInputView() {
                             className={`h-10 w-10 rounded-xl text-[13px] font-bold transition-all ${
                               values[field.key] === String(n)
                                 ? "bg-secondary text-foreground"
-                                : "border border-border bg-foreground/[0.03] text-text-2 hover:border-border hover:text-foreground"
+                                : "border border-border bg-elevated text-text-2 hover:border-border hover:text-foreground"
                             }`}
                           >
                             {n}
@@ -571,7 +571,7 @@ export function ReportInputView() {
                         onChange={(e) => setValue(field.key, e.target.value)}
                         rows={2}
                         placeholder="—"
-                        className="w-full resize-none rounded-xl border border-border bg-foreground/[0.04] px-3 py-2 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+                        className="w-full resize-none rounded-xl border border-border bg-secondary px-3 py-2 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
                       />
                     ) : (
                       <input
@@ -584,7 +584,7 @@ export function ReportInputView() {
                         className={`w-full rounded-xl border px-3 py-2 text-[15px] font-semibold text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 ${
                           isHighlight
                             ? "border-accent bg-secondary focus:border-accent focus:ring-accent/20"
-                            : "border-border bg-foreground/[0.04] focus:border-accent focus:ring-accent/20"
+                            : "border-border bg-elevated focus:border-accent focus:ring-accent/20"
                         }`}
                       />
                     )}
@@ -648,7 +648,7 @@ export function ReportInputView() {
               onClick={handleTest}
               disabled={status === "loading" || !ownClientId}
               title="Solo developer: guarda un reporte con datos ficticios"
-              className="flex items-center gap-2 rounded-xl border border-border bg-foreground/[0.04] px-5 py-2.5 text-[13px] font-bold text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 rounded-xl border border-border bg-secondary px-5 py-2.5 text-[13px] font-bold text-foreground transition hover:bg-secondary hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FlaskConical className="h-4 w-4" />
               Testear

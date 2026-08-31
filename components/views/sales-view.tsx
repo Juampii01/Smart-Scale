@@ -79,7 +79,7 @@ function FunnelStep({
       {/* Arrow between steps */}
       {!isLast && (
         <div className="flex flex-col items-center py-1 gap-0">
-          <div className="h-3 w-px bg-foreground/10" />
+          <div className="h-3 w-px bg-secondary" />
           <ArrowDown className="h-3.5 w-3.5 text-text-3" />
         </div>
       )}
@@ -207,7 +207,7 @@ export function SalesView() {
       {error && <p className="text-red-700 dark:text-red-400 text-[13px]">{error}</p>}
       {!showSkeleton && !error && !data && (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card py-14 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-foreground/[0.03]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-elevated">
             <TrendingUp className="h-5 w-5 text-text-3" />
           </div>
           <p className="text-[13px] text-text-2">
@@ -310,7 +310,7 @@ export function SalesView() {
                     <span className="text-text-2">{row.label}</span>
                     <span className="font-bold text-foreground tabular-nums">{row.value} <span className="text-text-3 font-normal">({row.pctW}%)</span></span>
                   </div>
-                  <div className="h-2 rounded-full bg-foreground/[0.06] overflow-hidden">
+                  <div className="h-2 rounded-full bg-elevated overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-700"
                       style={{ width: `${row.pctW}%`, backgroundColor: row.color }} />
                   </div>

@@ -36,7 +36,7 @@ const RECURR_LABEL: Record<string, string> = {
 const STATUS_STYLE: Record<string, string> = {
   active:    "bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/25",
   cancelled: "bg-red-100 text-red-800 border-red-300 dark:bg-red-500/10 dark:text-red-300 dark:border-red-500/25",
-  tbd:       "bg-foreground/5 text-text-2 border-border",
+  tbd:       "bg-secondary text-text-2 border-border",
 }
 
 const EMPTY: Omit<CalendarEvent, "id"> = {
@@ -78,7 +78,7 @@ function EventModal({
     }
   }
 
-  const inputCls = "h-9 w-full rounded-xl border border-border bg-foreground/[0.03] px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+  const inputCls = "h-9 w-full rounded-xl border border-border bg-secondary px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
   const selectCls = `${inputCls} appearance-none cursor-pointer`
 
   return (
@@ -92,7 +92,7 @@ function EventModal({
               {isEdit ? "Editar llamada" : "Nueva llamada"}
             </h2>
           </div>
-          <button onClick={onClose} className="flex h-7 w-7 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-colors">
+          <button onClick={onClose} className="flex h-7 w-7 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -181,7 +181,7 @@ function EventModal({
 
         {/* Actions */}
         <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-4">
-          <button onClick={onClose} className="rounded-xl border border-border bg-foreground/[0.03] px-4 py-2 text-[13px] font-medium text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-colors">
+          <button onClick={onClose} className="rounded-xl border border-border bg-secondary px-4 py-2 text-[13px] font-medium text-text-2 hover:text-foreground hover:bg-secondary transition-colors">
             Cancelar
           </button>
           <button
@@ -282,7 +282,7 @@ export function AdminCalendarView() {
         </div>
         <div className="flex items-center gap-2">
           <button onClick={fetchEvents} disabled={loading}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground transition-colors disabled:opacity-40">
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-secondary text-text-2 hover:text-foreground transition-colors disabled:opacity-40">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button onClick={() => setModal({})}
@@ -307,7 +307,7 @@ export function AdminCalendarView() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b border-border bg-foreground/[0.02]">
+                <tr className="border-b border-border bg-secondary">
                   {["Día", "Título", "Hora", "Recurrencia", "Estado", ""].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.18em] text-text-3 whitespace-nowrap">{h}</th>
                   ))}
@@ -315,7 +315,7 @@ export function AdminCalendarView() {
               </thead>
               <tbody>
                 {sorted.map(ev => (
-                  <tr key={ev.id} className="border-b border-border hover:bg-foreground/[0.02] transition-colors group">
+                  <tr key={ev.id} className="border-b border-border hover:bg-secondary transition-colors group">
                     <td className="px-4 py-3 text-[13px] font-semibold text-foreground whitespace-nowrap">
                       {ev.day_of_week ?? "—"}
                     </td>
@@ -337,7 +337,7 @@ export function AdminCalendarView() {
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => setModal(ev)}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-colors">
+                          className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-colors">
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
                         <button onClick={() => handleDelete(ev.id, ev.title)} disabled={deletingId === ev.id}

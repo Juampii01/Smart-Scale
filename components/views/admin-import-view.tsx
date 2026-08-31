@@ -242,7 +242,7 @@ export function AdminImportView() {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse" style={{ minWidth: "900px" }}>
             <thead>
-              <tr className="border-b border-border bg-foreground/[0.02]">
+              <tr className="border-b border-border bg-elevated">
                 <th className="sticky left-0 z-10 bg-card px-4 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-text-3 whitespace-nowrap w-[140px]">
                   Mes
                 </th>
@@ -288,7 +288,7 @@ export function AdminImportView() {
                               ? "border-emerald-500/20 bg-emerald-500/[0.03]"
                               : hasError
                                 ? "border-red-500/30 bg-red-500/[0.03]"
-                                : "border-transparent hover:border-border focus:border-border-hover focus:bg-foreground/[0.03]"
+                                : "border-transparent hover:border-border focus:border-border-hover focus:bg-secondary"
                           }`}
                           style={{ minWidth: col.fmt === "money" ? "90px" : "70px" }}
                         />

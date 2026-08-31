@@ -125,14 +125,14 @@ export function SettingDailyCRMView({ logs }: SettingDailyCRMViewProps) {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as "date" | "setter")}
-            className="px-3 py-2 rounded-lg border border-border bg-foreground/[0.03] text-[13px] font-medium outline-none focus:border-accent"
+            className="px-3 py-2 rounded-lg border border-border bg-secondary text-[13px] font-medium outline-none focus:border-accent"
           >
             <option value="date">Ordenar por Fecha</option>
             <option value="setter">Ordenar por Setter</option>
           </select>
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-foreground/[0.03] text-[13px] font-medium hover:bg-foreground/[0.06] transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-elevated text-[13px] font-medium hover:bg-secondary transition-colors"
             title="Descargar como CSV"
           >
             <Download className="h-4 w-4" />

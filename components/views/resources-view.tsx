@@ -81,14 +81,14 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
             placeholder="Título *"
             value={form.title}
             onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-            className="rounded-xl bg-foreground/[0.05] border border-border px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
+            className="rounded-xl bg-secondary border border-border px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
           />
           <input
             type="text"
             placeholder="Categoría (ej: Marketing, Ventas…)"
             value={form.category}
             onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-            className="rounded-xl bg-foreground/[0.05] border border-border px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
+            className="rounded-xl bg-elevated border border-border px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
           />
         </div>
 
@@ -97,7 +97,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
           placeholder="URL *"
           value={form.url}
           onChange={e => handleUrlChange(e.target.value)}
-          className="rounded-xl bg-foreground/[0.05] border border-border px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
+          className="rounded-xl bg-secondary border border-border px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
         />
 
         <input
@@ -105,7 +105,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
           placeholder="Descripción (opcional)"
           value={form.description}
           onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-          className="rounded-xl bg-foreground/[0.05] border border-border px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
+          className="rounded-xl bg-elevated border border-border px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
         />
 
         {/* Type selector */}
@@ -120,7 +120,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium border transition-all ${
                   form.type === t
                     ? "border-accent bg-secondary text-accent-ink"
-                    : "border-border bg-foreground/[0.03] text-text-2 hover:text-foreground"
+                    : "border-border bg-elevated text-text-2 hover:text-foreground"
                 }`}
               >
                 <cfg.icon className="h-3 w-3" />
@@ -167,7 +167,7 @@ function ResourceCard({ resource, onDelete }: { resource: Resource; onDelete: (i
     <div className="group rounded-[14px] border border-border bg-card p-4 flex flex-col gap-3 hover:border-border transition-all">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.05] flex-shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-elevated flex-shrink-0">
             <Icon className={`h-4 w-4 ${cfg.color}`} />
           </div>
           <div className="min-w-0">
@@ -267,7 +267,7 @@ export function ResourcesView() {
             placeholder="Buscar…"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full rounded-xl bg-foreground/[0.05] border border-border pl-9 pr-4 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent"
+            className="w-full rounded-xl bg-secondary border border-border pl-9 pr-4 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -278,7 +278,7 @@ export function ResourcesView() {
               className={`rounded-lg px-3 py-2 text-[13px] font-medium border transition-all ${
                 activeCategory === cat
                   ? "border-accent bg-secondary text-accent-ink"
-                  : "border-border bg-foreground/[0.03] text-text-2 hover:text-foreground"
+                  : "border-border bg-elevated text-text-2 hover:text-foreground"
               }`}
             >
               {cat}

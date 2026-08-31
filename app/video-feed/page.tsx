@@ -91,7 +91,7 @@ function PostCard({ post, avg }: { post: Post; avg: number }) {
 
       {/* Thumbnail — portrait 9:16 */}
       <a href={post.post_url} target="_blank" rel="noopener noreferrer"
-        className="block relative overflow-hidden bg-foreground/[0.04]" style={{ aspectRatio: "9/16" }}>
+        className="block relative overflow-hidden bg-secondary" style={{ aspectRatio: "9/16" }}>
         {post.thumbnail && !thumbError
           ? <img
               src={`/api/proxy-image?url=${encodeURIComponent(post.thumbnail)}`}
@@ -312,7 +312,7 @@ function FeedView({ account, onRefresh }: {
             className={`h-8 rounded-lg px-4 text-[13px] font-semibold transition-all ${
               filter === f
                 ? "bg-secondary text-foreground"
-                : "border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground"
+                : "border border-border bg-elevated text-text-2 hover:text-foreground"
             }`}>
             {f === "all" ? "Todos" : "Top Performing"}
           </button>

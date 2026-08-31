@@ -193,7 +193,7 @@ export function OverviewHero() {
               Revenue {current ? <span className="text-text-3">· {monthShort(current.month)}</span> : null}
             </p>
             {chartData.length > 1 && (
-              <div className="flex items-center gap-0.5 rounded-lg border border-border bg-foreground/[0.03] p-0.5">
+              <div className="flex items-center gap-0.5 rounded-lg border border-border bg-elevated p-0.5">
                 {RANGES.map(r => (
                   <button
                     key={r.id}
@@ -294,7 +294,7 @@ export function OverviewHero() {
           <div className="border-b border-border px-5 py-3.5">
             <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-2">Audiencia & canales</p>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-foreground/[0.06]">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-elevated">
             {CHANNELS.map(ch => {
               const cur = Number((current as any)[ch.key])
               const prev = previous ? Number((previous as any)[ch.key]) : null

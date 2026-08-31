@@ -26,7 +26,7 @@ function fmtDate(iso: string) {
 }
 
 function loginBadgeCls(days: number | null) {
-  if (days == null) return "text-text-2 bg-foreground/[0.06] border-border"
+  if (days == null) return "text-text-2 bg-secondary border-border"
   if (days <= 2)  return "text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20"
   if (days <= 6)  return "text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20"
   return "text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-500/10 border-red-200 dark:border-red-500/20"
@@ -115,7 +115,7 @@ export function AdminClientActivityView() {
         <button
           onClick={load}
           disabled={loading}
-          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-text-2 hover:text-foreground hover:bg-foreground/[0.04] transition-colors"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-text-2 hover:text-foreground hover:bg-secondary transition-colors"
           title="Recargar"
         >
           <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
@@ -140,7 +140,7 @@ export function AdminClientActivityView() {
               "inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[13px] font-semibold transition-all",
               view === v.id
                 ? "bg-foreground text-background"
-                : "text-text-2 hover:text-foreground hover:bg-foreground/[0.05]"
+                : "text-text-2 hover:text-foreground hover:bg-secondary"
             )}
           >
             {v.label}
@@ -163,7 +163,7 @@ export function AdminClientActivityView() {
         <div className="overflow-hidden rounded-[14px] border border-border bg-card">
           <div className="overflow-x-auto">
             <div className="min-w-[640px]">
-              <div className="grid grid-cols-[minmax(180px,1fr)_150px_140px_140px] border-b border-border bg-foreground/[0.01] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-text-3">
+              <div className="grid grid-cols-[minmax(180px,1fr)_150px_140px_140px] border-b border-border bg-elevated px-6 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-text-3">
                 <div>Cliente</div>
                 <div>Último login</div>
                 <div>Monday Win</div>
@@ -173,7 +173,7 @@ export function AdminClientActivityView() {
               {filtered.map(c => (
                 <div
                   key={c.clientId}
-                  className="grid grid-cols-[minmax(180px,1fr)_150px_140px_140px] items-center border-b border-border px-6 py-4 hover:bg-foreground/[0.02] transition-colors"
+                  className="grid grid-cols-[minmax(180px,1fr)_150px_140px_140px] items-center border-b border-border px-6 py-4 hover:bg-secondary transition-colors"
                 >
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-[15px] text-foreground">{c.name}</p>

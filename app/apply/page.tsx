@@ -396,15 +396,15 @@ export default function ApplyPage() {
             <p className="text-[11px] font-black text-text-3 uppercase tracking-[0.18em]">Antes de enviar</p>
             <ul className="space-y-1.5 text-[13px] text-text-2">
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full bg-foreground/20 shrink-0" />
+                <span className="mt-1.5 h-1 w-1 rounded-full bg-secondary shrink-0" />
                 No cierres la ventana mientras se envía el formulario
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full bg-foreground/20 shrink-0" />
+                <span className="mt-1.5 h-1 w-1 rounded-full bg-elevated shrink-0" />
                 Si tu aplicación es aprobada, te contactamos por Instagram con toda la propuesta
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full bg-foreground/20 shrink-0" />
+                <span className="mt-1.5 h-1 w-1 rounded-full bg-elevated shrink-0" />
                 Si no hay match, también te avisamos
               </li>
             </ul>

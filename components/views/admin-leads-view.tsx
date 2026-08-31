@@ -92,7 +92,7 @@ export function igLabel(v: string) {
 function Pill({ value }: { value: string | null }) {
   if (!value || !value.trim()) return <span className="text-text-3 text-[13px]">—</span>
   return (
-    <span className="inline-block max-w-[180px] truncate rounded-md border border-border bg-foreground/[0.06] px-2 py-0.5 text-[13px] font-medium text-foreground align-middle">
+    <span className="inline-block max-w-[180px] truncate rounded-md border border-border bg-secondary px-2 py-0.5 text-[13px] font-medium text-foreground align-middle">
       {value}
     </span>
   )
@@ -130,7 +130,7 @@ function CustomCell({ value, type, onSave }: {
       onBlur={e => onSave(e.target.value)}
       onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
       placeholder="—"
-      className="w-full min-w-[90px] rounded-lg border border-transparent bg-transparent px-2 py-1 text-[13px] text-foreground placeholder:text-text-3 hover:border-border focus:border-border-hover focus:bg-foreground/[0.03] focus:outline-none transition-all"
+      className="w-full min-w-[90px] rounded-lg border border-transparent bg-transparent px-2 py-1 text-[13px] text-foreground placeholder:text-text-3 hover:border-border focus:border-border-hover focus:bg-secondary focus:outline-none transition-all"
     />
   )
 }
@@ -299,7 +299,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
         placeholder={placeholder}
         onBlur={e    => onPatch(lead.id, { [key]: e.target.value || null })}
         onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-        className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
+        className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
       />
     </div>
   )
@@ -321,7 +321,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
                 onError={e => { (e.target as HTMLImageElement).style.display = "none" }}
               />
             ) : (
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-foreground/[0.06] text-[15px] font-bold text-text-2">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary text-[15px] font-bold text-text-2">
                 {(lead.name ?? "?").trim().charAt(0).toUpperCase()}
               </div>
             )}
@@ -332,11 +332,11 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => onDelete(lead.id)} disabled={deleting} aria-label="Eliminar lead"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.08] transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-border">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-border">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
             <button onClick={onClose} aria-label="Cerrar"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-border">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-border">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -348,7 +348,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
             <StarRating size="md" value={lead.rating}
               onChange={n => onPatch(lead.id, { rating: n || null })} />
             {lead.tag && (
-              <span className="rounded-full border border-border bg-foreground/[0.06] px-3 py-0.5 text-[13px] font-bold text-foreground">
+              <span className="rounded-full border border-border bg-elevated px-3 py-0.5 text-[13px] font-bold text-foreground">
                 {lead.tag}
               </span>
             )}
@@ -375,7 +375,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
                 if (val === "__none__") { onPatch(lead.id, { status: "nuevo", purchased: false }); return }
                 onPatch(lead.id, { status: val, purchased: val === "compraron" })
               }}
-              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all"
+              className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all"
             >
               <option value="__none__">Sin calificar (no aparece en el pipeline)</option>
               {PIPELINE_COLUMNS.map(col => (
@@ -391,7 +391,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
                 type="date"
                 defaultValue={lead.next_follow_up_at ?? ""}
                 onChange={e => onPatch(lead.id, { next_follow_up_at: e.target.value || null })}
-                className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all"
+                className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all"
               />
             </div>
             <div className="space-y-1.5">
@@ -400,7 +400,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
                 type="button"
                 disabled={!lead.next_follow_up_at}
                 onClick={() => onPatch(lead.id, { next_follow_up_at: null })}
-                className="w-full h-[42px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-foreground/[0.03] text-[13px] font-semibold text-text-2 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all disabled:opacity-40 disabled:hover:border-border disabled:hover:text-text-2"
+                className="w-full h-[42px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-elevated text-[13px] font-semibold text-text-2 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all disabled:opacity-40 disabled:hover:border-border disabled:hover:text-text-2"
               >
                 <CheckCircle2 className="h-4 w-4" />
                 Marcar hecho
@@ -424,13 +424,13 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
                 placeholder="Observaciones, contexto, intereses..."
                 rows={2}
                 onKeyDown={e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); addNote() } }}
-                className="w-full resize-none rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
+                className="w-full resize-none rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
               />
               <button
                 type="button"
                 onClick={addNote}
                 disabled={addingNote || !newNote.trim()}
-                className="shrink-0 flex h-9 items-center gap-1.5 rounded-xl bg-foreground/[0.08] px-3 text-[13px] font-semibold text-foreground hover:bg-foreground/[0.14] hover:text-foreground disabled:opacity-40 transition-all"
+                className="shrink-0 flex h-9 items-center gap-1.5 rounded-xl bg-elevated px-3 text-[13px] font-semibold text-foreground hover:bg-secondary hover:text-foreground disabled:opacity-40 transition-all"
               >
                 {addingNote ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
                 Agregar
@@ -446,7 +446,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
                 notes.map(n => {
                   const isEditing = editingNoteId === n.id
                   return (
-                    <div key={n.id} className="group rounded-lg bg-foreground/[0.03] px-3 py-2">
+                    <div key={n.id} className="group rounded-lg bg-secondary px-3 py-2">
                       {isEditing ? (
                         <div className="space-y-1.5">
                           <textarea
@@ -454,14 +454,14 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
                             onChange={e => setEditingNoteBody(e.target.value)}
                             rows={2}
                             autoFocus
-                            className="w-full resize-none rounded-lg border border-border bg-foreground/[0.02] px-2 py-1.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all"
+                            className="w-full resize-none rounded-lg border border-border bg-elevated px-2 py-1.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all"
                           />
                           <div className="flex items-center gap-1.5">
                             <button
                               type="button"
                               onClick={() => saveEditNote(n.id)}
                               disabled={savingNoteId === n.id || !editingNoteBody.trim()}
-                              className="flex items-center gap-1 rounded-md bg-foreground/[0.08] px-2 py-1 text-[13px] font-semibold text-foreground hover:bg-foreground/[0.14] hover:text-foreground disabled:opacity-40 transition-all"
+                              className="flex items-center gap-1 rounded-md bg-secondary px-2 py-1 text-[13px] font-semibold text-foreground hover:bg-secondary hover:text-foreground disabled:opacity-40 transition-all"
                             >
                               {savingNoteId === n.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                               Guardar
@@ -484,7 +484,7 @@ function DetailDrawer({ lead, onClose, onPatch, onDelete, deleting }: {
                                 type="button"
                                 onClick={() => startEditNote(n)}
                                 aria-label="Editar nota"
-                                className="flex h-6 w-6 items-center justify-center rounded-md text-text-3 hover:text-foreground hover:bg-foreground/[0.08] transition-colors"
+                                className="flex h-6 w-6 items-center justify-center rounded-md text-text-3 hover:text-foreground hover:bg-secondary transition-colors"
                               >
                                 <Pencil className="h-3 w-3" />
                               </button>
@@ -552,7 +552,7 @@ function NewLeadModal({
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-[15px] font-bold text-foreground">Nuevo lead</h3>
             <button type="button" onClick={onClose}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -565,7 +565,7 @@ function NewLeadModal({
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="Nombre completo"
-              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
+              className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
             />
           </div>
 
@@ -576,7 +576,7 @@ function NewLeadModal({
               value={instagram}
               onChange={e => setInstagram(e.target.value)}
               placeholder="@usuario"
-              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
+              className="w-full rounded-xl border border-border bg-elevated px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
             />
           </div>
 
@@ -587,7 +587,7 @@ function NewLeadModal({
               value={source}
               onChange={e => setSource(e.target.value)}
               placeholder="ej: Instagram, Podcast, Referido..."
-              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
+              className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
             />
           </div>
 
@@ -598,7 +598,7 @@ function NewLeadModal({
               value={niche}
               onChange={e => setNiche(e.target.value)}
               placeholder="ej: Fitness, Finanzas, Coaches..."
-              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
+              className="w-full rounded-xl border border-border bg-elevated px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
             />
           </div>
 
@@ -610,7 +610,7 @@ function NewLeadModal({
           <button
             type="submit"
             disabled={!name.trim() || creating}
-            className="w-full h-10 rounded-xl bg-foreground text-background text-[13px] font-bold hover:bg-foreground/90 transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+            className="w-full h-10 rounded-xl bg-foreground text-background text-[13px] font-bold hover:bg-secondary transition-all disabled:opacity-40 flex items-center justify-center gap-2"
           >
             {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Crear lead
@@ -647,7 +647,7 @@ function ColumnModal({ onClose, onCreate, creating }: {
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-[15px] font-bold text-foreground">Nueva columna</h3>
             <button type="button" onClick={onClose}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -657,7 +657,7 @@ function ColumnModal({ onClose, onCreate, creating }: {
             <input
               autoFocus type="text" value={label} onChange={e => setLabel(e.target.value)}
               placeholder="ej: Presupuesto, Ciudad, Objeción..."
-              className="w-full rounded-xl border border-border bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
+              className="w-full rounded-xl border border-border bg-elevated px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
             />
           </div>
 
@@ -668,7 +668,7 @@ function ColumnModal({ onClose, onCreate, creating }: {
                 <button key={val} type="button" onClick={() => setType(val)}
                   className={`flex-1 h-9 rounded-xl border text-[13px] font-semibold transition-all ${
                     type === val
-                      ? "border-border bg-foreground/[0.08] text-foreground"
+                      ? "border-border bg-secondary text-foreground"
                       : "border-border text-text-2 hover:text-foreground hover:border-border-hover"
                   }`}>
                   {lbl}
@@ -678,7 +678,7 @@ function ColumnModal({ onClose, onCreate, creating }: {
           </div>
 
           <button type="submit" disabled={!label.trim() || creating}
-            className="w-full h-10 rounded-xl bg-foreground text-background text-[13px] font-bold hover:bg-foreground/90 transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+            className="w-full h-10 rounded-xl bg-foreground text-background text-[13px] font-bold hover:bg-secondary transition-all disabled:opacity-40 flex items-center justify-center gap-2">
             {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Crear columna
           </button>
@@ -899,7 +899,7 @@ export function AdminLeadsView() {
   // Columnas: 10 fijas + N custom + 1 (botón "+" / chevron)
   const colCount = 8 + customCols.length
   const headRow = (
-    <tr className="border-b border-border bg-foreground/[0.02]">
+    <tr className="border-b border-border bg-secondary">
       {["Nombre","Fecha","Desde dónde","Nicho","Instagram","Rating","Compró"].map(h => (
         <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-text-2 whitespace-nowrap">{h}</th>
       ))}
@@ -960,7 +960,7 @@ export function AdminLeadsView() {
             <p className="text-[13px] text-text-2 mt-0.5">{leads.length} leads</p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center rounded-xl border border-border bg-foreground/[0.03] p-0.5">
+            <div className="flex items-center rounded-xl border border-border bg-secondary p-0.5">
               <button
                 onClick={() => setLayout("tabla")}
                 title="Vista tabla"
@@ -979,17 +979,17 @@ export function AdminLeadsView() {
               </button>
             </div>
             <button onClick={fetchLeads} disabled={loading}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-secondary text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
             <button onClick={exportCsv} disabled={!filtered.length}
-              className="flex items-center gap-2 h-9 rounded-xl border border-border bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
+              className="flex items-center gap-2 h-9 rounded-xl border border-border bg-elevated px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
             <button
               onClick={() => setShowNewForm(true)}
-              className="flex items-center gap-2 h-9 rounded-xl bg-foreground px-4 text-[13px] font-bold text-background hover:bg-foreground/90 transition-all">
+              className="flex items-center gap-2 h-9 rounded-xl bg-foreground px-4 text-[13px] font-bold text-background hover:bg-secondary transition-all">
               <Plus className="h-3.5 w-3.5" />
               Nuevo lead
             </button>
@@ -1003,7 +1003,7 @@ export function AdminLeadsView() {
               Webhook URL — ManyChat / Zapier
             </p>
             <div className="flex items-center gap-2">
-              <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[13px] text-text-2 font-mono truncate" suppressHydrationWarning>
+              <code className="flex-1 rounded-lg bg-elevated px-3 py-2 text-[13px] text-text-2 font-mono truncate" suppressHydrationWarning>
                 {webhookUrl ?? "Cargando…"}
               </code>
               <button
@@ -1047,7 +1047,7 @@ export function AdminLeadsView() {
                 className={`inline-flex items-center gap-1.5 h-8 rounded-lg px-3 text-[13px] font-semibold transition-all ${
                   view === v.id
                     ? "bg-foreground text-background"
-                    : "text-text-2 hover:text-foreground hover:bg-foreground/[0.05]"
+                    : "text-text-2 hover:text-foreground hover:bg-secondary"
                 }`}>
                 {(v.id === "cuatro" || v.id === "cinco") && (
                   <Star className={`h-3 w-3 ${view === v.id ? "fill-background text-background" : "fill-transparent text-text-2"}`} />
@@ -1116,7 +1116,7 @@ export function AdminLeadsView() {
                     return (
                       <Fragment key={group.key}>
                         {groupBy !== "none" && (
-                          <tr className="border-y border-border bg-foreground/[0.03]">
+                          <tr className="border-y border-border bg-secondary">
                             <td colSpan={colCount} className="px-3 py-2">
                               <button type="button" onClick={() => toggleGroup(group.key)}
                                 className="flex items-center gap-2 focus:outline-none">

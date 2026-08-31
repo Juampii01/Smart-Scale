@@ -32,7 +32,7 @@ export function ChannelShellView({
           className={cn(
             "flex items-center gap-2 rounded-[8px] px-4 py-2 text-[13px] font-semibold transition-all",
             comingSoon
-              ? "bg-foreground/[0.05] text-text-3 cursor-not-allowed"
+              ? "bg-secondary text-text-3 cursor-not-allowed"
               : "btn-accent"
           )}
         >
@@ -53,7 +53,7 @@ export function ChannelShellView({
           <p className="text-[15px] font-semibold text-foreground">{emptyText}</p>
           <p className="text-[13px] text-text-2 mt-1">{emptySubtext}</p>
           {comingSoon && (
-            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-foreground/[0.06] px-3 py-1 text-[13px] font-semibold text-text-2">
+            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-[13px] font-semibold text-text-2">
               Próximamente
             </span>
           )}

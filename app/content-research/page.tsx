@@ -72,7 +72,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
   return (
     <>
       <tr
-        className={`border-b border-border hover:bg-foreground/[0.02] transition-colors cursor-pointer ${expanded ? "bg-foreground/[0.02]" : ""}`}
+        className={`border-b border-border hover:bg-secondary transition-colors cursor-pointer ${expanded ? "bg-secondary" : ""}`}
         onClick={() => setExpanded(v => !v)}
       >
         {/* Rank */}
@@ -83,7 +83,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
         {/* Thumbnail */}
         <td className="px-4 py-3 w-24" onClick={e => e.stopPropagation()}>
           <a href={video.video_url} target="_blank" rel="noopener noreferrer" className="block group">
-            <div className="relative w-20 h-[45px] rounded-lg overflow-hidden border border-border bg-foreground/[0.03] flex-shrink-0">
+            <div className="relative w-20 h-[45px] rounded-lg overflow-hidden border border-border bg-elevated flex-shrink-0">
               {video.thumbnail
                 ? <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
                 : <div className="flex h-full items-center justify-center"><Youtube className="h-4 w-4 text-text-3" /></div>
@@ -134,7 +134,7 @@ function VideoRow({ video, rank }: { video: VideoResult; rank: number }) {
         <td className="px-4 py-3 whitespace-nowrap" onClick={e => e.stopPropagation()}>
           <button
             onClick={() => setExpanded(v => !v)}
-            className="rounded-lg p-1.5 text-text-3 hover:bg-foreground/[0.06] hover:text-text-2 transition-all"
+            className="rounded-lg p-1.5 text-text-3 hover:bg-secondary hover:text-text-2 transition-all"
           >
             {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
@@ -307,7 +307,7 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
       </div>
       <div className="divide-y divide-white/[0.04]">
         {items.map(item => (
-          <div key={item.id} className="flex items-center gap-3 px-6 py-3.5 hover:bg-foreground/[0.015] transition-colors group">
+          <div key={item.id} className="flex items-center gap-3 px-6 py-3.5 hover:bg-secondary transition-colors group">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-500/10 border border-red-500/15">
               <Youtube className="h-3.5 w-3.5 text-red-700 dark:text-red-400" />
             </div>
@@ -326,7 +326,7 @@ function HistorySection({ items, onSelect, onDelete, clientId }: {
             <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={() => onSelect(item)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-foreground/[0.04] px-3 py-1.5 text-[13px] font-medium text-text-2 hover:border-border hover:text-accent-ink transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary px-3 py-1.5 text-[13px] font-medium text-text-2 hover:border-border hover:text-accent-ink transition-colors"
               >
                 Ver análisis
               </button>
@@ -456,13 +456,13 @@ function ContentResearchContent() {
                   value={channelUrl}
                   onChange={e => { setChannelUrl(e.target.value); setError(null) }}
                   placeholder="https://youtube.com/@canal"
-                  className="h-11 w-full rounded-xl border border-border bg-foreground/[0.03] pl-10 pr-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
+                  className="h-11 w-full rounded-xl border border-border bg-secondary pl-10 pr-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-all"
                   disabled={loading}
                 />
               </div>
 
               {/* Timeframe */}
-              <div className="flex rounded-xl border border-border bg-foreground/[0.03] overflow-hidden shrink-0">
+              <div className="flex rounded-xl border border-border bg-elevated overflow-hidden shrink-0">
                 {([30, 60, 90] as const).map(t => (
                   <button
                     key={t}

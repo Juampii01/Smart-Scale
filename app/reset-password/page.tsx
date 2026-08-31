@@ -278,7 +278,7 @@ export default function ResetPasswordPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/70 to-black" />
         </div>
         <div className="relative flex min-h-screen items-center justify-center px-6 py-12">
-          <div className="rounded-2xl border border-border bg-foreground/5 p-6 text-[13px] text-foreground backdrop-blur-xl">
+          <div className="rounded-2xl border border-border bg-secondary p-6 text-[13px] text-foreground backdrop-blur-xl">
             Cargando…
           </div>
         </div>
@@ -319,7 +319,7 @@ export default function ResetPasswordPage() {
           {/* Card */}
           <form
             onSubmit={onSubmit}
-            className="rounded-2xl border border-border bg-foreground/5 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl"
+            className="rounded-2xl border border-border bg-secondary p-6 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl"
           >
             <div className="space-y-4">
               {err ? (
@@ -387,7 +387,7 @@ export default function ResetPasswordPage() {
               <button
                 type="submit"
                 disabled={loading || !hasSession}
-                className="h-11 w-full rounded-xl bg-foreground text-[13px] font-semibold text-background transition hover:bg-foreground/90 disabled:opacity-60"
+                className="h-11 w-full rounded-xl bg-foreground text-[13px] font-semibold text-background transition hover:bg-secondary disabled:opacity-60"
               >
                 {loading
                   ? (linkType === "magiclink" ? "Creando…" : "Actualizando…")

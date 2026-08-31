@@ -466,7 +466,7 @@ export function KanbanBoard() {
         <button
           onClick={clearFilters}
           className={`rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-all ${
-            !anyFilter ? "bg-foreground/10 text-foreground" : "text-text-2 hover:bg-foreground/[0.05]"
+            !anyFilter ? "bg-secondary text-foreground" : "text-text-2 hover:bg-secondary"
           }`}
         >
           Todas <span className="tabular-nums opacity-60">{metrics.total}</span>
@@ -500,7 +500,7 @@ export function KanbanBoard() {
           onClick={() => setFilterAssignee(a => a === "__none__" ? null : "__none__")}
           disabled={metrics.unassigned === 0}
           className={`rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-all disabled:opacity-30 ${
-            filterAssignee === "__none__" ? "bg-foreground/10 text-foreground" : "text-text-2 hover:bg-foreground/[0.05]"
+            filterAssignee === "__none__" ? "bg-secondary text-foreground" : "text-text-2 hover:bg-secondary"
           }`}
         >
           Sin asignar <span className="tabular-nums opacity-60">{metrics.unassigned}</span>

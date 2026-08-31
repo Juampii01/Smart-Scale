@@ -186,7 +186,7 @@ function StatPill({
     green:   "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
     amber:   "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400",
     blue:    "bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400",
-    default: "bg-foreground/[0.05] text-foreground",
+    default: "bg-secondary text-foreground",
   }
   return (
     <div className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-semibold", colors[accent ?? "default"])}>
@@ -231,7 +231,7 @@ function NewCashBlock({ data }: { data: DashboardData["new_cash"] }) {
               </thead>
               <tbody className="divide-y divide-border">
                 {data.clients.map(c => (
-                  <tr key={c.id} className="group hover:bg-foreground/[0.02] transition-colors">
+                  <tr key={c.id} className="group hover:bg-secondary transition-colors">
                     <td className="py-2 pr-3">
                       <p className="font-medium text-foreground leading-tight">{c.name}</p>
                       {c.programa && (
@@ -323,7 +323,7 @@ function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
               </thead>
               <tbody className="divide-y divide-border">
                 {grouped.map(g => (
-                  <tr key={g.key} className="group hover:bg-foreground/[0.02] transition-colors">
+                  <tr key={g.key} className="group hover:bg-secondary transition-colors">
                     <td className="py-2 pr-3 font-medium text-foreground">{g.client_name}</td>
                     <td className="py-2 pr-3 text-center text-text-2">{g.label}</td>
                     <td className="py-2 pr-3 text-right font-semibold text-foreground tabular-nums">
@@ -401,7 +401,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
               </thead>
               <tbody className="divide-y divide-border">
                 {data.by_setter.map(s => (
-                  <tr key={s.setter_id} className="group hover:bg-foreground/[0.02] transition-colors">
+                  <tr key={s.setter_id} className="group hover:bg-secondary transition-colors">
                     <td className="py-2.5 pr-4 font-medium text-foreground">{s.setter_name}</td>
                     {cols.map(c => (
                       <td
@@ -423,7 +423,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
               {/* Totals row — solo si hay más de un setter */}
               {data.by_setter.length > 1 && (
                 <tfoot>
-                  <tr className="border-t-2 border-border bg-foreground/[0.02]">
+                  <tr className="border-t-2 border-border bg-secondary">
                     <td className="py-2.5 pr-4 text-[11px] font-bold uppercase tracking-wider text-text-2">Total</td>
                     {cols.map(c => (
                       <td
@@ -540,7 +540,7 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                     </thead>
                     <tbody className="divide-y divide-border">
                       {data.upcoming.map(q => (
-                        <tr key={q.id} className="group hover:bg-foreground/[0.02] transition-colors">
+                        <tr key={q.id} className="group hover:bg-secondary transition-colors">
                           <td className="py-2 pr-3 font-medium text-foreground">{q.client_name}</td>
                           <td className="py-2 pr-3 text-center text-text-2">#{q.installment_number}</td>
                           <td className="py-2 pr-3 text-right font-semibold tabular-nums text-foreground">{fmt(q.amount)}</td>
@@ -550,7 +550,7 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                               "rounded-full px-2 py-0.5 text-[13px] font-semibold",
                               (q.days_until_due ?? 99) <= 3
                                 ? "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                                : "bg-foreground/[0.05] text-text-2"
+                                : "bg-elevated text-text-2"
                             )}>
                               {q.days_until_due === 0 ? "hoy" : `${q.days_until_due}d`}
                             </span>
@@ -644,13 +644,13 @@ export function AdminExecutiveDashboardView() {
 
         {/* Month pager */}
         <div className="flex items-center gap-2">
-          <button onClick={() => changeMonth(-1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-border hover:bg-foreground/5 transition-colors" title="Mes anterior">
+          <button onClick={() => changeMonth(-1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-border hover:bg-secondary transition-colors" title="Mes anterior">
             <ChevronLeft className="h-4 w-4" />
           </button>
           <div className="px-4 py-2 rounded-lg border border-border min-w-[200px] text-center">
             <span className="text-[13px] font-bold text-foreground">{monthLabel(month)}</span>
           </div>
-          <button onClick={() => changeMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-border hover:bg-foreground/5 transition-colors" title="Mes siguiente">
+          <button onClick={() => changeMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-border hover:bg-secondary transition-colors" title="Mes siguiente">
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>

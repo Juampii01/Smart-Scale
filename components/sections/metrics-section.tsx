@@ -164,7 +164,7 @@ export function MetricsSection({
   return (
     <section className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <span className="inline-flex items-center rounded-full border border-border bg-foreground/[0.03] px-3 py-1 text-[13px] font-medium text-text-2">
+        <span className="inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 text-[13px] font-medium text-text-2">
           {totalCount} campos · {monthLabel}
         </span>
         <Input
@@ -173,7 +173,7 @@ export function MetricsSection({
           placeholder="Buscar métricas…"
           className={cn(
             "w-full sm:w-[260px] h-8 rounded-xl text-[13px]",
-            "bg-foreground/[0.04] text-foreground placeholder:text-text-3 border-border",
+            "bg-elevated text-foreground placeholder:text-text-3 border-border",
             "focus-visible:ring-1 focus-visible:ring-accent/20 focus-visible:border-accent"
           )}
         />
@@ -216,7 +216,7 @@ export function MetricsSection({
                     {items.map((item, i) => (
                       <tr
                         key={item.key}
-                        className={`border-b border-border last:border-b-0 transition-colors hover:bg-foreground/[0.02] ${i % 2 === 0 ? "" : "bg-foreground/[0.01]"}`}
+                        className={`border-b border-border last:border-b-0 transition-colors hover:bg-secondary ${i % 2 === 0 ? "" : "bg-elevated"}`}
                       >
                         <td className="px-5 py-2.5">
                           <span className="text-[13px] font-medium text-text-2">

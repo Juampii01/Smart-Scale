@@ -91,14 +91,14 @@ function DetailDrawer({
         <div className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur px-6 py-4 flex items-start justify-between gap-4">
           <div className="space-y-2 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-foreground/[0.06] text-text-2 border-border"}`}>
+              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-secondary text-text-2 border-border"}`}>
                 {roleLabel(app.role)}
               </span>
               <span className="text-[13px] text-text-3">{fmtDate(app.created_at)}</span>
             </div>
             <h2 className="text-[24px] font-bold text-foreground truncate">{fullName(app)}</h2>
           </div>
-          <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
+          <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -116,7 +116,7 @@ function DetailDrawer({
                   className={`rounded-lg border px-3 py-1.5 text-[13px] font-semibold capitalize transition ${
                     app.status === s
                       ? STATUS_STYLE[s]
-                      : "border-border bg-foreground/[0.02] text-text-2 hover:text-foreground hover:border-border-hover"
+                      : "border-border bg-secondary text-text-2 hover:text-foreground hover:border-border-hover"
                   }`}
                 >
                   {s}
@@ -185,7 +185,7 @@ function DetailDrawer({
               onChange={e => onNotesChange(app.id, e.target.value)}
               placeholder="Notas privadas sobre este candidato…"
               rows={4}
-              className="w-full rounded-xl border border-border bg-foreground/[0.02] px-4 py-3 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-accent transition-all resize-none"
+              className="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-accent transition-all resize-none"
             />
           </section>
         </div>
@@ -318,17 +318,17 @@ export function AdminTeamApplicationsView() {
               href={`/aplicar-equipo/${TEAM_APPLICATION_FORMS[0]?.role ?? ""}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 h-9 rounded-xl border border-border bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all"
+              className="flex items-center gap-2 h-9 rounded-xl border border-border bg-secondary px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               Ver formulario
             </a>
             <button onClick={fetchApps} disabled={loading}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-elevated text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
             <button onClick={exportCsv} disabled={!filtered.length}
-              className="flex items-center gap-2 h-9 rounded-xl border border-border bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
+              className="flex items-center gap-2 h-9 rounded-xl border border-border bg-elevated px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
@@ -383,7 +383,7 @@ export function AdminTeamApplicationsView() {
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-[14px] border border-dashed border-border bg-foreground/[0.02] px-6 py-20 text-center text-[13px] text-text-2">
+          <div className="rounded-[14px] border border-dashed border-border bg-elevated px-6 py-20 text-center text-[13px] text-text-2">
             {apps.length === 0
               ? "Todavía no hay candidatos. Compartí el link del formulario para empezar a recibir aplicaciones."
               : "Ningún candidato matchea los filtros actuales."}
@@ -398,7 +398,7 @@ export function AdminTeamApplicationsView() {
               >
                 <div className="flex-1 min-w-0 space-y-1.5">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-foreground/[0.06] text-text-2 border-border"}`}>
+                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest ${ROLE_BADGE[app.role] ?? "bg-elevated text-text-2 border-border"}`}>
                       {roleLabel(app.role)}
                     </span>
                     <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest ${STATUS_STYLE[app.status]}`}>

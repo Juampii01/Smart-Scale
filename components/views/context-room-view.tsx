@@ -30,12 +30,12 @@ const labelCls = "block text-[11px] font-bold uppercase tracking-[0.10em] text-t
 const hintCls  = "text-[13px] text-text-3 mt-2 leading-relaxed"
 
 const areaCls = cn(
-  "w-full rounded-[8px] border border-border bg-foreground/[0.03]",
+  "w-full rounded-[8px] border border-border bg-secondary",
   "px-4 py-3 text-[15px] text-foreground placeholder:text-text-3",
   "outline-none focus:border-border-hover transition-colors resize-none"
 )
 const inputCls = cn(
-  "w-full rounded-[8px] border border-border bg-foreground/[0.03]",
+  "w-full rounded-[8px] border border-border bg-elevated",
   "px-3 py-2 text-[15px] text-foreground placeholder:text-text-3",
   "outline-none focus:border-border-hover transition-colors"
 )
@@ -131,12 +131,12 @@ function LocationTab({
         <div className="space-y-1.5">
           <div className="flex gap-2">
             <button onClick={() => fileRef.current?.click()} disabled={account.photoBusy}
-              className="inline-flex items-center gap-1.5 rounded-[8px] border border-border px-3 py-1.5 text-[13px] font-semibold text-foreground hover:bg-foreground/[0.05] transition disabled:opacity-50">
+              className="inline-flex items-center gap-1.5 rounded-[8px] border border-border px-3 py-1.5 text-[13px] font-semibold text-foreground hover:bg-secondary transition disabled:opacity-50">
               <Camera className="h-3.5 w-3.5" /> {account.avatarUrl ? "Cambiar foto" : "Subir foto"}
             </button>
             {account.avatarUrl && (
               <button onClick={account.onRemovePhoto} disabled={account.photoBusy}
-                className="inline-flex items-center gap-1.5 rounded-[8px] border border-border px-3 py-1.5 text-[13px] font-semibold text-danger hover:bg-foreground/[0.05] transition disabled:opacity-50">
+                className="inline-flex items-center gap-1.5 rounded-[8px] border border-border px-3 py-1.5 text-[13px] font-semibold text-danger hover:bg-secondary transition disabled:opacity-50">
                 <Trash2 className="h-3.5 w-3.5" /> Quitar
               </button>
             )}
@@ -163,7 +163,7 @@ function LocationTab({
           <div className="flex gap-2">
             <input className={cn(inputCls, "flex-1")} type="email" value={email} onChange={e => setEmail(e.target.value)} />
             <button onClick={onSaveEmail} disabled={emailState === "saving"}
-              className="px-3 py-2 rounded-[8px] bg-foreground/[0.06] border border-border text-foreground text-[13px] font-semibold hover:bg-foreground/[0.10] disabled:opacity-50 transition-colors">
+              className="px-3 py-2 rounded-[8px] bg-secondary border border-border text-foreground text-[13px] font-semibold hover:bg-secondary disabled:opacity-50 transition-colors">
               {emailState === "saving" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : emailState === "ok" ? <Check className="h-3.5 w-3.5" /> : "Guardar"}
             </button>
           </div>
@@ -361,7 +361,7 @@ function TheNumbersTab({ ctx, set, reports }: { ctx: Ctx; set: (k: string, v: st
         <label className={labelCls}>Revenue de los últimos 12 meses, mes a mes (USD)</label>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-3">
           {months.length > 0 ? months.map(r => (
-            <div key={r.month} className="rounded-[8px] border border-border bg-foreground/[0.02] p-3">
+            <div key={r.month} className="rounded-[8px] border border-border bg-secondary p-3">
               <p className="text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1.5">{fmtMonthLabel(r.month)}</p>
               <div className="flex items-center gap-1">
                 <span className="text-text-2 text-[13px]">$</span>
@@ -373,7 +373,7 @@ function TheNumbersTab({ ctx, set, reports }: { ctx: Ctx; set: (k: string, v: st
               </div>
             </div>
           )) : Array.from({ length: 12 }, (_, i) => (
-            <div key={i} className="rounded-[8px] border border-border bg-foreground/[0.02] p-3">
+            <div key={i} className="rounded-[8px] border border-border bg-elevated p-3">
               <div className="flex items-center gap-1">
                 <span className="text-text-2 text-[13px]">$</span>
                 <input className="flex-1 bg-transparent text-[15px] font-bold tabular-nums text-foreground outline-none border-0 border-b border-border pb-0.5" placeholder="0" type="number" />

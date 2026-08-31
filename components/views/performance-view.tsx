@@ -41,9 +41,9 @@ function pctDelta(cur: number, prev: number) {
 }
 
 function stageStatus(pct: number | null): { label: string; className: string } {
-  if (pct === null) return { label: "Sin datos",  className: "bg-foreground/[0.06] text-text-2" }
+  if (pct === null) return { label: "Sin datos",  className: "bg-secondary text-text-2" }
   if (pct >= 5)     return { label: "Saludable",  className: "bg-success-soft text-success" }
-  if (pct >= -5)    return { label: "Estable",    className: "bg-foreground/[0.06] text-text-2" }
+  if (pct >= -5)    return { label: "Estable",    className: "bg-elevated text-text-2" }
   return               { label: "Atención",    className: "bg-danger-soft text-danger" }
 }
 
@@ -143,7 +143,7 @@ function GrowthIndexChart({ reports }: { reports: MonthlyReport[] }) {
           <p className="text-[15px] font-bold text-foreground">Índice de crecimiento</p>
           <p className="text-[13px] text-text-2 mt-0.5">Base 100 = primer mes con datos — quién crece más rápido</p>
         </div>
-        <span className="text-[13px] text-text-3 bg-foreground/[0.04] border border-border rounded-lg px-2 py-1 ml-4 whitespace-nowrap">200 = duplicó</span>
+        <span className="text-[13px] text-text-3 bg-elevated border border-border rounded-lg px-2 py-1 ml-4 whitespace-nowrap">200 = duplicó</span>
       </div>
       <div className="flex flex-wrap gap-5 mt-4 mb-4">
         {active.map(ch => (

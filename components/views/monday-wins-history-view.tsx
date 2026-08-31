@@ -55,7 +55,7 @@ export function MondayWinsHistoryView() {
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 rounded-[14px] border border-border bg-card py-16 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-foreground/[0.03]">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-elevated">
           <Trophy className="h-5 w-5 text-text-3" />
         </div>
         <p className="text-[13px] text-text-2">Todavía no hay Monday Wins registrados.</p>

@@ -66,7 +66,7 @@ export function AiLoading({ steps = DEFAULT_STEPS, title = "Investigando conteni
             >
               <span className={`flex h-1.5 w-1.5 rounded-full flex-shrink-0 ${
                 isCurrent ? "bg-accent animate-pulse" :
-                isPast    ? "bg-foreground/40" : "bg-foreground/15"
+                isPast    ? "bg-elevated" : "bg-elevated"
               }`} />
               <p className={`text-[13px] ${isCurrent ? "text-foreground" : "text-text-2"}`}>
                 {isCurrent ? `${step}${dots}` : step}

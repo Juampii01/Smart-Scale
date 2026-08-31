@@ -31,7 +31,7 @@ interface Level {
   questions: Question[]
 }
 
-const inputCls = "w-full rounded-xl border border-border bg-foreground/[0.03] px-4 py-3 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+const inputCls = "w-full rounded-xl border border-border bg-secondary px-4 py-3 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
 
 function computeScore(level: Level | null, answers: Record<string, any>): { correct: number; total: number } | null {
   if (!level) return null
@@ -68,7 +68,7 @@ function ResultBanner({ passed, score, levelTitle, onRetry }: {
           <button
             type="button"
             onClick={onRetry}
-            className="mt-5 rounded-xl border border-border px-5 py-2.5 text-[13px] font-medium text-foreground transition hover:bg-foreground/[0.04]"
+            className="mt-5 rounded-xl border border-border px-5 py-2.5 text-[13px] font-medium text-foreground transition hover:bg-secondary"
           >
             Volver a responder
           </button>
@@ -217,7 +217,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
                 <button
                   type="button"
                   onClick={retry}
-                  className="mt-5 rounded-xl border border-border px-5 py-2.5 text-[13px] font-medium text-foreground transition hover:bg-foreground/[0.04]"
+                  className="mt-5 rounded-xl border border-border px-5 py-2.5 text-[13px] font-medium text-foreground transition hover:bg-secondary"
                 >
                   Volver a responder
                 </button>
@@ -251,7 +251,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
                   {q.type === "yesno" && (
                     <div className="flex gap-3">
                       {["Sí", "No"].map((opt, i) => (
-                        <label key={opt} className={`flex-1 flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13px] font-medium cursor-pointer transition-colors ${answers[q.id] === (i === 0) ? "border-accent bg-secondary text-foreground" : "border-border text-text-2 hover:bg-foreground/[0.03]"}`}>
+                        <label key={opt} className={`flex-1 flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13px] font-medium cursor-pointer transition-colors ${answers[q.id] === (i === 0) ? "border-accent bg-secondary text-foreground" : "border-border text-text-2 hover:bg-secondary"}`}>
                           <input type="radio" name={q.id} className="sr-only" checked={answers[q.id] === (i === 0)} onChange={() => setAnswer(q.id, i === 0)} required />
                           {opt}
                         </label>
@@ -261,7 +261,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
                   {q.type === "multiple_choice" && (
                     <div className="space-y-2">
                       {(q.options ?? []).map((opt, i) => (
-                        <label key={i} className={`flex items-center gap-2.5 rounded-xl border px-4 py-2.5 text-[13px] cursor-pointer transition-colors ${answers[q.id] === i ? "border-accent bg-secondary text-foreground" : "border-border text-foreground hover:bg-foreground/[0.03]"}`}>
+                        <label key={i} className={`flex items-center gap-2.5 rounded-xl border px-4 py-2.5 text-[13px] cursor-pointer transition-colors ${answers[q.id] === i ? "border-accent bg-secondary text-foreground" : "border-border text-foreground hover:bg-secondary"}`}>
                           <input type="radio" name={q.id} className="sr-only" checked={answers[q.id] === i} onChange={() => setAnswer(q.id, i)} required />
                           {opt}
                         </label>

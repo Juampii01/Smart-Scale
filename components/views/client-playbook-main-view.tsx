@@ -205,7 +205,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
 
   if (!activeClientId) {
     return (
-      <div className="rounded-[14px] border border-dashed border-border bg-foreground/[0.02] px-5 py-10 text-center text-[13px] text-text-2">
+      <div className="rounded-[14px] border border-dashed border-border bg-secondary px-5 py-10 text-center text-[13px] text-text-2">
         No hay un cliente activo seleccionado.
       </div>
     )
@@ -244,7 +244,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
       )
     }
     return (
-      <div className="flex flex-col items-center justify-center gap-3 rounded-[14px] border border-dashed border-border bg-foreground/[0.02] px-6 py-16 text-center">
+      <div className="flex flex-col items-center justify-center gap-3 rounded-[14px] border border-dashed border-border bg-secondary px-6 py-16 text-center">
         <FileText className="h-10 w-10 text-text-3" />
         <div>
           <h3 className="text-[15px] font-bold text-foreground">Tu playbook aún no fue creado</h3>
@@ -285,7 +285,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
       <div className="flex items-center justify-between gap-3 border-b border-border px-6 py-2.5">
         <div className="flex items-center gap-2 text-[13px]">
           {!canManage && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-foreground/[0.04] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-text-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-text-2">
               Solo checkboxes editables
             </span>
           )}

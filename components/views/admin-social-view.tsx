@@ -60,7 +60,7 @@ export function AdminSocialView() {
           <h1 className="text-[24px] font-extrabold tracking-tight text-foreground leading-none">Conexiones sociales</h1>
           <p className="text-[13px] text-text-2 mt-1">Quién conectó su Instagram / YouTube.</p>
         </div>
-        <button onClick={load} disabled={loading} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-foreground/[0.05] transition disabled:opacity-50">
+        <button onClick={load} disabled={loading} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-secondary transition disabled:opacity-50">
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Actualizar
         </button>
       </div>
@@ -87,7 +87,7 @@ export function AdminSocialView() {
       <div className="flex gap-2">
         {(["all", "instagram", "youtube"] as const).map((p) => (
           <button key={p} onClick={() => setPlatform(p)}
-            className={`rounded-lg border px-3 py-1.5 text-[13px] font-medium capitalize transition ${platform === p ? "border-accent bg-secondary text-foreground" : "border-border bg-card text-text-2 hover:bg-foreground/[0.05]"}`}>
+            className={`rounded-lg border px-3 py-1.5 text-[13px] font-medium capitalize transition ${platform === p ? "border-accent bg-secondary text-foreground" : "border-border bg-card text-text-2 hover:bg-secondary"}`}>
             {p === "all" ? "Todas" : p}
           </button>
         ))}
@@ -110,7 +110,7 @@ export function AdminSocialView() {
                 {c.accountPic ? (
                   <img src={px(c.accountPic)} alt="" className="h-9 w-9 rounded-full object-cover border border-border" />
                 ) : (
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground/[0.06]"><Brand p={c.platform} /></span>
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-elevated"><Brand p={c.platform} /></span>
                 )}
                 <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-card"><Brand p={c.platform} /></span>
               </span>

@@ -167,7 +167,7 @@ function renderDiagnosisContent(content: string) {
     const k = String(index)
 
     if (!line) return <div key={`spacer-${k}`} className="h-3" />
-    if (line === "---") return <div key={`divider-${k}`} className="my-5 h-px w-full bg-foreground/10" />
+    if (line === "---") return <div key={`divider-${k}`} className="my-5 h-px w-full bg-secondary" />
 
     if (line.startsWith("# ")) {
       return <h2 key={`h1-${k}`} className="text-[24px] font-semibold tracking-tight text-foreground md:text-[32px]">{renderInline(line.replace(/^#\s+/, ""), k)}</h2>
@@ -177,7 +177,7 @@ function renderDiagnosisContent(content: string) {
       return (
         <div key={`h2-${k}`} className="pt-3">
           <h3 className="text-[18px] font-semibold uppercase tracking-[0.14em] text-foreground">{renderInline(line.replace(/^##\s+/, ""), k)}</h3>
-          <div className="mt-2 h-px w-full bg-foreground/10" />
+          <div className="mt-2 h-px w-full bg-elevated" />
         </div>
       )
     }
@@ -188,7 +188,7 @@ function renderDiagnosisContent(content: string) {
 
     if (line.startsWith("> ")) {
       return (
-        <div key={`quote-${k}`} className="rounded-xl border border-border bg-foreground/[0.03] px-4 py-3 text-[13px] text-foreground">
+        <div key={`quote-${k}`} className="rounded-xl border border-border bg-secondary px-4 py-3 text-[13px] text-foreground">
           {renderInline(line.replace(/^>\s+/, ""), k)}
         </div>
       )
@@ -260,7 +260,7 @@ function ScorePillButton({
       className={`rounded-lg border px-4 py-1.5 text-[13px] font-medium transition-all duration-150 ${
         active
           ? `${bgActive} ${ringColor} border-transparent text-foreground`
-          : "border-border bg-foreground/[0.04] text-text-2 hover:border-border-hover hover:text-foreground"
+          : "border-border bg-secondary text-text-2 hover:border-border-hover hover:text-foreground"
       }`}
     >
       {label}
@@ -281,7 +281,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
     c === "green"  ? "bg-emerald-500" :
     c === "yellow" ? "bg-amber-500"   :
     c === "red"    ? "bg-red-500"     :
-    "bg-foreground/15"
+    "bg-secondary"
 
   const priorityPill = (idx: number) =>
     idx === 0
@@ -308,7 +308,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
                 <p className={`text-[32px] font-bold tracking-tight ${style.score}`}>
                   {s.puntos}<span className="text-text-3 text-[24px] font-medium">/6</span>
                 </p>
-                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-foreground/[0.06]">
+                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-elevated">
                   <div className={`h-full rounded-full ${style.bar}`} style={{ width: `${(s.puntos / 6) * 100}%` }} />
                 </div>
                 <div className="mt-3">
@@ -327,7 +327,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
         </div>
       </div>
 
-      <div className="h-px w-full bg-foreground/[0.06]" />
+      <div className="h-px w-full bg-secondary" />
 
       {/* TU FOCO ESTE TRIMESTRE */}
       <div className="space-y-4">
@@ -349,7 +349,7 @@ function DiagnosisCards({ data }: { data: StructuredDiagnosis }) {
               {f.skool_modulo && (
                 <button
                   type="button"
-                  className="mt-4 inline-flex items-start gap-2 rounded-xl border border-border bg-foreground/[0.04] px-4 py-2.5 text-left text-[13px] font-medium text-foreground transition hover:border-border-hover hover:bg-foreground/[0.08]"
+                  className="mt-4 inline-flex items-start gap-2 rounded-xl border border-border bg-secondary px-4 py-2.5 text-left text-[13px] font-medium text-foreground transition hover:border-border-hover hover:bg-secondary"
                 >
                   <span>
                     Dirigite al módulo <span className="font-semibold text-foreground">{f.skool_modulo}</span>
@@ -740,11 +740,11 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                     {group.items.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-[14px] border border-border bg-foreground/[0.02] dark:bg-foreground/[0.04] px-5 py-4 space-y-3"
+                        className="rounded-[14px] border border-border bg-secondary dark:bg-secondary px-5 py-4 space-y-3"
                       >
                         {/* ID + statement */}
                         <div className="flex items-start gap-3">
-                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-border bg-foreground/[0.05] px-2 text-[13px] font-bold text-accent-ink flex-shrink-0">
+                          <span className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-lg border border-border bg-elevated px-2 text-[13px] font-bold text-accent-ink flex-shrink-0">
                             {item.id}
                           </span>
                           <p className="text-[15px] leading-snug text-foreground pt-0.5">
@@ -785,10 +785,10 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="rounded-full border border-border bg-foreground/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
+                <span className="rounded-full border border-border bg-secondary px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
                   {selectedAnswersCount} respuestas
                 </span>
-                <span className="rounded-full border border-border bg-foreground/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
+                <span className="rounded-full border border-border bg-elevated px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
                   {auditType === 'mas20k' ? "Audit +$20k" : "Audit -$20k"}
                 </span>
               </div>
@@ -844,7 +844,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                     Una lectura ejecutiva del cuello de botella, las debilidades y la prioridad estratégica del negocio.
                   </p>
                 </div>
-                <span className="rounded-full border border-border bg-foreground/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
+                <span className="rounded-full border border-border bg-secondary px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-text-2">
                   {loading ? "Procesando" : "Listo"}
                 </span>
               </div>
@@ -887,7 +887,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                   Revisá auditorías anteriores, compará estados y abrí cualquier diagnóstico guardado en un clic.
                 </p>
               </div>
-              <div className="rounded-xl border border-border bg-foreground/[0.03] px-4 py-3 text-right">
+              <div className="rounded-xl border border-border bg-secondary px-4 py-3 text-right">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3">Registros</p>
                 <p className="mt-0.5 text-[18px] font-bold text-foreground">
                   {loadingHistory ? "…" : diagnosisHistory.length}
@@ -898,11 +898,11 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
 
           <div className="relative px-6 py-6">
             {loadingHistory ? (
-              <div className="rounded-xl border border-border bg-foreground/[0.03] px-5 py-5 text-[13px] text-text-2">
+              <div className="rounded-xl border border-border bg-elevated px-5 py-5 text-[13px] text-text-2">
                 Cargando diagnósticos guardados…
               </div>
             ) : diagnosisHistory.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-border bg-foreground/[0.02] px-5 py-5 text-[13px] text-text-3">
+              <div className="rounded-xl border border-dashed border-border bg-secondary px-5 py-5 text-[13px] text-text-3">
                 {isOwnClient
                   ? "Todavía no tenés diagnósticos guardados."
                   : "Todavía no hay diagnósticos guardados para este cliente."}
@@ -918,11 +918,11 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                       className={`flex flex-col h-full justify-between rounded-[14px] border p-5 transition-all duration-200 ${
                         isActiveDiagnosis
                           ? "border-accent bg-secondary"
-                          : "border-border bg-foreground/[0.02] hover:border-border-hover"
+                          : "border-border bg-elevated hover:border-border-hover"
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-4 flex-wrap">
-                        <span className="rounded-full border border-border bg-foreground/[0.04] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">
+                        <span className="rounded-full border border-border bg-elevated px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">
                           #{String(diagnosisHistory.length - index).padStart(2, "0")}
                         </span>
                         <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-widest ${statusMeta.className}`}>
@@ -956,7 +956,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                       </details>
 
                       <div className="flex-1 flex flex-col justify-between">
-                        <div className="rounded-xl border border-border bg-foreground/[0.02] px-4 py-3 min-h-[100px] mb-4">
+                        <div className="rounded-xl border border-border bg-secondary px-4 py-3 min-h-[100px] mb-4">
                           <div className="text-[13px] leading-6 text-text-2 whitespace-pre-line max-h-40 overflow-y-auto">
                             {item.result
                               ? previewDiagnosis(item.result)
@@ -976,7 +976,7 @@ ${formatItems(groupedAnswers.unanswered, "SIN RESPUESTA")}`
                           className={`rounded-xl px-4 py-2 text-[13px] font-bold transition-all duration-150 ${
                             isActiveDiagnosis
                               ? "bg-secondary text-foreground"
-                              : "border border-border bg-foreground/[0.04] text-foreground hover:bg-foreground/[0.08] hover:text-foreground"
+                              : "border border-border bg-elevated text-foreground hover:bg-secondary hover:text-foreground"
                           } disabled:cursor-not-allowed disabled:opacity-40`}
                         >
                           {isActiveDiagnosis ? "Diagnóstico abierto" : "Ver diagnóstico completo"}

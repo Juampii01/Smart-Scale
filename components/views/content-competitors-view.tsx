@@ -103,7 +103,7 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
           {items.map(c => (
             <div key={c.id} className="group relative rounded-[14px] border border-border bg-card p-4 hover:border-border transition-colors">
               <button onClick={() => handleRemove(c.id)}
-                className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center rounded-md text-text-3 hover:text-foreground hover:bg-foreground/[0.06]">
+                className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center rounded-md text-text-3 hover:text-foreground hover:bg-secondary">
                 <X className="h-3.5 w-3.5" />
               </button>
               <div className="flex items-center gap-2.5 mb-2">
@@ -137,7 +137,7 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
                 </div>
                 <h2 className="text-[15px] font-bold text-foreground">Agregar {entityLabel}</h2>
               </div>
-              <button onClick={() => setOpen(false)} className="h-7 w-7 flex items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-foreground/[0.06]">
+              <button onClick={() => setOpen(false)} className="h-7 w-7 flex items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-secondary">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -145,22 +145,22 @@ export function ContentCompetitorsView({ channel }: { channel: Channel }) {
               <div className="space-y-1.5">
                 <label className="text-[13px] font-semibold text-text-2">Nombre <span className="text-danger">*</span></label>
                 <input autoFocus value={name} onChange={e => setName(e.target.value)} placeholder={isIG ? "Nombre del perfil" : "Nombre del canal"}
-                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
+                  className="w-full rounded-[8px] border border-border bg-elevated px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[13px] font-semibold text-text-2">{isIG ? "@handle" : "Handle / @"}</label>
                 <input value={handle} onChange={e => setHandle(e.target.value)} placeholder={isIG ? "@usuario" : "@canal"}
-                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
+                  className="w-full rounded-[8px] border border-border bg-secondary px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[13px] font-semibold text-text-2">Link</label>
                 <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..."
-                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
+                  className="w-full rounded-[8px] border border-border bg-elevated px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[13px] font-semibold text-text-2">Notas</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Por qué seguirlo, qué hace bien…" rows={2}
-                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors resize-none" />
+                  className="w-full rounded-[8px] border border-border bg-elevated px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors resize-none" />
               </div>
             </div>
             <div className="flex items-center justify-end gap-3 px-6 pb-5">

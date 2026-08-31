@@ -130,7 +130,7 @@ function DetailDrawer({
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
             <button onClick={onClose} aria-label="Cerrar"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -150,7 +150,7 @@ function DetailDrawer({
               <option value="rechazada">Rechazada</option>
             </select>
             {app.primary_channel && (
-              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[13px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-foreground/5 text-text-2 border-border"}`}>
+              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[13px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-secondary text-text-2 border-border"}`}>
                 {app.primary_channel}
               </span>
             )}
@@ -161,7 +161,7 @@ function DetailDrawer({
             placeholder="Agregar nota interna..."
             onBlur={e => onNotesChange(app.id, e.target.value)}
             onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-            className="w-full rounded-lg border border-border bg-foreground/[0.03] px-3 py-2 text-[13px] text-text-2 placeholder:text-text-3 focus:border-border-hover focus:text-foreground focus:outline-none transition-all"
+            className="w-full rounded-lg border border-border bg-elevated px-3 py-2 text-[13px] text-text-2 placeholder:text-text-3 focus:border-border-hover focus:text-foreground focus:outline-none transition-all"
           />
         </div>
 
@@ -218,7 +218,7 @@ function DetailDrawer({
                 { label: "Clientes pagos",    value: app.paying_clients },
                 { label: "Modelo de trabajo", value: app.client_work_style },
               ].map(({ label, value }) => value ? (
-                <div key={label} className="rounded-xl border border-border bg-foreground/[0.02] px-3 py-2.5 space-y-0.5">
+                <div key={label} className="rounded-xl border border-border bg-secondary px-3 py-2.5 space-y-0.5">
                   <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{label}</p>
                   <p className="text-[13px] font-semibold text-foreground">{value}</p>
                 </div>
@@ -397,17 +397,17 @@ export function AdminApplicationsView() {
               href="/apply"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 h-9 rounded-xl border border-border bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all"
+              className="flex items-center gap-2 h-9 rounded-xl border border-border bg-secondary px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               Ver formulario
             </a>
             <button onClick={fetchApps} disabled={loading}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-elevated text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
             <button onClick={exportCsv} disabled={!filtered.length}
-              className="flex items-center gap-2 h-9 rounded-xl border border-border bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
+              className="flex items-center gap-2 h-9 rounded-xl border border-border bg-elevated px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
               <Download className="h-3.5 w-3.5" />
               CSV
             </button>
@@ -460,7 +460,7 @@ export function AdminApplicationsView() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-border bg-foreground/[0.02]">
+                  <tr className="border-b border-border bg-elevated">
                     {["Nombre","Email","Instagram","Canal","Facturación","Estado","Compró","Fecha",""].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.18em] text-text-3 whitespace-nowrap">{h}</th>
                     ))}
@@ -475,7 +475,7 @@ export function AdminApplicationsView() {
                     <tr
                       key={app.id}
                       onClick={() => setSelectedApp(app)}
-                      className="border-b border-border hover:bg-foreground/[0.02] cursor-pointer transition-colors group"
+                      className="border-b border-border hover:bg-secondary cursor-pointer transition-colors group"
                     >
                       {/* Nombre */}
                       <td className="px-4 py-3 whitespace-nowrap">
@@ -495,7 +495,7 @@ export function AdminApplicationsView() {
                       {/* Canal */}
                       <td className="px-4 py-3 whitespace-nowrap">
                         {app.primary_channel
-                          ? <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[13px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-foreground/5 text-text-2 border-border"}`}>
+                          ? <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[13px] font-medium ${CHANNEL_COLORS[app.primary_channel] ?? "bg-secondary text-text-2 border-border"}`}>
                               {app.primary_channel}
                             </span>
                           : <span className="text-text-3 text-[13px]">—</span>}

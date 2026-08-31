@@ -102,7 +102,7 @@ export function AdminInstagramAccessView() {
           <p className="text-[13px] text-text-2 mt-0.5">{items.length} solicitud{items.length !== 1 ? "es" : ""} desde el form público</p>
         </div>
         <button onClick={fetchItems} disabled={loading}
-          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-secondary text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
         </button>
       </div>
@@ -110,7 +110,7 @@ export function AdminInstagramAccessView() {
       {/* Link del form */}
       <div className="rounded-[14px] border border-border bg-card px-5 py-4">
         <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 mb-2">Link del formulario (compartilo con los clientes)</p>
-        <code className="rounded-lg bg-foreground/[0.04] px-3 py-2 text-[13px] text-text-2 font-mono">/conectar-instagram</code>
+        <code className="rounded-lg bg-elevated px-3 py-2 text-[13px] text-text-2 font-mono">/conectar-instagram</code>
       </div>
 
       {!migrated && (
@@ -136,7 +136,7 @@ export function AdminInstagramAccessView() {
         <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-border bg-foreground/[0.02]">
+              <tr className="border-b border-border bg-elevated">
                 {["Nombre","Instagram","Email","Profesional","Estado","Fecha",""].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-text-2 whitespace-nowrap">{h}</th>
                 ))}
@@ -168,7 +168,7 @@ export function AdminInstagramAccessView() {
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[13px] font-semibold ${
                       item.is_professional
                         ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300"
-                        : "bg-foreground/[0.05] text-text-2"
+                        : "bg-secondary text-text-2"
                     }`}>
                       {item.is_professional ? "Sí" : "No confirmó"}
                     </span>
@@ -177,7 +177,7 @@ export function AdminInstagramAccessView() {
                     <select
                       value={item.status}
                       onChange={e => updateStatus(item.id, e.target.value)}
-                      className="h-8 rounded-lg border border-border bg-foreground/[0.03] px-2 text-[13px] font-medium text-foreground capitalize focus:border-border-hover focus:outline-none"
+                      className="h-8 rounded-lg border border-border bg-elevated px-2 text-[13px] font-medium text-foreground capitalize focus:border-border-hover focus:outline-none"
                     >
                       {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
@@ -188,7 +188,7 @@ export function AdminInstagramAccessView() {
                   <td className="px-4 py-3 whitespace-nowrap">
                     <button onClick={() => handleDelete(item)} disabled={deletingId === item.id}
                       title="Eliminar"
-                      className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-foreground/[0.06] transition-all disabled:opacity-40">
+                      className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all disabled:opacity-40">
                       {deletingId === item.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                     </button>
                   </td>

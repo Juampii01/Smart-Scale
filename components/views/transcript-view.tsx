@@ -116,7 +116,7 @@ function SummaryBlock({ text }: { text: string }) {
                 <span className={`text-[11px] font-bold uppercase tracking-widest ${cfg.color}`}>{s.header}</span>
               </div>
             )}
-            <div className="px-4 py-3.5 bg-foreground/[0.01]">
+            <div className="px-4 py-3.5 bg-secondary">
               <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-wrap">{s.body}</p>
             </div>
           </div>
@@ -131,7 +131,7 @@ function CopyBtn({ text }: { text: string }) {
   return (
     <button
       onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
-      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-3 hover:text-foreground hover:border-border-hover hover:bg-foreground/[0.06] transition-all shrink-0"
+      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-secondary text-text-3 hover:text-foreground hover:border-border-hover hover:bg-secondary transition-all shrink-0"
     >
       {copied ? <Check className="h-4 w-4 text-accent-ink" /> : <Copy className="h-4 w-4" />}
     </button>
@@ -195,11 +195,11 @@ function TranscriptModal({
                 </h3>
 
                 <div className="mt-3 flex flex-wrap items-center gap-2.5 text-[13px] text-text-3">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-foreground/[0.03] px-3 py-1.5">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1.5">
                     <FileText className="h-3 w-3" />
                     {data.wordCount.toLocaleString()} palabras
                   </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-foreground/[0.03] px-3 py-1.5">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-3 py-1.5">
                     <Maximize2 className="h-3 w-3" />
                     Vista expandida
                   </span>
@@ -209,14 +209,14 @@ function TranscriptModal({
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={handleCopy}
-                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-foreground/[0.04] px-4 text-[13px] font-medium text-text-2 hover:border-border-hover hover:bg-foreground/[0.07] hover:text-foreground transition-all"
+                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-secondary px-4 text-[13px] font-medium text-text-2 hover:border-border-hover hover:bg-secondary hover:text-foreground transition-all"
                 >
                   {copied ? <Check className="h-4 w-4 text-accent-ink" /> : <Copy className="h-4 w-4" />}
                   {copied ? "Copiado" : "Copiar"}
                 </button>
                 <button
                   onClick={onClose}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-foreground/[0.04] text-text-2 hover:border-border-hover hover:bg-foreground/[0.07] hover:text-foreground transition-all"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-elevated text-text-2 hover:border-border-hover hover:bg-secondary hover:text-foreground transition-all"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -291,7 +291,7 @@ function DetailModal({
             <CopyBtn text={data.content} />
             <button
               onClick={onClose}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-foreground/[0.04] text-text-2 hover:border-border-hover hover:bg-foreground/[0.07] hover:text-foreground transition-all"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-secondary text-text-2 hover:border-border-hover hover:bg-secondary hover:text-foreground transition-all"
             >
               <X className="h-4 w-4" />
             </button>
@@ -299,7 +299,7 @@ function DetailModal({
         </div>
 
         <div className="max-h-[calc(85vh-76px)] overflow-y-auto px-6 py-5">
-          <div className="rounded-[14px] border border-border bg-foreground/[0.02] px-5 py-5">
+          <div className="rounded-[14px] border border-border bg-elevated px-5 py-5">
             <p className="whitespace-pre-wrap text-[15px] leading-8 text-foreground font-light">
               {data.content}
             </p>
@@ -595,13 +595,13 @@ export function TranscriptView() {
               <div className="px-6 py-5 flex flex-wrap items-center gap-5 justify-between">
                 <button
                   onClick={() => dismissJob(job.id)}
-                  className="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-lg border border-border bg-foreground/[0.03] text-text-3 hover:text-text-2 hover:border-border-hover transition-all"
+                  className="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-lg border border-border bg-elevated text-text-3 hover:text-text-2 hover:border-border-hover transition-all"
                   title="Cerrar"
                 >
                   <X className="h-3 w-3" />
                 </button>
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className="flex-shrink-0 w-28 h-16 rounded-xl overflow-hidden border border-border bg-foreground/[0.03]">
+                  <div className="flex-shrink-0 w-28 h-16 rounded-xl overflow-hidden border border-border bg-elevated">
                     {jobResult.thumbnail
                       ? <img src={jobResult.thumbnail} alt={jobResult.title ?? ""} className="w-full h-full object-cover" />
                       : <div className="flex h-full items-center justify-center"><Youtube className="h-5 w-5 text-red-500/40" /></div>}
@@ -618,12 +618,12 @@ export function TranscriptView() {
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   {jobResult.duration && (
-                    <div className="flex items-center gap-1.5 rounded-xl border border-border bg-foreground/[0.03] px-3 py-2">
+                    <div className="flex items-center gap-1.5 rounded-xl border border-border bg-secondary px-3 py-2">
                       <Clock className="h-3 w-3 text-text-3" />
                       <span className="text-[13px] font-bold text-foreground tabular-nums">{jobResult.duration}</span>
                     </div>
                   )}
-                  <div className="flex items-center gap-1.5 rounded-xl border border-border bg-foreground/[0.03] px-3 py-2">
+                  <div className="flex items-center gap-1.5 rounded-xl border border-border bg-elevated px-3 py-2">
                     <FileText className="h-3 w-3 text-text-3" />
                     <span className="text-[13px] font-bold text-foreground tabular-nums">{jobWordCount.toLocaleString()}</span>
                     <span className="text-[13px] text-text-3">palabras</span>
@@ -654,7 +654,7 @@ export function TranscriptView() {
                         transcript: jobResult.transcript,
                         wordCount: jobWordCount,
                       })}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-foreground/[0.03] px-3 py-2 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover hover:bg-foreground/[0.06] transition-all"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-secondary px-3 py-2 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover hover:bg-secondary transition-all"
                     >
                       <Maximize2 className="h-3 w-3" />
                       Ver completa
@@ -701,7 +701,7 @@ export function TranscriptView() {
           </div>
         ) : history.length === 0 ? (
           <div className="rounded-[14px] border border-border bg-card px-6 py-14 flex flex-col items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-foreground/[0.03]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-elevated">
               <FileText className="h-5 w-5 text-text-3" />
             </div>
             <p className="text-[13px] text-text-3">Todavía no hay transcripciones. Enviá una URL arriba para empezar.</p>
@@ -711,7 +711,7 @@ export function TranscriptView() {
           {/* Desktop table — hidden on mobile */}
           <div className="hidden md:block overflow-x-auto">
             <div className="min-w-[800px]">
-              <div className="grid grid-cols-[140px_160px_90px_130px_minmax(180px,1fr)_minmax(180px,1fr)] border-b border-border bg-foreground/[0.01] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-text-3">
+              <div className="grid grid-cols-[140px_160px_90px_130px_minmax(180px,1fr)_minmax(180px,1fr)] border-b border-border bg-elevated px-6 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-text-3">
                 <div>Plataforma</div>
                 <div>Fecha</div>
                 <div>URL</div>
@@ -729,7 +729,7 @@ export function TranscriptView() {
                 return (
                   <div
                     key={item.id}
-                    className="grid grid-cols-[140px_160px_90px_130px_minmax(180px,1fr)_minmax(180px,1fr)] items-center border-b border-border px-6 py-4 hover:bg-foreground/[0.02] transition-colors"
+                    className="grid grid-cols-[140px_160px_90px_130px_minmax(180px,1fr)_minmax(180px,1fr)] items-center border-b border-border px-6 py-4 hover:bg-secondary transition-colors"
                   >
                     {/* Platform */}
                     <div className="flex items-center gap-2.5 pr-3">
@@ -790,7 +790,7 @@ export function TranscriptView() {
                       {item.transcript && (
                         <button
                           onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(item.transcript!) }}
-                          className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md border border-border bg-foreground/[0.03] text-text-3 hover:text-text-2 hover:border-border-hover transition-all"
+                          className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md border border-border bg-secondary text-text-3 hover:text-text-2 hover:border-border-hover transition-all"
                         >
                           <Copy className="h-3 w-3" />
                         </button>
@@ -815,7 +815,7 @@ export function TranscriptView() {
                       {item.summary && (
                         <button
                           onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(item.summary!) }}
-                          className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md border border-border bg-foreground/[0.03] text-text-3 hover:text-text-2 hover:border-border-hover transition-all"
+                          className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md border border-border bg-secondary text-text-3 hover:text-text-2 hover:border-border-hover transition-all"
                         >
                           <Copy className="h-3 w-3" />
                         </button>
@@ -858,7 +858,7 @@ export function TranscriptView() {
                     {item.transcript && (
                       <button
                         onClick={() => setDetailModal({ title: item.title ?? "Transcripción", content: item.transcript!, kind: "transcript" })}
-                        className="flex-1 rounded-lg border border-border bg-foreground/[0.04] px-3 py-1.5 text-[13px] font-medium text-text-2 hover:text-foreground transition-colors text-center"
+                        className="flex-1 rounded-lg border border-border bg-secondary px-3 py-1.5 text-[13px] font-medium text-text-2 hover:text-foreground transition-colors text-center"
                       >
                         Ver transcript
                       </button>
@@ -866,7 +866,7 @@ export function TranscriptView() {
                     {item.summary && (
                       <button
                         onClick={() => setDetailModal({ title: item.title ?? "Análisis", content: item.summary!, kind: "summary" })}
-                        className="flex-1 rounded-lg border border-border bg-foreground/[0.04] px-3 py-1.5 text-[13px] font-medium text-text-2 hover:text-foreground transition-colors text-center"
+                        className="flex-1 rounded-lg border border-border bg-elevated px-3 py-1.5 text-[13px] font-medium text-text-2 hover:text-foreground transition-colors text-center"
                       >
                         Ver análisis
                       </button>

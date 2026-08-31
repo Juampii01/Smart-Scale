@@ -159,7 +159,7 @@ function EditableCell({
     <td
       onClick={startEdit}
       title="Click para editar"
-      className={`group cursor-pointer whitespace-nowrap px-4 py-2.5 text-right transition-colors hover:bg-foreground/[0.04] ${groupBorder}`}
+      className={`group cursor-pointer whitespace-nowrap px-4 py-2.5 text-right transition-colors hover:bg-secondary ${groupBorder}`}
     >
       <span className={`text-[13px] tabular-nums group-hover:text-foreground transition-colors ${value != null ? "text-foreground" : "text-text-3"}`}>
         {fmtValue(value, format)}
@@ -241,14 +241,14 @@ export function AdminDataView() {
           <button
             onClick={() => loadReports(clientId)}
             disabled={loading || !clientId}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-foreground/[0.03] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-secondary text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button
             onClick={exportCsv}
             disabled={!months.length}
-            className="flex items-center gap-2 h-9 rounded-xl border border-border bg-foreground/[0.03] px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40"
+            className="flex items-center gap-2 h-9 rounded-xl border border-border bg-elevated px-4 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40"
           >
             <Download className="h-3.5 w-3.5" />
             CSV
@@ -284,14 +284,14 @@ export function AdminDataView() {
                     <th
                       key={group.label}
                       colSpan={group.metrics.length}
-                      className="bg-foreground/[0.02] px-4 py-2.5 text-center text-[11px] font-bold uppercase tracking-[0.18em] text-text-2 border-l border-border"
+                      className="bg-elevated px-4 py-2.5 text-center text-[11px] font-bold uppercase tracking-[0.18em] text-text-2 border-l border-border"
                     >
                       {group.label}
                     </th>
                   ))}
                 </tr>
                 {/* Fila 2: labels de cada métrica */}
-                <tr className="border-b border-border bg-foreground/[0.02]">
+                <tr className="border-b border-border bg-secondary">
                   {SECTION_GROUPS.map(group =>
                     group.metrics.map((metric, idx) => (
                       <th
@@ -306,7 +306,7 @@ export function AdminDataView() {
               </thead>
               <tbody>
                 {months.map(m => (
-                  <tr key={m} className="border-b border-border hover:bg-foreground/[0.02] transition-colors group">
+                  <tr key={m} className="border-b border-border hover:bg-secondary transition-colors group">
                     <td className="sticky left-0 z-10 border-r-2 border-border bg-card px-5 py-2.5 text-[13px] font-bold text-accent-ink whitespace-nowrap group-hover:bg-muted transition-colors">
                       {fmtMonthLabel(m)}
                     </td>

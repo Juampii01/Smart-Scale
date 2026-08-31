@@ -79,7 +79,7 @@ function CellModal({ label, content, onClose }: { label: string; content: string
             >
               <Copy className="h-3 w-3" /> Copiar
             </button>
-            <button onClick={onClose} className="rounded-lg p-1.5 text-text-3 hover:bg-foreground/[0.06] hover:text-foreground transition-all">
+            <button onClick={onClose} className="rounded-lg p-1.5 text-text-3 hover:bg-secondary hover:text-foreground transition-all">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -120,7 +120,7 @@ function VideoRow({ video, channelName, platform }: { video: VideoResult; channe
   const descContent  = isIG ? null : (video.description || null)
 
   return (
-    <tr className="border-b border-border hover:bg-foreground/[0.02] transition-colors">
+    <tr className="border-b border-border hover:bg-secondary transition-colors">
       {/* CREATOR */}
       <td className="px-4 py-4 whitespace-nowrap">
         <span className="text-[13px] font-semibold text-foreground">{channelName || "—"}</span>
@@ -159,7 +159,7 @@ function VideoRow({ video, channelName, platform }: { video: VideoResult; channe
       {/* THUMBNAIL — solo YouTube */}
       {!isIG && (
         <td className="px-4 py-4">
-          <div className="w-20 h-[45px] rounded-lg overflow-hidden border border-border bg-foreground/[0.03]">
+          <div className="w-20 h-[45px] rounded-lg overflow-hidden border border-border bg-secondary">
             {video.thumbnail
               ? <img src={video.thumbnail} alt="" className="w-full h-full object-cover" />
               : <div className="flex h-full items-center justify-center"><Youtube className="h-4 w-4 text-text-3" /></div>}
@@ -271,7 +271,7 @@ function AnalysisCard({ item, onDelete, deletingId }: {
           </button>
           <button
             onClick={() => setExpanded(v => !v)}
-            className="flex items-center gap-1.5 rounded-xl border border-border bg-foreground/[0.04] px-3.5 py-2 text-[13px] font-medium text-foreground hover:bg-foreground/[0.07] hover:text-foreground transition-all"
+            className="flex items-center gap-1.5 rounded-xl border border-border bg-secondary px-3.5 py-2 text-[13px] font-medium text-foreground hover:bg-secondary hover:text-foreground transition-all"
           >
             Ver Resultados
             {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
@@ -490,7 +490,7 @@ function CompetitorResearchContent() {
 
           {/* Usage counter — visible as soon as history loads */}
           {weekUsage && !limitReached && (
-            <div className="flex items-center gap-2 rounded-xl border border-border bg-foreground/[0.03] px-4 py-2.5">
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-secondary px-4 py-2.5">
               <Zap className="h-3.5 w-3.5 text-accent-ink/60 shrink-0" />
               <span className="text-[13px] text-text-2">
                 Análisis esta semana:{" "}
@@ -575,7 +575,7 @@ function CompetitorResearchContent() {
           </div>
         ) : history.length === 0 ? (
           <div className="rounded-[24px] border border-border bg-card px-6 py-16 flex flex-col items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-foreground/[0.03]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-elevated">
               <Search className="h-5 w-5 text-text-3" />
             </div>
             <p className="text-[13px] text-text-3">Todavía no hay análisis. Iniciá un análisis de competidor arriba para empezar.</p>

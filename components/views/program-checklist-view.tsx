@@ -17,7 +17,7 @@ const levelColors: Record<string, string> = {
   "Nivel 4 — Comunidad Email":               "bg-blue-600/15 text-blue-600 dark:text-blue-400 border-blue-600/40", // 🔵
   "Nivel 5 — Conexión & Fascinación":        "bg-violet-500/15 text-violet-500 border-violet-500/40", // 🟤
   "Nivel 6 — Invitación & Conversión":       "bg-purple-500/15 text-purple-500 border-purple-500/40", // 🟣
-  "Nivel 7 — Educando":                      "bg-foreground/[0.06] text-text-2 border-border", // ⚫
+  "Nivel 7 — Educando":                      "bg-secondary text-text-2 border-border", // ⚫
   "Nivel 8 — IA & Sistemas":                 "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/40", // 🤖
 }
 
@@ -161,7 +161,7 @@ export function ProgramChecklistView() {
 
       {/* Estado vacío si no hay cliente activo */}
       {!activeClientId && !loading && (
-        <div className="rounded-[14px] border border-dashed border-border bg-foreground/[0.02] px-5 py-10 text-center text-[13px] text-text-2">
+        <div className="rounded-[14px] border border-dashed border-border bg-secondary px-5 py-10 text-center text-[13px] text-text-2">
           No hay un cliente activo seleccionado. Cambiá de perfil desde el menú superior para ver un checklist.
         </div>
       )}
@@ -170,7 +170,7 @@ export function ProgramChecklistView() {
       <div className="rounded-[14px] border border-border bg-card overflow-hidden">
 
         {/* Column headers */}
-        <div className="grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-b border-border bg-foreground/[0.03]">
+        <div className="grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-b border-border bg-elevated">
           {["STATUS","IMPLEMENTATION MILESTONE","LEVEL","OUTCOME","ROADMAP","URL"].map((col) => (
             <div key={col} className="px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-text-2">
               {col}
@@ -192,7 +192,7 @@ export function ProgramChecklistView() {
               {/* Month row */}
               <div
                 onClick={() => toggleMonth(month.month)}
-                className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-foreground/[0.02] transition-colors select-none"
+                className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary transition-colors select-none"
               >
                 <ChevronDown
                   className={`h-4 w-4 flex-shrink-0 text-text-2 transition-transform duration-200 ${isMonthOpen ? "rotate-0" : "-rotate-90"}`}
@@ -201,7 +201,7 @@ export function ProgramChecklistView() {
                 {/* Progress right */}
                 <div className="flex items-center gap-3 flex-shrink-0">
                   <span className="text-[13px] text-text-2 tabular-nums">{monthDone}/{monthTotal}</span>
-                  <div className="w-32 h-1.5 bg-foreground/[0.08] rounded-full overflow-hidden">
+                  <div className="w-32 h-1.5 bg-elevated rounded-full overflow-hidden">
                     <div
                       className="h-1.5 rounded-full transition-all duration-500"
                       style={{
@@ -226,7 +226,7 @@ export function ProgramChecklistView() {
                     {/* Week row */}
                     <div
                       onClick={() => toggleWeek(weekKey)}
-                      className="flex items-center gap-3 pl-10 pr-4 py-2.5 cursor-pointer hover:bg-foreground/[0.02] transition-colors select-none bg-foreground/[0.01]"
+                      className="flex items-center gap-3 pl-10 pr-4 py-2.5 cursor-pointer hover:bg-secondary transition-colors select-none bg-secondary"
                     >
                       <ChevronDown
                         className={`h-3.5 w-3.5 flex-shrink-0 text-text-3 transition-transform duration-200 ${isWeekOpen ? "rotate-0" : "-rotate-90"}`}
@@ -250,14 +250,14 @@ export function ProgramChecklistView() {
                     {isWeekOpen && week.tasks.map((task) => {
                       const taskKey = month.month + task.label
                       const isDone  = completed[taskKey]
-                      const lc      = levelColors[task.level] ?? "bg-foreground/[0.04] text-text-2 border-border"
+                      const lc      = levelColors[task.level] ?? "bg-secondary text-text-2 border-border"
                       const oc      = outcomeColors[task.outcome]
 
                       return (
                         <div
                           key={task.label}
                           className={`grid grid-cols-[130px_minmax(280px,1fr)_280px_180px_100px_180px] border-t border-border transition-colors duration-150 ${
-                            isDone ? "bg-secondary/40" : "hover:bg-foreground/[0.015]"
+                            isDone ? "bg-secondary/40" : "hover:bg-secondary"
                           }`}
                         >
                           {/* STATUS */}

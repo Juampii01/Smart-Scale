@@ -135,7 +135,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
             >
               <button
                 onClick={() => handleRemove(idea.id)}
-                className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center rounded-md text-text-3 hover:text-foreground hover:bg-foreground/[0.06]"
+                className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center rounded-md text-text-3 hover:text-foreground hover:bg-secondary"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -177,7 +177,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="h-7 w-7 flex items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-colors"
+                className="h-7 w-7 flex items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-secondary transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -195,7 +195,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                   placeholder="Your content idea"
-                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors"
+                  className="w-full rounded-[8px] border border-border bg-secondary px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors"
                 />
               </div>
 
@@ -229,7 +229,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
                   onChange={e => setHook(e.target.value)}
                   placeholder="Describe the opening hook"
                   rows={3}
-                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors resize-none"
+                  className="w-full rounded-[8px] border border-border bg-secondary px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors resize-none"
                 />
               </div>
 
@@ -241,7 +241,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
                   onChange={e => setNotes(e.target.value)}
                   placeholder="Any additional notes"
                   rows={2}
-                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors resize-none"
+                  className="w-full rounded-[8px] border border-border bg-elevated px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors resize-none"
                 />
               </div>
             </div>

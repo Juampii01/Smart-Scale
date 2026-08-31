@@ -306,7 +306,7 @@ function AnaiContent() {
         <div ref={historialRef} className="relative flex-1 min-w-0">
           <button
             onClick={() => setHistorialOpen(v => !v)}
-            className="flex w-full items-center gap-2 rounded-xl border border-border bg-foreground/[0.02] px-3 py-1.5 text-left transition hover:bg-foreground/[0.05]"
+            className="flex w-full items-center gap-2 rounded-xl border border-border bg-secondary px-3 py-1.5 text-left transition hover:bg-secondary"
           >
             <MessageSquare className="h-3.5 w-3.5 shrink-0 text-text-3" />
             <span className="flex-1 truncate text-[13px] text-foreground">
@@ -365,7 +365,7 @@ function AnaiContent() {
               ? "bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400"
               : usage.used >= usage.limit - 1
                 ? "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                : "bg-foreground/[0.05] text-text-2"
+                : "bg-secondary text-text-2"
           }`}>
             {usage.used}/{usage.limit}
           </div>
@@ -389,7 +389,7 @@ function AnaiContent() {
               <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">
                 {suggestions.map(s => (
                   <button key={s} onClick={() => send(s)}
-                    className="rounded-xl border border-border bg-foreground/[0.02] px-4 py-3 text-left text-[13px] text-foreground transition-all hover:border-border hover:bg-secondary hover:text-foreground">
+                    className="rounded-xl border border-border bg-secondary px-4 py-3 text-left text-[13px] text-foreground transition-all hover:border-border hover:bg-secondary hover:text-foreground">
                     {s}
                   </button>
                 ))}
@@ -400,7 +400,7 @@ function AnaiContent() {
           messages.map((m, i) => (
             <div key={i} className={`flex gap-3 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
               <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                m.role === "user" ? "bg-foreground/[0.06]" : "bg-accent"
+                m.role === "user" ? "bg-elevated" : "bg-accent"
               }`}>
                 {m.role === "user"
                   ? <User className="h-4 w-4 text-text-2" />
@@ -410,7 +410,7 @@ function AnaiContent() {
                 <div className={`inline-block rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed ${
                   m.role === "user"
                     ? "bg-accent text-black font-medium whitespace-pre-wrap"
-                    : "bg-foreground/[0.04] text-foreground"
+                    : "bg-secondary text-foreground"
                 }`}>
                   {m.role === "user" ? m.content : (
                     <ReactMarkdown
@@ -427,13 +427,13 @@ function AnaiContent() {
                         h3:         ({ children }) => <h3 className="mb-1 text-[13px] font-semibold text-foreground">{children}</h3>,
                         hr:         () => <hr className="my-3 border-border" />,
                         blockquote: ({ children }) => <blockquote className="border-l-2 border-accent/40 pl-3 text-text-2 italic">{children}</blockquote>,
-                        code:       ({ children }) => <code className="rounded bg-foreground/[0.07] px-1 py-0.5 text-[13px] font-mono">{children}</code>,
+                        code:       ({ children }) => <code className="rounded bg-secondary px-1 py-0.5 text-[13px] font-mono">{children}</code>,
                         table:      ({ children }) => (
                           <div className="my-2 overflow-x-auto rounded-xl border border-border">
                             <table className="w-full text-[13px]">{children}</table>
                           </div>
                         ),
-                        thead: ({ children }) => <thead className="bg-foreground/[0.05]">{children}</thead>,
+                        thead: ({ children }) => <thead className="bg-elevated">{children}</thead>,
                         th:    ({ children }) => <th className="px-3 py-2 text-left font-semibold text-foreground">{children}</th>,
                         td:    ({ children }) => <td className="px-3 py-2 border-t border-border text-foreground">{children}</td>,
                       }}
@@ -458,7 +458,7 @@ function AnaiContent() {
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
               <Sparkles className="h-4 w-4 text-black" />
             </div>
-            <div className="flex items-center gap-2 rounded-2xl bg-foreground/[0.04] px-4 py-2.5 text-[13px] text-text-2">
+            <div className="flex items-center gap-2 rounded-2xl bg-secondary px-4 py-2.5 text-[13px] text-text-2">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               Analizando los datos…
             </div>
@@ -537,7 +537,7 @@ function ConvItem({
   return (
     <button
       onClick={onSelect}
-      className={`group flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-foreground/[0.04] ${
+      className={`group flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-secondary ${
         active ? "bg-secondary" : ""
       }`}
     >

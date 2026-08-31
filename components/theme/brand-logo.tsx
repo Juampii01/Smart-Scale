@@ -43,7 +43,7 @@ function OrbitMark({ size = 28, mono = false }: { size?: number; mono?: boolean 
 export function AuthMark({ size = 56 }: { size?: number }) {
   return (
     <span
-      className="inline-flex shrink-0 items-center justify-center rounded-full border border-border bg-foreground/[0.03]"
+      className="inline-flex shrink-0 items-center justify-center rounded-full border border-border bg-secondary"
       style={{ width: size, height: size }}
     >
       <OrbitMark size={size * 0.5} mono />

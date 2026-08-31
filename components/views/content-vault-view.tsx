@@ -110,11 +110,11 @@ export function ContentVaultView({ channel }: { channel: Channel }) {
             <div key={item.id} className="group relative rounded-[14px] border border-border bg-card p-4 hover:border-border transition-colors">
               <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button onClick={() => toggleFav(item)} title="Favorito"
-                  className={cn("h-6 w-6 flex items-center justify-center rounded-md hover:bg-foreground/[0.06]", item.favorite ? "text-accent-ink" : "text-text-3")}>
+                  className={cn("h-6 w-6 flex items-center justify-center rounded-md hover:bg-secondary", item.favorite ? "text-accent-ink" : "text-text-3")}>
                   <Star className="h-3.5 w-3.5" fill={item.favorite ? "currentColor" : "none"} />
                 </button>
                 <button onClick={() => handleRemove(item.id)}
-                  className="h-6 w-6 flex items-center justify-center rounded-md text-text-3 hover:text-foreground hover:bg-foreground/[0.06]">
+                  className="h-6 w-6 flex items-center justify-center rounded-md text-text-3 hover:text-foreground hover:bg-secondary">
                   <X className="h-3.5 w-3.5" />
                 </button>
               </div>
@@ -143,7 +143,7 @@ export function ContentVaultView({ channel }: { channel: Channel }) {
                 </div>
                 <h2 className="text-[15px] font-bold text-foreground">Guardar {itemLabel}</h2>
               </div>
-              <button onClick={() => setOpen(false)} className="h-7 w-7 flex items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-foreground/[0.06]">
+              <button onClick={() => setOpen(false)} className="h-7 w-7 flex items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-secondary">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -151,17 +151,17 @@ export function ContentVaultView({ channel }: { channel: Channel }) {
               <div className="space-y-1.5">
                 <label className="text-[13px] font-semibold text-text-2">Link <span className="text-danger">*</span></label>
                 <input autoFocus value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..."
-                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
+                  className="w-full rounded-[8px] border border-border bg-elevated px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[13px] font-semibold text-text-2">Título</label>
                 <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Cómo lo querés recordar"
-                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
+                  className="w-full rounded-[8px] border border-border bg-secondary px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[13px] font-semibold text-text-2">Notas</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Qué te gustó, qué copiar…" rows={2}
-                  className="w-full rounded-[8px] border border-border bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors resize-none" />
+                  className="w-full rounded-[8px] border border-border bg-elevated px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors resize-none" />
               </div>
             </div>
             <div className="flex items-center justify-end gap-3 px-6 pb-5">

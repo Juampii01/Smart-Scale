@@ -51,7 +51,7 @@ function NavRow({ label, href, icon: Icon, active }: NavItem & { active: boolean
           ? "bg-secondary text-accent-ink"
           : locked
             ? "text-text-3 cursor-not-allowed"
-            : "text-foreground hover:bg-foreground/[0.05] hover:text-foreground",
+            : "text-foreground hover:bg-secondary hover:text-foreground",
       )}
       title={locked ? "Próximamente" : undefined}
     >
@@ -87,7 +87,7 @@ export function CrmShell({
             <BrandLogo />
             <span className="rounded-full border border-accent/30 px-1.5 py-0.5 text-[11px] font-bold tracking-wider text-accent-ink leading-none">CRM</span>
           </div>
-          <button className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-foreground/10 transition-all" onClick={() => setOpen(false)} aria-label="Cerrar menú">
+          <button className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-secondary transition-all" onClick={() => setOpen(false)} aria-label="Cerrar menú">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -107,7 +107,7 @@ export function CrmShell({
 
         <div className="shrink-0 p-3">
           <Link href="/dashboard" onClick={() => setOpen(false)}>
-            <div className="group flex items-center gap-2.5 rounded-lg px-3 py-2 text-foreground hover:bg-foreground/[0.05] hover:text-foreground transition-all duration-150">
+            <div className="group flex items-center gap-2.5 rounded-lg px-3 py-2 text-foreground hover:bg-secondary hover:text-foreground transition-all duration-150">
               <ArrowLeft className="h-4 w-4 shrink-0" />
               <span className="flex-1 text-[15px] font-medium">Volver al panel externo</span>
             </div>
@@ -124,7 +124,7 @@ export function CrmShell({
         )}
 
         <header className="flex h-14 shrink-0 items-center gap-3 px-5 border-b border-border lg:hidden">
-          <button onClick={() => setOpen(true)} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:bg-foreground/[0.05]" aria-label="Abrir menú">
+          <button onClick={() => setOpen(true)} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:bg-secondary" aria-label="Abrir menú">
             <Menu className="h-5 w-5" />
           </button>
           <span className="text-[13px] font-semibold text-foreground">CRM interno</span>

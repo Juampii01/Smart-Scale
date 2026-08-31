@@ -76,8 +76,8 @@ export default function LoginPage() {
 
         {/* Glow de fondo — neutro, sin lima */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute top-0 left-0 h-[500px] w-[500px] rounded-full bg-foreground/[0.04] blur-[140px]" />
-          <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-foreground/[0.02] blur-[120px]" />
+          <div className="absolute top-0 left-0 h-[500px] w-[500px] rounded-full bg-secondary blur-[140px]" />
+          <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-elevated blur-[120px]" />
         </div>
 
         {/* Grid overlay */}
@@ -101,7 +101,7 @@ export default function LoginPage() {
 
         {/* Center: Hero text */}
         <div className="relative space-y-6">
-          <span className="inline-block h-1 w-10 rounded-full bg-foreground/25" />
+          <span className="inline-block h-1 w-10 rounded-full bg-secondary" />
 
           <h2 className="text-[32px] font-bold leading-[1.15] tracking-tight text-foreground">
             Tu negocio,<br />
@@ -122,7 +122,7 @@ export default function LoginPage() {
             ].map((s) => (
               <div
                 key={s.label}
-                className="rounded-lg border border-border bg-foreground/[0.03] px-4 py-2.5"
+                className="rounded-lg border border-border bg-secondary px-4 py-2.5"
               >
                 <p className="text-[11px] text-text-3 uppercase tracking-widest">{s.label}</p>
                 <p className="mt-0.5 text-[13px] font-bold text-foreground">{s.value}</p>
@@ -166,7 +166,7 @@ export default function LoginPage() {
                 Email
               </label>
               <input
-                className="h-12 w-full rounded-lg border border-border bg-foreground/[0.04] px-4 text-[13px] text-foreground outline-none placeholder:text-text-3 transition-all focus:border-border-hover focus:bg-foreground/[0.06] focus:ring-2 focus:ring-border"
+                className="h-12 w-full rounded-lg border border-border bg-secondary px-4 text-[13px] text-foreground outline-none placeholder:text-text-3 transition-all focus:border-border-hover focus:bg-secondary focus:ring-2 focus:ring-border"
                 placeholder="tu@email.com"
                 type="email"
                 value={email}
@@ -190,7 +190,7 @@ export default function LoginPage() {
               </div>
               <div className="relative">
                 <input
-                  className="h-12 w-full rounded-lg border border-border bg-foreground/[0.04] pl-4 pr-11 text-[13px] text-foreground outline-none placeholder:text-text-3 transition-all focus:border-border-hover focus:bg-foreground/[0.06] focus:ring-2 focus:ring-border"
+                  className="h-12 w-full rounded-lg border border-border bg-secondary pl-4 pr-11 text-[13px] text-foreground outline-none placeholder:text-text-3 transition-all focus:border-border-hover focus:bg-secondary focus:ring-2 focus:ring-border"
                   placeholder="••••••••"
                   type={showPassword ? "text" : "password"}
                   value={password}

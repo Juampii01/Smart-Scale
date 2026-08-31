@@ -221,7 +221,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
               {logId ? "Editar EOD" : "Cargar datos del día"}
             </h2>
           </div>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:bg-foreground/[0.06] hover:text-foreground transition-colors">
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:bg-secondary hover:text-foreground transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -229,7 +229,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
         <form onSubmit={handleSubmit} className="space-y-5 p-6">
 
           {/* Date selector */}
-          <div className="relative overflow-hidden rounded-2xl border border-border bg-foreground/[0.02] p-4">
+          <div className="relative overflow-hidden rounded-2xl border border-border bg-elevated p-4">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
             <div className="relative flex items-center justify-between gap-4">
               <div>
@@ -238,7 +238,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                   type="date"
                   value={date}
                   onChange={e => setDate(e.target.value)}
-                  className="rounded-xl border border-border bg-foreground/[0.04] px-4 py-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 [color-scheme:dark]"
+                  className="rounded-xl border border-border bg-secondary px-4 py-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 [color-scheme:dark]"
                 />
               </div>
             </div>
@@ -266,7 +266,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                         placeholder="0"
                         value={(values as any)[field.key]}
                         onChange={e => setValues(prev => ({ ...prev, [field.key]: e.target.value }))}
-                        className="h-10 w-full rounded-xl border border-border bg-foreground/[0.04] px-4 text-[13px] font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
+                        className="h-10 w-full rounded-xl border border-border bg-secondary px-4 text-[13px] font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
                       />
                       <p className="mt-1 text-[13px] text-text-3">{field.hint}</p>
                     </div>
@@ -306,7 +306,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
           <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
             <div className="flex items-center border-b border-border px-5 py-3">
               <div className="flex items-center gap-2">
-                <span className="h-3 w-[2px] rounded-full bg-foreground/30" />
+                <span className="h-3 w-[2px] rounded-full bg-elevated" />
                 <span className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Notas</span>
               </div>
             </div>
@@ -316,7 +316,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                 placeholder="Observaciones del día, contexto, bloqueos..."
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
-                className="w-full rounded-xl border border-border bg-foreground/[0.04] px-4 py-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 resize-none"
+                className="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 resize-none"
               />
             </div>
           </div>
@@ -348,7 +348,7 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-xl border border-border bg-foreground/[0.04] px-5 py-2 text-[13px] font-medium text-foreground transition hover:bg-foreground/[0.08] hover:text-foreground"
+                className="rounded-xl border border-border bg-secondary px-5 py-2 text-[13px] font-medium text-foreground transition hover:bg-secondary hover:text-foreground"
               >
                 Cancelar
               </button>

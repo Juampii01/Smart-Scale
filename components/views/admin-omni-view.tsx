@@ -105,7 +105,7 @@ interface ProspectingPattern {
 const RESULTADO_STYLES: Record<ProspectingPattern["resultado"], string> = {
   cerro:     "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400",
   no_cerro:  "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
-  pendiente: "bg-foreground/[0.06] text-text-2",
+  pendiente: "bg-secondary text-text-2",
 }
 const RESULTADO_LABELS: Record<ProspectingPattern["resultado"], string> = {
   cerro: "cerró", no_cerro: "no cerró", pendiente: "pendiente",
@@ -117,10 +117,10 @@ const RESULTADO_VARIANT: Record<ProspectingPattern["resultado"], StatusPillVaria
 const SEVERITY_STYLES: Record<"alta" | "media" | "baja", string> = {
   alta:  "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
   media: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
-  baja:  "bg-foreground/[0.06] text-text-2",
+  baja:  "bg-elevated text-text-2",
 }
 
-const IRREMONTABLE_STYLE = "bg-foreground/[0.10] text-text-2 dark:bg-foreground/[0.08] dark:text-text-2"
+const IRREMONTABLE_STYLE = "bg-secondary text-text-2 dark:bg-secondary dark:text-text-2"
 const SANO_STYLE = "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
 
 function fmtDateTime(iso: string | null): string {
@@ -176,7 +176,7 @@ function FindingsSection({ title, subtitle, findings }: { title: string; subtitl
         {title}{subtitle && <span className="ml-2 normal-case font-normal tracking-normal text-text-3">{subtitle}</span>}
       </p>
       {findings.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+        <div className="rounded-2xl border border-border bg-secondary px-4 py-6 text-center text-[13px] text-text-2">
           No se encontraron patrones relevantes en los mensajes analizados.
         </div>
       ) : (
@@ -190,14 +190,14 @@ function FindingsSection({ title, subtitle, findings }: { title: string; subtitl
                 </span>
               </div>
               <p className="mt-1.5 text-[13px] leading-relaxed text-text-2">{f.descripcion}</p>
-              <div className="mt-2.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
+              <div className="mt-2.5 flex items-start gap-1.5 rounded-lg bg-elevated px-2.5 py-2">
                 <Quote className="h-3 w-3 shrink-0 mt-0.5 text-text-3" />
                 <p className="text-[13px] italic text-text-2">{f.evidencia}</p>
               </div>
               {f.canales.length > 0 && (
                 <div className="mt-2.5 flex flex-wrap gap-1.5">
                   {f.canales.map(c => (
-                    <span key={c} className="rounded-md border border-border bg-foreground/[0.03] px-2 py-0.5 text-[13px] text-text-2">
+                    <span key={c} className="rounded-md border border-border bg-secondary px-2 py-0.5 text-[13px] text-text-2">
                       #{c}
                     </span>
                   ))}
@@ -223,7 +223,7 @@ function StatCard({ icon: Icon, label, value, sublabel, tone }: {
       <div className="flex items-center gap-2">
         <span className={cn(
           "flex h-7 w-7 items-center justify-center rounded-lg",
-          tone === "warn" ? "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400" : "bg-foreground/[0.05] text-text-2",
+          tone === "warn" ? "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400" : "bg-elevated text-text-2",
         )}>
           <Icon className="h-3.5 w-3.5" />
         </span>
@@ -240,7 +240,7 @@ function ProspectingMetricsSection({ metrics }: { metrics: ProspectingMetrics | 
     return (
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[0, 1, 2, 3].map(i => (
-          <div key={i} className="h-[92px] animate-pulse rounded-2xl border border-border bg-foreground/[0.03]" />
+          <div key={i} className="h-[92px] animate-pulse rounded-2xl border border-border bg-secondary" />
         ))}
       </div>
     )
@@ -309,7 +309,7 @@ function RatingBreakdown({ title, subtitle, distribution, ratings }: {
           return (
             <div key={r} className="flex items-center gap-2">
               <span className="w-10 shrink-0 text-[13px] text-text-2">{r}★</span>
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-foreground/[0.06]">
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
                 <div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
               </div>
               <span className="w-6 shrink-0 text-right text-[13px] text-text-2">{count}</span>
@@ -351,11 +351,11 @@ function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
         <p className="mb-2 text-[13px] text-red-700 dark:text-red-400">{error}</p>
       )}
       {!briefing ? (
-        <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+        <div className="rounded-2xl border border-border bg-secondary px-4 py-6 text-center text-[13px] text-text-2">
           Todavía no corrió el análisis de riesgo de prospección — corré "Actualizar" o esperá al briefing diario.
         </div>
       ) : briefing.findings.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+        <div className="rounded-2xl border border-border bg-elevated px-4 py-6 text-center text-[13px] text-text-2">
           Ningún prospecto activo en riesgo hoy, según los principios de Ann.
         </div>
       ) : (
@@ -373,13 +373,13 @@ function ProspectRiskSection({ briefing, analyzing, error, onRefresh }: {
               </div>
               <p className="mt-1.5 text-[13px] leading-relaxed text-text-2">{f.situacion}</p>
               <p className="mt-2 text-[13px] font-semibold text-text-2">Principio: <span className="font-normal text-text-2">{f.principio}</span></p>
-              <div className="mt-2 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
+              <div className="mt-2 flex items-start gap-1.5 rounded-lg bg-elevated px-2.5 py-2">
                 <Quote className="h-3 w-3 shrink-0 mt-0.5 text-text-3" />
                 <p className="text-[13px] italic text-text-2">{f.evidencia}</p>
               </div>
               <div className={cn(
                 "mt-2.5 rounded-lg border px-2.5 py-2",
-                f.estado === "irremontable" ? "border-border bg-foreground/[0.03]" : "border-border bg-secondary/30",
+                f.estado === "irremontable" ? "border-border bg-secondary" : "border-border bg-secondary/30",
               )}>
                 <p className="text-[13px] font-semibold text-foreground">{f.estado === "irremontable" ? "Aprendizaje: " : ""}{f.accion}</p>
               </div>
@@ -430,7 +430,7 @@ function UnansweredSummarySection({ briefing, analyzing, error, onRefresh }: {
       )}
 
       {!briefing ? (
-        <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+        <div className="rounded-2xl border border-border bg-secondary px-4 py-6 text-center text-[13px] text-text-2">
           Todavía no corrió el resumen — corré "Hacer resumen" o esperá al de las 19hs (hora Miami).
         </div>
       ) : (
@@ -532,7 +532,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
               </span>
             )}
             {conversation.lead_rating != null && (
-              <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[13px] font-bold text-text-2">{conversation.lead_rating}★</span>
+              <span className="rounded-full bg-elevated px-2 py-0.5 text-[13px] font-bold text-text-2">{conversation.lead_rating}★</span>
             )}
           </div>
           <p className="mt-1 text-[13px] text-text-2">
@@ -577,7 +577,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
           </div>
           <p className="mt-1.5 text-[13px] leading-relaxed text-text-2">{a.situacion}</p>
           <p className="mt-1.5 text-[13px] font-semibold text-text-2">Principio: <span className="font-normal text-text-2">{a.principio}</span></p>
-          <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
+          <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-secondary px-2.5 py-2">
             <Quote className="h-3 w-3 shrink-0 mt-0.5 text-text-3" />
             <p className="text-[13px] italic text-text-2">{a.evidencia}</p>
           </div>
@@ -588,7 +588,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
       )}
 
       {correcting && (
-        <div className="mt-3 space-y-2.5 rounded-xl border border-border bg-foreground/[0.02] p-3">
+        <div className="mt-3 space-y-2.5 rounded-xl border border-border bg-elevated p-3">
           <p className="text-[11px] font-bold uppercase tracking-widest text-text-2">Registrar patrón de prospección</p>
           <div>
             <label className="text-[13px] font-semibold text-text-2">Situación</label>
@@ -619,7 +619,7 @@ function ConversationListCard({ conversation, analyzing, onAnalyze, onSubmitCorr
                   onClick={() => setResultado(r)}
                   className={cn(
                     "rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-all",
-                    resultado === r ? RESULTADO_STYLES[r] : "bg-foreground/[0.04] text-text-2 hover:text-text-2"
+                    resultado === r ? RESULTADO_STYLES[r] : "bg-secondary text-text-2 hover:text-text-2"
                   )}
                 >
                   {RESULTADO_LABELS[r]}
@@ -676,7 +676,7 @@ function ChannelListCard({ channel, analyzing, onAnalyze }: {
           <div className="flex flex-wrap items-center gap-1.5">
             <h3 className="text-[15px] font-semibold text-foreground">#{channel.name}</h3>
             {channel.is_client_channel && (
-              <span className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-text-2">
+              <span className="rounded-full bg-elevated px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-text-2">
                 cliente
               </span>
             )}
@@ -703,7 +703,7 @@ function ChannelListCard({ channel, analyzing, onAnalyze }: {
           </div>
           <p className="mt-1.5 text-[13px] leading-relaxed text-text-2">{a.situacion}</p>
           <p className="mt-1.5 text-[13px] font-semibold text-text-2">Principio: <span className="font-normal text-text-2">{a.principio}</span></p>
-          <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-foreground/[0.03] px-2.5 py-2">
+          <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-secondary px-2.5 py-2">
             <Quote className="h-3 w-3 shrink-0 mt-0.5 text-text-3" />
             <p className="text-[13px] italic text-text-2">{a.evidencia}</p>
           </div>
@@ -736,7 +736,7 @@ function NewPatternForm({ onSubmit, onDone }: {
   }
 
   return (
-    <div className="mb-3 space-y-2.5 rounded-xl border border-border bg-foreground/[0.02] p-3">
+    <div className="mb-3 space-y-2.5 rounded-xl border border-border bg-secondary p-3">
       <div>
         <label className="text-[13px] font-semibold text-text-2">Situación</label>
         <textarea
@@ -765,7 +765,7 @@ function NewPatternForm({ onSubmit, onDone }: {
               onClick={() => setResultado(r)}
               className={cn(
                 "rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-all",
-                resultado === r ? RESULTADO_STYLES[r] : "bg-foreground/[0.04] text-text-2 hover:text-text-2"
+                resultado === r ? RESULTADO_STYLES[r] : "bg-secondary text-text-2 hover:text-text-2"
               )}
             >
               {RESULTADO_LABELS[r]}
@@ -1306,7 +1306,7 @@ export function AdminOmniView() {
           {/* Instagram */}
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.05] text-text-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-elevated text-text-2">
                 <Instagram className="h-4 w-4" />
               </span>
               <div className="min-w-0">
@@ -1359,11 +1359,11 @@ export function AdminOmniView() {
             {conversations === null ? (
               <div className="space-y-3">
                 {[0, 1, 2].map(i => (
-                  <div key={i} className="h-[84px] animate-pulse rounded-2xl border border-border bg-foreground/[0.03]" />
+                  <div key={i} className="h-[84px] animate-pulse rounded-2xl border border-border bg-secondary" />
                 ))}
               </div>
             ) : conversations.length === 0 ? (
-              <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+              <div className="rounded-2xl border border-border bg-elevated px-4 py-6 text-center text-[13px] text-text-2">
                 No hay conversaciones sincronizadas todavía.
               </div>
             ) : (
@@ -1394,7 +1394,7 @@ export function AdminOmniView() {
           {/* Slack */}
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.05] text-text-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-elevated text-text-2">
                 <Slack className="h-4 w-4" />
               </span>
               <div className="min-w-0">
@@ -1460,11 +1460,11 @@ export function AdminOmniView() {
             {channels === null ? (
               <div className="space-y-3">
                 {[0, 1, 2].map(i => (
-                  <div key={i} className="h-[70px] animate-pulse rounded-2xl border border-border bg-foreground/[0.03]" />
+                  <div key={i} className="h-[70px] animate-pulse rounded-2xl border border-border bg-secondary" />
                 ))}
               </div>
             ) : channels.length === 0 ? (
-              <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+              <div className="rounded-2xl border border-border bg-elevated px-4 py-6 text-center text-[13px] text-text-2">
                 No hay canales sincronizados todavía.
               </div>
             ) : (
@@ -1511,7 +1511,7 @@ export function AdminOmniView() {
               <p className="mt-2 text-[13px] text-red-700 dark:text-red-400">{prospectingContextError}</p>
             )}
             {prospectingContext === null ? (
-              <div className="mt-3 h-32 animate-pulse rounded-xl bg-foreground/[0.03]" />
+              <div className="mt-3 h-32 animate-pulse rounded-xl bg-elevated" />
             ) : (
               <div className="mt-3 space-y-3">
                 <div>
@@ -1584,10 +1584,10 @@ export function AdminOmniView() {
             )}
             {patterns === null ? (
               <div className="space-y-2">
-                {[0, 1].map(i => <div key={i} className="h-16 animate-pulse rounded-xl border border-border bg-foreground/[0.03]" />)}
+                {[0, 1].map(i => <div key={i} className="h-16 animate-pulse rounded-xl border border-border bg-secondary" />)}
               </div>
             ) : patterns.length === 0 ? (
-              <div className="rounded-2xl border border-border bg-foreground/[0.02] px-4 py-6 text-center text-[13px] text-text-2">
+              <div className="rounded-2xl border border-border bg-elevated px-4 py-6 text-center text-[13px] text-text-2">
                 Todavía no hay patrones registrados — se van sumando desde el botón "Corregir" en cada análisis, o sueltos con "+ Nuevo patrón".
               </div>
             ) : (

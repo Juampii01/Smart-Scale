@@ -97,7 +97,7 @@ function ConfirmDeleteDialog({
           <button
             onClick={onCancel}
             disabled={loading}
-            className="flex-1 rounded-lg border border-border bg-foreground/[0.04] px-4 py-2 text-[13px] text-text-2 hover:bg-foreground/[0.08] hover:text-foreground transition-all disabled:opacity-50"
+            className="flex-1 rounded-lg border border-border bg-secondary px-4 py-2 text-[13px] text-text-2 hover:bg-secondary hover:text-foreground transition-all disabled:opacity-50"
           >
             Cancelar
           </button>
@@ -202,7 +202,7 @@ function ReportRow({
         <div className="flex items-center gap-2 ml-2">
           <button
             onClick={() => setExpanded((v) => !v)}
-            className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-foreground/[0.04] text-text-2 hover:text-foreground hover:bg-foreground/[0.08] transition-all"
+            className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-secondary text-text-2 hover:text-foreground hover:bg-secondary transition-all"
           >
             {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>

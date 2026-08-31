@@ -147,7 +147,7 @@ function fullDate(d: Date)     { return d.toLocaleDateString("es-AR", { weekday:
 
 function StatusPill({ status }: { status: CalendarEvent["status"] }) {
   if (status === "tbd") return (
-    <span className="inline-flex items-center rounded-full border border-border bg-foreground/5 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-text-2">Próximamente</span>
+    <span className="inline-flex items-center rounded-full border border-border bg-secondary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-text-2">Próximamente</span>
   )
   return (
     <span className="inline-flex items-center rounded-full border border-emerald-400/25 bg-emerald-100 dark:bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">Masterclass</span>
@@ -162,7 +162,7 @@ function SessionRow({ occ }: { occ: Occurrence }) {
   return (
     <div className="flex items-start gap-4 rounded-[14px] border border-border bg-card p-4 hover:border-border transition-colors">
       {/* Day block */}
-      <div className="flex w-12 shrink-0 flex-col items-center justify-center rounded-[10px] bg-foreground/[0.04] py-1.5">
+      <div className="flex w-12 shrink-0 flex-col items-center justify-center rounded-[10px] bg-elevated py-1.5">
         <span className="text-[24px] font-bold leading-none text-foreground tabular-nums">{date.getDate()}</span>
         <span className="text-[11px] font-semibold uppercase tracking-wider text-text-2 mt-0.5">{weekdayAbbr(date)}</span>
       </div>
@@ -191,7 +191,7 @@ function SessionRow({ occ }: { occ: Occurrence }) {
             Unirse <ExternalLink className="h-3.5 w-3.5" />
           </a>
         ) : (
-          <span className="inline-flex items-center rounded-[8px] bg-foreground/[0.05] px-3.5 py-2 text-[13px] font-semibold text-text-3 whitespace-nowrap">Link pronto</span>
+          <span className="inline-flex items-center rounded-[8px] bg-secondary px-3.5 py-2 text-[13px] font-semibold text-text-3 whitespace-nowrap">Link pronto</span>
         )}
       </div>
     </div>
@@ -224,7 +224,7 @@ function RecordingRow({ rec }: { rec: Recording }) {
   return (
     <div className="flex items-start gap-4 rounded-[14px] border border-border bg-card p-4 hover:border-border transition-colors">
       {/* Day block */}
-      <div className="flex w-12 shrink-0 flex-col items-center justify-center rounded-[10px] bg-foreground/[0.04] py-1.5">
+      <div className="flex w-12 shrink-0 flex-col items-center justify-center rounded-[10px] bg-elevated py-1.5">
         <span className="text-[24px] font-bold leading-none text-foreground tabular-nums">{date.getDate()}</span>
         <span className="text-[11px] font-semibold uppercase tracking-wider text-text-2 mt-0.5">{weekdayAbbr(date)}</span>
       </div>
@@ -232,7 +232,7 @@ function RecordingRow({ rec }: { rec: Recording }) {
       {/* Middle */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className="inline-flex items-center gap-1 rounded-full border border-border bg-foreground/5 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-text-2">
+          <span className="inline-flex items-center gap-1 rounded-full border border-border bg-elevated px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-text-2">
             <Video className="h-2.5 w-2.5" /> Grabación
           </span>
         </div>
@@ -368,7 +368,7 @@ export function CalendarView() {
                   : "text-text-2 hover:text-foreground"
               )}>
               {label}
-              <span className={cn("rounded-full px-1.5 py-0.5 text-[13px] font-bold tabular-nums", tab === id ? "bg-accent text-black" : "bg-foreground/[0.06] text-text-2")}>{count}</span>
+              <span className={cn("rounded-full px-1.5 py-0.5 text-[13px] font-bold tabular-nums", tab === id ? "bg-accent text-black" : "bg-secondary text-text-2")}>{count}</span>
             </button>
           ))}
         </div>
@@ -376,7 +376,7 @@ export function CalendarView() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-text-3" />
           <input value={query} onChange={e => setQuery(e.target.value)}
             placeholder={tab === "recordings" ? "Buscar grabación…" : "Buscar sesión…"}
-            className="w-full sm:w-56 rounded-[8px] border border-border bg-foreground/[0.03] pl-9 pr-3 py-1.5 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
+            className="w-full sm:w-56 rounded-[8px] border border-border bg-elevated pl-9 pr-3 py-1.5 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors" />
         </div>
       </div>
 
@@ -388,7 +388,7 @@ export function CalendarView() {
       ) : tab === "recordings" ? (
         recordings.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-foreground/[0.04] border border-border">
+            <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-secondary border border-border">
               <Video className="h-6 w-6 text-text-3" />
             </div>
             <div className="text-center">
@@ -480,7 +480,7 @@ export function CalendarView() {
             Agendar llamada
           </a>
         </div>
-        <div className="rounded-[10px] border border-border bg-foreground/[0.02] px-4 py-3 space-y-2">
+        <div className="rounded-[10px] border border-border bg-secondary px-4 py-3 space-y-2">
           {[
             "Las llamadas son mensuales y no acumulables.",
             "Cada mes tenés disponible una (1) llamada.",

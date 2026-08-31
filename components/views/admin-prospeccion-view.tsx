@@ -77,7 +77,7 @@ function DetailDrawer({
         <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="inline-flex items-center gap-1 rounded-full border border-border bg-foreground/[0.03] px-2 py-0.5 text-[13px] font-bold text-foreground">
+              <span className="inline-flex items-center gap-1 rounded-full border border-border bg-elevated px-2 py-0.5 text-[13px] font-bold text-foreground">
                 <Icon className="h-2.5 w-2.5" /> {typeLabel(item.item_type)}
               </span>
               <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[13px] font-bold capitalize ${STATUS_STYLE[item.status] ?? STATUS_STYLE.activo}`}>
@@ -88,7 +88,7 @@ function DetailDrawer({
             {item.tags.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 mt-2">
                 {item.tags.map(t => (
-                  <span key={t} className="inline-flex items-center rounded-full border border-border bg-foreground/[0.03] px-2 py-0.5 text-[13px] font-medium text-text-2">
+                  <span key={t} className="inline-flex items-center rounded-full border border-border bg-secondary px-2 py-0.5 text-[13px] font-medium text-text-2">
                     {t}
                   </span>
                 ))}
@@ -96,13 +96,13 @@ function DetailDrawer({
             )}
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            <button onClick={() => onEdit(item)} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all" title="Editar">
+            <button onClick={() => onEdit(item)} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition-all" title="Editar">
               <Edit3 className="h-4 w-4" />
             </button>
             <button onClick={() => onDelete(item.id)} disabled={deleting} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40" title="Borrar">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
-            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
+            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -110,7 +110,7 @@ function DetailDrawer({
 
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           {item.content ? (
-            <pre className="rounded-xl border border-border bg-foreground/[0.02] px-4 py-3.5 text-[13px] text-foreground whitespace-pre-wrap leading-relaxed font-sans">{item.content}</pre>
+            <pre className="rounded-xl border border-border bg-elevated px-4 py-3.5 text-[13px] text-foreground whitespace-pre-wrap leading-relaxed font-sans">{item.content}</pre>
           ) : (
             <p className="text-[13px] text-text-2 italic">Sin contenido. Tocá editar para agregarlo.</p>
           )}
@@ -207,7 +207,7 @@ function CreateEditModal({
 
           <div className="flex items-center justify-between gap-4 border-b border-border px-6 py-4 shrink-0">
             <h2 className="text-[18px] font-bold text-foreground">{isEdit ? "Editar item" : "Nuevo item"}</h2>
-            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
+            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -220,7 +220,7 @@ function CreateEditModal({
                   value={form.title}
                   onChange={e => update("title")(e.target.value)}
                   placeholder="Ej. Cuentas a contactar - Marzo"
-                  className="w-full h-10 rounded-lg border border-border bg-foreground/[0.03] px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
+                  className="w-full h-10 rounded-lg border border-border bg-secondary px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
                 />
               </div>
               <div>
@@ -228,7 +228,7 @@ function CreateEditModal({
                 <select
                   value={form.item_type}
                   onChange={e => update("item_type")(e.target.value)}
-                  className="w-full h-10 rounded-lg border border-border bg-foreground/[0.03] px-3 text-[13px] text-foreground focus:border-border-hover focus:outline-none"
+                  className="w-full h-10 rounded-lg border border-border bg-elevated px-3 text-[13px] text-foreground focus:border-border-hover focus:outline-none"
                 >
                   {TYPE_OPTIONS.map(o => (
                     <option key={o.value} value={o.value}>{o.label}</option>
@@ -240,7 +240,7 @@ function CreateEditModal({
                 <select
                   value={form.status}
                   onChange={e => update("status")(e.target.value)}
-                  className="w-full h-10 rounded-lg border border-border bg-foreground/[0.03] px-3 text-[13px] text-foreground focus:border-border-hover focus:outline-none"
+                  className="w-full h-10 rounded-lg border border-border bg-secondary px-3 text-[13px] text-foreground focus:border-border-hover focus:outline-none"
                 >
                   <option value="activo">Activo</option>
                   <option value="archivado">Archivado</option>
@@ -253,7 +253,7 @@ function CreateEditModal({
                   value={form.tags}
                   onChange={e => update("tags")(e.target.value)}
                   placeholder="dm, instagram, frio"
-                  className="w-full h-10 rounded-lg border border-border bg-foreground/[0.03] px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
+                  className="w-full h-10 rounded-lg border border-border bg-secondary px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
                 />
               </div>
             </div>
@@ -265,7 +265,7 @@ function CreateEditModal({
                 onChange={e => update("content")(e.target.value)}
                 rows={12}
                 placeholder="Pegá tu lista, script, notas o lo que necesites guardar. Soporta texto plano y saltos de línea."
-                className="w-full rounded-lg border border-border bg-foreground/[0.03] px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none resize-y leading-relaxed"
+                className="w-full rounded-lg border border-border bg-elevated px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none resize-y leading-relaxed"
               />
             </div>
 
@@ -437,7 +437,7 @@ export function AdminProspeccionView() {
             <button
               key={s}
               onClick={() => setFilterStatus(s)}
-              className={`h-7 rounded-full border px-3 text-[13px] font-semibold capitalize transition-all ${filterStatus === s ? "border-border bg-foreground/[0.07] text-foreground" : "border-border text-text-2 hover:text-foreground hover:border-border-hover"}`}
+              className={`h-7 rounded-full border px-3 text-[13px] font-semibold capitalize transition-all ${filterStatus === s ? "border-border bg-secondary text-foreground" : "border-border text-text-2 hover:text-foreground hover:border-border-hover"}`}
             >
               {s}
             </button>
@@ -483,12 +483,12 @@ export function AdminProspeccionView() {
               <button
                 key={item.id}
                 onClick={() => setSelected(item)}
-                className="group flex flex-col gap-2 rounded-[14px] border border-border bg-card p-4 text-left hover:border-border-hover hover:bg-foreground/[0.02] transition-all"
+                className="group flex flex-col gap-2 rounded-[14px] border border-border bg-card p-4 text-left hover:border-border-hover hover:bg-secondary transition-all"
               >
                 <div className="flex items-start gap-2">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                      <span className="inline-flex items-center gap-0.5 rounded-full border border-border bg-foreground/[0.03] px-1.5 py-0.5 text-[11px] font-bold text-foreground">
+                      <span className="inline-flex items-center gap-0.5 rounded-full border border-border bg-elevated px-1.5 py-0.5 text-[11px] font-bold text-foreground">
                         <Icon className="h-2.5 w-2.5" /> {typeLabel(item.item_type)}
                       </span>
                       <span className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[11px] font-bold capitalize ${STATUS_STYLE[item.status] ?? STATUS_STYLE.activo}`}>
@@ -506,7 +506,7 @@ export function AdminProspeccionView() {
                 {item.tags.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1 mt-1">
                     {item.tags.slice(0, 4).map(t => (
-                      <span key={t} className="inline-flex items-center rounded-full border border-border bg-foreground/[0.02] px-1.5 py-0.5 text-[13px] font-medium text-text-2">
+                      <span key={t} className="inline-flex items-center rounded-full border border-border bg-secondary px-1.5 py-0.5 text-[13px] font-medium text-text-2">
                         #{t}
                       </span>
                     ))}
