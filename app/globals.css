@@ -57,6 +57,7 @@
      sobre el deploy antes de darlo por cerrado. */
   --text-3:        rgba(23, 28, 16, 0.60);
   --border-hover:  rgba(23, 28, 16, 0.16);
+  --elev-card:     0 1px 2px rgba(15, 18, 25, 0.05), 0 6px 20px -10px rgba(15, 18, 25, 0.10);
   --accent-hover:  #a4cc3d;
   --accent-soft:   #eaf0da;
   --on-accent:     #0a0a0a;   /* texto SIEMPRE tinta oscura sobre el relleno */
@@ -100,11 +101,13 @@
    - Sidebar: separador y bg diferenciado del background principal
    ───────────────────────────────────────────────────────────────────────── */
 
-/* Cards (rounded-2xl/xl con bg-card) en light: sombra suave y clara para depth */
-:root:not(.dark) [class*="bg-card"][class*="rounded-2xl"],
-:root:not(.dark) [class*="bg-card"][class*="rounded-xl"],
-:root:not(.dark) [class*="bg-card"][class*="rounded-[24px]"] {
-  box-shadow: 0 1px 2px rgba(15, 18, 25, 0.04), 0 3px 10px rgba(15, 18, 25, 0.035);
+/* Cards (rounded-2xl/xl con bg-card) — sombra de depth vía --elev-card.
+   Solo el contenedor de primer nivel usa bg-card; los bloques anidados usan
+   bg-elevated/bg-secondary (Paso 6b), así que este selector no duplica sombras. */
+[class*="bg-card"][class*="rounded-2xl"],
+[class*="bg-card"][class*="rounded-xl"],
+[class*="bg-card"][class*="rounded-[24px]"] {
+  box-shadow: var(--elev-card);
 }
 
 /* Sidebar flotante en light: sombra muy suave y difusa (no oscura) */
@@ -217,6 +220,7 @@
      (4.5:1) — decisión de Juampi, paso 2-verificación. */
   --text-3:        #82857b;
   --border-hover:  #34343a;
+  --elev-card:     0 1px 2px rgba(0, 0, 0, 0.30), 0 8px 24px -12px rgba(0, 0, 0, 0.45);
   --accent-hover:  #f2ffc0;
   --accent-soft:   #1c2410;
   --on-accent:     #0a0a0a;
