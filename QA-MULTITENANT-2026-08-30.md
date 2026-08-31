@@ -5,9 +5,22 @@ interno multi-tenant (branch `crm/multitenant-kit`), contra el proyecto de
 Supabase de producción (`vpjoamvzfdfbprtpwllz`). Backup confirmado antes de
 empezar: 31 Aug 2026 10:06:34 UTC.
 
-Regla vigente: **nada de esto se borra**. Queda inerte y etiquetado
-(`ZZ QA` en el nombre, emails `@qa.invalid`, `status` no-`'activo'` en
-`crm_clients` para no calificar para `cron/billing-alerts`).
+**Estado (31 ago 2026, tarde): ya se limpió todo.** La regla original era
+"nada de esto se borra — queda inerte y etiquetado" mientras durara la
+verificación. Una vez confirmado B.2/B.3 y neutralizado el hallazgo de
+`is_internal_staff()`, la card de `crm_clients` "ZZ QA Onboarding Client"
+apareció en la vista real de Onboarding (`/admin/onboarding`) — visible para
+cualquiera con acceso, no solo para QA. Juampi pidió limpiar todo el
+dataset. Se borraron, en este orden (por las FK a `clients.id`): los 8
+registros de prueba (`leads`/`applications`/`sops`/`crm_clients` listados
+abajo), los 2 usuarios QA vía `auth.admin.deleteUser` (cascadeó `profiles`
+sin dejar huérfanos, verificado), y por último el tenant `d7daf41f-…` ("ZZ
+QA — NO TOCAR"). El tenant Smart Scale real (`c3ea3403-…`) no se tocó —
+solo sus 4 filas de prueba dependientes. Verificado con un `select` sobre
+los 14 IDs de abajo: cero filas restantes.
+
+Esta tabla queda como registro histórico de lo que se creó y probó, no como
+inventario de datos vivos.
 
 ## Tenants
 
