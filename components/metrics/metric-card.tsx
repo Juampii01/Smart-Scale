@@ -29,12 +29,12 @@ export function MetricCard({
     <Card className={`p-6 ${className || ""}`}>
       <div className="flex items-start justify-between">
         <div className="space-y-2 flex-1">
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
           <div className="flex items-baseline gap-2">
-            <p className="text-3xl font-bold text-foreground">{value}</p>
+            <p className="text-[32px] font-bold text-foreground">{value}</p>
             {trend && (
               <div
-                className={`text-xs font-semibold ${
+                className={`text-[13px] font-semibold ${
                   trend.direction === "up"
                     ? "text-green-600 dark:text-green-400"
                     : trend.direction === "down"
@@ -47,9 +47,9 @@ export function MetricCard({
               </div>
             )}
           </div>
-          {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+          {subtitle && <p className="text-[13px] text-muted-foreground">{subtitle}</p>}
         </div>
-        {icon && <div className="ml-4 text-2xl opacity-50">{icon}</div>}
+        {icon && <div className="ml-4 text-[24px] opacity-50">{icon}</div>}
       </div>
       {children && <div className="mt-4 pt-4 border-t border-border">{children}</div>}
     </Card>

@@ -91,7 +91,7 @@ function ChannelCard({
   const hasDelta = delta.pct !== null
 
   return (
-    <div className="relative flex flex-col overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card hover:border-foreground/[0.12] transition-colors duration-200">
+    <div className="relative flex flex-col overflow-hidden rounded-[14px] border border-border bg-card hover:border-border transition-colors duration-200">
       <div className="h-[2px] w-full" style={{ backgroundColor: color, opacity: noData ? 0.2 : 0.7 }} />
 
       <div className="flex-1 p-5 pb-2">
@@ -102,10 +102,10 @@ function ChannelCard({
               style={{ backgroundColor: `${color}18`, boxShadow: `0 0 0 1px ${color}30` }}>
               <Icon className="h-4 w-4" style={{ color }} />
             </div>
-            <span className="text-[13px] font-bold text-foreground/90">{title}</span>
+            <span className="text-[13px] font-bold text-foreground">{title}</span>
           </div>
           {hasDelta && !noData && (
-            <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ring-1 ${
+            <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[13px] font-bold ring-1 ${
               isUp
                 ? "bg-emerald-100 text-emerald-800 ring-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/20"
                 : "bg-red-100 text-red-800 ring-red-400 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/20"
@@ -118,20 +118,20 @@ function ChannelCard({
 
         {noData ? (
           <div className="flex flex-col items-center justify-center py-6 gap-2">
-            <p className="text-foreground/20 text-sm">Sin datos</p>
-            <p className="text-foreground/15 text-xs">Cargá el reporte del mes</p>
+            <p className="text-text-3 text-[13px]">Sin datos</p>
+            <p className="text-text-3 text-[13px]">Cargá el reporte del mes</p>
           </div>
         ) : (
           <>
-            <p className="text-[36px] font-bold tracking-tight leading-none text-foreground">{audience}</p>
-            <p className="text-[11px] text-foreground/35 mt-1 mb-4">{audienceLabel}</p>
+            <p className="text-[32px] font-bold tracking-tight leading-none text-foreground">{audience}</p>
+            <p className="text-[13px] text-text-3 mt-1 mb-4">{audienceLabel}</p>
             <div className="space-y-0">
               {rows.map((row, i) => (
-                <div key={i} className={`flex items-center justify-between py-2 ${i < rows.length - 1 ? "border-b border-foreground/[0.05]" : ""}`}>
-                  <div className="flex items-center gap-1.5 text-xs text-foreground/40">
+                <div key={i} className={`flex items-center justify-between py-2 ${i < rows.length - 1 ? "border-b border-border" : ""}`}>
+                  <div className="flex items-center gap-1.5 text-[13px] text-text-2">
                     <row.icon className="h-3.5 w-3.5" />{row.label}
                   </div>
-                  <span className="text-sm font-semibold text-foreground tabular-nums">{row.value}</span>
+                  <span className="text-[13px] font-semibold text-foreground tabular-nums">{row.value}</span>
                 </div>
               ))}
             </div>
@@ -185,16 +185,16 @@ function GrowthIndexChart({ reports }: { reports: any[] }) {
   const activeChannels = channels.filter(ch => bases[ch.key] > 0)
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
+    <div className="rounded-[14px] border border-border bg-card p-6">
       <div className="flex items-start justify-between mb-1">
         <div>
-          <h4 className="text-[16px] font-bold text-foreground">Índice de Crecimiento</h4>
-          <p className="text-xs text-foreground/35 mt-0.5">
+          <h4 className="text-[18px] font-bold text-foreground">Índice de Crecimiento</h4>
+          <p className="text-[13px] text-text-3 mt-0.5">
             Base 100 = primer mes con datos. Muestra quién crece más rápido, sin importar la escala.
           </p>
         </div>
         {/* Tip */}
-        <span className="text-[10px] text-foreground/25 bg-foreground/[0.04] border border-foreground/[0.06] rounded-lg px-2 py-1 ml-4 mt-0.5 whitespace-nowrap">
+        <span className="text-[13px] text-text-3 bg-elevated border border-border rounded-lg px-2 py-1 ml-4 mt-0.5 whitespace-nowrap">
           200 = duplicó su audiencia
         </span>
       </div>
@@ -204,8 +204,8 @@ function GrowthIndexChart({ reports }: { reports: any[] }) {
         {activeChannels.map(ch => (
           <div key={ch.key} className="flex items-center gap-1.5">
             <span className="h-[3px] w-5 rounded-full" style={{ backgroundColor: ch.color }} />
-            <span className="text-[11px] text-foreground/55 font-medium">{ch.label}</span>
-            <span className="text-[10px] text-foreground/25">({fmtCompact(bases[ch.key])} base)</span>
+            <span className="text-[13px] text-text-2 font-medium">{ch.label}</span>
+            <span className="text-[13px] text-text-3">({fmtCompact(bases[ch.key])} base)</span>
           </div>
         ))}
       </div>
@@ -253,19 +253,19 @@ function ContentVsAudience({ reports }: { reports: any[] }) {
   const avgPosts = data.reduce((s, d) => s + d.posts, 0) / data.length
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
-      <h4 className="text-[16px] font-bold text-foreground mb-1">Posts vs Seguidores Instagram</h4>
-      <p className="text-xs text-foreground/35 mb-5">
+    <div className="rounded-[14px] border border-border bg-card p-6">
+      <h4 className="text-[18px] font-bold text-foreground mb-1">Posts vs Seguidores Instagram</h4>
+      <p className="text-[13px] text-text-3 mb-5">
         ¿Cuándo publicás más, la audiencia crece? Buscá el patrón entre las barras y la línea.
       </p>
       <div className="flex flex-wrap gap-5 mb-4">
         <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-sm bg-[#dafc69]" />
-          <span className="text-[11px] text-foreground/50">Posts publicados</span>
+          <span className="h-2.5 w-2.5 rounded-sm bg-accent" />
+          <span className="text-[13px] text-text-2">Posts publicados</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="h-[3px] w-5 rounded-full bg-[#818cf8]" />
-          <span className="text-[11px] text-foreground/50">Seguidores IG</span>
+          <span className="text-[13px] text-text-2">Seguidores IG</span>
         </div>
       </div>
       <ResponsiveContainer width="100%" height={220}>
@@ -281,8 +281,8 @@ function ContentVsAudience({ reports }: { reports: any[] }) {
             tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}K` : String(v)}
             domain={[0, 'auto']} />
           {avgPosts > 0 && (
-            <ReferenceLine yAxisId="posts" y={avgPosts} stroke="#dafc6940" strokeDasharray="4 3"
-              label={{ value: "avg", position: "insideTopLeft", fill: "#dafc6950", fontSize: 9 }} />
+            <ReferenceLine yAxisId="posts" y={avgPosts} stroke="color-mix(in srgb, var(--accent-ink) 25%, transparent)" strokeDasharray="4 3"
+              label={{ value: "avg", position: "insideTopLeft", fill: "color-mix(in srgb, var(--accent-ink) 30%, transparent)", fontSize: 9 }} />
           )}
           <Tooltip {...tooltipBase}
             formatter={(v: number, name: string) => [
@@ -290,7 +290,7 @@ function ContentVsAudience({ reports }: { reports: any[] }) {
             ]}
           />
           <Bar yAxisId="posts" dataKey="posts" name="Posts publicados"
-            fill="#dafc69" fillOpacity={0.75} radius={[4,4,0,0]} maxBarSize={36} />
+            fill="var(--accent-ink)" fillOpacity={0.75} radius={[4,4,0,0]} maxBarSize={36} />
           <Line yAxisId="followers" type="monotone" dataKey="followers" name="Seguidores IG"
             stroke="#818cf8" strokeWidth={2.5}
             dot={{ fill: "#818cf8", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
@@ -314,17 +314,17 @@ function YouTubeTrend({ reports }: { reports: any[] }) {
   }))
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
-      <h4 className="text-[16px] font-bold text-foreground mb-1">YouTube — Suscriptores vs Vistas</h4>
-      <p className="text-xs text-foreground/35 mb-5">¿Las vistas generan suscriptores o son independientes?</p>
+    <div className="rounded-[14px] border border-border bg-card p-6">
+      <h4 className="text-[18px] font-bold text-foreground mb-1">YouTube — Suscriptores vs Vistas</h4>
+      <p className="text-[13px] text-text-3 mb-5">¿Las vistas generan suscriptores o son independientes?</p>
       <div className="flex flex-wrap gap-5 mb-4">
         <div className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-sm bg-[#f87171]" />
-          <span className="text-[11px] text-foreground/50">Vistas</span>
+          <span className="text-[13px] text-text-2">Vistas</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="h-[3px] w-5 rounded-full bg-[#fbbf24]" />
-          <span className="text-[11px] text-foreground/50">Suscriptores</span>
+          <span className="text-[13px] text-text-2">Suscriptores</span>
         </div>
       </div>
       <ResponsiveContainer width="100%" height={200}>
@@ -436,21 +436,21 @@ export function ChannelsView() {
     <div className="space-y-10">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-bold text-foreground">Rendimiento por Canal</h2>
-        <p className="text-[13px] text-foreground/40 mt-0.5">Señales de cada canal · {monthYYYYMM}</p>
+        <h2 className="text-[24px] font-bold text-foreground">Rendimiento por Canal</h2>
+        <p className="text-[13px] text-text-2 mt-0.5">Señales de cada canal · {monthYYYYMM}</p>
       </div>
 
-      {error && <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>}
+      {error && <p className="text-red-700 dark:text-red-400 text-[13px]">{error}</p>}
       {!showSkeleton && !error && !current && (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-14 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
-            <BarChart3 className="h-5 w-5 text-foreground/20" />
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card py-14 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-elevated">
+            <BarChart3 className="h-5 w-5 text-text-3" />
           </div>
-          <p className="text-sm text-foreground/40">
+          <p className="text-[13px] text-text-2">
             {isOwn ? "No hay reporte para este mes." : "Este cliente no tiene reporte para este mes."}
           </p>
           {isOwn && (
-            <Link href="/report-input" className="text-sm font-medium text-[#dafc69] transition-colors hover:text-[#f2ffc0]">
+            <Link href="/report-input" className="text-[13px] font-medium text-accent-ink transition-colors hover:text-accent-hover">
               Cargar reporte mensual →
             </Link>
           )}
@@ -460,8 +460,8 @@ export function ChannelsView() {
       {/* ── Channel cards ── */}
       <section className="space-y-3">
         <div>
-          <h3 className="text-base font-bold text-foreground">Este mes</h3>
-          <p className="text-xs text-foreground/35 mt-0.5">vs mes anterior — sparkline = últimos 8 meses</p>
+          <h3 className="text-[15px] font-bold text-foreground">Este mes</h3>
+          <p className="text-[13px] text-text-3 mt-0.5">vs mes anterior — sparkline = últimos 8 meses</p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           <ChannelCard
@@ -497,8 +497,8 @@ export function ChannelsView() {
       {reports.length >= 2 && (
         <section className="space-y-3">
           <div>
-            <h3 className="text-base font-bold text-foreground">¿Quién está creciendo más rápido?</h3>
-            <p className="text-xs text-foreground/35 mt-0.5">
+            <h3 className="text-[15px] font-bold text-foreground">¿Quién está creciendo más rápido?</h3>
+            <p className="text-[13px] text-text-3 mt-0.5">
               No importa la escala absoluta — lo que importa es la pendiente
             </p>
           </div>
@@ -510,8 +510,8 @@ export function ChannelsView() {
       {reports.length >= 2 && (
         <section className="space-y-3">
           <div>
-            <h3 className="text-base font-bold text-foreground">Correlaciones</h3>
-            <p className="text-xs text-foreground/35 mt-0.5">
+            <h3 className="text-[15px] font-bold text-foreground">Correlaciones</h3>
+            <p className="text-[13px] text-text-3 mt-0.5">
               ¿El contenido que producís se traduce en audiencia?
             </p>
           </div>

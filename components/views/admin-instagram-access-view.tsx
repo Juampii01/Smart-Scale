@@ -98,19 +98,19 @@ export function AdminInstagramAccessView() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Instagram · Acceso a métricas</h1>
-          <p className="text-sm text-foreground/40 mt-0.5">{items.length} solicitud{items.length !== 1 ? "es" : ""} desde el form público</p>
+          <h1 className="text-[24px] font-bold text-foreground tracking-tight">Instagram · Acceso a métricas</h1>
+          <p className="text-[13px] text-text-2 mt-0.5">{items.length} solicitud{items.length !== 1 ? "es" : ""} desde el form público</p>
         </div>
         <button onClick={fetchItems} disabled={loading}
-          className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-secondary text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
         </button>
       </div>
 
       {/* Link del form */}
-      <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-2">Link del formulario (compartilo con los clientes)</p>
-        <code className="rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-foreground/60 font-mono">/conectar-instagram</code>
+      <div className="rounded-[14px] border border-border bg-card px-5 py-4">
+        <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 mb-2">Link del formulario (compartilo con los clientes)</p>
+        <code className="rounded-lg bg-elevated px-3 py-2 text-[13px] text-text-2 font-mono">/conectar-instagram</code>
       </div>
 
       {!migrated && (
@@ -128,47 +128,47 @@ export function AdminInstagramAccessView() {
         value={search}
         onChange={e => setSearch(e.target.value)}
         placeholder="Buscar por nombre, instagram, email..."
-        className="h-9 rounded-xl border border-foreground/[0.08] bg-card px-4 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/20 focus:outline-none w-full max-w-sm"
+        className="h-9 rounded-xl border border-border bg-card px-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none w-full max-w-sm"
       />
 
       {/* Table */}
-      <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
+      <div className="overflow-hidden rounded-[14px] border border-border bg-card">
         <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+              <tr className="border-b border-border bg-elevated">
                 {["Nombre","Instagram","Email","Profesional","Estado","Fecha",""].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-foreground/40 whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-text-2 whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="py-16 text-center"><Loader2 className="inline h-5 w-5 animate-spin text-foreground/30" /></td></tr>
+                <tr><td colSpan={7} className="py-16 text-center"><Loader2 className="inline h-5 w-5 animate-spin text-text-3" /></td></tr>
               ) : !filtered.length ? (
-                <tr><td colSpan={7} className="py-16 text-center text-sm text-foreground/25">
+                <tr><td colSpan={7} className="py-16 text-center text-[13px] text-text-3">
                   {items.length ? "No hay solicitudes con esa búsqueda." : "Todavía no llegó ninguna solicitud."}
                 </td></tr>
               ) : filtered.map(item => (
-                <tr key={item.id} className="border-b border-foreground/[0.04] hover:bg-muted transition-colors">
+                <tr key={item.id} className="border-b border-border hover:bg-muted transition-colors">
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="text-[14px] font-semibold text-foreground">{item.name}</span>
+                    <span className="text-[15px] font-semibold text-foreground">{item.name}</span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
                     <a href={igHref(item.instagram)} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex max-w-[220px] items-center gap-1.5 text-[13px] text-foreground/70 hover:text-foreground transition-colors">
+                      className="inline-flex max-w-[220px] items-center gap-1.5 text-[13px] text-foreground hover:text-foreground transition-colors">
                       <Instagram className="h-3.5 w-3.5 shrink-0" />
                       <span className="min-w-0 truncate">{item.instagram}</span>
                     </a>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="text-[13px] text-foreground/70">{item.email || <span className="text-foreground/25">—</span>}</span>
+                    <span className="text-[13px] text-foreground">{item.email || <span className="text-text-3">—</span>}</span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[13px] font-semibold ${
                       item.is_professional
                         ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300"
-                        : "bg-foreground/[0.05] text-foreground/40"
+                        : "bg-secondary text-text-2"
                     }`}>
                       {item.is_professional ? "Sí" : "No confirmó"}
                     </span>
@@ -177,18 +177,18 @@ export function AdminInstagramAccessView() {
                     <select
                       value={item.status}
                       onChange={e => updateStatus(item.id, e.target.value)}
-                      className="h-8 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2 text-[12px] font-medium text-foreground capitalize focus:border-foreground/20 focus:outline-none"
+                      className="h-8 rounded-lg border border-border bg-elevated px-2 text-[13px] font-medium text-foreground capitalize focus:border-border-hover focus:outline-none"
                     >
                       {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="text-[12px] tabular-nums text-foreground/55">{fmtDate(item.created_at)}</span>
+                    <span className="text-[13px] tabular-nums text-text-2">{fmtDate(item.created_at)}</span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
                     <button onClick={() => handleDelete(item)} disabled={deletingId === item.id}
                       title="Eliminar"
-                      className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/25 hover:text-foreground hover:bg-foreground/[0.06] transition-all disabled:opacity-40">
+                      className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all disabled:opacity-40">
                       {deletingId === item.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                     </button>
                   </td>

@@ -100,7 +100,7 @@ export function PushOptIn({ banner = false, prompt }: { banner?: boolean; prompt
   if (state === "subscribed") {
     if (banner) return null
     return (
-      <div className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold"
+      <div className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-semibold"
         style={{ backgroundColor: "color-mix(in srgb, #22C55E 12%, transparent)", color: "#16A34A" }}>
         <Check size={14} /> Notificaciones activadas
       </div>
@@ -110,8 +110,7 @@ export function PushOptIn({ banner = false, prompt }: { banner?: boolean; prompt
   const btn = (
     <button
       onClick={enable} disabled={state === "working"}
-      className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition active:scale-95 disabled:opacity-50 shrink-0"
-      style={{ backgroundColor: "#dafc69", color: "#000" }}
+      className="btn-accent inline-flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-bold active:scale-95 disabled:opacity-50 shrink-0"
     >
       {state === "working" ? <Loader2 size={14} className="animate-spin" /> : <BellRing size={14} />}
       Activar notificaciones
@@ -120,12 +119,11 @@ export function PushOptIn({ banner = false, prompt }: { banner?: boolean; prompt
 
   if (banner) {
     return (
-      <div className="flex items-center gap-3 rounded-xl border px-4 py-3 mb-4"
-        style={{ borderColor: "color-mix(in srgb, #dafc69 35%, var(--border))", backgroundColor: "color-mix(in srgb, #dafc69 8%, transparent)" }}>
-        <Bell size={18} className="shrink-0" style={{ color: "#dafc69" }} />
+      <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary/40 px-4 py-3 mb-4">
+        <Bell size={18} className="shrink-0 text-text-2" />
         <div className="flex-1 min-w-0">
           <p className="text-[13px] font-semibold text-foreground">{prompt ?? "Activá las notificaciones"}</p>
-          {msg && <p className="text-[11px] mt-0.5" style={{ color: "var(--muted-foreground)" }}>{msg}</p>}
+          {msg && <p className="text-[13px] mt-0.5" style={{ color: "var(--muted-foreground)" }}>{msg}</p>}
         </div>
         {btn}
       </div>
@@ -135,7 +133,7 @@ export function PushOptIn({ banner = false, prompt }: { banner?: boolean; prompt
   return (
     <div className="inline-flex flex-col gap-1">
       {btn}
-      {msg && <span className="text-[11px]" style={{ color: "var(--muted-foreground)" }}>{msg}</span>}
+      {msg && <span className="text-[13px]" style={{ color: "var(--muted-foreground)" }}>{msg}</span>}
     </div>
   )
 }

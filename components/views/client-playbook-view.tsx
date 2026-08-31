@@ -137,7 +137,7 @@ function TreeRow({
 
   return (
     <>
-      {showLineAbove && <div className="h-0.5 bg-[#dafc69] mx-2 rounded-full" />}
+      {showLineAbove && <div className="h-0.5 bg-accent mx-2 rounded-full" />}
 
       <div
         draggable={canCreate}
@@ -151,14 +151,14 @@ function TreeRow({
         onClick={() => onSelect(node.page.id)}
         className={`group flex items-center gap-1 rounded-md px-1 py-1 text-[13px] cursor-pointer transition-colors ${
           isSelected
-            ? "bg-foreground/[0.08] text-foreground"
-            : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
+            ? "bg-secondary text-foreground"
+            : "text-foreground hover:bg-secondary hover:text-foreground"
         } ${isDragged ? "opacity-40" : ""}`}
         style={{ paddingLeft: `${4 + depth * 14}px` }}
       >
         {canCreate && (
           <span
-            className={`flex h-4 w-3 shrink-0 items-center justify-center text-foreground/30 transition-opacity cursor-grab active:cursor-grabbing ${
+            className={`flex h-4 w-3 shrink-0 items-center justify-center text-text-3 transition-opacity cursor-grab active:cursor-grabbing ${
               hovered ? "opacity-100" : "opacity-0"
             }`}
             title="Arrastrar para reordenar"
@@ -170,15 +170,15 @@ function TreeRow({
         <button
           onClick={(e) => { e.stopPropagation(); onToggle(node.page.id) }}
           className={`flex h-4 w-4 shrink-0 items-center justify-center rounded transition-colors ${
-            hasChildren ? "text-foreground/40 hover:bg-foreground/10 hover:text-foreground/70" : "opacity-0 pointer-events-none"
+            hasChildren ? "text-text-2 hover:bg-secondary hover:text-foreground" : "opacity-0 pointer-events-none"
           }`}
           aria-label={isExpanded ? "Colapsar" : "Expandir"}
         >
           {hasChildren && (isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />)}
         </button>
 
-        <span className="text-[14px] leading-none w-4 flex items-center justify-center">
-          {node.page.icon ?? <FileText className="h-3.5 w-3.5 text-foreground/40" />}
+        <span className="text-[15px] leading-none w-4 flex items-center justify-center">
+          {node.page.icon ?? <FileText className="h-3.5 w-3.5 text-text-2" />}
         </span>
 
         <span className="flex-1 truncate select-none">
@@ -188,7 +188,7 @@ function TreeRow({
         {canCreate && (
           <button
             onClick={(e) => { e.stopPropagation(); onAddChild(node.page.id) }}
-            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-foreground/40 hover:bg-foreground/10 hover:text-foreground transition-all ${hovered ? "opacity-100" : "opacity-0"}`}
+            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-text-2 hover:bg-secondary hover:text-foreground transition-all ${hovered ? "opacity-100" : "opacity-0"}`}
             aria-label="Nueva subpágina"
             title="Nueva subpágina"
           >
@@ -203,7 +203,7 @@ function TreeRow({
                 onDelete(node.page.id)
               }
             }}
-            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-foreground/30 hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-400 transition-all ${hovered ? "opacity-100" : "opacity-0"}`}
+            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-text-3 hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-400 transition-all ${hovered ? "opacity-100" : "opacity-0"}`}
             aria-label="Borrar"
             title="Borrar"
           >
@@ -212,7 +212,7 @@ function TreeRow({
         )}
       </div>
 
-      {showLineBelow && <div className="h-0.5 bg-[#dafc69] mx-2 rounded-full" />}
+      {showLineBelow && <div className="h-0.5 bg-accent mx-2 rounded-full" />}
 
       {isExpanded && hasChildren && (
         <div>
@@ -313,7 +313,7 @@ function PageEditor({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-3 border-b border-foreground/[0.06] px-8 py-4">
+      <div className="flex items-center justify-between gap-3 border-b border-border px-8 py-4">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <input
             type="text"
@@ -322,7 +322,7 @@ function PageEditor({
             placeholder="📄"
             maxLength={4}
             disabled={!canEdit}
-            className="h-9 w-9 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] text-center text-base focus:border-foreground/20 focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+            className="h-9 w-9 rounded-lg border border-border bg-secondary text-center text-[15px] focus:border-border-hover focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
             aria-label="Icono"
           />
           <input
@@ -331,12 +331,12 @@ function PageEditor({
             onChange={e => setTitle(e.target.value)}
             placeholder="Sin título"
             disabled={!canEdit}
-            className="flex-1 bg-transparent text-2xl font-bold text-foreground placeholder:text-foreground/25 focus:outline-none disabled:cursor-not-allowed"
+            className="flex-1 bg-transparent text-[24px] font-bold text-foreground placeholder:text-text-3 focus:outline-none disabled:cursor-not-allowed"
             aria-label="Título"
           />
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <div className="flex items-center gap-1.5 text-[11px] text-foreground/40 min-w-[78px] justify-end">
+          <div className="flex items-center gap-1.5 text-[13px] text-text-2 min-w-[78px] justify-end">
             {savingState === "saving" && <><Loader2 className="h-3 w-3 animate-spin" />Guardando…</>}
             {savingState === "saved"  && <span className="text-emerald-700 dark:text-emerald-400">✓ Guardado</span>}
           </div>
@@ -605,25 +605,25 @@ export function ClientPlaybookView({ userRole }: { userRole: string | null }) {
 
   if (!activeClientId) {
     return (
-      <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-sm text-foreground/40">
+      <div className="rounded-[14px] border border-dashed border-border bg-secondary px-5 py-10 text-center text-[13px] text-text-2">
         No hay un cliente activo seleccionado.
       </div>
     )
   }
 
   return (
-    <div className="flex h-[calc(100vh-260px)] min-h-[520px] gap-3 rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="flex h-[calc(100vh-260px)] min-h-[520px] gap-3 rounded-[14px] border border-border bg-card overflow-hidden">
 
       {/* Sidebar */}
-      <aside className="flex w-[240px] shrink-0 flex-col border-r border-foreground/[0.06] bg-foreground/[0.015]">
-        <div className="border-b border-foreground/[0.06] px-3 py-3 space-y-2">
+      <aside className="flex w-[240px] shrink-0 flex-col border-r border-border bg-elevated">
+        <div className="border-b border-border px-3 py-3 space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/40">Documentos</h3>
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-text-2">Documentos</h3>
             {canCreate && (
               <button
                 onClick={() => createPage(null)}
                 disabled={creating || seeding}
-                className="flex h-6 w-6 items-center justify-center rounded text-foreground/50 hover:bg-foreground/[0.06] hover:text-foreground transition-all disabled:opacity-50"
+                className="flex h-6 w-6 items-center justify-center rounded text-text-2 hover:bg-secondary hover:text-foreground transition-all disabled:opacity-50"
                 title="Nueva página"
               >
                 {creating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
@@ -631,31 +631,31 @@ export function ClientPlaybookView({ userRole }: { userRole: string | null }) {
             )}
           </div>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-foreground/30" />
+            <Search className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-text-3" />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Buscar"
-              className="w-full h-7 rounded-md border border-foreground/[0.08] bg-card pl-7 pr-2 text-[12px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none"
+              className="w-full h-7 rounded-md border border-border bg-card pl-7 pr-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
             />
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto py-2 px-1.5">
           {loading || seeding ? (
-            <div className="flex items-center justify-center py-10 gap-2 text-[11px] text-foreground/40">
+            <div className="flex items-center justify-center py-10 gap-2 text-[13px] text-text-2">
               <Loader2 className="h-4 w-4 animate-spin" />
               {seeding ? "Creando documentos…" : ""}
             </div>
           ) : tree.length === 0 ? (
             <div className="px-3 py-6 text-center">
-              <p className="text-[12px] text-foreground/40 mb-2">
+              <p className="text-[13px] text-text-2 mb-2">
                 {search ? "Sin resultados" : "No tenés documentos todavía"}
               </p>
               {!search && canCreate && (
                 <button
                   onClick={() => createPage(null)}
-                  className="inline-flex items-center gap-1 rounded-md border border-foreground/[0.08] bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground/60 hover:border-foreground/20 hover:text-foreground transition-all"
+                  className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2.5 py-1 text-[13px] font-semibold text-text-2 hover:border-border-hover hover:text-foreground transition-all"
                 >
                   <Plus className="h-3 w-3" /> Crear primero
                 </button>
@@ -692,10 +692,10 @@ export function ClientPlaybookView({ userRole }: { userRole: string | null }) {
         {selectedPage ? (
           <>
             {breadcrumb.length > 1 && (
-              <div className="flex items-center gap-1 px-8 py-2 text-[11.5px] text-foreground/40 border-b border-foreground/[0.04]">
+              <div className="flex items-center gap-1 px-8 py-2 text-[13px] text-text-2 border-b border-border">
                 {breadcrumb.map((p, i) => (
                   <span key={p.id} className="flex items-center gap-1">
-                    {i > 0 && <ChevronRight className="h-3 w-3 text-foreground/25" />}
+                    {i > 0 && <ChevronRight className="h-3 w-3 text-text-3" />}
                     <button
                       onClick={() => setSelectedId(p.id)}
                       className="hover:text-foreground transition-colors truncate max-w-[180px]"
@@ -716,8 +716,8 @@ export function ClientPlaybookView({ userRole }: { userRole: string | null }) {
           </>
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
-            <FileText className="h-10 w-10 text-foreground/15" />
-            <p className="text-[14px] text-foreground/50">
+            <FileText className="h-10 w-10 text-text-3" />
+            <p className="text-[15px] text-text-2">
               {pages.length === 0
                 ? canCreate ? "Empezá creando tu primer documento." : "No hay documentos todavía."
                 : "Seleccioná un documento del sidebar."}

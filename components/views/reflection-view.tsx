@@ -157,19 +157,19 @@ export function ReflectionView() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-          <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Reflexión Estratégica</h1>
+          <span className="h-4 w-[3px] rounded-full bg-accent" />
+          <h1 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Reflexión Estratégica</h1>
         </div>
-        <p className="text-foreground/30 text-xs ml-[18px]">Insights del mes · {selectedMonth}</p>
+        <p className="text-text-3 text-[13px] ml-[18px]">Insights del mes · {selectedMonth}</p>
       </div>
 
-      {loading && <p className="text-foreground/40 text-sm">Cargando reflexión…</p>}
+      {loading && <p className="text-text-2 text-[13px]">Cargando reflexión…</p>}
       {!loading && !error && !data && (
-        <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-10 text-center">
-          <p className="text-sm text-foreground/40 mb-3">No hay reflexión cargada para este mes.</p>
+        <div className="rounded-[14px] border border-dashed border-border bg-secondary px-6 py-10 text-center">
+          <p className="text-[13px] text-text-2 mb-3">No hay reflexión cargada para este mes.</p>
           <a
             href="/report-input"
-            className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition"
+            className="inline-flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-bold transition"
           >
             Cargar reporte mensual →
           </a>
@@ -184,18 +184,18 @@ export function ReflectionView() {
             return (
               <div
                 key={item.title}
-                className="group relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card p-5 transition-all duration-200 hover:border-foreground/15"
+                className="group relative overflow-hidden rounded-[14px] border border-border bg-card p-5 transition-all duration-200 hover:border-border-hover"
               >
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.03),transparent_60%)]" />
                 <div className="relative">
                   <div className="flex items-center gap-2.5 mb-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#dafc69]/10 ring-1 ring-[#dafc69]/15">
-                      <Icon className="h-4 w-4 text-[#dafc69]" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent-soft ring-1 ring-accent/20">
+                      <Icon className="h-4 w-4 text-accent-ink" />
                     </div>
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35">{item.title}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3">{item.title}</p>
                   </div>
                   {item.numeric !== null ? (
-                    <p className={`text-2xl sm:text-3xl font-bold tabular-nums ${
+                    <p className={`text-[24px] sm:text-[32px] font-bold tabular-nums ${
                       item.numeric >= 50 ? "text-emerald-700 dark:text-emerald-400"
                       : item.numeric >= 0 ? "text-amber-700 dark:text-amber-400"
                       : "text-red-700 dark:text-red-400"
@@ -203,11 +203,11 @@ export function ReflectionView() {
                       {item.numeric > 0 ? `+${item.numeric}` : item.numeric}
                     </p>
                   ) : isEmpty ? (
-                    <a href="/report-input" className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#dafc69]/70 hover:text-[#dafc69] transition">
+                    <a href="/report-input" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent-ink/70 hover:text-accent-ink transition">
                       Agregar →
                     </a>
                   ) : (
-                    <p className="text-sm leading-relaxed text-foreground/60">
+                    <p className="text-[13px] leading-relaxed text-text-2">
                       {item.content}
                     </p>
                   )}

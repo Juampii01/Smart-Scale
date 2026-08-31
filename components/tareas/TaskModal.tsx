@@ -33,7 +33,7 @@ interface TaskModalProps {
   onClose:          () => void
 }
 
-const labelCls = "text-[10px] font-semibold uppercase tracking-wider mb-2 block"
+const labelCls = "text-[11px] font-semibold uppercase tracking-wider mb-2 block"
 
 export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelete, onClose }: TaskModalProps) {
   const [title,       setTitle]       = useState(task?.title ?? "")
@@ -201,7 +201,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b shrink-0" style={{ borderColor: "var(--border)" }}>
-            <span className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+            <span className="text-[13px] font-semibold" style={{ color: "var(--foreground)" }}>
               {task ? "Detalle de la tarea" : "Nueva tarea"}
             </span>
             <button onClick={onClose} className="p-1 rounded-lg hover:opacity-70 transition-opacity cursor-pointer">
@@ -216,14 +216,14 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
               <input
                 autoFocus value={title} onChange={e => setTitle(e.target.value)}
                 placeholder="Título de la tarea…"
-                className="w-full bg-transparent text-lg font-bold outline-none placeholder:opacity-35"
+                className="w-full bg-transparent text-[18px] font-bold outline-none placeholder:opacity-35"
                 style={{ color: "var(--foreground)" }}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) handleSubmit() }}
               />
               <textarea
                 value={description} onChange={e => setDescription(e.target.value)}
                 placeholder="Agregar descripción…" rows={2}
-                className="w-full bg-transparent text-sm outline-none resize-none placeholder:opacity-35 mt-1.5"
+                className="w-full bg-transparent text-[13px] outline-none resize-none placeholder:opacity-35 mt-1.5"
                 style={{ color: "var(--muted-foreground)" }}
               />
             </div>
@@ -231,7 +231,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
             {/* Bloqueada toggle */}
             <button
               onClick={() => setBlocked(b => !b)}
-              className="flex items-center gap-2 text-xs font-semibold rounded-lg px-3 py-2 transition-all w-full"
+              className="flex items-center gap-2 text-[13px] font-semibold rounded-lg px-3 py-2 transition-all w-full"
               style={{
                 backgroundColor: blocked ? "color-mix(in srgb, #ef4444 12%, transparent)" : "var(--muted)",
                 color:           blocked ? "#ef4444" : "var(--muted-foreground)",
@@ -247,7 +247,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                 <label className={labelCls} style={{ color: "var(--muted-foreground)" }}>Columna</label>
                 <select
                   value={columnId} onChange={e => setColumnId(e.target.value as TaskColumnId)}
-                  className="w-full text-xs rounded-lg px-3 py-2 outline-none"
+                  className="w-full text-[13px] rounded-lg px-3 py-2 outline-none"
                   style={{ backgroundColor: "var(--muted)", color: "var(--foreground)", border: "1px solid var(--border)" }}
                 >
                   {KANBAN_COLUMNS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
@@ -257,7 +257,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                 <label className={labelCls} style={{ color: "var(--muted-foreground)" }}>Fecha límite</label>
                 <input
                   type="date" value={dueDate} onChange={e => setDueDate(e.target.value)}
-                  className="w-full text-xs rounded-lg px-3 py-2 outline-none"
+                  className="w-full text-[13px] rounded-lg px-3 py-2 outline-none"
                   style={{ backgroundColor: "var(--muted)", color: dueDate ? "var(--foreground)" : "var(--muted-foreground)", border: "1px solid var(--border)" }}
                 />
               </div>
@@ -274,7 +274,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                   return (
                     <button
                       key={p.id} type="button" onClick={() => setPriority(p.id)}
-                      className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg px-2 py-2 transition-all"
+                      className="flex-1 flex items-center justify-center gap-1.5 text-[13px] font-semibold rounded-lg px-2 py-2 transition-all"
                       style={{
                         backgroundColor: active ? `color-mix(in srgb, ${p.color} 15%, transparent)` : "var(--muted)",
                         color:           active ? p.color : "var(--muted-foreground)",
@@ -298,14 +298,14 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                   return (
                     <button
                       key={m} type="button" onClick={() => toggleAssignee(m)}
-                      className="flex items-center gap-1.5 rounded-full pl-1 pr-3 py-1 text-xs font-semibold transition-all"
+                      className="flex items-center gap-1.5 rounded-full pl-1 pr-3 py-1 text-[13px] font-semibold transition-all"
                       style={{
                         backgroundColor: active ? "color-mix(in srgb, var(--accent) 14%, transparent)" : "var(--muted)",
                         color:           active ? "var(--foreground)" : "var(--muted-foreground)",
                         border:          `1px solid ${active ? "color-mix(in srgb, var(--accent) 40%, transparent)" : "var(--border)"}`,
                       }}
                     >
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full text-[8.5px] font-bold text-white"
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold text-white"
                         style={{ backgroundColor: avatarColor(m) }}>
                         {initials(m)}
                       </span>
@@ -325,14 +325,14 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
               <input
                 value={labelText} onChange={e => setLabelText(e.target.value)}
                 placeholder="De qué se trata (ej: Reel cliente X, Edición…)" maxLength={40}
-                className="w-full text-xs rounded-lg px-3 py-2 outline-none"
+                className="w-full text-[13px] rounded-lg px-3 py-2 outline-none"
                 style={{ backgroundColor: "var(--muted)", color: "var(--foreground)", border: "1px solid var(--border)" }}
               />
             </div>
 
             {/* Subtareas */}
             <div>
-              <label className="text-[10px] font-semibold uppercase tracking-wider mb-2 flex items-center justify-between" style={{ color: "var(--muted-foreground)" }}>
+              <label className="text-[11px] font-semibold uppercase tracking-wider mb-2 flex items-center justify-between" style={{ color: "var(--muted-foreground)" }}>
                 <span>Subtareas</span>
                 {subtasks.length > 0 && <span style={{ color: "var(--foreground)" }}>{doneCount}/{subtasks.length}</span>}
               </label>
@@ -367,7 +367,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
             {/* Adjuntos (solo en tareas existentes) */}
             {taskId && (
               <div>
-                <label className="text-[10px] font-semibold uppercase tracking-wider mb-2 flex items-center gap-1" style={{ color: "var(--muted-foreground)" }}>
+                <label className="text-[11px] font-semibold uppercase tracking-wider mb-2 flex items-center gap-1" style={{ color: "var(--muted-foreground)" }}>
                   <Paperclip size={10} /> Adjuntos {attachments.length > 0 && <span style={{ color: "var(--foreground)" }}>· {attachments.length}</span>}
                 </label>
 
@@ -376,7 +376,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                     <div key={a.id} className="group/att flex items-center gap-2.5 rounded-lg px-3 py-2" style={{ backgroundColor: "var(--muted)" }}>
                       <Paperclip size={13} style={{ color: "var(--muted-foreground)" }} className="shrink-0" />
                       <span className="flex-1 min-w-0 truncate text-[13px]" style={{ color: "var(--foreground)" }}>{a.file_name}</span>
-                      <span className="shrink-0 text-[10.5px]" style={{ color: "var(--muted-foreground)" }}>{fmtSize(a.size_bytes)}</span>
+                      <span className="shrink-0 text-[13px]" style={{ color: "var(--muted-foreground)" }}>{fmtSize(a.size_bytes)}</span>
                       {a.url && (
                         <a href={a.url} target="_blank" rel="noopener noreferrer" className="shrink-0 p-1 rounded hover:opacity-70" title="Descargar">
                           <Download size={13} style={{ color: "var(--muted-foreground)" }} />
@@ -393,7 +393,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                   onChange={e => { const f = e.target.files?.[0]; if (f) uploadFile(f); e.target.value = "" }} />
                 <button
                   onClick={() => fileRef.current?.click()} disabled={uploading}
-                  className="flex items-center justify-center gap-2 w-full text-[12.5px] rounded-lg py-2 transition-all disabled:opacity-50"
+                  className="flex items-center justify-center gap-2 w-full text-[13px] rounded-lg py-2 transition-all disabled:opacity-50"
                   style={{ border: "1px dashed var(--border)", color: "var(--muted-foreground)" }}
                 >
                   {uploading ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
@@ -405,21 +405,21 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
             {/* Comentarios (solo en tareas existentes) */}
             {taskId && (
               <div>
-                <label className="text-[10px] font-semibold uppercase tracking-wider mb-2 flex items-center gap-1" style={{ color: "var(--muted-foreground)" }}>
+                <label className="text-[11px] font-semibold uppercase tracking-wider mb-2 flex items-center gap-1" style={{ color: "var(--muted-foreground)" }}>
                   <MessageSquare size={10} /> Comentarios {comments.length > 0 && <span style={{ color: "var(--foreground)" }}>· {comments.length}</span>}
                 </label>
 
                 <div className="space-y-2.5 mb-2.5">
                   {comments.map(c => (
                     <div key={c.id} className="flex gap-2.5">
-                      <span className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold text-white mt-0.5"
+                      <span className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold text-white mt-0.5"
                         style={{ backgroundColor: avatarColor(c.author) }} title={c.author}>
                         {initials(c.author)}
                       </span>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-[12px] font-semibold" style={{ color: "var(--foreground)" }}>{c.author}</span>
-                          <span className="text-[10.5px]" style={{ color: "var(--muted-foreground)" }}>
+                          <span className="text-[13px] font-semibold" style={{ color: "var(--foreground)" }}>{c.author}</span>
+                          <span className="text-[13px]" style={{ color: "var(--muted-foreground)" }}>
                             {new Date(c.created_at).toLocaleString("es-AR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                           </span>
                         </div>
@@ -428,7 +428,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                     </div>
                   ))}
                   {comments.length === 0 && (
-                    <p className="text-[12px] italic" style={{ color: "var(--muted-foreground)" }}>Sin comentarios todavía.</p>
+                    <p className="text-[13px] italic" style={{ color: "var(--muted-foreground)" }}>Sin comentarios todavía.</p>
                   )}
                 </div>
 
@@ -441,8 +441,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
                     style={{ color: "var(--foreground)" }}
                   />
                   <button onClick={sendComment} disabled={!newComment.trim() || sending}
-                    className="shrink-0 flex h-7 w-7 items-center justify-center rounded-md transition disabled:opacity-30"
-                    style={{ backgroundColor: "#dafc69", color: "#000" }}>
+                  className="btn-accent shrink-0 flex h-7 w-7 items-center justify-center rounded-md disabled:opacity-30">
                     <Send size={13} />
                   </button>
                 </div>
@@ -455,7 +454,7 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
             {task && onDelete ? (
               <button
                 type="button" onClick={() => { onDelete(task.id); onClose() }}
-                className="px-3 py-1.5 text-sm rounded-lg cursor-pointer transition-colors text-red-700 dark:text-red-400"
+                className="px-3 py-1.5 text-[13px] rounded-lg cursor-pointer transition-colors text-red-700 dark:text-red-400"
                 style={{ backgroundColor: "color-mix(in srgb, #ef4444 12%, transparent)", border: "1px solid color-mix(in srgb, #ef4444 25%, var(--border))" }}
               >
                 Eliminar
@@ -463,13 +462,12 @@ export function TaskModal({ task, defaultColumnId = "por-hacer", onSave, onDelet
             ) : <span />}
             <div className="flex gap-2">
               <button type="button" onClick={onClose}
-                className="px-3 py-1.5 text-sm rounded-lg cursor-pointer transition-colors"
+                className="px-3 py-1.5 text-[13px] rounded-lg cursor-pointer transition-colors"
                 style={{ color: "var(--muted-foreground)", border: "1px solid var(--border)" }}>
                 Cancelar
               </button>
               <button type="button" onClick={handleSubmit} disabled={!title.trim()}
-                className="px-4 py-1.5 text-sm font-semibold rounded-lg cursor-pointer transition-colors disabled:opacity-40"
-                style={{ backgroundColor: "#dafc69", color: "#000" }}>
+              className="btn-accent px-4 py-1.5 text-[13px] font-semibold rounded-lg cursor-pointer disabled:opacity-40">
                 {task ? "Guardar" : "Crear tarea"}
               </button>
             </div>

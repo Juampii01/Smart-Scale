@@ -36,7 +36,7 @@ const RECURR_LABEL: Record<string, string> = {
 const STATUS_STYLE: Record<string, string> = {
   active:    "bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/25",
   cancelled: "bg-red-100 text-red-800 border-red-300 dark:bg-red-500/10 dark:text-red-300 dark:border-red-500/25",
-  tbd:       "bg-foreground/5 text-foreground/50 border-foreground/10",
+  tbd:       "bg-secondary text-text-2 border-border",
 }
 
 const EMPTY: Omit<CalendarEvent, "id"> = {
@@ -78,21 +78,21 @@ function EventModal({
     }
   }
 
-  const inputCls = "h-9 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[13px] text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/20"
+  const inputCls = "h-9 w-full rounded-xl border border-border bg-secondary px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
   const selectCls = `${inputCls} appearance-none cursor-pointer`
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-      <div className="w-full max-w-lg rounded-[14px] border border-foreground/[0.08] bg-card shadow-2xl">
+      <div className="w-full max-w-lg rounded-[14px] border border-border bg-card shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-foreground/[0.06] px-5 py-4">
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">
+            <span className="h-4 w-[3px] rounded-full bg-accent" />
+            <h2 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">
               {isEdit ? "Editar llamada" : "Nueva llamada"}
             </h2>
           </div>
-          <button onClick={onClose} className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/[0.06] transition-colors">
+          <button onClick={onClose} className="flex h-7 w-7 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -100,37 +100,37 @@ function EventModal({
         {/* Form */}
         <div className="p-5 space-y-3">
           <div>
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-foreground/35">Título *</p>
+            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Título *</p>
             <input value={form.title} onChange={e => set("title", e.target.value)} placeholder="Q&A: Ads · Content · Mindset" className={inputCls} />
           </div>
 
           <div>
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-foreground/35">Host / Descripción</p>
+            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Host / Descripción</p>
             <input value={form.description ?? ""} onChange={e => set("description", e.target.value)} placeholder="Con Ann Sahakyan" className={inputCls} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-foreground/35">Día</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Día</p>
               <select value={form.day_of_week ?? ""} onChange={e => set("day_of_week", e.target.value)} className={selectCls}>
                 {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
             <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-foreground/35">Hora</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Hora</p>
               <input value={form.time ?? ""} onChange={e => set("time", e.target.value)} placeholder="3:00 PM" className={inputCls} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-foreground/35">Recurrencia</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Recurrencia</p>
               <select value={form.recurrence} onChange={e => set("recurrence", e.target.value)} className={selectCls}>
                 {RECURR.map(r => <option key={r} value={r}>{RECURR_LABEL[r]}</option>)}
               </select>
             </div>
             <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-foreground/35">Estado</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Estado</p>
               <select value={form.status} onChange={e => set("status", e.target.value)} className={selectCls}>
                 {STATUS.map(s => <option key={s} value={s}>{s === "active" ? "Activo" : s === "cancelled" ? "Cancelado" : "Próximamente"}</option>)}
               </select>
@@ -139,9 +139,9 @@ function EventModal({
 
           {/* Próxima fecha específica — útil para biweekly/monthly */}
           <div>
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-foreground/35">
+            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">
               Próxima fecha específica
-              <span className="ml-2 text-foreground/20 normal-case font-normal tracking-normal">
+              <span className="ml-2 text-text-3 normal-case font-normal tracking-normal">
                 (opcional · biweekly / mensual)
               </span>
             </p>
@@ -155,7 +155,7 @@ function EventModal({
               <button
                 type="button"
                 onClick={() => set("next_date", null)}
-                className="mt-1 text-[11px] text-foreground/30 hover:text-foreground/60 transition-colors"
+                className="mt-1 text-[13px] text-text-3 hover:text-text-2 transition-colors"
               >
                 × Borrar fecha
               </button>
@@ -163,31 +163,31 @@ function EventModal({
           </div>
 
           <div>
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-foreground/35">Zoom URL</p>
+            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Zoom URL</p>
             <input value={form.zoom_url ?? ""} onChange={e => set("zoom_url", e.target.value)} placeholder="https://us06web.zoom.us/j/..." className={inputCls} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-foreground/35">Código Zoom</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Código Zoom</p>
               <input value={form.passcode ?? ""} onChange={e => set("passcode", e.target.value)} placeholder="123456" className={inputCls} />
             </div>
             <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-foreground/35">Orden</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-text-3">Orden</p>
               <input type="number" value={form.sort_order} onChange={e => set("sort_order", Number(e.target.value))} className={inputCls} />
             </div>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-3 border-t border-foreground/[0.06] px-5 py-4">
-          <button onClick={onClose} className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 py-2 text-sm font-medium text-foreground/60 hover:text-foreground hover:bg-foreground/[0.06] transition-colors">
+        <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-4">
+          <button onClick={onClose} className="rounded-xl border border-border bg-secondary px-4 py-2 text-[13px] font-medium text-text-2 hover:text-foreground hover:bg-secondary transition-colors">
             Cancelar
           </button>
           <button
             onClick={handleSave}
             disabled={saving || saved || !form.title.trim()}
-            className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2 text-sm font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-60 transition-colors"
+            className="flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-bold disabled:opacity-60 transition-colors"
           >
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : saved ? <Check className="h-3.5 w-3.5" /> : <Save className="h-3.5 w-3.5" />}
             {saving ? "Guardando…" : saved ? "Guardado ✓" : "Guardar"}
@@ -277,16 +277,16 @@ export function AdminCalendarView() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Agenda</h1>
-          <p className="text-sm text-foreground/40 mt-0.5">Llamadas semanales del programa · se actualiza en tiempo real para los clientes</p>
+          <h1 className="text-[24px] font-bold text-foreground tracking-tight">Agenda</h1>
+          <p className="text-[13px] text-text-2 mt-0.5">Llamadas semanales del programa · se actualiza en tiempo real para los clientes</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={fetchEvents} disabled={loading}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground transition-colors disabled:opacity-40">
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-secondary text-text-2 hover:text-foreground transition-colors disabled:opacity-40">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button onClick={() => setModal({})}
-            className="flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-4 text-sm font-bold text-black hover:bg-[#f2ffc0] transition-colors">
+          className="flex items-center gap-2 h-9 rounded-xl btn-accent px-4 text-[13px] font-bold transition-colors">
             <Plus className="h-4 w-4" />
             Nueva llamada
           </button>
@@ -294,54 +294,54 @@ export function AdminCalendarView() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
+      <div className="overflow-hidden rounded-[14px] border border-border bg-card">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-5 w-5 animate-spin text-[#dafc69]/40" />
+            <Loader2 className="h-5 w-5 animate-spin text-accent-ink/40" />
           </div>
         ) : sorted.length === 0 ? (
-          <div className="py-16 text-center text-sm text-foreground/25">
+          <div className="py-16 text-center text-[13px] text-text-3">
             No hay llamadas. Agregá la primera con el botón amarillo.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                <tr className="border-b border-border bg-secondary">
                   {["Día", "Título", "Hora", "Recurrencia", "Estado", ""].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.18em] text-foreground/25 whitespace-nowrap">{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.18em] text-text-3 whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {sorted.map(ev => (
-                  <tr key={ev.id} className="border-b border-foreground/[0.04] hover:bg-foreground/[0.02] transition-colors group">
+                  <tr key={ev.id} className="border-b border-border hover:bg-secondary transition-colors group">
                     <td className="px-4 py-3 text-[13px] font-semibold text-foreground whitespace-nowrap">
                       {ev.day_of_week ?? "—"}
                     </td>
                     <td className="px-4 py-3">
                       <p className="text-[13px] font-medium text-foreground">{ev.title}</p>
-                      {ev.description && <p className="text-[11px] text-foreground/40">{ev.description}</p>}
+                      {ev.description && <p className="text-[13px] text-text-2">{ev.description}</p>}
                     </td>
-                    <td className="px-4 py-3 text-[13px] text-foreground/60 whitespace-nowrap">
+                    <td className="px-4 py-3 text-[13px] text-text-2 whitespace-nowrap">
                       {ev.time ? `${ev.time} ${ev.tz_label}` : "—"}
                     </td>
-                    <td className="px-4 py-3 text-[12px] text-foreground/50 whitespace-nowrap">
+                    <td className="px-4 py-3 text-[13px] text-text-2 whitespace-nowrap">
                       {RECURR_LABEL[ev.recurrence] ?? ev.recurrence}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-[11px] font-semibold capitalize ${STATUS_STYLE[ev.status] ?? ""}`}>
+                      <span className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-[13px] font-semibold capitalize ${STATUS_STYLE[ev.status] ?? ""}`}>
                         {ev.status === "active" ? "Activo" : ev.status === "cancelled" ? "Cancelado" : "Próximamente"}
                       </span>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => setModal(ev)}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-colors">
+                          className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-colors">
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
                         <button onClick={() => handleDelete(ev.id, ev.title)} disabled={deletingId === ev.id}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/20 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-40">
+                          className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-40">
                           {deletingId === ev.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                         </button>
                       </div>

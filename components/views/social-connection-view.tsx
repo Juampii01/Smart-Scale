@@ -138,13 +138,13 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
           <Icon className="h-6 w-6" style={{ color: brand.color }} />
         </span>
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-foreground leading-none">Mi {brand.name}</h1>
-          <p className="text-sm text-foreground/50 mt-1">{brand.desc}</p>
+          <h1 className="text-[24px] font-extrabold tracking-tight text-foreground leading-none">Mi {brand.name}</h1>
+          <p className="text-[13px] text-text-2 mt-1">{brand.desc}</p>
         </div>
       </div>
 
       {banner && (
-        <div className={`mt-5 flex items-center gap-2 rounded-xl border px-4 py-3 text-sm ${
+        <div className={`mt-5 flex items-center gap-2 rounded-xl border px-4 py-3 text-[13px] ${
           banner.type === "ok"
             ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300"
             : "border-red-200 bg-red-50 text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300"
@@ -155,13 +155,13 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
       )}
 
       {loading ? (
-        <div className="mt-6 flex items-center justify-center gap-2 rounded-[14px] border border-border bg-card py-14 text-foreground/50">
+        <div className="mt-6 flex items-center justify-center gap-2 rounded-[14px] border border-border bg-card py-14 text-text-2">
           <Loader2 className="h-4 w-4 animate-spin" /> Cargando…
         </div>
       ) : !status?.connected ? (
         <div className="mt-6 rounded-[14px] border border-border bg-card p-8 text-center">
-          <p className="text-sm text-foreground/60 mb-4">Tu cuenta de {brand.name} todavía no está conectada.</p>
-          <button onClick={handleConnect} disabled={busy} className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-[0.98] disabled:opacity-50">
+          <p className="text-[13px] text-text-2 mb-4">Tu cuenta de {brand.name} todavía no está conectada.</p>
+          <button onClick={handleConnect} disabled={busy} className="inline-flex items-center gap-2 rounded-xl btn-accent px-5 py-2.5 text-[13px] font-bold transition active:scale-[0.98] disabled:opacity-50">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
             Conectar {brand.name}
           </button>
@@ -178,21 +178,21 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
               </span>
             )}
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-foreground">{status.accountName ?? "Cuenta conectada"}</p>
-              <p className="flex items-center gap-1 text-[12px] text-emerald-700 dark:text-emerald-400">
+              <p className="truncate text-[13px] font-semibold text-foreground">{status.accountName ?? "Cuenta conectada"}</p>
+              <p className="flex items-center gap-1 text-[13px] text-emerald-700 dark:text-emerald-400">
                 <Check className="h-3 w-3" /> Conectado{status.connectedAt ? ` · ${new Date(status.connectedAt).toLocaleDateString("es-AR")}` : ""}
               </p>
             </div>
-            <button onClick={() => loadMetrics()} disabled={metricsLoading} title="Actualizar" className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-foreground/[0.05] transition disabled:opacity-50">
+            <button onClick={() => loadMetrics()} disabled={metricsLoading} title="Actualizar" className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-secondary transition disabled:opacity-50">
               <RefreshCw className={`h-3.5 w-3.5 ${metricsLoading ? "animate-spin" : ""}`} /> Actualizar
             </button>
-            <button onClick={handleDisconnect} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-[13px] font-medium text-red-600 dark:text-red-400 hover:bg-foreground/[0.05] transition disabled:opacity-50">
+            <button onClick={handleDisconnect} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-[13px] font-medium text-red-600 dark:text-red-400 hover:bg-secondary transition disabled:opacity-50">
               {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Unlink className="h-3.5 w-3.5" />} Desconectar
             </button>
           </div>
 
           {status.tokenExpired && (
-            <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300">
+            <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[13px] text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300">
               <AlertTriangle className="h-3.5 w-3.5 shrink-0" /> El acceso venció.
               <button onClick={handleConnect} disabled={busy} className="ml-auto inline-flex items-center gap-1 font-semibold underline"><RefreshCw className="h-3 w-3" /> Reconectar</button>
             </div>
@@ -202,20 +202,20 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
           {metrics && metrics.current.length > 0 && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {metrics.current.map((s, i) => (
-                <div key={s.label} className={`rounded-[14px] border p-4 ${i === 0 ? "border-[#dafc69]/30 bg-[#dafc69]/[0.06]" : "border-border bg-card"}`}>
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-foreground/45">{s.label}</p>
-                  <p className="mt-1 text-2xl font-bold text-foreground tabular-nums">{s.value}</p>
+                <div key={s.label} className={`rounded-[14px] border p-4 ${i === 0 ? "border-accent/25 bg-accent-soft" : "border-border bg-card"}`}>
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-text-2">{s.label}</p>
+                  <p className="mt-1 text-[24px] font-bold text-foreground tabular-nums">{s.value}</p>
                 </div>
               ))}
             </div>
           )}
 
           {metricsLoading && !metrics ? (
-            <div className="flex items-center justify-center gap-2 rounded-[14px] border border-border bg-card py-12 text-foreground/50">
+            <div className="flex items-center justify-center gap-2 rounded-[14px] border border-border bg-card py-12 text-text-2">
               <Loader2 className="h-4 w-4 animate-spin" /> Trayendo métricas…
             </div>
           ) : metrics?.note ? (
-            <div className="flex items-center gap-2 rounded-[14px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300">
+            <div className="flex items-center gap-2 rounded-[14px] border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300">
               <AlertTriangle className="h-4 w-4 shrink-0" />
               {metrics.note === "reconnect" ? "El acceso a la API expiró. Reconectá la cuenta para ver las métricas." : "No pudimos traer las métricas ahora. Probá actualizar en un rato."}
             </div>
@@ -230,11 +230,11 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
                       onClick={() => setBucketKey(b.key)}
                       className={`rounded-lg border px-3 py-1.5 text-[13px] font-medium transition ${
                         b.key === bucketKey
-                          ? "border-[#dafc69]/40 bg-[#dafc69]/[0.12] text-foreground"
-                          : "border-border bg-card text-foreground/60 hover:bg-foreground/[0.05]"
+                          ? "border-accent bg-secondary text-foreground"
+                          : "border-border bg-card text-text-2 hover:bg-secondary"
                       }`}
                     >
-                      {b.label} <span className="text-foreground/35">· {b.count}</span>
+                      {b.label} <span className="text-text-3">· {b.count}</span>
                     </button>
                   ))}
                 </div>
@@ -244,8 +244,8 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
                 {bucket.overview.map((s) => (
                   <div key={s.label} className="rounded-[14px] border border-border bg-card p-4">
-                    <p className="text-[11px] font-medium uppercase tracking-wide text-foreground/45">{s.label}</p>
-                    <p className="mt-1 text-2xl font-bold text-foreground tabular-nums">{s.value}</p>
+                    <p className="text-[11px] font-medium uppercase tracking-wide text-text-2">{s.label}</p>
+                    <p className="mt-1 text-[24px] font-bold text-foreground tabular-nums">{s.value}</p>
                   </div>
                 ))}
               </div>
@@ -254,18 +254,18 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
               {bucket.detailed.length > 0 && (
                 <div className="rounded-[14px] border border-border bg-card overflow-hidden">
                   <div className="flex items-center gap-2 border-b border-border px-5 py-3">
-                    <Flame className="h-4 w-4 text-foreground/50" />
-                    <span className="text-sm font-semibold text-foreground">Métricas detalladas</span>
-                    <span className="ml-auto text-[11px] text-foreground/40">
+                    <Flame className="h-4 w-4 text-text-2" />
+                    <span className="text-[13px] font-semibold text-foreground">Métricas detalladas</span>
+                    <span className="ml-auto text-[13px] text-text-2">
                       {bucket.key === "total" ? "todo el período" : bucket.label} · {bucket.count} {platform === "youtube" ? "videos" : "publicaciones"}
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-3">
                     {bucket.detailed.map((s) => (
                       <div key={s.label} className="rounded-xl border border-border bg-background/40 p-4">
-                        <p className="text-xs text-foreground/50">{s.label}</p>
-                        <p className="mt-1 text-xl font-bold text-foreground tabular-nums">{s.value}</p>
-                        {s.sub && <p className="mt-0.5 text-[11px] text-foreground/40">{s.sub}</p>}
+                        <p className="text-[13px] text-text-2">{s.label}</p>
+                        <p className="mt-1 text-[24px] font-bold text-foreground tabular-nums">{s.value}</p>
+                        {s.sub && <p className="mt-0.5 text-[13px] text-text-2">{s.sub}</p>}
                       </div>
                     ))}
                   </div>
@@ -275,23 +275,23 @@ export function SocialConnectionView({ platform }: { platform: Platform }) {
               {/* Media del período */}
               {bucket.media.length > 0 && (
                 <div>
-                  <h2 className="mb-3 text-sm font-semibold text-foreground">{platform === "youtube" ? "Videos" : "Publicaciones"} · {bucket.label}</h2>
+                  <h2 className="mb-3 text-[13px] font-semibold text-foreground">{platform === "youtube" ? "Videos" : "Publicaciones"} · {bucket.label}</h2>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                     {bucket.media.slice(0, 12).map((m) => (
-                      <a key={m.id} href={m.permalink} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-xl border border-border bg-card transition hover:border-foreground/20">
-                        <div className="relative aspect-square w-full overflow-hidden bg-foreground/[0.04]">
+                      <a key={m.id} href={m.permalink} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-xl border border-border bg-card transition hover:border-border-hover">
+                        <div className="relative aspect-square w-full overflow-hidden bg-elevated">
                           {m.thumbnail ? (
                             <img src={px(m.thumbnail)} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center"><Icon className="h-6 w-6 text-foreground/20" /></div>
+                            <div className="flex h-full w-full items-center justify-center"><Icon className="h-6 w-6 text-text-3" /></div>
                           )}
                           <span className="absolute right-1.5 top-1.5 rounded-md bg-black/55 p-1 opacity-0 transition group-hover:opacity-100">
                             <ExternalLink className="h-3 w-3 text-white" />
                           </span>
                         </div>
                         <div className="p-2.5">
-                          {m.caption && <p className="mb-1.5 line-clamp-2 text-[11px] text-foreground/60 leading-snug">{m.caption}</p>}
-                          <div className="flex items-center gap-3 text-[11px] text-foreground/50">
+                          {m.caption && <p className="mb-1.5 line-clamp-2 text-[13px] text-text-2 leading-snug">{m.caption}</p>}
+                          <div className="flex items-center gap-3 text-[13px] text-text-2">
                             {(m.views ?? 0) > 0 && <span className="flex items-center gap-0.5" title="Views"><Eye className="h-3 w-3" /> {fmt(m.views ?? 0)}</span>}
                             <span className="flex items-center gap-0.5" title="Likes"><Heart className="h-3 w-3" /> {fmt(m.likes)}</span>
                             <span className="flex items-center gap-0.5" title="Comentarios"><MessageCircle className="h-3 w-3" /> {fmt(m.comments)}</span>

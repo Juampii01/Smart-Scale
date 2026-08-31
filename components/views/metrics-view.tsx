@@ -67,9 +67,9 @@ function HealthRadar({ reports }: { reports: any[] }) {
   ]
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
-      <h3 className="text-[16px] font-bold text-foreground mb-1">Health Score</h3>
-      <p className="text-xs text-foreground/35 mb-4">
+    <div className="rounded-[14px] border border-border bg-card p-6">
+      <h3 className="text-[18px] font-bold text-foreground mb-1">Health Score</h3>
+      <p className="text-[13px] text-text-3 mb-4">
         Cada eje muestra qué tan cerca estás de tu mejor mes histórico (100 = tu máximo)
       </p>
       <ResponsiveContainer width="100%" height={280}>
@@ -82,8 +82,8 @@ function HealthRadar({ reports }: { reports: any[] }) {
           <Radar
             name="Este mes"
             dataKey="A"
-            stroke="#dafc69"
-            fill="#dafc69"
+            stroke="var(--accent-ink)"
+            fill="var(--accent-ink)"
             fillOpacity={0.15}
             strokeWidth={2}
           />
@@ -96,12 +96,12 @@ function HealthRadar({ reports }: { reports: any[] }) {
 // ─── Summary KPI strip ────────────────────────────────────────────────────────
 
 const SUMMARY_KPIS = [
-  { key: "cash_collected",  label: "Cash Collected",  money: true,  color: "#dafc69" },
-  { key: "total_revenue",   label: "Total Revenue",    money: true,  color: "#fb923c" },
-  { key: "mrr",             label: "MRR",              money: true,  color: "#60a5fa" },
-  { key: "new_clients",     label: "Nuevos Clientes",  money: false, color: "#4ade80" },
-  { key: "short_followers", label: "IG Seguidores",    money: false, color: "#818cf8" },
-  { key: "ad_spend",        label: "Ad Spend",         money: true,  color: "#ef4444" },
+  { key: "cash_collected",  label: "Cash Collected",  money: true,  color: "var(--accent-ink)" },
+  { key: "total_revenue",   label: "Total Revenue",    money: true,  color: "var(--text-3)" },
+  { key: "mrr",             label: "MRR",              money: true,  color: "var(--text-3)" },
+  { key: "new_clients",     label: "Nuevos Clientes",  money: false, color: "var(--text-3)" },
+  { key: "short_followers", label: "IG Seguidores",    money: false, color: "var(--text-3)" },
+  { key: "ad_spend",        label: "Ad Spend",         money: true,  color: "var(--text-3)" },
 ]
 
 function SummaryStrip({ current, previous }: { current: any; previous: any }) {
@@ -117,19 +117,19 @@ function SummaryStrip({ current, previous }: { current: any; previous: any }) {
 
         return (
           <div key={kpi.key}
-            className="rounded-xl border border-foreground/[0.07] bg-card p-4 flex flex-col gap-2 hover:border-foreground/[0.12] transition-colors">
+            className="rounded-xl border border-border bg-card p-4 flex flex-col gap-2 hover:border-border transition-colors">
             <div className="flex items-center justify-between">
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: kpi.color }} />
               {pct !== null && (
-                <span className={`text-[10px] font-bold ${isUp ? "text-emerald-700 dark:text-emerald-400" : isDown ? "text-red-700 dark:text-red-400" : "text-foreground/30"}`}>
+                <span className={`text-[13px] font-bold ${isUp ? "text-emerald-700 dark:text-emerald-400" : isDown ? "text-red-700 dark:text-red-400" : "text-text-3"}`}>
                   {pct > 0 ? "+" : ""}{Math.round(pct)}%
                 </span>
               )}
             </div>
-            <p className="text-xl font-bold text-foreground leading-none tabular-nums">
+            <p className="text-[24px] font-bold text-foreground leading-none tabular-nums">
               {fmtVal(cur, kpi.money)}
             </p>
-            <p className="text-[10px] text-foreground/40 leading-tight">{kpi.label}</p>
+            <p className="text-[13px] text-text-2 leading-tight">{kpi.label}</p>
           </div>
         )
       })}
@@ -151,30 +151,30 @@ function RollingTrend({ reports }: { reports: any[] }) {
 
   const tooltipStyle = {
     contentStyle: { backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "12px", padding: "10px 14px" },
-    labelStyle: { color: "#fff", fontWeight: 700, fontSize: 12 },
+    labelStyle: { color: "var(--foreground)", fontWeight: 700, fontSize: 12 },
     itemStyle: { fontSize: 12, fontWeight: 600 },
   }
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
-      <h3 className="text-[16px] font-bold text-foreground mb-1">Evolución financiera — 12 meses</h3>
-      <p className="text-xs text-foreground/35 mb-5">Cash Collected, Total Revenue y MRR en el tiempo</p>
+    <div className="rounded-[14px] border border-border bg-card p-6">
+      <h3 className="text-[18px] font-bold text-foreground mb-1">Evolución financiera — 12 meses</h3>
+      <p className="text-[13px] text-text-3 mb-5">Cash Collected, Total Revenue y MRR en el tiempo</p>
       <div className="flex flex-wrap gap-5 mb-4">
         {[
-          { label: "Cash Collected", color: "#dafc69" },
-          { label: "Total Revenue",  color: "#fb923c" },
-          { label: "MRR",            color: "#60a5fa" },
+          { label: "Cash Collected", color: "var(--accent-ink)" },
+          { label: "Total Revenue",  color: "var(--series-1)" },
+          { label: "MRR",            color: "var(--series-2)" },
         ].map(l => (
           <div key={l.label} className="flex items-center gap-1.5">
             <span className="h-[3px] w-5 rounded-full" style={{ backgroundColor: l.color }} />
-            <span className="text-[11px] text-foreground/50">{l.label}</span>
+            <span className="text-[13px] text-text-2">{l.label}</span>
           </div>
         ))}
       </div>
       <ResponsiveContainer width="100%" height={220}>
         <AreaChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
           <defs>
-            {[["cash","#dafc69"],["revenue","#fb923c"],["mrr","#60a5fa"]].map(([key, color]) => (
+            {[["cash","var(--accent-ink)"],["revenue","var(--series-1)"],["mrr","var(--series-2)"]].map(([key, color]) => (
               <linearGradient key={key} id={`grad_all_${key}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%"  stopColor={color} stopOpacity={0.2} />
                 <stop offset="95%" stopColor={color} stopOpacity={0}   />
@@ -186,9 +186,9 @@ function RollingTrend({ reports }: { reports: any[] }) {
           <YAxis stroke="transparent" tick={{ fill: "rgba(255,255,255,0.30)", fontSize: 10 }} tickLine={false} axisLine={false}
             tickFormatter={v => v >= 1000 ? `$${(v/1000).toFixed(0)}K` : `$${v}`} width={48} />
           <Tooltip {...tooltipStyle} formatter={(v: number, name: string) => [fmtVal(v, true), name]} />
-          <Area type="monotone" dataKey="cash"    name="Cash Collected" stroke="#dafc69" strokeWidth={2} fill="url(#grad_all_cash)"    dot={false} />
-          <Area type="monotone" dataKey="revenue" name="Total Revenue"  stroke="#fb923c" strokeWidth={2} fill="url(#grad_all_revenue)" dot={false} />
-          <Area type="monotone" dataKey="mrr"     name="MRR"           stroke="#60a5fa" strokeWidth={2} fill="url(#grad_all_mrr)"     dot={false} />
+          <Area type="monotone" dataKey="cash"    name="Cash Collected" stroke="var(--accent-ink)" strokeWidth={2} fill="url(#grad_all_cash)"    dot={false} />
+          <Area type="monotone" dataKey="revenue" name="Total Revenue"  stroke="var(--series-1)" strokeWidth={2} fill="url(#grad_all_revenue)" dot={false} />
+          <Area type="monotone" dataKey="mrr"     name="MRR"           stroke="var(--series-2)" strokeWidth={2} fill="url(#grad_all_mrr)"     dot={false} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -309,8 +309,8 @@ export function MetricsView() {
     <div className="space-y-12">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-bold text-foreground">All Metrics</h2>
-        <p suppressHydrationWarning className="text-[13px] text-foreground/40 mt-0.5">
+        <h2 className="text-[24px] font-bold text-foreground">All Metrics</h2>
+        <p suppressHydrationWarning className="text-[13px] text-text-2 mt-0.5">
           {selectedMonth} · {annualRange ? `Últimos 12 meses: ${annualRange.label}` : "—"}
         </p>
       </div>
@@ -318,7 +318,7 @@ export function MetricsView() {
       {/* 1. Summary KPI strip */}
       {(curReport || metrics) && (
         <section className="space-y-3">
-          <h3 className="text-base font-bold text-foreground">Snapshot del mes</h3>
+          <h3 className="text-[15px] font-bold text-foreground">Snapshot del mes</h3>
           <SummaryStrip current={curReport ?? metrics} previous={prevReport} />
         </section>
       )}
@@ -338,13 +338,13 @@ export function MetricsView() {
         <section className="grid gap-5 md:grid-cols-2">
           <HealthRadar reports={reports} />
           {/* Texto explicativo */}
-          <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6 flex flex-col justify-center gap-4">
-            <h3 className="text-[16px] font-bold text-foreground">¿Cómo leer el radar?</h3>
-            <div className="space-y-3 text-sm text-foreground/50 leading-relaxed">
-              <p>Cada eje representa una métrica clave. <span className="text-foreground/70 font-medium">100 = tu mejor mes histórico</span> en esa categoría.</p>
+          <div className="rounded-[14px] border border-border bg-card p-6 flex flex-col justify-center gap-4">
+            <h3 className="text-[18px] font-bold text-foreground">¿Cómo leer el radar?</h3>
+            <div className="space-y-3 text-[13px] text-text-2 leading-relaxed">
+              <p>Cada eje representa una métrica clave. <span className="text-foreground font-medium">100 = tu mejor mes histórico</span> en esa categoría.</p>
               <p>Un radar balanceado y grande → negocio saludable en todos los frentes.</p>
               <p>Un eje caído → ahí está el problema. Si Instagram cae y el cash cae, la correlación es clara.</p>
-              <p className="text-foreground/35 text-xs">Los valores se normalizan automáticamente cada vez que hay un nuevo máximo histórico.</p>
+              <p className="text-text-3 text-[13px]">Los valores se normalizan automáticamente cada vez que hay un nuevo máximo histórico.</p>
             </div>
           </div>
         </section>
@@ -353,8 +353,8 @@ export function MetricsView() {
       {/* 5. Tabla completa de métricas */}
       <section className="space-y-4">
         <div>
-          <h3 className="text-base font-bold text-foreground">Tabla completa</h3>
-          <p className="text-xs text-foreground/35 mt-0.5">Todos los campos del reporte mensual + acumulado 12 meses</p>
+          <h3 className="text-[15px] font-bold text-foreground">Tabla completa</h3>
+          <p className="text-[13px] text-text-3 mt-0.5">Todos los campos del reporte mensual + acumulado 12 meses</p>
         </div>
         <MetricsSection
           metrics={metrics}

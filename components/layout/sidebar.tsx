@@ -7,7 +7,7 @@ import {
   User, Pencil, Trophy, Coins, FileBarChart, TrendingUp,
   Brain, Bot, Wrench, Rocket,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, APP_VERSION } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
@@ -17,8 +17,6 @@ interface SidebarProps {
   open: boolean
   onClose: () => void
   isAdmin?: boolean
-  collapsed?: boolean
-  onToggleCollapsed?: () => void
   avatarUrl?: string | null
   displayName?: string | null
   email?: string | null
@@ -131,10 +129,9 @@ export function Sidebar({
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-[220px] transition-transform duration-200 ease-in-out lg:translate-x-0",
+          "fixed left-0 top-0 z-50 h-full w-[240px] transition-transform duration-200 ease-in-out lg:translate-x-0",
           "bg-card flex flex-col pt-[env(safe-area-inset-top)] overflow-hidden",
-          "border-r border-foreground/[0.07]",
-          "lg:left-4 lg:top-4 lg:bottom-4 lg:h-auto lg:rounded-2xl lg:border lg:border-foreground/[0.08] lg:shadow-[0_10px_36px_-18px_rgba(0,0,0,0.30)]",
+          "border-r border-border",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
@@ -142,10 +139,10 @@ export function Sidebar({
         <div className="flex h-16 flex-shrink-0 items-center justify-between pl-5 pr-3">
           <a href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
             <BrandLogo />
-            <span className="self-start rounded-full bg-[#dafc69] px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-[#0a0a0a] leading-none">3.0</span>
+            <span className="self-start rounded-full bg-secondary px-1.5 py-0.5 text-[11px] font-bold tracking-wider text-text-2 leading-none">{APP_VERSION}</span>
           </a>
           <button
-            className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-foreground/50 hover:text-foreground hover:bg-foreground/10 transition-all"
+            className="lg:hidden flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-secondary transition-all"
             onClick={onClose}
             aria-label="Cerrar menú"
           >
@@ -159,7 +156,7 @@ export function Sidebar({
             <div key={group.label ?? `g${gi}`} className={cn(gi > 0 && "mt-6")}>
               {/* Section label — estático, no colapsable */}
               {group.label && (
-                <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/35">
+                <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-text-3">
                   {group.label}
                 </p>
               )}
@@ -178,17 +175,17 @@ export function Sidebar({
                         <button
                           onClick={() => toggleItem(item.name)}
                           className={cn(
-                            "w-full flex items-center gap-2.5 rounded-lg py-[7px] px-3 transition-all duration-150",
+                            "w-full flex h-[34px] items-center gap-2.5 rounded-lg px-3 transition-all duration-150",
                             (isItemExpanded || hasActiveChild)
                               ? "text-foreground"
-                              : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
+                              : "text-foreground hover:bg-secondary hover:text-foreground"
                           )}
                         >
                           <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
-                          <span className={cn("text-[13px] leading-none flex-1 text-left", (isItemExpanded || hasActiveChild) ? "font-semibold" : "font-medium")}>
+                          <span className={cn("text-[15px] leading-none flex-1 text-left", (isItemExpanded || hasActiveChild) ? "font-semibold" : "font-medium")}>
                             {item.name}
                           </span>
-                          <ChevronDown className={cn("h-3 w-3 text-foreground/30 transition-transform duration-200", isItemExpanded && "rotate-180")} />
+                          <ChevronDown className={cn("h-3 w-3 text-text-3 transition-transform duration-200", isItemExpanded && "rotate-180")} />
                         </button>
 
                         {/* Sub-items — indentación sin línea */}
@@ -197,10 +194,10 @@ export function Sidebar({
                             {item.children!.map(child => (
                               <Link key={child.href} href={child.href} onClick={onClose}>
                                 <div className={cn(
-                                  "py-1.5 px-2 rounded-md text-[12px] transition-colors duration-150",
+                                  "py-1.5 px-2 rounded-md text-[15px] transition-colors duration-150",
                                   pathname === child.href
-                                    ? "text-[#dafc69] font-semibold"
-                                    : "text-foreground/50 hover:text-foreground/90 hover:bg-foreground/[0.04]"
+                                    ? "text-accent-ink font-semibold"
+                                    : "text-text-2 hover:text-foreground hover:bg-secondary"
                                 )}>
                                   {child.name}
                                 </div>
@@ -216,13 +213,13 @@ export function Sidebar({
                   return (
                     <Link key={item.name} href={item.href} onClick={onClose}>
                       <div className={cn(
-                        "flex items-center gap-2.5 rounded-lg py-[7px] px-3 transition-all duration-150",
+                        "flex h-[34px] items-center gap-2.5 rounded-lg px-3 transition-all duration-150",
                         isActive
-                          ? "bg-foreground/[0.07] text-[#dafc69]"
-                          : "text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground"
+                          ? "bg-secondary text-accent-ink"
+                          : "text-foreground hover:bg-secondary hover:text-foreground"
                       )}>
                         <item.icon className="h-[14px] w-[14px] flex-shrink-0" />
-                        <span className={cn("text-[13px] leading-none", isActive ? "font-semibold" : "font-medium")}>
+                        <span className={cn("text-[15px] leading-none", isActive ? "font-semibold" : "font-medium")}>
                           {item.name}
                         </span>
                       </div>
@@ -238,23 +235,23 @@ export function Sidebar({
         <div className="flex-shrink-0 p-3 space-y-1.5">
           {isAdmin && (
             <Link href="/admin/clients" onClick={onClose}>
-              <div className="group flex items-center gap-2.5 rounded-lg px-3 py-2 text-foreground/70 hover:bg-foreground/[0.05] hover:text-foreground transition-all duration-150">
+              <div className="group flex items-center gap-2.5 rounded-lg px-3 py-2 text-foreground hover:bg-secondary hover:text-foreground transition-all duration-150">
                 <ShieldCheck className="h-4 w-4 shrink-0" />
                 <span className="flex-1 text-[13px] font-medium">Panel interno</span>
-                <ArrowRight className="h-3.5 w-3.5 text-foreground/30 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="h-3.5 w-3.5 text-text-3 group-hover:translate-x-0.5 transition-transform" />
               </div>
             </Link>
           )}
 
           {crmEnabled && (
             <Link href="/crm/hoy" onClick={onClose}>
-              <div className="group flex items-center gap-2.5 rounded-lg border border-[#dafc69]/30 bg-[#dafc69]/[0.06] px-3 py-2.5 hover:bg-[#dafc69]/[0.1] transition-colors">
-                <Rocket className="h-4 w-4 shrink-0 text-[#dafc69]" />
+              <div className="group flex items-center gap-2.5 rounded-lg border border-accent/25 bg-accent-soft px-3 py-2.5 hover:bg-accent-soft/70 transition-colors">
+                <Rocket className="h-4 w-4 shrink-0 text-accent-ink" />
                 <span className="min-w-0 flex-1">
                   <span className="block text-[13px] font-semibold text-foreground leading-none">CRM interno</span>
-                  <span className="mt-0.5 block text-[11px] text-foreground/45">Tu pipeline</span>
+                  <span className="mt-0.5 block text-[13px] text-text-2">Tu pipeline</span>
                 </span>
-                <ArrowRight className="h-3.5 w-3.5 text-foreground/30 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="h-3.5 w-3.5 text-text-3 group-hover:translate-x-0.5 transition-transform" />
               </div>
             </Link>
           )}
@@ -267,16 +264,16 @@ export function Sidebar({
               className={cn(
                 "group/profile flex w-full items-center gap-2.5 rounded-lg border px-2.5 py-2 transition-all duration-150",
                 pathname === "/perfil"
-                  ? "border-[#dafc69]/30 bg-[#dafc69]/[0.08]"
-                  : "border-foreground/[0.06] bg-foreground/[0.02] hover:bg-foreground/[0.05]"
+                  ? "border-accent bg-secondary"
+                  : "border-border bg-elevated hover:bg-secondary"
               )}
             >
-              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10 text-[13px] font-bold text-[#dafc69]">
+              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-accent/30 bg-accent-soft text-[13px] font-bold text-accent-ink">
                 {avatarUrl
                   ? <img src={avatarUrl} alt="Perfil" className="h-full w-full object-cover" />
-                  : <User className="h-4 w-4 text-[#dafc69]" />}
+                  : <User className="h-4 w-4 text-accent-ink" />}
                 <span className={cn(
-                  "absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#dafc69] ring-2 ring-card",
+                  "absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent ring-2 ring-card",
                   avatarUrl && "opacity-0 group-hover/profile:opacity-100 transition-opacity"
                 )}>
                   <Pencil className="h-2.5 w-2.5 text-black" />
@@ -284,7 +281,7 @@ export function Sidebar({
               </span>
               <span className="min-w-0 flex-1 text-left">
                 <span className="block truncate text-[13px] font-semibold text-foreground">{profileLabel}</span>
-                <span className="block truncate text-[11px] text-foreground/45">Context Room</span>
+                <span className="block truncate text-[13px] text-text-2">Context Room</span>
               </span>
             </Link>
           )}

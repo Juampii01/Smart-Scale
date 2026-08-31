@@ -12,7 +12,7 @@ export type PipelineStageId =
 // Smart Scale trackear "Nuevo lead"/"Contactado"/"Respondió"/"No calificado":
 // el setter recién agrega algo a este tablero cuando ya calificó al lead.
 export const PIPELINE_COLUMNS: { id: PipelineStageId; label: string; color: string }[] = [
-  { id: "calificado",        label: "Calificado (4-5★)",         color: "#dafc69" },
+  { id: "calificado",        label: "Calificado (4-5★)",         color: "var(--accent-ink)" },
   { id: "seguimiento",       label: "Seguimiento 4/5 estrellas", color: "#06B6D4" },
   { id: "oferta",            label: "Oferta realizada",          color: "#8B5CF6" },
   { id: "seguimiento_48h",   label: "Seguimiento · 48 horas",    color: "#F59E0B" },

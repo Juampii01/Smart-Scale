@@ -60,52 +60,52 @@ export function AdminPushView() {
     } catch { setState("error"); setMsg("Error de red.") }
   }
 
-  const inputCls = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/40 outline-none focus:border-[#dafc69]/60 transition-colors"
+  const inputCls = "w-full rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-text-2 outline-none focus:border-accent transition-colors"
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
       <div className="flex items-center gap-3">
-        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#dafc69]/15">
-          <Bell className="h-6 w-6 text-[#dafc69]" />
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent-soft">
+          <Bell className="h-6 w-6 text-accent-ink" />
         </span>
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-foreground leading-none">Notificaciones</h1>
-          <p className="text-sm text-foreground/50 mt-1">Lanzá una notificación push a clientes o equipo.</p>
+          <h1 className="text-[24px] font-extrabold tracking-tight text-foreground leading-none">Notificaciones</h1>
+          <p className="text-[13px] text-text-2 mt-1">Lanzá una notificación push a clientes o equipo.</p>
         </div>
       </div>
 
       <section className="rounded-2xl border border-border bg-card p-5 space-y-4">
         <div>
-          <label className="block text-[13px] font-medium text-foreground/70 mb-1.5">Título</label>
+          <label className="block text-[13px] font-medium text-foreground mb-1.5">Título</label>
           <input className={inputCls} value={title} maxLength={60} placeholder="Ej: 📞 Hoy hay llamada" onChange={(e) => { setTitle(e.target.value); setState("idle") }} />
-          <p className="mt-1 text-[11px] text-foreground/35 text-right">{title.length}/60</p>
+          <p className="mt-1 text-[13px] text-text-3 text-right">{title.length}/60</p>
         </div>
         <div>
-          <label className="block text-[13px] font-medium text-foreground/70 mb-1.5">Mensaje</label>
+          <label className="block text-[13px] font-medium text-foreground mb-1.5">Mensaje</label>
           <textarea className={`${inputCls} resize-none`} rows={3} value={body} maxLength={160} placeholder="Ej: A las 13:00 (Miami). Te esperamos 👇" onChange={(e) => { setBody(e.target.value); setState("idle") }} />
-          <p className="mt-1 text-[11px] text-foreground/35 text-right">{body.length}/160</p>
+          <p className="mt-1 text-[13px] text-text-3 text-right">{body.length}/160</p>
         </div>
         <div>
-          <label className="block text-[13px] font-medium text-foreground/70 mb-1.5">Link al tocar <span className="text-foreground/35">(opcional)</span></label>
+          <label className="block text-[13px] font-medium text-foreground mb-1.5">Link al tocar <span className="text-text-3">(opcional)</span></label>
           <input className={inputCls} value={url} placeholder="/calendar o https://zoom.us/…" onChange={(e) => setUrl(e.target.value)} />
         </div>
       </section>
 
       {/* Audiencia */}
       <section className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="text-sm font-semibold text-foreground mb-3">¿A quién?</h2>
+        <h2 className="text-[13px] font-semibold text-foreground mb-3">¿A quién?</h2>
         <div className="grid grid-cols-2 gap-3">
           {AUDIENCES.map((a) => {
             const n = reachFor(a.key)
             const active = audience === a.key
             return (
               <button key={a.key} onClick={() => setAudience(a.key)}
-                className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${active ? "border-[#dafc69]/40 bg-[#dafc69]/[0.08]" : "border-border bg-background/40 hover:bg-foreground/[0.04]"}`}>
-                <a.Icon className={`h-4 w-4 mt-0.5 shrink-0 ${active ? "text-[#dafc69]" : "text-foreground/40"}`} />
+                className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${active ? "border-accent bg-secondary" : "border-border bg-background/40 hover:bg-secondary"}`}>
+                <a.Icon className={`h-4 w-4 mt-0.5 shrink-0 ${active ? "text-accent-ink" : "text-text-2"}`} />
                 <div className="min-w-0">
                   <p className="text-[13px] font-semibold text-foreground">{a.label}</p>
-                  <p className="text-[11px] text-foreground/45">{a.desc}</p>
-                  {a.key !== "me" && <p className="text-[11px] text-foreground/35 mt-0.5">{n ?? "…"} dispositivos</p>}
+                  <p className="text-[13px] text-text-2">{a.desc}</p>
+                  {a.key !== "me" && <p className="text-[13px] text-text-3 mt-0.5">{n ?? "…"} dispositivos</p>}
                 </div>
               </button>
             )
@@ -114,7 +114,7 @@ export function AdminPushView() {
       </section>
 
       {msg && (
-        <div className={`flex items-center gap-2 rounded-xl border px-4 py-3 text-sm ${
+        <div className={`flex items-center gap-2 rounded-xl border px-4 py-3 text-[13px] ${
           state === "error"
             ? "border-red-200 bg-red-50 text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300"
             : "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300"
@@ -125,11 +125,11 @@ export function AdminPushView() {
       )}
 
       <button onClick={send} disabled={state === "sending"}
-        className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-[0.98] disabled:opacity-50">
+      className="inline-flex items-center gap-2 rounded-xl btn-accent px-5 py-2.5 text-[13px] font-bold transition active:scale-[0.98] disabled:opacity-50">
         {state === "sending" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         Enviar notificación
       </button>
-      <p className="text-[11px] text-foreground/35">Tip: probá primero con <strong>"Solo a mí"</strong> para ver cómo queda antes de mandarla a todos.</p>
+      <p className="text-[13px] text-text-3">Tip: probá primero con <strong>"Solo a mí"</strong> para ver cómo queda antes de mandarla a todos.</p>
     </div>
   )
 }

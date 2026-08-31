@@ -6,7 +6,7 @@
  * lineal infinito y el núcleo pulsa cada 3.6s — respeta prefers-reduced-motion
  * vía la clase `motion-reduce:animate-none`.
  */
-function OrbitMark({ size = 28 }: { size?: number }) {
+function OrbitMark({ size = 28, mono = false }: { size?: number; mono?: boolean }) {
   const dots = [0, 60, 120, 180, 240, 300]
   return (
     <span
@@ -17,24 +17,45 @@ function OrbitMark({ size = 28 }: { size?: number }) {
         {dots.map(a => (
           <i
             key={a}
-            className="absolute left-1/2 top-1/2 -m-[2px] h-1 w-1 rounded-full border-[1.3px] border-[#dafc69] opacity-50"
+            className={mono
+              ? "absolute left-1/2 top-1/2 -m-[2px] h-1 w-1 rounded-full border-[1.3px] border-foreground opacity-40"
+              : "absolute left-1/2 top-1/2 -m-[2px] h-1 w-1 rounded-full border-[1.3px] border-accent opacity-50"}
             style={{ transform: `rotate(${a}deg) translateY(-${size * 0.39}px) rotate(-${a}deg)` }}
           />
         ))}
       </span>
       <span
-        className="rounded-full bg-[#dafc69] animate-[ss-pulse_3.6s_ease-out_infinite] motion-reduce:animate-none"
+        className={mono
+          ? "rounded-full bg-foreground animate-[ss-pulse_3.6s_ease-out_infinite] motion-reduce:animate-none"
+          : "rounded-full bg-accent animate-[ss-pulse_3.6s_ease-out_infinite] motion-reduce:animate-none"}
         style={{ width: "44%", aspectRatio: "1" }}
       />
     </span>
   )
 }
 
-export function BrandLogo({ size = 28, wordmarkSize = 15, iconOnly = false }: { size?: number; wordmarkSize?: number; iconOnly?: boolean }) {
-  if (iconOnly) return <OrbitMark size={size} />
+/**
+ * Marca de las pantallas de auth (login, signup, forgot/reset-password):
+ * el isotipo real, monocromo, dentro de un aro circular — no un
+ * monograma aparte. Único consumidor de la marca en las 4 pantallas de
+ * auth, para que nadie vuelva a inventar un logo nuevo ahí.
+ */
+export function AuthMark({ size = 56 }: { size?: number }) {
+  return (
+    <span
+      className="inline-flex shrink-0 items-center justify-center rounded-full border border-border bg-secondary"
+      style={{ width: size, height: size }}
+    >
+      <OrbitMark size={size * 0.5} mono />
+    </span>
+  )
+}
+
+export function BrandLogo({ size = 28, wordmarkSize = 15, iconOnly = false, mono = false }: { size?: number; wordmarkSize?: number; iconOnly?: boolean; mono?: boolean }) {
+  if (iconOnly) return <OrbitMark size={size} mono={mono} />
   return (
     <span className="flex items-center gap-3">
-      <OrbitMark size={size} />
+      <OrbitMark size={size} mono={mono} />
       <span
         className="font-sans font-light uppercase leading-none tracking-[0.14em] text-foreground"
         style={{ fontSize: wordmarkSize }}

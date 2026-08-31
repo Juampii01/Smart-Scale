@@ -27,7 +27,7 @@ const FIELD_GROUPS = [
   {
     key: "sales",
     label: "Sales",
-    color: "bg-[#dafc69]",
+    color: "bg-accent",
     fields: [
       { key: "scheduled_calls",      label: "Llamadas Agendadas",     type: "number" },
       { key: "attended_calls",       label: "Llamadas Atendidas",     type: "number" },
@@ -79,7 +79,7 @@ const FIELD_GROUPS = [
   {
     key: "reflection",
     label: "Reflection",
-    color: "bg-foreground/30",
+    color: "bg-secondary",
     fields: [
       { key: "biggest_win",    label: "Mayor Logro del Mes",                                    type: "text" },
       { key: "next_focus",     label: "Próximo Enfoque",                                        type: "text" },
@@ -130,31 +130,31 @@ function CelebrationOverlay({
       onClick={onClose}
     >
       <div
-        className="relative mx-4 w-full max-w-sm overflow-hidden rounded-[14px] border border-foreground/[0.10] bg-card shadow-2xl"
+        className="relative mx-4 w-full max-w-sm overflow-hidden rounded-[14px] border border-border bg-card shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
 
         <div className="relative space-y-6 px-8 py-10 text-center">
           {/* Animated icon */}
           <div className="relative mx-auto w-fit">
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#dafc69]/10 ring-4 ring-[#dafc69]/20">
-              <CheckCircle className="h-10 w-10 text-[#dafc69]" style={{ animation: "bounce 1.5s infinite" }} />
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent-soft ring-4 ring-accent/20">
+              <CheckCircle className="h-10 w-10 text-accent-ink" style={{ animation: "bounce 1.5s infinite" }} />
             </div>
-            <Sparkles className="absolute -right-1 -top-1 h-5 w-5 animate-pulse text-[#dafc69]/70" />
-            <Sparkles className="absolute -bottom-1 -left-1 h-4 w-4 animate-pulse text-[#dafc69]/40" style={{ animationDelay: "0.6s" }} />
+            <Sparkles className="absolute -right-1 -top-1 h-5 w-5 animate-pulse text-accent-ink/70" />
+            <Sparkles className="absolute -bottom-1 -left-1 h-4 w-4 animate-pulse text-accent-ink/40" style={{ animationDelay: "0.6s" }} />
           </div>
 
           {/* Message */}
           <div className="space-y-2">
-            <h2 className="text-2xl font-extrabold tracking-tight text-foreground">
+            <h2 className="text-[24px] font-extrabold tracking-tight text-foreground">
               {firstName ? `¡Felicitaciones, ${firstName}!` : "¡Reporte completado!"}
             </h2>
-            <p className="text-sm leading-relaxed text-foreground/60">
+            <p className="text-[13px] leading-relaxed text-text-2">
               Tu reporte de{" "}
               <span className="font-semibold capitalize text-foreground">{monthLabel}</span>{" "}
               está guardado.
             </p>
-            <p className="text-xs text-foreground/35">
+            <p className="text-[13px] text-text-3">
               Seguís construyendo tu Ecosistema Circular. 🔥
             </p>
           </div>
@@ -162,10 +162,10 @@ function CelebrationOverlay({
           {/* CTA with countdown */}
           <button
             onClick={onClose}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-7 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95"
+            className="inline-flex items-center gap-2 rounded-xl btn-accent px-7 py-2.5 text-[13px] font-bold transition active:scale-95"
           >
             Continuar
-            <span className="text-xs font-normal text-black/40">({secs}s)</span>
+            <span className="text-[13px] font-normal text-black/40">({secs}s)</span>
           </button>
         </div>
       </div>
@@ -193,10 +193,10 @@ function ConfirmOverwriteDialog({
               <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-400" />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1">Reporte existente</p>
-              <h3 className="text-base font-semibold text-foreground">¿Reemplazar los datos?</h3>
-              <p className="mt-1.5 text-sm text-foreground/50">
-                Ya existe un reporte para <span className="font-semibold text-foreground/80">{month}</span>. Los datos actuales serán reemplazados por los que estás por guardar.
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1">Reporte existente</p>
+              <h3 className="text-[15px] font-semibold text-foreground">¿Reemplazar los datos?</h3>
+              <p className="mt-1.5 text-[13px] text-text-2">
+                Ya existe un reporte para <span className="font-semibold text-foreground">{month}</span>. Los datos actuales serán reemplazados por los que estás por guardar.
               </p>
             </div>
           </div>
@@ -204,14 +204,14 @@ function ConfirmOverwriteDialog({
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-sm font-medium text-foreground/70 transition hover:bg-foreground/[0.08] hover:text-foreground"
+              className="rounded-xl border border-border bg-secondary px-5 py-2 text-[13px] font-medium text-foreground transition hover:bg-secondary hover:text-foreground"
             >
               Cancelar
             </button>
             <button
               type="button"
               onClick={onConfirm}
-              className="rounded-xl bg-amber-500 px-5 py-2 text-sm font-bold text-black transition hover:bg-amber-400"
+              className="rounded-xl bg-amber-500 px-5 py-2 text-[13px] font-bold text-black transition hover:bg-amber-400"
             >
               Sí, reemplazar
             </button>
@@ -402,14 +402,14 @@ export function ReportInputView() {
         />
       )}
       {/* Tab switcher */}
-      <div className="flex gap-1 mb-8 rounded-xl border border-foreground/[0.06] bg-card p-1 w-fit">
+      <div className="flex gap-1 mb-8 rounded-xl border border-border bg-card p-1 w-fit">
         <button
           type="button"
           onClick={() => setTab("form")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium transition-all ${
             tab === "form"
-              ? "bg-[#dafc69] text-black"
-              : "text-foreground/40 hover:text-foreground/70"
+              ? "bg-secondary text-foreground"
+              : "text-text-2 hover:text-foreground"
           }`}
         >
           <FileText className="h-3.5 w-3.5" />
@@ -418,10 +418,10 @@ export function ReportInputView() {
         <button
           type="button"
           onClick={() => setTab("history")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium transition-all ${
             tab === "history"
-              ? "bg-[#dafc69] text-black"
-              : "text-foreground/40 hover:text-foreground/70"
+              ? "bg-secondary text-foreground"
+              : "text-text-2 hover:text-foreground"
           }`}
         >
           <History className="h-3.5 w-3.5" />
@@ -444,23 +444,23 @@ export function ReportInputView() {
         {/* Header */}
         <div>
           <div className="flex items-center gap-2.5 mb-1">
-            <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-            <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">
+            <span className="h-4 w-[3px] rounded-full bg-accent" />
+            <h1 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">
               Cargar Reporte Mensual
             </h1>
           </div>
-          <p className="text-xs text-foreground/30 ml-[18px]">
+          <p className="text-[13px] text-text-3 ml-[18px]">
             {isUpdate ? "Actualizando reporte existente" : "Nuevo reporte"} · Supabase → Slack
           </p>
         </div>
 
         {/* Aviso si admin está viendo otro cliente */}
         {isViewingOther && (
-          <div className="flex items-start gap-3 rounded-[14px] border border-[#dafc69]/25 bg-[#dafc69]/[0.05] px-4 py-3">
-            <Eye className="h-4 w-4 text-[#dafc69] flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 rounded-[14px] border border-accent/20 bg-accent-soft px-4 py-3">
+            <Eye className="h-4 w-4 text-accent-ink flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#dafc69]/80">Aviso · este reporte es tuyo</p>
-              <p className="text-[13px] text-foreground/75 mt-0.5">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent-ink/80">Aviso · este reporte es tuyo</p>
+              <p className="text-[13px] text-foreground mt-0.5">
                 Estás navegando como <span className="font-semibold text-foreground">{activeName ?? "otro cliente"}</span>, pero este formulario siempre carga y guarda en tu propia cuenta. Si querés que sea para otro perfil, primero pedile que lo cargue desde su cuenta.
               </p>
             </div>
@@ -468,36 +468,36 @@ export function ReportInputView() {
         )}
 
         {/* Month + client selector */}
-        <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card p-5">
+        <div className="relative overflow-hidden rounded-[14px] border border-border bg-card p-5">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
           <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1.5">Mes del reporte</p>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">Mes del reporte</p>
               <input
                 type="month"
                 value={month}
                 onChange={(e) => setMonth(e.target.value)}
-                className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2 text-sm font-semibold text-foreground focus:border-[#dafc69]/40 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/20 [color-scheme:dark]"
+                className="rounded-xl border border-border bg-elevated px-4 py-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 [color-scheme:dark]"
               />
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               {loadingExisting && (
-                <span className="flex items-center gap-1.5 rounded-full border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-[10px] text-foreground/40">
+                <span className="flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1 text-[13px] text-text-2">
                   <Loader2 className="h-3 w-3 animate-spin" />Cargando…
                 </span>
               )}
               {!loadingExisting && isUpdate && (
-                <span className="rounded-full border border-amber-400 bg-amber-100 text-amber-900 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-400">
+                <span className="rounded-full border border-amber-400 bg-amber-100 text-amber-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-400">
                   Reporte existente — se sobreescribirá
                 </span>
               )}
               {!loadingExisting && !isUpdate && ownClientId && (
-                <span className="rounded-full border border-emerald-400 bg-emerald-100 text-emerald-800 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-400">
+                <span className="rounded-full border border-emerald-400 bg-emerald-100 text-emerald-800 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-400">
                   Nuevo reporte
                 </span>
               )}
               {!ownClientId && (
-                <span className="rounded-full border border-red-400 bg-red-100 text-red-800 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-400">
+                <span className="rounded-full border border-red-400 bg-red-100 text-red-800 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-400">
                   Sin cliente seleccionado
                 </span>
               )}
@@ -507,13 +507,13 @@ export function ReportInputView() {
 
         {/* Field groups */}
         {FIELD_GROUPS.map((group) => (
-          <div key={group.key} className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
-            <div className="flex items-center justify-between border-b border-foreground/[0.05] px-5 py-3">
+          <div key={group.key} className="relative overflow-hidden rounded-[14px] border border-border bg-card">
+            <div className="flex items-center justify-between border-b border-border px-5 py-3">
               <div className="flex items-center gap-2">
                 <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
-                <span className="text-sm font-semibold uppercase tracking-widest text-foreground/75">{group.label}</span>
+                <span className="text-[13px] font-semibold uppercase tracking-widest text-foreground">{group.label}</span>
               </div>
-              <span className="text-[10px] text-foreground/25">{group.fields.length} campos</span>
+              <span className="text-[13px] text-text-3">{group.fields.length} campos</span>
             </div>
 
             <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -523,10 +523,10 @@ export function ReportInputView() {
 
                 if (isNps) {
                   return (
-                    <div key={field.key} className="sm:col-span-2 lg:col-span-3 flex flex-col gap-2 rounded-[14px] border border-[#dafc69]/15 bg-[#dafc69]/[0.03] p-5">
-                      <label className="text-xs font-semibold uppercase tracking-widest text-foreground/65">
+                    <div key={field.key} className="sm:col-span-2 lg:col-span-3 flex flex-col gap-2 rounded-[14px] border border-border bg-secondary/20 p-5">
+                      <label className="text-[11px] font-semibold uppercase tracking-widest text-text-2">
                         {field.label}
-                        <span className="ml-1.5 text-foreground/35 normal-case tracking-normal font-normal">— del 1 al 10</span>
+                        <span className="ml-1.5 text-text-3 normal-case tracking-normal font-normal">— del 1 al 10</span>
                       </label>
                       <div className="flex items-center gap-3 flex-wrap">
                         {[1,2,3,4,5,6,7,8,9,10].map((n) => (
@@ -534,10 +534,10 @@ export function ReportInputView() {
                             key={n}
                             type="button"
                             onClick={() => setValue(field.key, String(n))}
-                            className={`h-10 w-10 rounded-xl text-sm font-bold transition-all ${
+                            className={`h-10 w-10 rounded-xl text-[13px] font-bold transition-all ${
                               values[field.key] === String(n)
-                                ? "bg-[#dafc69] text-black"
-                                : "border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:border-[#dafc69]/30 hover:text-foreground"
+                                ? "bg-secondary text-foreground"
+                                : "border border-border bg-elevated text-text-2 hover:border-border hover:text-foreground"
                             }`}
                           >
                             {n}
@@ -547,7 +547,7 @@ export function ReportInputView() {
                           <button
                             type="button"
                             onClick={() => setValue(field.key, "")}
-                            className="ml-2 text-xs text-foreground/25 hover:text-foreground/50 transition-colors"
+                            className="ml-2 text-[13px] text-text-3 hover:text-text-2 transition-colors"
                           >
                             limpiar
                           </button>
@@ -559,10 +559,10 @@ export function ReportInputView() {
 
                 return (
                   <div key={field.key} className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold uppercase tracking-widest text-foreground/65">
+                    <label className="text-[11px] font-semibold uppercase tracking-widest text-text-2">
                       {field.label}
                       {"hint" in field && field.hint && (
-                        <span className="ml-1 text-foreground/40 normal-case tracking-normal font-normal text-xs">({field.hint})</span>
+                        <span className="ml-1 text-text-2 normal-case tracking-normal font-normal text-[13px]">({field.hint})</span>
                       )}
                     </label>
                     {field.type === "text" ? (
@@ -571,7 +571,7 @@ export function ReportInputView() {
                         onChange={(e) => setValue(field.key, e.target.value)}
                         rows={2}
                         placeholder="—"
-                        className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-base text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/20"
+                        className="w-full resize-none rounded-xl border border-border bg-secondary px-3 py-2 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
                       />
                     ) : (
                       <input
@@ -581,10 +581,10 @@ export function ReportInputView() {
                         placeholder="0"
                         min={"min" in field ? field.min : 0}
                         step="any"
-                        className={`w-full rounded-xl border px-3 py-2 text-base font-semibold text-foreground placeholder:text-foreground/20 focus:outline-none focus:ring-1 ${
+                        className={`w-full rounded-xl border px-3 py-2 text-[15px] font-semibold text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 ${
                           isHighlight
-                            ? "border-[#dafc69]/20 bg-[#dafc69]/[0.04] focus:border-[#dafc69]/40 focus:ring-[#dafc69]/20"
-                            : "border-foreground/[0.08] bg-foreground/[0.04] focus:border-[#dafc69]/40 focus:ring-[#dafc69]/20"
+                            ? "border-accent bg-secondary focus:border-accent focus:ring-accent/20"
+                            : "border-border bg-elevated focus:border-accent focus:ring-accent/20"
                         }`}
                       />
                     )}
@@ -594,7 +594,7 @@ export function ReportInputView() {
                           type="button"
                           onClick={fetchCalculatedMRR}
                           disabled={mrrCalc.loading}
-                          className="text-[11px] font-medium text-[#dafc69] hover:text-[#f2ffc0] transition-colors disabled:opacity-50"
+                          className="text-[13px] font-medium text-accent-ink hover:text-accent-hover transition-colors disabled:opacity-50"
                         >
                           {mrrCalc.loading ? "Calculando…" : "Usar calculado (todos los clientes activos)"}
                         </button>
@@ -602,12 +602,12 @@ export function ReportInputView() {
                           <button
                             type="button"
                             onClick={() => setValue("mrr", String(mrrCalc.value))}
-                            className="text-[11px] font-semibold text-foreground/70 hover:text-foreground underline transition-colors"
+                            className="text-[13px] font-semibold text-foreground hover:text-foreground underline transition-colors"
                           >
                             ${mrrCalc.value.toLocaleString()} — usar
                           </button>
                         )}
-                        {mrrCalc.error && <span className="text-[11px] text-red-700 dark:text-red-400">{mrrCalc.error}</span>}
+                        {mrrCalc.error && <span className="text-[13px] text-red-700 dark:text-red-400">{mrrCalc.error}</span>}
                       </div>
                     )}
                   </div>
@@ -619,7 +619,7 @@ export function ReportInputView() {
 
         {/* Status banner */}
         {status !== "idle" && status !== "loading" && (
-          <div className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${
+          <div className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-[13px] ${
             status === "success"
               ? "border-emerald-400 bg-emerald-100 text-emerald-900 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200"
               : "border-red-400 bg-red-100 text-red-900 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-200"
@@ -637,7 +637,7 @@ export function ReportInputView() {
           <button
             type="submit"
             disabled={status === "loading" || !ownClientId}
-            className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded-xl btn-accent px-6 py-2.5 text-[13px] font-bold transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
             {status === "loading" ? "Guardando…" : isUpdate ? "Actualizar reporte" : "Guardar reporte"}
@@ -648,13 +648,13 @@ export function ReportInputView() {
               onClick={handleTest}
               disabled={status === "loading" || !ownClientId}
               title="Solo developer: guarda un reporte con datos ficticios"
-              className="flex items-center gap-2 rounded-xl border border-foreground/15 bg-foreground/[0.04] px-5 py-2.5 text-sm font-bold text-foreground/70 transition hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 rounded-xl border border-border bg-secondary px-5 py-2.5 text-[13px] font-bold text-foreground transition hover:bg-secondary hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FlaskConical className="h-4 w-4" />
               Testear
             </button>
           )}
-          <p className="text-xs text-foreground/25">
+          <p className="text-[13px] text-text-3">
             Los datos se guardan primero en Supabase. Las notificaciones van en segundo plano.
           </p>
         </div>

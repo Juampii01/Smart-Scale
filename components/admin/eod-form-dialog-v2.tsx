@@ -30,7 +30,7 @@ const FIELD_GROUPS = [
   {
     key: "conversion",
     label: "Conversión",
-    color: "bg-[#dafc69]",
+    color: "bg-accent",
     fields: [
       { key: "inbound_applications",  label: "Aplicaciones inbound",    hint: "Formularios / apps" },
       { key: "qualified_leads",       label: "Leads 4-5 estrellas",     hint: "Calificados" },
@@ -211,17 +211,17 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 backdrop-blur-sm py-8 px-4">
-      <div className="relative w-full max-w-2xl rounded-2xl border border-foreground/[0.08] bg-card shadow-2xl">
+      <div className="relative w-full max-w-2xl rounded-2xl border border-border bg-card shadow-2xl">
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-foreground/[0.06] px-6 py-4">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">
+            <span className="h-4 w-[3px] rounded-full bg-accent" />
+            <h2 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">
               {logId ? "Editar EOD" : "Cargar datos del día"}
             </h2>
           </div>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:bg-foreground/[0.06] hover:text-foreground transition-colors">
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:bg-secondary hover:text-foreground transition-colors">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -229,16 +229,16 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
         <form onSubmit={handleSubmit} className="space-y-5 p-6">
 
           {/* Date selector */}
-          <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] p-4">
+          <div className="relative overflow-hidden rounded-2xl border border-border bg-elevated p-4">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
             <div className="relative flex items-center justify-between gap-4">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1.5">Fecha</p>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">Fecha</p>
                 <input
                   type="date"
                   value={date}
                   onChange={e => setDate(e.target.value)}
-                  className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-2 text-sm font-semibold text-foreground focus:border-[#dafc69]/40 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/20 [color-scheme:dark]"
+                  className="rounded-xl border border-border bg-secondary px-4 py-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 [color-scheme:dark]"
                 />
               </div>
             </div>
@@ -247,17 +247,17 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
           {/* Field groups + computed total */}
           {FIELD_GROUPS.map((group) => (
             <Fragment key={group.key}>
-              <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
-                <div className="flex items-center justify-between border-b border-foreground/[0.05] px-5 py-3">
+              <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
+                <div className="flex items-center justify-between border-b border-border px-5 py-3">
                   <div className="flex items-center gap-2">
                     <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
-                    <span className="text-sm font-semibold uppercase tracking-widest text-foreground/75">{group.label}</span>
+                    <span className="text-[13px] font-semibold uppercase tracking-widest text-foreground">{group.label}</span>
                   </div>
                 </div>
                 <div className="grid gap-4 p-5 sm:grid-cols-2">
                   {group.fields.map((field) => (
                     <div key={field.key}>
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">
                         {field.label}
                       </p>
                       <input
@@ -266,9 +266,9 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                         placeholder="0"
                         value={(values as any)[field.key]}
                         onChange={e => setValues(prev => ({ ...prev, [field.key]: e.target.value }))}
-                        className="h-10 w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 text-sm font-semibold text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/20"
+                        className="h-10 w-full rounded-xl border border-border bg-secondary px-4 text-[13px] font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
                       />
-                      <p className="mt-1 text-[10px] text-foreground/25">{field.hint}</p>
+                      <p className="mt-1 text-[13px] text-text-3">{field.hint}</p>
                     </div>
                   ))}
                 </div>
@@ -276,24 +276,24 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
 
               {/* Total Conversaciones — after outbound, before conversión */}
               {group.key === "outbound" && (
-                <div className="relative overflow-hidden rounded-2xl border border-[#dafc69]/25 bg-[#dafc69]/[0.03]">
-                  <div className="flex items-center justify-between border-b border-[#dafc69]/15 px-5 py-3">
+                <div className="relative overflow-hidden rounded-2xl border border-accent/20 bg-accent-soft">
+                  <div className="flex items-center justify-between border-b border-border px-5 py-3">
                     <div className="flex items-center gap-2">
-                      <span className="h-3 w-[2px] rounded-full bg-[#dafc69]" />
-                      <span className="text-sm font-semibold uppercase tracking-widest text-foreground/75">Total Conversaciones</span>
+                      <span className="h-3 w-[2px] rounded-full bg-accent" />
+                      <span className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Total Conversaciones</span>
                     </div>
-                    <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30">automático</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">automático</span>
                   </div>
                   <div className="flex items-end gap-4 px-5 py-4">
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-1.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">
                         Inbound + Resp. outbound
                       </p>
-                      <p className="text-4xl font-bold text-[#dafc69] tabular-nums">
+                      <p className="text-[32px] font-bold text-accent-ink tabular-nums">
                         {totalConversaciones}
                       </p>
                     </div>
-                    <p className="pb-1 text-[11px] text-foreground/30">
+                    <p className="pb-1 text-[13px] text-text-3">
                       {values.new_conversations_inbound || "0"} inbound · {values.outbound_replies || "0"} resp. outbound
                     </p>
                   </div>
@@ -303,11 +303,11 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
           ))}
 
           {/* Notas */}
-          <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.07] bg-card">
-            <div className="flex items-center border-b border-foreground/[0.05] px-5 py-3">
+          <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="flex items-center border-b border-border px-5 py-3">
               <div className="flex items-center gap-2">
-                <span className="h-3 w-[2px] rounded-full bg-foreground/30" />
-                <span className="text-sm font-semibold uppercase tracking-widest text-foreground/75">Notas</span>
+                <span className="h-3 w-[2px] rounded-full bg-elevated" />
+                <span className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Notas</span>
               </div>
             </div>
             <div className="p-5">
@@ -316,28 +316,28 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
                 placeholder="Observaciones del día, contexto, bloqueos..."
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-4 py-3 text-sm text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none focus:ring-1 focus:ring-[#dafc69]/20 resize-none"
+                className="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 resize-none"
               />
             </div>
           </div>
 
           {/* Error */}
           {status === "error" && (
-            <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-4 py-3 text-sm text-red-700 dark:text-red-400">
+            <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/[0.07] px-4 py-3 text-[13px] text-red-700 dark:text-red-400">
               <AlertCircle className="h-4 w-4 shrink-0" />
               {errorMsg}
             </div>
           )}
 
           {/* Actions */}
-          <div className="flex items-center justify-between gap-3 border-t border-foreground/[0.05] pt-4">
+          <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
             {/* Delete — solo en modo edición */}
             {logId ? (
               <button
                 type="button"
                 onClick={handleDelete}
                 disabled={deleting}
-                className="flex items-center gap-2 rounded-xl border border-red-500/20 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
+                className="flex items-center gap-2 rounded-xl border border-red-500/20 px-4 py-2 text-[13px] font-medium text-red-600 dark:text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
               >
                 {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                 Eliminar
@@ -348,14 +348,14 @@ export function EodFormDialogV2({ open, onClose, initialDate, logId, onSaved, on
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] px-5 py-2 text-sm font-medium text-foreground/70 transition hover:bg-foreground/[0.08] hover:text-foreground"
+                className="rounded-xl border border-border bg-secondary px-5 py-2 text-[13px] font-medium text-foreground transition hover:bg-secondary hover:text-foreground"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={status === "saving" || status === "saved"}
-                className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-5 py-2 text-sm font-bold text-black transition hover:bg-[#f2ffc0] disabled:opacity-60"
+                className="flex items-center gap-2 rounded-xl btn-accent px-5 py-2 text-[13px] font-bold transition disabled:opacity-60"
               >
                 {status === "saving" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 {status === "saved"  && <Check   className="h-3.5 w-3.5" />}

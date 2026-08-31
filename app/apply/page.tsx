@@ -3,7 +3,7 @@ import { useState, useRef } from "react"
 import { Check, AlertCircle, Loader2, ChevronDown, ArrowRight } from "lucide-react"
 // ─── Shared input styles (inline bg for Tailwind arbitrary-color safety) ───────
 const inputBase =
-  "w-full rounded-xl border px-4 py-3 text-[15px] text-foreground placeholder:text-foreground/30 focus:outline-none transition-all"
+  "w-full rounded-xl border px-4 py-3 text-[15px] text-foreground placeholder:text-text-3 focus:outline-none transition-all"
 function inputStyle(focused = false) {
   return {
     backgroundColor: focused ? "color-mix(in srgb, var(--foreground) 5%, transparent)" : "color-mix(in srgb, var(--foreground) 3%, transparent)",
@@ -13,16 +13,16 @@ function inputStyle(focused = false) {
 // ─── Small helpers ────────────────────────────────────────────────────────────
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label className="block text-[13px] font-semibold text-foreground/60 mb-2 tracking-wide">
+    <label className="block text-[13px] font-semibold text-text-2 mb-2 tracking-wide">
       {children}
-      {required && <span className="ml-1 text-[#dafc69]">*</span>}
+      {required && <span className="ml-1 text-accent-ink">*</span>}
     </label>
   )
 }
 function SectionCard({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-2xl border border-foreground/[0.07] p-5 sm:p-7 space-y-5 sm:space-y-6"
+      className="rounded-2xl border border-border p-5 sm:p-7 space-y-5 sm:space-y-6"
       style={{ backgroundColor: "var(--card)" }}
     >
       {children}
@@ -32,12 +32,12 @@ function SectionCard({ children }: { children: React.ReactNode }) {
 function SectionHeader({ number, title, subtitle }: { number: string; title: string; subtitle?: string }) {
   return (
     <div className="flex items-start gap-4 pb-1">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#dafc69] text-[13px] font-black text-black mt-0.5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-[13px] font-black text-black mt-0.5">
         {number}
       </div>
       <div>
         <h2 className="text-[18px] font-bold text-foreground leading-tight">{title}</h2>
-        {subtitle && <p className="text-[13px] text-foreground/40 mt-1">{subtitle}</p>}
+        {subtitle && <p className="text-[13px] text-text-2 mt-1">{subtitle}</p>}
       </div>
     </div>
   )
@@ -80,7 +80,7 @@ function StyledSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
         onFocus={e => { setFocused(true); props.onFocus?.(e) }}
         onBlur={e  => { setFocused(false); props.onBlur?.(e) }}
       />
-      <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
+      <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-text-3" />
     </div>
   )
 }
@@ -92,11 +92,11 @@ function RadioGroup({ options, value, onChange }: {
       {options.map(opt => (
         <label key={opt} className="flex items-center gap-3 cursor-pointer group" onClick={() => onChange(opt)}>
           <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-            value === opt ? "border-[#dafc69] bg-[#dafc69]" : "border-foreground/20 group-hover:border-foreground/40"
+            value === opt ? "border-accent bg-accent" : "border-border group-hover:border-border-hover"
           }`}>
             {value === opt && <span className="h-2 w-2 rounded-full bg-black" />}
           </span>
-          <span className="text-[14px] text-foreground/70 group-hover:text-foreground transition-colors">{opt}</span>
+          <span className="text-[15px] text-foreground group-hover:text-foreground transition-colors">{opt}</span>
         </label>
       ))}
     </div>
@@ -164,28 +164,28 @@ export default function ApplyPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-20" style={{ backgroundColor: "var(--background)" }}>
         <div className="max-w-md w-full text-center space-y-6 sm:space-y-8 px-2">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#dafc69]">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent">
             <Check className="h-10 w-10 text-black" strokeWidth={3} />
           </div>
           <div className="space-y-3">
-            <h1 className="text-3xl font-black text-foreground">¡Aplicación enviada!</h1>
-            <p className="text-foreground/50 text-[15px] leading-relaxed">
+            <h1 className="text-[32px] font-black text-foreground">¡Aplicación enviada!</h1>
+            <p className="text-text-2 text-[15px] leading-relaxed">
               Revisamos cada aplicación personalmente. Si hay match, te contactamos por Instagram.
             </p>
           </div>
-          <div className="rounded-2xl border border-[#dafc69]/15 p-6 text-left space-y-3" style={{ backgroundColor: "var(--card)" }}>
-            <p className="text-[11px] font-black text-[#dafc69]/60 uppercase tracking-[0.2em]">Próximos pasos</p>
-            <ul className="space-y-2.5 text-[13px] text-foreground/55">
+          <div className="rounded-2xl border border-border p-6 text-left space-y-3" style={{ backgroundColor: "var(--card)" }}>
+            <p className="text-[11px] font-black text-accent-ink/60 uppercase tracking-[0.2em]">Próximos pasos</p>
+            <ul className="space-y-2.5 text-[13px] text-text-2">
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
                 Revisamos tu aplicación en detalle
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
                 Si tu aplicación es aprobada, te contactamos por Instagram
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
                 Si no hay match, también te avisamos
               </li>
             </ul>
@@ -199,31 +199,31 @@ export default function ApplyPage() {
     <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }} ref={topRef}>
       {/* ── Top bar (same style as portal header) */}
       <div
-        className="sticky top-0 z-10 border-b border-foreground/[0.07] backdrop-blur-md"
+        className="sticky top-0 z-10 border-b border-border backdrop-blur-md"
         style={{ backgroundColor: "color-mix(in srgb, var(--background) 96%, transparent)" }}
       >
         <div className="mx-auto max-w-2xl px-5 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="text-foreground text-[17px] font-bold tracking-tight">Smart</span>
-            <span className="rounded-md bg-foreground px-2 py-0.5 text-[14px] font-bold tracking-tight text-background shadow-sm">
+            <span className="text-foreground text-[18px] font-bold tracking-tight">Smart</span>
+            <span className="rounded-md bg-foreground px-2 py-0.5 text-[15px] font-bold tracking-tight text-background shadow-sm">
               Scale
             </span>
-            <span className="text-[9px] font-semibold text-foreground/25 tracking-widest uppercase ml-0.5">v2.0</span>
+            <span className="text-[11px] font-semibold text-text-3 tracking-widest uppercase ml-0.5">v2.0</span>
           </div>
-          <span className="text-[11px] font-bold text-foreground/25 uppercase tracking-[0.18em]">Application</span>
+          <span className="text-[11px] font-bold text-text-3 uppercase tracking-[0.18em]">Application</span>
         </div>
       </div>
       <div className="mx-auto max-w-2xl px-4 sm:px-5 pb-20 sm:pb-28 pt-8 sm:pt-12 space-y-4 sm:space-y-5">
         {/* ── Hero */}
         <div className="space-y-5 pb-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#dafc69]/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
-            <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69] animate-pulse" />
-            <span className="text-[11px] font-bold text-[#dafc69] uppercase tracking-[0.18em]">Smart Scale™</span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 px-4 py-1.5" style={{ backgroundColor: "rgba(255,222,33,0.06)" }}>
+            <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+            <span className="text-[11px] font-bold text-accent-ink uppercase tracking-[0.18em]">Smart Scale™</span>
           </div>
-          <h1 className="text-[28px] sm:text-[38px] font-black text-foreground leading-[1.1] tracking-tight">
+          <h1 className="text-[32px] sm:text-[32px] font-black text-foreground leading-[1.1] tracking-tight">
             Aplicá a<br />Smart Scale
           </h1>
-          <p className="text-[15px] text-foreground/50 leading-relaxed max-w-lg">
+          <p className="text-[15px] text-text-2 leading-relaxed max-w-lg">
             Estamos buscando un tipo muy específico de creador que sabemos que podemos ayudar a escalar.
             Ayudanos a entender si sos la persona indicada.
           </p>
@@ -379,32 +379,32 @@ export default function ApplyPage() {
               onClick={() => setForm(f => ({ ...f, terms_accepted: !f.terms_accepted }))}>
               <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all ${
                 form.terms_accepted
-                  ? "border-[#dafc69] bg-[#dafc69]"
-                  : "border-foreground/20 group-hover:border-foreground/40"
+                  ? "border-accent bg-accent"
+                  : "border-border group-hover:border-border-hover"
               }`}>
                 {form.terms_accepted && <Check className="h-3 w-3 text-black" strokeWidth={3} />}
               </span>
-              <span className="text-[14px] text-foreground/60 leading-relaxed group-hover:text-foreground/80 transition-colors">
+              <span className="text-[15px] text-text-2 leading-relaxed group-hover:text-foreground transition-colors">
                 He leído y acepto los{" "}
-                <span className="text-[#dafc69] hover:underline">Términos y Condiciones</span>
-                <span className="text-[#dafc69] ml-1">*</span>
+                <span className="text-accent-ink hover:underline">Términos y Condiciones</span>
+                <span className="text-accent-ink ml-1">*</span>
               </span>
             </label>
           </SectionCard>
           {/* Notice */}
-          <div className="rounded-xl border border-foreground/[0.06] px-5 py-4 space-y-2" style={{ backgroundColor: "var(--card)" }}>
-            <p className="text-[11px] font-black text-foreground/30 uppercase tracking-[0.18em]">Antes de enviar</p>
-            <ul className="space-y-1.5 text-[13px] text-foreground/40">
+          <div className="rounded-xl border border-border px-5 py-4 space-y-2" style={{ backgroundColor: "var(--card)" }}>
+            <p className="text-[11px] font-black text-text-3 uppercase tracking-[0.18em]">Antes de enviar</p>
+            <ul className="space-y-1.5 text-[13px] text-text-2">
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full bg-foreground/20 shrink-0" />
+                <span className="mt-1.5 h-1 w-1 rounded-full bg-secondary shrink-0" />
                 No cierres la ventana mientras se envía el formulario
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full bg-foreground/20 shrink-0" />
+                <span className="mt-1.5 h-1 w-1 rounded-full bg-elevated shrink-0" />
                 Si tu aplicación es aprobada, te contactamos por Instagram con toda la propuesta
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full bg-foreground/20 shrink-0" />
+                <span className="mt-1.5 h-1 w-1 rounded-full bg-elevated shrink-0" />
                 Si no hay match, también te avisamos
               </li>
             </ul>
@@ -413,8 +413,7 @@ export default function ApplyPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 h-14 rounded-2xl text-[16px] font-black text-black hover:opacity-90 active:scale-[0.98] disabled:opacity-50 transition-all"
-            style={{ backgroundColor: "#dafc69" }}
+            className="btn-accent w-full flex items-center justify-center gap-3 h-14 rounded-2xl text-[18px] font-black active:scale-[0.98] disabled:opacity-50"
           >
             {loading ? (
               <><Loader2 className="h-5 w-5 animate-spin" /> Enviando...</>

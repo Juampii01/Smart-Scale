@@ -125,11 +125,11 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
       <Popover.Trigger asChild>
         <button
           type="button"
-          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-foreground/5 px-2.5 text-xs sm:text-sm font-semibold text-foreground hover:bg-foreground/10 focus:outline-none focus:ring-2 focus:ring-[#dafc69]/40 transition-colors w-[120px] sm:w-[140px]"
+          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-secondary px-2.5 text-[13px] sm:text-[13px] font-semibold text-foreground hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent/20 transition-colors w-[120px] sm:w-[140px]"
         >
-          <Calendar className="h-3.5 w-3.5 text-foreground/50 shrink-0" />
+          <Calendar className="h-3.5 w-3.5 text-text-2 shrink-0" />
           <span className="flex-1 text-left">{formatShort(selected)}</span>
-          {isToday && <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69] shrink-0" title="Mes actual" />}
+          {isToday && <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" title="Mes actual" />}
         </button>
       </Popover.Trigger>
 
@@ -145,15 +145,15 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
               type="button"
               onClick={() => canGoPrev && setViewYear(y => y - 1)}
               disabled={!canGoPrev}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-foreground/60 hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:bg-secondary hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               aria-label="Año anterior"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-bold text-foreground tabular-nums">{viewYear}</span>
+              <span className="text-[13px] font-bold text-foreground tabular-nums">{viewYear}</span>
               {viewYear === todayYear && (
-                <span className="rounded-full bg-[#dafc69]/15 px-1.5 py-0.5 text-[9px] font-bold text-[#dafc69] uppercase tracking-wider">
+                <span className="rounded-full bg-accent-soft px-1.5 py-0.5 text-[11px] font-bold text-accent-ink uppercase tracking-wider">
                   Actual
                 </span>
               )}
@@ -162,7 +162,7 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
               type="button"
               onClick={() => canGoNext && setViewYear(y => y + 1)}
               disabled={!canGoNext}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-foreground/60 hover:bg-foreground/[0.08] hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-text-2 hover:bg-secondary hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               aria-label="Año siguiente"
             >
               <ChevronRight className="h-4 w-4" />
@@ -183,17 +183,17 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
                   onClick={() => pick(ym)}
                   disabled={!has}
                   title={has ? formatLong(ym) : `${formatLong(ym)} — sin datos`}
-                  className={`relative h-9 rounded-md text-xs font-semibold transition-all ${
+                  className={`relative h-9 rounded-md text-[13px] font-semibold transition-all ${
                     isSelected
-                      ? "bg-[#dafc69] text-black shadow-sm"
+                      ? "bg-secondary text-foreground shadow-sm"
                       : has
-                        ? `text-foreground hover:bg-foreground/[0.08] ${isCurrentMonth ? "ring-1 ring-[#dafc69]/50" : ""}`
-                        : "text-foreground/25 cursor-not-allowed"
+                        ? `text-foreground hover:bg-secondary ${isCurrentMonth ? "ring-1 ring-accent-ink/50" : ""}`
+                        : "text-text-3 cursor-not-allowed"
                   }`}
                 >
                   {label}
                   {isCurrentMonth && !isSelected && (
-                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-[#dafc69]" />
+                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-accent" />
                   )}
                 </button>
               )
@@ -206,9 +206,9 @@ export function MonthSelector({ value, onChange, enabledMonths }: MonthSelectorP
               <button
                 type="button"
                 onClick={() => pick(today)}
-                className="flex w-full items-center justify-center gap-1.5 rounded-md py-1.5 text-[12px] font-semibold text-foreground/70 hover:bg-[#dafc69]/10 hover:text-foreground transition-colors"
+                className="flex w-full items-center justify-center gap-1.5 rounded-md py-1.5 text-[13px] font-semibold text-foreground hover:bg-secondary hover:text-foreground transition-colors"
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
                 Ir a hoy · {formatLong(today)}
               </button>
             </div>

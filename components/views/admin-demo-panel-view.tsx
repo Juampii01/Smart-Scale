@@ -16,8 +16,8 @@ import { StatTile } from "@/components/ui/stat-tile"
 
 function EmptyState({ label }: { label: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-foreground/10 bg-foreground/[0.02] px-6 py-8 text-center">
-      <p className="text-[13px] text-foreground/30">{label}</p>
+    <div className="rounded-xl border border-dashed border-border bg-secondary px-6 py-8 text-center">
+      <p className="text-[13px] text-text-3">{label}</p>
     </div>
   )
 }
@@ -26,8 +26,8 @@ export function AdminDemoPanelView() {
   return (
     <div className="pb-10 space-y-10">
       <div>
-        <h1 className="text-[22px] font-bold text-foreground leading-tight">Panel Interno</h1>
-        <p className="text-[13px] text-foreground/50 mt-0.5">
+        <h1 className="text-[24px] font-bold text-foreground leading-tight">Panel Interno</h1>
+        <p className="text-[13px] text-text-2 mt-0.5">
           Así se ve la estructura del panel de gestión — sin datos cargados todavía.
         </p>
       </div>

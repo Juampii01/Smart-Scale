@@ -118,7 +118,7 @@ const fmtDate = (s: string) => {
 
 function BlockSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn("rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden", className)}>
+    <div className={cn("rounded-[14px] border border-border bg-card overflow-hidden", className)}>
       <div className="p-5 space-y-4">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
@@ -158,11 +158,11 @@ function SectionHeader({
   return (
     <div className="flex items-start justify-between mb-4">
       <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#dafc69]/[0.1] border border-[#dafc69]/20">
-          <Icon className="h-4 w-4 text-[#dafc69]" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft border border-accent/25">
+          <Icon className="h-4 w-4 text-accent-ink" />
         </div>
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/40">{subtitle}</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-text-2">{subtitle}</p>
           <p className="text-[15px] font-bold text-foreground leading-tight">{title}</p>
         </div>
       </div>
@@ -186,10 +186,10 @@ function StatPill({
     green:   "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
     amber:   "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400",
     blue:    "bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400",
-    default: "bg-foreground/[0.05] text-foreground/70",
+    default: "bg-secondary text-foreground",
   }
   return (
-    <div className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-semibold", colors[accent ?? "default"])}>
+    <div className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-semibold", colors[accent ?? "default"])}>
       <span className="opacity-70">{label}</span>
       <span>{value}</span>
     </div>
@@ -200,7 +200,7 @@ function StatPill({
 
 function NewCashBlock({ data }: { data: DashboardData["new_cash"] }) {
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="rounded-[14px] border border-border bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={TrendingUp}
@@ -215,27 +215,27 @@ function NewCashBlock({ data }: { data: DashboardData["new_cash"] }) {
         </div>
 
         {data.clients.length === 0 ? (
-          <p className="py-6 text-center text-[13px] text-foreground/40">
+          <p className="py-6 text-center text-[13px] text-text-2">
             Sin clientes nuevos en este período
           </p>
         ) : (
           <div className="overflow-x-auto -mx-1">
-            <table className="w-full text-[12px]">
+            <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-foreground/[0.06]">
-                  <th className="pb-2 text-left font-semibold text-foreground/40 pr-3">Cliente</th>
-                  <th className="pb-2 text-right font-semibold text-foreground/40 pr-3">Contratado</th>
-                  <th className="pb-2 text-right font-semibold text-foreground/40 pr-3">Cobrado</th>
-                  <th className="pb-2 text-right font-semibold text-foreground/40">Pendiente</th>
+                <tr className="border-b border-border">
+                  <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
+                  <th className="pb-2 text-right font-semibold text-text-2 pr-3">Contratado</th>
+                  <th className="pb-2 text-right font-semibold text-text-2 pr-3">Cobrado</th>
+                  <th className="pb-2 text-right font-semibold text-text-2">Pendiente</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-foreground/[0.04]">
+              <tbody className="divide-y divide-border">
                 {data.clients.map(c => (
-                  <tr key={c.id} className="group hover:bg-foreground/[0.02] transition-colors">
+                  <tr key={c.id} className="group hover:bg-secondary transition-colors">
                     <td className="py-2 pr-3">
                       <p className="font-medium text-foreground leading-tight">{c.name}</p>
                       {c.programa && (
-                        <p className="text-[10px] text-foreground/40 mt-0.5">{c.programa}</p>
+                        <p className="text-[13px] text-text-2 mt-0.5">{c.programa}</p>
                       )}
                     </td>
                     <td className="py-2 pr-3 text-right font-semibold text-foreground tabular-nums">
@@ -297,7 +297,7 @@ function groupOldCashInstallments(installments: OldCashInstallment[]) {
 function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
   const grouped = groupOldCashInstallments(data.installments)
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="rounded-[14px] border border-border bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={RefreshCw}
@@ -307,29 +307,29 @@ function OldCashBlock({ data }: { data: DashboardData["old_cash"] }) {
         />
 
         {grouped.length === 0 ? (
-          <p className="py-6 text-center text-[13px] text-foreground/40">
+          <p className="py-6 text-center text-[13px] text-text-2">
             Sin cuotas recurrentes cobradas en este período
           </p>
         ) : (
           <div className="overflow-x-auto -mx-1">
-            <table className="w-full text-[12px]">
+            <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-foreground/[0.06]">
-                  <th className="pb-2 text-left font-semibold text-foreground/40 pr-3">Cliente</th>
-                  <th className="pb-2 text-center font-semibold text-foreground/40 pr-3">Cuota</th>
-                  <th className="pb-2 text-right font-semibold text-foreground/40 pr-3">Monto</th>
-                  <th className="pb-2 text-right font-semibold text-foreground/40">Cobrado</th>
+                <tr className="border-b border-border">
+                  <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
+                  <th className="pb-2 text-center font-semibold text-text-2 pr-3">Cuota</th>
+                  <th className="pb-2 text-right font-semibold text-text-2 pr-3">Monto</th>
+                  <th className="pb-2 text-right font-semibold text-text-2">Cobrado</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-foreground/[0.04]">
+              <tbody className="divide-y divide-border">
                 {grouped.map(g => (
-                  <tr key={g.key} className="group hover:bg-foreground/[0.02] transition-colors">
+                  <tr key={g.key} className="group hover:bg-secondary transition-colors">
                     <td className="py-2 pr-3 font-medium text-foreground">{g.client_name}</td>
-                    <td className="py-2 pr-3 text-center text-foreground/60">{g.label}</td>
+                    <td className="py-2 pr-3 text-center text-text-2">{g.label}</td>
                     <td className="py-2 pr-3 text-right font-semibold text-foreground tabular-nums">
                       {fmt(g.total)}
                     </td>
-                    <td className="py-2 text-right text-foreground/50 text-[11px]">
+                    <td className="py-2 text-right text-text-2 text-[13px]">
                       {fmtDate(g.paid_at)}
                     </td>
                   </tr>
@@ -361,7 +361,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
   ]
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="rounded-[14px] border border-border bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={MessageSquareText}
@@ -369,7 +369,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
           subtitle="performance del período"
           badge={
             <div className="flex gap-5">
-              <Stat value={data.totals.total_conversations} label="total conv." colorClass="text-[#dafc69]" />
+              <Stat value={data.totals.total_conversations} label="total conv." colorClass="text-accent-ink" />
               <Stat value={data.totals.cierres}             label="cierres" />
               <Stat value={data.totals.cierre_amount}       label="monto"   format="currency" />
             </div>
@@ -377,21 +377,21 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
         />
 
         {data.by_setter.length === 0 ? (
-          <p className="py-6 text-center text-[13px] text-foreground/40">
+          <p className="py-6 text-center text-[13px] text-text-2">
             Sin actividad de setting en este período
           </p>
         ) : (
           <div className="overflow-x-auto -mx-1">
-            <table className="w-full text-[12px]">
+            <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-foreground/[0.06]">
-                  <th className="pb-2 text-left font-semibold text-foreground/40 pr-4 min-w-[120px]">Setter</th>
+                <tr className="border-b border-border">
+                  <th className="pb-2 text-left font-semibold text-text-2 pr-4 min-w-[120px]">Setter</th>
                   {cols.map(c => (
                     <th
                       key={c.key}
                       className={cn(
                         "pb-2 text-right font-semibold px-2 whitespace-nowrap",
-                        c.highlight ? "text-[#dafc69]/70" : "text-foreground/40",
+                        c.highlight ? "text-accent-ink/70" : "text-text-2",
                       )}
                     >
                       {c.label}
@@ -399,16 +399,16 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-foreground/[0.04]">
+              <tbody className="divide-y divide-border">
                 {data.by_setter.map(s => (
-                  <tr key={s.setter_id} className="group hover:bg-foreground/[0.02] transition-colors">
+                  <tr key={s.setter_id} className="group hover:bg-secondary transition-colors">
                     <td className="py-2.5 pr-4 font-medium text-foreground">{s.setter_name}</td>
                     {cols.map(c => (
                       <td
                         key={c.key}
                         className={cn(
                           "py-2.5 px-2 text-right tabular-nums",
-                          c.highlight ? "font-bold text-[#dafc69]" : "text-foreground/80",
+                          c.highlight ? "font-bold text-accent-ink" : "text-foreground",
                           c.key === "cierre_amount" && "font-semibold text-foreground",
                         )}
                       >
@@ -423,14 +423,14 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
               {/* Totals row — solo si hay más de un setter */}
               {data.by_setter.length > 1 && (
                 <tfoot>
-                  <tr className="border-t-2 border-foreground/[0.1] bg-foreground/[0.02]">
-                    <td className="py-2.5 pr-4 text-[11px] font-bold uppercase tracking-wider text-foreground/50">Total</td>
+                  <tr className="border-t-2 border-border bg-secondary">
+                    <td className="py-2.5 pr-4 text-[11px] font-bold uppercase tracking-wider text-text-2">Total</td>
                     {cols.map(c => (
                       <td
                         key={c.key}
                         className={cn(
                           "py-2.5 px-2 text-right tabular-nums font-bold",
-                          c.highlight ? "text-[#dafc69]" : "text-foreground",
+                          c.highlight ? "text-accent-ink" : "text-foreground",
                         )}
                       >
                         {c.key === "cierre_amount"
@@ -453,7 +453,7 @@ function SettingBlock({ data }: { data: DashboardData["setting"] }) {
 
 function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] }) {
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="rounded-[14px] border border-border bg-card overflow-hidden">
       <div className="p-5">
         <SectionHeader
           icon={CalendarClock}
@@ -473,7 +473,7 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
         />
 
         {data.overdue.length === 0 && data.upcoming.length === 0 ? (
-          <p className="py-6 text-center text-[13px] text-foreground/40">
+          <p className="py-6 text-center text-[13px] text-text-2">
             Sin cuotas pendientes en este período
           </p>
         ) : (
@@ -488,25 +488,25 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
                   </span>
                 </div>
                 <div className="overflow-x-auto -mx-1">
-                  <table className="w-full text-[12px]">
+                  <table className="w-full text-[13px]">
                     <thead>
-                      <tr className="border-b border-foreground/[0.06]">
-                        <th className="pb-2 text-left font-semibold text-foreground/40 pr-3">Cliente</th>
-                        <th className="pb-2 text-center font-semibold text-foreground/40 pr-3">Cuota</th>
-                        <th className="pb-2 text-right font-semibold text-foreground/40 pr-3">Monto</th>
-                        <th className="pb-2 text-right font-semibold text-foreground/40 pr-3">Vencimiento</th>
-                        <th className="pb-2 text-right font-semibold text-foreground/40">Atraso</th>
+                      <tr className="border-b border-border">
+                        <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
+                        <th className="pb-2 text-center font-semibold text-text-2 pr-3">Cuota</th>
+                        <th className="pb-2 text-right font-semibold text-text-2 pr-3">Monto</th>
+                        <th className="pb-2 text-right font-semibold text-text-2 pr-3">Vencimiento</th>
+                        <th className="pb-2 text-right font-semibold text-text-2">Atraso</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-foreground/[0.04]">
+                    <tbody className="divide-y divide-border">
                       {data.overdue.map(q => (
                         <tr key={q.id} className="group hover:bg-red-50 dark:hover:bg-red-500/[0.04] transition-colors">
                           <td className="py-2 pr-3 font-medium text-foreground">{q.client_name}</td>
-                          <td className="py-2 pr-3 text-center text-foreground/60">#{q.installment_number}</td>
+                          <td className="py-2 pr-3 text-center text-text-2">#{q.installment_number}</td>
                           <td className="py-2 pr-3 text-right font-semibold tabular-nums text-foreground">{fmt(q.amount)}</td>
-                          <td className="py-2 pr-3 text-right text-foreground/50">{fmtDate(q.due_date)}</td>
+                          <td className="py-2 pr-3 text-right text-text-2">{fmtDate(q.due_date)}</td>
                           <td className="py-2 text-right">
-                            <span className="rounded-full bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 px-2 py-0.5 text-[10px] font-semibold">
+                            <span className="rounded-full bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 px-2 py-0.5 text-[13px] font-semibold">
                               {q.days_overdue}d
                             </span>
                           </td>
@@ -522,35 +522,35 @@ function UpcomingQuotasBlock({ data }: { data: DashboardData["upcoming_quotas"] 
             {data.upcoming.length > 0 && (
               <div>
                 <div className="flex items-center gap-2 mb-2.5">
-                  <Clock className="h-3.5 w-3.5 text-foreground/50" />
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-foreground/50">
+                  <Clock className="h-3.5 w-3.5 text-text-2" />
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-text-2">
                     Del mes ({data.upcoming_count}) — {fmt(data.upcoming_total)}
                   </span>
                 </div>
                 <div className="overflow-x-auto -mx-1">
-                  <table className="w-full text-[12px]">
+                  <table className="w-full text-[13px]">
                     <thead>
-                      <tr className="border-b border-foreground/[0.06]">
-                        <th className="pb-2 text-left font-semibold text-foreground/40 pr-3">Cliente</th>
-                        <th className="pb-2 text-center font-semibold text-foreground/40 pr-3">Cuota</th>
-                        <th className="pb-2 text-right font-semibold text-foreground/40 pr-3">Monto</th>
-                        <th className="pb-2 text-right font-semibold text-foreground/40 pr-3">Vencimiento</th>
-                        <th className="pb-2 text-right font-semibold text-foreground/40">En</th>
+                      <tr className="border-b border-border">
+                        <th className="pb-2 text-left font-semibold text-text-2 pr-3">Cliente</th>
+                        <th className="pb-2 text-center font-semibold text-text-2 pr-3">Cuota</th>
+                        <th className="pb-2 text-right font-semibold text-text-2 pr-3">Monto</th>
+                        <th className="pb-2 text-right font-semibold text-text-2 pr-3">Vencimiento</th>
+                        <th className="pb-2 text-right font-semibold text-text-2">En</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-foreground/[0.04]">
+                    <tbody className="divide-y divide-border">
                       {data.upcoming.map(q => (
-                        <tr key={q.id} className="group hover:bg-foreground/[0.02] transition-colors">
+                        <tr key={q.id} className="group hover:bg-secondary transition-colors">
                           <td className="py-2 pr-3 font-medium text-foreground">{q.client_name}</td>
-                          <td className="py-2 pr-3 text-center text-foreground/60">#{q.installment_number}</td>
+                          <td className="py-2 pr-3 text-center text-text-2">#{q.installment_number}</td>
                           <td className="py-2 pr-3 text-right font-semibold tabular-nums text-foreground">{fmt(q.amount)}</td>
-                          <td className="py-2 pr-3 text-right text-foreground/50">{fmtDate(q.due_date)}</td>
+                          <td className="py-2 pr-3 text-right text-text-2">{fmtDate(q.due_date)}</td>
                           <td className="py-2 text-right">
                             <span className={cn(
-                              "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                              "rounded-full px-2 py-0.5 text-[13px] font-semibold",
                               (q.days_until_due ?? 99) <= 3
                                 ? "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                                : "bg-foreground/[0.05] text-foreground/60"
+                                : "bg-elevated text-text-2"
                             )}>
                               {q.days_until_due === 0 ? "hoy" : `${q.days_until_due}d`}
                             </span>
@@ -630,27 +630,27 @@ export function AdminExecutiveDashboardView() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-5">
           <div>
-            <h1 className="text-[22px] font-bold text-foreground leading-tight">Dashboard Ejecutivo</h1>
+            <h1 className="text-[24px] font-bold text-foreground leading-tight">Dashboard Ejecutivo</h1>
             {!loading && data && (
-              <p className="text-[13px] text-foreground/50 mt-0.5">{periodLabel}</p>
+              <p className="text-[13px] text-text-2 mt-0.5">{periodLabel}</p>
             )}
           </div>
           {!loading && data && (
-            <div className="rounded-xl border border-[#dafc69]/20 bg-[#dafc69]/[0.05] px-4 py-1.5">
-              <Stat value={data.mrr} label="MRR" format="currency" colorClass="text-[#dafc69]" />
+            <div className="rounded-xl border border-accent/20 bg-accent-soft px-4 py-1.5">
+              <Stat value={data.mrr} label="MRR" format="currency" colorClass="text-accent-ink" />
             </div>
           )}
         </div>
 
         {/* Month pager */}
         <div className="flex items-center gap-2">
-          <button onClick={() => changeMonth(-1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes anterior">
+          <button onClick={() => changeMonth(-1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-border hover:bg-secondary transition-colors" title="Mes anterior">
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <div className="px-4 py-2 rounded-lg border border-foreground/10 min-w-[200px] text-center">
-            <span className="text-sm font-bold text-foreground">{monthLabel(month)}</span>
+          <div className="px-4 py-2 rounded-lg border border-border min-w-[200px] text-center">
+            <span className="text-[13px] font-bold text-foreground">{monthLabel(month)}</span>
           </div>
-          <button onClick={() => changeMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-foreground/10 hover:bg-foreground/5 transition-colors" title="Mes siguiente">
+          <button onClick={() => changeMonth(1)} className="h-9 w-9 shrink-0 flex items-center justify-center rounded-lg border border-border hover:bg-secondary transition-colors" title="Mes siguiente">
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>
@@ -663,7 +663,7 @@ export function AdminExecutiveDashboardView() {
           <p className="text-[13px] text-red-700 dark:text-red-400">{error}</p>
           <button
             onClick={fetchData}
-            className="ml-auto text-[12px] font-semibold text-red-600 dark:text-red-400 hover:underline"
+            className="ml-auto text-[13px] font-semibold text-red-600 dark:text-red-400 hover:underline"
           >
             Reintentar
           </button>

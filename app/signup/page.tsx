@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
+import { AuthMark } from "@/components/theme/brand-logo";
 import { createClient } from "@/lib/supabase";
 
 function isAlreadyRegisteredError(error: any) {
@@ -38,6 +40,7 @@ export default function SignupPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -199,24 +202,24 @@ export default function SignupPage() {
         <div className="w-full max-w-md">
           {/* Brand */}
           <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-foreground/10 bg-foreground/5 backdrop-blur">
-              <span className="text-sm font-semibold tracking-widest text-foreground/90">SS</span>
+            <div className="mx-auto mb-3 flex justify-center">
+              <AuthMark size={48} />
             </div>
-            <div className="text-xs font-semibold tracking-[0.35em] text-foreground/70">SMART SCALE</div>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight">Crear cuenta</h1>
-            <p className="mt-1 text-sm text-foreground/60">Creá tu acceso al portal y confirmá el email para continuar.</p>
+            <div className="text-[13px] font-semibold tracking-[0.35em] text-foreground">SMART SCALE</div>
+            <h1 className="mt-2 text-[24px] font-semibold tracking-tight">Crear cuenta</h1>
+            <p className="mt-1 text-[13px] text-text-2">Creá tu acceso al portal y confirmá el email para continuar.</p>
           </div>
 
           {/* Card */}
           <form
             onSubmit={onSubmit}
-            className="rounded-2xl border border-foreground/10 bg-foreground/5 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl"
+            className="rounded-2xl border border-border bg-secondary p-6 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl"
           >
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="block text-sm text-foreground/70">Email</label>
+                <label className="block text-[13px] text-foreground">Email</label>
                 <input
-                  className="h-11 w-full rounded-xl border border-foreground/10 bg-foreground/[0.04] px-3 text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/20 focus:ring-2 focus:ring-white/10"
+                  className="h-11 w-full rounded-xl border border-border bg-elevated px-3 text-foreground outline-none placeholder:text-text-3 focus:border-border-hover focus:ring-2 focus:ring-white/10"
                   placeholder="you@domain.com"
                   type="email"
                   value={email}
@@ -227,27 +230,37 @@ export default function SignupPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm text-foreground/70">Contraseña</label>
-                <input
-                  className="h-11 w-full rounded-xl border border-foreground/10 bg-foreground/[0.04] px-3 text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/20 focus:ring-2 focus:ring-white/10"
-                  placeholder="Mínimo 6 caracteres"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  autoComplete="new-password"
-                />
+                <label className="block text-[13px] text-foreground">Contraseña</label>
+                <div className="relative">
+                  <input
+                    className="h-11 w-full rounded-xl border border-border bg-secondary pl-3 pr-10 text-foreground outline-none placeholder:text-text-3 focus:border-border-hover focus:ring-2 focus:ring-white/10"
+                    placeholder="Mínimo 6 caracteres"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-0 top-0 flex h-11 w-10 items-center justify-center text-text-3 transition hover:text-foreground"
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
 
               {err ? (
-                <div className="rounded-xl border border-foreground/10 bg-foreground/[0.06] p-3 text-sm text-foreground/80">
+                <div className="rounded-xl border border-border bg-secondary p-3 text-[13px] text-foreground">
                   {err}
                 </div>
               ) : null}
 
               {msg ? (
-                <div className="rounded-xl border border-foreground/10 bg-foreground/[0.04] p-3 text-sm text-foreground/75">
+                <div className="rounded-xl border border-border bg-elevated p-3 text-[13px] text-foreground">
                   {msg}
                 </div>
               ) : null}
@@ -257,7 +270,7 @@ export default function SignupPage() {
                   type="button"
                   onClick={onResendConfirmation}
                   disabled={resendLoading}
-                  className="h-11 w-full rounded-xl border border-foreground/10 bg-foreground/5 text-sm font-semibold text-foreground/90 transition hover:bg-foreground/10 disabled:opacity-60"
+                  className="h-11 w-full rounded-xl border border-border bg-secondary text-[13px] font-semibold text-foreground transition hover:bg-secondary disabled:opacity-60"
                 >
                   {resendLoading ? "Reenviando…" : "Reenviar email de confirmación"}
                 </button>
@@ -266,18 +279,18 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="h-11 w-full rounded-xl bg-foreground text-sm font-semibold text-background transition hover:bg-foreground/90 disabled:opacity-60"
+                className="h-11 w-full rounded-xl bg-foreground text-[13px] font-semibold text-background transition hover:bg-secondary disabled:opacity-60"
               >
                 {loading ? "Creando…" : "Crear cuenta"}
               </button>
 
               <div className="flex items-center justify-between pt-1">
-                <a href="/login" className="text-sm text-foreground/65 underline-offset-4 hover:text-foreground hover:underline">
+                <a href="/login" className="text-[13px] text-text-2 underline-offset-4 hover:text-foreground hover:underline">
                   Ya tengo cuenta → Login
                 </a>
                 <a
                   href="/forgot-password"
-                  className="text-sm text-foreground/65 underline-offset-4 hover:text-foreground hover:underline"
+                  className="text-[13px] text-text-2 underline-offset-4 hover:text-foreground hover:underline"
                 >
                   ¿Olvidaste tu contraseña?
                 </a>
@@ -285,8 +298,8 @@ export default function SignupPage() {
 
               {/* Debug panel — development only, never shows in production */}
               {process.env.NODE_ENV === "development" && debug ? (
-                <details className="rounded-xl border border-foreground/10 bg-foreground/[0.03] p-3 text-xs text-foreground/70">
-                  <summary className="cursor-pointer select-none text-foreground/70">Debug</summary>
+                <details className="rounded-xl border border-border bg-secondary p-3 text-[13px] text-foreground">
+                  <summary className="cursor-pointer select-none text-foreground">Debug</summary>
                   <pre className="mt-2 overflow-auto whitespace-pre-wrap break-words">
                     {JSON.stringify(debug, null, 2)}
                   </pre>
@@ -295,7 +308,7 @@ export default function SignupPage() {
             </div>
           </form>
 
-          <p className="mt-6 text-center text-xs text-foreground/35">© {new Date().getFullYear()} SMART SCALE</p>
+          <p className="mt-6 text-center text-[13px] text-text-3">© {new Date().getFullYear()} SMART SCALE</p>
         </div>
       </div>
     </div>
