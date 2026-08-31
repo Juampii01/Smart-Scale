@@ -23,6 +23,7 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
+import { getSmartScaleTenantId } from "@/lib/auth/internal-scope"
 import { sendUpcomingChargeEmail, sendUpcomingPaymentLinkEmail, sendOverdueInstallmentEmail, sendRenewalEmail } from "@/lib/email"
 import { logJobRun } from "@/lib/system-log"
 
@@ -115,16 +116,30 @@ async function runBillingAlerts() {
     errors: [] as string[],
   }
 
-  // 1. Cargar TODOS los clientes (sin filtrar por estado ni tipo de plan).
-  //    El Slack interno de cuotas (próximas y vencidas) corre sobre todos —
-  //    visibilidad del equipo sobre plata pendiente. Los EMAILS al cliente
-  //    (más abajo) sí se filtran a status === "activo" — no le mandamos
-  //    recordatorios de cobro a alguien que ya no es cliente activo.
-  //    La generación automática de la próxima cuota solo aplica a clientes
-  //    ACTIVOS con plan mensual (no le inventamos cuotas a un cliente dado de baja).
+  // 0. Este cron es 100% de Smart Scale: manda Slack al equipo de Ann y
+  //    emails de cobranza con sus propias plantillas de marca. Sin este
+  //    filtro, el día que otro tenant tenga sus propios crm_clients (vía
+  //    su onboarding), este cron le mandaría a SU cliente un email de
+  //    cobranza de Smart Scale, y a Ann un aviso de Slack de una deuda que
+  //    no es suya.
+  const smartScaleTenantId = await getSmartScaleTenantId(supabase)
+  if (!smartScaleTenantId) {
+    result.errors.push("No se encontró el tenant interno de Smart Scale")
+    return result
+  }
+
+  // 1. Cargar TODOS los clientes de Smart Scale (sin filtrar por estado ni
+  //    tipo de plan). El Slack interno de cuotas (próximas y vencidas) corre
+  //    sobre todos — visibilidad del equipo sobre plata pendiente. Los
+  //    EMAILS al cliente (más abajo) sí se filtran a status === "activo" —
+  //    no le mandamos recordatorios de cobro a alguien que ya no es cliente
+  //    activo. La generación automática de la próxima cuota solo aplica a
+  //    clientes ACTIVOS con plan mensual (no le inventamos cuotas a un
+  //    cliente dado de baja).
   const { data: clients, error: clientsErr } = await supabase
     .from("crm_clients")
     .select("id, name, email, installment_amount, status, is_monthly_subscription, program_start, program_duration, renewal_email_sent_at")
+    .eq("client_id", smartScaleTenantId)
 
   if (clientsErr) {
     result.errors.push(`Error cargando clientes: ${clientsErr.message}`)

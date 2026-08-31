@@ -12,7 +12,7 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireInternal } from "@/lib/auth/api-guards"
+import { resolveInternalScope } from "@/lib/auth/internal-scope"
 import Anthropic from "@anthropic-ai/sdk"
 
 export const runtime = "nodejs"
@@ -95,7 +95,7 @@ Calcula: cash cobrado de sus clientes, comisión al 5%.
 
 // ─── Tool execution ────────────────────────────────────────────────────────────
 
-async function executeTool(name: string, input: Record<string, any>): Promise<string> {
+async function executeTool(name: string, input: Record<string, any>, tenantId: string): Promise<string> {
   const supabase = createServiceClient()
 
   if (name === "get_cash_data") {
@@ -107,10 +107,11 @@ async function executeTool(name: string, input: Record<string, any>): Promise<st
     const monthStart = `${month}-01`
     const monthEnd   = `${y}-${String(m).padStart(2, "0")}-${new Date(y, m, 0).getDate()}`
 
-    // Todos los clientes activos con sus cuotas vencidas en ese mes
+    // Todos los clientes activos (de este tenant) con sus cuotas vencidas en ese mes
     const { data: rows, error } = await supabase
       .from("crm_clients")
       .select("id, name, created_at, status, crm_installments(amount, due_date, paid_at, installment_number)")
+      .eq("client_id", tenantId)
       .neq("status", "offboarding")
 
     if (error) return `Error BD: ${error.message}`
@@ -166,6 +167,7 @@ async function executeTool(name: string, input: Record<string, any>): Promise<st
     const { data: clients, error } = await supabase
       .from("crm_clients")
       .select("id, name, status, program_start, installment_amount, num_installments, is_monthly_subscription, crm_installments(installment_number, amount, due_date, paid_at)")
+      .eq("client_id", tenantId)
       .ilike("name", `%${search}%`)
       .limit(3)
 
@@ -194,6 +196,7 @@ async function executeTool(name: string, input: Record<string, any>): Promise<st
     let query = supabase
       .from("crm_clients")
       .select("name, status, program_start, num_installments, installment_amount, is_monthly_subscription, crm_installments(installment_number, amount, due_date, paid_at)")
+      .eq("client_id", tenantId)
       .order("created_at", { ascending: false })
 
     if (status !== "all") query = query.eq("status", status)
@@ -234,6 +237,7 @@ async function executeTool(name: string, input: Record<string, any>): Promise<st
     const { data: clients, error } = await supabase
       .from("crm_clients")
       .select("id, name, setter_id, total_amount, installment_amount, num_installments, status, crm_installments(amount, paid_at, due_date)")
+      .eq("client_id", tenantId)
       .neq("status", "offboarding")
       .not("setter_id", "is", null)
 
@@ -313,9 +317,8 @@ CONOCIMIENTO BASE:
 
 export async function POST(req: NextRequest) {
   try {
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const user = await requireInternal(jwt)
-    if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    const scope = await resolveInternalScope(req, req.nextUrl.searchParams.get("client_id"))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
     let body: any
     try { body = await req.json() } catch {
@@ -359,7 +362,7 @@ export async function POST(req: NextRequest) {
         const toolResults: Anthropic.ToolResultBlockParam[] = []
         for (const block of response.content) {
           if (block.type !== "tool_use") continue
-          const output = await executeTool(block.name, block.input as Record<string, any>)
+          const output = await executeTool(block.name, block.input as Record<string, any>, scope.tenantId)
           toolResults.push({
             type:        "tool_result",
             tool_use_id: block.id,

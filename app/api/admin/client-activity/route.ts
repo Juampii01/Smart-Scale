@@ -8,7 +8,7 @@
  */
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireAdmin } from "@/lib/auth/api-guards"
+import { requireSmartScaleInternal } from "@/lib/auth/api-guards"
 import { getClientActivitySnapshot } from "@/lib/client-activity"
 
 export const runtime = "nodejs"
@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
   const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-  const caller = await requireAdmin(jwt)
+  const caller = await requireSmartScaleInternal(jwt)
   if (!caller) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   const sb = createServiceClient()
