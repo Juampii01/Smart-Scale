@@ -28,6 +28,15 @@ function formatCurrency(amount: number): string {
   return `$${amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
+// "Comisión" es new_cash + old_cash ya combinados — sin este desglose parece
+// que sale solo de lo que se ve al lado (ej: Old Cash), y genera confusión
+// tipo "¿por qué le tengo que pagar esto a X?" (caso real, ago 2026).
+function commissionBreakdown(c: CommissionData): string {
+  const newPart = formatCurrency(c.new_cash * c.commission_rate)
+  const oldPart = formatCurrency(c.old_cash * c.commission_rate)
+  return `${newPart} nuevos + ${oldPart} old cash`
+}
+
 export function SetterCommissionPanel({ userRole, userId, month }: { userRole: string | null; userId: string; month: string }) {
   const [commissions, setCommissions] = useState<CommissionData[]>([])
   const [loading, setLoading] = useState(true)
@@ -118,7 +127,12 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
           <CommissionCard label="Revenue" value={formatCurrency(c.mrr_total)} />
           <CommissionCard label="New Cash" value={formatCurrency(c.new_cash)} />
           <CommissionCard label="Old Cash" value={formatCurrency(c.old_cash)} small />
-          <CommissionCard label={`Comisión (${c.commission_rate * 100}%)`} value={formatCurrency(c.commission_earned)} highlight />
+          <CommissionCard
+            label={`Comisión (${c.commission_rate * 100}%)`}
+            value={formatCurrency(c.commission_earned)}
+            highlight
+            caption={c.old_cash > 0 ? commissionBreakdown(c) : undefined}
+          />
         </div>
       </div>
     )
@@ -178,6 +192,11 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
                 </td>
                 <td className="px-4 py-2.5 text-right font-semibold text-accent-ink tabular-nums">
                   {formatCurrency(c.commission_earned)}
+                  {c.old_cash > 0 && (
+                    <div className="mt-0.5 text-[11px] font-normal text-text-3">
+                      {commissionBreakdown(c)}
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}
@@ -188,7 +207,7 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
   )
 }
 
-function CommissionCard({ label, value, highlight, small }: { label: string; value: string; highlight?: boolean; small?: boolean }) {
+function CommissionCard({ label, value, highlight, small, caption }: { label: string; value: string; highlight?: boolean; small?: boolean; caption?: string }) {
   return (
     <div className={`rounded-xl border px-3 py-3 text-center ${
       highlight
@@ -205,6 +224,9 @@ function CommissionCard({ label, value, highlight, small }: { label: string; val
       }`}>
         {value}
       </div>
+      {caption && (
+        <div className="mt-0.5 text-[11px] text-text-3">{caption}</div>
+      )}
     </div>
   )
 }
