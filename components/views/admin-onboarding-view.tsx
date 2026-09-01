@@ -236,8 +236,14 @@ function OnboardingForm({
     cuota_4:           "",
     cuota_5:           "",
     cuota_6:           "",
+    cuota_7:           "",
+    cuota_8:           "",
+    cuota_9:           "",
+    cuota_10:          "",
+    cuota_11:          "",
+    cuota_12:          "",
     program_start:     new Date().toISOString().slice(0, 10),
-    program_duration:  "6",
+    program_duration:  "12",
     setter_id:         "",
     forma_pago:        "",
     lead_id:           "",
@@ -298,15 +304,21 @@ function OnboardingForm({
           program:      fields.program.trim()   || null,
           total_amount: fields.total_amount ? Number(fields.total_amount) : 0,
           cuotas: {
-            cuota_1: fields.cuota_1 ? Number(fields.cuota_1) : null,
-            cuota_2: fields.cuota_2 ? Number(fields.cuota_2) : null,
-            cuota_3: fields.cuota_3 ? Number(fields.cuota_3) : null,
-            cuota_4: fields.cuota_4 ? Number(fields.cuota_4) : null,
-            cuota_5: fields.cuota_5 ? Number(fields.cuota_5) : null,
-            cuota_6: fields.cuota_6 ? Number(fields.cuota_6) : null,
+            cuota_1:  fields.cuota_1  ? Number(fields.cuota_1)  : null,
+            cuota_2:  fields.cuota_2  ? Number(fields.cuota_2)  : null,
+            cuota_3:  fields.cuota_3  ? Number(fields.cuota_3)  : null,
+            cuota_4:  fields.cuota_4  ? Number(fields.cuota_4)  : null,
+            cuota_5:  fields.cuota_5  ? Number(fields.cuota_5)  : null,
+            cuota_6:  fields.cuota_6  ? Number(fields.cuota_6)  : null,
+            cuota_7:  fields.cuota_7  ? Number(fields.cuota_7)  : null,
+            cuota_8:  fields.cuota_8  ? Number(fields.cuota_8)  : null,
+            cuota_9:  fields.cuota_9  ? Number(fields.cuota_9)  : null,
+            cuota_10: fields.cuota_10 ? Number(fields.cuota_10) : null,
+            cuota_11: fields.cuota_11 ? Number(fields.cuota_11) : null,
+            cuota_12: fields.cuota_12 ? Number(fields.cuota_12) : null,
           },
           program_start:    fields.program_start,
-          program_duration: Number(fields.program_duration) || 6,
+          program_duration: Number(fields.program_duration) || 12,
           setter_id:        fields.setter_id || null,
           forma_pago:       fields.forma_pago.trim() || null,
           lead_id:          fields.lead_id || null,
@@ -477,7 +489,7 @@ function OnboardingForm({
         <div>
           <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#dafc69]/60">Cuotas (llenar las que correspondan)</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-            {[1, 2, 3, 4, 5, 6].map(i => (
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(i => (
               <div key={i}>
                 <label className={labelCls}>Cuota {i}</label>
                 <div className="relative">

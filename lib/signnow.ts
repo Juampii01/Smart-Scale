@@ -38,7 +38,7 @@ export interface SignNowContractData {
   program?:       string | null   // "Smart Scale Grupal" | "Smart Scale Híbrido" — define la plantilla
   totalAmount?:   number
   primerPago?:    number
-  cuotas?:        Record<string, number | null>   // cuota_1..cuota_6 (cuota_1 no se manda: ya cubierta por pago_entrada)
+  cuotas?:        Record<string, number | null>   // cuota_1..cuota_12 (cuota_1 no se manda: ya cubierta por pago_entrada)
   cantidadMeses?: number
 }
 
@@ -248,7 +248,10 @@ export async function sendContractForSignature(data: SignNowContractData): Promi
     if (data.primerPago)    fields.pago_entrada = String(data.primerPago)
     if (data.cantidadMeses) fields.cantidad_de_meses_de_programa = String(data.cantidadMeses)
     if (data.cuotas) {
-      for (let i = 2; i <= 6; i++) {
+      // mes_7..mes_12 requieren que esos Smart Fields existan en las
+      // plantillas de SignNow (Grupal e Híbrido) — si no se agregaron ahí,
+      // prefillDocumentFields simplemente ignora los campos que no existen.
+      for (let i = 2; i <= 12; i++) {
         const val = data.cuotas[`cuota_${i}`]
         if (val != null && val > 0) fields[`mes_${i}`] = String(val)
       }

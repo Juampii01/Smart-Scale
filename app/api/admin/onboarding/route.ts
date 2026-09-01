@@ -33,7 +33,7 @@ const ALBERTO_CLIENT_ID = "6d6c4dc8-e158-4f87-8612-e948c1a31cbb"
  *   phone         string?  — teléfono (formato válido)
  *   program       string?  — nombre del programa / plan
  *   total_amount  number?  — monto total del programa (> 0)
- *   cuotas        object?  — { cuota_1, cuota_2, ... cuota_6 } con montos de cada cuota
+ *   cuotas        object?  — { cuota_1, cuota_2, ... cuota_12 } con montos de cada cuota
  *   program_start date?   — fecha de inicio (YYYY-MM-DD, no pasada)
  *   forma_pago    string?  — descripción de formato de pago (transferencia, tarjeta, etc)
  *   setter_id     string? — uuid del setter que cerró (auto-asignado si caller es setter)
