@@ -113,10 +113,34 @@ export async function POST(req: NextRequest) {
     // paid_at sola: la sugerencia se confirma con un click en /admin/payments.
     const { clientId, suggestedInstallmentId } = await resolveClientAndSuggestion(supabase, email, amount, status)
 
-    // ── Upsert ────────────────────────────────────────────────────────────────
+    // ── Idempotencia (check-then-insert) ────────────────────────────────────
+    // El índice único sobre external_event_id quedó creado como parcial
+    // (where external_event_id is not null) — Postgres no puede resolver un
+    // ON CONFLICT (external_event_id) contra un índice parcial sin repetir
+    // el mismo WHERE en el conflicto, y el upsert de supabase-js no lo
+    // soporta. Eso rompía TODO insert real con "there is no unique or
+    // exclusion constraint matching the ON CONFLICT specification". Se
+    // reemplaza por un check-then-insert explícito, que no depende de
+    // ON CONFLICT.
+    const { data: existing, error: existingError } = await supabase
+      .from("payments")
+      .select("id")
+      .eq("external_event_id", externalEventId)
+      .maybeSingle()
+
+    if (existingError) {
+      await logJobRun(supabase, "webhook:payment", "error", existingError.message)
+      return NextResponse.json({ error: existingError.message }, { status: 500 })
+    }
+
+    if (existing) {
+      await logJobRun(supabase, "webhook:payment", "ok", `duplicado — ${name} — $${amount}`)
+      return NextResponse.json({ success: true, duplicate: true })
+    }
+
     const { data, error } = await supabase
       .from("payments")
-      .upsert({
+      .insert({
         external_event_id: externalEventId,
         name:        String(name).trim(),
         email:       email ? String(email).trim() : null,
@@ -125,19 +149,20 @@ export async function POST(req: NextRequest) {
         description: description ? String(description).trim() : null,
         client_id:   clientId,
         suggested_installment_id: suggestedInstallmentId,
-      }, { onConflict: "external_event_id", ignoreDuplicates: true })
+      })
       .select("id")
-      .maybeSingle()
+      .single()
 
     if (error) {
+      // 23505 = choque real de carrera contra el índice único (dos
+      // reintentos casi simultáneos) — se trata igual que un duplicado,
+      // no como un fallo real.
+      if (error.code === "23505") {
+        await logJobRun(supabase, "webhook:payment", "ok", `duplicado (carrera) — ${name} — $${amount}`)
+        return NextResponse.json({ success: true, duplicate: true })
+      }
       await logJobRun(supabase, "webhook:payment", "error", error.message)
       return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    if (!data) {
-      // ignoreDuplicates hizo que el upsert no insertara nada — ya existía.
-      await logJobRun(supabase, "webhook:payment", "ok", `duplicado — ${name} — $${amount}`)
-      return NextResponse.json({ success: true, duplicate: true })
     }
 
     await logJobRun(supabase, "webhook:payment", "ok", `${name} — $${amount}`)
