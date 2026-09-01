@@ -28,13 +28,12 @@ function formatCurrency(amount: number): string {
   return `$${amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
-// "Comisión" es new_cash + old_cash ya combinados — sin este desglose parece
-// que sale solo de lo que se ve al lado (ej: Old Cash), y genera confusión
-// tipo "¿por qué le tengo que pagar esto a X?" (caso real, ago 2026).
-function commissionBreakdown(c: CommissionData): string {
-  const newPart = formatCurrency(c.new_cash * c.commission_rate)
-  const oldPart = formatCurrency(c.old_cash * c.commission_rate)
-  return `${newPart} nuevos + ${oldPart} old cash`
+// La comisión de New Cash y Old Cash se muestra al lado de CADA balde, no
+// solo en el total combinado — mostrar únicamente "Comisión: $2.225" al lado
+// de "Old Cash: $1.000" hacía parecer que esa comisión salía sola del old
+// cash, o que era un pago aparte a otra persona (confusión real, ago 2026).
+function bucketCommission(amount: number, rate: number): string {
+  return `comisión ${formatCurrency(amount * rate)}`
 }
 
 export function SetterCommissionPanel({ userRole, userId, month }: { userRole: string | null; userId: string; month: string }) {
@@ -125,13 +124,21 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
           <CommissionCard label="Nuevos" value={String(c.new_count)} />
           <CommissionCard label="Cuotas" value={String(c.paid_count)} />
           <CommissionCard label="Revenue" value={formatCurrency(c.mrr_total)} />
-          <CommissionCard label="New Cash" value={formatCurrency(c.new_cash)} />
-          <CommissionCard label="Old Cash" value={formatCurrency(c.old_cash)} small />
           <CommissionCard
-            label={`Comisión (${c.commission_rate * 100}%)`}
+            label="New Cash"
+            value={formatCurrency(c.new_cash)}
+            caption={c.new_cash > 0 ? bucketCommission(c.new_cash, c.commission_rate) : undefined}
+          />
+          <CommissionCard
+            label="Old Cash"
+            value={formatCurrency(c.old_cash)}
+            small
+            caption={c.old_cash > 0 ? bucketCommission(c.old_cash, c.commission_rate) : undefined}
+          />
+          <CommissionCard
+            label={`Comisión total (${c.commission_rate * 100}%)`}
             value={formatCurrency(c.commission_earned)}
             highlight
-            caption={c.old_cash > 0 ? commissionBreakdown(c) : undefined}
           />
         </div>
       </div>
@@ -186,17 +193,22 @@ export function SetterCommissionPanel({ userRole, userId, month }: { userRole: s
                 </td>
                 <td className="px-4 py-2.5 text-right text-foreground tabular-nums">
                   {c.new_cash > 0 ? formatCurrency(c.new_cash) : "—"}
+                  {c.new_cash > 0 && (
+                    <div className="mt-0.5 text-[11px] font-normal text-text-3">
+                      {bucketCommission(c.new_cash, c.commission_rate)}
+                    </div>
+                  )}
                 </td>
                 <td className="px-4 py-2.5 text-right text-accent-ink/60 text-[13px] tabular-nums">
                   {c.old_cash > 0 ? formatCurrency(c.old_cash) : "—"}
+                  {c.old_cash > 0 && (
+                    <div className="mt-0.5 text-[11px] font-normal text-text-3">
+                      {bucketCommission(c.old_cash, c.commission_rate)}
+                    </div>
+                  )}
                 </td>
                 <td className="px-4 py-2.5 text-right font-semibold text-accent-ink tabular-nums">
                   {formatCurrency(c.commission_earned)}
-                  {c.old_cash > 0 && (
-                    <div className="mt-0.5 text-[11px] font-normal text-text-3">
-                      {commissionBreakdown(c)}
-                    </div>
-                  )}
                 </td>
               </tr>
             ))}
