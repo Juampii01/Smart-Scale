@@ -14,13 +14,16 @@ export async function PATCH(req: NextRequest) {
   let body: any
   try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
 
-  const { id, title, intro, questions } = body ?? {}
+  const { id, title, intro, questions, skool_course_name } = body ?? {}
   if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 })
 
   const update: Record<string, any> = { updated_at: new Date().toISOString() }
   if (title !== undefined) update.title = title
   if (intro !== undefined) update.intro = intro
   if (questions !== undefined) update.questions = questions
+  // Curso privado de Skool que se destraba al aprobar el nivel ANTERIOR a
+  // este — ver app/api/posi/submissions/route.ts.
+  if (skool_course_name !== undefined) update.skool_course_name = skool_course_name || null
 
   const supabase = createServiceClient()
   const { data, error } = await supabase

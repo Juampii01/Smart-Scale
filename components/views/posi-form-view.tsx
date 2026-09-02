@@ -47,6 +47,14 @@ interface Feedback {
   wrong: WrongAnswer[]
 }
 
+// Viene en toda respuesta del POST cuando el nivel queda aprobado (real o
+// auto-aprobado) — nunca trae el email ni el nombre del curso de Skool,
+// eso es admin-only (ver app/api/posi/submissions/route.ts).
+interface Unlock {
+  pending: boolean
+  level_title: string | null
+}
+
 const inputCls = "w-full rounded-xl border border-border bg-secondary px-4 py-3 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
 
 function computeScore(level: Level | null, answers: Record<string, any>): { correct: number; total: number } | null {
@@ -65,12 +73,27 @@ function computeScore(level: Level | null, answers: Record<string, any>): { corr
 // (levels/route.ts lo saca para todo el que no sea admin), así que
 // computeScore da null para el 99% de los casos reales — ahí se muestra
 // el resultado sin el detalle de puntaje, nunca "score: undefined/0".
-function ResultBanner({ passed, score, levelTitle, onRetry, feedback }: {
+// Línea de pie para el mail de Skool — nunca decir "ya tenés acceso" ni
+// "desbloqueado": Skool manda una invitación que hay que aceptar, tarda
+// 10-15 minutos y no es instantánea. Prometer acceso inmediato acá es
+// soporte que después tiene que absorber Ann.
+function UnlockNotice({ unlock }: { unlock?: Unlock | null }) {
+  if (!unlock?.pending) return null
+  return (
+    <p className="mt-4 text-[13px] text-text-2">
+      Te va a llegar un mail de Skool en los próximos minutos para desbloquear{" "}
+      <span className="font-semibold text-foreground">{unlock.level_title}</span>. Abrilo y aceptá el acceso desde ahí.
+    </p>
+  )
+}
+
+function ResultBanner({ passed, score, levelTitle, onRetry, feedback, unlock }: {
   passed: boolean
   score: { correct: number; total: number } | null
   levelTitle?: string
   onRetry?: () => void
   feedback?: Feedback | null
+  unlock?: Unlock | null
 }) {
   // Aprobado, pero por regla (3er intento fallido) — no por nota real:
   // tono intermedio (ámbar, no rojo ni verde pleno) y el detalle de lo
@@ -85,6 +108,7 @@ function ResultBanner({ passed, score, levelTitle, onRetry, feedback }: {
             Completaste el {levelTitle ?? "nivel"} en {feedback.attempt_number} intentos. Te damos el nivel por
             aprobado, pero repasá estos puntos antes de seguir:
           </p>
+          <UnlockNotice unlock={unlock} />
         </div>
 
         {feedback.wrong.length > 0 && (
@@ -127,6 +151,7 @@ function ResultBanner({ passed, score, levelTitle, onRetry, feedback }: {
           Gracias por completar {levelTitle ?? "el nivel"}.
           {score && ` Respondiste correctamente ${score.correct} de ${score.total}.`}
         </p>
+        <UnlockNotice unlock={unlock} />
         {onRetry && (
           <button
             type="button"
@@ -173,6 +198,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
   // que para un cliente real siempre da null (correct_index nunca se le manda).
   const [lastPassed, setLastPassed] = useState<boolean | null>(null)
   const [feedback, setFeedback] = useState<Feedback | null>(null)
+  const [unlock, setUnlock] = useState<Unlock | null>(null)
   const [errorMsg, setErrorMsg] = useState("")
 
   const load = useCallback(async () => {
@@ -239,6 +265,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
       if (!res.ok) { setStatus("error"); setErrorMsg(json?.error ?? "Error al enviar"); return }
       setLastPassed(json?.submission?.passed ?? null)
       setFeedback(json?.feedback ?? null)
+      setUnlock(json?.unlock ?? null)
       setStatus("done")
     } catch (err: any) {
       setStatus("error")
@@ -270,7 +297,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
         )}
 
         {status === "done" && (() => {
-          const retry = () => { setErrorMsg(""); setAnswers({}); setFeedback(null); setStatus("ready") }
+          const retry = () => { setErrorMsg(""); setAnswers({}); setFeedback(null); setUnlock(null); setStatus("ready") }
           // Nivel sin preguntas calificables (checklist/texto puro) — no hay
           // concepto de aprobar/reprobar, mismo mensaje genérico de siempre.
           if (lastPassed === null) {
@@ -296,6 +323,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
               levelTitle={level?.title}
               onRetry={retry}
               feedback={feedback}
+              unlock={unlock}
             />
           )
         })()}

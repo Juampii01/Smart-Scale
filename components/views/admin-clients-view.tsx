@@ -57,6 +57,7 @@ interface Client {
   status:              "activo" | "offboarding"
   notes:              string | null
   business_profile:   string | null
+  skool_email:        string | null
   created_at:         string
   updated_at:         string
   installments:       Installment[]
@@ -1195,6 +1196,23 @@ function DetailDrawer({
                 className="w-full resize-none rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
               />
               <p className="text-[13px] text-text-2">Ann AI usa esto para hablar del negocio específico del cliente desde el primer mensaje.</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <p className={labelCls}>Email de Skool</p>
+              <input
+                type="email"
+                key={client.id}
+                defaultValue={client.skool_email ?? ""}
+                placeholder="correo@ejemplo.com"
+                onBlur={e    => onPatchClient(client.id, { skool_email: e.target.value || null } as any)}
+                onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
+                className={inputCls}
+              />
+              <p className="text-[13px] text-text-2">
+                Solo si el email con el que entró a Skool es distinto al del portal. Efectivo:{" "}
+                {client.skool_email ? <span className="text-foreground">{client.skool_email}</span> : "ninguno configurado — el destrabe automático va a fallar hasta que se cargue"}
+              </p>
             </div>
           </div>
 

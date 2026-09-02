@@ -17,6 +17,12 @@
 //                                        vía app/api/webhooks/client-call
 //   ZAPIER_WEBHOOK_POSI               → fires cuando un cliente completa un nivel
 //                                        del formulario POSI (app/api/posi/submissions)
+//   ZAPIER_WEBHOOK_POSI_UNLOCK        → fires cuando se aprueba un nivel de POSI y
+//                                        hay que destrabar el curso siguiente en
+//                                        Skool (app/api/posi/submissions) — separado
+//                                        de ZAPIER_WEBHOOK_POSI: ese Zap solo postea a
+//                                        Slack, este ejecuta la acción "Unlock Course
+//                                        for Member" sobre Skool.
 //
 // Zapier Zap setup:
 //   Trigger: "Webhooks by Zapier → Catch Hook"
@@ -477,4 +483,32 @@ export async function zapierPosiSubmission(payload: {
     `📋 *${payload.client_name}* completó el *${payload.level_title}* de POSI.`
 
   return postWebhook(url, { ...payload, message }, "zapierPosiSubmission")
+}
+
+// El Zap de este webhook ejecuta "Skool → Unlock Course for Member" (Email +
+// Course mapeados desde skool_email / skool_course_name) y, como segunda
+// acción, postea `message` a Slack — separado de zapierPosiSubmission porque
+// ese va a un Zap distinto que solo notifica, nunca toca Skool.
+export async function zapierPosiUnlock(payload: {
+  event_type:             "posi.unlock"
+  unlock_event_id:        string
+  client_id:              string
+  client_name:            string
+  skool_email:             string  // ← Zapier lo mapea al campo Email de la acción de Skool
+  skool_course_name:       string  // ← Zapier lo mapea al curso a destrabar
+  approved_level_number:  number
+  approved_level_title:   string
+  unlock_level_number:    number
+  unlock_level_title:     string
+  auto_approved:          boolean
+  attempt_number:         number | null
+}): Promise<ZapierResult> {
+  const url = process.env.ZAPIER_WEBHOOK_POSI_UNLOCK
+  if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_POSI_UNLOCK not configured" }
+
+  const message = payload.auto_approved
+    ? `🔓⚠️ *${payload.client_name}* pasó el *${payload.approved_level_title}* por reintentos (${payload.attempt_number}º) — destrabando *${payload.skool_course_name}* igual. Revisar en /admin/posi.`
+    : `🔓 *${payload.client_name}* aprobó el *${payload.approved_level_title}* — destrabando *${payload.skool_course_name}* en Skool.`
+
+  return postWebhook(url, { ...payload, message }, "zapierPosiUnlock")
 }

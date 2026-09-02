@@ -187,6 +187,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: friendly }, { status: 500 })
     }
 
+    // Default de clients.skool_email: el mismo con el que se crea la cuenta
+    // del portal — clients no tiene ninguna otra columna de email (solo
+    // vive en auth.users, ver la migración 20260902000002_posi_skool_unlock).
+    // .is("skool_email", null) para no pisar uno que Ann ya haya cargado a
+    // mano (ej. un segundo usuario del mismo client_id). Best-effort: si
+    // falla, no rompemos el alta del usuario por esto.
+    if (role === "client" && clientId) {
+      const { error: skoolErr } = await supabase
+        .from("clients")
+        .update({ skool_email: email })
+        .eq("id", clientId)
+        .is("skool_email", null)
+      if (skoolErr) console.error("[users/create] no se pudo setear skool_email:", skoolErr.message)
+    }
+
     return NextResponse.json({
       user: { id: userId, email, role, name },
       tempPassword: generated ? password : null,

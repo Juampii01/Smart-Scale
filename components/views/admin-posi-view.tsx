@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react"
-import { Loader2, Copy, Check, Pencil, ChevronDown, ChevronUp, ClipboardList, Plus, Trash2, GripVertical, X } from "lucide-react"
+import { Loader2, Copy, Check, Pencil, ChevronDown, ChevronUp, ClipboardList, Plus, Trash2, GripVertical, X, Unlock, RefreshCw } from "lucide-react"
 import { createClient } from "@/lib/supabase"
 import { SectionHeader } from "@/components/ui/section-header"
 
@@ -27,6 +27,8 @@ interface Level {
   title: string
   intro: string | null
   questions: Question[]
+  /** Curso privado de Skool que se destraba al aprobar el nivel ANTERIOR a este. */
+  skool_course_name?: string | null
 }
 
 interface Submission {
@@ -40,6 +42,40 @@ interface Submission {
   wrong_question_ids?: string[]
   attempt_number?: number | null
   auto_approved?: boolean | null
+}
+
+type UnlockStatus = "pending" | "sent" | "failed" | "skipped"
+
+interface UnlockEvent {
+  id: string
+  client_id: string
+  client_name: string
+  status: UnlockStatus
+  reason: string | null
+  skool_course_name: string | null
+  skool_email: string | null
+  auto_approved: boolean
+  created_at: string
+  approved_level: { level_number: number; title: string } | null
+  unlock_level: { level_number: number; title: string } | null
+}
+
+interface UnlockDiagnostics {
+  missingCourseLevels: { id: string; level_number: number; title: string }[]
+  clientsWithoutEmail: { id: string; name: string }[]
+}
+
+const UNLOCK_STATUS_LABEL: Record<UnlockStatus, string> = {
+  pending: "Pendiente",
+  sent:    "Enviado",
+  failed:  "Falló",
+  skipped: "Salteado",
+}
+const UNLOCK_STATUS_CLS: Record<UnlockStatus, string> = {
+  pending: "bg-secondary text-text-2",
+  sent:    "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+  failed:  "bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400",
+  skipped: "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400",
 }
 
 const inputCls = "w-full rounded-lg border border-border bg-secondary px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
@@ -83,11 +119,15 @@ export function AdminPosiView() {
   const [loading, setLoading] = useState(true)
   const [copiedLevel, setCopiedLevel] = useState<number | null>(null)
   const [editingLevel, setEditingLevel] = useState<string | null>(null)
-  const [editDraft, setEditDraft] = useState<{ title: string; intro: string; questions: Question[] }>({ title: "", intro: "", questions: [] })
+  const [editDraft, setEditDraft] = useState<{ title: string; intro: string; questions: Question[]; skool_course_name: string }>({ title: "", intro: "", questions: [], skool_course_name: "" })
   const [editError, setEditError] = useState("")
   const [savingLevel, setSavingLevel] = useState(false)
   const [expandedSubmission, setExpandedSubmission] = useState<string | null>(null)
   const [siteOrigin, setSiteOrigin] = useState("")
+
+  const [unlockEvents, setUnlockEvents] = useState<UnlockEvent[]>([])
+  const [unlockDiagnostics, setUnlockDiagnostics] = useState<UnlockDiagnostics>({ missingCourseLevels: [], clientsWithoutEmail: [] })
+  const [retryingId, setRetryingId] = useState<string | null>(null)
 
   const [pageSettings, setPageSettings] = useState({ title: "POSI", subtitle: "" })
   const [editingHeader, setEditingHeader] = useState(false)
@@ -105,17 +145,23 @@ export function AdminPosiView() {
     try {
       const token = await getToken()
       if (!token) return
-      const [levelsRes, subsRes, settingsRes] = await Promise.all([
+      const [levelsRes, subsRes, settingsRes, unlocksRes] = await Promise.all([
         fetch("/api/posi/levels", { headers: { Authorization: `Bearer ${token}` } }),
         fetch("/api/posi/submissions", { headers: { Authorization: `Bearer ${token}` } }),
         fetch("/api/admin/posi-page-settings", { headers: { Authorization: `Bearer ${token}` } }),
+        fetch("/api/admin/posi/unlocks", { headers: { Authorization: `Bearer ${token}` } }),
       ])
       const levelsJson = await levelsRes.json()
       const subsJson = await subsRes.json()
       const settingsJson = await settingsRes.json()
+      const unlocksJson = await unlocksRes.json()
       if (levelsRes.ok) setLevels(levelsJson.levels ?? [])
       if (subsRes.ok) setSubmissions(subsJson.submissions ?? [])
       if (settingsRes.ok && settingsJson.settings) setPageSettings(settingsJson.settings)
+      if (unlocksRes.ok) {
+        setUnlockEvents(unlocksJson.events ?? [])
+        setUnlockDiagnostics(unlocksJson.diagnostics ?? { missingCourseLevels: [], clientsWithoutEmail: [] })
+      }
     } finally {
       setLoading(false)
     }
@@ -158,7 +204,12 @@ export function AdminPosiView() {
   const startEdit = (level: Level) => {
     setEditingLevel(level.id)
     setEditError("")
-    setEditDraft({ title: level.title, intro: level.intro ?? "", questions: level.questions.map((q) => ({ ...q, options: q.options ? [...q.options] : undefined })) })
+    setEditDraft({
+      title: level.title,
+      intro: level.intro ?? "",
+      questions: level.questions.map((q) => ({ ...q, options: q.options ? [...q.options] : undefined })),
+      skool_course_name: level.skool_course_name ?? "",
+    })
   }
 
   const saveEdit = async (level: Level) => {
@@ -196,7 +247,13 @@ export function AdminPosiView() {
       const res = await fetch("/api/admin/posi-levels", {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ id: level.id, title: editDraft.title, intro: editDraft.intro, questions: cleanQuestions }),
+        body: JSON.stringify({
+          id: level.id,
+          title: editDraft.title,
+          intro: editDraft.intro,
+          questions: cleanQuestions,
+          skool_course_name: editDraft.skool_course_name.trim() || null,
+        }),
       })
       const json = await res.json()
       if (!res.ok) { setEditError(json?.error ?? "Error al guardar"); return }
@@ -252,6 +309,23 @@ export function AdminPosiView() {
       ...d,
       questions: d.questions.map((q, i) => (i === qIdx ? { ...q, correct_index: q.correct_index === oIdx ? undefined : oIdx } : q)),
     }))
+  }
+
+  const retryUnlock = async (id: string) => {
+    setRetryingId(id)
+    try {
+      const token = await getToken()
+      if (!token) return
+      const res = await fetch(`/api/admin/posi/unlocks/${id}/retry`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const json = await res.json()
+      if (!res.ok) { alert(json?.error ?? "No se pudo reintentar"); return }
+      load()
+    } finally {
+      setRetryingId(null)
+    }
   }
 
   const submissionsByLevel = submissions.reduce<Record<string, Submission[]>>((acc, s) => {
@@ -350,6 +424,17 @@ export function AdminPosiView() {
                       onChange={(e) => setEditDraft((d) => ({ ...d, intro: e.target.value }))}
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1.5">Curso de Skool a destrabar</label>
+                  <input
+                    className="w-full rounded-lg border border-border bg-card px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
+                    placeholder="Nombre exacto del curso en el classroom de Skool"
+                    value={editDraft.skool_course_name}
+                    onChange={(e) => setEditDraft((d) => ({ ...d, skool_course_name: e.target.value }))}
+                  />
+                  <p className="mt-1 text-[13px] text-text-3">Nombre exacto del curso privado en Skool que se destraba al aprobar el nivel anterior.</p>
                 </div>
 
                 <div>
@@ -578,6 +663,75 @@ export function AdminPosiView() {
                 </div>
               )
             })}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <SectionHeader icon={Unlock} title="Destrabes" subtitle={`${unlockEvents.length} eventos`} className="mb-4" />
+
+        {/* Solo aparece si hay algo mal — el objetivo es que Ann lo vea acá
+            antes de que el primer aviso sea un cliente quejándose. */}
+        {(unlockDiagnostics.missingCourseLevels.length > 0 || unlockDiagnostics.clientsWithoutEmail.length > 0) && (
+          <div className="mb-4 rounded-2xl border border-amber-500/30 bg-amber-100 dark:bg-amber-500/10 p-4 space-y-1.5">
+            {unlockDiagnostics.missingCourseLevels.map((l) => (
+              <p key={l.id} className="text-[13px] text-amber-700 dark:text-amber-400">
+                El Nivel {l.level_number} no tiene curso de Skool configurado: nadie que apruebe el Nivel {l.level_number - 1} va a recibir el destrabe.
+              </p>
+            ))}
+            {unlockDiagnostics.clientsWithoutEmail.length > 0 && (
+              <p className="text-[13px] text-amber-700 dark:text-amber-400">
+                Clientes activos sin ningún email para Skool: {unlockDiagnostics.clientsWithoutEmail.map((c) => c.name).join(", ")}.
+              </p>
+            )}
+          </div>
+        )}
+
+        {unlockEvents.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border bg-secondary px-6 py-10 text-center text-[13px] text-text-3">
+            Todavía no hubo ningún destrabe.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {unlockEvents.map((e) => (
+              <div key={e.id} className="rounded-xl border border-border bg-card px-4 py-3">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <span className="text-[13px] font-semibold text-foreground">{e.client_name}</span>
+                    <span className="text-[13px] text-text-2">
+                      {e.approved_level?.title ?? "—"} → {e.unlock_level?.title ?? "—"}
+                    </span>
+                    <span className={`rounded-full px-2 py-0.5 text-[13px] font-bold ${UNLOCK_STATUS_CLS[e.status]}`}>
+                      {UNLOCK_STATUS_LABEL[e.status]}
+                    </span>
+                    {e.auto_approved && (
+                      <span className="rounded-full bg-amber-100 dark:bg-amber-500/10 px-2 py-0.5 text-[13px] font-bold text-amber-700 dark:text-amber-400">
+                        Auto-aprobado
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[13px] text-text-3">
+                      {new Date(e.created_at).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" })}
+                    </span>
+                    {e.status === "failed" && (
+                      <button
+                        onClick={() => retryUnlock(e.id)}
+                        disabled={retryingId === e.id}
+                        className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-[13px] font-semibold text-text-2 hover:text-foreground hover:bg-secondary transition-colors disabled:opacity-50"
+                      >
+                        <RefreshCw className={`h-3 w-3 ${retryingId === e.id ? "animate-spin" : ""}`} />
+                        Reintentar
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <p className="mt-1 text-[13px] text-text-3">
+                  {e.skool_email ?? "sin email"} · {e.skool_course_name ?? "sin curso"}
+                  {e.reason && ` · ${e.reason}`}
+                </p>
+              </div>
+            ))}
           </div>
         )}
       </div>
