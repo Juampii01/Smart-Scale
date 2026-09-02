@@ -47,13 +47,13 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const ctx = await getUser(req)
   if (!ctx) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  const { sb } = ctx
+  const { user, sb } = ctx
 
   let body: any = {}
   try { body = await req.json() } catch {}
   if (!body.endpoint) return NextResponse.json({ error: "endpoint requerido" }, { status: 400 })
 
-  const { error } = await sb.from("push_subscriptions").delete().eq("endpoint", body.endpoint)
+  const { error } = await sb.from("push_subscriptions").delete().eq("endpoint", body.endpoint).eq("user_id", user.id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 }

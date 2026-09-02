@@ -288,6 +288,22 @@ export async function GET(req: NextRequest) {
 
     const supabase = getAdminSupabase()
 
+    // El request_id sólo es válido si pertenece al usuario autenticado —
+    // sin esto, cualquiera podía leer el diagnóstico de otro pasando su id.
+    const { data: requestRow, error: requestError } = await supabase
+      .from("ai_diagnosis_requests")
+      .select("status, updated_at, created_at")
+      .eq("id", requestId)
+      .eq("user_id", user.id)
+      .maybeSingle()
+
+    if (requestError) {
+      return NextResponse.json({ error: requestError.message }, { status: 500 })
+    }
+    if (!requestRow) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 })
+    }
+
     const { data, error } = await supabase
       .from("ai_diagnosis_results")
       .select("result, created_at")
@@ -301,21 +317,11 @@ export async function GET(req: NextRequest) {
     }
 
     if (!data) {
-      const { data: requestRow, error: requestError } = await supabase
-        .from("ai_diagnosis_requests")
-        .select("status, updated_at, created_at")
-        .eq("id", requestId)
-        .maybeSingle()
-
-      if (requestError) {
-        return NextResponse.json({ error: requestError.message }, { status: 500 })
-      }
-
       return NextResponse.json({
         result: null,
-        created_at: requestRow?.created_at ?? null,
-        updated_at: requestRow?.updated_at ?? null,
-        status: requestRow?.status ?? "pending",
+        created_at: requestRow.created_at ?? null,
+        updated_at: requestRow.updated_at ?? null,
+        status: requestRow.status ?? "pending",
       })
     }
 
@@ -419,20 +425,27 @@ export async function DELETE(req: NextRequest) {
 
     const supabase = getAdminSupabase()
 
-    await supabase
-      .from("ai_diagnosis_results")
-      .delete()
-      .eq("request_id", request_id)
-
-    const { error } = await supabase
+    // Borra primero (y solo) si el request es del usuario autenticado —
+    // así confirmamos ownership antes de tocar la tabla de resultados.
+    const { data: deletedRequest, error } = await supabase
       .from("ai_diagnosis_requests")
       .delete()
       .eq("id", request_id)
       .eq("user_id", user.id) // solo puede borrar sus propios registros
+      .select("id")
+      .maybeSingle()
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+    if (!deletedRequest) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 })
+    }
+
+    await supabase
+      .from("ai_diagnosis_results")
+      .delete()
+      .eq("request_id", request_id)
 
     return NextResponse.json({ success: true })
   } catch (error: any) {

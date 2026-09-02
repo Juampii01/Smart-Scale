@@ -24,6 +24,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Faltan campos obligatorios." }, { status: 400 })
     }
 
+    // Un cliente solo puede cargar un Cha-Ching a nombre de su propio client_id.
+    const { data: profile } = await supabase.from("profiles").select("role, client_id").eq("id", user.id).maybeSingle()
+    const role = String((profile as any)?.role ?? "").toLowerCase()
+    const ownClientId = (profile as any)?.client_id ?? null
+    if (!isInternal(role) && ownClientId !== client_id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
     // Resolve client name: clients.nombre → clients.name (si no es email) → profiles.name → user.email
     const isEmail = (s: string) => s.includes("@")
     let clientName: string = client_id
