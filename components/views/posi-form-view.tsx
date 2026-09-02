@@ -31,6 +31,22 @@ interface Level {
   questions: Question[]
 }
 
+interface WrongAnswer {
+  id: string
+  label: string
+  your_answer: string | null
+  correct_answer: string | null
+}
+
+// Solo viene en la respuesta del POST que auto-aprueba (3er intento
+// fallido) — ver app/api/posi/submissions/route.ts. No existe endpoint
+// GET que lo devuelva.
+interface Feedback {
+  auto_approved: boolean
+  attempt_number: number
+  wrong: WrongAnswer[]
+}
+
 const inputCls = "w-full rounded-xl border border-border bg-secondary px-4 py-3 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
 
 function computeScore(level: Level | null, answers: Record<string, any>): { correct: number; total: number } | null {
@@ -49,12 +65,59 @@ function computeScore(level: Level | null, answers: Record<string, any>): { corr
 // (levels/route.ts lo saca para todo el que no sea admin), así que
 // computeScore da null para el 99% de los casos reales — ahí se muestra
 // el resultado sin el detalle de puntaje, nunca "score: undefined/0".
-function ResultBanner({ passed, score, levelTitle, onRetry }: {
+function ResultBanner({ passed, score, levelTitle, onRetry, feedback }: {
   passed: boolean
   score: { correct: number; total: number } | null
   levelTitle?: string
   onRetry?: () => void
+  feedback?: Feedback | null
 }) {
+  // Aprobado, pero por regla (3er intento fallido) — no por nota real:
+  // tono intermedio (ámbar, no rojo ni verde pleno) y el detalle de lo
+  // que erró, para que repase antes de seguir.
+  if (feedback?.auto_approved) {
+    return (
+      <div className="rounded-2xl border border-amber-500/30 bg-amber-100 dark:bg-amber-500/10 p-8">
+        <div className="text-center">
+          <Check className="h-8 w-8 text-amber-700 dark:text-amber-400 mx-auto mb-3" />
+          <p className="text-[18px] font-bold text-amber-700 dark:text-amber-400">Aprobado — con observaciones</p>
+          <p className="text-[13px] text-text-2 mt-1">
+            Completaste el {levelTitle ?? "nivel"} en {feedback.attempt_number} intentos. Te damos el nivel por
+            aprobado, pero repasá estos puntos antes de seguir:
+          </p>
+        </div>
+
+        {feedback.wrong.length > 0 && (
+          <div className="mt-5 space-y-2.5 text-left">
+            {feedback.wrong.map((w) => (
+              <div key={w.id} className="rounded-xl border border-border bg-secondary px-4 py-3">
+                <p className="text-[13px] font-semibold text-foreground">{w.label}</p>
+                <p className="text-[13px] text-text-3 mt-1">
+                  Tu respuesta: <span className="text-text-2">{w.your_answer ?? "(sin responder)"}</span>
+                </p>
+                <p className="text-[13px] text-text-3">
+                  Respuesta correcta: <span className="text-text-2">{w.correct_answer ?? "—"}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {onRetry && (
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={onRetry}
+              className="mt-5 rounded-xl border border-border px-5 py-2.5 text-[13px] font-medium text-foreground transition hover:bg-secondary"
+            >
+              Volver a responder
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   if (passed) {
     return (
       <div className="rounded-2xl border border-emerald-500/30 bg-emerald-100 dark:bg-emerald-500/10 p-8 text-center">
@@ -109,6 +172,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
   // calificables (checklist/texto puro). No confundir con computeScore(),
   // que para un cliente real siempre da null (correct_index nunca se le manda).
   const [lastPassed, setLastPassed] = useState<boolean | null>(null)
+  const [feedback, setFeedback] = useState<Feedback | null>(null)
   const [errorMsg, setErrorMsg] = useState("")
 
   const load = useCallback(async () => {
@@ -174,6 +238,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
       const json = await res.json()
       if (!res.ok) { setStatus("error"); setErrorMsg(json?.error ?? "Error al enviar"); return }
       setLastPassed(json?.submission?.passed ?? null)
+      setFeedback(json?.feedback ?? null)
       setStatus("done")
     } catch (err: any) {
       setStatus("error")
@@ -205,7 +270,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
         )}
 
         {status === "done" && (() => {
-          const retry = () => { setErrorMsg(""); setAnswers({}); setStatus("ready") }
+          const retry = () => { setErrorMsg(""); setAnswers({}); setFeedback(null); setStatus("ready") }
           // Nivel sin preguntas calificables (checklist/texto puro) — no hay
           // concepto de aprobar/reprobar, mismo mensaje genérico de siempre.
           if (lastPassed === null) {
@@ -230,6 +295,7 @@ export function PosiFormView({ levelNumber }: { levelNumber: number }) {
               score={computeScore(level, answers)}
               levelTitle={level?.title}
               onRetry={retry}
+              feedback={feedback}
             />
           )
         })()}
