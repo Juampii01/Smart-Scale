@@ -106,8 +106,14 @@ export async function GET(req: NextRequest) {
  *  intenta destrabar el curso del nivel siguiente vía ZAPIER_WEBHOOK_POSI_UNLOCK
  *  — deja rastro en posi_unlock_events (no hay API de lectura de Skool, es
  *  lo único con lo que se puede auditar esto). La respuesta solo expone
- *  `unlock.pending` y `unlock.level_title`, nunca el email ni el nombre del
- *  curso — eso es admin-only, en /admin/posi. */
+ *  `unlock.pending`, `unlock.level_title` y `unlock.blocked_no_email` —
+ *  nunca el email, el nombre del curso, ni el motivo real de un fallo/skip
+ *  (eso es admin-only, en /admin/posi). blocked_no_email es la única
+ *  excepción a "el cliente no sabe por qué no se destrabó": sin skool_email
+ *  no hay nada que el sistema pueda hacer, y es lo único que el cliente
+ *  puede resolver por su cuenta avisando al equipo — a diferencia de
+ *  último nivel / ya destrabado / curso sin configurar, que son ruido o
+ *  errores de Ann, no algo que el cliente deba ver. */
 export async function POST(req: NextRequest) {
   let body: any
   try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
@@ -200,6 +206,12 @@ export async function POST(req: NextRequest) {
   // after() de más abajo. El auto-aprobado del 3er intento destraba igual
   // que un aprobado real — decisión explícita del negocio.
   let unlockPendingTitle: string | null = null
+  // Única excepción a "el cliente no se entera de por qué no se destrabó":
+  // sin skool_email no hay nada que el sistema pueda hacer, y es lo único
+  // que el propio cliente puede destrabar avisando al equipo — a diferencia
+  // de "último nivel", "ya destrabado" o "sin curso configurado" (errores
+  // de configuración de Ann, no algo que el cliente deba saber).
+  let unlockBlockedNoEmail = false
   let unlockDispatch: {
     eventId: string
     unlockLevelNumber: number
@@ -243,6 +255,7 @@ export async function POST(req: NextRequest) {
             status: "failed",
             reason: "sin_email",
           })
+          unlockBlockedNoEmail = true
         } else {
           // Claim contra el índice único (client_id, unlock_level_id) — mismo
           // patrón que claim() en app/api/cron/call-reminders: insertamos
@@ -340,7 +353,11 @@ export async function POST(req: NextRequest) {
     }
   })
 
-  const unlock = { pending: unlockPendingTitle !== null, level_title: unlockPendingTitle }
+  const unlock = {
+    pending: unlockPendingTitle !== null,
+    level_title: unlockPendingTitle,
+    blocked_no_email: unlockBlockedNoEmail,
+  }
 
   // wrong_question_ids no se manda en la respuesta — el cliente no tiene
   // que enterarse de cuáles falló, solo si aprobó o no (pedido explícito).
