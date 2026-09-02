@@ -35,8 +35,20 @@ export async function POST(
   if (clientErr) return NextResponse.json({ error: clientErr.message }, { status: 500 })
   if (!client) {
     // DEBUG temporal — sacar después de diagnosticar el 404 fantasma en producción.
-    console.error("[resend-contract] cliente no encontrado — id recibido:", JSON.stringify(id), "len:", id?.length)
-    return NextResponse.json({ error: "Cliente no encontrado", debug_id: id }, { status: 404 })
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""
+    console.error(
+      "[resend-contract] cliente no encontrado — id recibido:", JSON.stringify(id), "len:", id?.length,
+      "supabase_url:", url, "key_len:", key.length, "key_prefix:", key.slice(0, 12),
+      "clientErr:", JSON.stringify(clientErr),
+    )
+    return NextResponse.json({
+      error: "Cliente no encontrado",
+      debug_id: id,
+      debug_url: url,
+      debug_key_len: key.length,
+      debug_key_prefix: key.slice(0, 12),
+    }, { status: 404 })
   }
 
   const { data: installments, error: instErr } = await sb
