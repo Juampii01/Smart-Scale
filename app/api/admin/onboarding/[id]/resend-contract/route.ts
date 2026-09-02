@@ -33,7 +33,11 @@ export async function POST(
     .eq("id", id)
     .maybeSingle()
   if (clientErr) return NextResponse.json({ error: clientErr.message }, { status: 500 })
-  if (!client) return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 })
+  if (!client) {
+    // DEBUG temporal — sacar después de diagnosticar el 404 fantasma en producción.
+    console.error("[resend-contract] cliente no encontrado — id recibido:", JSON.stringify(id), "len:", id?.length)
+    return NextResponse.json({ error: "Cliente no encontrado", debug_id: id }, { status: 404 })
+  }
 
   const { data: installments, error: instErr } = await sb
     .from("crm_installments")
