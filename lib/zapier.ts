@@ -456,10 +456,12 @@ export async function zapierClientCallReceived(payload: {
 // decide el destino, mismo patrón que el resto de los eventos de este archivo.
 
 export async function zapierPosiSubmission(payload: {
-  event_type:  "posi.submitted"
-  client_name: string
-  level_title: string
-  passed:      boolean | null   // true=aprobó, false=no aprobó, null=nivel sin preguntas calificables
+  event_type:     "posi.submitted"
+  client_name:    string
+  level_title:    string
+  passed:         boolean | null   // true=aprobó, false=no aprobó, null=nivel sin preguntas calificables
+  auto_approved:  boolean          // true = se lo dimos por aprobado al 3er intento fallido, no aprobó de verdad
+  attempt_number: number | null
 }): Promise<ZapierResult> {
   const url = process.env.ZAPIER_WEBHOOK_POSI
   if (!url) return { ok: false, error: "ZAPIER_WEBHOOK_POSI not configured" }
@@ -469,8 +471,9 @@ export async function zapierPosiSubmission(payload: {
   // (pedido explícito, para que el cliente no lo use de respuestario y
   // el equipo sea quien lo guíe).
   const message =
-    payload.passed === true  ? `✅ *${payload.client_name}* aprobó el *${payload.level_title}* de POSI.` :
-    payload.passed === false ? `❌ *${payload.client_name}* no aprobó el *${payload.level_title}* de POSI.` :
+    payload.auto_approved     ? `⚠️ *${payload.client_name}* aprobó el *${payload.level_title}* de POSI por reintentos (${payload.attempt_number}º intento). Revisar en /admin/posi.` :
+    payload.passed === true   ? `✅ *${payload.client_name}* aprobó el *${payload.level_title}* de POSI.` :
+    payload.passed === false  ? `❌ *${payload.client_name}* no aprobó el *${payload.level_title}* de POSI.` :
     `📋 *${payload.client_name}* completó el *${payload.level_title}* de POSI.`
 
   return postWebhook(url, { ...payload, message }, "zapierPosiSubmission")
