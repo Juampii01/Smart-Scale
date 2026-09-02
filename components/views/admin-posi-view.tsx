@@ -19,6 +19,8 @@ interface Question {
   options?: string[]
   /** Índice (dentro de options) de la respuesta correcta. Solo aplica a multiple_choice; sin esto no se marca como corregible. */
   correct_index?: number
+  /** Solo aplica a yesno: si es true, "Sí" es la única respuesta correcta y cuenta para aprobar/reprobar el nivel (checklist tipo "¿tenés esto?"). Sin esto, no se marca como corregible — igual que correct_index en opción múltiple. */
+  required_yes?: boolean
 }
 
 interface Level {
@@ -101,15 +103,22 @@ function formatAnswer(q: Question, raw: any): string {
 
 /** null = pregunta sin respuesta correcta definida (no se corrige). */
 function isCorrectAnswer(q: Question, raw: any): boolean | null {
-  if (q.type !== "multiple_choice" || typeof q.correct_index !== "number") return null
-  return raw === q.correct_index
+  if (q.type === "multiple_choice") return typeof q.correct_index === "number" ? raw === q.correct_index : null
+  if (q.type === "yesno") return q.required_yes === true ? raw === true : null
+  return null
+}
+
+function isGradableQuestion(q: Question): boolean {
+  if (q.type === "multiple_choice") return typeof q.correct_index === "number"
+  if (q.type === "yesno") return q.required_yes === true
+  return false
 }
 
 function computeScore(level: Level | undefined, answers: Record<string, any>): { correct: number; total: number } | null {
   if (!level) return null
-  const scored = level.questions.filter((q) => q.type === "multiple_choice" && typeof q.correct_index === "number")
+  const scored = level.questions.filter(isGradableQuestion)
   if (scored.length === 0) return null
-  const correct = scored.filter((q) => answers[q.id] === q.correct_index).length
+  const correct = scored.filter((q) => isCorrectAnswer(q, answers[q.id])).length
   return { correct, total: scored.length }
 }
 
@@ -227,7 +236,13 @@ export function AdminPosiView() {
       // otra opción — se recalcula contra los índices que sobreviven.
       const cleanQuestions = editDraft.questions.map((q) => {
         if (q.type !== "multiple_choice") {
-          return { ...q, label: q.label.trim(), options: undefined, correct_index: undefined }
+          return {
+            ...q,
+            label: q.label.trim(),
+            options: undefined,
+            correct_index: undefined,
+            required_yes: q.type === "yesno" && q.required_yes === true ? true : undefined,
+          }
         }
         const trimmed = (q.options ?? []).map((o) => o.trim())
         const keptIndices: number[] = []
@@ -242,6 +257,7 @@ export function AdminPosiView() {
           label: q.label.trim(),
           options,
           correct_index: remapped >= 0 ? remapped : undefined,
+          required_yes: undefined,
         }
       })
       const res = await fetch("/api/admin/posi-levels", {
@@ -283,7 +299,10 @@ export function AdminPosiView() {
     setEditDraft((d) => ({ ...d, questions: d.questions.map((q, i) => (i === idx ? { ...q, ...patch } : q)) }))
   }
   const setQuestionType = (idx: number, type: Question["type"]) => {
-    updateQuestion(idx, { type, options: type === "multiple_choice" ? ["", ""] : undefined, correct_index: undefined })
+    updateQuestion(idx, { type, options: type === "multiple_choice" ? ["", ""] : undefined, correct_index: undefined, required_yes: undefined })
+  }
+  const toggleRequiredYes = (idx: number) => {
+    updateQuestion(idx, { required_yes: !editDraft.questions[idx].required_yes })
   }
   const addOption = (qIdx: number) => {
     setEditDraft((d) => ({ ...d, questions: d.questions.map((q, i) => (i === qIdx ? { ...q, options: [...(q.options ?? []), ""] } : q)) }))
@@ -522,6 +541,26 @@ export function AdminPosiView() {
                                 </button>
                                 <p className="pl-5 text-[13px] text-text-3">
                                   Tocá el círculo para marcar la respuesta correcta (opcional — sin marcar, esta pregunta no cuenta para aprobar el nivel).
+                                </p>
+                              </div>
+                            )}
+
+                            {q.type === "yesno" && (
+                              <div className="pl-1">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleRequiredYes(idx)}
+                                  className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[13px] font-semibold transition-colors ${
+                                    q.required_yes
+                                      ? "border-emerald-500 bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"
+                                      : "border-border text-text-2 hover:text-foreground hover:border-border-hover"
+                                  }`}
+                                >
+                                  <Check className={`h-3 w-3 ${q.required_yes ? "" : "opacity-0"}`} />
+                                  Es requisito (tiene que responder Sí)
+                                </button>
+                                <p className="mt-1.5 pl-1 text-[13px] text-text-3">
+                                  Opcional — sin marcar, esta pregunta no cuenta para aprobar el nivel. Marcada, responder "No" reprueba el nivel.
                                 </p>
                               </div>
                             )}

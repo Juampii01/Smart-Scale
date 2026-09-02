@@ -53,6 +53,10 @@ interface Feedback {
 interface Unlock {
   pending: boolean
   level_title: string | null
+  // Única excepción a "el cliente no se entera de por qué no se destrabó" —
+  // sin email cargado no hay nada que el sistema pueda hacer, y es lo único
+  // que el cliente puede resolver por su cuenta (avisando al equipo).
+  blocked_no_email: boolean
 }
 
 const inputCls = "w-full rounded-xl border border-border bg-secondary px-4 py-3 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
@@ -78,13 +82,22 @@ function computeScore(level: Level | null, answers: Record<string, any>): { corr
 // 10-15 minutos y no es instantánea. Prometer acceso inmediato acá es
 // soporte que después tiene que absorber Ann.
 function UnlockNotice({ unlock }: { unlock?: Unlock | null }) {
-  if (!unlock?.pending) return null
-  return (
-    <p className="mt-4 text-[13px] text-text-2">
-      Te va a llegar un mail de Skool en los próximos minutos para desbloquear{" "}
-      <span className="font-semibold text-foreground">{unlock.level_title}</span>. Abrilo y aceptá el acceso desde ahí.
-    </p>
-  )
+  if (unlock?.pending) {
+    return (
+      <p className="mt-4 text-[13px] text-text-2">
+        Ya se activó tu acceso a <span className="font-semibold text-foreground">{unlock.level_title}</span> — te va a
+        llegar un mail de Skool en los próximos minutos, abrilo y aceptá el acceso desde ahí.
+      </p>
+    )
+  }
+  if (unlock?.blocked_no_email) {
+    return (
+      <p className="mt-4 text-[13px] text-text-2">
+        Avisale al equipo de Smart Scale que te habilite el siguiente módulo.
+      </p>
+    )
+  }
+  return null
 }
 
 function ResultBanner({ passed, score, levelTitle, onRetry, feedback, unlock }: {

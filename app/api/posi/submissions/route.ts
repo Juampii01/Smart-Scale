@@ -7,14 +7,32 @@ import { POSI_MAX_FAILED_ATTEMPTS, isLevelApproved, resolveSkoolEmail } from "@/
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-/** Califica contra `correct_index` — solo las multiple_choice que lo tienen
- *  definido cuentan (las demás preguntas, y las MC sin respuesta "correcta"
- *  marcada, no afectan el resultado). `passed=null` si el nivel no tiene
- *  ninguna pregunta calificable (no hay concepto de aprobar/reprobar ahí). */
+/** Una pregunta cuenta para la nota si es multiple_choice con `correct_index`
+ *  definido, o yesno marcada `required_yes: true` (checklist tipo "¿tenés
+ *  esto?", donde la única respuesta correcta es Sí — pedido explícito: un
+ *  nivel no puede quedar sin aprobar/reprobar solo porque sus preguntas
+ *  calificables eran de Sí/No en vez de opción múltiple). Se marca por
+ *  pregunta desde el editor de /admin/posi, igual que correct_index — no es
+ *  un default para todas las Sí/No, así no cambia de golpe el resultado de
+ *  preguntas que hoy son solo informativas. */
+function isGradable(q: any): boolean {
+  if (q.type === "multiple_choice") return typeof q.correct_index === "number"
+  if (q.type === "yesno") return q.required_yes === true
+  return false
+}
+
+function isCorrectAnswer(q: any, raw: unknown): boolean {
+  if (q.type === "multiple_choice") return raw === q.correct_index
+  if (q.type === "yesno") return raw === true
+  return true
+}
+
+/** `passed=null` si el nivel no tiene ninguna pregunta calificable (no hay
+ *  concepto de aprobar/reprobar ahí) — checklist puro o texto libre. */
 function gradeAnswers(questions: any[], answers: Record<string, unknown>) {
-  const graded = (questions ?? []).filter((q) => q.type === "multiple_choice" && typeof q.correct_index === "number")
+  const graded = (questions ?? []).filter(isGradable)
   if (graded.length === 0) return { passed: null as boolean | null, wrongIds: [] as string[] }
-  const wrongIds = graded.filter((q) => answers[q.id] !== q.correct_index).map((q) => q.id)
+  const wrongIds = graded.filter((q) => !isCorrectAnswer(q, answers[q.id])).map((q) => q.id)
   return { passed: wrongIds.length === 0, wrongIds }
 }
 
@@ -88,8 +106,14 @@ export async function GET(req: NextRequest) {
  *  intenta destrabar el curso del nivel siguiente vía ZAPIER_WEBHOOK_POSI_UNLOCK
  *  — deja rastro en posi_unlock_events (no hay API de lectura de Skool, es
  *  lo único con lo que se puede auditar esto). La respuesta solo expone
- *  `unlock.pending` y `unlock.level_title`, nunca el email ni el nombre del
- *  curso — eso es admin-only, en /admin/posi. */
+ *  `unlock.pending`, `unlock.level_title` y `unlock.blocked_no_email` —
+ *  nunca el email, el nombre del curso, ni el motivo real de un fallo/skip
+ *  (eso es admin-only, en /admin/posi). blocked_no_email es la única
+ *  excepción a "el cliente no sabe por qué no se destrabó": sin skool_email
+ *  no hay nada que el sistema pueda hacer, y es lo único que el cliente
+ *  puede resolver por su cuenta avisando al equipo — a diferencia de
+ *  último nivel / ya destrabado / curso sin configurar, que son ruido o
+ *  errores de Ann, no algo que el cliente deba ver. */
 export async function POST(req: NextRequest) {
   let body: any
   try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
@@ -182,6 +206,12 @@ export async function POST(req: NextRequest) {
   // after() de más abajo. El auto-aprobado del 3er intento destraba igual
   // que un aprobado real — decisión explícita del negocio.
   let unlockPendingTitle: string | null = null
+  // Única excepción a "el cliente no se entera de por qué no se destrabó":
+  // sin skool_email no hay nada que el sistema pueda hacer, y es lo único
+  // que el propio cliente puede destrabar avisando al equipo — a diferencia
+  // de "último nivel", "ya destrabado" o "sin curso configurado" (errores
+  // de configuración de Ann, no algo que el cliente deba saber).
+  let unlockBlockedNoEmail = false
   let unlockDispatch: {
     eventId: string
     unlockLevelNumber: number
@@ -225,6 +255,7 @@ export async function POST(req: NextRequest) {
             status: "failed",
             reason: "sin_email",
           })
+          unlockBlockedNoEmail = true
         } else {
           // Claim contra el índice único (client_id, unlock_level_id) — mismo
           // patrón que claim() en app/api/cron/call-reminders: insertamos
@@ -322,7 +353,11 @@ export async function POST(req: NextRequest) {
     }
   })
 
-  const unlock = { pending: unlockPendingTitle !== null, level_title: unlockPendingTitle }
+  const unlock = {
+    pending: unlockPendingTitle !== null,
+    level_title: unlockPendingTitle,
+    blocked_no_email: unlockBlockedNoEmail,
+  }
 
   // wrong_question_ids no se manda en la respuesta — el cliente no tiene
   // que enterarse de cuáles falló, solo si aprobó o no (pedido explícito).
@@ -342,14 +377,18 @@ export async function POST(req: NextRequest) {
     attempt_number: attemptNumber,
     wrong: wrongIds.map((qid) => {
       const q = questionsById.get(qid) as any
-      const yourIdx = (answers as Record<string, unknown>)[qid]
-      const options: string[] = q?.options ?? []
-      return {
-        id: qid,
-        label: q?.label ?? "",
-        your_answer: typeof yourIdx === "number" ? (options[yourIdx] ?? null) : null,
-        correct_answer: typeof q?.correct_index === "number" ? (options[q.correct_index] ?? null) : null,
+      const raw = (answers as Record<string, unknown>)[qid]
+      let yourAnswer: string | null = null
+      let correctAnswer: string | null = null
+      if (q?.type === "multiple_choice") {
+        const options: string[] = q?.options ?? []
+        yourAnswer = typeof raw === "number" ? (options[raw] ?? null) : null
+        correctAnswer = typeof q?.correct_index === "number" ? (options[q.correct_index] ?? null) : null
+      } else if (q?.type === "yesno") {
+        yourAnswer = raw === true ? "Sí" : raw === false ? "No" : null
+        correctAnswer = "Sí"
       }
+      return { id: qid, label: q?.label ?? "", your_answer: yourAnswer, correct_answer: correctAnswer }
     }),
   }
 
