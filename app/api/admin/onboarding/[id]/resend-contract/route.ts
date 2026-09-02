@@ -37,17 +37,25 @@ export async function POST(
     // DEBUG temporal — sacar después de diagnosticar el 404 fantasma en producción.
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""
+
+    const { count } = await sb.from("crm_clients").select("id", { count: "exact", head: true })
+
+    const rawRes = await fetch(`${url}/rest/v1/crm_clients?id=eq.${id}&select=id,name`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+      cache: "no-store",
+    })
+    const rawBody = await rawRes.text()
+
     console.error(
-      "[resend-contract] cliente no encontrado — id recibido:", JSON.stringify(id), "len:", id?.length,
-      "supabase_url:", url, "key_len:", key.length, "key_prefix:", key.slice(0, 12),
-      "clientErr:", JSON.stringify(clientErr),
+      "[resend-contract] cliente no encontrado — id:", JSON.stringify(id),
+      "total_count:", count, "raw_postgrest_status:", rawRes.status, "raw_postgrest_body:", rawBody,
     )
     return NextResponse.json({
       error: "Cliente no encontrado",
       debug_id: id,
-      debug_url: url,
-      debug_key_len: key.length,
-      debug_key_prefix: key.slice(0, 12),
+      debug_total_count: count,
+      debug_raw_status: rawRes.status,
+      debug_raw_body: rawBody,
     }, { status: 404 })
   }
 
