@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
+import { AuthMark } from "@/components/theme/brand-logo";
 import { createClient } from "@/lib/supabase";
 
 function parseHashParams(hash: string) {
@@ -46,6 +48,8 @@ export default function ResetPasswordPage() {
 
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Avoid contradictory UI (info + error) during link validation.
@@ -274,7 +278,7 @@ export default function ResetPasswordPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/70 to-black" />
         </div>
         <div className="relative flex min-h-screen items-center justify-center px-6 py-12">
-          <div className="rounded-2xl border border-foreground/10 bg-foreground/5 p-6 text-sm text-foreground/70 backdrop-blur-xl">
+          <div className="rounded-2xl border border-border bg-secondary p-6 text-[13px] text-foreground backdrop-blur-xl">
             Cargando…
           </div>
         </div>
@@ -296,16 +300,16 @@ export default function ResetPasswordPage() {
         <div className="w-full max-w-md">
           {/* Brand */}
           <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-foreground/10 bg-foreground/5 backdrop-blur">
-              <span className="text-sm font-semibold tracking-widest text-foreground/90">SS</span>
+            <div className="mx-auto mb-3 flex justify-center">
+              <AuthMark size={48} />
             </div>
-            <div className="text-xs font-semibold tracking-[0.35em] text-foreground/70">
+            <div className="text-[13px] font-semibold tracking-[0.35em] text-foreground">
               SMART SCALE
             </div>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+            <h1 className="mt-2 text-[24px] font-semibold tracking-tight">
               {linkType === "magiclink" ? "Creá tu contraseña" : "Reseteá tu contraseña"}
             </h1>
-            <p className="mt-1 text-sm text-foreground/60">
+            <p className="mt-1 text-[13px] text-text-2">
               {linkType === "magiclink"
                 ? "Elegí una contraseña para tus próximos ingresos al dashboard."
                 : "Validá el link y elegí una nueva contraseña."}
@@ -315,53 +319,75 @@ export default function ResetPasswordPage() {
           {/* Card */}
           <form
             onSubmit={onSubmit}
-            className="rounded-2xl border border-foreground/10 bg-foreground/5 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl"
+            className="rounded-2xl border border-border bg-secondary p-6 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl"
           >
             <div className="space-y-4">
               {err ? (
-                <div className="rounded-xl border border-foreground/10 bg-black/40 p-3 text-sm text-foreground/80 whitespace-pre-wrap">
+                <div className="rounded-xl border border-border bg-black/40 p-3 text-[13px] text-foreground whitespace-pre-wrap">
                   {err}
                 </div>
               ) : null}
 
               {info ? (
-                <div className="rounded-xl border border-foreground/10 bg-black/30 p-3 text-sm text-foreground/75 whitespace-pre-wrap">
+                <div className="rounded-xl border border-border bg-black/30 p-3 text-[13px] text-foreground whitespace-pre-wrap">
                   {info}
                 </div>
               ) : null}
 
               <div className="space-y-2">
-                <label className="block text-sm text-foreground/70">Nueva contraseña</label>
-                <input
-                  className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 px-3 text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
-                  placeholder="Mínimo 6 caracteres"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={!inputsEnabled}
-                  autoComplete="new-password"
-                />
+                <label className="block text-[13px] text-foreground">Nueva contraseña</label>
+                <div className="relative">
+                  <input
+                    className="h-11 w-full rounded-xl border border-border bg-black/30 pl-3 pr-10 text-foreground outline-none placeholder:text-text-3 focus:border-border-hover focus:ring-2 focus:ring-white/10 disabled:opacity-60"
+                    placeholder="Mínimo 6 caracteres"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={!inputsEnabled}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-0 top-0 flex h-11 w-10 items-center justify-center text-text-3 transition hover:text-foreground disabled:opacity-40"
+                    disabled={!inputsEnabled}
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm text-foreground/70">Repetir contraseña</label>
-                <input
-                  className="h-11 w-full rounded-xl border border-foreground/10 bg-black/30 px-3 text-foreground outline-none placeholder:text-foreground/30 focus:border-foreground/20 focus:ring-2 focus:ring-white/10 disabled:opacity-60"
-                  placeholder="Repetí la contraseña"
-                  type="password"
-                  value={password2}
-                  onChange={(e) => setPassword2(e.target.value)}
-                  required
-                  disabled={!inputsEnabled}
-                  autoComplete="new-password"
-                />
+                <label className="block text-[13px] text-foreground">Repetir contraseña</label>
+                <div className="relative">
+                  <input
+                    className="h-11 w-full rounded-xl border border-border bg-black/30 pl-3 pr-10 text-foreground outline-none placeholder:text-text-3 focus:border-border-hover focus:ring-2 focus:ring-white/10 disabled:opacity-60"
+                    placeholder="Repetí la contraseña"
+                    type={showPassword2 ? "text" : "password"}
+                    value={password2}
+                    onChange={(e) => setPassword2(e.target.value)}
+                    required
+                    disabled={!inputsEnabled}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword2((v) => !v)}
+                    className="absolute right-0 top-0 flex h-11 w-10 items-center justify-center text-text-3 transition hover:text-foreground disabled:opacity-40"
+                    disabled={!inputsEnabled}
+                    aria-label={showPassword2 ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {showPassword2 ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
 
               <button
                 type="submit"
                 disabled={loading || !hasSession}
-                className="h-11 w-full rounded-xl bg-foreground text-sm font-semibold text-background transition hover:bg-foreground/90 disabled:opacity-60"
+                className="h-11 w-full rounded-xl bg-foreground text-[13px] font-semibold text-background transition hover:bg-secondary disabled:opacity-60"
               >
                 {loading
                   ? (linkType === "magiclink" ? "Creando…" : "Actualizando…")
@@ -371,13 +397,13 @@ export default function ResetPasswordPage() {
               <div className="flex items-center justify-between pt-1">
                 <Link
                   href="/login"
-                  className="text-sm text-foreground/65 underline-offset-4 hover:text-foreground hover:underline"
+                  className="text-[13px] text-text-2 underline-offset-4 hover:text-foreground hover:underline"
                 >
                   Volver al login
                 </Link>
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-foreground/65 underline-offset-4 hover:text-foreground hover:underline"
+                  className="text-[13px] text-text-2 underline-offset-4 hover:text-foreground hover:underline"
                 >
                   Pedir nuevo link
                 </Link>
@@ -385,7 +411,7 @@ export default function ResetPasswordPage() {
             </div>
           </form>
 
-          <p className="mt-6 text-center text-xs text-foreground/35">
+          <p className="mt-6 text-center text-[13px] text-text-3">
             © {new Date().getFullYear()} SMART SCALE
           </p>
         </div>

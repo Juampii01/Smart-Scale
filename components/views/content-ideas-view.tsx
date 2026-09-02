@@ -88,12 +88,12 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-[22px] font-bold text-foreground leading-tight">{channelLabel} — Ideas</h1>
-          <p className="text-[13px] text-foreground/50 mt-0.5">{ideas.length} idea{ideas.length !== 1 ? "s" : ""} guardada{ideas.length !== 1 ? "s" : ""}</p>
+          <h1 className="text-[24px] font-bold text-foreground leading-tight">{channelLabel} — Ideas</h1>
+          <p className="text-[13px] text-text-2 mt-0.5">{ideas.length} idea{ideas.length !== 1 ? "s" : ""} guardada{ideas.length !== 1 ? "s" : ""}</p>
         </div>
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-2 rounded-[8px] bg-[#dafc69] px-4 py-2 text-[13px] font-semibold text-black hover:bg-[#f2ffc0] transition-colors"
+          className="flex items-center gap-2 rounded-[8px] btn-accent px-4 py-2 text-[13px] font-semibold transition-colors"
         >
           <Plus className="h-4 w-4" />
           Add Idea
@@ -102,7 +102,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
 
       {/* Loading */}
       {loading && (
-        <div className="flex items-center justify-center py-24 text-foreground/40">
+        <div className="flex items-center justify-center py-24 text-text-2">
           <Loader2 className="h-5 w-5 animate-spin" />
         </div>
       )}
@@ -117,8 +117,8 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
             <Lightbulb className="h-7 w-7" style={{ color: iconColor }} />
           </div>
           <div className="text-center">
-            <p className="text-[15px] font-semibold text-foreground/70">0 total ideas</p>
-            <p className="text-[13px] text-foreground/40 mt-1">
+            <p className="text-[15px] font-semibold text-foreground">0 total ideas</p>
+            <p className="text-[13px] text-text-2 mt-1">
               Anotá ideas de contenido y no pierdas ninguna. Podés agregar las tuyas.
             </p>
           </div>
@@ -131,29 +131,29 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
           {ideas.map(idea => (
             <div
               key={idea.id}
-              className="group relative rounded-[14px] border border-foreground/[0.07] bg-card p-4 hover:border-foreground/[0.12] transition-colors"
+              className="group relative rounded-[14px] border border-border bg-card p-4 hover:border-border transition-colors"
             >
               <button
                 onClick={() => handleRemove(idea.id)}
-                className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center rounded-md text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06]"
+                className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center rounded-md text-text-3 hover:text-foreground hover:bg-secondary"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
               <div className="flex items-center gap-2 mb-3">
                 <span
-                  className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+                  className="rounded-full px-2.5 py-0.5 text-[13px] font-semibold"
                   style={{ backgroundColor: `${iconColor}18`, color: iconColor }}
                 >
                   {idea.format}
                 </span>
-                <span className="text-[11px] text-foreground/30">{fmtDate(idea.created_at)}</span>
+                <span className="text-[13px] text-text-3">{fmtDate(idea.created_at)}</span>
               </div>
-              <p className="text-[14px] font-semibold text-foreground leading-snug mb-2">{idea.title}</p>
+              <p className="text-[15px] font-semibold text-foreground leading-snug mb-2">{idea.title}</p>
               {idea.hook && (
-                <p className="text-[12px] text-foreground/50 line-clamp-2">{idea.hook}</p>
+                <p className="text-[13px] text-text-2 line-clamp-2">{idea.hook}</p>
               )}
               {idea.notes && (
-                <p className="text-[11px] text-foreground/35 mt-1.5 line-clamp-1">{idea.notes}</p>
+                <p className="text-[13px] text-text-3 mt-1.5 line-clamp-1">{idea.notes}</p>
               )}
             </div>
           ))}
@@ -163,9 +163,9 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
       {/* Modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-[460px] rounded-[14px] border border-foreground/[0.10] bg-card shadow-2xl">
+          <div className="w-full max-w-[460px] rounded-[14px] border border-border bg-card shadow-2xl">
             {/* Modal header */}
-            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-foreground/[0.07]">
+            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-border">
               <div className="flex items-center gap-2.5">
                 <div
                   className="flex h-8 w-8 items-center justify-center rounded-lg"
@@ -177,7 +177,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="h-7 w-7 flex items-center justify-center rounded-md text-foreground/40 hover:text-foreground hover:bg-foreground/[0.06] transition-colors"
+                className="h-7 w-7 flex items-center justify-center rounded-md text-text-2 hover:text-foreground hover:bg-secondary transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -187,7 +187,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
             <div className="px-6 py-5 space-y-5">
               {/* Title */}
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-foreground/60">
+                <label className="text-[13px] font-semibold text-text-2">
                   Title <span className="text-danger">*</span>
                 </label>
                 <input
@@ -195,23 +195,23 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                   placeholder="Your content idea"
-                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/25 outline-none focus:border-foreground/[0.25] transition-colors"
+                  className="w-full rounded-[8px] border border-border bg-secondary px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors"
                 />
               </div>
 
               {/* Format chips */}
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-foreground/60">Format</label>
+                <label className="text-[13px] font-semibold text-text-2">Format</label>
                 <div className="flex gap-2 flex-wrap">
                   {formats.map(f => (
                     <button
                       key={f}
                       onClick={() => setFormat(f)}
                       className={cn(
-                        "rounded-full px-3 py-1 text-[12px] font-semibold border transition-all",
+                        "rounded-full px-3 py-1 text-[13px] font-semibold border transition-all",
                         format === f
                           ? "border-transparent text-black"
-                          : "border-foreground/[0.10] text-foreground/60 hover:border-foreground/[0.20] hover:text-foreground bg-transparent"
+                          : "border-border text-text-2 hover:border-border-hover hover:text-foreground bg-transparent"
                       )}
                       style={format === f ? { backgroundColor: iconColor } : {}}
                     >
@@ -223,25 +223,25 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
 
               {/* Hook Idea */}
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-foreground/60">Hook Idea</label>
+                <label className="text-[13px] font-semibold text-text-2">Hook Idea</label>
                 <textarea
                   value={hook}
                   onChange={e => setHook(e.target.value)}
                   placeholder="Describe the opening hook"
                   rows={3}
-                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/25 outline-none focus:border-foreground/[0.25] transition-colors resize-none"
+                  className="w-full rounded-[8px] border border-border bg-secondary px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors resize-none"
                 />
               </div>
 
               {/* Notes */}
               <div className="space-y-1.5">
-                <label className="text-[12px] font-semibold text-foreground/60">Notes</label>
+                <label className="text-[13px] font-semibold text-text-2">Notes</label>
                 <textarea
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
                   placeholder="Any additional notes"
                   rows={2}
-                  className="w-full rounded-[8px] border border-foreground/[0.10] bg-foreground/[0.04] px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/25 outline-none focus:border-foreground/[0.25] transition-colors resize-none"
+                  className="w-full rounded-[8px] border border-border bg-elevated px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 outline-none focus:border-border-hover transition-colors resize-none"
                 />
               </div>
             </div>
@@ -250,7 +250,7 @@ export function ContentIdeasView({ channel }: { channel: Channel }) {
             <div className="flex items-center justify-end gap-3 px-6 pb-5">
               <button
                 onClick={() => setOpen(false)}
-                className="rounded-[8px] border border-foreground/[0.10] px-4 py-2 text-[13px] font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/[0.20] transition-colors"
+                className="rounded-[8px] border border-border px-4 py-2 text-[13px] font-semibold text-foreground hover:text-foreground hover:border-border-hover transition-colors"
               >
                 Cancel
               </button>

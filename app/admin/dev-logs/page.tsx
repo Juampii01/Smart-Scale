@@ -23,7 +23,7 @@ const LEVEL_CONFIG: Record<Level, { label: string; icon: React.ElementType; badg
   error: { label: "Error", icon: AlertCircle,   badge: "bg-red-500/15 text-red-400 ring-red-500/20",    row: "hover:bg-red-500/[0.04]",    dot: "bg-red-500" },
   warn:  { label: "Warn",  icon: AlertTriangle,  badge: "bg-amber-500/15 text-amber-400 ring-amber-500/20", row: "hover:bg-amber-500/[0.04]", dot: "bg-amber-400" },
   info:  { label: "Info",  icon: Info,           badge: "bg-blue-500/15 text-blue-400 ring-blue-500/20",  row: "hover:bg-blue-500/[0.04]",   dot: "bg-blue-400" },
-  debug: { label: "Debug", icon: Bug,            badge: "bg-foreground/10 text-foreground/40 ring-foreground/10", row: "hover:bg-foreground/[0.03]", dot: "bg-foreground/30" },
+  debug: { label: "Debug", icon: Bug,            badge: "bg-secondary text-text-2 ring-border", row: "hover:bg-secondary", dot: "bg-secondary" },
 }
 
 function fmtTime(iso: string) {
@@ -129,13 +129,13 @@ export default function DevLogsPage() {
 
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-3 gap-y-2 border-b border-white/[0.07] bg-[#0f0f11] px-5 py-3">
-        <Terminal className="h-4 w-4 text-[#dafc69] shrink-0" />
+        <Terminal className="h-4 w-4 text-accent-ink shrink-0" />
         <span className="font-bold text-white tracking-tight">Dev Logs</span>
 
         {/* Live indicator */}
         <button
           onClick={() => setLive(v => !v)}
-          className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all ${
+          className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13px] font-semibold transition-all ${
             live ? "bg-emerald-500/15 text-emerald-400" : "bg-white/[0.05] text-white/30"
           }`}
         >
@@ -149,7 +149,7 @@ export default function DevLogsPage() {
             <button
               key={lvl}
               onClick={() => setFilterLevel(lvl)}
-              className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-all ${
+              className={`rounded px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider transition-all ${
                 filterLevel === lvl
                   ? lvl === "all"
                     ? "bg-white/10 text-white"
@@ -171,7 +171,7 @@ export default function DevLogsPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar…"
-            className="w-full sm:w-48 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[12px] text-white placeholder:text-white/20 focus:outline-none focus:border-white/20 transition-all"
+            className="w-full sm:w-48 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[13px] text-white placeholder:text-white/20 focus:outline-none focus:border-white/20 transition-all"
           />
           {search && (
             <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
@@ -183,7 +183,7 @@ export default function DevLogsPage() {
         {/* Actions */}
         <button
           onClick={loadLogs}
-          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] text-white/40 hover:bg-white/[0.05] hover:text-white/70 transition-all"
+          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] text-white/40 hover:bg-white/[0.05] hover:text-white/70 transition-all"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
           <span className="hidden sm:inline">Reload</span>
@@ -191,7 +191,7 @@ export default function DevLogsPage() {
         <button
           onClick={clearAll}
           disabled={clearing || logs.length === 0}
-          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] text-red-500/50 hover:bg-red-500/[0.08] hover:text-red-400 transition-all disabled:opacity-30"
+          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] text-red-500/50 hover:bg-red-500/[0.08] hover:text-red-400 transition-all disabled:opacity-30"
         >
           <Trash2 className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Limpiar</span>
@@ -225,19 +225,19 @@ export default function DevLogsPage() {
                   {/* Main row */}
                   <div className="flex items-start gap-2 sm:gap-3 px-3 sm:px-5 py-2">
                     {/* Timestamp */}
-                    <span className="shrink-0 text-white/20 tabular-nums text-[11px] pt-0.5">
+                    <span className="shrink-0 text-white/20 tabular-nums text-[13px] pt-0.5">
                       <span className="hidden sm:inline">{fmtDate(l.created_at)} </span>{fmtTime(l.created_at)}
                     </span>
 
                     {/* Level badge */}
-                    <span className={`shrink-0 flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ring-1 ring-inset ${cfg.badge}`}>
+                    <span className={`shrink-0 flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ring-1 ring-inset ${cfg.badge}`}>
                       <Icon className="h-2.5 w-2.5" />
                       <span className="hidden sm:inline">{l.level}</span>
                     </span>
 
                     {/* Route */}
                     {l.route && (
-                      <span className="hidden sm:inline shrink-0 max-w-[160px] truncate text-[#dafc69]/50 text-[11px]">
+                      <span className="hidden sm:inline shrink-0 max-w-[160px] truncate text-accent-ink/50 text-[13px]">
                         [{l.route}]
                       </span>
                     )}
@@ -249,7 +249,7 @@ export default function DevLogsPage() {
 
                     {/* Context indicator */}
                     {l.context && Object.keys(l.context).length > 0 && (
-                      <span className="shrink-0 text-white/20 text-[10px]">
+                      <span className="shrink-0 text-white/20 text-[13px]">
                         {isExp ? "▲" : "▼"} ctx
                       </span>
                     )}
@@ -258,7 +258,7 @@ export default function DevLogsPage() {
                   {/* Expanded context */}
                   {isExp && l.context && Object.keys(l.context).length > 0 && (
                     <div className="px-5 pb-3">
-                      <pre className="rounded-lg bg-white/[0.04] px-4 py-3 text-[11px] text-white/50 overflow-x-auto border border-white/[0.06]">
+                      <pre className="rounded-lg bg-white/[0.04] px-4 py-3 text-[13px] text-white/50 overflow-x-auto border border-white/[0.06]">
                         {JSON.stringify(l.context, null, 2)}
                       </pre>
                     </div>
@@ -272,7 +272,7 @@ export default function DevLogsPage() {
       </div>
 
       {/* ── Footer stats ──────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-3 gap-y-1 border-t border-white/[0.07] bg-[#0f0f11] px-3 sm:px-5 py-2 text-[11px] text-white/25">
+      <div className="flex flex-wrap items-center gap-3 gap-y-1 border-t border-white/[0.07] bg-[#0f0f11] px-3 sm:px-5 py-2 text-[13px] text-white/25">
         <span>{visible.length} entradas</span>
         <div className="hidden sm:contents">
           {Object.entries(counts).map(([lvl, n]) => (

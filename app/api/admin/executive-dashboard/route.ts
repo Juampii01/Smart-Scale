@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireAdmin } from "@/lib/auth/api-guards"
+import { requireSmartScaleInternal } from "@/lib/auth/api-guards"
+import { getSmartScaleTenantId } from "@/lib/auth/internal-scope"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -36,7 +37,7 @@ function monthBounds(ym: string) {
 export async function GET(req: NextRequest) {
   try {
     const jwt    = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const caller = await requireAdmin(jwt)
+    const caller = await requireSmartScaleInternal(jwt)
     if (!caller) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     const { searchParams } = new URL(req.url)
@@ -46,7 +47,17 @@ export async function GET(req: NextRequest) {
 
     const supabase = createServiceClient()
 
+    const smartScaleTenantId = await getSmartScaleTenantId(supabase)
+    if (!smartScaleTenantId) {
+      return NextResponse.json({ error: "No se encontró el tenant interno de Smart Scale" }, { status: 500 })
+    }
+
     // ── Queries en paralelo ──────────────────────────────────────────────────
+    // Todas acotadas a client_id = smartScaleTenantId (directo en crm_clients,
+    // vía crm_clients!inner en crm_installments) — sin esto, el día que otro
+    // tenant tenga sus propios crm_clients/crm_installments, este dashboard
+    // (y el MRR de la empresa) mezclarían la facturación de Ann con la de
+    // sus clientes.
     const [
       newClientsRes,
       paidInPeriodRes,
@@ -60,6 +71,7 @@ export async function GET(req: NextRequest) {
       supabase
         .from("crm_clients")
         .select("id, name, total_amount, installment_amount, num_installments, created_at, program_start, setter_id, programa")
+        .eq("client_id", smartScaleTenantId)
         .gte("created_at", startIso)
         .lt("created_at", endIso)
         .order("created_at", { ascending: false }),
@@ -68,6 +80,7 @@ export async function GET(req: NextRequest) {
       supabase
         .from("crm_installments")
         .select("id, client_id, amount, paid_at, installment_number, crm_clients!inner(id, name, created_at)")
+        .eq("crm_clients.client_id", smartScaleTenantId)
         .gte("paid_at", startIso)
         .lt("paid_at", endIso)
         .order("paid_at", { ascending: false }),
@@ -76,6 +89,7 @@ export async function GET(req: NextRequest) {
       supabase
         .from("setting_daily_logs")
         .select("setter_id, new_conversations_inbound, new_conversations_outbound, outbound_replies, qualified_leads, offer_docs_sent, offer_doc_responses, calls_done, cash_collected")
+        .eq("client_id", smartScaleTenantId)
         .gte("date", startDate)
         .lt("date", endDate),
 
@@ -83,12 +97,14 @@ export async function GET(req: NextRequest) {
       supabase
         .from("profiles")
         .select("id, name")
-        .eq("role", "setter"),
+        .eq("role", "setter")
+        .eq("internal_tenant_id", smartScaleTenantId),
 
       // 5. Cierres (clientes con setter asignado, creados en el mes)
       supabase
         .from("crm_clients")
         .select("id, setter_id, name, total_amount")
+        .eq("client_id", smartScaleTenantId)
         .gte("created_at", startIso)
         .lt("created_at", endIso)
         .not("setter_id", "is", null),
@@ -97,6 +113,7 @@ export async function GET(req: NextRequest) {
       supabase
         .from("crm_installments")
         .select("id, client_id, amount, due_date, installment_number, crm_clients!inner(id, name)")
+        .eq("crm_clients.client_id", smartScaleTenantId)
         .lt("due_date", startDate)
         .is("paid_at", null)
         .order("due_date", { ascending: true })
@@ -106,6 +123,7 @@ export async function GET(req: NextRequest) {
       supabase
         .from("crm_installments")
         .select("id, client_id, amount, due_date, installment_number, crm_clients!inner(id, name)")
+        .eq("crm_clients.client_id", smartScaleTenantId)
         .gte("due_date", startDate)
         .lt("due_date", endDate)
         .is("paid_at", null)

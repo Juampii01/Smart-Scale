@@ -73,22 +73,22 @@ function DetailDrawer({
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[560px] flex-col border-l border-foreground/[0.08] shadow-2xl bg-card">
-        <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
+      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[560px] flex-col border-l border-border shadow-2xl bg-card">
+        <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="inline-flex items-center gap-1 rounded-full border border-foreground/[0.08] bg-foreground/[0.03] px-2 py-0.5 text-[10px] font-bold text-foreground/70">
+              <span className="inline-flex items-center gap-1 rounded-full border border-border bg-elevated px-2 py-0.5 text-[13px] font-bold text-foreground">
                 <Icon className="h-2.5 w-2.5" /> {typeLabel(item.item_type)}
               </span>
-              <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold capitalize ${STATUS_STYLE[item.status] ?? STATUS_STYLE.activo}`}>
+              <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[13px] font-bold capitalize ${STATUS_STYLE[item.status] ?? STATUS_STYLE.activo}`}>
                 {item.status}
               </span>
             </div>
-            <h2 className="text-lg font-bold text-foreground">{item.title}</h2>
+            <h2 className="text-[18px] font-bold text-foreground">{item.title}</h2>
             {item.tags.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 mt-2">
                 {item.tags.map(t => (
-                  <span key={t} className="inline-flex items-center rounded-full border border-foreground/[0.08] bg-foreground/[0.03] px-2 py-0.5 text-[10px] font-medium text-foreground/60">
+                  <span key={t} className="inline-flex items-center rounded-full border border-border bg-secondary px-2 py-0.5 text-[13px] font-medium text-text-2">
                     {t}
                   </span>
                 ))}
@@ -96,13 +96,13 @@ function DetailDrawer({
             )}
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            <button onClick={() => onEdit(item)} className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/[0.06] transition-all" title="Editar">
+            <button onClick={() => onEdit(item)} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition-all" title="Editar">
               <Edit3 className="h-4 w-4" />
             </button>
-            <button onClick={() => onDelete(item.id)} disabled={deleting} className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40" title="Borrar">
+            <button onClick={() => onDelete(item.id)} disabled={deleting} className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40" title="Borrar">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
-            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
+            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -110,11 +110,11 @@ function DetailDrawer({
 
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           {item.content ? (
-            <pre className="rounded-xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-3.5 text-[13.5px] text-foreground/90 whitespace-pre-wrap leading-relaxed font-sans">{item.content}</pre>
+            <pre className="rounded-xl border border-border bg-elevated px-4 py-3.5 text-[13px] text-foreground whitespace-pre-wrap leading-relaxed font-sans">{item.content}</pre>
           ) : (
-            <p className="text-[13px] text-foreground/40 italic">Sin contenido. Tocá editar para agregarlo.</p>
+            <p className="text-[13px] text-text-2 italic">Sin contenido. Tocá editar para agregarlo.</p>
           )}
-          <p className="text-[11px] text-foreground/30 pt-2">
+          <p className="text-[13px] text-text-3 pt-2">
             Creado {fmtDate(item.created_at)}{item.created_at !== item.updated_at ? ` · editado ${fmtDate(item.updated_at)}` : ""}
           </p>
         </div>
@@ -203,11 +203,11 @@ function CreateEditModal({
     <>
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="relative flex h-full max-h-[85vh] w-full max-w-2xl flex-col rounded-[14px] border border-foreground/[0.08] bg-card shadow-2xl overflow-hidden">
+        <div className="relative flex h-full max-h-[85vh] w-full max-w-2xl flex-col rounded-[14px] border border-border bg-card shadow-2xl overflow-hidden">
 
-          <div className="flex items-center justify-between gap-4 border-b border-foreground/[0.06] px-6 py-4 shrink-0">
-            <h2 className="text-lg font-bold text-foreground">{isEdit ? "Editar item" : "Nuevo item"}</h2>
-            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
+          <div className="flex items-center justify-between gap-4 border-b border-border px-6 py-4 shrink-0">
+            <h2 className="text-[18px] font-bold text-foreground">{isEdit ? "Editar item" : "Nuevo item"}</h2>
+            <button onClick={onClose} aria-label="Cerrar" className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -215,20 +215,20 @@ function CreateEditModal({
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="sm:col-span-3">
-                <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/50 mb-1.5">Título</label>
+                <label className="block text-[11px] font-bold uppercase tracking-[0.15em] text-text-2 mb-1.5">Título</label>
                 <input
                   value={form.title}
                   onChange={e => update("title")(e.target.value)}
                   placeholder="Ej. Cuentas a contactar - Marzo"
-                  className="w-full h-10 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[13.5px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none"
+                  className="w-full h-10 rounded-lg border border-border bg-secondary px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/50 mb-1.5">Tipo</label>
+                <label className="block text-[11px] font-bold uppercase tracking-[0.15em] text-text-2 mb-1.5">Tipo</label>
                 <select
                   value={form.item_type}
                   onChange={e => update("item_type")(e.target.value)}
-                  className="w-full h-10 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[13.5px] text-foreground focus:border-foreground/20 focus:outline-none"
+                  className="w-full h-10 rounded-lg border border-border bg-elevated px-3 text-[13px] text-foreground focus:border-border-hover focus:outline-none"
                 >
                   {TYPE_OPTIONS.map(o => (
                     <option key={o.value} value={o.value}>{o.label}</option>
@@ -236,11 +236,11 @@ function CreateEditModal({
                 </select>
               </div>
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/50 mb-1.5">Estado</label>
+                <label className="block text-[11px] font-bold uppercase tracking-[0.15em] text-text-2 mb-1.5">Estado</label>
                 <select
                   value={form.status}
                   onChange={e => update("status")(e.target.value)}
-                  className="w-full h-10 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[13.5px] text-foreground focus:border-foreground/20 focus:outline-none"
+                  className="w-full h-10 rounded-lg border border-border bg-secondary px-3 text-[13px] text-foreground focus:border-border-hover focus:outline-none"
                 >
                   <option value="activo">Activo</option>
                   <option value="archivado">Archivado</option>
@@ -248,39 +248,39 @@ function CreateEditModal({
                 </select>
               </div>
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/50 mb-1.5">Tags (coma)</label>
+                <label className="block text-[11px] font-bold uppercase tracking-[0.15em] text-text-2 mb-1.5">Tags (coma)</label>
                 <input
                   value={form.tags}
                   onChange={e => update("tags")(e.target.value)}
                   placeholder="dm, instagram, frio"
-                  className="w-full h-10 rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 text-[13.5px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none"
+                  className="w-full h-10 rounded-lg border border-border bg-secondary px-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/50 mb-1.5">Contenido</label>
+              <label className="block text-[11px] font-bold uppercase tracking-[0.15em] text-text-2 mb-1.5">Contenido</label>
               <textarea
                 value={form.content}
                 onChange={e => update("content")(e.target.value)}
                 rows={12}
                 placeholder="Pegá tu lista, script, notas o lo que necesites guardar. Soporta texto plano y saltos de línea."
-                className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2 text-[13.5px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none resize-y leading-relaxed"
+                className="w-full rounded-lg border border-border bg-elevated px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none resize-y leading-relaxed"
               />
             </div>
 
             {error && (
-              <div className="rounded-lg border border-red-300 bg-red-100 dark:border-red-500/20 dark:bg-red-500/10 px-3 py-2 text-[12.5px] text-red-800 dark:text-red-300">
+              <div className="rounded-lg border border-red-300 bg-red-100 dark:border-red-500/20 dark:bg-red-500/10 px-3 py-2 text-[13px] text-red-800 dark:text-red-300">
                 {error}
               </div>
             )}
           </div>
 
-          <div className="flex items-center justify-end gap-2 border-t border-foreground/[0.06] px-6 py-3 shrink-0">
-            <button onClick={onClose} type="button" className="h-9 rounded-lg border border-foreground/[0.08] px-4 text-[12.5px] font-semibold text-foreground/60 hover:text-foreground hover:border-foreground/20 transition-all">
+          <div className="flex items-center justify-end gap-2 border-t border-border px-6 py-3 shrink-0">
+            <button onClick={onClose} type="button" className="h-9 rounded-lg border border-border px-4 text-[13px] font-semibold text-text-2 hover:text-foreground hover:border-border-hover transition-all">
               Cancelar
             </button>
-            <button onClick={save} disabled={saving || !form.title.trim()} className="inline-flex items-center gap-2 h-9 rounded-lg bg-[#dafc69] px-4 text-[12.5px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40">
+            <button onClick={save} disabled={saving || !form.title.trim()} className="inline-flex items-center gap-2 h-9 rounded-lg btn-accent px-4 text-[13px] font-bold transition-all disabled:opacity-40">
               {saving
                 ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Guardando…</>
                 : isEdit ? "Guardar cambios" : "Crear item"}
@@ -379,18 +379,18 @@ export function AdminProspeccionView() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">Prospección</h1>
-            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
+            <h1 className="text-[24px] font-bold text-foreground tracking-tight">Prospección</h1>
+            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[13px] font-bold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
               <Lock className="h-2.5 w-2.5" /> Privado
             </span>
           </div>
-          <p className="text-[13px] text-foreground/50">
+          <p className="text-[13px] text-text-2">
             Tu workspace para listas, scripts, notas y follow-ups. Solo vos lo ves.
           </p>
         </div>
         <button
           onClick={() => setCreating(true)}
-          className="inline-flex items-center gap-2 h-10 rounded-xl bg-[#dafc69] px-4 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition-all shrink-0"
+          className="inline-flex items-center gap-2 h-10 rounded-xl btn-accent px-4 text-[13px] font-bold transition-all shrink-0"
         >
           <Plus className="h-4 w-4" /> Nuevo item
         </button>
@@ -399,12 +399,12 @@ export function AdminProspeccionView() {
       {/* Search + filters */}
       <div className="space-y-2.5">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-3" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por título, contenido, tag…"
-            className="w-full h-10 rounded-xl border border-foreground/[0.08] bg-card pl-10 pr-3 text-[13.5px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none"
+            className="w-full h-10 rounded-xl border border-border bg-card pl-10 pr-3 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none"
           />
         </div>
 
@@ -412,7 +412,7 @@ export function AdminProspeccionView() {
         <div className="flex flex-wrap items-center gap-1.5">
           <button
             onClick={() => setFilterType(null)}
-            className={`h-7 rounded-full border px-3 text-[11px] font-semibold transition-all ${filterType == null ? "border-[#dafc69]/50 bg-[#dafc69]/15 text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
+            className={`h-7 rounded-full border px-3 text-[13px] font-semibold transition-all ${filterType == null ? "border-accent bg-secondary text-accent-ink" : "border-border text-text-2 hover:text-foreground hover:border-border-hover"}`}
           >
             Todos
           </button>
@@ -423,7 +423,7 @@ export function AdminProspeccionView() {
               <button
                 key={o.value}
                 onClick={() => setFilterType(active ? null : o.value)}
-                className={`inline-flex items-center gap-1 h-7 rounded-full border px-3 text-[11px] font-medium transition-all ${active ? "border-[#dafc69]/50 bg-[#dafc69]/15 text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
+                className={`inline-flex items-center gap-1 h-7 rounded-full border px-3 text-[13px] font-medium transition-all ${active ? "border-accent bg-secondary text-accent-ink" : "border-border text-text-2 hover:text-foreground hover:border-border-hover"}`}
               >
                 <Icon className="h-3 w-3" /> {o.label}
               </button>
@@ -437,7 +437,7 @@ export function AdminProspeccionView() {
             <button
               key={s}
               onClick={() => setFilterStatus(s)}
-              className={`h-7 rounded-full border px-3 text-[11px] font-semibold capitalize transition-all ${filterStatus === s ? "border-foreground/30 bg-foreground/[0.07] text-foreground" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
+              className={`h-7 rounded-full border px-3 text-[13px] font-semibold capitalize transition-all ${filterStatus === s ? "border-border bg-secondary text-foreground" : "border-border text-text-2 hover:text-foreground hover:border-border-hover"}`}
             >
               {s}
             </button>
@@ -451,7 +451,7 @@ export function AdminProspeccionView() {
               <button
                 key={t}
                 onClick={() => setActiveTag(activeTag === t ? null : t)}
-                className={`h-6 rounded-full border px-2.5 text-[10.5px] font-medium transition-all ${activeTag === t ? "border-[#dafc69]/50 bg-[#dafc69]/15 text-[#dafc69]" : "border-foreground/[0.08] text-foreground/50 hover:text-foreground hover:border-foreground/20"}`}
+                className={`h-6 rounded-full border px-2.5 text-[13px] font-medium transition-all ${activeTag === t ? "border-accent bg-secondary text-accent-ink" : "border-border text-text-2 hover:text-foreground hover:border-border-hover"}`}
               >
                 #{t}
               </button>
@@ -463,16 +463,16 @@ export function AdminProspeccionView() {
       {/* List */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-[#dafc69]/50" />
+          <Loader2 className="h-6 w-6 animate-spin text-accent-ink/50" />
         </div>
       ) : !filtered.length ? (
-        <div className="rounded-[14px] border border-foreground/[0.08] bg-card py-16 text-center">
-          <FileText className="mx-auto h-8 w-8 text-foreground/20 mb-2" />
-          <p className="text-[14px] text-foreground/50">
+        <div className="rounded-[14px] border border-border bg-card py-16 text-center">
+          <FileText className="mx-auto h-8 w-8 text-text-3 mb-2" />
+          <p className="text-[15px] text-text-2">
             {items.length === 0 ? "Todavía no tenés items." : "No hay items con esos filtros."}
           </p>
           {items.length === 0 && (
-            <p className="text-[12px] text-foreground/30 mt-1">Tocá "Nuevo item" para empezar a guardar tu trabajo.</p>
+            <p className="text-[13px] text-text-3 mt-1">Tocá "Nuevo item" para empezar a guardar tu trabajo.</p>
           )}
         </div>
       ) : (
@@ -483,41 +483,41 @@ export function AdminProspeccionView() {
               <button
                 key={item.id}
                 onClick={() => setSelected(item)}
-                className="group flex flex-col gap-2 rounded-[14px] border border-foreground/[0.07] bg-card p-4 text-left hover:border-foreground/20 hover:bg-foreground/[0.02] transition-all"
+                className="group flex flex-col gap-2 rounded-[14px] border border-border bg-card p-4 text-left hover:border-border-hover hover:bg-secondary transition-all"
               >
                 <div className="flex items-start gap-2">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                      <span className="inline-flex items-center gap-0.5 rounded-full border border-foreground/[0.08] bg-foreground/[0.03] px-1.5 py-0.5 text-[9.5px] font-bold text-foreground/70">
+                      <span className="inline-flex items-center gap-0.5 rounded-full border border-border bg-elevated px-1.5 py-0.5 text-[11px] font-bold text-foreground">
                         <Icon className="h-2.5 w-2.5" /> {typeLabel(item.item_type)}
                       </span>
-                      <span className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9.5px] font-bold capitalize ${STATUS_STYLE[item.status] ?? STATUS_STYLE.activo}`}>
+                      <span className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[11px] font-bold capitalize ${STATUS_STYLE[item.status] ?? STATUS_STYLE.activo}`}>
                         {item.status}
                       </span>
                     </div>
-                    <h3 className="text-[14.5px] font-bold text-foreground leading-snug group-hover:text-[#dafc69] transition-colors">{item.title}</h3>
+                    <h3 className="text-[15px] font-bold text-foreground leading-snug group-hover:text-accent-ink transition-colors">{item.title}</h3>
                     {item.content && (
-                      <p className="text-[12.5px] text-foreground/50 mt-1 line-clamp-2 whitespace-pre-wrap">{item.content}</p>
+                      <p className="text-[13px] text-text-2 mt-1 line-clamp-2 whitespace-pre-wrap">{item.content}</p>
                     )}
                   </div>
-                  <ChevronRight className="h-4 w-4 text-foreground/30 group-hover:text-foreground/60 transition-colors shrink-0 mt-0.5" />
+                  <ChevronRight className="h-4 w-4 text-text-3 group-hover:text-text-2 transition-colors shrink-0 mt-0.5" />
                 </div>
 
                 {item.tags.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1 mt-1">
                     {item.tags.slice(0, 4).map(t => (
-                      <span key={t} className="inline-flex items-center rounded-full border border-foreground/[0.08] bg-foreground/[0.02] px-1.5 py-0.5 text-[10px] font-medium text-foreground/55">
+                      <span key={t} className="inline-flex items-center rounded-full border border-border bg-secondary px-1.5 py-0.5 text-[13px] font-medium text-text-2">
                         #{t}
                       </span>
                     ))}
                     {item.tags.length > 4 && (
-                      <span className="text-[10px] text-foreground/40">+{item.tags.length - 4}</span>
+                      <span className="text-[13px] text-text-2">+{item.tags.length - 4}</span>
                     )}
                   </div>
                 )}
 
-                <div className="flex items-center justify-between pt-1.5 border-t border-foreground/[0.05] mt-1">
-                  <span className="text-[10.5px] text-foreground/45">{fmtDate(item.created_at)}</span>
+                <div className="flex items-center justify-between pt-1.5 border-t border-border mt-1">
+                  <span className="text-[13px] text-text-2">{fmtDate(item.created_at)}</span>
                 </div>
               </button>
             )

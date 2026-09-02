@@ -66,10 +66,10 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
   }
 
   return (
-    <div className="rounded-[14px] border border-[#dafc69]/20 bg-card p-5 mb-6">
+    <div className="rounded-[14px] border border-border bg-card p-5 mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-foreground">Agregar recurso</h3>
-        <button onClick={onClose} aria-label="Cerrar" className="text-foreground/30 hover:text-foreground/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40 rounded">
+        <h3 className="text-[13px] font-semibold text-foreground">Agregar recurso</h3>
+        <button onClick={onClose} aria-label="Cerrar" className="text-text-3 hover:text-text-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40 rounded">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -81,14 +81,14 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
             placeholder="Título *"
             value={form.title}
             onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-            className="rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] px-3 py-2.5 text-sm text-foreground placeholder-white/30 focus:outline-none focus:border-[#dafc69]/40 w-full"
+            className="rounded-xl bg-secondary border border-border px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
           />
           <input
             type="text"
             placeholder="Categoría (ej: Marketing, Ventas…)"
             value={form.category}
             onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-            className="rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] px-3 py-2.5 text-sm text-foreground placeholder-white/30 focus:outline-none focus:border-[#dafc69]/40 w-full"
+            className="rounded-xl bg-elevated border border-border px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
           />
         </div>
 
@@ -97,7 +97,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
           placeholder="URL *"
           value={form.url}
           onChange={e => handleUrlChange(e.target.value)}
-          className="rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] px-3 py-2.5 text-sm text-foreground placeholder-white/30 focus:outline-none focus:border-[#dafc69]/40 w-full"
+          className="rounded-xl bg-secondary border border-border px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
         />
 
         <input
@@ -105,7 +105,7 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
           placeholder="Descripción (opcional)"
           value={form.description}
           onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-          className="rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] px-3 py-2.5 text-sm text-foreground placeholder-white/30 focus:outline-none focus:border-[#dafc69]/40 w-full"
+          className="rounded-xl bg-elevated border border-border px-3 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent w-full"
         />
 
         {/* Type selector */}
@@ -117,10 +117,10 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
                 key={t}
                 type="button"
                 onClick={() => setForm(f => ({ ...f, type: t }))}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium border transition-all ${
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium border transition-all ${
                   form.type === t
-                    ? "border-[#dafc69]/40 bg-[#dafc69]/10 text-[#dafc69]"
-                    : "border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground/70"
+                    ? "border-accent bg-secondary text-accent-ink"
+                    : "border-border bg-elevated text-text-2 hover:text-foreground"
                 }`}
               >
                 <cfg.icon className="h-3 w-3" />
@@ -130,13 +130,13 @@ function AddResourceForm({ onAdd, onClose }: { onAdd: (r: Resource) => void; onC
           })}
         </div>
 
-        {error && <p className="text-xs text-red-700 dark:text-red-400">{error}</p>}
+        {error && <p className="text-[13px] text-red-700 dark:text-red-400">{error}</p>}
 
         <div className="flex justify-end">
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2 text-sm font-semibold text-black hover:bg-[#dafc69]/90 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-semibold hover:bg-secondary transition-colors disabled:opacity-50"
           >
             {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
             Guardar
@@ -164,15 +164,15 @@ function ResourceCard({ resource, onDelete }: { resource: Resource; onDelete: (i
   }
 
   return (
-    <div className="group rounded-[14px] border border-foreground/[0.07] bg-card p-4 flex flex-col gap-3 hover:border-foreground/[0.12] transition-all">
+    <div className="group rounded-[14px] border border-border bg-card p-4 flex flex-col gap-3 hover:border-border transition-all">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.05] flex-shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-elevated flex-shrink-0">
             <Icon className={`h-4 w-4 ${cfg.color}`} />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground truncate">{resource.title}</p>
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30">
+            <p className="text-[13px] font-semibold text-foreground truncate">{resource.title}</p>
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-text-3">
               {resource.category}
             </span>
           </div>
@@ -180,21 +180,21 @@ function ResourceCard({ resource, onDelete }: { resource: Resource; onDelete: (i
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="opacity-0 group-hover:opacity-100 flex-shrink-0 text-foreground/20 hover:text-red-600 dark:hover:text-red-400 transition-all"
+          className="opacity-0 group-hover:opacity-100 flex-shrink-0 text-text-3 hover:text-red-600 dark:hover:text-red-400 transition-all"
         >
           {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
         </button>
       </div>
 
       {resource.description && (
-        <p className="text-xs text-foreground/40 leading-relaxed line-clamp-2">{resource.description}</p>
+        <p className="text-[13px] text-text-2 leading-relaxed line-clamp-2">{resource.description}</p>
       )}
 
       <a
         href={resource.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-auto flex items-center gap-1.5 text-xs font-medium text-[#dafc69]/70 hover:text-[#dafc69] transition-colors"
+        className="mt-auto flex items-center gap-1.5 text-[13px] font-medium text-accent-ink/70 hover:text-accent-ink transition-colors"
       >
         <ExternalLink className="h-3 w-3" />
         Abrir
@@ -236,14 +236,14 @@ export function ResourcesView() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
-            <span className="h-4 w-[3px] rounded-full bg-[#dafc69]" />
-            <h1 className="text-sm font-semibold uppercase tracking-widest text-foreground/70">Biblioteca</h1>
+            <span className="h-4 w-[3px] rounded-full bg-accent" />
+            <h1 className="text-[13px] font-semibold uppercase tracking-widest text-foreground">Biblioteca</h1>
           </div>
-          <p className="text-xs text-foreground/30 ml-[18px]">Links, docs y recursos guardados</p>
+          <p className="text-[13px] text-text-3 ml-[18px]">Links, docs y recursos guardados</p>
         </div>
         <button
           onClick={() => setShowForm(v => !v)}
-          className="flex items-center gap-2 rounded-xl bg-[#dafc69] px-4 py-2 text-sm font-semibold text-black hover:bg-[#dafc69]/90 transition-colors"
+          className="flex items-center gap-2 rounded-xl btn-accent px-4 py-2 text-[13px] font-semibold hover:bg-secondary transition-colors"
         >
           <Plus className="h-4 w-4" />
           Agregar
@@ -261,13 +261,13 @@ export function ResourcesView() {
       {/* Search + category filter */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/30" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-text-3" />
           <input
             type="text"
             placeholder="Buscar…"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full rounded-xl bg-foreground/[0.05] border border-foreground/[0.08] pl-9 pr-4 py-2.5 text-sm text-foreground placeholder-white/30 focus:outline-none focus:border-[#dafc69]/40"
+            className="w-full rounded-xl bg-secondary border border-border pl-9 pr-4 py-2.5 text-[13px] text-foreground placeholder-white/30 focus:outline-none focus:border-accent"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -275,10 +275,10 @@ export function ResourcesView() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`rounded-lg px-3 py-2 text-xs font-medium border transition-all ${
+              className={`rounded-lg px-3 py-2 text-[13px] font-medium border transition-all ${
                 activeCategory === cat
-                  ? "border-[#dafc69]/40 bg-[#dafc69]/10 text-[#dafc69]"
-                  : "border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground/70"
+                  ? "border-accent bg-secondary text-accent-ink"
+                  : "border-border bg-elevated text-text-2 hover:text-foreground"
               }`}
             >
               {cat}
@@ -290,18 +290,18 @@ export function ResourcesView() {
       {/* Grid */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-foreground/20" />
+          <Loader2 className="h-6 w-6 animate-spin text-text-3" />
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <FolderOpen className="h-10 w-10 text-foreground/10" />
-          <p className="text-sm text-foreground/20">
+          <FolderOpen className="h-10 w-10 text-text-3" />
+          <p className="text-[13px] text-text-3">
             {search || activeCategory !== "Todos" ? "Sin resultados" : "Todavía no hay recursos guardados"}
           </p>
           {!showForm && (
             <button
               onClick={() => setShowForm(true)}
-              className="text-xs text-[#dafc69]/50 hover:text-[#dafc69] transition-colors"
+              className="text-[13px] text-accent-ink/50 hover:text-accent-ink transition-colors"
             >
               + Agregar el primero
             </button>

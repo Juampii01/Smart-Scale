@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server"
-import { requireAdmin } from "@/lib/auth/api-guards"
+import { requireSmartScaleInternal } from "@/lib/auth/api-guards"
 import Anthropic from "@anthropic-ai/sdk"
 
 export const runtime  = "nodejs"
@@ -19,7 +19,7 @@ function getJwt(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const admin = await requireAdmin(getJwt(req))
+  const admin = await requireSmartScaleInternal(getJwt(req))
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   let formData: FormData

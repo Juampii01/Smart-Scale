@@ -29,12 +29,12 @@ function fmtNum(v: number) {
 // ─── Metric definitions ───────────────────────────────────────────────────────
 
 const METRICS = [
-  { key: "cash_collected",  label: "Cash Collected",      format: "money"  as const, color: "#dafc69", weight: 3 },
-  { key: "total_revenue",   label: "Total Revenue",        format: "money"  as const, color: "#fb923c", weight: 2 },
-  { key: "mrr",             label: "MRR",                  format: "money"  as const, color: "#60a5fa", weight: 2 },
-  { key: "new_clients",     label: "Nuevos Clientes",      format: "number" as const, color: "#4ade80", weight: 2 },
-  { key: "short_followers", label: "Seguidores Instagram", format: "number" as const, color: "#818cf8", weight: 1 },
-  { key: "ad_spend",        label: "Gasto Publicitario",   format: "money"  as const, color: "#ef4444", weight: 1 },
+  { key: "cash_collected",  label: "Cash Collected",      format: "money"  as const, color: "var(--accent-ink)", weight: 3 },
+  { key: "total_revenue",   label: "Total Revenue",        format: "money"  as const, color: "var(--text-3)", weight: 2 },
+  { key: "mrr",             label: "MRR",                  format: "money"  as const, color: "var(--text-3)", weight: 2 },
+  { key: "new_clients",     label: "Nuevos Clientes",      format: "number" as const, color: "var(--text-3)", weight: 2 },
+  { key: "short_followers", label: "Seguidores Instagram", format: "number" as const, color: "var(--text-3)", weight: 1 },
+  { key: "ad_spend",        label: "Gasto Publicitario",   format: "money"  as const, color: "var(--text-3)", weight: 1 },
 ]
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -59,7 +59,7 @@ export function MoMPanel() {
   if (loading) {
     return (
       <section>
-        <div className="h-72 animate-pulse rounded-[14px] border border-foreground/[0.07] bg-card" />
+        <div className="h-72 animate-pulse rounded-[14px] border border-border bg-card" />
       </section>
     )
   }
@@ -82,8 +82,8 @@ export function MoMPanel() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-xl font-bold text-foreground">Month vs Month</h2>
-          <p className="text-[13px] text-foreground/40 mt-0.5">
+          <h2 className="text-[24px] font-bold text-foreground">Month vs Month</h2>
+          <p className="text-[13px] text-text-2 mt-0.5">
             {fmtMonthLong(current.month)} vs {fmtMonthLong(previous.month)} — ¿qué cambió?
           </p>
         </div>
@@ -96,23 +96,23 @@ export function MoMPanel() {
           {scorePositive
             ? <TrendingUp   className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             : <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />}
-          <span className={`text-sm font-bold ${scorePositive ? "text-emerald-700 dark:text-emerald-300" : "text-red-700 dark:text-red-300"}`}>
+          <span className={`text-[13px] font-bold ${scorePositive ? "text-emerald-700 dark:text-emerald-300" : "text-red-700 dark:text-red-300"}`}>
             {scorePositive ? "Mes positivo" : "Mes para revisar"}
           </span>
-          <span className="text-foreground/30 text-xs ml-1">
+          <span className="text-text-3 text-[13px] ml-1">
             {totalUp}↑ · {totalDown}↓
           </span>
         </div>
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
+      <div className="overflow-hidden rounded-[14px] border border-border bg-card">
         {/* Column headers */}
-        <div className="grid grid-cols-[1.4fr_1fr_1.6fr_1fr] border-b border-foreground/[0.06] px-6 py-3">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30">Métrica</span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30 text-right">{fmtMonthLong(previous.month)}</span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30 text-center">Cambio</span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30 text-right">{fmtMonthLong(current.month)}</span>
+        <div className="grid grid-cols-[1.4fr_1fr_1.6fr_1fr] border-b border-border px-6 py-3">
+          <span className="text-[11px] font-bold uppercase tracking-widest text-text-3">Métrica</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-text-3 text-right">{fmtMonthLong(previous.month)}</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-text-3 text-center">Cambio</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-text-3 text-right">{fmtMonthLong(current.month)}</span>
         </div>
 
         {METRICS.map((metric) => {
@@ -128,30 +128,30 @@ export function MoMPanel() {
           return (
             <div
               key={metric.key}
-              className={`grid grid-cols-[1.4fr_1fr_1.6fr_1fr] items-center border-b border-foreground/[0.04] last:border-0 px-6 py-4 transition-colors ${
+              className={`grid grid-cols-[1.4fr_1fr_1.6fr_1fr] items-center border-b border-border last:border-0 px-6 py-4 transition-colors ${
                 isUp   ? "hover:bg-emerald-500/[0.03]"
                 : isDown ? "hover:bg-red-500/[0.03]"
-                :           "hover:bg-foreground/[0.02]"
+                :           "hover:bg-secondary"
               }`}
             >
               {/* Metric name */}
               <div className="flex items-center gap-2.5">
                 <span className="h-2.5 w-2.5 rounded-full flex-shrink-0 ring-2 ring-black/40"
                   style={{ backgroundColor: metric.color }} />
-                <span className="text-[13px] font-medium text-foreground/70">{metric.label}</span>
+                <span className="text-[13px] font-medium text-foreground">{metric.label}</span>
               </div>
 
               {/* Previous value */}
-              <span className="text-[13px] font-medium text-foreground/35 text-right tabular-nums pr-2">
+              <span className="text-[13px] font-medium text-text-3 text-right tabular-nums pr-2">
                 {fmtVal(prev)}
               </span>
 
               {/* Change — THE KEY COLUMN */}
               <div className="flex flex-col items-center gap-1.5 px-2">
-                <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-bold ${
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-bold ${
                   isUp   ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
                   : isDown ? "bg-red-500/15 text-red-700 dark:text-red-300"
-                  :           "bg-foreground/[0.06] text-foreground/40"
+                  :           "bg-secondary text-text-2"
                 }`}>
                   {isUp   && <TrendingUp   className="h-3 w-3 flex-shrink-0" />}
                   {isDown && <TrendingDown className="h-3 w-3 flex-shrink-0" />}
@@ -161,9 +161,9 @@ export function MoMPanel() {
                     : "Sin cambio"}
                 </span>
                 {/* Progress bar showing magnitude */}
-                <div className="w-full h-1 rounded-full bg-foreground/[0.05] overflow-hidden">
+                <div className="w-full h-1 rounded-full bg-elevated overflow-hidden">
                   <div
-                    className={`h-full rounded-full ${isUp ? "bg-emerald-500" : isDown ? "bg-red-500" : "bg-foreground/20"}`}
+                    className={`h-full rounded-full ${isUp ? "bg-emerald-500" : isDown ? "bg-red-500" : "bg-elevated"}`}
                     style={{ width: `${absPct}%` }}
                   />
                 </div>

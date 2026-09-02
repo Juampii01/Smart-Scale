@@ -12,7 +12,7 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireAdmin } from "@/lib/auth/api-guards"
+import { requireSmartScaleInternal } from "@/lib/auth/api-guards"
 import Anthropic from "@anthropic-ai/sdk"
 
 export const runtime = "nodejs"
@@ -26,7 +26,7 @@ function getJwt(req: NextRequest) {
 const ANN_NAMES = ["ann sahakyan", "ann"]
 
 export async function POST(req: NextRequest) {
-  const admin = await requireAdmin(getJwt(req))
+  const admin = await requireSmartScaleInternal(getJwt(req))
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   let body: any

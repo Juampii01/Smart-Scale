@@ -157,7 +157,7 @@ export function AdminImportView() {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <AlertCircle className="h-8 w-8 text-amber-700/50 dark:text-amber-400/50 mb-3" />
-        <p className="text-foreground/40 text-sm">
+        <p className="text-text-2 text-[13px]">
           Seleccioná un cliente en el selector de arriba para importar datos.
         </p>
       </div>
@@ -170,14 +170,14 @@ export function AdminImportView() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Importar datos históricos</h1>
-          <p className="text-sm text-foreground/40 mt-0.5">
+          <h1 className="text-[24px] font-bold text-foreground tracking-tight">Importar datos históricos</h1>
+          <p className="text-[13px] text-text-2 mt-0.5">
             Completá los datos de cada mes y presioná Importar. Los meses vacíos se omiten.
           </p>
         </div>
         <div className="flex items-center gap-3">
           {/* Year selector */}
-          <div className="flex items-center gap-1 rounded-xl border border-foreground/[0.08] bg-card p-1">
+          <div className="flex items-center gap-1 rounded-xl border border-border bg-card p-1">
             {AVAILABLE_YEARS.map(y => (
               <button
                 key={y}
@@ -188,10 +188,10 @@ export function AdminImportView() {
                   setErrors({})
                   setDone(false)
                 }}
-                className={`h-7 rounded-lg px-3 text-[12px] font-semibold transition-all ${
+                className={`h-7 rounded-lg px-3 text-[13px] font-semibold transition-all ${
                   year === y
-                    ? "bg-[#dafc69] text-black"
-                    : "text-foreground/40 hover:text-foreground"
+                    ? "bg-secondary text-foreground"
+                    : "text-text-2 hover:text-foreground"
                 }`}
               >
                 {y}
@@ -202,7 +202,7 @@ export function AdminImportView() {
           <button
             onClick={handleImport}
             disabled={saving || filledCount === 0}
-            className="flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-5 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-40"
+            className="flex items-center gap-2 h-9 rounded-xl btn-accent px-5 text-[13px] font-bold transition-all disabled:opacity-40"
           >
             {saving
               ? <Loader2 className="h-4 w-4 animate-spin" />
@@ -229,7 +229,7 @@ export function AdminImportView() {
             {Object.keys(errors).length > 0 && (
               <div className="mt-1 space-y-0.5">
                 {Object.entries(errors).map(([m, msg]) => (
-                  <p key={m} className="text-[12px] opacity-70">{m}: {msg}</p>
+                  <p key={m} className="text-[13px] opacity-70">{m}: {msg}</p>
                 ))}
               </div>
             )}
@@ -238,21 +238,21 @@ export function AdminImportView() {
       )}
 
       {/* Spreadsheet grid */}
-      <div className="overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse" style={{ minWidth: "900px" }}>
             <thead>
-              <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
-                <th className="sticky left-0 z-10 bg-card px-4 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-foreground/30 whitespace-nowrap w-[140px]">
+              <tr className="border-b border-border bg-elevated">
+                <th className="sticky left-0 z-10 bg-card px-4 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-text-3 whitespace-nowrap w-[140px]">
                   Mes
                 </th>
                 {COLUMNS.map(col => (
-                  <th key={col.key} className="px-3 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-foreground/25 whitespace-nowrap">
+                  <th key={col.key} className="px-3 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-text-3 whitespace-nowrap">
                     <span className="block">{col.label}</span>
-                    <span className="text-foreground/15 text-[9px] normal-case font-normal tracking-normal">{col.fmt === "money" ? "USD" : "#"}</span>
+                    <span className="text-text-3 text-[11px] normal-case font-normal tracking-normal">{col.fmt === "money" ? "USD" : "#"}</span>
                   </th>
                 ))}
-                <th className="px-3 py-3 text-center text-[11px] text-foreground/20 w-[60px]">OK</th>
+                <th className="px-3 py-3 text-center text-[13px] text-text-3 w-[60px]">OK</th>
               </tr>
             </thead>
             <tbody>
@@ -264,12 +264,12 @@ export function AdminImportView() {
                 return (
                   <tr
                     key={row.month}
-                    className="border-b border-foreground/[0.04] group"
+                    className="border-b border-border group"
                     style={{ backgroundColor: isSaved ? "rgba(16,185,129,0.04)" : "#111113" }}
                   >
                     {/* Month label */}
                     <td className="sticky left-0 z-10 px-4 py-2.5 whitespace-nowrap" style={{ backgroundColor: isSaved ? "rgba(16,185,129,0.06)" : "#0e0e10" }}>
-                      <span className={`text-[13px] font-semibold ${isSaved ? "text-emerald-700 dark:text-emerald-300" : "text-foreground/80"}`}>
+                      <span className={`text-[13px] font-semibold ${isSaved ? "text-emerald-700 dark:text-emerald-300" : "text-foreground"}`}>
                         {row.label}
                       </span>
                     </td>
@@ -283,12 +283,12 @@ export function AdminImportView() {
                           value={row[col.key]}
                           placeholder="—"
                           onChange={e => updateCell(rowIdx, col.key, e.target.value)}
-                          className={`w-full rounded-lg border bg-transparent px-2.5 py-1.5 text-[13px] tabular-nums text-foreground placeholder:text-foreground/15 focus:outline-none transition-all ${
+                          className={`w-full rounded-lg border bg-transparent px-2.5 py-1.5 text-[13px] tabular-nums text-foreground placeholder:text-text-3 focus:outline-none transition-all ${
                             isSaved
                               ? "border-emerald-500/20 bg-emerald-500/[0.03]"
                               : hasError
                                 ? "border-red-500/30 bg-red-500/[0.03]"
-                                : "border-transparent hover:border-foreground/[0.08] focus:border-foreground/20 focus:bg-foreground/[0.03]"
+                                : "border-transparent hover:border-border focus:border-border-hover focus:bg-secondary"
                           }`}
                           style={{ minWidth: col.fmt === "money" ? "90px" : "70px" }}
                         />
@@ -302,7 +302,7 @@ export function AdminImportView() {
                         : hasError
                           ? <AlertCircle className="h-4 w-4 text-red-700 dark:text-red-400 mx-auto" title={errors[row.month]} />
                           : hasData
-                            ? <div className="h-1.5 w-1.5 rounded-full bg-[#dafc69]/60 mx-auto" />
+                            ? <div className="h-1.5 w-1.5 rounded-full bg-accent mx-auto" />
                             : null}
                     </td>
                   </tr>
@@ -314,8 +314,8 @@ export function AdminImportView() {
       </div>
 
       {/* Field reference */}
-      <div className="rounded-2xl border border-foreground/[0.05] bg-card px-5 py-4">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/25 mb-3">
+      <div className="rounded-2xl border border-border bg-card px-5 py-4">
+        <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 mb-3">
           Referencia de campos (Google Sheets → Dashboard)
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
@@ -332,10 +332,10 @@ export function AdminImportView() {
             ["Qualified Calls", "Calls Calificadas"],
             ["New Leads / Aplicaciones", "Aplicaciones"],
           ].map(([from, to]) => (
-            <div key={from} className="flex items-center gap-1.5 text-[11px]">
-              <span className="text-foreground/35">{from}</span>
-              <span className="text-foreground/20">→</span>
-              <span className="text-[#dafc69]/60 font-medium">{to}</span>
+            <div key={from} className="flex items-center gap-1.5 text-[13px]">
+              <span className="text-text-3">{from}</span>
+              <span className="text-text-3">→</span>
+              <span className="text-accent-ink/60 font-medium">{to}</span>
             </div>
           ))}
         </div>

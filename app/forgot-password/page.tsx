@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { AuthMark } from "@/components/theme/brand-logo";
 import { createClient } from "@/lib/supabase";
 
 export default function ForgotPasswordPage() {
@@ -47,12 +48,16 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-black">
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-sm space-y-4 p-6 border border-foreground/10 rounded-xl"
+        className="w-full max-w-sm space-y-4 p-6 border border-border rounded-xl"
       >
-        <h1 className="text-foreground text-xl font-semibold">Forgot password</h1>
+        <div className="mb-2 flex flex-col items-center gap-3 text-center">
+          <AuthMark size={48} />
+          <div className="text-[13px] font-semibold tracking-[0.35em] text-foreground">SMART SCALE</div>
+          <h1 className="text-foreground text-[24px] font-semibold">Recuperar contraseña</h1>
+        </div>
 
         <input
-          className="w-full rounded-md border border-foreground/10 bg-black/30 px-3 py-2 text-foreground outline-none"
+          className="w-full rounded-md border border-border bg-black/30 px-3 py-2 text-foreground outline-none"
           placeholder="Email"
           type="email"
           value={email}
@@ -60,18 +65,18 @@ export default function ForgotPasswordPage() {
           required
         />
 
-        {err ? <p className="text-sm text-red-700 dark:text-red-400 whitespace-pre-wrap">{err}</p> : null}
-        {msg ? <p className="text-sm text-emerald-700 dark:text-emerald-400 whitespace-pre-wrap">{msg}</p> : null}
+        {err ? <p className="text-[13px] text-red-700 dark:text-red-400 whitespace-pre-wrap">{err}</p> : null}
+        {msg ? <p className="text-[13px] text-emerald-700 dark:text-emerald-400 whitespace-pre-wrap">{msg}</p> : null}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md border border-foreground/10 py-2 text-foreground hover:bg-foreground/5 disabled:opacity-60"
+          className="w-full rounded-md border border-border py-2 text-foreground hover:bg-secondary disabled:opacity-60"
         >
           {loading ? "Enviando..." : "Enviar email"}
         </button>
 
-        <Link href="/login" className="block text-sm text-foreground/60 hover:text-foreground">
+        <Link href="/login" className="block text-[13px] text-text-2 hover:text-foreground">
           Volver al login
         </Link>
       </form>

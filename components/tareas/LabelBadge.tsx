@@ -9,7 +9,7 @@ export function LabelBadge({ label, small = false }: LabelBadgeProps) {
   return (
     <span
       className={`inline-flex items-center rounded-full font-medium ${
-        small ? "text-[10px] px-2 py-0.5" : "text-xs px-2.5 py-1"
+        small ? "text-[13px] px-2 py-0.5" : "text-[13px] px-2.5 py-1"
       }`}
       style={{
         backgroundColor: label.color + "22",

@@ -12,7 +12,7 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireAdmin } from "@/lib/auth/api-guards"
+import { requireSmartScaleInternal } from "@/lib/auth/api-guards"
 import { updateDocInFolder } from "@/lib/google-drive"
 
 export const runtime = "nodejs"
@@ -32,7 +32,7 @@ function getJwt(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const admin = await requireAdmin(getJwt(req))
+  const admin = await requireSmartScaleInternal(getJwt(req))
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID

@@ -205,7 +205,7 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
 
   if (!activeClientId) {
     return (
-      <div className="rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-5 py-10 text-center text-sm text-foreground/40">
+      <div className="rounded-[14px] border border-dashed border-border bg-secondary px-5 py-10 text-center text-[13px] text-text-2">
         No hay un cliente activo seleccionado.
       </div>
     )
@@ -214,8 +214,8 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   // loading, o playbook cargado que aún pertenece a otro cliente (transición).
   if (loading || (playbook && playbook.client_id !== activeClientId)) {
     return (
-      <div className="flex h-[400px] items-center justify-center rounded-[14px] border border-foreground/[0.07] bg-card">
-        <Loader2 className="h-5 w-5 animate-spin text-foreground/40" />
+      <div className="flex h-[400px] items-center justify-center rounded-[14px] border border-border bg-card">
+        <Loader2 className="h-5 w-5 animate-spin text-text-2" />
       </div>
     )
   }
@@ -224,18 +224,18 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   if (!playbook) {
     if (canManage) {
       return (
-        <div className="flex flex-col items-center justify-center gap-4 rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-16 text-center">
-          <Sparkles className="h-10 w-10 text-foreground/20" />
+        <div className="flex flex-col items-center justify-center gap-4 rounded-[14px] border border-border bg-card px-6 py-16 text-center">
+          <Sparkles className="h-10 w-10 text-text-3" />
           <div>
-            <h3 className="text-base font-bold text-foreground">Playbook aún no creado</h3>
-            <p className="mt-1 text-[13px] text-foreground/50 max-w-md">
+            <h3 className="text-[15px] font-bold text-foreground">Playbook aún no creado</h3>
+            <p className="mt-1 text-[13px] text-text-2 max-w-md">
               Creá el documento del playbook para este cliente. Acá vas a poder armar checklists y notas; el cliente solo va a poder tildar/destildar los checkboxes.
             </p>
           </div>
           <button
             onClick={createPlaybook}
             disabled={creating}
-            className="inline-flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-4 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-50"
+            className="inline-flex items-center gap-2 h-9 rounded-xl btn-accent px-4 text-[13px] font-bold transition-all disabled:opacity-50"
           >
             {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             Crear playbook
@@ -244,11 +244,11 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
       )
     }
     return (
-      <div className="flex flex-col items-center justify-center gap-3 rounded-[14px] border border-dashed border-foreground/[0.08] bg-foreground/[0.02] px-6 py-16 text-center">
-        <FileText className="h-10 w-10 text-foreground/15" />
+      <div className="flex flex-col items-center justify-center gap-3 rounded-[14px] border border-dashed border-border bg-secondary px-6 py-16 text-center">
+        <FileText className="h-10 w-10 text-text-3" />
         <div>
-          <h3 className="text-base font-bold text-foreground/70">Tu playbook aún no fue creado</h3>
-          <p className="mt-1 text-[13px] text-foreground/45 max-w-md">
+          <h3 className="text-[15px] font-bold text-foreground">Tu playbook aún no fue creado</h3>
+          <p className="mt-1 text-[13px] text-text-2 max-w-md">
             Apenas Ann lo arme, vas a verlo acá.
           </p>
         </div>
@@ -259,18 +259,18 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   // Client playbook reveal button (hidden until clicked)
   if (!canManage && !playbook.visible_to_client) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 rounded-[14px] border border-foreground/[0.07] bg-card px-6 py-16 text-center">
-        <FileText className="h-10 w-10 text-foreground/20" />
+      <div className="flex flex-col items-center justify-center gap-4 rounded-[14px] border border-border bg-card px-6 py-16 text-center">
+        <FileText className="h-10 w-10 text-text-3" />
         <div>
-          <h3 className="text-base font-bold text-foreground">Tu playbook está listo</h3>
-          <p className="mt-1 text-[13px] text-foreground/50 max-w-md">
+          <h3 className="text-[15px] font-bold text-foreground">Tu playbook está listo</h3>
+          <p className="mt-1 text-[13px] text-text-2 max-w-md">
             Click en el botón para revelar tu playbook personalizado con el programa detallado y las checklist.
           </p>
         </div>
         <button
           onClick={revealPlaybook}
           disabled={revealing}
-          className="inline-flex items-center gap-2 h-9 rounded-xl bg-[#dafc69] px-4 text-[13px] font-bold text-black hover:bg-[#f2ffc0] transition-all disabled:opacity-50"
+          className="inline-flex items-center gap-2 h-9 rounded-xl btn-accent px-4 text-[13px] font-bold transition-all disabled:opacity-50"
         >
           {revealing ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
           Revelar playbook
@@ -280,18 +280,18 @@ export function ClientPlaybookMainView({ userRole }: { userRole: string | null }
   }
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card overflow-hidden">
+    <div className="rounded-[14px] border border-border bg-card overflow-hidden">
       {/* Save indicator bar */}
-      <div className="flex items-center justify-between gap-3 border-b border-foreground/[0.06] px-6 py-2.5">
-        <div className="flex items-center gap-2 text-[12px]">
+      <div className="flex items-center justify-between gap-3 border-b border-border px-6 py-2.5">
+        <div className="flex items-center gap-2 text-[13px]">
           {!canManage && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] px-2.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-wider text-foreground/55">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-text-2">
               Solo checkboxes editables
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] min-w-[140px] justify-end">
-          {savingState === "saving" && <span className="text-foreground/40 inline-flex items-center gap-1.5"><Loader2 className="h-3 w-3 animate-spin" />Guardando…</span>}
+        <div className="flex items-center gap-1.5 text-[13px] min-w-[140px] justify-end">
+          {savingState === "saving" && <span className="text-text-2 inline-flex items-center gap-1.5"><Loader2 className="h-3 w-3 animate-spin" />Guardando…</span>}
           {savingState === "saved"  && <span className="text-emerald-700 dark:text-emerald-400">✓ Guardado</span>}
           {savingState === "error"  && (
             <span className="text-red-700 dark:text-red-400 font-medium" title={errorMsg ?? ""}>

@@ -18,6 +18,7 @@ import { HelpChat } from "@/components/ui/help-chat"
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import { isSetter, isTeam, isAdmin as isAdminRole, SETTER_DEFAULT_LANDING, TEAM_DEFAULT_LANDING } from "@/lib/auth/permissions"
 import { useViewAsRole, setViewAsRole, type ViewAsRole, useViewAsTenant, setViewAsTenant } from "@/lib/auth/view-as"
+import { APP_VERSION, cn } from "@/lib/utils"
 
 declare global {
   interface Window {
@@ -62,10 +63,10 @@ const PAGE_TITLES: Record<string, string> = {
 }
 
 // Accesos rápidos del cliente: llevan directo a cargar cada form.
-const QUICK_ACTIONS: { label: string; short: string; href: string; Icon: typeof Coins }[] = [
+const QUICK_ACTIONS: { label: string; short: string; href: string; Icon: typeof Coins; primary?: boolean }[] = [
   { label: "Cha-Ching",       short: "Cha-Ching", href: "/chi-chang",    Icon: Coins        },
   { label: "Monday Win",      short: "Monday Win",   href: "/monday-win",   Icon: Trophy       },
-  { label: "Reporte Mensual", short: "Reporte Mensual", href: "/report-input", Icon: FileBarChart },
+  { label: "Reporte Mensual", short: "Reporte Mensual", href: "/report-input", Icon: FileBarChart, primary: true },
 ]
 
 const SelectedMonthContext = createContext<string | null>(null)
@@ -132,46 +133,15 @@ function currentMonthYM(): string {
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   // Default = mes actual. Sin persistencia — al recargar volvemos al mes actual.
   const [selectedMonth, setSelectedMonth] = useState<string>(currentMonthYM())
   const pathname = usePathname()
   const pageTitle = PAGE_TITLES[pathname] ?? "Smart Scale"
   const isAdminMode = pathname.startsWith("/admin/")
 
-  // Sidebar collapsed state persisted en localStorage (solo aplica en desktop)
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    const stored = window.localStorage.getItem("sidebarCollapsed")
-    if (stored) setSidebarCollapsed(stored === "true")
-  }, [])
-
   // Setter / team que aterrizan en /dashboard (portal cliente) caen a su landing
   // de admin: setter → /admin/setting, team → /admin/leads. Admin queda en /dashboard
   // como portal "modo cliente" para revisar; cliente final también.
-
-  const toggleSidebarCollapsed = () => {
-    setSidebarCollapsed(prev => {
-      const next = !prev
-      if (typeof window !== "undefined") window.localStorage.setItem("sidebarCollapsed", String(next))
-      return next
-    })
-  }
-
-  // Keyboard shortcut: Cmd/Ctrl + \ para toggle del sidebar
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null
-      const isInput = target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable
-      if (isInput) return
-      if ((e.metaKey || e.ctrlKey) && e.key === "\\") {
-        e.preventDefault()
-        toggleSidebarCollapsed()
-      }
-    }
-    window.addEventListener("keydown", handler)
-    return () => window.removeEventListener("keydown", handler)
-  }, [])
 
   // Selected month NO se persiste: al recargar volvemos al mes actual.
   // Si el user navega entre páginas mantiene la selección dentro de la sesión React.
@@ -563,23 +533,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       <NavigationProgress />
       <WhatsNew3 />
       {isAdminMode
-        ? <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} collapsed={sidebarCollapsed} onToggleCollapsed={toggleSidebarCollapsed} />
+        ? <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         : <Sidebar
             open={sidebarOpen}
             onClose={() => setSidebarOpen(false)}
             isAdmin={isAdmin && !activeViewAs}
-            collapsed={sidebarCollapsed}
-            onToggleCollapsed={toggleSidebarCollapsed}
             avatarUrl={avatarUrl}
             displayName={clientDisplayName ?? userEmail}
             email={userEmail}
             crmEnabled={crmEnabled}
           />}
 
-      <div className={`flex-1 flex flex-col h-full overflow-hidden transition-[margin] duration-200 bg-background pt-[env(safe-area-inset-top)] ${
-        isAdminMode
-          ? (sidebarCollapsed ? 'lg:ml-[64px]'  : 'lg:ml-[220px]')              // admin: sidebar pegado
-          : (sidebarCollapsed ? 'lg:ml-[100px] lg:pt-4' : 'lg:ml-[252px] lg:pt-4') // cliente: alineado al sidebar flotante
+      <div className={`flex-1 flex flex-col h-full overflow-hidden bg-background pt-[env(safe-area-inset-top)] ${
+        'lg:ml-[240px]' // sidebar pegado (admin y cliente)
       }`}>
 
         {/* "View as" banner — solo admin impersonando otro rol */}
@@ -591,11 +557,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <span className="rounded-full bg-amber-200 dark:bg-amber-500/30 px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest">
                 {activeViewAs}
               </span>
-              <span className="hidden sm:inline text-[12px] font-medium opacity-75">— estás viendo el UI como lo vería un {activeViewAs}</span>
+              <span className="hidden sm:inline text-[13px] font-medium opacity-75">— estás viendo el UI como lo vería un {activeViewAs}</span>
             </div>
             <button
               onClick={() => setViewAsRole(null)}
-              className="inline-flex items-center gap-1.5 h-7 rounded-md border border-amber-700/40 bg-amber-200 px-2.5 text-[11.5px] font-bold text-amber-900 hover:bg-amber-300 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-100 dark:hover:bg-amber-500/30 transition-colors"
+              className="inline-flex items-center gap-1.5 h-7 rounded-md border border-amber-700/40 bg-amber-200 px-2.5 text-[13px] font-bold text-amber-900 hover:bg-amber-300 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-100 dark:hover:bg-amber-500/30 transition-colors"
             >
               <EyeOff className="h-3 w-3" /> Volver a admin
             </button>
@@ -608,39 +574,39 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-2 text-[13px] font-semibold">
               <Eye className="h-3.5 w-3.5" />
               <span>Estás viendo el sector interno de</span>
-              <span className="rounded-full bg-amber-200 dark:bg-amber-500/30 px-2 py-0.5 text-[11px] font-bold">
+              <span className="rounded-full bg-amber-200 dark:bg-amber-500/30 px-2 py-0.5 text-[13px] font-bold">
                 {viewAsTenant.name}
               </span>
             </div>
             <button
               onClick={() => setViewAsTenant(null)}
-              className="inline-flex items-center gap-1.5 h-7 rounded-md border border-amber-700/40 bg-amber-200 px-2.5 text-[11.5px] font-bold text-amber-900 hover:bg-amber-300 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-100 dark:hover:bg-amber-500/30 transition-colors"
+              className="inline-flex items-center gap-1.5 h-7 rounded-md border border-amber-700/40 bg-amber-200 px-2.5 text-[13px] font-bold text-amber-900 hover:bg-amber-300 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-100 dark:hover:bg-amber-500/30 transition-colors"
             >
               <EyeOff className="h-3 w-3" /> Volver a Smart Scale
             </button>
           </div>
         )}
 
-        <header className="shrink-0 z-10 border-b border-foreground/[0.08] bg-background/95 backdrop-blur-md">
+        <header className="shrink-0 z-10 border-b border-border bg-background/95 backdrop-blur-md">
           <div className="flex h-16 items-center justify-between px-4 lg:px-8">
             <div className="flex items-center gap-3">
               {!sidebarOpen && (
-                <Button variant="ghost" size="icon" className="lg:hidden text-foreground/60 hover:text-foreground" onClick={() => setSidebarOpen(true)}>
+                <Button variant="ghost" size="icon" className="lg:hidden text-text-2 hover:text-foreground" onClick={() => setSidebarOpen(true)}>
                   <Menu className="h-5 w-5" />
                 </Button>
               )}
               <div>
-                <h1 className="text-base sm:text-lg font-bold text-foreground leading-tight tracking-tight flex items-center gap-2">
+                <h1 className="text-[15px] sm:text-[18px] font-bold text-foreground leading-tight tracking-tight flex items-center gap-2">
                   {pageTitle}
                   {isAdminMode && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-[#dafc69]">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.15em] text-accent-ink">
                       <ShieldCheck className="h-2.5 w-2.5" />
                       Internal
                     </span>
                   )}
                 </h1>
-                <p className="hidden sm:block text-[10px] text-foreground/35 leading-none mt-0.5 tracking-wide">
-                  {isAdminMode ? "Smart Scale Internal · Dashboard de Admin" : "Smart Scale Portal 2.0"}
+                <p className="hidden sm:block text-[13px] text-text-3 leading-none mt-0.5 tracking-wide">
+                  {isAdminMode ? "Smart Scale Internal · Dashboard de Admin" : `Smart Scale Portal ${APP_VERSION}`}
                 </p>
               </div>
             </div>
@@ -648,16 +614,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-2">
               {!isAdminMode && (
                 <div className="hidden lg:flex items-center gap-1.5 mr-1">
-                  {QUICK_ACTIONS.filter(a => a.href !== pathname).map(({ label, href, Icon }) => (
+                  {QUICK_ACTIONS.filter(a => a.href !== pathname).map(({ label, href, Icon, primary }) => (
                     <button
                       key={href}
                       type="button"
                       onClick={() => router.push(href)}
                       title={label}
                       aria-label={label}
-                      className="inline-flex h-9 items-center gap-1.5 rounded-md border border-foreground/[0.10] bg-card px-2.5 text-[13px] font-semibold text-foreground/75 hover:text-foreground hover:border-foreground/[0.18] hover:bg-foreground/[0.04] transition-colors"
+                      className={cn(
+                        "inline-flex h-9 items-center gap-1.5 rounded-md px-2.5 text-[13px] font-semibold transition-colors",
+                        primary
+                          ? "btn-accent"
+                          : "border border-border bg-card text-foreground hover:text-foreground hover:border-border-hover hover:bg-secondary"
+                      )}
                     >
-                      <Icon className="h-4 w-4 text-[#dafc69]" />
+                      <Icon className={cn("h-4 w-4", primary ? "text-on-accent" : "text-accent-ink")} />
                       <span className="hidden xl:inline">{label}</span>
                     </button>
                   ))}
@@ -679,7 +650,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <div className="relative" ref={profileMenuRef}>
                 <Button
                   variant="outline"
-                  className="gap-2 text-foreground/80 hover:text-foreground border-foreground/[0.10] hover:border-foreground/[0.18] bg-card hover:bg-foreground/[0.04]"
+                  className="gap-2 text-foreground hover:text-foreground border-border hover:border-border-hover bg-card hover:bg-secondary"
                   onClick={() => setProfileMenuOpen((v) => !v)}
                   aria-haspopup="menu"
                   aria-expanded={profileMenuOpen}
@@ -695,16 +666,16 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 >
                   {avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={avatarUrl} alt="Perfil" className="h-7 w-7 rounded-full object-cover border border-[#dafc69]/40" />
+                    <img src={avatarUrl} alt="Perfil" className="h-7 w-7 rounded-full object-cover border border-accent/30" />
                   ) : (
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10">
-                      <User className="h-4 w-4 text-[#dafc69]" />
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-accent/30 bg-accent-soft">
+                      <User className="h-4 w-4 text-accent-ink" />
                     </span>
                   )}
                   <span className="hidden sm:inline text-foreground font-semibold">
                     {activeClientName ?? clientDisplayName ?? userEmail ?? "—"}
                   </span>
-                  <ChevronDown className="h-4 w-4 opacity-80 text-[#dafc69]" />
+                  <ChevronDown className="h-4 w-4 opacity-80 text-accent-ink" />
                 </Button>
 
                 {profileMenuOpen && (
@@ -714,11 +685,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     className="absolute right-0 mt-2 w-72 overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl backdrop-blur"
                   >
                     {/* Header — current user */}
-                    <div className="flex items-center gap-3 px-4 py-3 bg-foreground/[0.02]">
+                    <div className="flex items-center gap-3 px-4 py-3 bg-secondary">
                       <button
                         type="button"
                         onClick={() => avatarInputRef.current?.click()}
-                        className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10 text-[#dafc69] text-[13px] font-bold overflow-hidden group/avatar"
+                        className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-accent-soft text-accent-ink text-[13px] font-bold overflow-hidden group/avatar"
                         title="Cambiar foto"
                       >
                         {avatarUrl
@@ -736,9 +707,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       />
                       <div className="min-w-0 flex-1">
                         {clientDisplayName && !isAdmin && (
-                          <p className="truncate text-sm font-semibold text-foreground">{clientDisplayName}</p>
+                          <p className="truncate text-[13px] font-semibold text-foreground">{clientDisplayName}</p>
                         )}
-                        <p className="truncate text-[11px] text-foreground/50">{userEmail ?? "—"}</p>
+                        <p className="truncate text-[13px] text-text-2">{userEmail ?? "—"}</p>
                       </div>
                     </div>
 
@@ -752,10 +723,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             key={p.id}
                             type="button"
                             role="menuitem"
-                            className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
+                            className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] transition-colors ${
                               isActive
-                                ? "bg-[#dafc69]/15 text-foreground"
-                                : "text-foreground hover:bg-foreground/[0.06]"
+                                ? "bg-secondary text-foreground"
+                                : "text-foreground hover:bg-secondary"
                             } ${!isSelectable ? "opacity-40 cursor-not-allowed hover:bg-transparent" : ""} ${!p.active ? "opacity-60" : ""}`}
                             disabled={!isSelectable}
                             onClick={() => {
@@ -766,22 +737,22 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             }}
                             title={p.client_id}
                           >
-                            <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                            <span className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[13px] font-bold ${
                               isActive
-                                ? "bg-[#dafc69] text-black"
-                                : "bg-foreground/[0.08] text-foreground/70"
+                                ? "bg-accent text-black"
+                                : "bg-secondary text-foreground"
                             }`}>
                               {initial}
                             </span>
                             <span className="truncate flex-1 font-medium">{p.client_name}</span>
                             {isActive && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[13px] font-bold text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300">
                                 <Check className="h-2.5 w-2.5" strokeWidth={3} />
                                 Activo
                               </span>
                             )}
                             {!p.active && (
-                              <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-700 dark:bg-red-500/15 dark:text-red-400">
+                              <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[13px] font-bold text-red-700 dark:bg-red-500/15 dark:text-red-400">
                                 Off
                               </span>
                             )}
@@ -797,7 +768,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       return (
                         <>
                           <div className="px-4 pt-3 pb-1.5">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/40">Cambiar perfil</p>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-text-2">Cambiar perfil</p>
                           </div>
                           <div className="max-h-72 overflow-auto pb-1.5 px-1.5">
                             {profilesList.length ? (
@@ -805,7 +776,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                 {insideProfiles.map(renderProfileItem)}
                                 {offProfiles.length > 0 && (
                                   <>
-                                    <p className="px-2.5 pt-2.5 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/30">
+                                    <p className="px-2.5 pt-2.5 pb-1 text-[11px] font-bold uppercase tracking-[0.15em] text-text-3">
                                       Off ({offProfiles.length})
                                     </p>
                                     {offProfiles.map(renderProfileItem)}
@@ -813,7 +784,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                 )}
                               </>
                             ) : (
-                              <div className="px-3 py-3 text-sm text-foreground/60">No hay perfiles para mostrar.</div>
+                              <div className="px-3 py-3 text-[13px] text-text-2">No hay perfiles para mostrar.</div>
                             )}
                           </div>
                         </>
@@ -823,9 +794,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     {/* "Ver como" — solo admin */}
                     {isAdmin && (
                       <>
-                        <div className="h-px bg-foreground/[0.07]" />
+                        <div className="h-px bg-secondary" />
                         <div className="px-4 pt-3 pb-1.5">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/40">Ver como</p>
+                          <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-text-2">Ver como</p>
                         </div>
                         <div className="px-1.5 pb-1.5 space-y-0.5">
                           {(["setter", "client"] as const).map(r => {
@@ -845,18 +816,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                   }
                                   setProfileMenuOpen(false)
                                 }}
-                                className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
+                                className={`group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] transition-colors ${
                                   active
                                     ? "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200"
-                                    : "text-foreground hover:bg-foreground/[0.06]"
+                                    : "text-foreground hover:bg-secondary"
                                 }`}
                               >
-                                <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground/[0.08] text-[11px] font-bold text-foreground/70">
+                                <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-elevated text-[13px] font-bold text-foreground">
                                   {r === "setter" ? "S" : "C"}
                                 </span>
                                 <span className="truncate flex-1 font-medium capitalize">{r === "client" ? "Cliente" : r}</span>
                                 {active && (
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-200 dark:bg-amber-500/30 px-2 py-0.5 text-[10px] font-bold">
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-200 dark:bg-amber-500/30 px-2 py-0.5 text-[13px] font-bold">
                                     <Check className="h-2.5 w-2.5" strokeWidth={3} />
                                     Activo
                                   </span>
@@ -868,7 +839,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                             <button
                               type="button"
                               onClick={() => { setViewAsRole(null); setProfileMenuOpen(false) }}
-                              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[12px] text-foreground/60 hover:bg-foreground/[0.06] transition-colors"
+                              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] text-text-2 hover:bg-secondary transition-colors"
                             >
                               <EyeOff className="h-3.5 w-3.5" />
                               Volver a vista admin
@@ -878,20 +849,20 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                       </>
                     )}
 
-                    <div className="h-px bg-foreground/[0.07]" />
+                    <div className="h-px bg-elevated" />
 
                     {/* Notificaciones — un solo lugar para todos (equipo y clientes) */}
                     <div className="px-4 py-3">
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/35 mb-2">Notificaciones</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-text-3 mb-2">Notificaciones</p>
                       <PushOptIn />
                     </div>
 
-                    <div className="h-px bg-foreground/[0.07]" />
+                    <div className="h-px bg-secondary" />
 
                     <button
                       type="button"
                       role="menuitem"
-                      className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm font-medium text-foreground/80 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-500/10 dark:hover:text-red-300 transition-colors"
+                      className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13px] font-medium text-foreground hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-500/10 dark:hover:text-red-300 transition-colors"
                       onClick={async () => {
                         await supabase.auth.signOut()
                         setProfileMenuOpen(false)
@@ -910,14 +881,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           {/* Accesos rápidos — fila scrollable solo en mobile/tablet */}
           {!isAdminMode && (
             <div className="lg:hidden flex items-center gap-2 overflow-x-auto px-4 pb-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {QUICK_ACTIONS.filter(a => a.href !== pathname).map(({ short, href, Icon }) => (
+              {QUICK_ACTIONS.filter(a => a.href !== pathname).map(({ short, href, Icon, primary }) => (
                 <button
                   key={href}
                   type="button"
                   onClick={() => router.push(href)}
-                  className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-foreground/[0.10] bg-card px-3 text-[12.5px] font-semibold text-foreground/80 hover:text-foreground active:scale-[0.98] transition-all"
+                  className={cn(
+                    "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] font-semibold active:scale-[0.98] transition-all",
+                    primary
+                      ? "btn-accent"
+                      : "border border-border bg-card text-foreground hover:text-foreground"
+                  )}
                 >
-                  <Icon className="h-3.5 w-3.5 text-[#dafc69]" />
+                  <Icon className={cn("h-3.5 w-3.5", primary ? "text-on-accent" : "text-accent-ink")} />
                   {short}
                 </button>
               ))}

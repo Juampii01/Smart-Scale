@@ -15,12 +15,12 @@ export function SectionHeader({ icon: Icon, title, subtitle, action, className }
   return (
     <div className={cn("flex items-center justify-between gap-3", className)}>
       <div className="flex items-center gap-3 min-w-0">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#ffde21]/15 text-foreground/70">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#ffde21]/15 text-foreground">
           <Icon className="h-4 w-4" />
         </div>
         <div className="min-w-0">
           <p className="text-[13px] font-bold text-foreground truncate">{title}</p>
-          {subtitle && <p className="text-[11px] text-foreground/40 truncate">{subtitle}</p>}
+          {subtitle && <p className="text-[13px] text-text-2 truncate">{subtitle}</p>}
         </div>
       </div>
       {action && <div className="shrink-0">{action}</div>}

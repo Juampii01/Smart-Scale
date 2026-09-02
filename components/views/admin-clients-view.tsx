@@ -2,13 +2,15 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { createClient } from "@/lib/supabase"
+import { isPlatformOwnerEmail } from "@/lib/auth/platform-owner"
+import { NewUserDialog } from "@/components/admin/new-user-dialog"
 import {
   Loader2, Plus, Trash2, RefreshCw, X, ChevronRight,
   CheckCircle2, Circle, AlertCircle, Clock, Users,
   DollarSign, Calendar, Mail,
   MessageCircle, PhoneCall, MoreHorizontal,
   Check, ChevronUp, ChevronDown, ChevronsUpDown, UserX,
-  BarChart3, FileText, Sparkles,
+  BarChart3, FileText, Sparkles, ShieldCheck,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -147,7 +149,7 @@ const FOLLOWUP_TYPE_STYLE: Record<string, string> = {
   whatsapp: "bg-pink-100   text-pink-800   border-pink-300   dark:bg-pink-500/10   dark:text-pink-300   dark:border-pink-500/25",
   llamada:  "bg-blue-100   text-blue-800   border-blue-300   dark:bg-blue-500/10   dark:text-blue-300   dark:border-blue-500/25",
   email:    "bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-500/10 dark:text-purple-300 dark:border-purple-500/25",
-  otro:     "bg-foreground/[0.05] text-foreground/60 border-foreground/[0.10] dark:text-foreground/50",
+  otro:     "bg-secondary text-text-2 border-border dark:text-text-2",
 }
 
 const FOLLOWUP_TYPE_ICON: Record<string, React.ReactNode> = {
@@ -157,8 +159,8 @@ const FOLLOWUP_TYPE_ICON: Record<string, React.ReactNode> = {
   otro:     <MoreHorizontal className="h-3 w-3" />,
 }
 
-const inputCls = "w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
-const labelCls = "text-[10px] font-bold uppercase tracking-widest text-foreground/25"
+const inputCls = "w-full rounded-xl border border-border bg-elevated px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
+const labelCls = "text-[11px] font-bold uppercase tracking-widest text-text-3"
 
 // ─── Webhook Card ─────────────────────────────────────────────────────────────
 
@@ -177,21 +179,21 @@ function WebhookCard() {
   }
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
-      <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-2">
+    <div className="rounded-[14px] border border-border bg-card px-5 py-4">
+      <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 mb-2">
         Webhook URL — Zapier / Formulario de onboarding
       </p>
       <div className="flex items-center gap-2">
-        <code className="flex-1 rounded-lg bg-foreground/[0.04] px-3 py-2 text-[12px] text-[#dafc69]/70 font-mono truncate" suppressHydrationWarning>
+        <code className="flex-1 rounded-lg bg-elevated px-3 py-2 text-[13px] text-accent-ink/70 font-mono truncate" suppressHydrationWarning>
           {url ?? "Cargando…"}
         </code>
         <button onClick={copy} disabled={!url}
-          className="shrink-0 h-8 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+          className="shrink-0 h-8 rounded-lg border border-border px-3 text-[13px] text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
           {copied ? "✓ Copiado" : "Copiar"}
         </button>
       </div>
-      <p className="text-[11px] text-foreground/25 mt-1.5">
-        Campos: <code className="text-foreground/40">nombre</code>, <code className="text-foreground/40">email</code>, <code className="text-foreground/40">telefono</code>, <code className="text-foreground/40">fecha_cierre</code>, <code className="text-foreground/40">programa</code>, <code className="text-foreground/40">cantidad_meses</code> (duración del programa), <code className="text-foreground/40">cantidad_pagos</code> (cuotas de pago), <code className="text-foreground/40">primer_pago</code>, <code className="text-foreground/40">mes_2</code>…<code className="text-foreground/40">mes_6</code>
+      <p className="text-[13px] text-text-3 mt-1.5">
+        Campos: <code className="text-text-2">nombre</code>, <code className="text-text-2">email</code>, <code className="text-text-2">telefono</code>, <code className="text-text-2">fecha_cierre</code>, <code className="text-text-2">programa</code>, <code className="text-text-2">cantidad_meses</code> (duración del programa), <code className="text-text-2">cantidad_pagos</code> (cuotas de pago), <code className="text-text-2">primer_pago</code>, <code className="text-text-2">mes_2</code>…<code className="text-text-2">mes_6</code>
       </p>
     </div>
   )
@@ -237,9 +239,9 @@ function InstallmentRow({
   }
 
   return (
-    <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] p-3 space-y-2">
+    <div className="rounded-xl border border-border bg-secondary p-3 space-y-2">
       <div className="flex items-center gap-3">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground/[0.06] text-[11px] font-bold text-foreground/60 shrink-0">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-elevated text-[13px] font-bold text-text-2 shrink-0">
           {inst.installment_number}
         </span>
         <div className="flex-1 min-w-0">
@@ -247,7 +249,7 @@ function InstallmentRow({
             {/* Monto editable — click o Tab para activar */}
             {editing ? (
               <div className="flex items-center gap-1">
-                <span className="text-[12px] text-foreground/40">$</span>
+                <span className="text-[13px] text-text-2">$</span>
                 <input
                   autoFocus
                   type="text"
@@ -260,9 +262,9 @@ function InstallmentRow({
                     if (e.key === "Escape") { setRawValue(String(inst.amount)); setEditing(false) }
                   }}
                   disabled={saving}
-                  className="w-24 rounded-lg border border-[#dafc69]/40 bg-[#dafc69]/[0.05] px-2 py-0.5 text-[13px] font-semibold text-foreground focus:outline-none focus:border-[#dafc69]/70 disabled:opacity-50"
+                  className="w-24 rounded-lg border border-border bg-secondary px-2 py-0.5 text-[13px] font-semibold text-foreground focus:outline-none focus:border-accent disabled:opacity-50"
                 />
-                {saving && <Loader2 className="h-3 w-3 animate-spin text-foreground/40" />}
+                {saving && <Loader2 className="h-3 w-3 animate-spin text-text-2" />}
               </div>
             ) : (
               <button
@@ -270,15 +272,15 @@ function InstallmentRow({
                 title={inst.status === "pagado" ? "No se puede editar una cuota ya pagada" : "Click para editar el monto"}
                 className={`text-[13px] font-semibold text-foreground rounded px-1 -mx-1 transition-all ${
                   inst.status !== "pagado"
-                    ? "hover:bg-[#dafc69]/10 hover:text-[#dafc69] cursor-pointer"
+                    ? "hover:bg-secondary hover:text-accent-ink cursor-pointer"
                     : "cursor-default"
                 }`}
               >
                 {fmtMoney(inst.amount)}
               </button>
             )}
-            <span className="text-[12px] text-foreground/40">{fmtDate(inst.due_date)}</span>
-            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${INST_STATUS_STYLE[inst.status]}`}>
+            <span className="text-[13px] text-text-2">{fmtDate(inst.due_date)}</span>
+            <span className={`rounded-full border px-2 py-0.5 text-[13px] font-semibold ${INST_STATUS_STYLE[inst.status]}`}>
               {inst.status}
             </span>
           </div>
@@ -286,7 +288,7 @@ function InstallmentRow({
         <button
           onClick={onToggle}
           disabled={togglingInst === inst.id || saving || editing}
-          className={`shrink-0 h-7 rounded-lg border px-2.5 text-[11px] font-semibold transition-all disabled:opacity-40 ${
+          className={`shrink-0 h-7 rounded-lg border px-2.5 text-[13px] font-semibold transition-all disabled:opacity-40 ${
             inst.status === "pagado"
               ? "border-red-300 text-red-700 hover:bg-red-100 dark:border-red-500/25 dark:text-red-300 dark:hover:bg-red-500/10"
               : "border-emerald-300 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
@@ -300,7 +302,7 @@ function InstallmentRow({
             onClick={() => onSnooze(inst.overdue_alert_snoozed_until ? null : 7)}
             disabled={snoozingInst === inst.id}
             title="Posponer el email de cuota vencida al cliente — no afecta el aviso interno de Slack"
-            className="shrink-0 h-7 rounded-lg border border-border px-2.5 text-[11px] font-semibold text-foreground/60 hover:bg-foreground/[0.05] transition-all disabled:opacity-40"
+            className="shrink-0 h-7 rounded-lg border border-border px-2.5 text-[13px] font-semibold text-text-2 hover:bg-secondary transition-all disabled:opacity-40"
           >
             {snoozingInst === inst.id
               ? <Loader2 className="h-3 w-3 animate-spin" />
@@ -309,10 +311,10 @@ function InstallmentRow({
         )}
       </div>
       {inst.paid_at && (
-        <p className="text-[11px] text-foreground/35 pl-9">Pagado el {fmtDate(inst.paid_at)}</p>
+        <p className="text-[13px] text-text-3 pl-9">Pagado el {fmtDate(inst.paid_at)}</p>
       )}
       {inst.overdue_alert_snoozed_until && (
-        <p className="text-[11px] text-amber-700 dark:text-amber-400 pl-9">
+        <p className="text-[13px] text-amber-700 dark:text-amber-400 pl-9">
           Email de vencido pospuesto hasta {fmtDate(inst.overdue_alert_snoozed_until)}
         </p>
       )}
@@ -469,50 +471,50 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
   }
 
   if (loadingR) {
-    return <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-foreground/30" /></div>
+    return <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-text-3" /></div>
   }
 
   return (
     <div className="flex flex-col" style={{ height: "calc(100% - 1px)" }}>
       {/* Month selector */}
-      <div className="border-b border-foreground/[0.06] px-6 py-4 shrink-0">
-        <p className="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-foreground/25">Mes del reporte</p>
+      <div className="border-b border-border px-6 py-4 shrink-0">
+        <p className="mb-2.5 text-[11px] font-bold uppercase tracking-widest text-text-3">Mes del reporte</p>
         <div className="flex gap-1.5 overflow-x-auto pb-1">
           {monthList.map(m => (
             <button key={m} onClick={() => setSelMonth(m)}
-              className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+              className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all ${
                 selMonth === m
-                  ? "bg-[#dafc69] text-black"
-                  : "border border-foreground/[0.08] bg-foreground/[0.04] text-foreground/50 hover:text-foreground hover:border-foreground/20"
+                  ? "bg-secondary text-foreground"
+                  : "border border-border bg-elevated text-text-2 hover:text-foreground hover:border-border-hover"
               }`}>
               {fmtMonth(m)}
-              <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${hasData(m) ? "bg-emerald-500" : "bg-foreground/20"}`} />
+              <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${hasData(m) ? "bg-emerald-500" : "bg-elevated"}`} />
             </button>
           ))}
         </div>
-        <p className="mt-1.5 text-[10px] text-foreground/25 flex items-center gap-3">
+        <p className="mt-1.5 text-[13px] text-text-3 flex items-center gap-3">
           <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />cargado</span>
-          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-foreground/20" />vacío</span>
+          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-elevated" />vacío</span>
         </p>
       </div>
 
       {/* Scrollable form */}
-      <div className="flex-1 overflow-y-auto divide-y divide-foreground/[0.05]">
+      <div className="flex-1 overflow-y-auto divide-y divide-border">
         {REPORT_GROUPS.map(group => (
           <div key={group.key} className="px-6 py-4 space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/30">{group.label}</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{group.label}</p>
             <div className="grid grid-cols-2 gap-2">
               {group.fields.map(field => {
                 if (field.type === "text") {
                   return (
                     <div key={field.key} className="col-span-2 space-y-1">
-                      <label className="block text-[10px] font-semibold uppercase tracking-wider text-foreground/40">{field.label}</label>
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-text-2">{field.label}</label>
                       <textarea
                         value={values[field.key] ?? ""}
                         onChange={e => setValue(field.key, e.target.value)}
                         rows={2}
                         placeholder="—"
-                        className="w-full resize-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none"
+                        className="w-full resize-none rounded-lg border border-border bg-secondary px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
                       />
                     </div>
                   )
@@ -520,21 +522,21 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                 if (field.type === "nps") {
                   return (
                     <div key={field.key} className="col-span-2 space-y-1.5">
-                      <label className="block text-[10px] font-semibold uppercase tracking-wider text-foreground/40">{field.label}</label>
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-text-2">{field.label}</label>
                       <div className="flex gap-1 flex-wrap">
                         {[1,2,3,4,5,6,7,8,9,10].map(n => (
                           <button key={n} type="button" onClick={() => setValue(field.key, String(n))}
-                            className={`h-8 w-8 rounded-lg text-xs font-bold transition-all ${
+                            className={`h-8 w-8 rounded-lg text-[13px] font-bold transition-all ${
                               values[field.key] === String(n)
-                                ? "bg-[#dafc69] text-black"
-                                : "border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/50 hover:border-[#dafc69]/30"
+                                ? "bg-secondary text-foreground"
+                                : "border border-border bg-elevated text-text-2 hover:border-border"
                             }`}>
                             {n}
                           </button>
                         ))}
                         {values[field.key] && (
                           <button type="button" onClick={() => setValue(field.key, "")}
-                            className="ml-1 text-xs text-foreground/25 hover:text-foreground/50">limpiar</button>
+                            className="ml-1 text-[13px] text-text-3 hover:text-text-2">limpiar</button>
                         )}
                       </div>
                     </div>
@@ -542,10 +544,10 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                 }
                 return (
                   <div key={field.key} className="space-y-1">
-                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-foreground/40 truncate">
+                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-text-2 truncate">
                       {field.label}
                       {"hint" in field && (field as any).hint && (
-                        <span className="ml-1 normal-case font-normal text-foreground/25 tracking-normal">({(field as any).hint})</span>
+                        <span className="ml-1 normal-case font-normal text-text-3 tracking-normal">({(field as any).hint})</span>
                       )}
                     </label>
                     <input
@@ -555,7 +557,7 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
                       placeholder="0"
                       min={0}
                       step="any"
-                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-2 text-sm font-semibold text-foreground placeholder:text-foreground/20 focus:border-[#dafc69]/40 focus:outline-none"
+                      className="w-full rounded-lg border border-border bg-secondary px-3 py-2 text-[13px] font-semibold text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
                     />
                   </div>
                 )
@@ -566,18 +568,18 @@ function ClientReportPanel({ clientId }: { clientId: string }) {
       </div>
 
       {/* Save bar (sticky) */}
-      <div className="shrink-0 border-t border-foreground/[0.06] bg-card px-6 py-3 flex items-center gap-3">
+      <div className="shrink-0 border-t border-border bg-card px-6 py-3 flex items-center gap-3">
         <button onClick={save} disabled={saving}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#dafc69] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95 disabled:opacity-50">
+        className="inline-flex items-center gap-2 rounded-xl btn-accent px-5 py-2.5 text-[13px] font-bold transition active:scale-95 disabled:opacity-50">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
           {saving ? "Guardando…" : "Guardar reporte"}
         </button>
         {saved && (
-          <span className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+          <span className="flex items-center gap-1.5 text-[13px] font-medium text-emerald-600 dark:text-emerald-400">
             <CheckCircle2 className="h-4 w-4" /> Guardado
           </span>
         )}
-        {saveErr && <span className="text-xs text-red-700 dark:text-red-400">{saveErr}</span>}
+        {saveErr && <span className="text-[13px] text-red-700 dark:text-red-400">{saveErr}</span>}
       </div>
     </div>
   )
@@ -622,15 +624,15 @@ function ClientCallsPanel({ clientId }: { clientId: string }) {
   }
 
   if (loadingC) {
-    return <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-foreground/30" /></div>
+    return <div className="flex items-center justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-text-3" /></div>
   }
 
   if (!calls.length) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-16 text-center px-6">
-        <PhoneCall className="h-6 w-6 text-foreground/20" />
-        <p className="text-sm text-foreground/40">Todavía no hay llamadas registradas para este cliente.</p>
-        <p className="text-xs text-foreground/25">Llegan automáticamente desde Zoom vía Zapier apenas termina una llamada.</p>
+        <PhoneCall className="h-6 w-6 text-text-3" />
+        <p className="text-[13px] text-text-2">Todavía no hay llamadas registradas para este cliente.</p>
+        <p className="text-[13px] text-text-3">Llegan automáticamente desde Zoom vía Zapier apenas termina una llamada.</p>
       </div>
     )
   }
@@ -640,35 +642,35 @@ function ClientCallsPanel({ clientId }: { clientId: string }) {
       {calls.map(call => {
         const isExpanded = expandedId === call.id
         return (
-          <div key={call.id} className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] overflow-hidden">
+          <div key={call.id} className="rounded-xl border border-border bg-secondary overflow-hidden">
             <button
               onClick={() => setExpandedId(isExpanded ? null : call.id)}
-              className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-foreground/[0.03] transition-colors"
+              className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-secondary transition-colors"
             >
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground truncate">
+                <p className="text-[13px] font-semibold text-foreground truncate">
                   {call.meeting_topic ?? "Llamada"}
                 </p>
-                <p className="text-xs text-foreground/40 mt-0.5">
+                <p className="text-[13px] text-text-2 mt-0.5">
                   {fmtDateTime(call.occurred_at)}
                   {call.duration_minutes ? ` · ${Math.round(call.duration_minutes)} min` : ""}
                 </p>
               </div>
-              <ChevronRight className={`h-4 w-4 shrink-0 text-foreground/30 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
+              <ChevronRight className={`h-4 w-4 shrink-0 text-text-3 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
             </button>
             {isExpanded && (
-              <div className="border-t border-foreground/[0.06] px-4 py-3 space-y-3">
+              <div className="border-t border-border px-4 py-3 space-y-3">
                 {call.recording_url && (
                   <a href={call.recording_url} target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#dafc69] hover:text-[#f2ffc0] transition-colors">
+                    className="inline-flex items-center gap-1.5 text-[13px] font-medium text-accent-ink hover:text-accent-hover transition-colors">
                     <PhoneCall className="h-3.5 w-3.5" />
                     Ver grabación
                   </a>
                 )}
                 {call.transcript ? (
-                  <p className="text-[13px] leading-relaxed text-foreground/70 whitespace-pre-wrap">{call.transcript}</p>
+                  <p className="text-[13px] leading-relaxed text-foreground whitespace-pre-wrap">{call.transcript}</p>
                 ) : (
-                  <p className="text-xs text-foreground/30">Sin transcript disponible para esta llamada.</p>
+                  <p className="text-[13px] text-text-3">Sin transcript disponible para esta llamada.</p>
                 )}
               </div>
             )}
@@ -733,66 +735,66 @@ function ReactivateModal({
       <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="fixed inset-0 z-[61] flex items-center justify-center p-4">
         <form onSubmit={handleSubmit}
-          className="w-full max-w-sm rounded-[14px] border border-foreground/[0.10] shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+          className="w-full max-w-sm rounded-[14px] border border-border shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto"
           style={{ backgroundColor: "var(--card)" }}>
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h3 className="text-base font-bold text-foreground">Reactivar cliente</h3>
-              <p className="text-[12px] text-foreground/40 mt-0.5">{clientName} — nuevo ciclo</p>
+              <h3 className="text-[15px] font-bold text-foreground">Reactivar cliente</h3>
+              <p className="text-[13px] text-text-2 mt-0.5">{clientName} — nuevo ciclo</p>
             </div>
             <button type="button" onClick={onClose}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all">
               <X className="h-4 w-4" />
             </button>
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Programa</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Programa</p>
             <input type="text" value={program} onChange={e => setProgram(e.target.value)}
               placeholder="ej: Smart Scale, Mastermind..."
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all" />
+              className="w-full rounded-xl border border-border bg-elevated px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Monto total *</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Monto total *</p>
               <input type="number" min={0} step="any" required value={totalAmount} onChange={e => setTotalAmount(e.target.value)}
                 placeholder="USD"
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all" />
+                className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
             </div>
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Cant. cuotas</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Cant. cuotas</p>
               <input type="number" min={1} max={24} value={numInstallments} onChange={e => setNumInstallments(e.target.value)}
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
+                className="w-full rounded-xl border border-border bg-elevated px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all" />
             </div>
           </div>
           {perInstallment && (
-            <p className="text-[11px] text-foreground/40 -mt-2">
+            <p className="text-[13px] text-text-2 -mt-2">
               {numInstallments === "1" ? "Pago único" : `${numInstallments} cuotas de USD ${perInstallment} c/u`} — la primera se marca pagada al guardar.
             </p>
           )}
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Inicio del ciclo</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Inicio del ciclo</p>
               <input type="date" value={programStart} onChange={e => setProgramStart(e.target.value)}
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
+                className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all" />
             </div>
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Duración (meses)</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Duración (meses)</p>
               <input type="number" min={1} max={24} value={programDuration} onChange={e => setProgramDuration(e.target.value)}
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all" />
+                className="w-full rounded-xl border border-border bg-elevated px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all" />
             </div>
           </div>
 
-          <label className="flex items-center gap-2 text-[12.5px] text-foreground/60">
+          <label className="flex items-center gap-2 text-[13px] text-text-2">
             <input type="checkbox" checked={isMonthly} onChange={e => setIsMonthly(e.target.checked)}
-              className="h-4 w-4 rounded border-foreground/20" />
+              className="h-4 w-4 rounded border-border" />
             Suscripción mensual (genera la próxima cuota sola cada mes)
           </label>
 
           <button type="submit" disabled={!totalAmount || Number(totalAmount) <= 0 || submitting}
-            className="w-full h-10 rounded-xl bg-[#dafc69] text-black text-[13px] font-bold hover:bg-[#f2ffc0] transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+          className="w-full h-10 rounded-xl btn-accent text-[13px] font-bold transition-all disabled:opacity-40 flex items-center justify-center gap-2">
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
             Reactivar
           </button>
@@ -818,6 +820,7 @@ function DetailDrawer({
   onOffboard,
   onReactivate,
   onSendRenewalEmail,
+  isPlatformOwner,
   deleting,
   offboarding,
   reactivating,
@@ -836,6 +839,7 @@ function DetailDrawer({
   onOffboard:          (id: string) => Promise<void>
   onReactivate:        (id: string, data: ReactivateData) => Promise<void>
   onSendRenewalEmail:  (id: string) => Promise<void>
+  isPlatformOwner:     boolean
   deleting:            boolean
   sendingRenewal:      boolean
   offboarding:         boolean
@@ -843,6 +847,7 @@ function DetailDrawer({
 }) {
   const [drawerTab,        setDrawerTab]          = useState<"crm" | "reports" | "calls">("crm")
   const [showReactivateForm, setShowReactivateForm] = useState(false)
+  const [showTenantDialog, setShowTenantDialog]   = useState(false)
   const [showFollowupForm, setShowFollowupForm]   = useState(false)
   const [fuDate,           setFuDate]             = useState(todayStr())
   const [fuType,           setFuType]             = useState<Followup["type"]>("whatsapp")
@@ -905,28 +910,49 @@ function DetailDrawer({
           }}
         />
       )}
+      {showTenantDialog && (
+        <NewUserDialog
+          open
+          onClose={() => setShowTenantDialog(false)}
+          fixedTenant={{ id: client.id, name: client.name }}
+        />
+      )}
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[480px] flex-col border-l border-foreground/[0.08] shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
+      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[480px] flex-col border-l border-border shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
 
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5" style={{ backgroundColor: "var(--card)" }}>
+        <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5" style={{ backgroundColor: "var(--card)" }}>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-foreground truncate">{client.name}</h2>
+              <h2 className="text-[18px] font-bold text-foreground truncate">{client.name}</h2>
               {client.is_monthly_subscription && (
-                <span className="inline-flex items-center rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#dafc69] shrink-0">
+                <span className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest text-accent-ink shrink-0">
                   Mensual
                 </span>
               )}
             </div>
             <div className="flex items-center gap-2 mt-1">
-              <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${CLIENT_STATUS_STYLE[client.status] ?? ""}`}>
+              <span className={`rounded-full border px-2.5 py-0.5 text-[13px] font-semibold ${CLIENT_STATUS_STYLE[client.status] ?? ""}`}>
                 {CLIENT_STATUS_LABEL[client.status] ?? client.status}
               </span>
-              <span className="text-[12px] text-foreground/30">desde {fmtDate(client.program_start)}</span>
+              <span className="text-[13px] text-text-3">desde {fmtDate(client.program_start)}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            {/* Provisionar el sector interno del cliente (Leads/Setting/Prospección
+                aislados) — exclusivo del platform owner, mismo criterio que "Ver
+                Clientes" y el selector de sector interno de Nuevo Usuario. */}
+            {isPlatformOwner && (
+              <button
+                onClick={() => setShowTenantDialog(true)}
+                aria-label="Crear usuario del sector interno"
+                title="Crear el primer usuario admin del sector interno de este cliente (Leads/Setting/Prospección aislados)"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-border px-2.5 text-[11px] font-semibold text-foreground/70 hover:bg-secondary hover:text-foreground transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
+              >
+                <ShieldCheck className="h-3.5 w-3.5" />
+                <span>Sector interno</span>
+              </button>
+            )}
             {/* Enviar email de renovación a mano — sin esperar la ventana de 7 días del cron.
                 Siempre visible (aunque deshabilitado) para que no parezca que falta construirlo. */}
             {client.status === "activo" && (
@@ -935,7 +961,7 @@ function DetailDrawer({
                 disabled={sendingRenewal || offboarding || deleting || !client.email}
                 aria-label="Enviar email de renovación"
                 title={client.email ? "Manda el email de renovación ahora, sin esperar al aviso automático" : "Este cliente no tiene email cargado — completalo arriba para poder enviarle"}
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-emerald-300/50 px-2.5 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-100/60 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-emerald-300/50 px-2.5 text-[13px] font-semibold text-emerald-700 hover:bg-emerald-100/60 dark:border-emerald-500/25 dark:text-emerald-300 dark:hover:bg-emerald-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40"
               >
                 {sendingRenewal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
                 {!sendingRenewal && <span>Enviar renovación</span>}
@@ -948,7 +974,7 @@ function DetailDrawer({
                 disabled={reactivating}
                 aria-label="Reactivar cliente"
                 title="Renovó — carga el nuevo ciclo y vuelve a activo"
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-[#dafc69]/40 px-2.5 text-[11px] font-semibold text-foreground hover:bg-[#dafc69]/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-accent-ink/40 px-2.5 text-[13px] font-semibold text-foreground hover:bg-secondary transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40"
               >
                 {reactivating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
                 {!reactivating && <span>Reactivar</span>}
@@ -961,48 +987,48 @@ function DetailDrawer({
                 disabled={offboarding || deleting}
                 aria-label="Dar de baja"
                 title="Dar de baja: pasa a offboarding y elimina cuotas pendientes"
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-amber-300/40 px-2.5 text-[11px] font-semibold text-amber-700 hover:bg-amber-100/60 dark:border-amber-500/25 dark:text-amber-400 dark:hover:bg-amber-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-amber-300/40 px-2.5 text-[13px] font-semibold text-amber-700 hover:bg-amber-100/60 dark:border-amber-500/25 dark:text-amber-400 dark:hover:bg-amber-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40"
               >
                 {offboarding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserX className="h-3.5 w-3.5" />}
                 {!offboarding && <span>Dar de baja</span>}
               </button>
             )}
             <button onClick={() => onDeleteClient(client.id)} disabled={deleting || offboarding} aria-label="Eliminar cliente"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10 transition-all disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
               {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             </button>
             <button onClick={onClose} aria-label="Cerrar"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dafc69]/40">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/40">
               <X className="h-4 w-4" />
             </button>
           </div>
         </div>
 
         {/* Tab nav */}
-        <div className="flex gap-1 border-b border-foreground/[0.06] px-6 py-2.5" style={{ backgroundColor: "var(--card)" }}>
+        <div className="flex gap-1 border-b border-border px-6 py-2.5" style={{ backgroundColor: "var(--card)" }}>
           <button onClick={() => setDrawerTab("crm")}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all ${
               drawerTab === "crm"
-                ? "bg-foreground/[0.08] text-foreground"
-                : "text-foreground/40 hover:text-foreground/70"
+                ? "bg-elevated text-foreground"
+                : "text-text-2 hover:text-foreground"
             }`}>
             <FileText className="h-3.5 w-3.5" />
             CRM
           </button>
           <button onClick={() => setDrawerTab("reports")}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all ${
               drawerTab === "reports"
-                ? "bg-foreground/[0.08] text-foreground"
-                : "text-foreground/40 hover:text-foreground/70"
+                ? "bg-secondary text-foreground"
+                : "text-text-2 hover:text-foreground"
             }`}>
             <BarChart3 className="h-3.5 w-3.5" />
             Reportes
           </button>
           <button onClick={() => setDrawerTab("calls")}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all ${
               drawerTab === "calls"
-                ? "bg-foreground/[0.08] text-foreground"
-                : "text-foreground/40 hover:text-foreground/70"
+                ? "bg-elevated text-foreground"
+                : "text-text-2 hover:text-foreground"
             }`}>
             <PhoneCall className="h-3.5 w-3.5" />
             Llamadas
@@ -1028,8 +1054,8 @@ function DetailDrawer({
         <div className="flex-1 overflow-y-auto" style={{ backgroundColor: "var(--card)" }}>
 
           {/* Section 1: Info fields */}
-          <div className="px-6 py-5 space-y-4 border-b border-foreground/[0.06]">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Información</p>
+          <div className="px-6 py-5 space-y-4 border-b border-border">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Información</p>
 
             <div className="space-y-1.5">
               <p className={labelCls}>Nombre</p>
@@ -1084,7 +1110,7 @@ function DetailDrawer({
                 <select
                   defaultValue={client.status}
                   onChange={e => onPatchClient(client.id, { status: e.target.value as Client["status"] })}
-                  className="w-full appearance-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all">
+                  className="w-full appearance-none rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all">
                   <option value="activo">Activo</option>
                   <option value="offboarding">Offboarding</option>
                 </select>
@@ -1117,17 +1143,17 @@ function DetailDrawer({
             </div>
 
             {/* Plan mensual toggle */}
-            <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-4 py-3 flex items-start gap-3">
+            <div className="rounded-xl border border-border bg-secondary px-4 py-3 flex items-start gap-3">
               <input
                 type="checkbox"
                 id={`monthly-${client.id}`}
                 defaultChecked={!!client.is_monthly_subscription}
                 onChange={e => onPatchClient(client.id, { is_monthly_subscription: e.target.checked } as any)}
-                className="mt-0.5 h-4 w-4 rounded border-foreground/20 bg-foreground/[0.05] accent-[#dafc69] cursor-pointer"
+                className="mt-0.5 h-4 w-4 rounded border-border bg-elevated accent-accent cursor-pointer"
               />
               <label htmlFor={`monthly-${client.id}`} className="flex-1 cursor-pointer">
                 <p className="text-[13px] font-semibold text-foreground">Plan mensual auto-renovable</p>
-                <p className="text-[11px] text-foreground/40 mt-0.5 leading-snug">
+                <p className="text-[13px] text-text-2 mt-0.5 leading-snug">
                   Cuando se marque la cuota como pagada, el sistema genera la siguiente automáticamente. Slack alerta 5 días antes de cada cobro. Apagá esto para finalizar la suscripción.
                 </p>
               </label>
@@ -1153,7 +1179,7 @@ function DetailDrawer({
                 rows={3}
                 onBlur={e    => onPatchClient(client.id, { notes: e.target.value || null })}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) (e.target as HTMLTextAreaElement).blur() }}
-                className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
+                className="w-full resize-none rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
               />
             </div>
 
@@ -1166,15 +1192,15 @@ function DetailDrawer({
                 rows={4}
                 onBlur={e => onPatchClient(client.id, { business_profile: e.target.value || null } as any)}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) (e.target as HTMLTextAreaElement).blur() }}
-                className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all"
+                className="w-full resize-none rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all"
               />
-              <p className="text-[11px] text-foreground/40">Ann AI usa esto para hablar del negocio específico del cliente desde el primer mensaje.</p>
+              <p className="text-[13px] text-text-2">Ann AI usa esto para hablar del negocio específico del cliente desde el primer mensaje.</p>
             </div>
           </div>
 
           {/* Section: Credenciales del dashboard */}
-          <div className="px-6 py-5 space-y-4 border-b border-foreground/[0.06]">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Credenciales del Dashboard</p>
+          <div className="px-6 py-5 space-y-4 border-b border-border">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Credenciales del Dashboard</p>
             <div className="space-y-1.5">
               <p className={labelCls}>Email de acceso</p>
               <input
@@ -1200,36 +1226,36 @@ function DetailDrawer({
           </div>
 
           {/* Section 2: Installments */}
-          <div className="px-6 py-5 space-y-3 border-b border-foreground/[0.06]">
+          <div className="px-6 py-5 space-y-3 border-b border-border">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Cuotas de pago</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Cuotas de pago</p>
                 {/* Duración del programa — editable */}
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[11px] text-foreground/35">Duración del programa:</span>
+                  <span className="text-[13px] text-text-3">Duración del programa:</span>
                   <select
                     value={client.program_duration ?? client.num_installments}
                     onChange={e => onPatchClient(client.id, { program_duration: Number(e.target.value) } as any)}
-                    className="h-6 rounded-lg border border-foreground/[0.1] bg-foreground/[0.04] px-2 text-[11px] font-semibold text-foreground focus:border-[#dafc69]/40 focus:outline-none"
+                    className="h-6 rounded-lg border border-border bg-secondary px-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none"
                   >
                     {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => (
                       <option key={m} value={m}>{m} {m === 1 ? "mes" : "meses"}</option>
                     ))}
                   </select>
-                  <span className="text-[11px] text-foreground/30">
+                  <span className="text-[13px] text-text-3">
                     · {client.num_installments} cuota{client.num_installments !== 1 ? "s" : ""}
                   </span>
                 </div>
               </div>
-              <span className="rounded-full bg-foreground/[0.05] px-2.5 py-0.5 text-[11px] font-bold text-foreground/50 shrink-0">
+              <span className="rounded-full bg-elevated px-2.5 py-0.5 text-[13px] font-bold text-text-2 shrink-0">
                 {paidCount}/{client.num_installments} pagadas
               </span>
             </div>
 
             {/* Progress bar */}
-            <div className="h-1.5 rounded-full bg-foreground/[0.06] overflow-hidden">
+            <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
               <div
-                className="h-full rounded-full bg-[#dafc69] transition-all duration-500"
+                className="h-full rounded-full bg-accent transition-all duration-500"
                 style={{ width: `${client.num_installments > 0 ? (paidCount / client.num_installments) * 100 : 0}%` }}
               />
             </div>
@@ -1250,7 +1276,7 @@ function DetailDrawer({
               ))}
 
               {client.installments.length === 0 && (
-                <p className="text-[12px] text-foreground/25 text-center py-3">Sin cuotas generadas.</p>
+                <p className="text-[13px] text-text-3 text-center py-3">Sin cuotas generadas.</p>
               )}
             </div>
           </div>
@@ -1258,27 +1284,27 @@ function DetailDrawer({
           {/* Section 3: Follow-ups */}
           <div className="px-6 py-5 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Seguimientos</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Seguimientos</p>
               <button
                 onClick={() => setShowFollowupForm(v => !v)}
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-foreground/[0.08] text-foreground/40 hover:text-[#dafc69] hover:border-[#dafc69]/30 transition-all">
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-border text-text-2 hover:text-accent-ink hover:border-border transition-all">
                 <Plus className="h-3.5 w-3.5" />
               </button>
             </div>
 
             {/* Add followup form */}
             {showFollowupForm && (
-              <div className="rounded-xl border border-[#dafc69]/15 bg-[#dafc69]/[0.02] p-3 space-y-3">
+              <div className="rounded-xl border border-border bg-secondary/20 p-3 space-y-3">
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <p className={labelCls}>Fecha</p>
                     <input type="date" value={fuDate} onChange={e => setFuDate(e.target.value)}
-                      className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12px] text-foreground focus:border-foreground/20 focus:outline-none [color-scheme:dark]" />
+                      className="w-full rounded-lg border border-border bg-elevated px-2.5 py-2 text-[13px] text-foreground focus:border-border-hover focus:outline-none [color-scheme:dark]" />
                   </div>
                   <div className="space-y-1">
                     <p className={labelCls}>Tipo</p>
                     <select value={fuType} onChange={e => setFuType(e.target.value as Followup["type"])}
-                      className="w-full appearance-none rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12px] text-foreground focus:border-foreground/20 focus:outline-none">
+                      className="w-full appearance-none rounded-lg border border-border bg-elevated px-2.5 py-2 text-[13px] text-foreground focus:border-border-hover focus:outline-none">
                       <option value="whatsapp">WhatsApp</option>
                       <option value="llamada">Llamada</option>
                       <option value="email">Email</option>
@@ -1288,15 +1314,15 @@ function DetailDrawer({
                 </div>
                 <input value={fuNotes} onChange={e => setFuNotes(e.target.value)}
                   placeholder="Notas del seguimiento..."
-                  className="w-full rounded-lg border border-foreground/[0.08] bg-foreground/[0.03] px-2.5 py-2 text-[12px] text-foreground placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none" />
+                  className="w-full rounded-lg border border-border bg-secondary px-2.5 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none" />
                 <div className="flex items-center gap-2">
                   <button onClick={handleSaveFollowup} disabled={savingFu || !fuDate}
-                    className="flex items-center gap-1.5 h-7 rounded-lg bg-[#dafc69] px-3 text-[12px] font-bold text-black hover:bg-[#f2ffc0] disabled:opacity-40 transition-all">
+                  className="flex items-center gap-1.5 h-7 rounded-lg btn-accent px-3 text-[13px] font-bold disabled:opacity-40 transition-all">
                     {savingFu ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                     Guardar
                   </button>
                   <button onClick={() => setShowFollowupForm(false)}
-                    className="h-7 rounded-lg border border-foreground/[0.08] px-3 text-[12px] text-foreground/40 hover:text-foreground transition-all">
+                    className="h-7 rounded-lg border border-border px-3 text-[13px] text-text-2 hover:text-foreground transition-all">
                     Cancelar
                   </button>
                 </div>
@@ -1313,12 +1339,12 @@ function DetailDrawer({
                 })
                 .map(fu => (
                   <div key={fu.id} className={`rounded-xl border p-3 flex items-start gap-3 group transition-all ${
-                    fu.completed ? "border-foreground/[0.04] bg-foreground/[0.01] opacity-50" : "border-foreground/[0.07] bg-foreground/[0.02]"
+                    fu.completed ? "border-border bg-secondary opacity-50" : "border-border bg-secondary"
                   }`}>
                     <button
                       onClick={() => handleToggleFu(fu)}
                       disabled={togglingFu === fu.id}
-                      className="mt-0.5 shrink-0 text-foreground/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors disabled:opacity-40">
+                      className="mt-0.5 shrink-0 text-text-3 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors disabled:opacity-40">
                       {togglingFu === fu.id
                         ? <Loader2 className="h-4 w-4 animate-spin" />
                         : fu.completed
@@ -1327,30 +1353,30 @@ function DetailDrawer({
                     </button>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[12px] font-semibold text-foreground/80">{fmtDate(fu.scheduled_date)}</span>
-                        <span className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${FOLLOWUP_TYPE_STYLE[fu.type]}`}>
+                        <span className="text-[13px] font-semibold text-foreground">{fmtDate(fu.scheduled_date)}</span>
+                        <span className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[13px] font-semibold ${FOLLOWUP_TYPE_STYLE[fu.type]}`}>
                           {FOLLOWUP_TYPE_ICON[fu.type]}
                           {fu.type}
                         </span>
                         {fu.scheduled_date === todayStr() && !fu.completed && (
-                          <span className="rounded-full bg-[#dafc69]/10 border border-[#dafc69]/20 px-2 py-0.5 text-[10px] font-bold text-[#dafc69]">hoy</span>
+                          <span className="rounded-full bg-accent-soft border border-accent/25 px-2 py-0.5 text-[13px] font-bold text-accent-ink">hoy</span>
                         )}
                       </div>
                       {fu.notes && (
-                        <p className="text-[11px] text-foreground/40 mt-1">{fu.notes}</p>
+                        <p className="text-[13px] text-text-2 mt-1">{fu.notes}</p>
                       )}
                     </div>
                     <button
                       onClick={() => handleDeleteFu(fu.id)}
                       disabled={deletingFuId === fu.id}
-                      className="shrink-0 opacity-0 group-hover:opacity-100 flex h-6 w-6 items-center justify-center rounded-lg text-foreground/15 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
+                      className="shrink-0 opacity-0 group-hover:opacity-100 flex h-6 w-6 items-center justify-center rounded-lg text-text-3 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40">
                       {deletingFuId === fu.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
                     </button>
                   </div>
                 ))}
 
               {client.followups.length === 0 && !showFollowupForm && (
-                <p className="text-[12px] text-foreground/25 text-center py-3">Sin seguimientos agendados.</p>
+                <p className="text-[13px] text-text-3 text-center py-3">Sin seguimientos agendados.</p>
               )}
             </div>
           </div>
@@ -1360,15 +1386,15 @@ function DetailDrawer({
 
         {/* Footer with summary (CRM tab only) */}
         {drawerTab === "crm" && (
-        <div className="border-t border-foreground/[0.06] px-6 py-3" style={{ backgroundColor: "var(--card)" }}>
-          <div className="flex items-center gap-4 text-[11px] text-foreground/30">
+        <div className="border-t border-border px-6 py-3" style={{ backgroundColor: "var(--card)" }}>
+          <div className="flex items-center gap-4 text-[13px] text-text-3">
             <span>
               Fin estimado:{" "}
-              <span className="text-foreground/60 font-semibold">{fmtDate(endDate)}</span>
+              <span className="text-text-2 font-semibold">{fmtDate(endDate)}</span>
             </span>
             <span>
               Total:{" "}
-              <span className="text-foreground/60 font-semibold">
+              <span className="text-text-2 font-semibold">
                 {fmtMoney(
                   client.total_amount ??
                   (client.installments.reduce((s, i) => s + i.amount, 0) ||
@@ -1437,7 +1463,7 @@ function SummaryCards({ clients, viewMonth }: { clients: Client[], viewMonth: st
     {
       label: `Nuevos clientes`,
       value: String(newClientsCount),
-      color: newClientsCount > 0 ? "text-[#dafc69]" : "text-foreground/50",
+      color: newClientsCount > 0 ? "text-accent-ink" : "text-text-2",
       icon:  <Users className="h-4 w-4" />,
     },
     {
@@ -1455,7 +1481,7 @@ function SummaryCards({ clients, viewMonth }: { clients: Client[], viewMonth: st
     ...(isCurrentMonth ? [{
       label: "Follow-ups hoy",
       value: String(followupsHoy),
-      color: followupsHoy > 0 ? "text-[#dafc69]" : "text-foreground/50" as string,
+      color: followupsHoy > 0 ? "text-accent-ink" : "text-text-2" as string,
       icon:  <Calendar className="h-4 w-4" />,
     }] : []),
   ]
@@ -1463,12 +1489,12 @@ function SummaryCards({ clients, viewMonth }: { clients: Client[], viewMonth: st
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {cards.map(card => (
-        <div key={card.label} className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-4">
+        <div key={card.label} className="rounded-[14px] border border-border bg-card px-5 py-4">
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-foreground/25">{card.icon}</span>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30">{card.label}</p>
+            <span className="text-text-3">{card.icon}</span>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{card.label}</p>
           </div>
-          <p className={`text-2xl font-bold tabular-nums ${card.color}`}>{card.value}</p>
+          <p className={`text-[24px] font-bold tabular-nums ${card.color}`}>{card.value}</p>
         </div>
       ))}
     </div>
@@ -1581,17 +1607,17 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
   const shortMonthName = monthName.split(" ")[0]
 
   return (
-    <div className="rounded-[14px] border border-foreground/[0.07] bg-card px-5 py-5">
-      <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30 mb-4">
+    <div className="rounded-[14px] border border-border bg-card px-5 py-5">
+      <p className="text-[11px] font-bold uppercase tracking-widest text-text-3 mb-4">
         Cash — {monthName}
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
         {/* New Cash */}
         <div>
-          <p className="text-[11px] text-foreground/35 mb-1 font-semibold uppercase tracking-wider">New Cash</p>
-          <p className="text-3xl font-bold text-[#dafc69] tabular-nums">{fmtMoney(newCash)}</p>
-          <p className="text-[12px] text-foreground/30 mt-1.5">
+          <p className="text-[11px] text-text-3 mb-1 font-semibold uppercase tracking-wider">New Cash</p>
+          <p className="text-[32px] font-bold text-accent-ink tabular-nums">{fmtMoney(newCash)}</p>
+          <p className="text-[13px] text-text-3 mt-1.5">
             {newClients.length > 0
               ? `${newClients.length} cliente${newClients.length !== 1 ? "s" : ""} nuevo${newClients.length !== 1 ? "s" : ""} este mes`
               : "Sin clientes nuevos este mes"}
@@ -1601,9 +1627,9 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
               {newClients.map(c => {
                 const first = c.installments.find(i => i.installment_number === 1)
                 return (
-                  <div key={c.id} className="flex items-center justify-between text-[11px]">
-                    <span className="text-foreground/50 truncate max-w-[140px]">{c.name}</span>
-                    <span className="text-foreground/60 tabular-nums shrink-0">{fmtMoney(first?.amount ?? c.installment_amount)}</span>
+                  <div key={c.id} className="flex items-center justify-between text-[13px]">
+                    <span className="text-text-2 truncate max-w-[140px]">{c.name}</span>
+                    <span className="text-text-2 tabular-nums shrink-0">{fmtMoney(first?.amount ?? c.installment_amount)}</span>
                   </div>
                 )
               })}
@@ -1614,9 +1640,9 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
         {/* Old Cash */}
         <div className="space-y-3">
           <div>
-            <p className="text-[11px] text-foreground/35 mb-1 font-semibold uppercase tracking-wider">Old Cash</p>
-            <p className="text-3xl font-bold text-foreground tabular-nums">{fmtMoney(oldCashCobrado)}</p>
-            <p className="text-[11px] text-foreground/30 mt-0.5">recibido de clientes anteriores</p>
+            <p className="text-[11px] text-text-3 mb-1 font-semibold uppercase tracking-wider">Old Cash</p>
+            <p className="text-[32px] font-bold text-foreground tabular-nums">{fmtMoney(oldCashCobrado)}</p>
+            <p className="text-[13px] text-text-3 mt-0.5">recibido de clientes anteriores</p>
           </div>
 
           {/* Vencido expandible */}
@@ -1639,12 +1665,12 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
                   {vencidoByClient.map(({ name, items, total }) => (
                     <div key={name}>
                       <div className="flex items-center justify-between">
-                        <span className="text-[12px] font-semibold text-foreground/80 truncate max-w-[160px]">{name}</span>
-                        <span className="text-[12px] font-bold text-red-700 dark:text-red-400 tabular-nums shrink-0">{fmtMoney(total)}</span>
+                        <span className="text-[13px] font-semibold text-foreground truncate max-w-[160px]">{name}</span>
+                        <span className="text-[13px] font-bold text-red-700 dark:text-red-400 tabular-nums shrink-0">{fmtMoney(total)}</span>
                       </div>
                       <div className="flex flex-wrap gap-x-3 mt-0.5">
                         {items.map(i => (
-                          <span key={i.id} className="text-[10px] text-foreground/40">
+                          <span key={i.id} className="text-[13px] text-text-2">
                             {fmtShortMonth(i.due_date)} · {fmtMoney(i.amount)}
                           </span>
                         ))}
@@ -1675,10 +1701,10 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
                 <div className="border-t border-amber-500/10 px-3 py-2 space-y-1.5">
                   {pendienteDetails.map((item, idx) => (
                     <div key={idx} className="flex items-center justify-between gap-2">
-                      <span className="text-[11px] text-foreground/60 truncate max-w-[150px]">{item.name}</span>
+                      <span className="text-[13px] text-text-2 truncate max-w-[150px]">{item.name}</span>
                       <div className="flex items-center gap-3 shrink-0">
-                        <span className="text-[10px] text-foreground/35">vence {fmtShortMonth(item.due_date)}</span>
-                        <span className="text-[12px] font-semibold text-amber-700 dark:text-amber-300 tabular-nums">{fmtMoney(item.amount)}</span>
+                        <span className="text-[13px] text-text-3">vence {fmtShortMonth(item.due_date)}</span>
+                        <span className="text-[13px] font-semibold text-amber-700 dark:text-amber-300 tabular-nums">{fmtMoney(item.amount)}</span>
                       </div>
                     </div>
                   ))}
@@ -1690,10 +1716,10 @@ function CashSection({ clients, viewMonth }: { clients: Client[], viewMonth: str
           {/* Progress bar */}
           {oldCashExpected > 0 && (
             <div className="flex items-center gap-2">
-              <div className="flex-1 h-1.5 rounded-full bg-foreground/[0.06] overflow-hidden">
+              <div className="flex-1 h-1.5 rounded-full bg-secondary overflow-hidden">
                 <div className="h-full rounded-full bg-emerald-500 transition-all duration-500" style={{ width: `${pct}%` }} />
               </div>
-              <span className="text-[10px] text-foreground/35 shrink-0 tabular-nums">{Math.round(pct)}% del mes</span>
+              <span className="text-[13px] text-text-3 shrink-0 tabular-nums">{Math.round(pct)}% del mes</span>
             </div>
           )}
         </div>
@@ -1712,10 +1738,10 @@ function InstallmentProgress({ client }: { client: Client }) {
 
   return (
     <div className="space-y-1">
-      <span className="text-[12px] text-foreground/60 tabular-nums">{paid}/{total} pagadas</span>
-      <div className="h-1.5 w-24 rounded-full bg-foreground/[0.06] overflow-hidden">
+      <span className="text-[13px] text-text-2 tabular-nums">{paid}/{total} pagadas</span>
+      <div className="h-1.5 w-24 rounded-full bg-secondary overflow-hidden">
         <div
-          className="h-full rounded-full bg-[#dafc69] transition-all duration-500"
+          className="h-full rounded-full bg-accent transition-all duration-500"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -1768,10 +1794,10 @@ function SortableTh({
       title={active ? `Ordenado ${dir === "asc" ? "↑ ascendente" : "↓ descendente"} · click para invertir` : "Click para ordenar"}
       className="px-2 py-2.5 text-left whitespace-nowrap cursor-pointer select-none"
     >
-      <span className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
+      <span className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider transition-all ${
         active
-          ? "bg-[#dafc69]/15 text-[#dafc69] ring-1 ring-[#dafc69]/25"
-          : "text-foreground/40 hover:bg-foreground/[0.06] hover:text-foreground/75"
+          ? "bg-secondary text-accent-ink ring-1 ring-accent/25"
+          : "text-text-2 hover:bg-secondary hover:text-foreground"
       }`}>
         {label}
         {active
@@ -1798,6 +1824,7 @@ export function AdminClientsView() {
   const [sortKey,       setSortKey]      = useState<SortKey>("created_at")
   const [sortDir,       setSortDir]      = useState<"asc" | "desc">("desc")
   const [viewMonth,     setViewMonth]    = useState<string>(() => new Date().toISOString().slice(0, 7))
+  const [isPlatformOwner, setIsPlatformOwner] = useState(false)
 
   const currentMonthStr = new Date().toISOString().slice(0, 7)
 
@@ -1846,6 +1873,15 @@ export function AdminClientsView() {
   }, [])
 
   useEffect(() => { fetchClients() }, [fetchClients])
+
+  // Solo el platform owner puede provisionar el sector interno de un cliente
+  // (crear su primer usuario admin) — mismo criterio que "Ver Clientes" y el
+  // selector de sector interno del diálogo de Nuevo Usuario.
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => {
+      setIsPlatformOwner(isPlatformOwnerEmail(data?.user?.email))
+    })
+  }, [])
 
   // Keep selected client in sync when clients list updates
   useEffect(() => {
@@ -2124,6 +2160,7 @@ export function AdminClientsView() {
           onOffboard={handleOffboardClient}
           onReactivate={handleReactivateClient}
           onSendRenewalEmail={handleSendRenewalEmail}
+          isPlatformOwner={isPlatformOwner}
           deleting={deletingId === selected.id}
           offboarding={offboardingId === selected.id}
           reactivating={reactivatingId === selected.id}
@@ -2136,12 +2173,12 @@ export function AdminClientsView() {
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">Clientes</h1>
-            <p className="text-sm text-foreground/40 mt-0.5">{clients.length} clientes</p>
+            <h1 className="text-[24px] font-bold text-foreground tracking-tight">Clientes</h1>
+            <p className="text-[13px] text-text-2 mt-0.5">{clients.length} clientes</p>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={fetchClients} disabled={loading}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-40">
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-secondary text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-40">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </button>
           </div>
@@ -2154,22 +2191,22 @@ export function AdminClientsView() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setViewMonth(m => shiftMonth(m, -1))}
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all">
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-secondary text-text-2 hover:text-foreground hover:border-border-hover transition-all">
             <ChevronDown className="h-4 w-4 rotate-90" />
           </button>
-          <span className="min-w-[130px] text-center text-sm font-semibold capitalize text-foreground">
+          <span className="min-w-[130px] text-center text-[13px] font-semibold capitalize text-foreground">
             {viewMonthLabel}
           </span>
           <button
             onClick={() => setViewMonth(m => shiftMonth(m, 1))}
             disabled={viewMonth >= currentMonthStr}
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/40 hover:text-foreground hover:border-foreground/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-elevated text-text-2 hover:text-foreground hover:border-border-hover transition-all disabled:opacity-30 disabled:cursor-not-allowed">
             <ChevronDown className="h-4 w-4 -rotate-90" />
           </button>
           {viewMonth !== currentMonthStr && (
             <button
               onClick={() => setViewMonth(currentMonthStr)}
-              className="rounded-lg border border-foreground/[0.08] bg-foreground/[0.04] px-3 py-1 text-xs font-medium text-foreground/50 hover:text-foreground hover:border-foreground/20 transition-all">
+              className="rounded-lg border border-border bg-secondary px-3 py-1 text-[13px] font-medium text-text-2 hover:text-foreground hover:border-border-hover transition-all">
               Hoy
             </button>
           )}
@@ -2198,14 +2235,14 @@ export function AdminClientsView() {
               { key: "offboarding", label: "Offboarding" },
             ].map(({ key, label }) => (
               <button key={key} onClick={() => setFilterStatus(key)}
-                className={`h-8 rounded-xl border px-3.5 text-[12px] font-medium transition-all ${
+                className={`h-8 rounded-xl border px-3.5 text-[13px] font-medium transition-all ${
                   filterStatus === key
-                    ? "border-[#dafc69]/40 bg-[#dafc69]/10 text-[#dafc69]"
-                    : "border-foreground/[0.07] text-foreground/40 hover:text-foreground hover:border-foreground/20"
+                    ? "border-accent bg-secondary text-accent-ink"
+                    : "border-border text-text-2 hover:text-foreground hover:border-border-hover"
                 }`}>
                 {label}
                 {key !== "todos" && (
-                  <span className="ml-1.5 text-[10px] opacity-60">
+                  <span className="ml-1.5 text-[13px] opacity-60">
                     {clients.filter(c => c.status === key).length}
                   </span>
                 )}
@@ -2217,25 +2254,25 @@ export function AdminClientsView() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre, email, instagram..."
-            className="h-8 rounded-xl border border-foreground/[0.08] bg-card px-4 text-[13px] text-foreground placeholder:text-foreground/25 focus:border-foreground/20 focus:outline-none flex-1 min-w-[200px] max-w-xs"
+            className="h-8 rounded-xl border border-border bg-card px-4 text-[13px] text-foreground placeholder:text-text-3 focus:border-border-hover focus:outline-none flex-1 min-w-[200px] max-w-xs"
           />
         </div>
 
         {/* Table */}
-        <div className="overflow-hidden rounded-[14px] border border-foreground/[0.08] bg-card">
+        <div className="overflow-hidden rounded-[14px] border border-border bg-card">
           {loading ? (
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                  <tr className="border-b border-border bg-elevated">
                     {["Cliente", "Inicio", "Fin", "Cuotas", "Próx. cuota", "Estado", "Alertas", "Próx. follow-up", ""].map(h => (
-                      <th key={h} className="px-2 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-foreground/25 whitespace-nowrap">{h}</th>
+                      <th key={h} className="px-2 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-text-3 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <tr key={i} className="border-b border-foreground/[0.04]">
+                    <tr key={i} className="border-b border-border">
                       {Array.from({ length: 9 }).map((_, j) => (
                         <td key={j} className="px-2 py-3">
                           <div className="h-3 skeleton rounded" style={{ width: `${50 + (i * 7 + j * 11) % 40}%` }} />
@@ -2250,7 +2287,7 @@ export function AdminClientsView() {
             <div className="overflow-x-auto" style={{ backgroundColor: "var(--card)" }}>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-foreground/[0.06] bg-foreground/[0.02]">
+                  <tr className="border-b border-border bg-secondary">
                     <SortableTh label="Cliente"      sortKey="name"      currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("name")} />
                     <SortableTh label="Inicio"       sortKey="start"     currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("start")} />
                     <SortableTh label="Fin"          sortKey="end"       currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("end")} />
@@ -2258,7 +2295,7 @@ export function AdminClientsView() {
                     <SortableTh label="Próx. cuota"  sortKey="amount"    currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("amount")} />
                     <SortableTh label="Estado"       sortKey="status"    currentKey={sortKey} dir={sortDir} onClick={() => toggleSort("status")} />
                     {["Alertas", "Próx. follow-up", ""].map(h => (
-                      <th key={h} className="px-2 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-foreground/25 whitespace-nowrap">
+                      <th key={h} className="px-2 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-text-3 whitespace-nowrap">
                         {h}
                       </th>
                     ))}
@@ -2267,7 +2304,7 @@ export function AdminClientsView() {
                 <tbody>
                   {!sorted.length ? (
                     <tr>
-                      <td colSpan={9} className="py-16 text-center text-sm text-foreground/25">
+                      <td colSpan={9} className="py-16 text-center text-[13px] text-text-3">
                         {clients.length ? "No hay clientes con ese filtro." : "Todavía no hay clientes registrados."}
                       </td>
                     </tr>
@@ -2288,7 +2325,7 @@ export function AdminClientsView() {
                         <tr
                           key={client.id}
                           onClick={() => setSelected(client)}
-                          className={`border-b border-foreground/[0.04] cursor-pointer transition-colors group bg-card hover:bg-muted ${rowBorder}`}
+                          className={`border-b border-border cursor-pointer transition-colors group bg-card hover:bg-muted ${rowBorder}`}
                         >
                           {/* Cliente */}
                           <td className="px-3 py-2.5 whitespace-nowrap">
@@ -2297,14 +2334,14 @@ export function AdminClientsView() {
                                 <p className="text-[13px] font-semibold text-foreground">{client.name}</p>
                                 {client.is_monthly_subscription && (
                                   <span
-                                    className="inline-flex items-center rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.08] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#dafc69]"
+                                    className="inline-flex items-center rounded-full border border-accent/25 bg-accent-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest text-accent-ink"
                                     title="Plan mensual auto-renovable"
                                   >
                                     Mensual
                                   </span>
                                 )}
                               </div>
-                              <p className="text-[10px] text-foreground/30 mt-0.5">
+                              <p className="text-[13px] text-text-3 mt-0.5">
                                 {client.instagram
                                   ? <span className="text-pink-400/50">{client.instagram}</span>
                                   : fmtDateShort(client.created_at)}
@@ -2314,12 +2351,12 @@ export function AdminClientsView() {
 
                           {/* Inicio */}
                           <td className="px-3 py-2.5 whitespace-nowrap">
-                            <span className="text-[12px] text-foreground/55">{fmtDateShort(client.program_start)}</span>
+                            <span className="text-[13px] text-text-2">{fmtDateShort(client.program_start)}</span>
                           </td>
 
                           {/* Fin */}
                           <td className="px-3 py-2.5 whitespace-nowrap">
-                            <span className="text-[12px] text-foreground/55">{fmtDateShort(endDate)}</span>
+                            <span className="text-[13px] text-text-2">{fmtDateShort(endDate)}</span>
                           </td>
 
                           {/* Cuotas */}
@@ -2335,13 +2372,13 @@ export function AdminClientsView() {
                                 ?.sort((a, b) => a.installment_number - b.installment_number)[0]
                               if (!nextInst) {
                                 return (
-                                  <span className="inline-flex items-center rounded-full border border-sky-300 bg-sky-100 px-2.5 py-0.5 text-[11px] font-semibold text-sky-800 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-300">
+                                  <span className="inline-flex items-center rounded-full border border-sky-300 bg-sky-100 px-2.5 py-0.5 text-[13px] font-semibold text-sky-800 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-300">
                                     Pago completado
                                   </span>
                                 )
                               }
                               return (
-                                <span className="text-[13px] font-semibold tabular-nums text-foreground/80">
+                                <span className="text-[13px] font-semibold tabular-nums text-foreground">
                                   {fmtMoney(nextInst.amount)}
                                 </span>
                               )
@@ -2350,7 +2387,7 @@ export function AdminClientsView() {
 
                           {/* Estado */}
                           <td className="px-3 py-2.5 whitespace-nowrap">
-                            <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${CLIENT_STATUS_STYLE[client.status] ?? ""}`}>
+                            <span className={`rounded-full border px-2.5 py-0.5 text-[13px] font-semibold ${CLIENT_STATUS_STYLE[client.status] ?? ""}`}>
                               {CLIENT_STATUS_LABEL[client.status] ?? client.status}
                             </span>
                           </td>
@@ -2365,7 +2402,7 @@ export function AdminClientsView() {
                                 <span className="h-2 w-2 rounded-full bg-yellow-500" title="Pago próximo en 7 días" />
                               )}
                               {!overdue && !upcoming && (
-                                <span className="text-foreground/15">—</span>
+                                <span className="text-text-3">—</span>
                               )}
                             </div>
                           </td>
@@ -2374,22 +2411,22 @@ export function AdminClientsView() {
                           <td className="px-3 py-2.5 whitespace-nowrap">
                             {nextFu ? (
                               <div className="flex items-center gap-1.5">
-                                <span className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${FOLLOWUP_TYPE_STYLE[nextFu.type]}`}>
+                                <span className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[13px] font-semibold ${FOLLOWUP_TYPE_STYLE[nextFu.type]}`}>
                                   {FOLLOWUP_TYPE_ICON[nextFu.type]}
                                   {fmtDateShort(nextFu.scheduled_date)}
                                 </span>
                                 {nextFu.scheduled_date === today && (
-                                  <span className="h-1.5 w-1.5 rounded-full bg-[#dafc69] animate-pulse" />
+                                  <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
                                 )}
                               </div>
                             ) : (
-                              <span className="text-foreground/20 text-[12px]">—</span>
+                              <span className="text-text-3 text-[13px]">—</span>
                             )}
                           </td>
 
                           {/* Chevron */}
                           <td className="px-3 py-2.5 whitespace-nowrap">
-                            <ChevronRight className="h-4 w-4 text-foreground/25 group-hover:text-foreground/60 transition-colors" />
+                            <ChevronRight className="h-4 w-4 text-text-3 group-hover:text-text-2 transition-colors" />
                           </td>
                         </tr>
                       )

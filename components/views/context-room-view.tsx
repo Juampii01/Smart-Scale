@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase"
 import { useMonthlyReports } from "@/hooks/use-monthly-reports"
 import { useActiveClient } from "@/components/layout/dashboard-layout"
 import { cn } from "@/lib/utils"
-import { User, Camera, Loader2, Check, Lock, Plus, X, Trash2 } from "lucide-react"
+import { User, Camera, Loader2, Check, Lock, Plus, X, Trash2, AlertTriangle } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -26,18 +26,18 @@ type SaveState = "idle" | "saving" | "ok" | "error"
 
 // ─── Shared styles ────────────────────────────────────────────────────────────
 
-const labelCls = "block text-[11px] font-bold uppercase tracking-[0.10em] text-foreground/40 mb-2"
-const hintCls  = "text-[12px] text-foreground/35 mt-2 leading-relaxed"
+const labelCls = "block text-[11px] font-bold uppercase tracking-[0.10em] text-text-2 mb-2"
+const hintCls  = "text-[13px] text-text-3 mt-2 leading-relaxed"
 
 const areaCls = cn(
-  "w-full rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.03]",
-  "px-4 py-3 text-[14px] text-foreground placeholder:text-foreground/25",
-  "outline-none focus:border-foreground/[0.22] transition-colors resize-none"
+  "w-full rounded-[8px] border border-border bg-secondary",
+  "px-4 py-3 text-[15px] text-foreground placeholder:text-text-3",
+  "outline-none focus:border-border-hover transition-colors resize-none"
 )
 const inputCls = cn(
-  "w-full rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.03]",
-  "px-3 py-2 text-[14px] text-foreground placeholder:text-foreground/25",
-  "outline-none focus:border-foreground/[0.22] transition-colors"
+  "w-full rounded-[8px] border border-border bg-elevated",
+  "px-3 py-2 text-[15px] text-foreground placeholder:text-text-3",
+  "outline-none focus:border-border-hover transition-colors"
 )
 
 // ─── Field components ─────────────────────────────────────────────────────────
@@ -68,12 +68,12 @@ function MultiEntry({
         {values.map((v, i) => (
           <div key={i} className="flex gap-2">
             <input className={cn(inputCls, "flex-1")} value={v} onChange={e => upd(i, e.target.value)} placeholder={placeholder} />
-            <button onClick={() => del(i)} className="h-9 w-9 flex items-center justify-center rounded-[8px] border border-foreground/[0.08] text-foreground/40 hover:text-danger hover:border-danger/30 transition-colors">
+            <button onClick={() => del(i)} className="h-9 w-9 flex items-center justify-center rounded-[8px] border border-border text-text-2 hover:text-danger hover:border-danger/30 transition-colors">
               <X className="h-3.5 w-3.5" />
             </button>
           </div>
         ))}
-        <button onClick={add} className="flex items-center gap-2 rounded-[8px] border border-foreground/[0.10] px-3 py-2 text-[12px] font-semibold text-foreground/60 hover:text-foreground hover:border-foreground/[0.20] transition-colors">
+        <button onClick={add} className="flex items-center gap-2 rounded-[8px] border border-border px-3 py-2 text-[13px] font-semibold text-text-2 hover:text-foreground hover:border-border-hover transition-colors">
           <Plus className="h-3.5 w-3.5" /> Agregar
         </button>
       </div>
@@ -120,10 +120,10 @@ function LocationTab({
       {/* Foto */}
       <div className="flex items-center gap-4">
         <button type="button" onClick={() => fileRef.current?.click()}
-          className="group relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#dafc69]/40 bg-[#dafc69]/10">
+          className="group relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-accent/30 bg-accent-soft">
           {account.avatarUrl
             ? <img src={account.avatarUrl} alt="Perfil" className="h-full w-full object-cover" />
-            : <User className="h-7 w-7 text-[#dafc69]" />}
+            : <User className="h-7 w-7 text-accent-ink" />}
           <span className="absolute inset-0 hidden items-center justify-center bg-black/45 group-hover:flex">
             {account.photoBusy ? <Loader2 className="h-5 w-5 animate-spin text-white" /> : <Camera className="h-5 w-5 text-white" />}
           </span>
@@ -131,18 +131,18 @@ function LocationTab({
         <div className="space-y-1.5">
           <div className="flex gap-2">
             <button onClick={() => fileRef.current?.click()} disabled={account.photoBusy}
-              className="inline-flex items-center gap-1.5 rounded-[8px] border border-foreground/[0.10] px-3 py-1.5 text-[12px] font-semibold text-foreground hover:bg-foreground/[0.05] transition disabled:opacity-50">
+              className="inline-flex items-center gap-1.5 rounded-[8px] border border-border px-3 py-1.5 text-[13px] font-semibold text-foreground hover:bg-secondary transition disabled:opacity-50">
               <Camera className="h-3.5 w-3.5" /> {account.avatarUrl ? "Cambiar foto" : "Subir foto"}
             </button>
             {account.avatarUrl && (
               <button onClick={account.onRemovePhoto} disabled={account.photoBusy}
-                className="inline-flex items-center gap-1.5 rounded-[8px] border border-foreground/[0.10] px-3 py-1.5 text-[12px] font-semibold text-danger hover:bg-foreground/[0.05] transition disabled:opacity-50">
+                className="inline-flex items-center gap-1.5 rounded-[8px] border border-border px-3 py-1.5 text-[13px] font-semibold text-danger hover:bg-secondary transition disabled:opacity-50">
                 <Trash2 className="h-3.5 w-3.5" /> Quitar
               </button>
             )}
           </div>
-          <p className="text-[11px] text-foreground/35">JPG, PNG o WebP. Máximo 2MB.</p>
-          {account.photoMsg && <p className="text-[11px] text-success">{account.photoMsg}</p>}
+          <p className="text-[13px] text-text-3">JPG, PNG o WebP. Máximo 2MB.</p>
+          {account.photoMsg && <p className="text-[13px] text-success">{account.photoMsg}</p>}
         </div>
         <input ref={fileRef} type="file" accept="image/*" className="hidden"
           onChange={e => { const f = e.target.files?.[0]; if (f) account.onPickPhoto(f); e.target.value = "" }} />
@@ -153,7 +153,7 @@ function LocationTab({
           <div className="flex gap-2">
             <input className={cn(inputCls, "flex-1")} value={name} onChange={e => setName(e.target.value)} placeholder="Tu nombre" />
             <button onClick={onSaveName} disabled={nameState === "saving"}
-              className="px-3 py-2 rounded-[8px] bg-[#dafc69] text-black text-[13px] font-semibold hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors">
+            className="px-3 py-2 rounded-[8px] btn-accent text-[13px] font-semibold disabled:opacity-50 transition-colors">
               {nameState === "saving" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : nameState === "ok" ? <Check className="h-3.5 w-3.5" /> : "Guardar"}
             </button>
           </div>
@@ -163,7 +163,7 @@ function LocationTab({
           <div className="flex gap-2">
             <input className={cn(inputCls, "flex-1")} type="email" value={email} onChange={e => setEmail(e.target.value)} />
             <button onClick={onSaveEmail} disabled={emailState === "saving"}
-              className="px-3 py-2 rounded-[8px] bg-foreground/[0.06] border border-foreground/[0.10] text-foreground text-[13px] font-semibold hover:bg-foreground/[0.10] disabled:opacity-50 transition-colors">
+              className="px-3 py-2 rounded-[8px] bg-secondary border border-border text-foreground text-[13px] font-semibold hover:bg-secondary disabled:opacity-50 transition-colors">
               {emailState === "saving" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : emailState === "ok" ? <Check className="h-3.5 w-3.5" /> : "Guardar"}
             </button>
           </div>
@@ -193,9 +193,9 @@ function LocationTab({
       </div>
 
       {/* Contraseña */}
-      <div className="pt-6 border-t border-foreground/[0.07]">
+      <div className="pt-6 border-t border-border">
         <div className="flex items-center gap-2 mb-4">
-          <Lock className="h-4 w-4 text-foreground/40" />
+          <Lock className="h-4 w-4 text-text-2" />
           <h3 className="text-[13px] font-bold text-foreground">Contraseña</h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl">
@@ -208,10 +208,10 @@ function LocationTab({
         </div>
         <div className="mt-3 flex items-center gap-3">
           <button onClick={account.onSavePassword} disabled={account.pwState === "saving" || !account.pw.cur || !account.pw.n1}
-            className="rounded-[8px] bg-[#dafc69] px-4 py-2 text-[13px] font-semibold text-black hover:bg-[#f2ffc0] disabled:opacity-50 transition-colors">
+          className="rounded-[8px] btn-accent px-4 py-2 text-[13px] font-semibold disabled:opacity-50 transition-colors">
             {account.pwState === "saving" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : account.pwState === "ok" ? "✓ Actualizada" : "Actualizar contraseña"}
           </button>
-          {account.pwMsg && <p className={cn("text-[12px]", account.pwState === "error" ? "text-danger" : "text-success")}>{account.pwMsg}</p>}
+          {account.pwMsg && <p className={cn("text-[13px]", account.pwState === "error" ? "text-danger" : "text-success")}>{account.pwMsg}</p>}
         </div>
       </div>
     </div>
@@ -361,22 +361,22 @@ function TheNumbersTab({ ctx, set, reports }: { ctx: Ctx; set: (k: string, v: st
         <label className={labelCls}>Revenue de los últimos 12 meses, mes a mes (USD)</label>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-3">
           {months.length > 0 ? months.map(r => (
-            <div key={r.month} className="rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.02] p-3">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/40 mb-1.5">{fmtMonthLabel(r.month)}</p>
+            <div key={r.month} className="rounded-[8px] border border-border bg-secondary p-3">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-text-2 mb-1.5">{fmtMonthLabel(r.month)}</p>
               <div className="flex items-center gap-1">
-                <span className="text-foreground/40 text-[13px]">$</span>
+                <span className="text-text-2 text-[13px]">$</span>
                 <input
-                  className="flex-1 bg-transparent text-[15px] font-bold tabular-nums text-foreground outline-none border-0 border-b border-foreground/[0.10] pb-0.5 focus:border-[#dafc69]/60 transition-colors"
+                  className="flex-1 bg-transparent text-[15px] font-bold tabular-nums text-foreground outline-none border-0 border-b border-border pb-0.5 focus:border-accent transition-colors"
                   defaultValue={Math.round(r.total_revenue) || ""} placeholder="0" type="number"
                   onChange={e => set(`rev_${r.month}`, e.target.value)}
                 />
               </div>
             </div>
           )) : Array.from({ length: 12 }, (_, i) => (
-            <div key={i} className="rounded-[8px] border border-foreground/[0.08] bg-foreground/[0.02] p-3">
+            <div key={i} className="rounded-[8px] border border-border bg-elevated p-3">
               <div className="flex items-center gap-1">
-                <span className="text-foreground/40 text-[13px]">$</span>
-                <input className="flex-1 bg-transparent text-[15px] font-bold tabular-nums text-foreground outline-none border-0 border-b border-foreground/[0.10] pb-0.5" placeholder="0" type="number" />
+                <span className="text-text-2 text-[13px]">$</span>
+                <input className="flex-1 bg-transparent text-[15px] font-bold tabular-nums text-foreground outline-none border-0 border-b border-border pb-0.5" placeholder="0" type="number" />
               </div>
             </div>
           ))}
@@ -570,7 +570,10 @@ export function ContextRoomView() {
   const [ctx, setCtx]  = useState<Ctx>({})
   const [ctxLoaded, setCtxLoaded] = useState(false)
   const saveTimer      = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const [saved, setSaved] = useState(false)
+  const ctxRef          = useRef(ctx)
+  const [ctxSaveState, setCtxSaveState] = useState<SaveState>("idle")
+
+  useEffect(() => { ctxRef.current = ctx }, [ctx])
 
   const { reports } = useMonthlyReports()
 
@@ -615,20 +618,61 @@ export function ContextRoomView() {
     return () => { alive = false }
   }, [clientId])
 
+  // Guarda ya (sin esperar el debounce) el último ctx conocido — usado tanto
+  // por el timer normal como por los flushes de "el usuario se va".
+  const persistCtx = useCallback(async () => {
+    if (!clientId) return
+    setCtxSaveState("saving")
+    const { error } = await supabase
+      .from("client_context")
+      .upsert({ client_id: clientId, context: ctxRef.current }, { onConflict: "client_id" })
+    if (error) {
+      setCtxSaveState("error")
+    } else {
+      setCtxSaveState("ok")
+      setTimeout(() => setCtxSaveState(prev => prev === "ok" ? "idle" : prev), 2000)
+    }
+  }, [clientId])
+
   // Auto-save del contexto (upsert debounced) — solo después de cargar
   useEffect(() => {
     if (!clientId || !ctxLoaded) return
     clearTimeout(saveTimer.current)
-    saveTimer.current = setTimeout(async () => {
-      const { error } = await supabase
-        .from("client_context")
-        .upsert({ client_id: clientId, context: ctx }, { onConflict: "client_id" })
-      if (!error) {
-        setSaved(true)
-        setTimeout(() => setSaved(false), 2000)
-      }
+    saveTimer.current = setTimeout(() => {
+      saveTimer.current = undefined
+      persistCtx()
     }, 600)
-  }, [ctx, clientId, ctxLoaded])
+    return () => clearTimeout(saveTimer.current)
+  }, [ctx, clientId, ctxLoaded, persistCtx])
+
+  // Si hay un guardado pendiente (el debounce de 600ms no llegó a disparar)
+  // y el usuario cambia de pestaña, minimiza o navega fuera de esta vista, lo
+  // flusheamos ya — sin esto el último cambio se perdía en silencio (caso
+  // real: Pato Lamarca completó "Contenido y audiencia" y "Cómo llegaste
+  // acá" y salió antes de que el debounce corriera, ago 2026).
+  useEffect(() => {
+    if (!clientId || !ctxLoaded) return
+    const flushPending = () => {
+      if (document.visibilityState !== "hidden") return
+      if (saveTimer.current == null) return
+      clearTimeout(saveTimer.current)
+      saveTimer.current = undefined
+      persistCtx()
+    }
+    const flushPendingUnconditional = () => {
+      if (saveTimer.current == null) return
+      clearTimeout(saveTimer.current)
+      saveTimer.current = undefined
+      persistCtx()
+    }
+    document.addEventListener("visibilitychange", flushPending)
+    window.addEventListener("pagehide", flushPendingUnconditional)
+    return () => {
+      document.removeEventListener("visibilitychange", flushPending)
+      window.removeEventListener("pagehide", flushPendingUnconditional)
+      flushPendingUnconditional()
+    }
+  }, [clientId, ctxLoaded, persistCtx])
 
   const set    = useCallback((k: string, v: string) => setCtx(prev => ({ ...prev, [k]: v })), [])
   const getArr = useCallback((k: string): string[] => { try { return JSON.parse(ctx[k] || "[]") } catch { return [] } }, [ctx])
@@ -698,20 +742,33 @@ export function ContextRoomView() {
       {/* Header */}
       <div className="flex items-start justify-between mb-1">
         <div>
-          <h1 className="text-[22px] font-bold text-foreground leading-tight">Context Room</h1>
-          <p className="text-[13px] text-foreground/50 mt-0.5">
+          <h1 className="text-[24px] font-bold text-foreground leading-tight">Context Room</h1>
+          <p className="text-[13px] text-text-2 mt-0.5">
             Tu contexto le da forma a todo lo que Smart Scale construye con vos. Los cambios se guardan automáticamente.
           </p>
         </div>
-        {saved && (
-          <div className="flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1.5 text-[12px] font-semibold text-success">
+        {ctxSaveState === "saving" && (
+          <div className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-[13px] font-medium text-text-2">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" /> Guardando…
+          </div>
+        )}
+        {ctxSaveState === "ok" && (
+          <div className="flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1.5 text-[13px] font-semibold text-success">
             <Check className="h-3.5 w-3.5" /> Guardado
+          </div>
+        )}
+        {ctxSaveState === "error" && (
+          <div className="flex items-center gap-2 rounded-full bg-danger-soft px-3 py-1.5 text-[13px] font-semibold text-danger">
+            <AlertTriangle className="h-3.5 w-3.5" /> No se pudo guardar
+            <button type="button" onClick={persistCtx} className="underline underline-offset-2 hover:opacity-80">
+              Reintentar
+            </button>
           </div>
         )}
       </div>
 
       {/* Tab bar */}
-      <div className="border-b border-foreground/[0.07] mt-5 mb-8 overflow-x-auto">
+      <div className="border-b border-border mt-5 mb-8 overflow-x-auto">
         <div className="flex gap-0 min-w-max">
           {TABS.map(t => (
             <button
@@ -720,8 +777,8 @@ export function ContextRoomView() {
               className={cn(
                 "relative pb-3 px-4 text-[13px] font-semibold whitespace-nowrap transition-colors",
                 tab === t.id
-                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#dafc69] after:rounded-full"
-                  : "text-foreground/40 hover:text-foreground/70"
+                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-accent after:rounded-full"
+                  : "text-text-2 hover:text-foreground"
               )}
             >{t.label}</button>
           ))}

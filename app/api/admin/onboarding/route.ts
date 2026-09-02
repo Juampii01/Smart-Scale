@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse, after } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireInternal } from "@/lib/auth/api-guards"
-import { getSmartScaleTenantId } from "@/lib/auth/internal-scope"
+import { resolveInternalScope, getSmartScaleTenantId } from "@/lib/auth/internal-scope"
 import { notifyClientOnboarded } from "@/lib/slack"
 import { sendWelcomeEmail, sendCredentialsToAdmin } from "@/lib/email"
 import { sendContractForSignature } from "@/lib/signnow"
@@ -12,23 +11,36 @@ export const dynamic = "force-dynamic"
 
 const ALBERTO_CLIENT_ID = "6d6c4dc8-e158-4f87-8612-e948c1a31cbb"
 
+function requestedTenantId(req: NextRequest, body?: any): string | null {
+  return req.nextUrl.searchParams.get("client_id") ?? body?.client_id ?? null
+}
+
 /**
  * POST /api/admin/onboarding
  *
- * Crea un cliente nuevo en el flujo de onboarding completo:
- *  1. Valida todos los campos (email duplicado, formatos, fechas, etc)
- *  2. Auto-asigna setter_id si el caller es un setter
- *  3. Crea row en `crm_clients` (CRM de ventas)
- *  4. Crea installments individuales para cada cuota
- *  5. Crea row en `clients` (portal — necesario para el FK de profiles)
- *  6. Crea cuenta en auth.users + profiles (role=client)
- *  7. Copia playbook template de Alberto
- *  8. Genera magic link + contraseña
- *  9. Notifica vía Slack + email
+ * Crea un cliente nuevo. El flujo difiere según el tenant del caller:
+ *
+ * — Sector interno de Smart Scale: el onboarding COMPLETO, sin cambios.
+ *   1. Valida todos los campos (email duplicado, formatos, fechas, etc)
+ *   2. Auto-asigna setter_id si el caller es un setter
+ *   3. Crea row en `crm_clients` (CRM de ventas)
+ *   4. Crea installments individuales para cada cuota
+ *   5. Crea row en `clients` (portal — necesario para el FK de profiles)
+ *   6. Crea cuenta en auth.users + profiles (role=client)
+ *   7. Copia playbook template de Alberto
+ *   8. Genera magic link + contraseña
+ *   9. Contrato por SignNow + notifica vía Slack/email/Zapier
+ *
+ * — Sector interno de un CLIENTE: onboarding liviano, solo pasos 1-4. Nada
+ *   de SignNow (contrato/términos de Smart Scale, no del cliente), nada de
+ *   cuenta de portal (el dashboard es un producto de Smart Scale, no algo
+ *   que el cliente le da a SU propio cliente), nada de Slack/email/Zapier
+ *   de Smart Scale. Solo entra a SU crm_clients/crm_installments, aislado
+ *   por tenant. Decisión de producto del panel interno multi-tenant.
  *
  * Body:
  *   name          string   — nombre del cliente (requerido)
- *   email         string   — email para la cuenta del dashboard (requerido, único)
+ *   email         string   — email (requerido, único DENTRO del tenant)
  *   instagram     string?  — handle de Instagram (formato: @handle)
  *   phone         string?  — teléfono (formato válido)
  *   program       string?  — nombre del programa / plan
@@ -38,13 +50,12 @@ const ALBERTO_CLIENT_ID = "6d6c4dc8-e158-4f87-8612-e948c1a31cbb"
  *   forma_pago    string?  — descripción de formato de pago (transferencia, tarjeta, etc)
  *   setter_id     string? — uuid del setter que cerró (auto-asignado si caller es setter)
  *
- * Respuesta:
+ * Respuesta (Smart Scale):
+ *   client: { id, name, email }, user: { id, email }, tempPassword, magicLink
+ * Respuesta (cliente):
  *   client: { id, name, email }
- *   user: { id, email }
- *   tempPassword: string (temp password)
- *   magicLink: string (one-time login link, 24h)
  *
- * Solo accesible por admin, team y setter.
+ * Solo accesible por admin, team y setter — del propio tenant del caller.
  */
 
 function generateTempPassword(length = 14): string {
@@ -54,28 +65,25 @@ function generateTempPassword(length = 14): string {
   return Array.from(arr, v => chars[v % chars.length]).join("")
 }
 
-async function getCallerRole(supabase: any, userId: string): Promise<string | null> {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", userId)
-    .maybeSingle()
-  return (profile as any)?.role ?? null
-}
-
 export async function POST(req: NextRequest) {
   const supabase = createServiceClient()
 
   try {
-    // ── Auth check ─────────────────────────────────────────────────────────
-    const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-    const caller = await requireInternal(jwt)
-    if (!caller) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
     let body: any
     try { body = await req.json() } catch {
       return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
     }
+
+    // ── Auth check ─────────────────────────────────────────────────────────
+    const scope = await resolveInternalScope(req, requestedTenantId(req, body))
+    if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
+    const caller = { id: scope.userId }
+
+    const smartScaleTenantId = await getSmartScaleTenantId(supabase)
+    if (!smartScaleTenantId) {
+      return NextResponse.json({ error: "No se encontró el tenant interno de Smart Scale" }, { status: 500 })
+    }
+    const isSmartScale = scope.tenantId === smartScaleTenantId
 
     // ── Parse + normalize input ────────────────────────────────────────────
     const name     = String(body.name  ?? "").trim()
@@ -103,11 +111,13 @@ export async function POST(req: NextRequest) {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return NextResponse.json({ error: "Email inválido" }, { status: 400 })
 
-    // Email duplicado check
+    // Email duplicado check — dentro del tenant (dos negocios distintos
+    // pueden perfectamente tener un cliente con el mismo email)
     const { data: existingEmail } = await supabase
       .from("crm_clients")
       .select("id")
       .eq("email", email)
+      .eq("client_id", scope.tenantId)
       .maybeSingle()
     if (existingEmail)
       return NextResponse.json({ error: "Este email ya está registrado" }, { status: 400 })
@@ -139,7 +149,7 @@ export async function POST(req: NextRequest) {
     if (programStart < thirtyDaysAgo)
       return NextResponse.json({ error: "La fecha de inicio no puede ser mayor a 30 días en el pasado" }, { status: 400 })
 
-    // setter_id validation (if provided)
+    // setter_id validation (if provided) — tiene que ser un setter del MISMO tenant
     let finalSetterId: string | null = requestedSetterId
     if (requestedSetterId) {
       const { data: setterProfile } = await supabase
@@ -147,6 +157,7 @@ export async function POST(req: NextRequest) {
         .select("id")
         .eq("id", requestedSetterId)
         .eq("role", "setter")
+        .eq("internal_tenant_id", scope.tenantId)
         .maybeSingle()
       if (!setterProfile)
         return NextResponse.json({ error: "El setter_id no es válido" }, { status: 400 })
@@ -154,8 +165,7 @@ export async function POST(req: NextRequest) {
 
     // ── 2. Auto-assign setter_id if caller is a setter ─────────────────────
     if (!finalSetterId) {
-      const callerRole = await getCallerRole(supabase, caller.id)
-      if (callerRole === "setter") {
+      if (scope.role === "setter") {
         finalSetterId = caller.id
       }
     }
@@ -177,15 +187,6 @@ export async function POST(req: NextRequest) {
       ? Number(cuotasWithValues[0][1])
       : (numInstallments > 0 ? totalAmount / numInstallments : totalAmount)
 
-    // Este alta manual es del onboarding propio de Smart Scale (copia el
-    // playbook de Alberto, dispara contrato SignNow, etc.) — no hay flujo
-    // equivalente por tenant todavía, así que siempre cae al sector interno
-    // propio de Smart Scale.
-    const smartScaleTenantId = await getSmartScaleTenantId(supabase)
-    if (!smartScaleTenantId) {
-      return NextResponse.json({ error: "No se encontró el tenant interno de Smart Scale" }, { status: 500 })
-    }
-
     const { data: crmClient, error: crmErr } = await supabase
       .from("crm_clients")
       .insert({
@@ -202,7 +203,7 @@ export async function POST(req: NextRequest) {
         total_amount:       totalAmount,
         status:             "activo",
         notes:              notesLines.join(" | ") || null,
-        client_id:          smartScaleTenantId,
+        client_id:          scope.tenantId,
         forma_pago:         formaPago,
         ...(finalSetterId ? { setter_id: finalSetterId } : {}),
         ...(leadId ? { lead_id: leadId } : {}),
@@ -217,12 +218,14 @@ export async function POST(req: NextRequest) {
     const clientId = crmClient.id
 
     // Fila de tracking del onboarding (etapas: contrato firmado, emails
-    // enviados) — se crea para TODO cliente nuevo desde ya, sin esperar al
-    // contrato. signnow_document_id se completa más abajo cuando resuelva SignNow.
-    try {
-      await supabase.from("onboarding_flow").insert({ crm_client_id: clientId })
-    } catch (err) {
-      console.error("[onboarding] onboarding_flow insert failed (non-blocking):", err)
+    // enviados) — solo tiene sentido para el flujo completo de Smart Scale,
+    // que es el único que dispara SignNow/emails/Slack.
+    if (isSmartScale) {
+      try {
+        await supabase.from("onboarding_flow").insert({ crm_client_id: clientId })
+      } catch (err) {
+        console.error("[onboarding] onboarding_flow insert failed (non-blocking):", err)
+      }
     }
 
     // ── 5. Create individual installments ──────────────────────────────────
@@ -256,6 +259,19 @@ export async function POST(req: NextRequest) {
         try { await supabase.from("crm_clients").delete().eq("id", clientId) } catch {}
         return NextResponse.json({ error: `Error al crear cuotas: ${instErr.message}` }, { status: 500 })
       }
+    }
+
+    // ── El resto (6-13) es exclusivo del onboarding COMPLETO de Smart Scale:
+    // cuenta de portal, SignNow, Slack/email/Zapier propios. El onboarding
+    // liviano de un cliente termina acá — ya tiene su fila en crm_clients y
+    // sus cuotas, aisladas en su propio tenant. Sin cuenta de portal (el
+    // dashboard es un producto de Smart Scale), sin contrato (SignNow es de
+    // Smart Scale), sin notificar a nadie de Smart Scale.
+    if (!isSmartScale) {
+      return NextResponse.json({
+        ok: true,
+        client: { id: clientId, name, email },
+      })
     }
 
     // ── 6. Create in clients (portal) ──────────────────────────────────────
@@ -398,9 +414,11 @@ export async function POST(req: NextRequest) {
     }))
 
     // ── 12. Send credentials to admin (fire-and-forget) ────────────────────
-    if (caller && (caller as any).email) {
+    const { data: callerUser } = await supabase.auth.admin.getUserById(caller.id)
+    const callerEmail = callerUser?.user?.email ?? null
+    if (callerEmail) {
       after(() => sendCredentialsToAdmin({
-        admin_email:   (caller as any).email,
+        admin_email:   callerEmail,
         client_name:   name,
         client_email:  email,
         temp_password: tempPassword,
@@ -456,14 +474,14 @@ export async function POST(req: NextRequest) {
  * que la UI pueda mostrar en qué etapa está cada uno sin pedidos extra.
  */
 export async function GET(req: NextRequest) {
-  const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-  const caller = await requireInternal(jwt)
-  if (!caller) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  const scope = await resolveInternalScope(req, requestedTenantId(req))
+  if (!scope.ok) return NextResponse.json({ error: scope.error }, { status: scope.status })
 
   const supabase = createServiceClient()
   const { data, error } = await supabase
     .from("crm_clients")
     .select("id, name, email, instagram, phone, program_start, installment_amount, num_installments, total_amount, status, notes, created_at, setter_id")
+    .eq("client_id", scope.tenantId)
     .order("created_at", { ascending: false })
     .limit(50)
 

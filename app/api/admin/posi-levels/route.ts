@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
-import { requireAdmin } from "@/lib/auth/api-guards"
+import { requireSmartScaleInternal } from "@/lib/auth/api-guards"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic"
 /** PATCH — admin edita el contenido (título, intro, preguntas) de un nivel */
 export async function PATCH(req: NextRequest) {
   const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
-  const user = await requireAdmin(jwt)
+  const user = await requireSmartScaleInternal(jwt)
   if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   let body: any

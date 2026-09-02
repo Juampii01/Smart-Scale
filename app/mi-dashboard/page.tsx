@@ -6,7 +6,7 @@ export default function MiDashboardPage() {
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        <h1 className="text-3xl font-bold mb-6">Mi Dashboard Personalizado</h1>
+        <h1 className="text-[32px] font-bold mb-6">Mi Dashboard Personalizado</h1>
         <BusinessKPIs />
         <TrendCharts />
       </div>

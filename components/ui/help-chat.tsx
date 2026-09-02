@@ -44,7 +44,7 @@ function renderMarkdown(text: string): React.ReactNode {
     if (line.startsWith("- ")) {
       return (
         <div key={idx} className="flex gap-2 leading-relaxed">
-          <span className="text-[#dafc69]/60 mt-1.5 h-1 w-1 rounded-full bg-[#dafc69]/60 flex-shrink-0" />
+          <span className="text-accent-ink/60 mt-1.5 h-1 w-1 rounded-full bg-accent flex-shrink-0" />
           <span>{renderInline(line.slice(2))}</span>
         </div>
       )
@@ -65,7 +65,7 @@ function renderInline(text: string): React.ReactNode[] {
     if (m[1]) {
       parts.push(<strong key={`b${key++}`} className="font-semibold text-foreground">{m[2]}</strong>)
     } else if (m[3]) {
-      parts.push(<code key={`c${key++}`} className="rounded bg-foreground/[0.08] px-1 py-0.5 text-[12.5px] font-mono text-[#dafc69]/90">{m[4]}</code>)
+      parts.push(<code key={`c${key++}`} className="rounded bg-secondary px-1 py-0.5 text-[13px] font-mono text-accent-ink/90">{m[4]}</code>)
     }
     lastIdx = m.index + m[0].length
   }
@@ -182,7 +182,7 @@ export function HelpChat() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Abrir asistente"
-        className={`fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-[#dafc69] pl-4 pr-5 py-3 text-[13px] font-bold text-black shadow-lg shadow-black/40 hover:bg-[#f2ffc0] hover:scale-105 active:scale-95 transition-all ${open ? "opacity-0 pointer-events-none scale-90" : "opacity-100"}`}
+        className={`fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full btn-accent pl-4 pr-5 py-3 text-[13px] font-bold shadow-lg shadow-black/40 hover:scale-105 active:scale-95 transition-all ${open ? "opacity-0 pointer-events-none scale-90" : "opacity-100"}`}
       >
         <Sparkles className="h-4 w-4" />
         <span className="hidden sm:inline">Asistente</span>
@@ -198,18 +198,18 @@ export function HelpChat() {
 
       {/* Panel slide-over */}
       <div
-        className={`fixed right-0 top-0 z-50 h-full w-full max-w-md flex flex-col border-l border-foreground/[0.08] bg-background shadow-2xl transition-transform duration-300 ease-out ${open ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed right-0 top-0 z-50 h-full w-full max-w-md flex flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out ${open ? "translate-x-0" : "translate-x-full"}`}
         style={{ boxShadow: "rgba(0,0,0,0.5) -8px 0 32px" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 border-b border-foreground/[0.07] px-5 py-4 bg-card">
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4 bg-card">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#dafc69]/10 ring-1 ring-[#dafc69]/20">
-              <Sparkles className="h-4 w-4 text-[#dafc69]" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft ring-1 ring-accent/20">
+              <Sparkles className="h-4 w-4 text-accent-ink" />
             </div>
             <div>
-              <p className="text-[14px] font-bold text-foreground leading-tight">Asistente del dashboard</p>
-              <p className="text-[11px] text-foreground/35 mt-0.5">IA · te ayuda a usar Smart Scale</p>
+              <p className="text-[15px] font-bold text-foreground leading-tight">Asistente del dashboard</p>
+              <p className="text-[13px] text-text-3 mt-0.5">IA · te ayuda a usar Smart Scale</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -217,7 +217,7 @@ export function HelpChat() {
               <button
                 onClick={reset}
                 title="Reiniciar conversación"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/5 transition"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition"
               >
                 <RotateCcw className="h-4 w-4" />
               </button>
@@ -225,7 +225,7 @@ export function HelpChat() {
             <button
               onClick={() => setOpen(false)}
               title="Cerrar (Esc)"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-foreground/5 transition"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-2 hover:text-foreground hover:bg-secondary transition"
             >
               <X className="h-4 w-4" />
             </button>
@@ -240,10 +240,10 @@ export function HelpChat() {
               className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[13.5px] ${
+                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[13px] ${
                   m.role === "user"
-                    ? "bg-[#dafc69] text-black font-medium"
-                    : "bg-foreground/[0.04] border border-foreground/[0.06] text-foreground/85"
+                    ? "bg-accent text-black font-medium"
+                    : "bg-secondary border border-border text-foreground"
                 }`}
               >
                 <div className="space-y-1">
@@ -255,8 +255,8 @@ export function HelpChat() {
 
           {loading && (
             <div className="flex justify-start">
-              <div className="rounded-2xl bg-foreground/[0.04] border border-foreground/[0.06] px-4 py-2.5">
-                <div className="flex items-center gap-2 text-[12px] text-foreground/40">
+              <div className="rounded-2xl bg-elevated border border-border px-4 py-2.5">
+                <div className="flex items-center gap-2 text-[13px] text-text-2">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   Pensando…
                 </div>
@@ -267,14 +267,14 @@ export function HelpChat() {
           {/* Starter questions cuando solo hay welcome */}
           {messages.length === 1 && !loading && (
             <div className="space-y-2 pt-2">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30 px-1">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 px-1">
                 Probá con
               </p>
               {STARTERS.map(q => (
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
-                  className="block w-full text-left rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2 text-[12.5px] text-foreground/65 hover:text-foreground hover:border-[#dafc69]/30 hover:bg-[#dafc69]/[0.03] transition-all"
+                  className="block w-full text-left rounded-xl border border-border bg-secondary px-3 py-2 text-[13px] text-text-2 hover:text-foreground hover:border-border hover:bg-secondary transition-all"
                 >
                   {q}
                 </button>
@@ -283,14 +283,14 @@ export function HelpChat() {
           )}
 
           {error && (
-            <div className="rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-[12px] text-red-800 dark:border-red-500/25 dark:bg-red-500/[0.06] dark:text-red-300">
+            <div className="rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-[13px] text-red-800 dark:border-red-500/25 dark:bg-red-500/[0.06] dark:text-red-300">
               {error}
             </div>
           )}
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSubmit} className="border-t border-foreground/[0.07] px-4 py-3 bg-card">
+        <form onSubmit={handleSubmit} className="border-t border-border px-4 py-3 bg-card">
           <div className="flex items-end gap-2">
             <textarea
               ref={inputRef}
@@ -299,20 +299,20 @@ export function HelpChat() {
               onKeyDown={handleKeyDown}
               placeholder="Preguntá cualquier cosa sobre el dashboard…"
               rows={1}
-              className="flex-1 resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-[#dafc69]/40 focus:bg-foreground/[0.05] transition-all max-h-32"
+              className="flex-1 resize-none rounded-xl border border-border bg-elevated px-3.5 py-2.5 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none focus:border-accent focus:bg-elevated transition-all max-h-32"
               style={{ minHeight: "42px" }}
               disabled={loading}
             />
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="flex h-[42px] w-[42px] items-center justify-center rounded-xl bg-[#dafc69] text-black hover:bg-[#f2ffc0] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="flex h-[42px] w-[42px] items-center justify-center rounded-xl btn-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               aria-label="Enviar"
             >
               <Send className="h-4 w-4" />
             </button>
           </div>
-          <p className="mt-1.5 text-[10px] text-foreground/25 text-center">
+          <p className="mt-1.5 text-[13px] text-text-3 text-center">
             Enter para enviar · Shift+Enter para nueva línea · Esc para cerrar
           </p>
         </form>

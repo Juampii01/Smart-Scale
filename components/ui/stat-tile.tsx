@@ -20,16 +20,16 @@ export function StatTile({ label, value, displayValue, format = "count", hint, c
   return (
     <div className={cn(
       "rounded-xl border px-3 py-2.5",
-      highlight ? "border-[#dafc69]/30 bg-[#dafc69]/[0.06]" : "border-foreground/10 bg-card",
+      highlight ? "border-accent/25 bg-accent-soft" : "border-border bg-card",
       className,
     )}>
-      <p className={cn("text-[10px] font-bold uppercase tracking-wider mb-1", highlight ? "text-[#dafc69]/70" : "text-foreground/40")}>{label}</p>
+      <p className={cn("text-[11px] font-bold uppercase tracking-wider mb-1", highlight ? "text-accent-ink/70" : "text-text-2")}>{label}</p>
       {displayValue != null ? (
-        <p className={cn("text-lg font-bold tabular-nums", highlight ? "text-[#dafc69]" : "text-foreground")}>{displayValue}</p>
+        <p className={cn("text-[18px] font-bold tabular-nums", highlight ? "text-accent-ink" : "text-foreground")}>{displayValue}</p>
       ) : (
-        <Stat value={value ?? 0} format={format} size="card" colorClass={colorClass ?? (highlight ? "text-[#dafc69]" : undefined)} className="text-left" />
+        <Stat value={value ?? 0} format={format} size="card" colorClass={colorClass ?? (highlight ? "text-accent-ink" : undefined)} className="text-left" />
       )}
-      {hint && <p className="text-[9px] text-foreground/30 mt-1">{hint}</p>}
+      {hint && <p className="text-[11px] text-text-3 mt-1">{hint}</p>}
     </div>
   )
 }

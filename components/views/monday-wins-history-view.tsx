@@ -47,18 +47,18 @@ export function MondayWinsHistoryView() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-5 w-5 animate-spin text-foreground/30" />
+        <Loader2 className="h-5 w-5 animate-spin text-text-3" />
       </div>
     )
   }
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-[14px] border border-foreground/[0.07] bg-card py-16 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
-          <Trophy className="h-5 w-5 text-foreground/20" />
+      <div className="flex flex-col items-center gap-3 rounded-[14px] border border-border bg-card py-16 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-elevated">
+          <Trophy className="h-5 w-5 text-text-3" />
         </div>
-        <p className="text-sm text-foreground/40">Todavía no hay Monday Wins registrados.</p>
+        <p className="text-[13px] text-text-2">Todavía no hay Monday Wins registrados.</p>
       </div>
     )
   }
@@ -66,24 +66,24 @@ export function MondayWinsHistoryView() {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-sm font-bold text-foreground">Historial de Monday Wins</h3>
-        <span className="text-xs text-foreground/30 tabular-nums">{items.length} registro{items.length !== 1 ? "s" : ""}</span>
+        <h3 className="text-[13px] font-bold text-foreground">Historial de Monday Wins</h3>
+        <span className="text-[13px] text-text-3 tabular-nums">{items.length} registro{items.length !== 1 ? "s" : ""}</span>
       </div>
 
       {items.map((w) => (
-        <div key={w.id} className="overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card">
-          <div className="flex items-center gap-2.5 border-b border-foreground/[0.05] px-5 py-3">
-            <Star className="h-3.5 w-3.5 text-[#dafc69]" />
+        <div key={w.id} className="overflow-hidden rounded-[14px] border border-border bg-card">
+          <div className="flex items-center gap-2.5 border-b border-border px-5 py-3">
+            <Star className="h-3.5 w-3.5 text-accent-ink" />
             <span className="text-[13px] font-semibold text-foreground">{fmtDate(w.fecha)}</span>
           </div>
           <div className="p-5 space-y-4">
             {/* Logros */}
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-2">Logros</p>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-2">Logros</p>
               <ul className="space-y-1.5">
                 {[w.logro_1, w.logro_2, w.logro_3].filter(Boolean).map((l, i) => (
-                  <li key={i} className="flex gap-2 text-[13px] text-foreground/80">
-                    <span className="text-[#dafc69] font-bold">{i + 1}.</span>
+                  <li key={i} className="flex gap-2 text-[13px] text-foreground">
+                    <span className="text-accent-ink font-bold">{i + 1}.</span>
                     <span>{l}</span>
                   </li>
                 ))}
@@ -91,22 +91,22 @@ export function MondayWinsHistoryView() {
             </div>
 
             {w.una_sola_cosa && (
-              <div className="rounded-xl border border-[#dafc69]/20 bg-[#dafc69]/[0.04] px-4 py-3">
+              <div className="rounded-xl border border-accent/20 bg-accent-soft px-4 py-3">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <Target className="h-3 w-3 text-[#dafc69]" />
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[#dafc69]/80">Una sola cosa</p>
+                  <Target className="h-3 w-3 text-accent-ink" />
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-accent-ink/80">Una sola cosa</p>
                 </div>
-                <p className="text-[13px] text-foreground/85">{w.una_sola_cosa}</p>
+                <p className="text-[13px] text-foreground">{w.una_sola_cosa}</p>
               </div>
             )}
 
             {w.bloqueo && (
               <div>
                 <div className="flex items-center gap-1.5 mb-1">
-                  <AlertCircle className="h-3 w-3 text-foreground/35" />
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35">Bloqueo / pregunta</p>
+                  <AlertCircle className="h-3 w-3 text-text-3" />
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3">Bloqueo / pregunta</p>
                 </div>
-                <p className="text-[13px] text-foreground/65">{w.bloqueo}</p>
+                <p className="text-[13px] text-text-2">{w.bloqueo}</p>
               </div>
             )}
           </div>

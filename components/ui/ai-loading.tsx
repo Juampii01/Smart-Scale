@@ -38,17 +38,17 @@ export function AiLoading({ steps = DEFAULT_STEPS, title = "Investigando conteni
     <div className="flex flex-col items-center justify-center py-10 px-6 text-center space-y-6">
       {/* Rings animation */}
       <div className="relative flex items-center justify-center">
-        <span className="absolute h-16 w-16 rounded-full border border-[#dafc69]/10 animate-ping" style={{ animationDuration: "2s" }} />
-        <span className="absolute h-12 w-12 rounded-full border border-[#dafc69]/20 animate-ping" style={{ animationDuration: "1.5s", animationDelay: "0.3s" }} />
-        <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[#dafc69]/30 bg-[#dafc69]/[0.06]">
-          <Sparkles className="h-5 w-5 text-[#dafc69]" />
+        <span className="absolute h-16 w-16 rounded-full border border-accent/10 animate-ping" style={{ animationDuration: "2s" }} />
+        <span className="absolute h-12 w-12 rounded-full border border-accent/20 animate-ping" style={{ animationDuration: "1.5s", animationDelay: "0.3s" }} />
+        <span className="flex h-10 w-10 items-center justify-center rounded-full border border-accent/25 bg-accent-soft">
+          <Sparkles className="h-5 w-5 text-accent-ink" />
         </span>
       </div>
 
       {/* Title */}
       <div>
-        <p className="text-sm font-semibold text-foreground/80">{title}</p>
-        <p className="text-xs text-foreground/30 mt-1">Puede tardar 1-2 minutos</p>
+        <p className="text-[13px] font-semibold text-foreground">{title}</p>
+        <p className="text-[13px] text-text-3 mt-1">Puede tardar 1-2 minutos</p>
       </div>
 
       {/* Step indicator */}
@@ -60,15 +60,15 @@ export function AiLoading({ steps = DEFAULT_STEPS, title = "Investigando conteni
             <div
               key={step}
               className={`flex items-center gap-2.5 rounded-xl px-3 py-2 transition-all duration-500 ${
-                isCurrent ? "bg-[#dafc69]/[0.07] border border-[#dafc69]/20" :
+                isCurrent ? "bg-secondary border border-accent" :
                 isPast    ? "opacity-40" : "opacity-20"
               }`}
             >
               <span className={`flex h-1.5 w-1.5 rounded-full flex-shrink-0 ${
-                isCurrent ? "bg-[#dafc69] animate-pulse" :
-                isPast    ? "bg-foreground/40" : "bg-foreground/15"
+                isCurrent ? "bg-accent animate-pulse" :
+                isPast    ? "bg-elevated" : "bg-elevated"
               }`} />
-              <p className={`text-xs ${isCurrent ? "text-foreground/80" : "text-foreground/40"}`}>
+              <p className={`text-[13px] ${isCurrent ? "text-foreground" : "text-text-2"}`}>
                 {isCurrent ? `${step}${dots}` : step}
               </p>
             </div>
@@ -89,8 +89,8 @@ export function AiLoadingInline({ label = "Procesando" }: { label?: string }) {
   }, [])
 
   return (
-    <span className="inline-flex items-center gap-2 text-sm text-foreground/60">
-      <Sparkles className="h-3.5 w-3.5 text-[#dafc69] animate-pulse" />
+    <span className="inline-flex items-center gap-2 text-[13px] text-text-2">
+      <Sparkles className="h-3.5 w-3.5 text-accent-ink animate-pulse" />
       {label}{dots}
     </span>
   )

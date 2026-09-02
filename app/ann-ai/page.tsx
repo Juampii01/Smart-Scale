@@ -273,17 +273,17 @@ function AnaiContent() {
 
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 pb-4">
-        <div className="relative flex h-11 w-11 items-center justify-center rounded-[14px] bg-[#dafc69]">
+        <div className="relative flex h-11 w-11 items-center justify-center rounded-[14px] bg-accent">
           <Sparkles className="h-5 w-5 text-black" />
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-xl font-extrabold tracking-tight text-foreground leading-none flex items-center gap-2">
+          <h1 className="text-[24px] font-extrabold tracking-tight text-foreground leading-none flex items-center gap-2">
             Ann AI
           </h1>
-          <p className="text-[12px] text-foreground/40 mt-1">
+          <p className="text-[13px] text-text-2 mt-1">
             {internal
               ? (activeClientName
-                  ? <>Analizando a <span className="text-foreground/70 font-medium">{activeClientName}</span></>
+                  ? <>Analizando a <span className="text-foreground font-medium">{activeClientName}</span></>
                   : "Sin cliente seleccionado")
               : "Tu asistente de negocio personal"}
           </p>
@@ -296,7 +296,7 @@ function AnaiContent() {
         <button
           onClick={newConversation}
           disabled={creatingConv || atMonthLimit}
-          className="flex items-center gap-1.5 rounded-xl bg-[#dafc69] px-3 py-1.5 text-xs font-bold text-black transition hover:bg-[#f2ffc0] active:scale-95 disabled:opacity-40 shrink-0"
+          className="flex items-center gap-1.5 rounded-xl btn-accent px-3 py-1.5 text-[13px] font-bold transition active:scale-95 disabled:opacity-40 shrink-0"
         >
           {creatingConv ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
           Nueva
@@ -306,30 +306,30 @@ function AnaiContent() {
         <div ref={historialRef} className="relative flex-1 min-w-0">
           <button
             onClick={() => setHistorialOpen(v => !v)}
-            className="flex w-full items-center gap-2 rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-3 py-1.5 text-left transition hover:bg-foreground/[0.05]"
+            className="flex w-full items-center gap-2 rounded-xl border border-border bg-secondary px-3 py-1.5 text-left transition hover:bg-secondary"
           >
-            <MessageSquare className="h-3.5 w-3.5 shrink-0 text-foreground/30" />
-            <span className="flex-1 truncate text-[12.5px] text-foreground/70">
+            <MessageSquare className="h-3.5 w-3.5 shrink-0 text-text-3" />
+            <span className="flex-1 truncate text-[13px] text-foreground">
               {activeConv ? activeConv.title : "Sin conversación activa"}
             </span>
-            <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-foreground/30 transition-transform ${historialOpen ? "rotate-180" : ""}`} />
+            <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-text-3 transition-transform ${historialOpen ? "rotate-180" : ""}`} />
           </button>
 
           {/* Dropdown historial */}
           {historialOpen && (
-            <div className="absolute left-0 right-0 top-full z-50 mt-1.5 rounded-[14px] border border-foreground/[0.08] bg-card shadow-xl overflow-hidden">
+            <div className="absolute left-0 right-0 top-full z-50 mt-1.5 rounded-[14px] border border-border bg-card shadow-xl overflow-hidden">
               <div className="max-h-72 overflow-y-auto">
                 {loadingConvs ? (
                   <div className="flex items-center justify-center py-6">
-                    <Loader2 className="h-4 w-4 animate-spin text-foreground/30" />
+                    <Loader2 className="h-4 w-4 animate-spin text-text-3" />
                   </div>
                 ) : conversations.length === 0 ? (
-                  <p className="px-4 py-4 text-center text-[12px] text-foreground/40">No hay conversaciones todavía.</p>
+                  <p className="px-4 py-4 text-center text-[13px] text-text-2">No hay conversaciones todavía.</p>
                 ) : (
                   <>
                     {thisMonthConvs.length > 0 && (
                       <>
-                        <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-foreground/25">Este mes</p>
+                        <p className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-text-3">Este mes</p>
                         {thisMonthConvs.map(c => (
                           <ConvItem
                             key={c.id} conv={c} active={c.id === activeConvId}
@@ -341,7 +341,7 @@ function AnaiContent() {
                     )}
                     {olderConvs.length > 0 && (
                       <>
-                        <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-foreground/25">Anteriores</p>
+                        <p className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-text-3">Anteriores</p>
                         {olderConvs.map(c => (
                           <ConvItem
                             key={c.id} conv={c} active={c.id === activeConvId}
@@ -360,12 +360,12 @@ function AnaiContent() {
 
         {/* Contador mensual */}
         {usage && (
-          <div className={`shrink-0 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold tabular-nums ${
+          <div className={`shrink-0 rounded-lg px-2.5 py-1.5 text-[13px] font-semibold tabular-nums ${
             atMonthLimit
               ? "bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400"
               : usage.used >= usage.limit - 1
                 ? "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                : "bg-foreground/[0.05] text-foreground/40"
+                : "bg-secondary text-text-2"
           }`}>
             {usage.used}/{usage.limit}
           </div>
@@ -373,23 +373,23 @@ function AnaiContent() {
       </div>
 
       {/* ── Mensajes ──────────────────────────────────────────────────────── */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto rounded-[14px] border border-foreground/[0.07] bg-card p-5 space-y-5">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto rounded-[14px] border border-border bg-card p-5 space-y-5">
         {empty ? (
           <div className="flex h-full flex-col items-center justify-center text-center px-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-[#dafc69]/10 border border-[#dafc69]/20 mb-4">
-              <Sparkles className="h-6 w-6 text-[#dafc69]" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-accent-soft border border-accent/25 mb-4">
+              <Sparkles className="h-6 w-6 text-accent-ink" />
             </div>
             <p className="text-[15px] font-bold text-foreground">Preguntale lo que quieras sobre {internal ? "el negocio" : "tu negocio"}</p>
-            <p className="text-[13px] text-foreground/40 mt-1 max-w-sm">Ann AI cruza la metodología de Ann con {internal ? "los datos reales del cliente" : "tus datos reales"}.</p>
+            <p className="text-[13px] text-text-2 mt-1 max-w-sm">Ann AI cruza la metodología de Ann con {internal ? "los datos reales del cliente" : "tus datos reales"}.</p>
             {atMonthLimit ? (
-              <p className="mt-6 rounded-xl border border-red-500/20 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-400">
+              <p className="mt-6 rounded-xl border border-red-500/20 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-[13px] text-red-700 dark:text-red-400">
                 Usaste las {MAX_CONVERSATIONS_PER_MONTH} conversaciones de este mes. Volvé el mes que viene.
               </p>
             ) : (
               <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">
                 {suggestions.map(s => (
                   <button key={s} onClick={() => send(s)}
-                    className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] px-4 py-3 text-left text-[12.5px] text-foreground/70 transition-all hover:border-[#dafc69]/30 hover:bg-[#dafc69]/[0.04] hover:text-foreground">
+                    className="rounded-xl border border-border bg-secondary px-4 py-3 text-left text-[13px] text-foreground transition-all hover:border-border hover:bg-secondary hover:text-foreground">
                     {s}
                   </button>
                 ))}
@@ -400,17 +400,17 @@ function AnaiContent() {
           messages.map((m, i) => (
             <div key={i} className={`flex gap-3 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
               <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                m.role === "user" ? "bg-foreground/[0.06]" : "bg-[#dafc69]"
+                m.role === "user" ? "bg-elevated" : "bg-accent"
               }`}>
                 {m.role === "user"
-                  ? <User className="h-4 w-4 text-foreground/50" />
+                  ? <User className="h-4 w-4 text-text-2" />
                   : <Sparkles className="h-4 w-4 text-black" />}
               </div>
               <div className={`min-w-0 max-w-[82%] ${m.role === "user" ? "text-right" : ""}`}>
-                <div className={`inline-block rounded-2xl px-4 py-2.5 text-[13.5px] leading-relaxed ${
+                <div className={`inline-block rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed ${
                   m.role === "user"
-                    ? "bg-[#dafc69] text-black font-medium whitespace-pre-wrap"
-                    : "bg-foreground/[0.04] text-foreground/90"
+                    ? "bg-accent text-black font-medium whitespace-pre-wrap"
+                    : "bg-secondary text-foreground"
                 }`}>
                   {m.role === "user" ? m.content : (
                     <ReactMarkdown
@@ -418,24 +418,24 @@ function AnaiContent() {
                       components={{
                         p:          ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
                         strong:     ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
-                        em:         ({ children }) => <em className="italic text-foreground/80">{children}</em>,
-                        ul:         ({ children }) => <ul className="mb-2 space-y-1 pl-4 list-disc marker:text-foreground/30">{children}</ul>,
-                        ol:         ({ children }) => <ol className="mb-2 space-y-1 pl-4 list-decimal marker:text-foreground/30">{children}</ol>,
+                        em:         ({ children }) => <em className="italic text-foreground">{children}</em>,
+                        ul:         ({ children }) => <ul className="mb-2 space-y-1 pl-4 list-disc marker:text-text-3">{children}</ul>,
+                        ol:         ({ children }) => <ol className="mb-2 space-y-1 pl-4 list-decimal marker:text-text-3">{children}</ol>,
                         li:         ({ children }) => <li className="leading-snug">{children}</li>,
-                        h1:         ({ children }) => <h1 className="mb-2 text-base font-bold text-foreground">{children}</h1>,
-                        h2:         ({ children }) => <h2 className="mb-1.5 text-sm font-bold text-foreground">{children}</h2>,
-                        h3:         ({ children }) => <h3 className="mb-1 text-[13px] font-semibold text-foreground/80">{children}</h3>,
-                        hr:         () => <hr className="my-3 border-foreground/[0.08]" />,
-                        blockquote: ({ children }) => <blockquote className="border-l-2 border-[#dafc69]/40 pl-3 text-foreground/60 italic">{children}</blockquote>,
-                        code:       ({ children }) => <code className="rounded bg-foreground/[0.07] px-1 py-0.5 text-[12px] font-mono">{children}</code>,
+                        h1:         ({ children }) => <h1 className="mb-2 text-[15px] font-bold text-foreground">{children}</h1>,
+                        h2:         ({ children }) => <h2 className="mb-1.5 text-[13px] font-bold text-foreground">{children}</h2>,
+                        h3:         ({ children }) => <h3 className="mb-1 text-[13px] font-semibold text-foreground">{children}</h3>,
+                        hr:         () => <hr className="my-3 border-border" />,
+                        blockquote: ({ children }) => <blockquote className="border-l-2 border-accent/40 pl-3 text-text-2 italic">{children}</blockquote>,
+                        code:       ({ children }) => <code className="rounded bg-secondary px-1 py-0.5 text-[13px] font-mono">{children}</code>,
                         table:      ({ children }) => (
-                          <div className="my-2 overflow-x-auto rounded-xl border border-foreground/[0.08]">
-                            <table className="w-full text-[12.5px]">{children}</table>
+                          <div className="my-2 overflow-x-auto rounded-xl border border-border">
+                            <table className="w-full text-[13px]">{children}</table>
                           </div>
                         ),
-                        thead: ({ children }) => <thead className="bg-foreground/[0.05]">{children}</thead>,
-                        th:    ({ children }) => <th className="px-3 py-2 text-left font-semibold text-foreground/70">{children}</th>,
-                        td:    ({ children }) => <td className="px-3 py-2 border-t border-foreground/[0.06] text-foreground/80">{children}</td>,
+                        thead: ({ children }) => <thead className="bg-elevated">{children}</thead>,
+                        th:    ({ children }) => <th className="px-3 py-2 text-left font-semibold text-foreground">{children}</th>,
+                        td:    ({ children }) => <td className="px-3 py-2 border-t border-border text-foreground">{children}</td>,
                       }}
                     >
                       {m.content}
@@ -443,7 +443,7 @@ function AnaiContent() {
                   )}
                 </div>
                 {m.tools && m.tools.length > 0 && (
-                  <div className="mt-1.5 flex items-center gap-1.5 text-[10px] text-foreground/25">
+                  <div className="mt-1.5 flex items-center gap-1.5 text-[13px] text-text-3">
                     <Wrench className="h-2.5 w-2.5" />
                     consultó: {Array.from(new Set(m.tools)).join(", ")}
                   </div>
@@ -455,10 +455,10 @@ function AnaiContent() {
 
         {loading && (
           <div className="flex gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#dafc69]">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
               <Sparkles className="h-4 w-4 text-black" />
             </div>
-            <div className="flex items-center gap-2 rounded-2xl bg-foreground/[0.04] px-4 py-2.5 text-[13px] text-foreground/50">
+            <div className="flex items-center gap-2 rounded-2xl bg-secondary px-4 py-2.5 text-[13px] text-text-2">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               Analizando los datos…
             </div>
@@ -469,13 +469,13 @@ function AnaiContent() {
       {/* ── Aviso límite de mensajes ──────────────────────────────────────── */}
       {atMsgLimit && (
         <div className="mt-2 flex items-center justify-between rounded-xl border border-amber-500/20 bg-amber-50 dark:bg-amber-500/10 px-4 py-2.5">
-          <p className="text-[12.5px] text-amber-700 dark:text-amber-400">
+          <p className="text-[13px] text-amber-700 dark:text-amber-400">
             Límite de {MAX_MESSAGES_PER_CONVERSATION} mensajes alcanzado en esta conversación.
           </p>
           <button
             onClick={newConversation}
             disabled={atMonthLimit || creatingConv}
-            className="ml-3 shrink-0 rounded-lg bg-amber-500/20 px-3 py-1 text-[11px] font-semibold text-amber-700 dark:text-amber-400 hover:bg-amber-500/30 transition disabled:opacity-40"
+            className="ml-3 shrink-0 rounded-lg bg-amber-500/20 px-3 py-1 text-[13px] font-semibold text-amber-700 dark:text-amber-400 hover:bg-amber-500/30 transition disabled:opacity-40"
           >
             Nueva conversación
           </button>
@@ -483,13 +483,13 @@ function AnaiContent() {
       )}
 
       {nearMsgLimit && !atMsgLimit && (
-        <p className="mt-1.5 text-center text-[11px] text-foreground/30">
+        <p className="mt-1.5 text-center text-[13px] text-text-3">
           {MAX_MESSAGES_PER_CONVERSATION - msgCount} mensajes restantes en esta conversación
         </p>
       )}
 
       {error && (
-        <div className="mt-2 flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-50 px-4 py-2.5 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-300">
+        <div className="mt-2 flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-50 px-4 py-2.5 text-[13px] text-red-700 dark:bg-red-500/10 dark:text-red-300">
           <span className="flex-1">{error}</span>
           <button onClick={() => setError(null)}><X className="h-4 w-4 mt-0.5 shrink-0 opacity-50 hover:opacity-100" /></button>
         </div>
@@ -498,7 +498,7 @@ function AnaiContent() {
       {/* ── Input ─────────────────────────────────────────────────────────── */}
       <form
         onSubmit={(e) => { e.preventDefault(); send(input) }}
-        className="mt-3 flex items-end gap-2 rounded-[14px] border border-foreground/[0.08] bg-card p-2"
+        className="mt-3 flex items-end gap-2 rounded-[14px] border border-border bg-card p-2"
       >
         <textarea
           value={input}
@@ -512,12 +512,12 @@ function AnaiContent() {
           }
           rows={1}
           disabled={loading || atMsgLimit || atMonthLimit}
-          className="flex-1 resize-none bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-foreground/30 focus:outline-none disabled:opacity-50"
+          className="flex-1 resize-none bg-transparent px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:outline-none disabled:opacity-50"
         />
         <button
           type="submit"
           disabled={loading || !input.trim() || atMsgLimit || atMonthLimit}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#dafc69] text-black transition hover:bg-[#f2ffc0] disabled:opacity-40"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl btn-accent transition disabled:opacity-40"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </button>
@@ -537,22 +537,22 @@ function ConvItem({
   return (
     <button
       onClick={onSelect}
-      className={`group flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-foreground/[0.04] ${
-        active ? "bg-[#dafc69]/[0.06]" : ""
+      className={`group flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-secondary ${
+        active ? "bg-secondary" : ""
       }`}
     >
-      <MessageSquare className={`h-3.5 w-3.5 shrink-0 ${active ? "text-[#dafc69]/70" : "text-foreground/25"}`} />
+      <MessageSquare className={`h-3.5 w-3.5 shrink-0 ${active ? "text-accent-ink/70" : "text-text-3"}`} />
       <div className="flex-1 min-w-0">
-        <p className={`truncate text-[12.5px] font-medium ${active ? "text-foreground" : "text-foreground/70"}`}>
+        <p className={`truncate text-[13px] font-medium ${active ? "text-foreground" : "text-foreground"}`}>
           {conv.title}
         </p>
-        <p className="text-[10.5px] text-foreground/30 mt-0.5">
+        <p className="text-[13px] text-text-3 mt-0.5">
           {fmtDate(conv.updated_at)} · {conv.message_count} msg
         </p>
       </div>
       <button
         onClick={onDelete}
-        className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md text-foreground/20 opacity-0 group-hover:opacity-100 hover:text-red-500 hover:bg-red-500/10 transition-all"
+        className="shrink-0 flex h-6 w-6 items-center justify-center rounded-md text-text-3 opacity-0 group-hover:opacity-100 hover:text-red-500 hover:bg-red-500/10 transition-all"
       >
         <Trash2 className="h-3 w-3" />
       </button>

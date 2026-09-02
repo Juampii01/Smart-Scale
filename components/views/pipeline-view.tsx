@@ -33,7 +33,7 @@ function StarRating({ value, onChange }: { value: number | null; onChange: (n: n
         >
           <Star
             className={`h-5 w-5 transition-colors ${
-              (value ?? 0) >= n ? "fill-[#dafc69] text-[#dafc69]" : "text-foreground/15"
+              (value ?? 0) >= n ? "fill-[var(--accent-ink)] text-accent-ink" : "text-text-3"
             }`}
           />
         </button>
@@ -51,7 +51,7 @@ function fieldInput(
 ) {
   return (
     <div className="space-y-1.5">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">{label}</p>
       <input
         type="text"
         defaultValue={value}
@@ -59,7 +59,7 @@ function fieldInput(
         disabled={disabled}
         onBlur={e => onBlur(e.target.value)}
         onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur() }}
-        className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
       />
     </div>
   )
@@ -78,31 +78,31 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[440px] flex-col border-l border-foreground/[0.08] shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
-        <div className="flex items-start justify-between gap-4 border-b border-foreground/[0.06] px-6 py-5">
+      <div className="fixed right-0 top-0 bottom-0 z-50 flex w-full max-w-[440px] flex-col border-l border-border shadow-2xl" style={{ backgroundColor: "var(--card)" }}>
+        <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5">
           <div className="min-w-0">
-            <h2 className="text-lg font-bold text-foreground truncate">{prospect.name ?? "Prospecto"}</h2>
-            <p className="text-[12px] text-foreground/35 mt-0.5">{fmtDate(prospect.created_at)}</p>
+            <h2 className="text-[18px] font-bold text-foreground truncate">{prospect.name ?? "Prospecto"}</h2>
+            <p className="text-[13px] text-text-3 mt-0.5">{fmtDate(prospect.created_at)}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {!readOnly && (
               <button onClick={() => onDelete(prospect.id)} disabled={deleting} aria-label="Eliminar prospecto"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/20 hover:text-foreground hover:bg-foreground/[0.08] transition-all disabled:opacity-40">
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all disabled:opacity-40">
                 {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
               </button>
             )}
             <button onClick={onClose} aria-label="Cerrar"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all">
               <X className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        <div className="border-b border-foreground/[0.06] px-6 py-4 space-y-3">
+        <div className="border-b border-border px-6 py-4 space-y-3">
           <StarRating value={prospect.rating} onChange={n => !readOnly && onPatch(prospect.id, { rating: n || null })} />
           {ig && (
             <a href={igHref(ig)} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 text-[13px] text-[#dafc69] hover:text-[#f2ffc0] transition-colors">
+              className="flex items-center gap-2 text-[13px] text-accent-ink hover:text-accent-hover transition-colors">
               <Instagram className="h-4 w-4 shrink-0" />
               <span className="min-w-0 truncate">{igLabel(ig)}</span>
               <ExternalLink className="h-3 w-3 opacity-50 shrink-0" />
@@ -112,7 +112,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
 
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Etapa del pipeline</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Etapa del pipeline</p>
             <select
               value={effectiveStage(prospect) ?? "__none__"}
               disabled={readOnly}
@@ -121,7 +121,7 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
                 if (val === "__none__") { onPatch(prospect.id, { status: "nuevo", purchased: false }); return }
                 onPatch(prospect.id, { status: val, purchased: val === "compraron" })
               }}
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <option value="__none__">Sin calificar (no aparece en el pipeline)</option>
               {PIPELINE_COLUMNS.map(col => (
@@ -132,22 +132,22 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Próximo seguimiento</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Próximo seguimiento</p>
               <input
                 type="date"
                 defaultValue={prospect.next_follow_up_at ?? ""}
                 disabled={readOnly}
                 onChange={e => onPatch(prospect.id, { next_follow_up_at: e.target.value || null })}
-                className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               />
             </div>
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">&nbsp;</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">&nbsp;</p>
               <button
                 type="button"
                 disabled={!prospect.next_follow_up_at || readOnly}
                 onClick={() => onPatch(prospect.id, { next_follow_up_at: null })}
-                className="w-full h-[42px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] text-[13px] font-semibold text-foreground/60 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all disabled:opacity-40"
+                className="w-full h-[42px] inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-elevated text-[13px] font-semibold text-text-2 hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all disabled:opacity-40"
               >
                 <CheckCircle2 className="h-4 w-4" />
                 Marcar hecho
@@ -161,14 +161,14 @@ function DetailModal({ prospect, onClose, onPatch, onDelete, deleting, readOnly 
           {fieldInput("Email", prospect.email ?? "", v => onPatch(prospect.id, { email: v || null }), "correo@ejemplo.com", readOnly)}
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Notas</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Notas</p>
             <textarea
               defaultValue={prospect.notes ?? ""}
               placeholder="Observaciones, contexto..."
               rows={4}
               disabled={readOnly}
               onBlur={e => onPatch(prospect.id, { notes: e.target.value || null })}
-              className="w-full resize-none rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full resize-none rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
         </div>
@@ -198,44 +198,44 @@ function NewProspectModal({ onClose, onCreate, creating }: {
       <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <form onSubmit={handleSubmit}
-          className="w-full max-w-sm rounded-[14px] border border-foreground/[0.10] shadow-2xl p-6 space-y-4"
+          className="w-full max-w-sm rounded-[14px] border border-border shadow-2xl p-6 space-y-4"
           style={{ backgroundColor: "var(--card)" }}>
           <div className="flex items-center justify-between mb-1">
-            <h3 className="text-base font-bold text-foreground">Nuevo prospecto</h3>
+            <h3 className="text-[15px] font-bold text-foreground">Nuevo prospecto</h3>
             <button type="button" onClick={onClose}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/30 hover:text-foreground hover:bg-foreground/[0.06] transition-all">
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-text-3 hover:text-foreground hover:bg-secondary transition-all">
               <X className="h-4 w-4" />
             </button>
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Nombre *</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Nombre *</p>
             <input autoFocus type="text" value={name} onChange={e => setName(e.target.value)}
               placeholder="Nombre completo"
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all" />
+              className="w-full rounded-xl border border-border bg-elevated px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Instagram</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Instagram</p>
             <input type="text" value={instagram} onChange={e => setInstagram(e.target.value)}
               placeholder="@usuario"
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all" />
+              className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Desde dónde llegó</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Desde dónde llegó</p>
             <input type="text" value={source} onChange={e => setSource(e.target.value)}
               placeholder="ej: Instagram, referido, evento..."
-              className="w-full rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-3 py-2.5 text-[13px] text-foreground placeholder:text-foreground/40 focus:border-foreground/20 focus:outline-none transition-all" />
+              className="w-full rounded-xl border border-border bg-elevated px-3 py-2.5 text-[13px] text-foreground placeholder:text-text-2 focus:border-border-hover focus:outline-none transition-all" />
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/25">Calificación</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-3">Calificación</p>
             <StarRating value={rating || null} onChange={n => setRating(n)} />
           </div>
 
           <button type="submit" disabled={!name.trim() || creating}
-            className="w-full h-10 rounded-xl bg-foreground text-background text-[13px] font-bold hover:bg-foreground/90 transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+            className="w-full h-10 rounded-xl bg-foreground text-background text-[13px] font-bold hover:bg-secondary transition-all disabled:opacity-40 flex items-center justify-center gap-2">
             {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Crear prospecto
           </button>
@@ -327,20 +327,20 @@ export function PipelineView({ clientId: activeClientId, readOnly = false }: { c
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center py-24 text-foreground/40 text-sm">Cargando pipeline...</div>
+    return <div className="flex items-center justify-center py-24 text-text-2 text-[13px]">Cargando pipeline...</div>
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Pipeline</h1>
-          <p className="text-[13px] text-foreground/40 mt-0.5">Tu cartera de prospectos, de punta a punta.</p>
+          <h1 className="text-[24px] font-bold text-foreground">Pipeline</h1>
+          <p className="text-[13px] text-text-2 mt-0.5">Tu cartera de prospectos, de punta a punta.</p>
         </div>
         {!readOnly && (
           <button
             onClick={() => setShowNewForm(true)}
-            className="inline-flex items-center gap-1.5 h-9 rounded-xl bg-foreground px-3.5 text-[13px] font-bold text-background hover:bg-foreground/90 transition-all"
+            className="inline-flex items-center gap-1.5 h-9 rounded-xl bg-foreground px-3.5 text-[13px] font-bold text-background hover:bg-secondary transition-all"
           >
             <Plus className="h-4 w-4" />
             Nuevo prospecto

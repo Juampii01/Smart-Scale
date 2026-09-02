@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createHash } from "node:crypto"
 import { createServiceClient } from "@/lib/supabase-service"
 import { logJobRun } from "@/lib/system-log"
+import { getSmartScaleTenantId } from "@/lib/auth/internal-scope"
 import { resolveClientAndSuggestion } from "@/lib/payments"
 
 export const runtime = "nodejs"
@@ -108,10 +109,17 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServiceClient()
 
+    // Este webhook (Stripe/PayFunnels/Zapier) es 100% de Smart Scale — acota
+    // el match de email a su propio tenant.
+    const smartScaleTenantId = await getSmartScaleTenantId(supabase)
+    if (!smartScaleTenantId) {
+      return NextResponse.json({ error: "No se encontró el tenant interno de Smart Scale" }, { status: 500 })
+    }
+
     // Best-effort, nunca bloquea el pago: payments no tenía ninguna columna
     // que apuntara a un cliente — conciliar era 100% manual. NUNCA marca
     // paid_at sola: la sugerencia se confirma con un click en /admin/payments.
-    const { clientId, suggestedInstallmentId } = await resolveClientAndSuggestion(supabase, email, amount, status)
+    const { clientId, suggestedInstallmentId } = await resolveClientAndSuggestion(supabase, email, amount, status, smartScaleTenantId)
 
     // ── Idempotencia (check-then-insert) ────────────────────────────────────
     // El índice único sobre external_event_id quedó creado como parcial

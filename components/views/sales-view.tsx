@@ -29,7 +29,7 @@ function pct(num: number, den: number) {
 
 function convColor(p: number) {
   if (p >= 60) return { bar: "#4ade80", text: "text-emerald-700 dark:text-emerald-300", bg: "bg-emerald-100 dark:bg-emerald-500/10", ring: "ring-emerald-400 dark:ring-emerald-500/20" }
-  if (p >= 30) return { bar: "#dafc69", text: "text-yellow-700 dark:text-yellow-300",  bg: "bg-yellow-100 dark:bg-yellow-500/10",  ring: "ring-yellow-400 dark:ring-yellow-500/20"  }
+  if (p >= 30) return { bar: "var(--accent-ink)", text: "text-yellow-700 dark:text-yellow-300",  bg: "bg-yellow-100 dark:bg-yellow-500/10",  ring: "ring-yellow-400 dark:ring-yellow-500/20"  }
   return         { bar: "#f87171",  text: "text-red-700 dark:text-red-300",     bg: "bg-red-100 dark:bg-red-500/10",     ring: "ring-red-400 dark:ring-red-500/20"     }
 }
 
@@ -44,7 +44,7 @@ function FunnelStep({
   const col = convColor(pctOfTop)
   return (
     <div>
-      <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card p-5 hover:border-foreground/[0.12] transition-colors">
+      <div className="relative overflow-hidden rounded-[14px] border border-border bg-card p-5 hover:border-border transition-colors">
         {/* Proportional fill bar as background */}
         <div
           className="absolute inset-y-0 left-0 rounded-[14px] opacity-[0.07] transition-all duration-700"
@@ -55,20 +55,20 @@ function FunnelStep({
 
         <div className="relative flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/40 mb-1">{label}</p>
-            <p className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground leading-none">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-text-2 mb-1">{label}</p>
+            <p className="text-[24px] sm:text-[32px] font-bold tracking-tight text-foreground leading-none">
               {count > 0 ? count : "—"}
             </p>
           </div>
           <div className="text-right flex flex-col items-end gap-2">
             {/* % of top of funnel */}
-            <span className={`text-2xl font-bold tabular-nums ${col.text}`}>
+            <span className={`text-[24px] font-bold tabular-nums ${col.text}`}>
               {pctOfTop}%
             </span>
-            <p className="text-[10px] text-foreground/30">del total agendado</p>
+            <p className="text-[13px] text-text-3">del total agendado</p>
             {/* Conversion from previous step */}
             {!isLast && convFromPrev < 100 && (
-              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ring-1 ${col.bg} ${col.text} ${col.ring}`}>
+              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[13px] font-bold ring-1 ${col.bg} ${col.text} ${col.ring}`}>
                 {convLabel} vs paso anterior
               </span>
             )}
@@ -79,8 +79,8 @@ function FunnelStep({
       {/* Arrow between steps */}
       {!isLast && (
         <div className="flex flex-col items-center py-1 gap-0">
-          <div className="h-3 w-px bg-foreground/10" />
-          <ArrowDown className="h-3.5 w-3.5 text-foreground/20" />
+          <div className="h-3 w-px bg-secondary" />
+          <ArrowDown className="h-3.5 w-3.5 text-text-3" />
         </div>
       )}
     </div>
@@ -89,12 +89,12 @@ function FunnelStep({
 
 // ─── Mini stat card ───────────────────────────────────────────────────────────
 
-function MiniStat({ label, value, sub, color = "#dafc69" }: { label: string; value: string | number; sub?: string; color?: string }) {
+function MiniStat({ label, value, sub, color = "var(--accent-ink)" }: { label: string; value: string | number; sub?: string; color?: string }) {
   return (
-    <div className="relative overflow-hidden rounded-[14px] border border-foreground/[0.07] bg-card p-5 hover:border-foreground/[0.12] transition-colors">
-      <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: `${color}99` }}>{label}</p>
-      <p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground leading-none">{value}</p>
-      {sub && <p className="mt-2 text-xs text-foreground/30">{sub}</p>}
+    <div className="relative overflow-hidden rounded-[14px] border border-border bg-card p-5 hover:border-border transition-colors">
+      <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: `color-mix(in srgb, ${color} 60%, transparent)` }}>{label}</p>
+      <p className="text-[24px] sm:text-[32px] font-bold tracking-tight text-foreground leading-none">{value}</p>
+      {sub && <p className="mt-2 text-[13px] text-text-3">{sub}</p>}
     </div>
   )
 }
@@ -198,23 +198,23 @@ export function SalesView() {
     <div className="space-y-10">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-bold text-foreground">Ventas y Conversión</h2>
-        <p suppressHydrationWarning className="text-[13px] text-foreground/40 mt-0.5">
+        <h2 className="text-[24px] font-bold text-foreground">Ventas y Conversión</h2>
+        <p suppressHydrationWarning className="text-[13px] text-text-2 mt-0.5">
           Embudo mensual · {selectedMonth}
         </p>
       </div>
 
-      {error && <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>}
+      {error && <p className="text-red-700 dark:text-red-400 text-[13px]">{error}</p>}
       {!showSkeleton && !error && !data && (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-foreground/[0.07] bg-card py-14 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-foreground/[0.07] bg-foreground/[0.03]">
-            <TrendingUp className="h-5 w-5 text-foreground/20" />
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card py-14 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-elevated">
+            <TrendingUp className="h-5 w-5 text-text-3" />
           </div>
-          <p className="text-sm text-foreground/40">
+          <p className="text-[13px] text-text-2">
             {isOwn ? "No hay reporte para este mes." : "Este cliente no tiene reporte para este mes."}
           </p>
           {isOwn && (
-            <Link href="/report-input" className="text-sm font-medium text-[#dafc69] transition-colors hover:text-[#f2ffc0]">
+            <Link href="/report-input" className="text-[13px] font-medium text-accent-ink transition-colors hover:text-accent-hover">
               Cargar reporte mensual →
             </Link>
           )}
@@ -225,8 +225,8 @@ export function SalesView() {
         {/* ── Funnel visual ── */}
         <section className="space-y-4">
           <div>
-            <h3 className="text-base font-bold text-foreground">Embudo de llamadas</h3>
-            <p className="text-xs text-foreground/35 mt-0.5">Cada barra muestra qué tan ancho llega a cada paso</p>
+            <h3 className="text-[15px] font-bold text-foreground">Embudo de llamadas</h3>
+            <p className="text-[13px] text-text-3 mt-0.5">Cada barra muestra qué tan ancho llega a cada paso</p>
           </div>
           <div>
             <FunnelStep
@@ -262,10 +262,10 @@ export function SalesView() {
               : "border-red-400 bg-red-100 dark:border-red-500/20 dark:bg-red-500/[0.04]"
           }`}>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/40">Tasa de cierre</p>
-              <p className="text-xs text-foreground/30 mt-0.5">cierres / llamadas atendidas</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-2">Tasa de cierre</p>
+              <p className="text-[13px] text-text-3 mt-0.5">cierres / llamadas atendidas</p>
             </div>
-            <p className={`text-2xl sm:text-4xl font-bold tabular-nums ${
+            <p className={`text-[24px] sm:text-[32px] font-bold tabular-nums ${
               Number(closeRatePct) >= 20 ? "text-emerald-700 dark:text-emerald-300"
               : Number(closeRatePct) >= 10 ? "text-yellow-700 dark:text-yellow-300"
               : "text-red-700 dark:text-red-300"
@@ -276,8 +276,8 @@ export function SalesView() {
         {/* ── Offer Docs + Aplicaciones ── */}
         <section className="space-y-4">
           <div>
-            <h3 className="text-base font-bold text-foreground">Offer Docs & Pipeline</h3>
-            <p className="text-xs text-foreground/35 mt-0.5">El recorrido desde la aplicación al cierre</p>
+            <h3 className="text-[15px] font-bold text-foreground">Offer Docs & Pipeline</h3>
+            <p className="text-[13px] text-text-3 mt-0.5">El recorrido desde la aplicación al cierre</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <MiniStat label="Aplicaciones"        value={aplications || "—"} color="#818cf8" />
@@ -292,25 +292,25 @@ export function SalesView() {
               label="Cierres por Offer Doc"
               value={odCierres || "—"}
               sub={`Tasa: ${odCloseRate}${odCloseRate !== "—" ? "%" : ""}`}
-              color="#dafc69"
+              color="var(--accent-ink)"
             />
           </div>
 
           {/* Offer Doc funnel */}
           {odSent > 0 && (
-            <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-5 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/40">Funnel Offer Doc</p>
+            <div className="rounded-[14px] border border-border bg-card p-5 space-y-3">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-text-2">Funnel Offer Doc</p>
               {[
                 { label: "Enviados", value: odSent,    pctW: 100,                         color: "#60a5fa" },
                 { label: "Respondidos", value: odResp, pctW: pct(odResp, odSent),         color: "#4ade80" },
-                { label: "Cerrados",  value: odCierres,pctW: pct(odCierres, odSent),      color: "#dafc69" },
+                { label: "Cerrados",  value: odCierres,pctW: pct(odCierres, odSent),      color: "var(--accent-ink)" },
               ].map(row => (
                 <div key={row.label} className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-foreground/50">{row.label}</span>
-                    <span className="font-bold text-foreground tabular-nums">{row.value} <span className="text-foreground/35 font-normal">({row.pctW}%)</span></span>
+                  <div className="flex justify-between text-[13px]">
+                    <span className="text-text-2">{row.label}</span>
+                    <span className="font-bold text-foreground tabular-nums">{row.value} <span className="text-text-3 font-normal">({row.pctW}%)</span></span>
                   </div>
-                  <div className="h-2 rounded-full bg-foreground/[0.06] overflow-hidden">
+                  <div className="h-2 rounded-full bg-elevated overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-700"
                       style={{ width: `${row.pctW}%`, backgroundColor: row.color }} />
                   </div>
@@ -325,10 +325,10 @@ export function SalesView() {
       {history.length >= 2 && (
         <section className="space-y-4">
           <div>
-            <h3 className="text-base font-bold text-foreground">Tendencia del Embudo</h3>
-            <p className="text-xs text-foreground/35 mt-0.5">¿El pipeline está creciendo o deteriorándose?</p>
+            <h3 className="text-[15px] font-bold text-foreground">Tendencia del Embudo</h3>
+            <p className="text-[13px] text-text-3 mt-0.5">¿El pipeline está creciendo o deteriorándose?</p>
           </div>
-          <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
+          <div className="rounded-[14px] border border-border bg-card p-6">
             <div className="flex flex-wrap gap-5 mb-5">
               {[
                 { label: "Agendadas", color: "#818cf8" },
@@ -337,7 +337,7 @@ export function SalesView() {
               ].map(l => (
                 <div key={l.label} className="flex items-center gap-1.5">
                   <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: l.color }} />
-                  <span className="text-[11px] text-foreground/50">{l.label}</span>
+                  <span className="text-[13px] text-text-2">{l.label}</span>
                 </div>
               ))}
             </div>
@@ -364,19 +364,19 @@ export function SalesView() {
       {history.length >= 2 && (
         <section className="space-y-4">
           <div>
-            <h3 className="text-base font-bold text-foreground">Tendencia de Offer Docs</h3>
-            <p className="text-xs text-foreground/35 mt-0.5">Evolución mensual del pipeline de Offer Docs</p>
+            <h3 className="text-[15px] font-bold text-foreground">Tendencia de Offer Docs</h3>
+            <p className="text-[13px] text-text-3 mt-0.5">Evolución mensual del pipeline de Offer Docs</p>
           </div>
-          <div className="rounded-[14px] border border-foreground/[0.07] bg-card p-6">
+          <div className="rounded-[14px] border border-border bg-card p-6">
             <div className="flex flex-wrap gap-5 mb-5">
               {[
                 { label: "OD Enviados",    color: "#60a5fa" },
                 { label: "OD Respondidos", color: "#4ade80" },
-                { label: "Cierres x OD",   color: "#dafc69" },
+                { label: "Cierres x OD",   color: "var(--accent-ink)" },
               ].map(l => (
                 <div key={l.label} className="flex items-center gap-1.5">
                   <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: l.color }} />
-                  <span className="text-[11px] text-foreground/50">{l.label}</span>
+                  <span className="text-[13px] text-text-2">{l.label}</span>
                 </div>
               ))}
             </div>
@@ -392,7 +392,7 @@ export function SalesView() {
                 />
                 <Bar dataKey="odEnviados"    name="OD Enviados"    fill="#60a5fa" fillOpacity={0.7} radius={[3,3,0,0]} maxBarSize={32} />
                 <Line dataKey="odRespondidos" name="OD Respondidos" stroke="#4ade80" strokeWidth={2.5} dot={{ fill: "#4ade80", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
-                <Line dataKey="odCierres"     name="Cierres x OD"  stroke="#dafc69" strokeWidth={2.5} dot={{ fill: "#dafc69", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+                <Line dataKey="odCierres"     name="Cierres x OD"  stroke="var(--accent-ink)" strokeWidth={2.5} dot={{ fill: "var(--accent-ink)", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
