@@ -101,17 +101,20 @@ function formatAnswer(q: Question, raw: any): string {
   return String(raw)
 }
 
-/** null = pregunta sin respuesta correcta definida (no se corrige). */
+/** Mismo criterio que app/api/posi/submissions/route.ts: solo yesno sin
+ *  `required_yes` queda realmente afuera (puramente informativa). Texto
+ *  libre y opción múltiple sin marcar cuentan igual, pero nunca reprueban
+ *  — cualquier respuesta no vacía / cualquier opción es "correcta". */
 function isCorrectAnswer(q: Question, raw: any): boolean | null {
-  if (q.type === "multiple_choice") return typeof q.correct_index === "number" ? raw === q.correct_index : null
+  if (q.type === "multiple_choice") return typeof q.correct_index === "number" ? raw === q.correct_index : true
   if (q.type === "yesno") return q.required_yes === true ? raw === true : null
+  if (q.type === "text") return typeof raw === "string" && raw.trim().length > 0
   return null
 }
 
 function isGradableQuestion(q: Question): boolean {
-  if (q.type === "multiple_choice") return typeof q.correct_index === "number"
   if (q.type === "yesno") return q.required_yes === true
-  return false
+  return q.type === "multiple_choice" || q.type === "text"
 }
 
 function computeScore(level: Level | undefined, answers: Record<string, any>): { correct: number; total: number } | null {
@@ -540,9 +543,15 @@ export function AdminPosiView() {
                                   <Plus className="h-3 w-3" /> Agregar opción
                                 </button>
                                 <p className="pl-5 text-[13px] text-text-3">
-                                  Tocá el círculo para marcar la respuesta correcta (opcional — sin marcar, esta pregunta no cuenta para aprobar el nivel).
+                                  Tocá el círculo para marcar la respuesta correcta (opcional — sin marcar, cualquier opción que elijan cuenta como correcta).
                                 </p>
                               </div>
+                            )}
+
+                            {q.type === "text" && (
+                              <p className="pl-1 text-[13px] text-text-3">
+                                Cualquier respuesta no vacía cuenta como correcta.
+                              </p>
                             )}
 
                             {q.type === "yesno" && (

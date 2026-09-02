@@ -7,28 +7,32 @@ import { POSI_MAX_FAILED_ATTEMPTS, isLevelApproved, resolveSkoolEmail } from "@/
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-/** Una pregunta cuenta para la nota si es multiple_choice con `correct_index`
- *  definido, o yesno marcada `required_yes: true` (checklist tipo "¿tenés
- *  esto?", donde la única respuesta correcta es Sí — pedido explícito: un
- *  nivel no puede quedar sin aprobar/reprobar solo porque sus preguntas
- *  calificables eran de Sí/No en vez de opción múltiple). Se marca por
- *  pregunta desde el editor de /admin/posi, igual que correct_index — no es
- *  un default para todas las Sí/No, así no cambia de golpe el resultado de
- *  preguntas que hoy son solo informativas. */
+/** Pedido explícito: un nivel no puede quedar sin aprobar/reprobar (passed
+ *  null) solo porque sus preguntas no eran del tipo "con una respuesta
+ *  correcta marcada". Solo dos casos pueden REPROBAR:
+ *   - yesno marcada `required_yes: true` (checklist "¿tenés esto?") — la
+ *     única respuesta correcta es Sí, "No" reprueba.
+ *   - multiple_choice CON `correct_index` marcado — elegir otra opción reprueba.
+ *  Todo lo demás cuenta para la nota pero nunca reprueba (con tal de que
+ *  esté respondido, ya garantizado por el `required` del form):
+ *   - text: cualquier respuesta no vacía es válida.
+ *   - multiple_choice SIN correct_index marcado: cualquier opción es válida.
+ *  yesno sin required_yes es la única pregunta que sigue siendo puramente
+ *  informativa (no cuenta para nada) — es la que Ann elige no calificar. */
 function isGradable(q: any): boolean {
-  if (q.type === "multiple_choice") return typeof q.correct_index === "number"
   if (q.type === "yesno") return q.required_yes === true
-  return false
+  return q.type === "multiple_choice" || q.type === "text"
 }
 
 function isCorrectAnswer(q: any, raw: unknown): boolean {
-  if (q.type === "multiple_choice") return raw === q.correct_index
+  if (q.type === "multiple_choice") return typeof q.correct_index === "number" ? raw === q.correct_index : true
   if (q.type === "yesno") return raw === true
+  if (q.type === "text") return typeof raw === "string" && raw.trim().length > 0
   return true
 }
 
-/** `passed=null` si el nivel no tiene ninguna pregunta calificable (no hay
- *  concepto de aprobar/reprobar ahí) — checklist puro o texto libre. */
+/** `passed=null` solo si el nivel no tiene ninguna pregunta gradable — hoy
+ *  eso quiere decir que todas sus preguntas son yesno sin `required_yes`. */
 function gradeAnswers(questions: any[], answers: Record<string, unknown>) {
   const graded = (questions ?? []).filter(isGradable)
   if (graded.length === 0) return { passed: null as boolean | null, wrongIds: [] as string[] }
@@ -387,6 +391,12 @@ export async function POST(req: NextRequest) {
       } else if (q?.type === "yesno") {
         yourAnswer = raw === true ? "Sí" : raw === false ? "No" : null
         correctAnswer = "Sí"
+      } else if (q?.type === "text") {
+        // Solo puede terminar acá si llegó vacío (bypaseando el `required`
+        // del form, ej. llamando la API directo) — no hay una "respuesta
+        // correcta" fija que mostrar, solo que faltó completarla.
+        yourAnswer = typeof raw === "string" && raw.trim() ? raw : "(sin responder)"
+        correctAnswer = null
       }
       return { id: qid, label: q?.label ?? "", your_answer: yourAnswer, correct_answer: correctAnswer }
     }),
