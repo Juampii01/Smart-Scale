@@ -33,31 +33,7 @@ export async function POST(
     .eq("id", id)
     .maybeSingle()
   if (clientErr) return NextResponse.json({ error: clientErr.message }, { status: 500 })
-  if (!client) {
-    // DEBUG temporal — sacar después de diagnosticar el 404 fantasma en producción.
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""
-
-    const { count } = await sb.from("crm_clients").select("id", { count: "exact", head: true })
-
-    const rawRes = await fetch(`${url}/rest/v1/crm_clients?id=eq.${id}&select=id,name`, {
-      headers: { apikey: key, Authorization: `Bearer ${key}` },
-      cache: "no-store",
-    })
-    const rawBody = await rawRes.text()
-
-    console.error(
-      "[resend-contract] cliente no encontrado — id:", JSON.stringify(id),
-      "total_count:", count, "raw_postgrest_status:", rawRes.status, "raw_postgrest_body:", rawBody,
-    )
-    return NextResponse.json({
-      error: "Cliente no encontrado",
-      debug_id: id,
-      debug_total_count: count,
-      debug_raw_status: rawRes.status,
-      debug_raw_body: rawBody,
-    }, { status: 404 })
-  }
+  if (!client) return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 })
 
   const { data: installments, error: instErr } = await sb
     .from("crm_installments")
