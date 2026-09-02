@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { requireAdmin } from "@/lib/auth/api-guards"
-import { calculateCompanyMRR } from "@/lib/calculations/mrr"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -295,7 +294,10 @@ export async function GET(req: NextRequest) {
       days_until_due:     Math.max(0, Math.ceil((new Date(i.due_date + "T00:00:00Z").getTime() - todayMs) / 86400000)),
     }))
 
-    const { mrr } = await calculateCompanyMRR(`${month}-01`)
+    // MRR = cuotas sin pagar que vencen este mes (mismo total que "upcoming_quotas.upcoming_total"
+    // más abajo) — antes usaba calculateCompanyMRR (un promedio amortizado de toda la cartera
+    // activa), que no reflejaba lo que realmente se cobra en el mes y confundía en el dashboard.
+    const mrr = upcomingRaw.reduce((s, i) => s + Number(i.amount), 0)
 
     return NextResponse.json({
       month,
