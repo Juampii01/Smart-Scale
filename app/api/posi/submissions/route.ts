@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse, after } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { isAdmin } from "@/lib/auth/permissions"
-import { zapierPosiSubmission } from "@/lib/zapier"
-import { POSI_MAX_FAILED_ATTEMPTS } from "@/lib/posi"
+import { zapierPosiSubmission, zapierPosiUnlock } from "@/lib/zapier"
+import { POSI_MAX_FAILED_ATTEMPTS, isLevelApproved, resolveSkoolEmail } from "@/lib/posi"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -82,7 +82,14 @@ export async function GET(req: NextRequest) {
  *  Auto-aprobado: al 3er intento fallido en el mismo nivel (ver
  *  POSI_MAX_FAILED_ATTEMPTS en lib/posi.ts), se guarda auto_approved=true
  *  sin tocar `passed` (sigue en false — es la nota real), y la respuesta
- *  de ESTE POST incluye un `feedback` con el detalle de qué erró. */
+ *  de ESTE POST incluye un `feedback` con el detalle de qué erró.
+ *
+ *  Destrabe de Skool: si el nivel queda aprobado (real o auto-aprobado),
+ *  intenta destrabar el curso del nivel siguiente vía ZAPIER_WEBHOOK_POSI_UNLOCK
+ *  — deja rastro en posi_unlock_events (no hay API de lectura de Skool, es
+ *  lo único con lo que se puede auditar esto). La respuesta solo expone
+ *  `unlock.pending` y `unlock.level_title`, nunca el email ni el nombre del
+ *  curso — eso es admin-only, en /admin/posi. */
 export async function POST(req: NextRequest) {
   let body: any
   try { body = await req.json() } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }) }
@@ -99,7 +106,7 @@ export async function POST(req: NextRequest) {
   const supabase = createServiceClient()
   const { data: level, error: levelErr } = await supabase
     .from("posi_levels")
-    .select("id, title, questions")
+    .select("id, level_number, title, questions")
     .eq("id", level_id)
     .maybeSingle()
   if (levelErr) return NextResponse.json({ error: levelErr.message }, { status: 500 })
@@ -159,12 +166,115 @@ export async function POST(req: NextRequest) {
     .single()
   if (saveErr) return NextResponse.json({ error: saveErr.message }, { status: 500 })
 
+  // `name` es legacy y en varias filas quedó con el email en vez del nombre
+  // real (ver `nombre`) — mismo criterio de prioridad que ya usa el GET de
+  // acá abajo y el resto de la app. Se necesita sincrónico (no solo en el
+  // after() de más abajo) porque resolver el destrabe de Skool también
+  // necesita skool_email antes de contestarle al cliente.
+  const { data: client } = await supabase.from("clients").select("name, nombre, skool_email").eq("id", client_id).maybeSingle()
+  const clientName = (client as any)?.nombre || (client as any)?.name || "Cliente"
+
+  // ─── Destrabe automático del nivel siguiente en Skool ───────────────────
+  // Se resuelve en dos tiempos: acá (sincrónico) decidimos y dejamos la fila
+  // en posi_unlock_events — así el índice único reserva el lugar contra un
+  // doble submit, y podemos contestarle al cliente si va a llegar el mail o
+  // no. El webhook a Zapier (que ejecuta la acción de Skool) va en el
+  // after() de más abajo. El auto-aprobado del 3er intento destraba igual
+  // que un aprobado real — decisión explícita del negocio.
+  let unlockPendingTitle: string | null = null
+  let unlockDispatch: {
+    eventId: string
+    unlockLevelNumber: number
+    unlockLevelTitle: string
+    skoolEmail: string
+    skoolCourseName: string
+  } | null = null
+
+  if (isLevelApproved({ passed, auto_approved: autoApproved })) {
+    try {
+      const nextLevelNumber = (level as any).level_number + 1
+      const { data: nextLevel } = await supabase
+        .from("posi_levels")
+        .select("id, level_number, title, skool_course_name")
+        .eq("level_number", nextLevelNumber)
+        .maybeSingle()
+
+      const baseRow = {
+        client_id,
+        submission_id: saved.id,
+        approved_level_id: level_id,
+        auto_approved: autoApproved,
+      }
+
+      if (!nextLevel) {
+        await supabase.from("posi_unlock_events").insert({ ...baseRow, status: "skipped", reason: "ultimo_nivel" })
+      } else if (!(nextLevel as any).skool_course_name) {
+        await supabase.from("posi_unlock_events").insert({
+          ...baseRow,
+          unlock_level_id: (nextLevel as any).id,
+          status: "skipped",
+          reason: "sin_curso_configurado",
+        })
+      } else {
+        const skoolEmail = resolveSkoolEmail(client as any)
+        if (!skoolEmail) {
+          await supabase.from("posi_unlock_events").insert({
+            ...baseRow,
+            unlock_level_id: (nextLevel as any).id,
+            skool_course_name: (nextLevel as any).skool_course_name,
+            status: "failed",
+            reason: "sin_email",
+          })
+        } else {
+          // Claim contra el índice único (client_id, unlock_level_id) — mismo
+          // patrón que claim() en app/api/cron/call-reminders: insertamos
+          // directo con status='pending' y dejamos que la constraint nos
+          // diga si ya había una fila viva, en vez de un SELECT previo (hay
+          // carrera real acá: doble click en el mismo formulario).
+          const { data: claimed, error: claimErr } = await supabase
+            .from("posi_unlock_events")
+            .insert({
+              ...baseRow,
+              unlock_level_id: (nextLevel as any).id,
+              skool_course_name: (nextLevel as any).skool_course_name,
+              skool_email: skoolEmail,
+              status: "pending",
+            })
+            .select("id")
+            .single()
+
+          if (claimErr) {
+            // 23505 = unique_violation → ya había un destrabe pending/sent
+            // para este (cliente, nivel), resultado esperado de la carrera.
+            // Cualquier otro código es una falla de verdad.
+            await supabase.from("posi_unlock_events").insert({
+              ...baseRow,
+              unlock_level_id: (nextLevel as any).id,
+              skool_course_name: (nextLevel as any).skool_course_name,
+              skool_email: skoolEmail,
+              status: claimErr.code === "23505" ? "skipped" : "failed",
+              reason: claimErr.code === "23505" ? "ya_destrabado" : `db_error: ${claimErr.message}`,
+            })
+          } else {
+            unlockPendingTitle = (nextLevel as any).title
+            unlockDispatch = {
+              eventId: (claimed as any).id,
+              unlockLevelNumber: (nextLevel as any).level_number,
+              unlockLevelTitle: (nextLevel as any).title,
+              skoolEmail,
+              skoolCourseName: (nextLevel as any).skool_course_name,
+            }
+          }
+        }
+      }
+    } catch (err) {
+      // El destrabe es secundario a responder el nivel — un error acá nunca
+      // debe romper la respuesta de la submission.
+      console.error("[posi/submissions] error resolviendo destrabe:", err)
+    }
+  }
+
   after(async () => {
-    // `name` es legacy y en varias filas quedó con el email en vez del
-    // nombre real (ver `nombre`) — mismo criterio de prioridad que ya usa
-    // el GET de acá abajo y el resto de la app.
-    const { data: client } = await supabase.from("clients").select("name, nombre").eq("id", client_id).maybeSingle()
-    const clientName = (client as any)?.nombre || (client as any)?.name || "Cliente"
     await zapierPosiSubmission({
       event_type:     "posi.submitted",
       client_name:    clientName,
@@ -173,7 +283,46 @@ export async function POST(req: NextRequest) {
       auto_approved:  autoApproved,
       attempt_number: attemptNumber,
     }).catch(() => {})
+
+    if (unlockDispatch) {
+      const payload = {
+        event_type:             "posi.unlock" as const,
+        unlock_event_id:        unlockDispatch.eventId,
+        client_id,
+        client_name:            clientName,
+        skool_email:            unlockDispatch.skoolEmail,
+        skool_course_name:      unlockDispatch.skoolCourseName,
+        approved_level_number:  (level as any).level_number,
+        approved_level_title:   (level as any).title,
+        unlock_level_number:    unlockDispatch.unlockLevelNumber,
+        unlock_level_title:     unlockDispatch.unlockLevelTitle,
+        auto_approved:          autoApproved,
+        attempt_number:         attemptNumber,
+      }
+      try {
+        const zapierRes = await zapierPosiUnlock(payload)
+        await supabase.from("posi_unlock_events").update({
+          status:     zapierRes.ok ? "sent" : "failed",
+          reason:     zapierRes.ok ? null : `webhook_error: ${zapierRes.error}`,
+          payload,
+          updated_at: new Date().toISOString(),
+        }).eq("id", unlockDispatch.eventId)
+      } catch (err: any) {
+        // Nunca dejar la fila colgada en 'pending' — si el fetch mismo
+        // explota (no solo un !res.ok), la marcamos failed igual.
+        try {
+          await supabase.from("posi_unlock_events").update({
+            status:     "failed",
+            reason:     `webhook_error: ${err?.message ?? "unknown"}`,
+            payload,
+            updated_at: new Date().toISOString(),
+          }).eq("id", unlockDispatch.eventId)
+        } catch {}
+      }
+    }
   })
+
+  const unlock = { pending: unlockPendingTitle !== null, level_title: unlockPendingTitle }
 
   // wrong_question_ids no se manda en la respuesta — el cliente no tiene
   // que enterarse de cuáles falló, solo si aprobó o no (pedido explícito).
@@ -181,9 +330,10 @@ export async function POST(req: NextRequest) {
   // le muestra el detalle de lo que erró (pedido explícito de Ann) — pero
   // solo acá, en la respuesta de la submission recién creada, nunca en el
   // GET (si no, cualquier cliente se arma el respuestario pidiendo sus
-  // intentos viejos).
+  // intentos viejos). `unlock` nunca incluye skool_email, skool_course_name
+  // ni el id del evento — eso es solo para /admin/posi.
   if (!autoApproved) {
-    return NextResponse.json({ submission: saved })
+    return NextResponse.json({ submission: saved, unlock })
   }
 
   const questionsById = new Map(((level as any).questions ?? []).map((q: any) => [q.id, q]))
@@ -203,5 +353,5 @@ export async function POST(req: NextRequest) {
     }),
   }
 
-  return NextResponse.json({ submission: saved, feedback })
+  return NextResponse.json({ submission: saved, feedback, unlock })
 }
