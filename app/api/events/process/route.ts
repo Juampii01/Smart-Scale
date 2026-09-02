@@ -128,11 +128,11 @@ export async function POST(req: NextRequest) {
     .select("id, event_type, payload, attempts, max_attempts, client_id, user_id")
     .in("status", ["pending", "failed"])
     .lte("next_retry_at", new Date().toISOString())
-    .lt("attempts", supabase.rpc as any) // raw filter below
     .order("next_retry_at", { ascending: true })
     .limit(BATCH_SIZE)
 
-  // Fallback: filter attempts < max_attempts in JS
+  // attempts < max_attempts se filtra acá — no se puede comparar dos columnas
+  // entre sí con los filtros de postgrest-js sin un raw filter dedicado.
   const pendingEvents = ((events ?? []) as EventRow[]).filter(
     (e) => e.attempts < e.max_attempts
   )
