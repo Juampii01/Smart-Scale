@@ -6,8 +6,10 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 /** GET — lista los 9 niveles de Posi (0-8). Las multiple_choice pueden traer
- *  `correct_index` (para calificar) — nunca se lo mandamos al cliente que
- *  completa el formulario, solo al admin (que lo necesita para editarlo). */
+ *  `correct_index` y las yesno `required_yes` (para calificar) — ninguno de
+ *  los dos se le manda al cliente que completa el formulario (revelaría la
+ *  respuesta correcta, en yesno tan directo como el índice), solo al admin
+ *  (que los necesita para editar). */
 export async function GET(req: NextRequest) {
   const jwt = (req.headers.get("authorization") ?? "").replace("Bearer ", "")
   const supabase = createServiceClient()
@@ -32,7 +34,7 @@ export async function GET(req: NextRequest) {
         return {
           ...rest,
           questions: (level.questions ?? []).map((q: any) => {
-            const { correct_index, ...qRest } = q
+            const { correct_index, required_yes, ...qRest } = q
             return qRest
           }),
         }
