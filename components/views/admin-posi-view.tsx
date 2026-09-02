@@ -38,6 +38,8 @@ interface Submission {
   submitted_at: string
   passed?: boolean | null
   wrong_question_ids?: string[]
+  attempt_number?: number | null
+  auto_approved?: boolean | null
 }
 
 const inputCls = "w-full rounded-lg border border-border bg-secondary px-3 py-2 text-[13px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none"
@@ -527,11 +529,22 @@ export function AdminPosiView() {
                     <div className="flex items-center gap-3">
                       <span className="text-[13px] font-semibold text-foreground">{s.client_name}</span>
                       <span className="text-[13px] text-text-2">{level?.title ?? "—"}</span>
-                      {s.passed === true && (
+                      {/* auto_approved manda sobre passed=false — es la excepción a
+                          la regla, no un "No aprobado" más: Ann tiene que distinguir
+                          de un vistazo quién pasó de verdad y a quién se lo dimos. */}
+                      {s.auto_approved ? (
+                        <span className="rounded-full bg-amber-100 dark:bg-amber-500/10 px-2 py-0.5 text-[13px] font-bold text-amber-700 dark:text-amber-400">
+                          Auto-aprobado (3er intento)
+                        </span>
+                      ) : s.passed === true ? (
                         <span className="rounded-full bg-emerald-100 dark:bg-emerald-500/10 px-2 py-0.5 text-[13px] font-bold text-emerald-700 dark:text-emerald-400">Aprobado</span>
-                      )}
-                      {s.passed === false && (
+                      ) : s.passed === false ? (
                         <span className="rounded-full bg-red-100 dark:bg-red-500/10 px-2 py-0.5 text-[13px] font-bold text-red-700 dark:text-red-400">No aprobado</span>
+                      ) : null}
+                      {typeof s.attempt_number === "number" && (
+                        <span className="rounded-full bg-secondary px-2 py-0.5 text-[13px] font-semibold text-text-2">
+                          intento #{s.attempt_number}
+                        </span>
                       )}
                     </div>
                     <div className="flex items-center gap-3">
