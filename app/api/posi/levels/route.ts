@@ -16,22 +16,27 @@ export async function GET(req: NextRequest) {
 
   const { data, error: dbErr } = await supabase
     .from("posi_levels")
-    .select("id, level_number, title, intro, questions")
+    .select("id, level_number, title, intro, questions, skool_course_name")
     .order("level_number", { ascending: true })
   if (dbErr) return NextResponse.json({ error: dbErr.message }, { status: 500 })
 
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
   const role = String((profile as any)?.role ?? "").toLowerCase()
 
+  // skool_course_name no es sensible, pero tampoco le sirve al cliente que
+  // completa el formulario — mismo criterio que correct_index: solo admin.
   const levels = isAdmin(role)
     ? (data ?? [])
-    : (data ?? []).map((level: any) => ({
-        ...level,
-        questions: (level.questions ?? []).map((q: any) => {
-          const { correct_index, ...rest } = q
-          return rest
-        }),
-      }))
+    : (data ?? []).map((level: any) => {
+        const { skool_course_name, ...rest } = level
+        return {
+          ...rest,
+          questions: (level.questions ?? []).map((q: any) => {
+            const { correct_index, ...qRest } = q
+            return qRest
+          }),
+        }
+      })
 
   return NextResponse.json({ levels })
 }

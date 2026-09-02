@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
       supabase.from("crm_clients").select("*").order("created_at", { ascending: false }).limit(1000),
       supabase.from("crm_installments").select("*").order("installment_number", { ascending: true }),
       supabase.from("crm_followups").select("*").order("scheduled_date", { ascending: true }),
-      supabase.from("clients").select("id, business_profile").limit(1000),
+      supabase.from("clients").select("id, business_profile, skool_email").limit(1000),
     ])
 
     if (clientsRes.error)     return NextResponse.json({ error: clientsRes.error.message },     { status: 500 })
@@ -32,10 +32,12 @@ export async function GET(req: NextRequest) {
     const installments = installmentsRes.data
     const followups    = followupsRes.data
 
-    // Mapeo business_profile por id (mismo UUID entre crm_clients y clients)
+    // Mapeo business_profile / skool_email por id (mismo UUID entre crm_clients y clients)
     const businessProfileById: Record<string, string | null> = {}
+    const skoolEmailById: Record<string, string | null> = {}
     for (const c of (portalClientsRes.data ?? [])) {
       businessProfileById[c.id] = c.business_profile ?? null
+      skoolEmailById[c.id] = c.skool_email ?? null
     }
 
     const today = new Date()
@@ -70,6 +72,7 @@ export async function GET(req: NextRequest) {
     const result = (clients ?? []).map((client: any) => ({
       ...client,
       business_profile: businessProfileById[client.id] ?? null,
+      skool_email:      skoolEmailById[client.id]      ?? null,
       installments: installmentsByClient[client.id] ?? [],
       followups:    followupsByClient[client.id]    ?? [],
     }))
@@ -445,6 +448,17 @@ export async function PATCH(req: NextRequest) {
         .update({ business_profile: body.business_profile || null })
         .eq("id", body.id)
       if (portalErr) return NextResponse.json({ error: portalErr.message }, { status: 500 })
+    }
+
+    // skool_email también vive en la tabla portal — solo si el email con el
+    // que el cliente entró a Skool es distinto al del portal (default
+    // sembrado al crear la cuenta, ver app/api/admin/users/create).
+    if (body.skool_email !== undefined) {
+      const { error: skoolErr } = await supabase
+        .from("clients")
+        .update({ skool_email: body.skool_email || null })
+        .eq("id", body.id)
+      if (skoolErr) return NextResponse.json({ error: skoolErr.message }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
