@@ -480,18 +480,11 @@ export function CalendarView() {
             Agendar llamada
           </a>
         </div>
-        <div className="rounded-[10px] border border-border bg-secondary px-4 py-3 space-y-2">
-          {[
-            "Las llamadas son mensuales y no acumulables.",
-            "Cada mes tenés disponible una (1) llamada.",
-            "La llamada debe realizarse dentro del mes correspondiente.",
-            "Si no se agenda en ese período, no se traslada al mes siguiente.",
-          ].map(t => (
-            <li key={t} className="flex items-start gap-2 list-none text-[13px] text-text-3">
-              <span className="mt-1.5 h-1 w-1 rounded-full bg-accent shrink-0" />
-              {t}
-            </li>
-          ))}
+        <div className="rounded-[10px] border border-border bg-secondary px-4 py-3">
+          <p className="flex items-start gap-2 text-[13px] text-text-3">
+            <span className="mt-1.5 h-1 w-1 rounded-full bg-accent shrink-0" />
+            Agendá la llamada cuando estés para el siguiente game planning — lo recomendable es una vez al mes, después de llenar tu reporte mensual.
+          </p>
         </div>
       </div>
     </section>
