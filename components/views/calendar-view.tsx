@@ -480,10 +480,10 @@ export function CalendarView() {
             Agendar llamada
           </a>
         </div>
-        <div className="rounded-[10px] border border-border bg-secondary px-4 py-3">
-          <p className="flex items-start gap-2 text-[13px] text-text-3">
-            <span className="mt-1.5 h-1 w-1 rounded-full bg-accent shrink-0" />
-            Agendá la llamada cuando estés para el siguiente game planning — lo recomendable es una vez al mes, después de llenar tu reporte mensual.
+        <div className="rounded-[10px] border border-border bg-secondary px-4 py-3.5">
+          <p className="text-[15px] font-medium leading-relaxed text-foreground">
+            Agendá la llamada cuando estés para el siguiente game planning — lo recomendable es{" "}
+            <span className="text-accent-ink">una vez al mes</span>, después de llenar tu reporte mensual.
           </p>
         </div>
       </div>
