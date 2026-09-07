@@ -670,9 +670,20 @@ type ApifyResult = { transcript: string | null; failure: { provider: string | nu
 
 // Transitorio = falla de red/servidor de Apify, no una respuesta real sobre el
 // video — vale la pena reintentar antes de asumir que el video en sí falló.
+// apify_item_timeout entra acá también: es un timeout INTERNO del actor (ej.
+// "Timeout awaiting 'request' for 15000ms") que llega como item.error dentro
+// de una respuesta 200 OK — no dice nada del video, así que antes quedaba
+// mal clasificado como no_captions_found y nunca se reintentaba (confirmado
+// con un caso real: el mismo video devolvió este timeout dos veces seguidas
+// mientras el scraping directo pegaba el bloqueo anti-bot de YouTube en
+// paralelo — sin este fix, Apify nunca tenía una segunda chance).
 function isTransientApifyFailure(failure: ApifyResult["failure"]): boolean {
   if (!failure) return false
-  return failure.reason === "apify_exception" || /^apify_failed_(5\d\d|429)$/.test(failure.reason ?? "")
+  return (
+    failure.reason === "apify_exception" ||
+    failure.reason === "apify_item_timeout" ||
+    /^apify_failed_(5\d\d|429)$/.test(failure.reason ?? "")
+  )
 }
 
 async function callApifyOnce(videoId: string, token: string): Promise<ApifyResult> {
@@ -736,6 +747,10 @@ async function callApifyOnce(videoId: string, token: string): Promise<ApifyResul
           normalizedApifyError.includes("age-restricted") ||
           normalizedApifyError.includes("private")
             ? "login_required"
+            // "Timeout awaiting 'request' for Nms" — el actor no llegó a resolver
+            // el video en su propia ventana interna, nada que ver con el video.
+            : normalizedApifyError.includes("timeout")
+            ? "apify_item_timeout"
             : "no_captions_found",
         debug: rawText,
       },
