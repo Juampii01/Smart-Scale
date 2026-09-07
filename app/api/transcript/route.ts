@@ -670,18 +670,20 @@ type ApifyResult = { transcript: string | null; failure: { provider: string | nu
 
 // Transitorio = falla de red/servidor de Apify, no una respuesta real sobre el
 // video — vale la pena reintentar antes de asumir que el video en sí falló.
-// apify_item_timeout entra acá también: es un timeout INTERNO del actor (ej.
-// "Timeout awaiting 'request' for 15000ms") que llega como item.error dentro
-// de una respuesta 200 OK — no dice nada del video, así que antes quedaba
-// mal clasificado como no_captions_found y nunca se reintentaba (confirmado
-// con un caso real: el mismo video devolvió este timeout dos veces seguidas
-// mientras el scraping directo pegaba el bloqueo anti-bot de YouTube en
-// paralelo — sin este fix, Apify nunca tenía una segunda chance).
+// apify_extraction_failed entra acá también: el actor devolvió un item sin
+// metadata real (videoTitle/channelName vacíos) — no llegó a cargar el video,
+// no dice nada de si tiene captions o no. Antes quedaba mal clasificado como
+// no_captions_found (definitivo) y nunca se reintentaba — confirmado con un
+// mismo video que falló así dos veces seguidas, cada vez con un mensaje de
+// error puntual distinto ("Timeout awaiting 'request'...", "Failed to fetch
+// transcript XML: HTTP 404"), mientras el scraping directo pegaba el bloqueo
+// anti-bot de YouTube en paralelo — sin este fix, Apify nunca tenía una
+// segunda chance.
 function isTransientApifyFailure(failure: ApifyResult["failure"]): boolean {
   if (!failure) return false
   return (
     failure.reason === "apify_exception" ||
-    failure.reason === "apify_item_timeout" ||
+    failure.reason === "apify_extraction_failed" ||
     /^apify_failed_(5\d\d|429)$/.test(failure.reason ?? "")
   )
 }
@@ -738,20 +740,31 @@ async function callApifyOnce(videoId: string, token: string): Promise<ApifyResul
 
     const apifyItemError = typeof item?.error === "string" ? item.error : null
     const normalizedApifyError = apifyItemError?.toLowerCase() ?? ""
+    const isRealRestriction =
+      normalizedApifyError.includes("login") ||
+      normalizedApifyError.includes("age-restricted") ||
+      normalizedApifyError.includes("private")
+
+    // Si el actor no llegó ni a resolver videoTitle/channelName, no extrajo
+    // NADA real del video — sea cual sea el mensaje de error puntual. Confirmado
+    // con dos casos reales del mismo video, cada uno con un texto de error
+    // DISTINTO ("Timeout awaiting 'request'...", "Failed to fetch transcript
+    // XML: HTTP 404") pero el mismo patrón de fondo: item completamente vacío.
+    // Matchear por texto de error específico (ej. solo "timeout") es frágil —
+    // esta señal es más confiable: si ni el título cargó, el bloqueo pasó
+    // antes de llegar a los captions, no es un "este video no tiene captions"
+    // real (eso sí dejaría el resto de los campos poblados).
+    const extractionFailed = !item?.videoTitle && !item?.channelName && !item?.channelId
+
     return {
       transcript: null,
       failure: {
         provider: "apify",
-        reason:
-          normalizedApifyError.includes("login") ||
-          normalizedApifyError.includes("age-restricted") ||
-          normalizedApifyError.includes("private")
-            ? "login_required"
-            // "Timeout awaiting 'request' for Nms" — el actor no llegó a resolver
-            // el video en su propia ventana interna, nada que ver con el video.
-            : normalizedApifyError.includes("timeout")
-            ? "apify_item_timeout"
-            : "no_captions_found",
+        reason: isRealRestriction
+          ? "login_required"
+          : extractionFailed
+          ? "apify_extraction_failed"
+          : "no_captions_found",
         debug: rawText,
       },
     }
