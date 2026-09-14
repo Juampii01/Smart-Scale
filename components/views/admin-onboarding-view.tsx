@@ -10,6 +10,74 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+// ─── Plan presets ─────────────────────────────────────────────────────────────
+// Cuatro planes hardcodeados a propósito — el catálogo real (tabla `packages`)
+// es otro slice, todavía sin construir. Cuando exista, estos presets se leen
+// de ahí y esta constante se borra. Ver prompt "Botones de plan en el
+// onboarding" (14 sep 2026) para el detalle de cada monto.
+//
+// Los presets solo autocompletan el estado del formulario — no llaman a
+// ninguna API ni disparan ningún cobro.
+
+type Cuotas12 = [number, number, number, number, number, number, number, number, number, number, number, number]
+
+export interface PlanPreset {
+  id:         string
+  label:      string
+  hint:       string
+  program:    "Smart Scale Grupal" | "Smart Scale Híbrido"
+  forma_pago: string
+  total:      number
+  cuotas:     Cuotas12
+}
+
+// La anotación `: PlanPreset[]` hace que TypeScript chequee cada `cuotas`
+// contra la tupla de 12 — si a algún preset le sobra o falta un valor, esto
+// no compila (reemplaza el assert en runtime que pedía el prompt).
+export const PLAN_PRESETS: PlanPreset[] = [
+  {
+    id:         "grupal-2",
+    label:      "Grupal · entrada en 2 pagos",
+    hint:       "$3.500 en dos + $500/mes",
+    program:    "Smart Scale Grupal",
+    forma_pago: "Entrada en 2 pagos + 11 mensuales de $500",
+    total:      9000,
+    cuotas:     [1750, 2250, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500],
+  },
+  {
+    id:         "grupal-1",
+    label:      "Grupal · entrada en 1 pago",
+    hint:       "$3.000 de una + $500/mes",
+    program:    "Smart Scale Grupal",
+    forma_pago: "Entrada en 1 pago + 11 mensuales de $500",
+    total:      8500,
+    cuotas:     [3000, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500],
+  },
+  {
+    id:         "hibrido-1",
+    label:      "Híbrido · entrada en 1 pago",
+    hint:       "$6.500 de una + $500/mes",
+    program:    "Smart Scale Híbrido",
+    forma_pago: "Entrada en 1 pago + 11 mensuales de $500",
+    total:      12000,
+    cuotas:     [6500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500],
+  },
+  {
+    id:         "hibrido-2",
+    label:      "Híbrido · entrada en 2 pagos",
+    hint:       "$7.000 en dos + $500/mes",
+    program:    "Smart Scale Híbrido",
+    forma_pago: "Entrada en 2 pagos + 11 mensuales de $500",
+    total:      12500,
+    cuotas:     [3500, 4000, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500],
+  },
+]
+
+const CUOTA_KEYS = [
+  "cuota_1", "cuota_2", "cuota_3", "cuota_4", "cuota_5", "cuota_6",
+  "cuota_7", "cuota_8", "cuota_9", "cuota_10", "cuota_11", "cuota_12",
+] as const
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface OnboardingFlowStatus {
@@ -285,6 +353,36 @@ function OnboardingForm({
       setFields(prev => ({ ...prev, [key]: e.target.value }))
   }
 
+  // Autocompleta programa, monto, duración, forma de pago y las 12 cuotas en
+  // una sola escritura — el spread de `prev` preserva nombre/email/teléfono/
+  // domicilio/setter/lead ya cargados. Siempre limpia las 12 cuotas (nunca
+  // deja un resto de un preset anterior): el backend numera por posición en
+  // el array filtrado, así que un hueco corre las fechas de vencimiento.
+  function applyPreset(preset: PlanPreset) {
+    setFields(prev => {
+      const next: typeof prev = {
+        ...prev,
+        program:          preset.program,
+        total_amount:     String(preset.total),
+        program_duration: "12",
+        forma_pago:        preset.forma_pago,
+      }
+      CUOTA_KEYS.forEach((key, i) => { (next as any)[key] = String(preset.cuotas[i]) })
+      return next
+    })
+  }
+
+  // Para marcar visualmente el botón aplicado — si el usuario edita algo a
+  // mano después (una cuota, el monto, el programa), deja de matchear y el
+  // botón se desmarca solo.
+  function isPresetApplied(preset: PlanPreset): boolean {
+    if (fields.program !== preset.program) return false
+    if (fields.total_amount !== String(preset.total)) return false
+    if (fields.program_duration !== "12") return false
+    if (fields.forma_pago !== preset.forma_pago) return false
+    return CUOTA_KEYS.every((key, i) => (fields as any)[key] === String(preset.cuotas[i]))
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
@@ -292,6 +390,16 @@ function OnboardingForm({
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { setError("No hay sesión activa"); return }
+
+      // Hoy nada detecta esto y los dos números se guardan igual en
+      // crm_clients — total_amount y la suma real de crm_installments
+      // pueden quedar desincronizados sin que nadie se entere.
+      const cuotasSum = CUOTA_KEYS.reduce((sum, key) => sum + ((fields as any)[key] ? Number((fields as any)[key]) : 0), 0)
+      const totalAmountNum = fields.total_amount ? Number(fields.total_amount) : 0
+      if (cuotasSum !== totalAmountNum) {
+        setError(`Las cuotas suman ${fmtCurrency(cuotasSum)} y el monto total dice ${fmtCurrency(totalAmountNum)}.`)
+        return
+      }
 
       const res = await fetch("/api/admin/onboarding", {
         method:  "POST",
@@ -483,6 +591,32 @@ function OnboardingForm({
               <input className={inputCls} placeholder="Ej: transferencia, tarjeta, efectivo, plan de pagos..." value={fields.forma_pago} onChange={set("forma_pago")} />
             </div>
           </div>
+        </div>
+
+        {/* Planes */}
+        <div>
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-accent-ink/60">Planes (autocompleta las cuotas)</p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {PLAN_PRESETS.map(preset => {
+              const applied = isPresetApplied(preset)
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => applyPreset(preset)}
+                  className={cn(
+                    "rounded-xl border p-4 text-left transition-colors",
+                    applied ? "border-accent bg-accent-soft" : "border-border bg-secondary hover:border-border-hover"
+                  )}
+                >
+                  <p className="text-[13px] font-semibold text-foreground">{preset.label}</p>
+                  <p className="mt-0.5 text-[13px] text-text-2">{preset.hint}</p>
+                  <p className="mt-2 text-[18px] font-bold text-foreground">{fmtCurrency(preset.total)}</p>
+                </button>
+              )
+            })}
+          </div>
+          <p className="mt-2 text-[13px] text-text-2">Cargan las cuotas en el formulario. No cobran nada.</p>
         </div>
 
         {/* Cuotas */}
