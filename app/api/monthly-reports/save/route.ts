@@ -25,11 +25,17 @@ const NUMERIC_FIELDS = [
   "email_sent", "email_open_rate",
   // NPS 1–10 — column added in migration 20260531000002
   "nps_score",
+  // Confianza por etapa (0–10) + valor de contratos firmados — wizard de 5
+  // pasos, columnas nuevas en 20260915000001_monthly_reports_wizard_fields.
+  "conf_short_form", "conf_long_form", "conf_email", "conf_business",
+  "new_business_value",
 ] as const
 
 const TEXT_FIELDS = [
   "biggest_win", "next_focus", "support_needed",
   "improvements", "report_date",
+  // Texto libre al lado del NPS — columna nueva en 20260915000001.
+  "recommendation",
 ] as const
 
 // Assertion de arranque: si algún campo de FIELD_GROUPS (el formulario) no
