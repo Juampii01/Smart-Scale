@@ -22,6 +22,11 @@ type PrefillResponse = {
   active_clients: PrefillField
 }
 
+// Lima de marca — el botón Siguiente/Enviar va SIEMPRE en este color, nunca
+// en el color de la etapa (un botón rojo/naranja se lee como una acción
+// destructiva, no como "avanzar").
+const BRAND_LIME = "#C9E45C"
+
 const AUTO_DB_KEYS = ["cash_collected", "mrr", "new_clients", "active_clients"] as const
 const AUTO_DELTA_KEYS = ["yt_new_subscribers", "email_new_subscribers"] as const
 const DELTA_TOTAL_OF: Record<string, string> = {
@@ -756,7 +761,10 @@ export function ReportInputView() {
             </div>
           </div>
 
-          {/* Barra de pasos */}
+          {/* Barra de pasos — el color de la etapa vive solo en el número
+              (mismo criterio que el resto de la pantalla); la píldora en sí
+              nunca se pinta entera, para no repetir el problema del botón
+              "Siguiente" rojo que se leía como una acción destructiva. */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
             {STEPS.map((s, i) => {
               const state = i < stepIndex ? "done" : i === stepIndex ? "current" : "pending"
@@ -768,15 +776,19 @@ export function ReportInputView() {
                   className="flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-[12.5px] font-semibold transition-colors"
                   style={
                     state === "current"
-                      ? { backgroundColor: s.color, color: "#000" }
+                      ? { backgroundColor: "rgba(255,255,255,0.10)", color: "#ffffff" }
                       : state === "done"
-                      ? { backgroundColor: `${s.color}26`, color: s.color }
-                      : { backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)" }
+                      ? { backgroundColor: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.55)" }
+                      : { backgroundColor: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.35)" }
                   }
                 >
                   <span
                     className="flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold"
-                    style={state === "current" ? { backgroundColor: "rgba(0,0,0,0.2)" } : { backgroundColor: "rgba(255,255,255,0.1)" }}
+                    style={
+                      state === "pending"
+                        ? { backgroundColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)" }
+                        : { backgroundColor: s.color, color: "#0a0a0c" }
+                    }
                   >
                     {state === "done" ? "✓" : s.number}
                   </span>
@@ -873,7 +885,7 @@ export function ReportInputView() {
                 type="submit"
                 disabled={status === "loading" || !ownClientId || !canGoNext}
                 className="flex items-center gap-2 rounded-xl px-6 py-2.5 text-[13px] font-bold transition disabled:opacity-50"
-                style={{ backgroundColor: currentStep.color, color: "#000" }}
+                style={{ backgroundColor: BRAND_LIME, color: "#0a0a0c" }}
               >
                 {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
                 {status === "loading" ? "Guardando…" : `Enviar reporte de ${monthLabel}`}
@@ -884,7 +896,7 @@ export function ReportInputView() {
                 onClick={goNext}
                 disabled={!canGoNext}
                 className="flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-[13px] font-bold transition disabled:opacity-40"
-                style={{ backgroundColor: currentStep.color, color: "#000" }}
+                style={{ backgroundColor: BRAND_LIME, color: "#0a0a0c" }}
               >
                 Siguiente <ChevronRight className="h-4 w-4" />
               </button>
