@@ -192,7 +192,9 @@ function ConfirmOverwriteDialog({
   )
 }
 
-// ─── Slider 0–10 (o 1–10) con barra llena ─────────────────────────────────────
+// ─── Slider 0–10 (o 1–10) — input[type=range] real, siempre con perilla ──────
+
+const SLIDER_DEFAULT = 7
 
 function SliderField({
   field,
@@ -207,46 +209,33 @@ function SliderField({
 }) {
   const min = field.slider!.min
   const max = field.slider!.max
-  const n = value === undefined || value === "" ? null : Number(value)
-  const pct = n === null ? 0 : ((n - min) / (max - min)) * 100
-  const options = Array.from({ length: max - min + 1 }, (_, i) => min + i)
+  const hasValue = value !== undefined && value !== ""
+  const n = hasValue ? Number(value) : SLIDER_DEFAULT
+  const pct = ((n - min) / (max - min)) * 100
 
   return (
-    <div className="sm:col-span-2 lg:col-span-3 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+    <div className="sm:col-span-2 lg:col-span-3 flex flex-col gap-2">
       <label className="text-[12.5px] font-semibold uppercase tracking-wide text-white/60">
         {field.label} <span className="normal-case font-normal text-white/35">— del {min} al {max}</span>
       </label>
       <div className="flex items-center gap-4">
-        <div className="relative h-2.5 flex-1 rounded-full bg-white/10">
-          <div
-            className="absolute inset-y-0 left-0 rounded-full transition-all"
-            style={{ width: `${pct}%`, backgroundColor: color }}
-          />
-          {n !== null && (
-            <div
-              className="absolute top-1/2 h-5 w-5 -translate-y-1/2 -translate-x-1/2 rounded-full border-[3px] bg-white shadow"
-              style={{ left: `${pct}%`, borderColor: color }}
-            />
-          )}
-        </div>
-        <span className="w-10 text-right text-[26px] font-extrabold tabular-nums text-white">{n ?? "—"}</span>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={1}
+          value={n}
+          onChange={(e) => onChange(e.target.value)}
+          className="report-slider flex-1"
+          style={{ ["--hue" as any]: color, ["--p" as any]: `${pct}%` }}
+        />
+        <span className={`w-10 text-right text-[26px] font-extrabold tabular-nums ${hasValue ? "text-white" : "text-white/35"}`}>
+          {n}
+        </span>
       </div>
-      <div className="flex flex-wrap gap-1.5">
-        {options.map((o) => (
-          <button
-            key={o}
-            type="button"
-            onClick={() => onChange(String(o))}
-            className="h-8 w-8 rounded-lg text-[12.5px] font-bold transition-colors"
-            style={
-              n === o
-                ? { backgroundColor: color, color: "#000" }
-                : { backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.55)" }
-            }
-          >
-            {o}
-          </button>
-        ))}
+      <div className="flex justify-between text-[11px] font-semibold uppercase tracking-widest text-white/30">
+        <span>Baja</span>
+        <span>Alta</span>
       </div>
     </div>
   )
