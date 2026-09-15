@@ -1,96 +1,76 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase"
 import { useOwnClient, useActiveClient, useActiveClientName, useSelectedMonth, useUserRole } from "@/components/layout/dashboard-layout"
-import { isDeveloper, isAdmin as isAdminRole } from "@/lib/auth/permissions"
+import { isDeveloper } from "@/lib/auth/permissions"
 import { fakeMonthlyReport } from "@/lib/dev-test-data"
-import { CheckCircle, AlertCircle, Loader2, AlertTriangle, History, FileText, Eye, FlaskConical, Sparkles } from "lucide-react"
+import { STEPS, type ReportFieldDef } from "@/lib/monthly-report-fields"
+import {
+  CheckCircle, AlertCircle, Loader2, AlertTriangle, History, FileText, Eye,
+  FlaskConical, Sparkles, ChevronDown, ChevronLeft, ChevronRight, Pencil,
+} from "lucide-react"
 import { ReportHistoryView } from "@/components/views/report-history-view"
 
-// ─── Field definitions ────────────────────────────────────────────────────────
-
-const FIELD_GROUPS = [
-  {
-    key: "business",
-    label: "Business",
-    color: "bg-emerald-500",
-    fields: [
-      { key: "total_revenue",   label: "Revenue total",       type: "number", hint: "USD" },
-      { key: "cash_collected",  label: "Cash Collected",      type: "number", hint: "USD" },
-      { key: "mrr",             label: "MRR",                 type: "number", hint: "USD" },
-      { key: "ad_spend",        label: "Inversión en Ads",    type: "number", hint: "USD" },
-      { key: "software_costs",  label: "Costos de Software",  type: "number", hint: "USD" },
-      { key: "variable_costs",  label: "Costos Variables",    type: "number", hint: "USD" },
-    ],
-  },
-  {
-    key: "sales",
-    label: "Sales",
-    color: "bg-accent",
-    fields: [
-      { key: "scheduled_calls",      label: "Llamadas Agendadas",     type: "number" },
-      { key: "attended_calls",       label: "Llamadas Atendidas",     type: "number" },
-      { key: "qualified_calls",      label: "Llamadas Calificadas",   type: "number" },
-      { key: "aplications",          label: "Aplicaciones",           type: "number" },
-      { key: "inbound_messages",     label: "Mensajes Entrantes",     type: "number" },
-      { key: "offer_docs_sent",      label: "OfferDocs Enviados",     type: "number" },
-      { key: "offer_docs_responded", label: "OfferDocs Respondidos",  type: "number" },
-      { key: "cierres_por_offerdoc", label: "Cierres por OfferDoc",   type: "number" },
-      { key: "new_clients",          label: "Nuevos Clientes",        type: "number", highlight: true },
-      { key: "active_clients",       label: "Clientes Activos",       type: "number" },
-      { key: "case_studies",         label: "Casos de Éxito",         type: "number", hint: "total acumulado" },
-    ],
-  },
-  {
-    key: "shortform",
-    label: "Formato Corto",
-    color: "bg-pink-500",
-    fields: [
-      { key: "short_followers", label: "Seguidores",         type: "number" },
-      { key: "short_reach",     label: "Alcance",            type: "number" },
-      { key: "short_posts",     label: "Posts Publicados",   type: "number" },
-    ],
-  },
-  {
-    key: "youtube",
-    label: "YouTube",
-    color: "bg-red-500",
-    fields: [
-      { key: "yt_subscribers",     label: "Suscriptores",              type: "number" },
-      { key: "yt_new_subscribers", label: "Nuevos Suscriptores",       type: "number" },
-      { key: "yt_monthly_audience",label: "Audiencia Mensual",         type: "number" },
-      { key: "yt_views",           label: "Vistas",                    type: "number" },
-      { key: "yt_watch_time",      label: "Tiempo de Reproducción (hs)",type: "number" },
-      { key: "yt_videos",          label: "Videos Publicados",         type: "number" },
-    ],
-  },
-  {
-    key: "email",
-    label: "Email",
-    color: "bg-blue-500",
-    fields: [
-      { key: "email_subscribers",     label: "Total Subscribers",    type: "number" },
-      { key: "email_new_subscribers", label: "Nuevos Suscriptores",  type: "number" },
-      { key: "email_sent",            label: "Emails Sent",          type: "number" },
-      { key: "email_open_rate",       label: "Open Rate (%)",        type: "number" },
-    ],
-  },
-  {
-    key: "reflection",
-    label: "Reflection",
-    color: "bg-secondary",
-    fields: [
-      { key: "biggest_win",    label: "Mayor Logro del Mes",                                    type: "text" },
-      { key: "next_focus",     label: "Próximo Enfoque",                                        type: "text" },
-      { key: "support_needed", label: "Soporte Necesario",                                      type: "text" },
-      { key: "improvements",   label: "Mejoras",                                                type: "text" },
-      { key: "nps_score",      label: "¿Cuánto recomendarías Smart Scale?",  type: "number", hint: "del 1 al 10", min: 1, max: 10 },
-    ],
-  },
-] as const
-
 type FormValues = Record<string, string>
+type ManualOverrides = Record<string, boolean>
+type PrefillField = { value: number; source: string } | { value: null; reason: string }
+type PrefillResponse = {
+  cash_collected: PrefillField
+  mrr: PrefillField
+  new_clients: PrefillField
+  active_clients: PrefillField
+}
+
+const AUTO_DB_KEYS = ["cash_collected", "mrr", "new_clients", "active_clients"] as const
+const AUTO_DELTA_KEYS = ["yt_new_subscribers", "email_new_subscribers"] as const
+const DELTA_TOTAL_OF: Record<string, string> = {
+  yt_new_subscribers: "yt_subscribers",
+  email_new_subscribers: "email_subscribers",
+}
+
+function draftKey(clientId: string, month: string) {
+  return `monthly-report-draft:${clientId}:${month}`
+}
+
+function prevMonthOf(month: string): string {
+  const [y, m] = month.split("-").map(Number)
+  const d = new Date(y, m - 2, 1)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+}
+
+function monthLabelOf(month: string): string {
+  try {
+    return new Date(`${month}-01`).toLocaleDateString("es-AR", { month: "long", year: "numeric" })
+  } catch {
+    return month
+  }
+}
+
+/** Vacío nunca frena — solo lo inválido: negativo, o fuera de min/max (ej. porcentaje). */
+function fieldError(field: ReportFieldDef, raw: string | undefined): string | null {
+  if (field.type !== "number") return null
+  if (raw === undefined || raw === "") return null
+  const n = Number(raw)
+  if (!Number.isFinite(n)) return "Tiene que ser un número."
+  if (n < 0) return "No puede ser negativo."
+  if (field.min !== undefined && n < field.min) return `Mínimo ${field.min}.`
+  if (field.max !== undefined && n > field.max) return `Máximo ${field.max}.`
+  return null
+}
+
+function allFieldsOfStep(step: (typeof STEPS)[number]): ReportFieldDef[] {
+  return [
+    ...(step.trackedFields ?? []),
+    ...step.manualFields,
+    ...(step.foldedBlock?.fields ?? []),
+    ...(step.additionalFields ?? []),
+  ]
+}
+
+function stepHasErrors(step: (typeof STEPS)[number], values: FormValues): boolean {
+  return allFieldsOfStep(step).some((f) => fieldError(f, values[f.key]) !== null)
+}
 
 // ─── Celebration overlay ──────────────────────────────────────────────────────
 
@@ -115,13 +95,7 @@ function CelebrationOverlay({
     return () => clearInterval(t)
   }, [onClose])
 
-  const monthLabel = (() => {
-    try {
-      return new Date(month.length === 7 ? `${month}-01` : month)
-        .toLocaleDateString("es-AR", { month: "long", year: "numeric" })
-    } catch { return month }
-  })()
-
+  const monthLabel = monthLabelOf(month.length === 7 ? month : month.slice(0, 7))
   const firstName = name?.split(" ")[0] ?? null
 
   return (
@@ -133,9 +107,7 @@ function CelebrationOverlay({
         className="relative mx-4 w-full max-w-sm overflow-hidden rounded-[14px] border border-border bg-card shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
-
         <div className="relative space-y-6 px-8 py-10 text-center">
-          {/* Animated icon */}
           <div className="relative mx-auto w-fit">
             <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent-soft ring-4 ring-accent/20">
               <CheckCircle className="h-10 w-10 text-accent-ink" style={{ animation: "bounce 1.5s infinite" }} />
@@ -144,7 +116,6 @@ function CelebrationOverlay({
             <Sparkles className="absolute -bottom-1 -left-1 h-4 w-4 animate-pulse text-accent-ink/40" style={{ animationDelay: "0.6s" }} />
           </div>
 
-          {/* Message */}
           <div className="space-y-2">
             <h2 className="text-[24px] font-extrabold tracking-tight text-foreground">
               {firstName ? `¡Felicitaciones, ${firstName}!` : "¡Reporte completado!"}
@@ -159,7 +130,6 @@ function CelebrationOverlay({
             </p>
           </div>
 
-          {/* CTA with countdown */}
           <button
             onClick={onClose}
             className="inline-flex items-center gap-2 rounded-xl btn-accent px-7 py-2.5 text-[13px] font-bold transition active:scale-95"
@@ -222,6 +192,66 @@ function ConfirmOverwriteDialog({
   )
 }
 
+// ─── Slider 0–10 (o 1–10) con barra llena ─────────────────────────────────────
+
+function SliderField({
+  field,
+  value,
+  onChange,
+  color,
+}: {
+  field: ReportFieldDef
+  value: string | undefined
+  onChange: (v: string) => void
+  color: string
+}) {
+  const min = field.slider!.min
+  const max = field.slider!.max
+  const n = value === undefined || value === "" ? null : Number(value)
+  const pct = n === null ? 0 : ((n - min) / (max - min)) * 100
+  const options = Array.from({ length: max - min + 1 }, (_, i) => min + i)
+
+  return (
+    <div className="sm:col-span-2 lg:col-span-3 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <label className="text-[12.5px] font-semibold uppercase tracking-wide text-white/60">
+        {field.label} <span className="normal-case font-normal text-white/35">— del {min} al {max}</span>
+      </label>
+      <div className="flex items-center gap-4">
+        <div className="relative h-2.5 flex-1 rounded-full bg-white/10">
+          <div
+            className="absolute inset-y-0 left-0 rounded-full transition-all"
+            style={{ width: `${pct}%`, backgroundColor: color }}
+          />
+          {n !== null && (
+            <div
+              className="absolute top-1/2 h-5 w-5 -translate-y-1/2 -translate-x-1/2 rounded-full border-[3px] bg-white shadow"
+              style={{ left: `${pct}%`, borderColor: color }}
+            />
+          )}
+        </div>
+        <span className="w-10 text-right text-[26px] font-extrabold tabular-nums text-white">{n ?? "—"}</span>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((o) => (
+          <button
+            key={o}
+            type="button"
+            onClick={() => onChange(String(o))}
+            className="h-8 w-8 rounded-lg text-[12.5px] font-bold transition-colors"
+            style={
+              n === o
+                ? { backgroundColor: color, color: "#000" }
+                : { backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.55)" }
+            }
+          >
+            {o}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function ReportInputView() {
@@ -241,72 +271,196 @@ export function ReportInputView() {
     const m = ctxMonth ?? new Date().toISOString().slice(0, 7)
     return /^\d{4}-\d{2}$/.test(m) ? m : m.slice(0, 7)
   })
+
   const [values, setValues] = useState<FormValues>({})
+  const [manualOverrides, setManualOverrides] = useState<ManualOverrides>({})
+  const [stepIndex, setStepIndex] = useState(0)
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [message, setMessage] = useState<string>("")
   const [existingData, setExistingData] = useState<Record<string, any> | null>(null)
   const [loadingExisting, setLoadingExisting] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [showCelebration, setShowCelebration] = useState(false)
-  const isAdmin = isAdminRole(userRole)
-  const [mrrCalc, setMrrCalc] = useState<{ loading: boolean; value: number | null; error: string | null }>({ loading: false, value: null, error: null })
+  const [prefill, setPrefill] = useState<PrefillResponse | null>(null)
+  const [prevMonthValues, setPrevMonthValues] = useState<{ yt_subscribers: number | null; email_subscribers: number | null } | null>(null)
+  const [openAdditional, setOpenAdditional] = useState<Record<string, boolean>>({})
+  const [foldedOpen, setFoldedOpen] = useState<Record<string, boolean>>({})
 
-  // Load existing report for selected client+month
+  const restoredFromDraftRef = useRef(false)
+
+  const setValue = (key: string, val: string) => setValues((prev) => ({ ...prev, [key]: val }))
+  const editAuto = (key: string) => setManualOverrides((prev) => ({ ...prev, [key]: true }))
+
+  // ── Restaurar borrador (localStorage) — antes de que llegue el reporte
+  // guardado, para que un F5 en medio de la carga no pierda nada (client_id + month).
+  useEffect(() => {
+    restoredFromDraftRef.current = false
+    if (!ownClientId || !month || typeof window === "undefined") return
+    try {
+      const raw = window.localStorage.getItem(draftKey(ownClientId, month))
+      if (raw) {
+        const draft = JSON.parse(raw)
+        if (draft && typeof draft === "object") {
+          setValues(draft.values ?? {})
+          setManualOverrides(draft.manualOverrides ?? {})
+          setStepIndex(typeof draft.stepIndex === "number" ? draft.stepIndex : 0)
+          restoredFromDraftRef.current = true
+        }
+      }
+    } catch {
+      // localStorage puede fallar (modo privado, cuota) — no rompe el form.
+    }
+  }, [ownClientId, month])
+
+  // ── Cargar reporte existente para cliente+mes ───────────────────────────
   useEffect(() => {
     if (!ownClientId || !month) return
     setLoadingExisting(true)
     setExistingData(null)
-    setValues({})
+    if (!restoredFromDraftRef.current) setValues({})
 
     const monthValue = /^\d{4}-\d{2}$/.test(month) ? `${month}-01` : month
     const supabase = createClient()
 
-    supabase
-      .from("monthly_reports")
-      .select("*")
-      .eq("client_id", ownClientId)
-      .eq("month", monthValue)
-      .maybeSingle()
-      .then(({ data }) => {
+    ;(async () => {
+      try {
+        const { data } = await supabase
+          .from("monthly_reports")
+          .select("*")
+          .eq("client_id", ownClientId)
+          .eq("month", monthValue)
+          .maybeSingle()
+
         setExistingData(data ?? null)
-        if (data) {
+        if (data && !restoredFromDraftRef.current) {
           const prefilled: FormValues = {}
-          for (const group of FIELD_GROUPS) {
-            for (const field of group.fields) {
+          for (const step of STEPS) {
+            for (const field of allFieldsOfStep(step)) {
               const v = data[field.key]
               if (v !== null && v !== undefined) prefilled[field.key] = String(v)
             }
           }
           setValues(prefilled)
+          // Un campo guardado como "manual" (pisado a mano) se respeta y no
+          // se vuelve a auto-completar al reabrir el reporte.
+          const sources = data.field_sources
+          if (sources && typeof sources === "object") {
+            const overrides: ManualOverrides = {}
+            for (const [key, src] of Object.entries(sources)) {
+              if (src === "manual") overrides[key] = true
+            }
+            setManualOverrides(overrides)
+          }
         }
+      } catch {
+        // ignorar — el reporte queda en blanco si la carga falla
+      } finally {
         setLoadingExisting(false)
-      })
-      .catch(() => setLoadingExisting(false))
+      }
+    })()
   }, [ownClientId, month])
 
-  const setValue = (key: string, val: string) => {
-    setValues((prev) => ({ ...prev, [key]: val }))
-  }
+  // ── Mes anterior (para yt_new_subscribers / email_new_subscribers) ─────
+  useEffect(() => {
+    if (!ownClientId || !month) { setPrevMonthValues(null); return }
+    const supabase = createClient()
+    const prevMonthValue = `${prevMonthOf(month)}-01`
 
-  // Solo admin (Ann/Juampi/Steffano) — el MRR calculado es de TODA la
-  // empresa, no de un cliente puntual, así que nunca se le muestra a un
-  // cliente normal llenando su propio reporte.
-  const fetchCalculatedMRR = async () => {
-    setMrrCalc({ loading: true, value: null, error: null })
+    ;(async () => {
+      try {
+        const { data } = await supabase
+          .from("monthly_reports")
+          .select("yt_subscribers, email_subscribers")
+          .eq("client_id", ownClientId)
+          .eq("month", prevMonthValue)
+          .maybeSingle()
+        setPrevMonthValues(data ? { yt_subscribers: data.yt_subscribers, email_subscribers: data.email_subscribers } : { yt_subscribers: null, email_subscribers: null })
+      } catch {
+        setPrevMonthValues(null)
+      }
+    })()
+  }, [ownClientId, month])
+
+  // ── Prefill de cash_collected / mrr / new_clients / active_clients ─────
+  // Solo interno (admin/team/setter) — resolveInternalScope del lado del
+  // server. Para un cliente normal esto va a devolver 403 y el catch lo
+  // deja en null: los campos quedan manuales, sin mostrar ningún error.
+  useEffect(() => {
+    if (!ownClientId || !month) { setPrefill(null); return }
+    let cancelled = false
+    ;(async () => {
+      try {
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session?.access_token) { if (!cancelled) setPrefill(null); return }
+        const res = await fetch(`/api/monthly-reports/prefill?month=${month}&client_id=${ownClientId}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        if (!res.ok) { if (!cancelled) setPrefill(null); return }
+        const json = await res.json()
+        if (!cancelled) setPrefill(json)
+      } catch {
+        if (!cancelled) setPrefill(null)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [ownClientId, month])
+
+  // Aplica el prefill como valor por defecto — solo si el campo está vacío
+  // y no fue pisado a mano.
+  useEffect(() => {
+    if (!prefill) return
+    setValues((prev) => {
+      const next = { ...prev }
+      for (const key of AUTO_DB_KEYS) {
+        if (manualOverrides[key]) continue
+        if (next[key] !== undefined && next[key] !== "") continue
+        const field = prefill[key]
+        if (field && field.value !== null) next[key] = String(field.value)
+      }
+      return next
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefill, manualOverrides])
+
+  // Recalcula en vivo yt_new_subscribers / email_new_subscribers contra el
+  // mes anterior mientras la persona escribe el total del mes. Nunca
+  // muestra un 0 calculado como si fuera un dato: si falta el mes anterior
+  // o el total de este mes, queda en blanco y editable.
+  useEffect(() => {
+    if (!prevMonthValues) return
+    setValues((prev) => {
+      const next = { ...prev }
+      for (const deltaKey of AUTO_DELTA_KEYS) {
+        if (manualOverrides[deltaKey]) continue
+        const totalKey = DELTA_TOTAL_OF[deltaKey]
+        const prevTotal = prevMonthValues[totalKey as keyof typeof prevMonthValues]
+        const currentRaw = prev[totalKey]
+        if (currentRaw === undefined || currentRaw === "" || prevTotal === null || prevTotal === undefined) {
+          if (next[deltaKey] !== undefined) delete next[deltaKey]
+          continue
+        }
+        const currentTotal = Number(currentRaw)
+        if (!Number.isFinite(currentTotal)) continue
+        next[deltaKey] = String(currentTotal - prevTotal)
+      }
+      return next
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values.yt_subscribers, values.email_subscribers, prevMonthValues, manualOverrides])
+
+  // ── Borrador automático (localStorage) ──────────────────────────────────
+  useEffect(() => {
+    if (!ownClientId || !month || typeof window === "undefined") return
     try {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.access_token) { setMrrCalc({ loading: false, value: null, error: "Sin sesión" }); return }
-      const res = await fetch(`/api/admin/mrr?month=${month}`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      const json = await res.json()
-      if (!res.ok) { setMrrCalc({ loading: false, value: null, error: json?.error ?? "Error" }); return }
-      setMrrCalc({ loading: false, value: json.mrr, error: null })
-    } catch (err: any) {
-      setMrrCalc({ loading: false, value: null, error: err?.message ?? "Error inesperado" })
+      window.localStorage.setItem(
+        draftKey(ownClientId, month),
+        JSON.stringify({ values, manualOverrides, stepIndex, savedAt: Date.now() })
+      )
+    } catch {
+      // ignorar — el borrador es una conveniencia, no algo crítico.
     }
-  }
+  }, [ownClientId, month, values, manualOverrides, stepIndex])
 
   // Called after confirmation (or directly if no existing data).
   // Acepta un set de valores explícito (usado por el botón "Testear").
@@ -325,10 +479,21 @@ export function ReportInputView() {
         return
       }
 
+      const effectiveValues = valuesOverride ?? values
       const body: Record<string, unknown> = { client_id: ownClientId, month }
-      for (const [key, raw] of Object.entries(valuesOverride ?? values)) {
+      for (const [key, raw] of Object.entries(effectiveValues)) {
         if (raw !== "" && raw !== null && raw !== undefined) body[key] = raw
       }
+
+      // Registro de qué campos automáticos quedaron auto vs. pisados a mano
+      // — sin esto no se puede saber después por qué un número no coincide.
+      const fieldSources: Record<string, "auto" | "manual"> = {}
+      for (const key of [...AUTO_DB_KEYS, ...AUTO_DELTA_KEYS]) {
+        const raw = effectiveValues[key]
+        if (raw === undefined || raw === "") continue
+        fieldSources[key] = manualOverrides[key] ? "manual" : "auto"
+      }
+      if (Object.keys(fieldSources).length > 0) body.field_sources = fieldSources
 
       const res = await fetch("/api/monthly-reports/save", {
         method: "POST",
@@ -350,6 +515,9 @@ export function ReportInputView() {
       setStatus("success")
       setExistingData(data.report)
       setShowCelebration(true)
+      if (ownClientId && typeof window !== "undefined") {
+        try { window.localStorage.removeItem(draftKey(ownClientId, month)) } catch { /* ignore */ }
+      }
       const eventsMsg = data.events_enqueued > 0
         ? ` ${data.events_enqueued} notificación(es) enviadas.`
         : ""
@@ -373,7 +541,6 @@ export function ReportInputView() {
       setMessage("Seleccioná un mes antes de guardar.")
       return
     }
-    // If data already exists, ask for confirmation first
     if (existingData) {
       setShowConfirm(true)
       return
@@ -391,6 +558,99 @@ export function ReportInputView() {
   }
 
   const isUpdate = Boolean(existingData)
+  const currentStep = STEPS[stepIndex]
+  const isLastStep = stepIndex === STEPS.length - 1
+  const canGoNext = !stepHasErrors(currentStep, values)
+  const monthLabel = monthLabelOf(month)
+
+  const goNext = () => { if (!canGoNext) return; setStepIndex((i) => Math.min(i + 1, STEPS.length - 1)) }
+  const goPrev = () => setStepIndex((i) => Math.max(i - 1, 0))
+
+  // ── Render de un campo (número / texto / auto) ──────────────────────────
+  const renderField = (field: ReportFieldDef, color: string) => {
+    if (field.slider) {
+      return (
+        <SliderField
+          key={field.key}
+          field={field}
+          value={values[field.key]}
+          onChange={(v) => setValue(field.key, v)}
+          color={color}
+        />
+      )
+    }
+
+    const isAutoDb = field.auto === "db"
+    const isAutoDelta = field.auto === "delta"
+    const isManual = !!manualOverrides[field.key]
+    const dbPrefillField = isAutoDb ? prefill?.[field.key as (typeof AUTO_DB_KEYS)[number]] : undefined
+    // Sin fuente (cliente normal sin acceso al prefill, o el prefill no
+    // encontró datos para este tenant): se muestra como campo manual común.
+    const dbUnavailable = isAutoDb && (!prefill || dbPrefillField?.value === null || dbPrefillField === undefined)
+    const showAutoUi = (isAutoDb || isAutoDelta) && !isManual && !dbUnavailable && values[field.key] !== undefined && values[field.key] !== ""
+    const err = fieldError(field, values[field.key])
+
+    return (
+      <div key={field.key} className="flex flex-col gap-1.5">
+        <label className="text-[12.5px] font-semibold uppercase tracking-wide text-white/60">
+          {field.label}
+          {field.hint && <span className="ml-1 normal-case tracking-normal font-normal text-white/35">({field.hint})</span>}
+        </label>
+
+        {field.type === "text" ? (
+          <textarea
+            value={values[field.key] ?? ""}
+            onChange={(e) => setValue(field.key, e.target.value)}
+            rows={2}
+            placeholder="—"
+            className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[16px] text-white placeholder:text-white/30 focus:outline-none focus:ring-1"
+            style={{ ["--tw-ring-color" as any]: color }}
+          />
+        ) : showAutoUi ? (
+          <div className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+            <span className="text-[16px] font-bold text-white tabular-nums">
+              {Number(values[field.key]).toLocaleString()}
+            </span>
+            <button
+              type="button"
+              onClick={() => editAuto(field.key)}
+              className="flex items-center gap-1 text-[12.5px] font-medium text-white/60 transition-colors hover:text-white"
+            >
+              <Pencil className="h-3 w-3" /> editar
+            </button>
+          </div>
+        ) : (
+          <input
+            type="number"
+            value={values[field.key] ?? ""}
+            onChange={(e) => setValue(field.key, e.target.value)}
+            placeholder="0"
+            step="any"
+            className="w-full rounded-xl border bg-white/5 px-3 py-2 text-[16px] font-semibold text-white placeholder:text-white/30 focus:outline-none focus:ring-1"
+            style={{ borderColor: err ? "#f87171" : "rgba(255,255,255,0.12)", ["--tw-ring-color" as any]: color }}
+          />
+        )}
+
+        {err && <span className="text-[12.5px] text-red-400">{err}</span>}
+
+        {showAutoUi && isAutoDb && dbPrefillField?.value !== null && (
+          <div className="flex items-center gap-1.5">
+            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white">AUTO</span>
+            <span className="text-[12.5px] text-white/45">{(dbPrefillField as { source: string }).source}</span>
+          </div>
+        )}
+        {showAutoUi && isAutoDelta && (
+          <div className="flex items-center gap-1.5">
+            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white">AUTO</span>
+            <span className="text-[12.5px] text-white/45">Calculado: este mes − mes anterior</span>
+          </div>
+        )}
+        {isAutoDb && !showAutoUi && !isManual && prefill && dbPrefillField && dbPrefillField.value === null && (
+          <span className="text-[12.5px] text-white/35">{dbPrefillField.reason}</span>
+        )}
+      </div>
+    )
+  }
 
   return (
     <>
@@ -440,7 +700,7 @@ export function ReportInputView() {
         />
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Header */}
         <div>
           <div className="flex items-center gap-2.5 mb-1">
@@ -467,155 +727,181 @@ export function ReportInputView() {
           </div>
         )}
 
-        {/* Month + client selector */}
-        <div className="relative overflow-hidden rounded-[14px] border border-border bg-card p-5">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,222,33,0.04),transparent_55%)]" />
+        {/* Fondo negro — pedido textual de Ann: "que quede bien negro el fondo",
+            letra más grande, un color por etapa. Envuelve desde el selector de
+            mes hasta la navegación de pasos; el resto de la pantalla (tabs,
+            header, banners) sigue el theme normal del sitio. */}
+        <div className="relative overflow-hidden rounded-[20px] border border-white/10 bg-[#0a0a0c] p-5 sm:p-7 space-y-6">
+          {/* Mes + estado */}
           <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-text-3 mb-1.5">Mes del reporte</p>
+              <p className="text-[12px] font-semibold uppercase tracking-widest text-white/45 mb-1.5">Mes del reporte</p>
               <input
                 type="month"
                 value={month}
                 onChange={(e) => setMonth(e.target.value)}
-                className="rounded-xl border border-border bg-elevated px-4 py-2 text-[13px] font-semibold text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 [color-scheme:dark]"
+                className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-[14px] font-semibold text-white focus:outline-none focus:ring-1 focus:ring-white/30 [color-scheme:dark]"
               />
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               {loadingExisting && (
-                <span className="flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1 text-[13px] text-text-2">
+                <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[13px] text-white/60">
                   <Loader2 className="h-3 w-3 animate-spin" />Cargando…
                 </span>
               )}
               {!loadingExisting && isUpdate && (
-                <span className="rounded-full border border-amber-400 bg-amber-100 text-amber-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-400">
+                <span className="rounded-full border border-amber-400/30 bg-amber-500/10 text-amber-400 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest">
                   Reporte existente — se sobreescribirá
                 </span>
               )}
               {!loadingExisting && !isUpdate && ownClientId && (
-                <span className="rounded-full border border-emerald-400 bg-emerald-100 text-emerald-800 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-400">
+                <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 text-emerald-400 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest">
                   Nuevo reporte
                 </span>
               )}
               {!ownClientId && (
-                <span className="rounded-full border border-red-400 bg-red-100 text-red-800 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-400">
+                <span className="rounded-full border border-red-400/30 bg-red-500/10 text-red-400 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest">
                   Sin cliente seleccionado
                 </span>
               )}
             </div>
           </div>
-        </div>
 
-        {/* Field groups */}
-        {FIELD_GROUPS.map((group) => (
-          <div key={group.key} className="relative overflow-hidden rounded-[14px] border border-border bg-card">
-            <div className="flex items-center justify-between border-b border-border px-5 py-3">
-              <div className="flex items-center gap-2">
-                <span className={`h-3 w-[2px] rounded-full ${group.color}`} />
-                <span className="text-[13px] font-semibold uppercase tracking-widest text-foreground">{group.label}</span>
-              </div>
-              <span className="text-[13px] text-text-3">{group.fields.length} campos</span>
-            </div>
-
-            <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
-              {group.fields.map((field) => {
-                const isHighlight = "highlight" in field && field.highlight
-                const isNps = field.key === "nps_score"
-
-                if (isNps) {
-                  return (
-                    <div key={field.key} className="sm:col-span-2 lg:col-span-3 flex flex-col gap-2 rounded-[14px] border border-border bg-secondary/20 p-5">
-                      <label className="text-[11px] font-semibold uppercase tracking-widest text-text-2">
-                        {field.label}
-                        <span className="ml-1.5 text-text-3 normal-case tracking-normal font-normal">— del 1 al 10</span>
-                      </label>
-                      <div className="flex items-center gap-3 flex-wrap">
-                        {[1,2,3,4,5,6,7,8,9,10].map((n) => (
-                          <button
-                            key={n}
-                            type="button"
-                            onClick={() => setValue(field.key, String(n))}
-                            className={`h-10 w-10 rounded-xl text-[13px] font-bold transition-all ${
-                              values[field.key] === String(n)
-                                ? "bg-secondary text-foreground"
-                                : "border border-border bg-elevated text-text-2 hover:border-border hover:text-foreground"
-                            }`}
-                          >
-                            {n}
-                          </button>
-                        ))}
-                        {values[field.key] && (
-                          <button
-                            type="button"
-                            onClick={() => setValue(field.key, "")}
-                            className="ml-2 text-[13px] text-text-3 hover:text-text-2 transition-colors"
-                          >
-                            limpiar
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )
-                }
-
-                return (
-                  <div key={field.key} className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-semibold uppercase tracking-widest text-text-2">
-                      {field.label}
-                      {"hint" in field && field.hint && (
-                        <span className="ml-1 text-text-2 normal-case tracking-normal font-normal text-[13px]">({field.hint})</span>
-                      )}
-                    </label>
-                    {field.type === "text" ? (
-                      <textarea
-                        value={values[field.key] ?? ""}
-                        onChange={(e) => setValue(field.key, e.target.value)}
-                        rows={2}
-                        placeholder="—"
-                        className="w-full resize-none rounded-xl border border-border bg-secondary px-3 py-2 text-[15px] text-foreground placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20"
-                      />
-                    ) : (
-                      <input
-                        type="number"
-                        value={values[field.key] ?? ""}
-                        onChange={(e) => setValue(field.key, e.target.value)}
-                        placeholder="0"
-                        min={"min" in field ? field.min : 0}
-                        step="any"
-                        className={`w-full rounded-xl border px-3 py-2 text-[15px] font-semibold text-foreground placeholder:text-text-3 focus:outline-none focus:ring-1 ${
-                          isHighlight
-                            ? "border-accent bg-secondary focus:border-accent focus:ring-accent/20"
-                            : "border-border bg-elevated focus:border-accent focus:ring-accent/20"
-                        }`}
-                      />
-                    )}
-                    {field.key === "mrr" && isAdmin && (
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <button
-                          type="button"
-                          onClick={fetchCalculatedMRR}
-                          disabled={mrrCalc.loading}
-                          className="text-[13px] font-medium text-accent-ink hover:text-accent-hover transition-colors disabled:opacity-50"
-                        >
-                          {mrrCalc.loading ? "Calculando…" : "Usar calculado (todos los clientes activos)"}
-                        </button>
-                        {mrrCalc.value !== null && (
-                          <button
-                            type="button"
-                            onClick={() => setValue("mrr", String(mrrCalc.value))}
-                            className="text-[13px] font-semibold text-foreground hover:text-foreground underline transition-colors"
-                          >
-                            ${mrrCalc.value.toLocaleString()} — usar
-                          </button>
-                        )}
-                        {mrrCalc.error && <span className="text-[13px] text-red-700 dark:text-red-400">{mrrCalc.error}</span>}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+          {/* Barra de pasos */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            {STEPS.map((s, i) => {
+              const state = i < stepIndex ? "done" : i === stepIndex ? "current" : "pending"
+              return (
+                <button
+                  key={s.key}
+                  type="button"
+                  onClick={() => setStepIndex(i)}
+                  className="flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-[12.5px] font-semibold transition-colors"
+                  style={
+                    state === "current"
+                      ? { backgroundColor: s.color, color: "#000" }
+                      : state === "done"
+                      ? { backgroundColor: `${s.color}26`, color: s.color }
+                      : { backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)" }
+                  }
+                >
+                  <span
+                    className="flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold"
+                    style={state === "current" ? { backgroundColor: "rgba(0,0,0,0.2)" } : { backgroundColor: "rgba(255,255,255,0.1)" }}
+                  >
+                    {state === "done" ? "✓" : s.number}
+                  </span>
+                  {s.name}
+                </button>
+              )
+            })}
           </div>
-        ))}
+
+          {/* Contenido del paso */}
+          <div className="space-y-6">
+            <div>
+              <div className="flex items-center gap-3 mb-1.5">
+                <span
+                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-[18px] font-extrabold"
+                  style={{ backgroundColor: currentStep.color, color: "#000" }}
+                >
+                  {currentStep.number}
+                </span>
+                <h2 className="text-[26px] sm:text-[30px] font-extrabold leading-tight text-white">
+                  {currentStep.name}
+                  {currentStep.subtitle && <span className="ml-2 text-[15px] font-medium text-white/40">· {currentStep.subtitle}</span>}
+                </h2>
+              </div>
+              <p className="text-[15px] text-white/55 sm:ml-[52px]">{currentStep.description}</p>
+            </div>
+
+            {currentStep.trackedFields && currentStep.trackedFields.length > 0 && (
+              <div className="rounded-2xl border p-5" style={{ borderColor: `${currentStep.color}40` }}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: currentStep.color }} />
+                  <span className="text-[13px] font-semibold uppercase tracking-widest text-white/70">{currentStep.trackedTitle}</span>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {currentStep.trackedFields.map((f) => renderField(f, currentStep.color))}
+                </div>
+              </div>
+            )}
+
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {currentStep.manualFields.map((f) => renderField(f, currentStep.color))}
+            </div>
+
+            {currentStep.foldedBlock && (
+              <div className="rounded-2xl border border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setFoldedOpen((p) => ({ ...p, [currentStep.key]: !p[currentStep.key] }))}
+                  className="flex w-full items-center justify-between px-5 py-3.5 text-left"
+                >
+                  <span className="text-[14px] font-semibold text-white/80">{currentStep.foldedBlock.title}</span>
+                  <ChevronDown className={`h-4 w-4 text-white/50 transition-transform ${foldedOpen[currentStep.key] ? "rotate-180" : ""}`} />
+                </button>
+                {foldedOpen[currentStep.key] && (
+                  <div className="grid gap-4 border-t border-white/10 p-5 sm:grid-cols-2">
+                    {currentStep.foldedBlock.fields.map((f) => renderField(f, currentStep.color))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {currentStep.additionalFields && currentStep.additionalFields.length > 0 && (
+              <div className="rounded-2xl border border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setOpenAdditional((p) => ({ ...p, [currentStep.key]: !p[currentStep.key] }))}
+                  className="flex w-full items-center justify-between px-5 py-3.5 text-left"
+                >
+                  <span className="text-[14px] font-semibold text-white/80">Campos adicionales</span>
+                  <ChevronDown className={`h-4 w-4 text-white/50 transition-transform ${openAdditional[currentStep.key] ? "rotate-180" : ""}`} />
+                </button>
+                {openAdditional[currentStep.key] && (
+                  <div className="grid gap-4 border-t border-white/10 p-5 sm:grid-cols-2">
+                    {currentStep.additionalFields.map((f) => renderField(f, currentStep.color))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Navegación */}
+          <div className="flex items-center justify-between border-t border-white/10 pt-5">
+            <button
+              type="button"
+              onClick={goPrev}
+              disabled={stepIndex === 0}
+              className="flex items-center gap-1.5 rounded-xl border border-white/15 px-4 py-2.5 text-[13px] font-semibold text-white/70 transition disabled:opacity-30"
+            >
+              <ChevronLeft className="h-4 w-4" /> Atrás
+            </button>
+            <span className="text-[12.5px] text-white/40">Paso {stepIndex + 1} de {STEPS.length}</span>
+            {isLastStep ? (
+              <button
+                type="submit"
+                disabled={status === "loading" || !ownClientId || !canGoNext}
+                className="flex items-center gap-2 rounded-xl px-6 py-2.5 text-[13px] font-bold transition disabled:opacity-50"
+                style={{ backgroundColor: currentStep.color, color: "#000" }}
+              >
+                {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
+                {status === "loading" ? "Guardando…" : `Enviar reporte de ${monthLabel}`}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={goNext}
+                disabled={!canGoNext}
+                className="flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-[13px] font-bold transition disabled:opacity-40"
+                style={{ backgroundColor: currentStep.color, color: "#000" }}
+              >
+                Siguiente <ChevronRight className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        </div>
 
         {/* Status banner */}
         {status !== "idle" && status !== "loading" && (
@@ -632,17 +918,8 @@ export function ReportInputView() {
           </div>
         )}
 
-        {/* Submit */}
-        <div className="flex items-center gap-3 pb-6">
-          <button
-            type="submit"
-            disabled={status === "loading" || !ownClientId}
-            className="flex items-center gap-2 rounded-xl btn-accent px-6 py-2.5 text-[13px] font-bold transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
-            {status === "loading" ? "Guardando…" : isUpdate ? "Actualizar reporte" : "Guardar reporte"}
-          </button>
-          {canTest && (
+        {canTest && (
+          <div className="flex items-center gap-3 pb-6">
             <button
               type="button"
               onClick={handleTest}
@@ -653,11 +930,11 @@ export function ReportInputView() {
               <FlaskConical className="h-4 w-4" />
               Testear
             </button>
-          )}
-          <p className="text-[13px] text-text-3">
-            Los datos se guardan primero en Supabase. Las notificaciones van en segundo plano.
-          </p>
-        </div>
+            <p className="text-[13px] text-text-3">
+              Los datos se guardan primero en Supabase. Las notificaciones van en segundo plano.
+            </p>
+          </div>
+        )}
       </form>
       </>}
     </>

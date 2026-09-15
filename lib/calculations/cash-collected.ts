@@ -83,6 +83,74 @@ export async function calculateCashCollected(
 }
 
 /**
+ * Cash collected para TODO un tenant (todos sus crm_clients, sin filtrar por
+ * closer_id) — mismo patrón que calculateCompanyMRR en lib/calculations/mrr.ts
+ * (crm_clients ahora es multi-tenant, 20260814000001). Usado para pre-llenar
+ * `cash_collected` del Reporte Mensual: ese campo es el cash cobrado por el
+ * cliente (tenant) en el mes, no el de un setter puntual — por eso no
+ * reutiliza calculateCashCollected(setterId, month) de arriba, que suma por
+ * closer_id y mezclaría el cash de otros closers del mismo tenant.
+ */
+export async function calculateCompanyCashCollected(
+  month: string, // YYYY-MM-01 format
+  tenantId: string
+): Promise<{ cash_collected: number; payments: InstallmentPayment[] }> {
+  const supabase = createServiceClient()
+
+  const monthStart = new Date(month)
+  const monthEnd = new Date(monthStart)
+  monthEnd.setMonth(monthEnd.getMonth() + 1, 0)
+
+  const { data: clients, error: clientsErr } = await supabase
+    .from("crm_clients")
+    .select("id, name")
+    .eq("client_id", tenantId)
+
+  if (clientsErr || !clients || clients.length === 0) {
+    return { cash_collected: 0, payments: [] }
+  }
+
+  const clientIds = clients.map((c) => c.id)
+
+  const { data: paidInstallments, error: instErr } = await supabase
+    .from("crm_installments")
+    .select("id, client_id, installment_number, amount, paid_at")
+    .in("client_id", clientIds)
+    .gte("paid_at", monthStart.toISOString())
+    .lte("paid_at", monthEnd.toISOString())
+
+  if (instErr || !paidInstallments) {
+    console.error("Error querying installments:", instErr)
+    return { cash_collected: 0, payments: [] }
+  }
+
+  let totalCash = 0
+  const payments: InstallmentPayment[] = []
+
+  for (const inst of paidInstallments) {
+    const amount = Number(inst.amount || 0)
+    totalCash += amount
+
+    const client = clients.find((c) => c.id === inst.client_id)
+    payments.push({
+      installment_id: inst.id,
+      client_id: inst.client_id,
+      client_name: client?.name || "Unknown",
+      installment_number: inst.installment_number || 0,
+      amount,
+      paid_at: inst.paid_at,
+    })
+  }
+
+  return {
+    cash_collected: Math.round(totalCash * 100) / 100,
+    payments: payments.sort(
+      (a, b) => new Date(b.paid_at).getTime() - new Date(a.paid_at).getTime()
+    ),
+  }
+}
+
+/**
  * Get unpaid/overdue installments for a setter (useful for follow-ups)
  */
 export async function getUnpaidInstallmentsForSetter(

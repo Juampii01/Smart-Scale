@@ -1,10 +1,48 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase-service"
 import { isAdmin } from "@/lib/auth/permissions"
+import { assertFieldCoverage } from "@/lib/monthly-report-fields"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
+// ── Allowlists del payload de guardado ──────────────────────────────────────
+// Viven acá arriba (module scope) para poder validarlas una sola vez al
+// cargar el módulo, no en cada request.
+const NUMERIC_FIELDS = [
+  "total_revenue", "cash_collected", "mrr", "ad_spend",
+  "software_costs", "variable_costs",
+  "scheduled_calls", "attended_calls", "qualified_calls",
+  "aplications", "new_clients", "active_clients", "case_studies",
+  "inbound_messages",
+  "offer_docs_sent", "offer_docs_responded", "cierres_por_offerdoc",
+  "short_followers", "short_reach", "short_posts",
+  "yt_subscribers", "yt_monthly_audience", "yt_views",
+  "yt_watch_time", "yt_new_subscribers", "yt_videos",
+  "email_subscribers", "email_new_subscribers",
+  // email_sent / email_open_rate: estaban en el formulario pero faltaban acá
+  // — se descartaban en silencio en cada guardado (bug encontrado 2026-09-15).
+  "email_sent", "email_open_rate",
+  // NPS 1–10 — column added in migration 20260531000002
+  "nps_score",
+  // Confianza por etapa (0–10) + valor de contratos firmados — wizard de 5
+  // pasos, columnas nuevas en 20260915000001_monthly_reports_wizard_fields.
+  "conf_short_form", "conf_long_form", "conf_email", "conf_business",
+  "new_business_value",
+] as const
+
+const TEXT_FIELDS = [
+  "biggest_win", "next_focus", "support_needed",
+  "improvements", "report_date",
+  // Texto libre al lado del NPS — columna nueva en 20260915000001.
+  "recommendation",
+] as const
+
+// Assertion de arranque: si algún campo de FIELD_GROUPS (el formulario) no
+// está en ninguna de las dos listas de arriba, el módulo falla al cargar en
+// vez de descartar el valor en silencio — es el chequeo que hubiera
+// evitado el bug de email_sent/email_open_rate.
+assertFieldCoverage(NUMERIC_FIELDS, TEXT_FIELDS)
 
 export async function POST(req: NextRequest) {
   try {
@@ -58,26 +96,6 @@ export async function POST(req: NextRequest) {
     const monthValue = /^\d{4}-\d{2}$/.test(rawMonth) ? `${rawMonth}-01` : rawMonth
 
     // ── 4. Build upsert payload ───────────────────────────────────────────────
-    const NUMERIC_FIELDS = [
-      "total_revenue", "cash_collected", "mrr", "ad_spend",
-      "software_costs", "variable_costs",
-      "scheduled_calls", "attended_calls", "qualified_calls",
-      "aplications", "new_clients", "active_clients", "case_studies",
-      "inbound_messages",
-      "offer_docs_sent", "offer_docs_responded", "cierres_por_offerdoc",
-      "short_followers", "short_reach", "short_posts",
-      "yt_subscribers", "yt_monthly_audience", "yt_views",
-      "yt_watch_time", "yt_new_subscribers", "yt_videos",
-      "email_subscribers", "email_new_subscribers",
-      // NPS 1–10 — column added in migration 20260531000002
-      "nps_score",
-    ] as const
-
-    const TEXT_FIELDS = [
-      "biggest_win", "next_focus", "support_needed",
-      "improvements", "report_date",
-    ] as const
-
     const reportRow: Record<string, unknown> = {
       client_id: clientId,
       month: monthValue,
@@ -96,6 +114,13 @@ export async function POST(req: NextRequest) {
       if (typeof raw === "string" && raw.trim().length > 0) {
         reportRow[field] = raw.trim()
       }
+    }
+
+    // field_sources: "auto" | "manual" por campo auto-completable — no es
+    // parte del formulario (no pasa por assertFieldCoverage), es metadata
+    // de cómo se llegó a cada valor. Column: 20260915000002 (jsonb).
+    if (body.field_sources && typeof body.field_sources === "object" && !Array.isArray(body.field_sources)) {
+      reportRow.field_sources = body.field_sources
     }
 
     // ── 5. Fetch client name + previous state ─────────────────────────────────
