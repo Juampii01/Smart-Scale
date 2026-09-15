@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (!crmClientCount) {
-      const reason = "Este cliente no tiene datos de CRM (crm_clients) asociados — queda manual."
+      const reason = "Aún no tenés datos automáticos acá — cargalo manual."
       const empty: PrefillField = { value: null, reason }
       return NextResponse.json({
         cash_collected: empty,
@@ -135,8 +135,8 @@ export async function GET(req: NextRequest) {
       .lt("program_start", monthEndExclusive.toISOString().slice(0, 10))
 
     const newClientsField: PrefillField = newClientsErr
-      ? { value: null, reason: newClientsErr.message }
-      : { value: newClientsCount ?? 0, source: `Altas de CRM con program_start en ${monthLabel}` }
+      ? { value: null, reason: "No pudimos calcular este dato ahora — cargalo manual." }
+      : { value: newClientsCount ?? 0, source: `Clientes nuevos en ${monthLabel}` }
 
     // ── active_clients ───────────────────────────────────────────────────────
     // crm_clients.status no tiene historial — solo se puede confiar en el
@@ -149,7 +149,7 @@ export async function GET(req: NextRequest) {
     if (!isCurrentMonth) {
       activeClientsField = {
         value: null,
-        reason: "crm_clients.status no guarda historial — solo se puede confiar en el estado actual, no en cómo estaba al cierre de un mes pasado.",
+        reason: "Solo tenemos el dato de ahora, no de cómo estaba en un mes pasado — cargalo manual.",
       }
     } else {
       const { count: activeCount, error: activeErr } = await supabase
@@ -159,8 +159,8 @@ export async function GET(req: NextRequest) {
         .eq("status", "activo")
 
       activeClientsField = activeErr
-        ? { value: null, reason: activeErr.message }
-        : { value: activeCount ?? 0, source: "Clientes con status = 'activo' (estado actual)" }
+        ? { value: null, reason: "No pudimos calcular este dato ahora — cargalo manual." }
+        : { value: activeCount ?? 0, source: "Clientes activos ahora mismo" }
     }
 
     return NextResponse.json({
