@@ -645,7 +645,7 @@ export function ReportInputView() {
           </div>
         )}
         {isAutoDb && !showAutoUi && !isManual && prefill && dbPrefillField && dbPrefillField.value === null && (
-          <span className="text-[12.5px] text-white/35">{dbPrefillField.reason}</span>
+          <span className="line-clamp-2 text-[11px] leading-snug text-white/35">{dbPrefillField.reason}</span>
         )}
       </div>
     )
