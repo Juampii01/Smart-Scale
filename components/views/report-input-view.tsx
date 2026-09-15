@@ -22,6 +22,11 @@ type PrefillResponse = {
   active_clients: PrefillField
 }
 
+// Lima de marca — el botón Siguiente/Enviar va SIEMPRE en este color, nunca
+// en el color de la etapa (un botón rojo/naranja se lee como una acción
+// destructiva, no como "avanzar").
+const BRAND_LIME = "#C9E45C"
+
 const AUTO_DB_KEYS = ["cash_collected", "mrr", "new_clients", "active_clients"] as const
 const AUTO_DELTA_KEYS = ["yt_new_subscribers", "email_new_subscribers"] as const
 const DELTA_TOTAL_OF: Record<string, string> = {
@@ -192,7 +197,9 @@ function ConfirmOverwriteDialog({
   )
 }
 
-// ─── Slider 0–10 (o 1–10) con barra llena ─────────────────────────────────────
+// ─── Slider 0–10 (o 1–10) — input[type=range] real, siempre con perilla ──────
+
+const SLIDER_DEFAULT = 7
 
 function SliderField({
   field,
@@ -207,46 +214,33 @@ function SliderField({
 }) {
   const min = field.slider!.min
   const max = field.slider!.max
-  const n = value === undefined || value === "" ? null : Number(value)
-  const pct = n === null ? 0 : ((n - min) / (max - min)) * 100
-  const options = Array.from({ length: max - min + 1 }, (_, i) => min + i)
+  const hasValue = value !== undefined && value !== ""
+  const n = hasValue ? Number(value) : SLIDER_DEFAULT
+  const pct = ((n - min) / (max - min)) * 100
 
   return (
-    <div className="sm:col-span-2 lg:col-span-3 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+    <div className="sm:col-span-2 lg:col-span-3 flex flex-col gap-2">
       <label className="text-[12.5px] font-semibold uppercase tracking-wide text-white/60">
         {field.label} <span className="normal-case font-normal text-white/35">— del {min} al {max}</span>
       </label>
       <div className="flex items-center gap-4">
-        <div className="relative h-2.5 flex-1 rounded-full bg-white/10">
-          <div
-            className="absolute inset-y-0 left-0 rounded-full transition-all"
-            style={{ width: `${pct}%`, backgroundColor: color }}
-          />
-          {n !== null && (
-            <div
-              className="absolute top-1/2 h-5 w-5 -translate-y-1/2 -translate-x-1/2 rounded-full border-[3px] bg-white shadow"
-              style={{ left: `${pct}%`, borderColor: color }}
-            />
-          )}
-        </div>
-        <span className="w-10 text-right text-[26px] font-extrabold tabular-nums text-white">{n ?? "—"}</span>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={1}
+          value={n}
+          onChange={(e) => onChange(e.target.value)}
+          className="report-slider flex-1"
+          style={{ ["--hue" as any]: color, ["--p" as any]: `${pct}%` }}
+        />
+        <span className={`w-10 text-right text-[26px] font-extrabold tabular-nums ${hasValue ? "text-white" : "text-white/35"}`}>
+          {n}
+        </span>
       </div>
-      <div className="flex flex-wrap gap-1.5">
-        {options.map((o) => (
-          <button
-            key={o}
-            type="button"
-            onClick={() => onChange(String(o))}
-            className="h-8 w-8 rounded-lg text-[12.5px] font-bold transition-colors"
-            style={
-              n === o
-                ? { backgroundColor: color, color: "#000" }
-                : { backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.55)" }
-            }
-          >
-            {o}
-          </button>
-        ))}
+      <div className="flex justify-between text-[11px] font-semibold uppercase tracking-widest text-white/30">
+        <span>Baja</span>
+        <span>Alta</span>
       </div>
     </div>
   )
@@ -562,6 +556,11 @@ export function ReportInputView() {
   const isLastStep = stepIndex === STEPS.length - 1
   const canGoNext = !stepHasErrors(currentStep, values)
   const monthLabel = monthLabelOf(month)
+  // "Lo que ya cargamos por vos" no se muestra si no hay nada cargado — un
+  // bloque con todo en 0 es peor que no tenerlo.
+  const trackedHasValue = (currentStep.trackedFields ?? []).some(
+    (f) => values[f.key] !== undefined && values[f.key] !== ""
+  )
 
   const goNext = () => { if (!canGoNext) return; setStepIndex((i) => Math.min(i + 1, STEPS.length - 1)) }
   const goPrev = () => setStepIndex((i) => Math.max(i - 1, 0))
@@ -607,8 +606,8 @@ export function ReportInputView() {
             style={{ ["--tw-ring-color" as any]: color }}
           />
         ) : showAutoUi ? (
-          <div className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-            <span className="text-[16px] font-bold text-white tabular-nums">
+          <div className="flex h-10 items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/5 px-3">
+            <span className="text-[15px] font-bold text-white tabular-nums">
               {Number(values[field.key]).toLocaleString()}
             </span>
             <button
@@ -626,7 +625,7 @@ export function ReportInputView() {
             onChange={(e) => setValue(field.key, e.target.value)}
             placeholder="0"
             step="any"
-            className="w-full rounded-xl border bg-white/5 px-3 py-2 text-[16px] font-semibold text-white placeholder:text-white/30 focus:outline-none focus:ring-1"
+            className="h-10 w-full rounded-lg border bg-white/5 px-3 text-[15px] font-semibold text-white placeholder:text-white/30 focus:outline-none focus:ring-1"
             style={{ borderColor: err ? "#f87171" : "rgba(255,255,255,0.12)", ["--tw-ring-color" as any]: color }}
           />
         )}
@@ -731,7 +730,7 @@ export function ReportInputView() {
             letra más grande, un color por etapa. Envuelve desde el selector de
             mes hasta la navegación de pasos; el resto de la pantalla (tabs,
             header, banners) sigue el theme normal del sitio. */}
-        <div className="relative overflow-hidden rounded-[20px] border border-white/10 bg-[#0a0a0c] p-5 sm:p-7 space-y-6">
+        <div className="relative overflow-hidden rounded-[20px] border border-white/10 bg-[#0a0a0c] p-5 sm:p-6 space-y-5">
           {/* Mes + estado */}
           <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -767,7 +766,10 @@ export function ReportInputView() {
             </div>
           </div>
 
-          {/* Barra de pasos */}
+          {/* Barra de pasos — el color de la etapa vive solo en el número
+              (mismo criterio que el resto de la pantalla); la píldora en sí
+              nunca se pinta entera, para no repetir el problema del botón
+              "Siguiente" rojo que se leía como una acción destructiva. */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
             {STEPS.map((s, i) => {
               const state = i < stepIndex ? "done" : i === stepIndex ? "current" : "pending"
@@ -779,15 +781,19 @@ export function ReportInputView() {
                   className="flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-[12.5px] font-semibold transition-colors"
                   style={
                     state === "current"
-                      ? { backgroundColor: s.color, color: "#000" }
+                      ? { backgroundColor: "rgba(255,255,255,0.10)", color: "#ffffff" }
                       : state === "done"
-                      ? { backgroundColor: `${s.color}26`, color: s.color }
-                      : { backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)" }
+                      ? { backgroundColor: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.55)" }
+                      : { backgroundColor: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.35)" }
                   }
                 >
                   <span
                     className="flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold"
-                    style={state === "current" ? { backgroundColor: "rgba(0,0,0,0.2)" } : { backgroundColor: "rgba(255,255,255,0.1)" }}
+                    style={
+                      state === "pending"
+                        ? { backgroundColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)" }
+                        : { backgroundColor: s.color, color: "#0a0a0c" }
+                    }
                   >
                     {state === "done" ? "✓" : s.number}
                   </span>
@@ -797,52 +803,58 @@ export function ReportInputView() {
             })}
           </div>
 
-          {/* Contenido del paso */}
-          <div className="space-y-6">
+          {/* Contenido del paso — un solo nivel de caja (la tarjeta del
+              wizard). Adentro los bloques se separan con aire y una línea
+              fina, sin fondo ni borde propio — única excepción: "Lo que ya
+              cargamos por vos", que sí lleva fondo por ser otra naturaleza
+              de dato. */}
+          <div className="space-y-4">
             <div>
-              <div className="flex items-center gap-3 mb-1.5">
+              <div className="flex items-center gap-3 mb-1">
                 <span
-                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-[18px] font-extrabold"
-                  style={{ backgroundColor: currentStep.color, color: "#000" }}
+                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-[16px] font-extrabold"
+                  style={{ backgroundColor: currentStep.color, color: "#0a0a0c" }}
                 >
                   {currentStep.number}
                 </span>
-                <h2 className="text-[26px] sm:text-[30px] font-extrabold leading-tight text-white">
+                <h2 className="text-[24px] sm:text-[28px] font-extrabold leading-tight text-white">
                   {currentStep.name}
                   {currentStep.subtitle && <span className="ml-2 text-[15px] font-medium text-white/40">· {currentStep.subtitle}</span>}
                 </h2>
               </div>
-              <p className="text-[15px] text-white/55 sm:ml-[52px]">{currentStep.description}</p>
+              <p className="text-[14px] text-white/55 sm:ml-[48px]">{currentStep.description}</p>
             </div>
 
-            {currentStep.trackedFields && currentStep.trackedFields.length > 0 && (
-              <div className="rounded-2xl border p-5" style={{ borderColor: `${currentStep.color}40` }}>
-                <div className="mb-4 flex items-center gap-2">
+            {trackedHasValue && (
+              <div className="rounded-2xl border p-4" style={{ borderColor: `${currentStep.color}40` }}>
+                <div className="mb-3 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full" style={{ backgroundColor: currentStep.color }} />
-                  <span className="text-[13px] font-semibold uppercase tracking-widest text-white/70">{currentStep.trackedTitle}</span>
+                  <span className="text-[13px] font-semibold uppercase tracking-widest" style={{ color: currentStep.color }}>
+                    {currentStep.trackedTitle}
+                  </span>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {currentStep.trackedFields.map((f) => renderField(f, currentStep.color))}
+                <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+                  {currentStep.trackedFields!.map((f) => renderField(f, currentStep.color))}
                 </div>
               </div>
             )}
 
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
               {currentStep.manualFields.map((f) => renderField(f, currentStep.color))}
             </div>
 
             {currentStep.foldedBlock && (
-              <div className="rounded-2xl border border-white/10">
+              <div className="border-t border-white/10 pt-4">
                 <button
                   type="button"
                   onClick={() => setFoldedOpen((p) => ({ ...p, [currentStep.key]: !p[currentStep.key] }))}
-                  className="flex w-full items-center justify-between px-5 py-3.5 text-left"
+                  className="flex w-full items-center justify-between text-left"
                 >
                   <span className="text-[14px] font-semibold text-white/80">{currentStep.foldedBlock.title}</span>
                   <ChevronDown className={`h-4 w-4 text-white/50 transition-transform ${foldedOpen[currentStep.key] ? "rotate-180" : ""}`} />
                 </button>
                 {foldedOpen[currentStep.key] && (
-                  <div className="grid gap-4 border-t border-white/10 p-5 sm:grid-cols-2">
+                  <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] pt-4">
                     {currentStep.foldedBlock.fields.map((f) => renderField(f, currentStep.color))}
                   </div>
                 )}
@@ -850,17 +862,17 @@ export function ReportInputView() {
             )}
 
             {currentStep.additionalFields && currentStep.additionalFields.length > 0 && (
-              <div className="rounded-2xl border border-white/10">
+              <div className="border-t border-white/10 pt-4">
                 <button
                   type="button"
                   onClick={() => setOpenAdditional((p) => ({ ...p, [currentStep.key]: !p[currentStep.key] }))}
-                  className="flex w-full items-center justify-between px-5 py-3.5 text-left"
+                  className="flex w-full items-center justify-between text-left"
                 >
                   <span className="text-[14px] font-semibold text-white/80">Campos adicionales</span>
                   <ChevronDown className={`h-4 w-4 text-white/50 transition-transform ${openAdditional[currentStep.key] ? "rotate-180" : ""}`} />
                 </button>
                 {openAdditional[currentStep.key] && (
-                  <div className="grid gap-4 border-t border-white/10 p-5 sm:grid-cols-2">
+                  <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] pt-4">
                     {currentStep.additionalFields.map((f) => renderField(f, currentStep.color))}
                   </div>
                 )}
@@ -869,7 +881,7 @@ export function ReportInputView() {
           </div>
 
           {/* Navegación */}
-          <div className="flex items-center justify-between border-t border-white/10 pt-5">
+          <div className="flex items-center justify-between border-t border-white/10 pt-4">
             <button
               type="button"
               onClick={goPrev}
@@ -884,7 +896,7 @@ export function ReportInputView() {
                 type="submit"
                 disabled={status === "loading" || !ownClientId || !canGoNext}
                 className="flex items-center gap-2 rounded-xl px-6 py-2.5 text-[13px] font-bold transition disabled:opacity-50"
-                style={{ backgroundColor: currentStep.color, color: "#000" }}
+                style={{ backgroundColor: BRAND_LIME, color: "#0a0a0c" }}
               >
                 {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
                 {status === "loading" ? "Guardando…" : `Enviar reporte de ${monthLabel}`}
@@ -895,7 +907,7 @@ export function ReportInputView() {
                 onClick={goNext}
                 disabled={!canGoNext}
                 className="flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-[13px] font-bold transition disabled:opacity-40"
-                style={{ backgroundColor: currentStep.color, color: "#000" }}
+                style={{ backgroundColor: BRAND_LIME, color: "#0a0a0c" }}
               >
                 Siguiente <ChevronRight className="h-4 w-4" />
               </button>

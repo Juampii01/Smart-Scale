@@ -53,7 +53,7 @@ export const STEPS: ReportStepDef[] = [
     name: "Atraer",
     subtitle: "Fascinate",
     description: "Ganar atención y hacer crecer la audiencia arriba del embudo.",
-    color: "#C32B00",
+    color: "#E0A33F",
     trackedTitle: "Lo que ya cargamos por vos",
     trackedFields: [
       { key: "short_followers", label: "Seguidores", type: "number" },
@@ -73,7 +73,7 @@ export const STEPS: ReportStepDef[] = [
     name: "Educar",
     subtitle: "Educate",
     description: "Construir confianza con contenido largo y con el email.",
-    color: "#00AA96",
+    color: "#4FB8CF",
     trackedTitle: "Lo que ya cargamos por vos",
     trackedFields: [
       { key: "yt_subscribers", label: "Suscriptores", type: "number" },
@@ -98,7 +98,7 @@ export const STEPS: ReportStepDef[] = [
     name: "Invitar",
     subtitle: "Invite",
     description: "Convertir la atención en conversaciones, ofertas y clientes firmados.",
-    color: "#5B63F4",
+    color: "#7C8CF0",
     manualFields: [
       { key: "new_clients", label: "Nuevos clientes", type: "number", highlight: true, auto: "db" },
       { key: "cash_collected", label: "Cash collected", type: "number", hint: "USD", auto: "db" },
@@ -127,7 +127,7 @@ export const STEPS: ReportStepDef[] = [
     name: "Transformar",
     subtitle: "Transform",
     description: "Entregar resultados, retener clientes y hacer crecer lo recurrente.",
-    color: "#A032B8",
+    color: "#C9E45C",
     manualFields: [
       { key: "mrr", label: "MRR", type: "number", hint: "USD", auto: "db" },
       { key: "active_clients", label: "Clientes activos", type: "number", auto: "db" },
@@ -143,7 +143,7 @@ export const STEPS: ReportStepDef[] = [
     name: "Reflexión",
     subtitle: "",
     description: "Frenar un momento: puntuar el mes y dejar armado el que viene.",
-    color: "#E4459F",
+    color: "#E28BB0",
     manualFields: [
       { key: "nps_score", label: "¿Cuánto recomendarías Smart Scale?", type: "number", slider: { min: 1, max: 10 } },
       { key: "recommendation", label: "Recomendación", type: "text" },
