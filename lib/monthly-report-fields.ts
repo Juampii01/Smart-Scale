@@ -9,92 +9,162 @@
  * la MISMA lista que ve el formulario — si viviera duplicada en el route,
  * alguien podría agregar un campo acá y olvidarse de actualizar la copia,
  * exactamente el bug que este chequeo existe para evitar.
+ *
+ * `STEPS` reemplaza al viejo `FIELD_GROUPS` (6 bloques por canal) por 5
+ * pasos por etapa del embudo — wizard de 5 pasos, ver
+ * components/views/report-input-view.tsx.
  */
 
-export const FIELD_GROUPS = [
-  {
-    key: "business",
-    label: "Business",
-    color: "bg-emerald-500",
-    fields: [
-      { key: "total_revenue",   label: "Revenue total",       type: "number", hint: "USD" },
-      { key: "cash_collected",  label: "Cash Collected",      type: "number", hint: "USD" },
-      { key: "mrr",             label: "MRR",                 type: "number", hint: "USD" },
-      { key: "ad_spend",        label: "Inversión en Ads",    type: "number", hint: "USD" },
-      { key: "software_costs",  label: "Costos de Software",  type: "number", hint: "USD" },
-      { key: "variable_costs",  label: "Costos Variables",    type: "number", hint: "USD" },
-    ],
-  },
-  {
-    key: "sales",
-    label: "Sales",
-    color: "bg-accent",
-    fields: [
-      { key: "scheduled_calls",      label: "Llamadas Agendadas",     type: "number" },
-      { key: "attended_calls",       label: "Llamadas Atendidas",     type: "number" },
-      { key: "qualified_calls",      label: "Llamadas Calificadas",   type: "number" },
-      { key: "aplications",          label: "Aplicaciones",           type: "number" },
-      { key: "inbound_messages",     label: "Mensajes Entrantes",     type: "number" },
-      { key: "offer_docs_sent",      label: "OfferDocs Enviados",     type: "number" },
-      { key: "offer_docs_responded", label: "OfferDocs Respondidos",  type: "number" },
-      { key: "cierres_por_offerdoc", label: "Cierres por OfferDoc",   type: "number" },
-      { key: "new_clients",          label: "Nuevos Clientes",        type: "number", highlight: true },
-      { key: "active_clients",       label: "Clientes Activos",       type: "number" },
-      { key: "case_studies",         label: "Casos de Éxito",         type: "number", hint: "total acumulado" },
-    ],
-  },
-  {
-    key: "shortform",
-    label: "Formato Corto",
-    color: "bg-pink-500",
-    fields: [
-      { key: "short_followers", label: "Seguidores",         type: "number" },
-      { key: "short_reach",     label: "Alcance",            type: "number" },
-      { key: "short_posts",     label: "Posts Publicados",   type: "number" },
-    ],
-  },
-  {
-    key: "youtube",
-    label: "YouTube",
-    color: "bg-red-500",
-    fields: [
-      { key: "yt_subscribers",     label: "Suscriptores",              type: "number" },
-      { key: "yt_new_subscribers", label: "Nuevos Suscriptores",       type: "number" },
-      { key: "yt_monthly_audience",label: "Audiencia Mensual",         type: "number" },
-      { key: "yt_views",           label: "Vistas",                    type: "number" },
-      { key: "yt_watch_time",      label: "Tiempo de Reproducción (hs)",type: "number" },
-      { key: "yt_videos",          label: "Videos Publicados",         type: "number" },
-    ],
-  },
-  {
-    key: "email",
-    label: "Email",
-    color: "bg-blue-500",
-    fields: [
-      { key: "email_subscribers",     label: "Total Subscribers",    type: "number" },
-      { key: "email_new_subscribers", label: "Nuevos Suscriptores",  type: "number" },
-      { key: "email_sent",            label: "Emails Sent",          type: "number" },
-      { key: "email_open_rate",       label: "Open Rate (%)",        type: "number" },
-    ],
-  },
-  {
-    key: "reflection",
-    label: "Reflection",
-    color: "bg-secondary",
-    fields: [
-      { key: "biggest_win",    label: "Mayor Logro del Mes",                                    type: "text" },
-      { key: "next_focus",     label: "Próximo Enfoque",                                        type: "text" },
-      { key: "support_needed", label: "Soporte Necesario",                                      type: "text" },
-      { key: "improvements",   label: "Mejoras",                                                type: "text" },
-      { key: "nps_score",      label: "¿Cuánto recomendarías Smart Scale?",  type: "number", hint: "del 1 al 10", min: 1, max: 10 },
-    ],
-  },
-] as const
+export interface ReportFieldDef {
+  key: string
+  label: string
+  type: "number" | "text"
+  hint?: string
+  min?: number
+  max?: number
+  highlight?: boolean
+  /** "db": viene de GET /api/monthly-reports/prefill (cash_collected, mrr,
+   *  new_clients, active_clients). "delta": se calcula en vivo contra el
+   *  mes anterior (yt_new_subscribers, email_new_subscribers). */
+  auto?: "db" | "delta"
+  /** Slider 0–10 con la barra llena (conf_*) — nps_score usa 1–10, el rango
+   *  real de su columna (CHECK nps_score BETWEEN 1 AND 10), no 0–10. */
+  slider?: { min: number; max: number }
+}
 
-/** Todas las claves de campo que el formulario puede llegar a mandar. */
-export const ALL_FIELD_KEYS: readonly string[] = FIELD_GROUPS.flatMap((group) =>
-  group.fields.map((field) => field.key)
-)
+export interface ReportStepDef {
+  key: string
+  number: number
+  name: string
+  subtitle: string
+  description: string
+  color: string
+  trackedTitle?: string
+  trackedFields?: ReportFieldDef[]
+  manualFields: ReportFieldDef[]
+  foldedBlock?: { title: string; fields: ReportFieldDef[] }
+  additionalFields?: ReportFieldDef[]
+}
+
+export const STEPS: ReportStepDef[] = [
+  {
+    key: "atraer",
+    number: 1,
+    name: "Atraer",
+    subtitle: "Fascinate",
+    description: "Ganar atención y hacer crecer la audiencia arriba del embudo.",
+    color: "#C32B00",
+    trackedTitle: "Lo que ya cargamos por vos",
+    trackedFields: [
+      { key: "short_followers", label: "Seguidores", type: "number" },
+      { key: "short_posts", label: "Posts publicados", type: "number" },
+    ],
+    manualFields: [
+      { key: "conf_short_form", label: "Confianza en formato corto", type: "number", slider: { min: 0, max: 10 } },
+      { key: "ad_spend", label: "Inversión en ads", type: "number", hint: "USD" },
+    ],
+    additionalFields: [
+      { key: "short_reach", label: "Alcance", type: "number" },
+    ],
+  },
+  {
+    key: "educar",
+    number: 2,
+    name: "Educar",
+    subtitle: "Educate",
+    description: "Construir confianza con contenido largo y con el email.",
+    color: "#00AA96",
+    trackedTitle: "Lo que ya cargamos por vos",
+    trackedFields: [
+      { key: "yt_subscribers", label: "Suscriptores", type: "number" },
+      { key: "yt_views", label: "Vistas", type: "number" },
+      { key: "yt_videos", label: "Videos publicados", type: "number" },
+    ],
+    manualFields: [
+      { key: "conf_long_form", label: "Confianza en formato largo", type: "number", slider: { min: 0, max: 10 } },
+      { key: "yt_monthly_audience", label: "Audiencia mensual", type: "number" },
+      { key: "yt_watch_time", label: "Tiempo de reproducción", type: "number", hint: "hs" },
+      { key: "yt_new_subscribers", label: "Nuevos suscriptores", type: "number", auto: "delta" },
+      { key: "conf_email", label: "Confianza en email", type: "number", slider: { min: 0, max: 10 } },
+      { key: "email_subscribers", label: "Total de suscriptores", type: "number" },
+      { key: "email_new_subscribers", label: "Nuevos suscriptores", type: "number", auto: "delta" },
+      { key: "email_sent", label: "Emails enviados", type: "number" },
+      { key: "email_open_rate", label: "Open rate (%)", type: "number", min: 0, max: 100 },
+    ],
+  },
+  {
+    key: "invitar",
+    number: 3,
+    name: "Invitar",
+    subtitle: "Invite",
+    description: "Convertir la atención en conversaciones, ofertas y clientes firmados.",
+    color: "#5B63F4",
+    manualFields: [
+      { key: "new_clients", label: "Nuevos clientes", type: "number", highlight: true, auto: "db" },
+      { key: "cash_collected", label: "Cash collected", type: "number", hint: "USD", auto: "db" },
+      { key: "new_business_value", label: "Valor de contratos firmados", type: "number", hint: "USD" },
+      { key: "offer_docs_sent", label: "OfferDocs enviados", type: "number" },
+      { key: "inbound_messages", label: "Mensajes entrantes", type: "number" },
+    ],
+    foldedBlock: {
+      title: "Llamadas de ventas — si todavía no cerrás por DM",
+      fields: [
+        { key: "scheduled_calls", label: "Llamadas agendadas", type: "number" },
+        { key: "attended_calls", label: "Llamadas atendidas", type: "number" },
+      ],
+    },
+    additionalFields: [
+      { key: "total_revenue", label: "Revenue total", type: "number", hint: "USD" },
+      { key: "qualified_calls", label: "Llamadas calificadas", type: "number" },
+      { key: "aplications", label: "Aplicaciones", type: "number" },
+      { key: "offer_docs_responded", label: "OfferDocs respondidos", type: "number" },
+      { key: "cierres_por_offerdoc", label: "Cierres por OfferDoc", type: "number" },
+    ],
+  },
+  {
+    key: "transformar",
+    number: 4,
+    name: "Transformar",
+    subtitle: "Transform",
+    description: "Entregar resultados, retener clientes y hacer crecer lo recurrente.",
+    color: "#A032B8",
+    manualFields: [
+      { key: "mrr", label: "MRR", type: "number", hint: "USD", auto: "db" },
+      { key: "active_clients", label: "Clientes activos", type: "number", auto: "db" },
+      { key: "case_studies", label: "Casos de éxito", type: "number", hint: "total acumulado" },
+      { key: "conf_business", label: "Confianza en el negocio", type: "number", slider: { min: 0, max: 10 } },
+      { key: "software_costs", label: "Costos de software", type: "number", hint: "USD" },
+      { key: "variable_costs", label: "Costos variables", type: "number", hint: "USD" },
+    ],
+  },
+  {
+    key: "reflexion",
+    number: 5,
+    name: "Reflexión",
+    subtitle: "",
+    description: "Frenar un momento: puntuar el mes y dejar armado el que viene.",
+    color: "#E4459F",
+    manualFields: [
+      { key: "nps_score", label: "¿Cuánto recomendarías Smart Scale?", type: "number", slider: { min: 1, max: 10 } },
+      { key: "recommendation", label: "Recomendación", type: "text" },
+      { key: "biggest_win", label: "Mayor logro del mes", type: "text" },
+      { key: "support_needed", label: "Soporte necesario", type: "text" },
+      { key: "next_focus", label: "Próximo enfoque", type: "text" },
+    ],
+    additionalFields: [
+      { key: "improvements", label: "Mejoras", type: "text" },
+    ],
+  },
+]
+
+/** Todas las claves de campo que el wizard puede llegar a mandar (tracked +
+ *  manual + plegado + campos adicionales, de los 5 pasos). */
+export const ALL_FIELD_KEYS: readonly string[] = STEPS.flatMap((step) => [
+  ...(step.trackedFields ?? []),
+  ...step.manualFields,
+  ...(step.foldedBlock?.fields ?? []),
+  ...(step.additionalFields ?? []),
+].map((f) => f.key))
 
 /**
  * Falla en cuanto se importa el módulo si algún campo del formulario quedó
@@ -109,7 +179,7 @@ export function assertFieldCoverage(
   const missing = ALL_FIELD_KEYS.filter((key) => !covered.has(key))
   if (missing.length > 0) {
     throw new Error(
-      `[monthly-reports/save] Campos de FIELD_GROUPS sin allowlist en NUMERIC_FIELDS/TEXT_FIELDS: ${missing.join(", ")}`
+      `[monthly-reports/save] Campos del formulario sin allowlist en NUMERIC_FIELDS/TEXT_FIELDS: ${missing.join(", ")}`
     )
   }
 }

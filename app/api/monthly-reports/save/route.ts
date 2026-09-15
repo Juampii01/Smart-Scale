@@ -116,6 +116,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // field_sources: "auto" | "manual" por campo auto-completable — no es
+    // parte del formulario (no pasa por assertFieldCoverage), es metadata
+    // de cómo se llegó a cada valor. Column: 20260915000002 (jsonb).
+    if (body.field_sources && typeof body.field_sources === "object" && !Array.isArray(body.field_sources)) {
+      reportRow.field_sources = body.field_sources
+    }
+
     // ── 5. Fetch client name + previous state ─────────────────────────────────
     const [{ data: clientRow }, { data: existingRow }] = await Promise.all([
       supabase.from("clients").select("nombre,name").eq("id", clientId).maybeSingle(),

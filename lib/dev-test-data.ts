@@ -94,6 +94,14 @@ export function fakeMonthlyReport(): Record<string, string> {
     support_needed: `[TEST] ${pick(BLOCKERS)}`,
     improvements: `[TEST] ${pick(TEXTS)}`,
     nps_score: num(7, 10),
+    // Wizard de 5 pasos — confianza por etapa (0–10), contratos firmados y
+    // recomendación libre.
+    conf_short_form: num(4, 10),
+    conf_long_form: num(4, 10),
+    conf_email: num(4, 10),
+    conf_business: num(4, 10),
+    new_business_value: num(4000, 60000),
+    recommendation: `[TEST] ${pick(TEXTS)}`,
   }
 }
 
